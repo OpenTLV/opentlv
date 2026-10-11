@@ -95,8 +95,10 @@ The Document Query entry points `tlv_document_query_visit()`,
 `tlv_document_query_next()`, `tlv_document_query_program_visit()` and
 `tlv_document_query_edit()` publish this Query diagnostic (#588). A constructed
 edit Value rejected by the Reader keeps the Reader cause, with `INPUT`
-locations relative to the edit Value; other edit and Value snapshot failures
-are classified by their result as above.
+locations relative to the edit Value. An edit exceeding the Document depth or
+element limit reports `LIMIT` with `limit` `document-depth` or
+`document-elements` and its `configured` bound. Other edit and Value snapshot
+failures are classified by their result as above.
 
 The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
 native consumers with matching headers and bindings.

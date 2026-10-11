@@ -695,8 +695,23 @@ TEST(Unit_Tlvpp_FullQuery, InsertAndDepthLimitsArePrevalidated) {
     size_t        applied = 99;
     auto          changed = doc->query_insert_after(*selector, tlv::tag_bytes<0x6F>(),
                                                     bytes(child, sizeof child), &applied);
-    EXPECT_FALSE(changed);
+    ASSERT_FALSE(changed);
     EXPECT_EQ(TLV_ERR_LIMIT, changed.error().code);
+    EXPECT_EQ(tlv::query_issue::limit, changed.error().kind());
+    EXPECT_STREQ("document-depth", changed.error().diagnostic.limit);
+    EXPECT_EQ(1u, changed.error().diagnostic.configured);
+    EXPECT_EQ(0u, applied);
+    EXPECT_EQ(3u, doc->size());
+    // A replacement nested beyond the Document depth is stopped by the Tree Reader; it is
+    // the same Document limit, not a Reader cause.
+    auto          containers = tlv::query_program::compile("//6F");
+    const uint8_t nested[] = {0x6F, 4, 0xA5, 2, 0x50, 0};
+    ASSERT_TRUE(containers);
+    auto deep = doc->query_replace(*containers, bytes(nested, sizeof nested), &applied);
+    ASSERT_FALSE(deep);
+    EXPECT_EQ(TLV_ERR_LIMIT, deep.error().code);
+    EXPECT_EQ(TLV_QUERY_CAUSE_NONE, deep.error().diagnostic.cause);
+    EXPECT_STREQ("document-depth", deep.error().diagnostic.limit);
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(3u, doc->size());
     auto execution = tlv::query_execution::create(*selector, 1, 10, 100000);
@@ -734,6 +749,8 @@ TEST(Unit_Tlvpp_FullQuery, AggregateInsertionLimitMakesNoChanges) {
                                                  TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(&tag, 1),
                                                  nullptr, 0, targets, 2, &applied, &diagnostic)));
     EXPECT_EQ(TLV_QUERY_ERROR_LIMIT, diagnostic.kind);
+    EXPECT_STREQ("document-elements", diagnostic.limit);
+    EXPECT_EQ(3u, diagnostic.configured);
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(2u, tlv_document_count(doc));
     EXPECT_EQ(0u, tlv_document_revision(doc));
@@ -935,6 +952,13 @@ TEST(Unit_Tlvpp_FullQuery, DocumentProgramVisitorErrorIsTerminalAndKeepsFirstFai
     EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_next(exec, &node, &diagnostic));
     EXPECT_EQ(TLV_ERR_INVALID_STATE,
               tlv_document_query_program_visit(exec, fail, nullptr, &diagnostic));
+    tlv_node_t* targets[3]{};
+    size_t      applied = 99;
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_query_edit(tlv::native::handle(*doc), exec, TLV_DOCUMENT_QUERY_REMOVE,
+                                      tlv_tag(nullptr, 0), nullptr, 0, targets, 3, &applied,
+                                      &diagnostic));
+    EXPECT_EQ(99u, applied);
     EXPECT_EQ(TLV_ERR_VISITOR, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, diagnostic.kind);
 }

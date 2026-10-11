@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `tlv_document_query_edit()` rejects a failed execution before initializing its diagnostic, so a reused diagnostic keeps the first failure, such as a visitor error, as `tlv_document_query_next()` and `tlv_document_query_program_visit()` already do. (#588)
+- An edit exceeding the Document depth or element limit reports kind `LIMIT` with `limit` `document-depth` or `document-elements` and its `configured` bound, also when the Tree Reader stops a constructed Value at that limit, instead of a Reader cause without location. (#588)
+- A Schema Query Document pull failure in `tlv_schema_query_validate_document()` keeps the pull's own diagnostic, including its expected text, instead of the generic Schema Query execution text; the kinds are unchanged. (#588)
 - Classify a `VISITOR` or `CALLBACK` result propagated without Query detail, such as through a Schema Query execution, as Query kind `CALLBACK` instead of `EVENTS`, so it satisfies the #551 result and kind contract. (#587)
 - Document that `tlv_query_exec_finish()` returns `INVALID_VALUE` for a missing binding, as it already did, instead of `INVALID_ARG`. (#587)
 - Format the Go Codec detail struct after adding `Reason`, so the Go binding `gofmt` check passes. (#579)

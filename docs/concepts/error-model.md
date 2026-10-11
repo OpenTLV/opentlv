@@ -235,7 +235,12 @@ an optional `tlv_query_diagnostic_t*` (#588): `tlv_document_query_visit()`,
 `tlv_document_query_edit()`. A Reader or Codec failure therefore survives
 Document composition with its result, origin and typed detail, as it does for
 Reader execution. A constructed edit Value rejected by the Reader keeps the
-Reader cause, located relative to that Value. A pull initializes the
+Reader cause, located relative to that Value. An edit that exceeds the Document
+depth or element limit reports `LIMIT` + `LIMIT` named `document-depth` or
+`document-elements` with its configured bound, also when the Tree Reader detects
+it while parsing that Value. Unlike a Reader processing budget during Reader
+execution, these bounds belong to the Document being edited, so they are not a
+Reader cause. A pull initializes the
 diagnostic only on failure, so `TLV_END` and successful pulls leave it
 unchanged. The executions store no last failure; the caller owns the output.
 

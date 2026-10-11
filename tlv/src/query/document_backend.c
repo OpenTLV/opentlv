@@ -278,7 +278,9 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
                                      const uint8_t* value, size_t size, tlv_node_t** targets,
                                      size_t capacity, size_t* applied, tlv_query_diagnostic_t* d) {
     size_t diagnostic_size = d ? sizeof *d : 0, applied_size = applied ? sizeof *applied : 0;
-    if ((e && e->busy) || (document && document->query_callbacks)) return TLV_ERR_INVALID_STATE;
+    /* Reentrancy and failed-execution guards preserve the original failure. */
+    if ((e && (e->busy || e->invalid)) || (document && document->query_callbacks))
+        return TLV_ERR_INVALID_STATE;
     if (capacity > SIZE_MAX / sizeof *targets) return TLV_ERR_INVALID_ARG;
     size_t targets_size = targets ? capacity * sizeof *targets : 0;
     if ((e && (query_output_overlap(e, applied, applied_size) ||
@@ -323,13 +325,20 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
                                          "target capacity for the complete selection");
         targets[count++] = node;
     }
-    /* Only a constructed Value rejected by the Reader publishes Reader detail. */
-    tlv_reader_diagnostic_t reader;
-    if (d) reader.diagnostic.code = TLV_OK;
+    /* Only a constructed Value rejected by the Reader publishes Reader detail; an
+     * exceeded Document limit is named. Other failures are classified by result. */
+    document_edit_failure_t failure;
+    if (d) memset(&failure, 0, sizeof failure);
     tlv_result_t rc = document_edit_targets(document, targets, count, kind, tag, value, size,
-                                            applied, d ? &reader : NULL);
-    if (rc != TLV_OK && d && reader.diagnostic.code == rc) {
-        query_reader_failure(d, rc, &reader);
+                                            applied, d ? &failure : NULL);
+    if (rc != TLV_OK && d && failure.reader.diagnostic.code == rc) {
+        query_reader_failure(d, rc, &failure.reader);
+        return rc;
+    }
+    if (rc == TLV_ERR_LIMIT && d && failure.limit) {
+        query_error_unlocated(d, rc, TLV_QUERY_ERROR_LIMIT, NULL);
+        d->limit = failure.limit;
+        d->configured = failure.configured;
         return rc;
     }
     return query_failure(d, rc, TLV_QUERY_ERROR_ARGUMENT, "Document edit Tag, Value and limits");

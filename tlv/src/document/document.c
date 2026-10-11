@@ -538,37 +538,46 @@ int document_query_callback(tlv_document_t* document, int active) {
 }
 
 #if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
-/* Count the nodes and relative depth of a constructed edit Value. A rejected Value
- * fills the optional Reader detail, including tree preflight failures that the
- * Reader leaves untouched. */
+static tlv_result_t edit_limit(document_edit_failure_t* failure, const char* name,
+                               size_t configured) {
+    if (failure) {
+        failure->limit = name;
+        failure->configured = configured;
+    }
+    return TLV_ERR_LIMIT;
+}
+
+/* Count the nodes and relative depth of a constructed edit Value. A Value rejected by
+ * the Reader fills the optional Reader detail. Tree depth and element limits leave that
+ * detail untouched: they are the Document limits, so they are named instead. */
 static tlv_result_t edit_value_shape(const tlv_document_t* document, const uint8_t* value,
                                      size_t size, tlv_tree_frame_t* frames, size_t capacity,
                                      size_t* added, size_t* relative_depth,
-                                     tlv_reader_diagnostic_t* diagnostic) {
+                                     document_edit_failure_t* failure) {
     tlv_tree_reader_t reader;
     tlv_result_t check =
         tlv_tree_reader_init(&reader, value, size, document->options.format, frames, capacity,
                              document->options.max_depth, document->options.max_elements);
     while (check == TLV_OK) {
         tlv_tree_event_t event;
-        check = tlv_tree_reader_next_event_diag(&reader, &event, diagnostic);
+        check = tlv_tree_reader_next_event_diag(&reader, &event, failure ? &failure->reader : NULL);
         if (check == TLV_OK && event.kind != TLV_TREE_END) {
             ++*added;
             if (event.depth > *relative_depth) *relative_depth = event.depth;
         }
     }
     if (check == TLV_END) return TLV_OK;
-    if (diagnostic && diagnostic->diagnostic.code != check) {
-        tlv_reader_diagnostic_init(diagnostic);
-        tlv_diagnostic_init(&diagnostic->diagnostic, check, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-    }
+    if (check == TLV_ERR_LIMIT && (!failure || failure->reader.diagnostic.code != check))
+        return reader.descend_pending && reader.depth == reader.max_depth
+                   ? edit_limit(failure, "document-depth", document->options.max_depth)
+                   : edit_limit(failure, "document-elements", document->options.max_elements);
     return check;
 }
 
 tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
                                    tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
                                    const uint8_t* value, size_t size, size_t* applied,
-                                   tlv_reader_diagnostic_t* diagnostic) {
+                                   document_edit_failure_t* failure) {
     if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
     if (!count) return TLV_OK;
 #ifndef NDEBUG
@@ -626,7 +635,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
             capacity ? document_memory_allocate(document, capacity * sizeof *frames) : NULL;
         if (capacity && !frames) return TLV_ERR_OUT_OF_MEMORY;
         tlv_result_t check = edit_value_shape(document, value, size, frames, capacity, &added,
-                                              &relative_depth, diagnostic);
+                                              &relative_depth, failure);
         document_memory_release(document, frames);
         if (check != TLV_OK) return check;
     }
@@ -639,14 +648,16 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
         size_t depth = node_depth(target);
         if (added && (depth >= document->options.max_depth ||
                       relative_depth > document->options.max_depth - depth - 1))
-            return TLV_ERR_LIMIT;
+            return edit_limit(failure, "document-depth", document->options.max_depth);
         if (kind == TLV_DOCUMENT_QUERY_REPLACE)
             projected -= subtree_size(target) - 1;
         else {
-            if (projected == document->options.max_elements) return TLV_ERR_LIMIT;
+            if (projected == document->options.max_elements)
+                return edit_limit(failure, "document-elements", document->options.max_elements);
             ++projected;
         }
-        if (added > document->options.max_elements - projected) return TLV_ERR_LIMIT;
+        if (added > document->options.max_elements - projected)
+            return edit_limit(failure, "document-elements", document->options.max_elements);
         projected += added;
     }
     uint8_t* copy = NULL;

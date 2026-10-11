@@ -53,11 +53,18 @@ int document_contains(const tlv_document_t* document, const tlv_node_t* node);
 int document_query_callback(tlv_document_t* document, int active);
 
 #if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
-/* A constructed Value rejected by the Reader fills the optional Reader diagnostic. */
+/* Detail of a failed Query edit, zero-initialized by the caller. `reader` is the
+ * Reader detail of a rejected constructed Value, valid only when its code equals the
+ * returned result. `limit` names an exceeded Document limit, otherwise NULL. */
+typedef struct document_edit_failure {
+    tlv_reader_diagnostic_t reader;
+    const char* limit;
+    size_t configured;
+} document_edit_failure_t;
 tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
                                    tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
                                    const uint8_t* value, size_t size, size_t* applied,
-                                   tlv_reader_diagnostic_t* diagnostic);
+                                   document_edit_failure_t* failure);
 #endif
 
 #endif

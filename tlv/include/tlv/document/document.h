@@ -225,9 +225,11 @@ typedef enum tlv_document_query_edit_kind {
  * Value; such overlap returns #TLV_ERR_INVALID_ARG before writes.
  * @param[out] diagnostic Optional Query failure detail; NULL when not needed. A
  * constructed Value rejected by the Reader keeps the original Reader detail, with
- * #TLV_LOCATION_INPUT relative to `value`. A rejected Tag, Value framing or Document
- * resource keeps its result with kind #TLV_QUERY_ERROR_ARGUMENT, #TLV_QUERY_ERROR_LIMIT
- * or #TLV_QUERY_ERROR_STORAGE.
+ * #TLV_LOCATION_INPUT relative to `value`. An edit exceeding the Document depth or
+ * element limit, including inside a constructed Value, reports #TLV_ERR_LIMIT with kind
+ * #TLV_QUERY_ERROR_LIMIT, `limit` "document-depth" or "document-elements" and its
+ * `configured` bound. A rejected Tag, Value framing or Document allocation keeps its
+ * result with kind #TLV_QUERY_ERROR_ARGUMENT or #TLV_QUERY_ERROR_STORAGE.
  * @return OK for no matches, or native error. Invalid operation/capacity/revision makes
  * no edits. Remove cannot fail after collection. Replace/insert commit in preorder,
  * stopping at first failure; previous successful edits remain, without rollback.
@@ -240,9 +242,9 @@ typedef enum tlv_document_query_edit_kind {
  * collection. Any successful edit invalidates the execution's whole-document revision.
  * REPLACE stores identical bytes on primitive targets but parses them as children on
  * constructed targets. Overlap filtering is O(target count * depth), allocation-free.
- * @note Reentrancy and overlap guards return before initializing `diagnostic` and leave
- * it untouched; after initialization, every non-#TLV_OK return has
- * `diagnostic.code == rc`.
+ * @note Reentrancy, failed-execution and overlap guards return before initializing
+ * `diagnostic` and leave it untouched, preserving the original failure of the execution;
+ * after initialization, every non-#TLV_OK return has `diagnostic.code == rc`.
  * @return #TLV_ERR_INVALID_STATE during callbacks, for stale results or after result iteration has
  * begun.
  */
