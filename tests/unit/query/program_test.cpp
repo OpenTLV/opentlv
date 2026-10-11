@@ -599,6 +599,7 @@ TEST(Unit_Tlv_QueryProgram, SignedIntegersAndSubstringBounds) {
     tlv_result_t rc;
     EXPECT_TRUE(run(p, {0x5A, 1, 0x12}, &rc).empty());
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, rc);
+    EXPECT_EQ(TLV_QUERY_ERROR_TYPE, p.diagnostic.kind); // An operand range, not a capability.
 }
 TEST(Unit_Tlv_QueryProgram, UniqueVariableRequirementsAndCompactWorkspace) {
     tlv_query_variable_t        variables[] = {{"unused", TLV_QUERY_RESULT_BYTES},
@@ -859,7 +860,7 @@ TEST(Unit_Tlv_QueryProgram, BindingsValidateUtf8TypesAndEmptyInput) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, p.compile("//5A[$a = $b]", &options));
     variables[1].name = "a";
     EXPECT_EQ(TLV_ERR_INVALID_ARG, p.compile("//5A[$a = $b]", &options));
-    EXPECT_EQ(TLV_QUERY_ERROR_BINDING, p.diagnostic.kind);
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, p.diagnostic.kind);
 }
 TEST(Unit_Tlv_QueryProgram, MissingBindingsDoNotAdvanceReader) {
     tlv_query_variable_t        variable = {"min", TLV_QUERY_RESULT_INTEGER};
@@ -1186,6 +1187,105 @@ TEST(Unit_Tlv_QueryProgram, EventFeedRejectsUnbalancedEventsAndMissingSource) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               TLV_DIAGNOSTIC_RESULT(p.diagnostic,
                                     tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic)));
+    // A header extent outside the supplied Source is inconsistent Source metadata.
+    ASSERT_EQ(TLV_OK, p.compile("//5A[@hlen = 2]"));
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 4, &bytes, &alignment));
+    workspace.assign((bytes + 7) / 8, 0);
+    ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), workspace.data(), bytes, 4, 100, 1000, &exec));
+    const uint8_t wire[] = {0x5A, 0};
+    event.kind = TLV_TREE_ELEMENT;
+    event.source.data = wire;
+    event.source.size = sizeof wire;
+    event.source.header.present = 1;
+    event.source.header.offset = 1;
+    event.source.header.size = 2;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              TLV_DIAGNOSTIC_RESULT(p.diagnostic,
+                                    tlv_query_exec_feed(exec, &event, &matched, &p.diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_SOURCE, p.diagnostic.kind);
+}
+
+TEST(Unit_Tlv_QueryProgram, FailuresWithoutQueryDetailAreClassifiedByResult) {
+    struct Case {
+        tlv_result_t           result;
+        tlv_query_error_kind_t kind;
+    };
+    for (const Case c : {Case{TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT},
+                         Case{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT},
+                         Case{TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE},
+                         Case{TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE},
+                         Case{TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY},
+                         Case{TLV_ERR_LIMIT, TLV_QUERY_ERROR_LIMIT},
+                         Case{TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK},
+                         Case{TLV_ERR_VISITOR, TLV_QUERY_ERROR_CALLBACK},
+                         Case{TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE},
+                         Case{TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_EVENTS}}) {
+        tlv_query_diagnostic_t d{};
+        // The fallback applies only when the callee left no Query detail.
+        EXPECT_EQ(c.result, TLV_DIAGNOSTIC_RESULT(
+                                d, query_failure(&d, c.result, TLV_QUERY_ERROR_EVENTS, "x")));
+        EXPECT_EQ(c.kind, d.kind) << "result=" << c.result;
+    }
+    tlv_query_diagnostic_t d{};
+    query_error_unlocated(&d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_TYPE, "typed");
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              TLV_DIAGNOSTIC_RESULT(
+                  d, query_failure(&d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_EVENTS, "x")));
+    EXPECT_EQ(TLV_QUERY_ERROR_TYPE, d.kind);
+}
+
+TEST(Unit_Tlv_QueryProgram, ArgumentFailuresHaveArgumentKind) {
+    tlv_query_diagnostic_t d{};
+    size_t                 bytes, alignment;
+    auto                   argument = [&](tlv_result_t expected, tlv_result_t rc) {
+        EXPECT_EQ(expected, TLV_DIAGNOSTIC_RESULT(d, rc));
+        EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, d.kind);
+        EXPECT_EQ(TLV_QUERY_CAUSE_NONE, d.cause);
+    };
+    argument(TLV_ERR_NULL_ARG,
+             tlv_query_compile_scratch(nullptr, 0, nullptr, &bytes, &alignment, &d));
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.struct_size = 0;
+    argument(TLV_ERR_INVALID_ARG,
+             tlv_query_compile_scratch("5A", 2, &options, &bytes, &alignment, &d));
+    tlv_query_compile_options_init(&options);
+    options.max_resolved_tag = 0;
+    argument(TLV_ERR_INVALID_ARG,
+             tlv_query_compile_scratch("5A", 2, &options, &bytes, &alignment, &d));
+    ASSERT_EQ(TLV_OK, tlv_query_compile_scratch("5A", 2, nullptr, &bytes, &alignment, &d));
+    std::vector<uint64_t>    scratch(bytes / 8 + 2);
+    tlv_query_program_info_t info{};
+    info.struct_size = sizeof info;
+    // Misaligned scratch is an argument, not a storage shortage.
+    argument(TLV_ERR_INVALID_ARG,
+             tlv_query_compile("5A", 2, nullptr, reinterpret_cast<uint8_t*>(scratch.data()) + 1,
+                               bytes, nullptr, 0, &info, &d));
+    info.struct_size = 0;
+    argument(TLV_ERR_INVALID_ARG,
+             tlv_query_compile("5A", 2, nullptr, scratch.data(), bytes, nullptr, 0, &info, &d));
+    const tlv_query_program_t* plan = nullptr;
+    argument(TLV_ERR_NULL_ARG, tlv_query_plan_open(nullptr, 0, &plan, &d));
+
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//5A"));
+    ASSERT_EQ(TLV_OK, tlv_query_exec_size(p.get(), 4, &bytes, &alignment));
+    std::vector<uint64_t> workspace((bytes + 7) / 8);
+    tlv_query_exec_t*     exec;
+    ASSERT_EQ(TLV_OK, tlv_query_exec_init(p.get(), workspace.data(), bytes, 4, 100, 1000, &exec));
+    int matched;
+    argument(TLV_ERR_NULL_ARG,
+             tlv_query_exec_bind(exec, nullptr, TLV_QUERY_RESULT_INTEGER, 0, nullptr, 0, &d));
+    argument(TLV_ERR_NULL_ARG, tlv_query_exec_feed(exec, nullptr, &matched, &d));
+    argument(TLV_ERR_NULL_ARG, tlv_query_exec_finish(nullptr, &d));
+    // A selected context absent from the input is a caller argument.
+    ASSERT_EQ(TLV_OK, tlv_query_exec_context(exec, 3));
+    const uint8_t    tag = 0x5A;
+    tlv_tree_event_t event{};
+    event.kind = TLV_TREE_ELEMENT;
+    event.element.tag = tlv_tag(&tag, 1);
+    ASSERT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, &d));
+    argument(TLV_ERR_INVALID_ARG, tlv_query_exec_finish(exec, &d));
 }
 
 TEST(Unit_Tlv_QueryProgram, CustomEventsPreserveTagWidthsAndSourceHeaderSemantics) {
@@ -1517,7 +1617,7 @@ TEST(Unit_Tlv_QueryProgram, UnclosedFeedIsInvalidValueAndRetainsItsFailureDetail
     }
 }
 
-TEST(Unit_Tlv_QueryProgram, InvalidHookConfigurationCarriesCapabilityDetail) {
+TEST(Unit_Tlv_QueryProgram, InvalidHookConfigurationCarriesArgumentDetail) {
     tlv_query_compile_options_t options;
     tlv_query_compile_options_init(&options);
     tlv_query_environment_t environment{};
@@ -1528,7 +1628,7 @@ TEST(Unit_Tlv_QueryProgram, InvalidHookConfigurationCarriesCapabilityDetail) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG,
               TLV_DIAGNOSTIC_RESULT(
                   d, tlv_query_compile_scratch("5A", 2, &options, &bytes, &alignment, &d)));
-    EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, d.kind);
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, d.kind);
 }
 
 TEST(Unit_Tlv_QueryProgram, SchemaRuleImagesTypesAndAlignmentRemainDistinct) {

@@ -51,6 +51,7 @@ int main(void) {
     CHECK_NAME(tlv_query_error_kind_string(TLV_QUERY_ERROR_CALLBACK), "callback");
     CHECK_NAME(tlv_query_error_kind_string(TLV_QUERY_ERROR_TYPE), "type");
     CHECK_NAME(tlv_query_error_kind_string(TLV_QUERY_ERROR_IMAGE), "image");
+    CHECK_NAME(tlv_query_error_kind_string(TLV_QUERY_ERROR_ARGUMENT), "argument");
     CHECK_NAME(tlv_query_error_kind_string((tlv_query_error_kind_t)127), "unknown");
     CHECK_NAME(tlv_schema_definition_kind_string(TLV_SCHEMA_DEFINITION_UNKNOWN), "unknown");
     CHECK_NAME(tlv_schema_definition_kind_string(TLV_SCHEMA_DEFINITION_TABLE), "table");

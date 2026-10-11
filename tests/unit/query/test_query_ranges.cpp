@@ -307,7 +307,7 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_buffer(
                                                     input, sizeof input, &format, &rule, 1, 3, 100,
                                                     100000, &workspace, &diagnostic)));
-    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.query.kind);
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.query.kind);
     EXPECT_EQ(TLV_QUERY_CAUSE_NONE, diagnostic.query.cause);
     EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.query.diagnostic.location.kind);
     workspace.frames = saved_frames;

@@ -345,6 +345,39 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_STATE, &query));
 }
 
+TEST(Unit_Tlv_Diagnostic, QueryKindContractRejectsMisfiledArgumentFailures) {
+    struct Pair {
+        tlv_result_t           result;
+        tlv_query_error_kind_t kind;
+        bool                   valid;
+    };
+    for (const Pair pair : {Pair{TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT, true},
+                            Pair{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT, true},
+                            Pair{TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE, true},
+                            Pair{TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_TYPE, true},
+                            Pair{TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_SOURCE, true},
+                            Pair{TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE, false},
+                            Pair{TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_EVENTS, false},
+                            Pair{TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_BINDING, false},
+                            Pair{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE, false},
+                            Pair{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS, false},
+                            Pair{TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_ARGUMENT, false},
+                            Pair{TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_ARGUMENT, false},
+                            Pair{TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_BINDING, false},
+                            // Reader, Codec and Tag adapter failures keep the lower-layer result.
+                            Pair{TLV_ERR_TRUNCATED, TLV_QUERY_ERROR_READER, true},
+                            Pair{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, true}}) {
+        EXPECT_EQ(pair.valid, test_query_kind_allowed(pair.result, pair.kind) != 0)
+            << "result=" << pair.result << " kind=" << pair.kind;
+    }
+    tlv_query_diagnostic_t query{};
+    tlv_diagnostic_init(&query.diagnostic, TLV_ERR_INVALID_ARG, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    query.kind = TLV_QUERY_ERROR_STORAGE;
+    EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_ARG, &query));
+    query.kind = TLV_QUERY_ERROR_ARGUMENT;
+    EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_ARG, &query));
+}
+
 TEST(Unit_Tlv_Diagnostic, QueryCopyOwnsOnePathAndPreservesReaderDetail) {
     uint8_t                tag[] = {0x70};
     tlv_query_diagnostic_t original{};
@@ -422,6 +455,7 @@ TEST(Unit_Tlv_Diagnostic, CanonicalNamesLinkFromCpp) {
     EXPECT_STREQ("header", tlv_reader_operation_string(TLV_READER_OP_HEADER));
     EXPECT_STREQ("end", tlv_writer_operation_string(TLV_WRITER_OP_END));
     EXPECT_STREQ("image_version", tlv_query_error_kind_string(TLV_QUERY_ERROR_IMAGE_VERSION));
+    EXPECT_STREQ("argument", tlv_query_error_kind_string(TLV_QUERY_ERROR_ARGUMENT));
     EXPECT_STREQ("component", tlv_schema_definition_kind_string(TLV_SCHEMA_DEFINITION_COMPONENT));
     EXPECT_STREQ("measure", tlv_codec_operation_string(TLV_CODEC_OP_MEASURE));
     EXPECT_STREQ("schema", tlv_codec_cause_string(TLV_CODEC_CAUSE_SCHEMA));

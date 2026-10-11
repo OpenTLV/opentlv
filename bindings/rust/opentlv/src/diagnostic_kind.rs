@@ -191,6 +191,8 @@ pub enum QueryErrorKind {
     Image,
     /// C `schema` category.
     Schema,
+    /// C `argument` category.
+    Argument,
     /// Unrecognized native value, retained without loss.
     Unrecognized(RawCategory),
 }
@@ -215,6 +217,7 @@ impl QueryErrorKind {
             14 => Self::Type,
             15 => Self::Image,
             16 => Self::Schema,
+            17 => Self::Argument,
             other => Self::Unrecognized(RawCategory(other)),
         }
     }
@@ -238,6 +241,7 @@ impl QueryErrorKind {
             Self::Type => 14,
             Self::Image => 15,
             Self::Schema => 16,
+            Self::Argument => 17,
             Self::Unrecognized(value) => value.as_raw(),
         }
     }

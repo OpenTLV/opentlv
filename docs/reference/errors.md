@@ -6,8 +6,8 @@ typed diagnostic layering, locations and propagation rules. Migration proceeds
 through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
 (#555), shared Codec results and propagation (#556), diagnostic names and
-Document lookup failure channels (#557), and the `END`, `TRUNCATED` and
-`SYNTAX` results (#578). The tables below describe the current
+Document lookup failure channels (#557), the `END`, `TRUNCATED` and
+`SYNTAX` results (#578), and the Query kind `ARGUMENT` (#587). The tables below describe the current
 codes, not target names still awaiting implementation.
 
 Core and Codec operations return the shared `tlv_result_t` from `tlv/result.h`. Zero is success. `TLV_END` (normal end
@@ -61,19 +61,44 @@ Pre-initialization checks leave the diagnostic untouched. In particular:
   or resources before producing detail. An enclosing API which has already
   initialized its own diagnostic must nevertheless describe a propagated error.
 
-Query now uses `STATE` for lifecycle/reentrancy failures and `EVENTS` with
-`INVALID_VALUE` for invalid structural feeds. Until the remaining
-[failure-model migration](../concepts/error-model.md#migration-inventory),
-`STORAGE` still covers compiler/plan arguments and capacities, `BINDING` covers
-binding arguments, `CAPABILITY` covers incompatible formats or hook configuration,
-while visitor/provider failures use `CALLBACK`. Diagnostic layouts changed in
-issues #553, #555, #556 and #579; rebuild native consumers with matching headers and bindings.
+### Query result and kind pairs
+
+Every Query failure pairs its result with one kind of the
+[failure model](../concepts/error-model.md#every-current-query-error-kind) (#587):
+
+| Kind | Results |
+| --- | --- |
+| `ARGUMENT` | `NULL_ARG` for a missing pointer; `INVALID_ARG` for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format |
+| `STORAGE` | `BUFFER_TOO_SHORT` for caller storage; `OVERFLOW` or `NATIVE_SIZE` for a size that is not representable |
+| `LIMIT` | `LIMIT` for a named Query budget |
+| `SYNTAX` | `SYNTAX` |
+| `TYPE` | `INVALID_VALUE` for operand types, arity and ranges such as a negative substring bound; `OVERFLOW` for a value not representable as `int64` |
+| `BINDING` | `INVALID_VALUE` for a missing, unknown, duplicate or mistyped variable binding |
+| `EVENTS` | `INVALID_VALUE` for a malformed structural feed, including a nonempty span without data |
+| `SOURCE` | `INVALID_VALUE` for absent or inconsistent Source metadata; `UNSUPPORTED` when a backend cannot provide it |
+| `CARDINALITY` | `INVALID_VALUE` |
+| `IMAGE`, `IMAGE_VERSION` | `INVALID_VALUE` for a malformed image; `UNSUPPORTED` for an incompatible version |
+| `STATE` | `INVALID_STATE` |
+| `CALLBACK` | `CALLBACK` for a provider contract violation; `VISITOR` for an explicit visitor error |
+| `SCHEMA` | `SCHEMA` for a false Schema Query assertion |
+| `CAPABILITY` | `UNSUPPORTED` for an unavailable feature; a Tag adapter or name resolver failure keeps its own result |
+| `READER`, `CODEC` | The preserved Reader or conversion result |
+
+A lower-layer call that returns no Query detail is classified by its result, so
+an argument failure is `ARGUMENT`, a storage shortage `STORAGE` and a callback
+or visitor failure `CALLBACK` whichever Query operation propagates it.
+
+The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
+native consumers with matching headers and bindings.
 
 ### Regression enforcement
 
 `tests/diagnostic_assertions.h` checks the invariant after an operation, including
 calls shared by table-driven Query tests. Tests for pre-initialization rejection
 instead verify that protected outputs remain unchanged.
+
+The same helper checks every Query failure against the allowed pairs above,
+listed once as `TEST_QUERY_KIND_PAIRS` in `tests/diagnostic_invariant.h`.
 
 Run `python scripts/test_diagnostic_returns.py` and
 `python scripts/check_diagnostic_returns.py` for the CI source guard. The guard
@@ -85,6 +110,9 @@ propagated variables and callback behavior require runtime tests; it is not a
 control-flow proof. A separate lexical rule rejects `INVALID_ARG` returns under
 `busy`, `finished`, `invalid` or `query_callbacks` member predicates, including
 pre-initialization checks. Diagnostic-return comments do not waive that rule.
+A third rule reads `TEST_QUERY_KIND_PAIRS` and rejects a `query_error()`,
+`query_error_unlocated()` or `query_failure()` call whose literal result and
+kind are not an allowed pair; computed results are left to the runtime helper.
 
 ## Diagnostic field ownership
 

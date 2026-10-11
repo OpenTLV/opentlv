@@ -548,17 +548,14 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                             : query_source_metadata(event, header, &metadata);
                     if (source_rc != TLV_OK)
                         return eval_failure(e, f,
-                                            query_error(d, source_rc,
-                                                        source_rc == TLV_ERR_INVALID_ARG
-                                                            ? TLV_QUERY_ERROR_EVENTS
-                                                            : TLV_QUERY_ERROR_SOURCE,
+                                            query_error(d, source_rc, TLV_QUERY_ERROR_SOURCE,
                                                         n->begin, n->end, "Source metadata"),
                                             d);
                     value = metadata;
                 }
                 if (value > INT64_MAX)
                     return eval_failure(e, f,
-                                        query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_CAPABILITY,
+                                        query_error(d, TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_TYPE,
                                                     n->begin, n->end, "int64 metadata"),
                                         d);
                 f->value.number = value;

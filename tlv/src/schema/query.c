@@ -174,8 +174,7 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
          * is no Reader cause to report. */
         query_diag_init(diagnostic);
         return query_error_unlocated(diagnostic, rc,
-                                     rc == TLV_ERR_INVALID_ARG ? TLV_QUERY_ERROR_CAPABILITY
-                                                               : TLV_QUERY_ERROR_STORAGE,
+                                     query_result_kind(rc, TLV_QUERY_ERROR_ARGUMENT),
                                      "readable Format and Reader frame workspace");
     }
     tlv_reader_diagnostic_t original;

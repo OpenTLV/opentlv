@@ -60,6 +60,7 @@ const (
 	QueryErrorKindType         QueryErrorKind = 14
 	QueryErrorKindImage        QueryErrorKind = 15
 	QueryErrorKindSchema       QueryErrorKind = 16
+	QueryErrorKindArgument     QueryErrorKind = 17
 )
 
 // String returns the canonical C spelling, or "unknown".

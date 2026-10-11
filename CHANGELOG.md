@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Classify a `VISITOR` or `CALLBACK` result propagated without Query detail, such as through a Schema Query execution, as Query kind `CALLBACK` instead of `EVENTS`, so it satisfies the #551 result and kind contract. (#587)
+- Document that `tlv_query_exec_finish()` returns `INVALID_VALUE` for a missing binding, as it already did, instead of `INVALID_ARG`. (#587)
 - Format the Go Codec detail struct after adding `Reason`, so the Go binding `gofmt` check passes. (#579)
 - Report a Reader workspace or Format rejected before a Schema Query traversal, and a refused Query subtree skip, without an empty Reader cause: they now have Query cause `NONE` with kind `STORAGE`/`CAPABILITY` or `STATE`. (#579)
 - Keep the Query expression span as the primary location when a conversion failure reports no location, such as a provider output contract violation that Query rejects itself, instead of leaving `diagnostic.location` unknown. (#579)
@@ -133,6 +135,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Add Query kind `TLV_QUERY_ERROR_ARGUMENT` (`argument`; C++ `query_issue::argument`, Rust, Go and Python `QueryErrorKind::Argument`) and report every Query argument and configuration failure with it: missing pointers (`NULL_ARG`) and invalid options, variable declarations, hooks, alignment, program info extent, a selected context absent from the input and an incompatible Reader or Document Format (`INVALID_ARG`) no longer use the kinds `STORAGE`, `BINDING`, `EVENTS` or `CAPABILITY`. `STORAGE` now means insufficient or unrepresentable storage only. Existing kind values are unchanged; rebuild native consumers and bindings. (#587)
+- **Breaking:** Query operand failures use the kind `TYPE`: incompatible comparison types return `INVALID_VALUE` instead of `INVALID_ARG`, and negative substring bounds and lengths, metadata or lengths not representable as `int64` and oversized span bindings no longer report `CAPABILITY` or `BINDING`. (#587)
+- **Breaking:** A Query event with a nonempty Tag or Value span but no data returns `INVALID_VALUE` with the kind `EVENTS` instead of `INVALID_ARG`, and a Source header extent outside the Source returns `INVALID_VALUE` with the kind `SOURCE` instead of `INVALID_ARG` with `EVENTS`. (#587)
+- A Query failure from a lower-layer call without Query detail, such as a Schema Query execution or Reader workspace rejected before traversal, is classified by its result: argument results report `ARGUMENT`, storage and size results `STORAGE`, `UNSUPPORTED` `CAPABILITY` and `LIMIT` `LIMIT`, instead of `EVENTS` or `STORAGE`. (#587)
 - **Breaking:** `tlv_schema_diagnostic_t` is `{diagnostic, cause, detail}`: `cause` (`tlv_schema_cause_t`: `NONE`, `SCHEMA`, `READER`) selects `detail.schema` (`tlv_schema_detail_t`) or `detail.reader`, so validation of malformed input keeps the original Reader detail instead of dropping it. Access Schema fields as `detail.schema.kind` and so on; report entries always have cause `SCHEMA`. A Structure Codec with a Schema reports such a failure as its own Reader cause, and the DHCP options validator keeps its Reader detail too. (#579)
 - **Breaking:** `tlv_codec_detail_t` gains `reason` (`tlv_codec_reason_t`: `NONE`, `LENGTH`, `DIGIT`, `TEXT`, `RANGE`, `CANONICAL`, `SYNTAX`, `OBJECT`), the typed explanation of a rejected Value or application object, filled by the generic, ASN.1 and EMV codecs and reachable from Query as `detail.codec.reason`. Custom codecs publish one with `tlv_codec_diagnostic_reason()`. The x86 Query diagnostic grows from 448 to 452 bytes; 64-bit and wasm32 layouts are unchanged. (#579)
 - **Breaking:** `otlv query` diagnostics drop the duplicate Query fields: JSON removes `begin`, `end`, the top-level `expected` and `codec` (use `location`, `diagnostic.expected` and `codec_detail.reported`), adds `cause`, and reports `expression` only when another known location is primary; compact text no longer repeats `expected=` and adds `cause=` for a lower-layer cause. Repeated common evidence in the nested Reader projection is left to a follow-up. (#579)
@@ -256,6 +262,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Check the #551 Query result and kind table as an executable contract: `TEST_QUERY_KIND_PAIRS` in `tests/diagnostic_invariant.h` lists the allowed pairs, the shared diagnostic assertions check every Query failure against it, and `scripts/check_diagnostic_returns.py` rejects a Query producer whose literal result and kind are not listed. (#587)
 - Add `tlv_codec_reason_string()` and `tlv_schema_cause_string()`, C++ `codec_reason` with `codec_failure::reason()`, Rust, Go and Python `CodecReason` and `SchemaCause`, and codec `reason`/`reason_name` in Python, Lua, JS/WASM and `otlv query` codec details. (#579)
 - Test that malformed input keeps its Reader cause through Schema validation, the report API and a Structure Codec, that every codec reason is produced by a representative codec, and that the shared assertions require cause `SCHEMA` for every Schema finding. (#579)
 - Add `tlv_query_cause_string()` and Query cause categories in the bindings: C++ `query_cause` with `query_failure::cause()` and `query_issue::schema`, Rust, Go and Python `QueryCause`. (#579)

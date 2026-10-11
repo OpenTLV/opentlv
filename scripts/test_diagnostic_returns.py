@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
 import unittest
-from check_diagnostic_returns import lifecycle_violations, violations
+from pathlib import Path
+from check_diagnostic_returns import (lifecycle_violations, query_kind_pairs,
+                                      query_kind_violations, violations)
 
 
 class DiagnosticReturns(unittest.TestCase):
@@ -91,6 +93,58 @@ class LifecycleReturns(unittest.TestCase):
                                               'int rejected(exec_t* e) {\n'
                                               '  if (e->busy) return TLV_ERR_INVALID_ARG;\n}'),
                          [(3, 'rejected', 'busy')])
+
+
+class QueryKindPairs(unittest.TestCase):
+    PAIRS = {('TLV_ERR_NULL_ARG', 'TLV_QUERY_ERROR_ARGUMENT'),
+             ('TLV_ERR_INVALID_ARG', 'TLV_QUERY_ERROR_ARGUMENT'),
+             ('TLV_ERR_CALLBACK', 'TLV_QUERY_ERROR_CALLBACK'),
+             ('TLV_ERR_VISITOR', 'TLV_QUERY_ERROR_CALLBACK')}
+
+    def check(self, body):
+        return query_kind_violations('tlv_result_t f(tlv_query_diagnostic_t* d) {\n' + body + '\n}',
+                                     self.PAIRS)
+
+    def test_contract_header_lists_the_allowed_pairs(self):
+        header = Path(__file__).resolve().parents[1] / 'tests/diagnostic_invariant.h'
+        pairs = query_kind_pairs(header.read_text(encoding='utf-8'))
+        self.assertIn(('TLV_ERR_NULL_ARG', 'TLV_QUERY_ERROR_ARGUMENT'), pairs)
+        self.assertIn(('TLV_ERR_INVALID_ARG', 'TLV_QUERY_ERROR_ARGUMENT'), pairs)
+        self.assertNotIn(('TLV_ERR_INVALID_ARG', 'TLV_QUERY_ERROR_STORAGE'), pairs)
+        self.assertNotIn(('TLV_ERR_INVALID_ARG', 'TLV_QUERY_ERROR_CAPABILITY'), pairs)
+
+    def test_literal_producers_must_use_an_allowed_pair(self):
+        self.assertFalse(self.check('return query_error_unlocated(d, TLV_ERR_NULL_ARG,\n'
+                                    '    TLV_QUERY_ERROR_ARGUMENT, "required arguments");'))
+        self.assertEqual(self.check('\nreturn query_error_unlocated(d, TLV_ERR_INVALID_ARG,\n'
+                                    '    TLV_QUERY_ERROR_STORAGE, "aligned, bounded storage");'),
+                         [(3, 'query_error_unlocated', 'TLV_ERR_INVALID_ARG',
+                           'TLV_QUERY_ERROR_STORAGE')])
+        self.assertTrue(self.check('return query_failure(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_EVENTS, 0);'))
+        self.assertTrue(self.check('return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,'
+                                   ' n->begin, f(n, 1), "x");'))
+
+    def test_literal_conditionals_check_every_branch(self):
+        self.assertFalse(self.check('query_error(d, a == 1 ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,'
+                                    ' TLV_QUERY_ERROR_CALLBACK, 0, 0, 0);'))
+        self.assertEqual(self.check('query_error_unlocated(d, TLV_ERR_NULL_ARG,'
+                                    ' rc ? TLV_QUERY_ERROR_ARGUMENT : (TLV_QUERY_ERROR_EVENTS), 0);'),
+                         [(2, 'query_error_unlocated', 'TLV_ERR_NULL_ARG', 'TLV_QUERY_ERROR_EVENTS')])
+
+    def test_computed_results_and_declarations_are_left_to_runtime_checks(self):
+        self.assertFalse(self.check('return query_error(d, rc, TLV_QUERY_ERROR_EVENTS, 0, 0, 0);\n'
+                                    'return query_failure(d, rc, kind_of(rc), "x");\n'
+                                    'return query_error(d, ok ? rc : TLV_ERR_NULL_ARG,'
+                                    ' TLV_QUERY_ERROR_EVENTS, 0, 0, 0);'))
+        self.assertFalse(query_kind_violations(
+            'static inline tlv_result_t query_error(tlv_query_diagnostic_t* d, tlv_result_t code,\n'
+            '    tlv_query_error_kind_t kind, size_t begin, size_t end, const char* expected);',
+            self.PAIRS))
+
+    def test_comments_and_strings_are_ignored(self):
+        self.assertFalse(self.check('/* query_error(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_EVENTS, 0); */\n'
+                                    'const char* s = "query_failure(d, TLV_ERR_NULL_ARG, '
+                                    'TLV_QUERY_ERROR_EVENTS)";'))
 
 
 if __name__ == '__main__':

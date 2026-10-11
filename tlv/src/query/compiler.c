@@ -216,46 +216,46 @@ static tlv_result_t options_check(const tlv_query_compile_options_t* supplied,
         if (supplied->struct_size != sizeof *o || supplied->language_version != 1 ||
             !supplied->max_text || !supplied->max_tokens || !supplied->max_nesting ||
             !supplied->max_states)
-            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                          "initialized language-version 1 options");
         *o = *supplied;
     }
     if (o->variable_count > o->max_states || (o->variable_count && !o->variables))
-        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "bounded variable declarations");
     for (size_t i = 0; i < o->variable_count; ++i) {
         const tlv_query_variable_t* v = &o->variables[i];
         if (!v->name || !identifier_start((unsigned char)v->name[0]) ||
             v->type < TLV_QUERY_RESULT_INTEGER || v->type > TLV_QUERY_RESULT_STRING)
-            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                          "named integer, bytes or string variable");
         for (size_t j = 0; v->name[j]; ++j)
             if (!identifier_continue((unsigned char)v->name[j]))
-                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                              "variable identifier");
         for (size_t j = 0; j < i; ++j)
             if (!strcmp(v->name, o->variables[j].name))
-                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_BINDING,
+                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                              "unique variable declaration");
     }
     if (!o->max_resolved_tag || o->max_resolved_tag > UINT32_MAX || o->max_pattern > UINT32_MAX)
-        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "bounded capabilities");
     if (o->environment) {
         const tlv_query_environment_t* e = o->environment;
         if (e->hook_count > o->max_states || (e->hook_count && !e->hooks))
-            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+            return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                          "valid bounded unique codec hooks");
         for (size_t i = 0; i < e->hook_count; ++i) {
             const tlv_query_hook_t* h = &e->hooks[i];
             if (!h->id || h->function > TLV_QUERY_DATE || !h->scratch_alignment ||
                 h->scratch_alignment > 16 || (h->scratch_alignment & (h->scratch_alignment - 1)) ||
                 h->scratch_size > UINT32_MAX - 15)
-                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+                return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                              "valid bounded unique codec hooks");
             for (size_t j = 0; j < i; ++j)
                 if (e->hooks[j].id == h->id || e->hooks[j].function == h->function)
-                    return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+                    return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                                  "valid bounded unique codec hooks");
         }
     }
@@ -287,7 +287,7 @@ tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
     }
     query_diag_init(d);
     if (!text || !bytes || !alignment)
-        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required compiler arguments");
     tlv_query_compile_options_t o;
     tlv_result_t rc = options_check(options, &o, size, d);
@@ -961,10 +961,10 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     }
     query_diag_init(d);
     if (!text || !scratch || !info || (!storage && capacity))
-        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required compiler arguments");
     if (info->struct_size < offsetof(tlv_query_program_info_t, expression_values))
-        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "initialized program info extent");
     tlv_query_compile_options_t o;
     tlv_result_t rc = options_check(options, &o, size, d);
@@ -973,7 +973,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     rc = tlv_query_compile_scratch(text, size, &o, &needed, &alignment, d);
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)scratch % alignment || (storage && (uintptr_t)storage % sizeof(uint32_t)))
-        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "aligned storage");
     if (scratch_size < needed)
         return query_error_unlocated(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
@@ -1188,7 +1188,7 @@ tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
     tlv_result_t rc = prepare_layout(text, size, options, &offset, &needed, &alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)workspace % alignment)
-        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "aligned prepare workspace");
     if (capacity < needed)
         return query_error_unlocated(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
@@ -1253,7 +1253,7 @@ static tlv_result_t image_header(const void* image, size_t size, tlv_query_progr
         return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
     if (!image)
-        return query_error_unlocated(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required compiler arguments");
     if (size < sizeof *header)
         return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
@@ -1332,7 +1332,7 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
         tlv_query_program_load_scratch(image, size, options, &needed, &alignment, diagnostic);
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)image % sizeof(uint32_t) || (uintptr_t)scratch % alignment)
-        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "aligned image and validation scratch");
     if (capacity < needed)
         return query_error_unlocated(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
