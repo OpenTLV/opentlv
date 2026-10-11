@@ -1047,7 +1047,7 @@ template&lt;typename Field &gt; </div>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Checked Node, TLV_END, or INVALID_STATE for missing, expired or stale Document execution; INVALID_ARG for an execution owned by a different Document. </dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>Checked Node, TLV_END, or INVALID_STATE for missing, expired or stale Document execution; INVALID_ARG for an execution owned by a different Document. A native failure carries the diagnostic of tlv_document_query_next(). </dd></dl>
 
 </div>
 </div>
@@ -1443,6 +1443,7 @@ template&lt;typename Field &gt; </div>
 <dl class="section note"><dt>Note</dt><dd>Allocates result storage and Node validity metadata. Insertions after selection are not included. Erasure, Value replacement and Document destruction invalidate handles following the normal Node contract; vector positions remain. </dd></dl>
 <dl class="exception"><dt>Exceptions</dt><dd>
   <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classtlv_1_1query__error.html" title="Query compilation or lookup failure with the original C error and location.">query_error</a></td><td>If native path validation or traversal fails, carrying the result and common diagnostic of tlv_document_query_visit(). </td></tr>
     <tr><td class="paramname">std::bad_alloc</td><td>If result storage or validity metadata allocation fails. </td></tr>
   </table>
   </dd>

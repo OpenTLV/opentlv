@@ -3915,7 +3915,7 @@ through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
 (#555), shared Codec results and propagation (#556), diagnostic names and
 Document lookup failure channels (#557), the <code>END</code>, <code>TRUNCATED</code> and
-<code>SYNTAX</code> results (#578), and the Query kind <code>ARGUMENT</code> (#587). The tables below describe the current
+<code>SYNTAX</code> results (#578), the Query kind <code>ARGUMENT</code> (#587) and Document Query diagnostics (#588). The tables below describe the current
 codes, not target names still awaiting implementation.</p>
 <p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/result.h</code>. Zero is success. <code>TLV_END</code> (normal end
 of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
@@ -3962,6 +3962,8 @@ validation result in every entry.</p>
 <li>Low-level Reader/Tree and Schema entry points can reject preflight arguments
   or resources before producing detail. An enclosing API which has already
   initialized its own diagnostic must nevertheless describe a propagated error.</li>
+<li><code>tlv_document_query_next()</code> initializes its diagnostic only when it fails, so a
+  pull loop writes no detail. <code>TLV_END</code> and successful pulls leave it unchanged.</li>
 </ul>
 <h3 id="query-result-and-kind-pairs">Query result and kind pairs<a class="headerlink" href="#query-result-and-kind-pairs" title="Permanent link">&para;</a></h3>
 <p>Every Query failure pairs its result with one kind of the
@@ -3976,11 +3978,11 @@ validation result in every entry.</p>
 <tbody>
 <tr>
 <td><code>ARGUMENT</code></td>
-<td><code>NULL_ARG</code> for a missing pointer; <code>INVALID_ARG</code> for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format</td>
+<td><code>NULL_ARG</code> for a missing pointer; <code>INVALID_ARG</code> for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format; <code>INVALID_TAG</code>, <code>INVALID_TAG_SIZE</code> or <code>INVALID_LENGTH</code> for a caller-supplied path Query, edit Tag or edit Value rejected by Tag or Length validation (#588)</td>
 </tr>
 <tr>
 <td><code>STORAGE</code></td>
-<td><code>BUFFER_TOO_SHORT</code> for caller storage; <code>OVERFLOW</code> or <code>NATIVE_SIZE</code> for a size that is not representable</td>
+<td><code>BUFFER_TOO_SHORT</code> for caller storage; <code>OVERFLOW</code> or <code>NATIVE_SIZE</code> for a size that is not representable; <code>OUT_OF_MEMORY</code> for exhausted Document allocation (#588)</td>
 </tr>
 <tr>
 <td><code>LIMIT</code></td>
@@ -4039,6 +4041,15 @@ validation result in every entry.</p>
 <p>A lower-layer call that returns no Query detail is classified by its result, so
 an argument failure is <code>ARGUMENT</code>, a storage shortage <code>STORAGE</code> and a callback
 or visitor failure <code>CALLBACK</code> whichever Query operation propagates it.</p>
+<p>The Document Query entry points <code>tlv_document_query_visit()</code>,
+<code>tlv_document_query_value_size()</code>, <code>tlv_document_query_evaluate()</code>,
+<code>tlv_document_query_next()</code>, <code>tlv_document_query_program_visit()</code> and
+<code>tlv_document_query_edit()</code> publish this Query diagnostic (#588). A constructed
+edit Value rejected by the Reader keeps the Reader cause, with <code>INPUT</code>
+locations relative to the edit Value. An edit exceeding the Document depth or
+element limit reports <code>LIMIT</code> with <code>limit</code> <code>document-depth</code> or
+<code>document-elements</code> and its <code>configured</code> bound. Other edit and Value snapshot
+failures are classified by their result as above.</p>
 <p>The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
 native consumers with matching headers and bindings.</p>
 <h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>

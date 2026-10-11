@@ -3071,6 +3071,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#diagnostic-channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic channels
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3878,6 +3889,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#diagnostic-channels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic channels
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4359,6 +4381,36 @@ aggregate result into every record.</p>
 <p>Control status does not invalidate an incremental execution. Preserve its
 documented resume/reset behavior. Severity is presentation metadata, not the
 test for success, resumability or lifecycle validity.</p>
+<h3 id="diagnostic-channels">Diagnostic channels<a class="headerlink" href="#diagnostic-channels" title="Permanent link">&para;</a></h3>
+<p>Every Document Query entry point that can fail after Query initialization takes
+an optional <code>tlv_query_diagnostic_t*</code> (#588): <code>tlv_document_query_visit()</code>,
+<code>tlv_document_query_value_size()</code>, <code>tlv_document_query_evaluate()</code>,
+<code>tlv_document_query_next()</code>, <code>tlv_document_query_program_visit()</code> and
+<code>tlv_document_query_edit()</code>. A Reader or Codec failure therefore survives
+Document composition with its result, origin and typed detail, as it does for
+Reader execution. A constructed edit Value rejected by the Reader keeps the
+Reader cause, located relative to that Value. An edit that exceeds the Document
+depth or element limit reports <code>LIMIT</code> + <code>LIMIT</code> named <code>document-depth</code> or
+<code>document-elements</code> with its configured bound, also when the Tree Reader detects
+it while parsing that Value. Unlike a Reader processing budget during Reader
+execution, these bounds belong to the Document being edited, so they are not a
+Reader cause. A pull initializes the
+diagnostic only on failure, so <code>TLV_END</code> and successful pulls leave it
+unchanged. The executions store no last failure; the caller owns the output.</p>
+<p><code>tlv_document_find_path()</code> stays result-only: it is a lookup over
+<code>tlv_document_query_visit()</code> with a private visitor, so its failures are the
+argument and path validation results already named by its contract. Callers
+needing the Query diagnostic call <code>tlv_document_query_visit()</code> directly.</p>
+<p><code>tlv_generate()</code> also stays result-only (#588). It generates rather than reads
+caller input, so no input, output or expression location identifies a failure.
+Each result has one documented meaning tied to the options: missing pointers,
+unsupported Format capability or depth, invalid configuration, unrepresentable
+workspace, short output or workspace, an exhausted bounded search (<code>LIMIT</code>) and a
+detected callback contract violation (<code>CALLBACK</code>). Ordinary candidate failures
+are part of the bounded search, not caller failures. Detail of an aborting
+callback violation would describe a synthetic candidate that the deterministic
+seed and case index already reproduce. Reconsider this when a caller needs to
+identify the violated callback contract without replaying the case.</p>
 <h2 id="locations">Locations<a class="headerlink" href="#locations" title="Permanent link">&para;</a></h2>
 <p>Location is a generic diagnostic value; it is not Element identity. The target
 location records a domain and an anchor kind, with checked coordinates. A
@@ -4660,7 +4712,7 @@ enums constitute a migration.</p>
 </tr>
 <tr>
 <td><code>TLV_QUERY_ERROR_ARGUMENT</code> (#587)</td>
-<td>Missing API pointer -&gt; <code>NULL_ARG</code> + <code>ARGUMENT</code>; invalid options, variable declarations, hooks, alignment, info extent, selected context or incompatible Format -&gt; <code>INVALID_ARG</code> + <code>ARGUMENT</code>.</td>
+<td>Missing API pointer -&gt; <code>NULL_ARG</code> + <code>ARGUMENT</code>; invalid options, variable declarations, hooks, alignment, info extent, selected context or incompatible Format -&gt; <code>INVALID_ARG</code> + <code>ARGUMENT</code>; a caller-supplied path Query, edit Tag or edit Value rejected by Tag or Length validation keeps <code>INVALID_TAG</code>, <code>INVALID_TAG_SIZE</code> or <code>INVALID_LENGTH</code> with <code>ARGUMENT</code> (#588).</td>
 </tr>
 </tbody>
 </table>
@@ -4675,9 +4727,10 @@ the shared test assertions check every observed Query failure against it, and
 result and kind are not listed. <code>READER</code> and <code>CODEC</code> preserve a lower-layer
 result and <code>CAPABILITY</code> a Tag adapter or resolver result, so they also accept a
 propagated result. A lower-layer call that reports no Query detail is classified
-by its result: argument results become <code>ARGUMENT</code>, capacity and size results
-<code>STORAGE</code>, <code>UNSUPPORTED</code> becomes <code>CAPABILITY</code>, <code>LIMIT</code> stays <code>LIMIT</code>, and
-<code>CALLBACK</code> and <code>VISITOR</code> become <code>CALLBACK</code>.</p>
+by its result: argument results become <code>ARGUMENT</code>, capacity, size and Document
+allocation (<code>OUT_OF_MEMORY</code>, #588) results <code>STORAGE</code>, <code>UNSUPPORTED</code> becomes
+<code>CAPABILITY</code>, <code>LIMIT</code> stays <code>LIMIT</code>, and <code>CALLBACK</code> and <code>VISITOR</code> become
+<code>CALLBACK</code>.</p>
 <h3 id="every-current-schema-issue-kind">Every current Schema issue kind<a class="headerlink" href="#every-current-schema-issue-kind" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
