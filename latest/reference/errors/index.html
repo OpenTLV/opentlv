@@ -2479,6 +2479,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#query-result-and-kind-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query result and kind pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#regression-enforcement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3718,6 +3729,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#query-result-and-kind-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query result and kind pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#regression-enforcement" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3892,8 +3914,8 @@ typed diagnostic layering, locations and propagation rules. Migration proceeds
 through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
 (#555), shared Codec results and propagation (#556), diagnostic names and
-Document lookup failure channels (#557), and the <code>END</code>, <code>TRUNCATED</code> and
-<code>SYNTAX</code> results (#578). The tables below describe the current
+Document lookup failure channels (#557), the <code>END</code>, <code>TRUNCATED</code> and
+<code>SYNTAX</code> results (#578), and the Query kind <code>ARGUMENT</code> (#587). The tables below describe the current
 codes, not target names still awaiting implementation.</p>
 <p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/result.h</code>. Zero is success. <code>TLV_END</code> (normal end
 of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
@@ -3941,17 +3963,90 @@ validation result in every entry.</p>
   or resources before producing detail. An enclosing API which has already
   initialized its own diagnostic must nevertheless describe a propagated error.</li>
 </ul>
-<p>Query now uses <code>STATE</code> for lifecycle/reentrancy failures and <code>EVENTS</code> with
-<code>INVALID_VALUE</code> for invalid structural feeds. Until the remaining
-<a href="../../concepts/error-model/#migration-inventory">failure-model migration</a>,
-<code>STORAGE</code> still covers compiler/plan arguments and capacities, <code>BINDING</code> covers
-binding arguments, <code>CAPABILITY</code> covers incompatible formats or hook configuration,
-while visitor/provider failures use <code>CALLBACK</code>. Diagnostic layouts changed in
-issues #553, #555, #556 and #579; rebuild native consumers with matching headers and bindings.</p>
+<h3 id="query-result-and-kind-pairs">Query result and kind pairs<a class="headerlink" href="#query-result-and-kind-pairs" title="Permanent link">&para;</a></h3>
+<p>Every Query failure pairs its result with one kind of the
+<a href="../../concepts/error-model/#every-current-query-error-kind">failure model</a> (#587):</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Results</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ARGUMENT</code></td>
+<td><code>NULL_ARG</code> for a missing pointer; <code>INVALID_ARG</code> for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format</td>
+</tr>
+<tr>
+<td><code>STORAGE</code></td>
+<td><code>BUFFER_TOO_SHORT</code> for caller storage; <code>OVERFLOW</code> or <code>NATIVE_SIZE</code> for a size that is not representable</td>
+</tr>
+<tr>
+<td><code>LIMIT</code></td>
+<td><code>LIMIT</code> for a named Query budget</td>
+</tr>
+<tr>
+<td><code>SYNTAX</code></td>
+<td><code>SYNTAX</code></td>
+</tr>
+<tr>
+<td><code>TYPE</code></td>
+<td><code>INVALID_VALUE</code> for operand types, arity and ranges such as a negative substring bound; <code>OVERFLOW</code> for a value not representable as <code>int64</code></td>
+</tr>
+<tr>
+<td><code>BINDING</code></td>
+<td><code>INVALID_VALUE</code> for a missing, unknown, duplicate or mistyped variable binding</td>
+</tr>
+<tr>
+<td><code>EVENTS</code></td>
+<td><code>INVALID_VALUE</code> for a malformed structural feed, including a nonempty span without data</td>
+</tr>
+<tr>
+<td><code>SOURCE</code></td>
+<td><code>INVALID_VALUE</code> for absent or inconsistent Source metadata; <code>UNSUPPORTED</code> when a backend cannot provide it</td>
+</tr>
+<tr>
+<td><code>CARDINALITY</code></td>
+<td><code>INVALID_VALUE</code></td>
+</tr>
+<tr>
+<td><code>IMAGE</code>, <code>IMAGE_VERSION</code></td>
+<td><code>INVALID_VALUE</code> for a malformed image; <code>UNSUPPORTED</code> for an incompatible version</td>
+</tr>
+<tr>
+<td><code>STATE</code></td>
+<td><code>INVALID_STATE</code></td>
+</tr>
+<tr>
+<td><code>CALLBACK</code></td>
+<td><code>CALLBACK</code> for a provider contract violation; <code>VISITOR</code> for an explicit visitor error</td>
+</tr>
+<tr>
+<td><code>SCHEMA</code></td>
+<td><code>SCHEMA</code> for a false Schema Query assertion</td>
+</tr>
+<tr>
+<td><code>CAPABILITY</code></td>
+<td><code>UNSUPPORTED</code> for an unavailable feature; a Tag adapter or name resolver failure keeps its own result</td>
+</tr>
+<tr>
+<td><code>READER</code>, <code>CODEC</code></td>
+<td>The preserved Reader or conversion result</td>
+</tr>
+</tbody>
+</table>
+<p>A lower-layer call that returns no Query detail is classified by its result, so
+an argument failure is <code>ARGUMENT</code>, a storage shortage <code>STORAGE</code> and a callback
+or visitor failure <code>CALLBACK</code> whichever Query operation propagates it.</p>
+<p>The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
+native consumers with matching headers and bindings.</p>
 <h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>
 <p><code>tests/diagnostic_assertions.h</code> checks the invariant after an operation, including
 calls shared by table-driven Query tests. Tests for pre-initialization rejection
 instead verify that protected outputs remain unchanged.</p>
+<p>The same helper checks every Query failure against the allowed pairs above,
+listed once as <code>TEST_QUERY_KIND_PAIRS</code> in <code>tests/diagnostic_invariant.h</code>.</p>
 <p>Run <code>python scripts/test_diagnostic_returns.py</code> and
 <code>python scripts/check_diagnostic_returns.py</code> for the CI source guard. The guard
 reports direct error returns after explicit diagnostic initialization in C
@@ -3961,7 +4056,10 @@ This lexical check is deliberately conservative: indirect initialization,
 propagated variables and callback behavior require runtime tests; it is not a
 control-flow proof. A separate lexical rule rejects <code>INVALID_ARG</code> returns under
 <code>busy</code>, <code>finished</code>, <code>invalid</code> or <code>query_callbacks</code> member predicates, including
-pre-initialization checks. Diagnostic-return comments do not waive that rule.</p>
+pre-initialization checks. Diagnostic-return comments do not waive that rule.
+A third rule reads <code>TEST_QUERY_KIND_PAIRS</code> and rejects a <code>query_error()</code>,
+<code>query_error_unlocated()</code> or <code>query_failure()</code> call whose literal result and
+kind are not an allowed pair; computed results are left to the runtime helper.</p>
 <h2 id="diagnostic-field-ownership">Diagnostic field ownership<a class="headerlink" href="#diagnostic-field-ownership" title="Permanent link">&para;</a></h2>
 <p>Each public diagnostic field has one meaning (#579). The common
 <code>tlv_diagnostic_t</code> owns the result, severity, primary location, expected and

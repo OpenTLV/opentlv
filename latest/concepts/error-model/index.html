@@ -4047,15 +4047,15 @@ for authors of C capabilities and language facades. Read the
 <a href="../architectural-rules/">architectural rules</a> and
 <a href="../../reference/errors/">current error reference</a> first.</p>
 <p><strong>Status: design decided; lifecycle implemented by #552, Schema classification
-by #553, capability/resource/callback results by #554, common locations by #555, and the
-<code>END</code>, <code>TRUNCATED</code> and <code>SYNTAX</code> results by #578. Remaining API and binding
+by #553, capability/resource/callback results by #554, common locations by #555, the
+<code>END</code>, <code>TRUNCATED</code> and <code>SYNTAX</code> results by #578, and the Query kind <code>ARGUMENT</code>
+with the remaining Query kind classifications by #587. Remaining API and binding
 migration is separate work.</strong> This page defines the target contract.
 <code>TLV_END</code>, <code>TLV_ERR_TRUNCATED</code>, <code>TLV_ERR_SYNTAX</code>, <code>TLV_ERR_INVALID_STATE</code>,
 <code>TLV_ERR_INVALID_SCHEMA</code>, <code>TLV_ERR_UNSUPPORTED</code> and <code>TLV_ERR_CALLBACK</code> are public,
-together with Query kinds <code>STATE</code>, <code>CALLBACK</code>, <code>TYPE</code> and <code>IMAGE</code>;
-<code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_ERR_INVALID_BYTE_ORDER</code> are removed. Target
-names that are not yet declared, such as the Query kind <code>ARGUMENT</code>, appear only
-on this page; the reference page describes the running implementation. This design does not preserve source, binary, enum-number or
+together with Query kinds <code>STATE</code>, <code>CALLBACK</code>, <code>TYPE</code>, <code>IMAGE</code> and <code>ARGUMENT</code>;
+<code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_ERR_INVALID_BYTE_ORDER</code> are removed. The
+reference page describes the running implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.</p>
 <h2 id="one-failure-four-questions">One failure, four questions<a class="headerlink" href="#one-failure-four-questions" title="Permanent link">&para;</a></h2>
@@ -4304,8 +4304,9 @@ Result and detail are orthogonal: <code>READER</code> may legitimately accompany
 below constrain combinations rather than requiring a function from kind to
 result. Detail is discriminated; inactive fields must not be interpreted.</p>
 <p>Query detail kind <code>STATE</code> is implemented by #552; <code>TYPE</code>, <code>IMAGE</code> and <code>CALLBACK</code>
-by #554. <code>ARGUMENT</code> remains to be added for cases currently forced into
-<code>STORAGE</code>, <code>EVENTS</code> or <code>CAPABILITY</code>. Keep
+by #554; <code>ARGUMENT</code> by #587 for invalid API arguments, descriptors, alignment and
+configuration that were previously filed under <code>STORAGE</code>, <code>EVENTS</code>, <code>BINDING</code> or
+<code>CAPABILITY</code>. Keep
 <code>IMAGE_VERSION</code> for a recognized version mismatch. <code>CODEC</code> denotes conversion
 context; a callback contract violation during conversion uses <code>CALLBACK</code> and
 records the codec operation and reported result, including a reported <code>OK</code>.
@@ -4657,12 +4658,26 @@ enums constitute a migration.</p>
 <td><code>TLV_QUERY_ERROR_IMAGE_VERSION</code></td>
 <td>Recognized incompatible version -&gt; <code>UNSUPPORTED</code> + <code>IMAGE_VERSION</code>; malformed image -&gt; <code>INVALID_VALUE</code> + <code>IMAGE</code>.</td>
 </tr>
+<tr>
+<td><code>TLV_QUERY_ERROR_ARGUMENT</code> (#587)</td>
+<td>Missing API pointer -&gt; <code>NULL_ARG</code> + <code>ARGUMENT</code>; invalid options, variable declarations, hooks, alignment, info extent, selected context or incompatible Format -&gt; <code>INVALID_ARG</code> + <code>ARGUMENT</code>.</td>
+</tr>
 </tbody>
 </table>
 <p>Adapter failures under <code>CAPABILITY</code> are propagation, not a claim that their
 result is <code>UNSUPPORTED</code>. Invalid adapter success payloads instead use
 <code>CALLBACK</code>. Query-owned numeric overflow remains <code>OVERFLOW</code> with <code>TYPE</code> detail;
 do not label it an unsupported feature.</p>
+<p>Issue #587 implements this table. The allowed (result, kind) pairs are an executable
+contract: <code>TEST_QUERY_KIND_PAIRS</code> in <code>tests/diagnostic_invariant.h</code> lists them,
+the shared test assertions check every observed Query failure against it, and
+<code>scripts/check_diagnostic_returns.py</code> rejects a Query producer whose literal
+result and kind are not listed. <code>READER</code> and <code>CODEC</code> preserve a lower-layer
+result and <code>CAPABILITY</code> a Tag adapter or resolver result, so they also accept a
+propagated result. A lower-layer call that reports no Query detail is classified
+by its result: argument results become <code>ARGUMENT</code>, capacity and size results
+<code>STORAGE</code>, <code>UNSUPPORTED</code> becomes <code>CAPABILITY</code>, <code>LIMIT</code> stays <code>LIMIT</code>, and
+<code>CALLBACK</code> and <code>VISITOR</code> become <code>CALLBACK</code>.</p>
 <h3 id="every-current-schema-issue-kind">Every current Schema issue kind<a class="headerlink" href="#every-current-schema-issue-kind" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
