@@ -50,7 +50,7 @@ static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_fo
     staging.scratch = scratch;
     staging.scratch_capacity = size;
     size_t bytes;
-    rc = staged && scratch ? tlv_document_query_value_size(document, &staging, &bytes)
+    rc = staged && scratch ? tlv_document_query_value_size(document, &staging, &bytes, NULL)
                            : TLV_ERR_OUT_OF_MEMORY;
     void* values = rc == TLV_OK ? malloc(bytes ? bytes : 1) : NULL;
     if (rc == TLV_OK && !values) rc = TLV_ERR_OUT_OF_MEMORY;
@@ -84,7 +84,7 @@ static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_fo
             }
         }
         if (rc == TLV_END) rc = TLV_OK;
-        while (rc == TLV_OK && (rc = tlv_document_query_next(exec, &node)) == TLV_OK) {
+        while (rc == TLV_OK && (rc = tlv_document_query_next(exec, &node, NULL)) == TLV_OK) {
             for (size_t i = 0; i < count; ++i)
                 if (handles[i] == node) {
                     printf("%zu\n", offsets[i]);

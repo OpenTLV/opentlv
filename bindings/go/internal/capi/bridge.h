@@ -90,9 +90,10 @@ tlv_result_t go_query_bind(go_query_execution* execution, const char* name,
                            size_t size, tlv_query_diagnostic_t* diagnostic);
 tlv_result_t go_query_document(go_query_execution* execution, const go_document* document,
                                void* context, size_t capacity, tlv_query_diagnostic_t* diagnostic);
-tlv_result_t go_query_document_next(go_query_execution* execution, void** node);
+tlv_result_t go_query_document_next(go_query_execution* execution, void** node,
+                                    tlv_query_diagnostic_t* diagnostic);
 tlv_result_t go_query_edit(go_query_execution*, go_document*, int, const uint8_t*, size_t,
-                           const uint8_t*, size_t, size_t, size_t*);
+                           const uint8_t*, size_t, size_t, size_t*, tlv_query_diagnostic_t*);
 uint64_t     go_query_node_identity(void* node);
 typedef struct {
     tlv_result_t            code;

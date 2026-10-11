@@ -53,9 +53,11 @@ int document_contains(const tlv_document_t* document, const tlv_node_t* node);
 int document_query_callback(tlv_document_t* document, int active);
 
 #if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
+/* A constructed Value rejected by the Reader fills the optional Reader diagnostic. */
 tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
                                    tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
-                                   const uint8_t* value, size_t size, size_t* applied);
+                                   const uint8_t* value, size_t size, size_t* applied,
+                                   tlv_reader_diagnostic_t* diagnostic);
 #endif
 
 #endif

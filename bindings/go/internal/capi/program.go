@@ -696,21 +696,26 @@ func (q *ProgramExecution) Document(document *Document, context Node, capacity i
 	runtime.KeepAlive(document)
 	return code, programDiagnostic(d, code)
 }
-func (q *ProgramExecution) NextDocument() (Node, Code) {
+func (q *ProgramExecution) NextDocument() (Node, Code, ProgramDiagnostic) {
 	defer runtime.KeepAlive(q)
 	var node unsafe.Pointer
-	code := Code(C.go_query_document_next(q.ptr, &node))
-	return Node{node}, code
+	var d C.tlv_query_diagnostic_t
+	code := Code(C.go_query_document_next(q.ptr, &node, &d))
+	if code == End {
+		return Node{}, code, ProgramDiagnostic{}
+	}
+	return Node{node}, code, programDiagnostic(d, code)
 }
-func (q *ProgramExecution) EditDocument(document *Document, kind int, tag, value []byte, capacity int) (int, Code) {
+func (q *ProgramExecution) EditDocument(document *Document, kind int, tag, value []byte, capacity int) (int, Code, ProgramDiagnostic) {
 	var applied C.size_t
+	var d C.tlv_query_diagnostic_t
 	code := Code(C.go_query_edit(q.ptr, document.ptr, C.int(kind), bytePointer(tag), C.size_t(len(tag)),
-		bytePointer(value), C.size_t(len(value)), C.size_t(capacity), &applied))
+		bytePointer(value), C.size_t(len(value)), C.size_t(capacity), &applied, &d))
 	runtime.KeepAlive(q)
 	runtime.KeepAlive(document)
 	runtime.KeepAlive(tag)
 	runtime.KeepAlive(value)
-	return int(applied), code
+	return int(applied), code, programDiagnostic(d, code)
 }
 func (n Node) Identity() uint64 { return uint64(C.go_query_node_identity(n.ptr)) }
 

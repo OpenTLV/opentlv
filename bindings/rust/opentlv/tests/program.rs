@@ -194,6 +194,7 @@ fn completed_selection_edits_are_bounded_and_resolve_ancestors() {
         .unwrap_err();
     assert_eq!(failure.applied, 0);
     assert_eq!(failure.failure.error, Error::BufferTooShort);
+    assert_eq!(failure.failure.kind, opentlv::QueryErrorKind::Storage);
     assert_eq!(document.encode().unwrap(), wire);
     options.target_capacity = Some(3);
     assert_eq!(
@@ -235,6 +236,26 @@ fn completed_selection_edits_are_bounded_and_resolve_ancestors() {
         2
     );
     assert_eq!(document.encode().unwrap(), &[0x5b, 1, 4]);
+}
+#[cfg(feature = "document")]
+#[test]
+fn rejected_constructed_edit_value_keeps_reader_cause() {
+    use opentlv::{Document, QueryEdit, QueryEditOptions};
+    let wire = &[0x70, 3, 0x5a, 1, 1];
+    let mut document = Document::parse(wire, Format::Ber, 64, 1024).unwrap();
+    let program = QueryProgram::compile("//70", &ProgramOptions::default()).unwrap();
+    let failure = program
+        .edit_document(
+            &mut document,
+            QueryEdit::Replace(&[0x5a, 3]),
+            QueryEditOptions::default(),
+        )
+        .unwrap_err();
+    assert_eq!(failure.applied, 0);
+    assert_eq!(failure.failure.error, Error::Truncated);
+    assert_eq!(failure.failure.kind, opentlv::QueryErrorKind::Reader);
+    assert!(failure.failure.reader.is_some());
+    assert_eq!(document.encode().unwrap(), wire);
 }
 
 #[test]

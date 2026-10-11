@@ -1630,7 +1630,7 @@ const char* opentlv_wasm_execution_operation(opentlv_wasm_execution_t* q, int op
         case 1:
             if (q->document) {
 #if OPENTLV_DOCUMENT
-                rc = tlv_document_query_next(q->exec, &node);
+                rc = tlv_document_query_next(q->exec, &node, &d);
 #else
                 rc = TLV_ERR_UNSUPPORTED;
 #endif
@@ -1805,8 +1805,9 @@ const char* opentlv_wasm_execution_document(opentlv_wasm_execution_t* q,
 const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t* q, int kind, const uint8_t* tag,
                                         size_t tag_size, const uint8_t* value, size_t value_size,
                                         size_t capacity) {
-    tlv_result_t rc = TLV_ERR_UNSUPPORTED;
-    size_t       applied = 0;
+    tlv_result_t           rc = TLV_ERR_UNSUPPORTED;
+    size_t                 applied = 0;
+    tlv_query_diagnostic_t d = {0};
 #if OPENTLV_DOCUMENT
     rc = q->document ? TLV_OK : TLV_ERR_INVALID_ARG;
     if (rc == TLV_OK && capacity > SIZE_MAX / sizeof(tlv_node_t*)) rc = TLV_ERR_OVERFLOW;
@@ -1815,7 +1816,7 @@ const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t* q, int kind, c
     if (rc == TLV_OK)
         rc = tlv_document_query_edit(q->document->document, q->exec,
                                      (tlv_document_query_edit_kind_t)kind, tlv_tag(tag, tag_size),
-                                     value, value_size, targets, capacity, &applied);
+                                     value, value_size, targets, capacity, &applied, &d);
     free(targets);
 #else
     (void)q;
@@ -1826,7 +1827,7 @@ const char* opentlv_wasm_execution_edit(opentlv_wasm_execution_t* q, int kind, c
     (void)value_size;
     (void)capacity;
 #endif
-    query_status(&q->reply, rc, NULL);
+    query_status(&q->reply, rc, &d);
     query_field(&q->reply, "applied", applied);
     return query_reply(&q->reply);
 }

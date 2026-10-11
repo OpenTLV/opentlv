@@ -181,9 +181,11 @@ int go_document_query(go_document* d, const char* text, void*** nodes, size_t* c
         results.nodes = malloc(capacity * sizeof(void*));
         if (!results.nodes) return TLV_ERR_OUT_OF_MEMORY;
     }
-    code = tlv_document_query_visit(d->document, &query, collect_query, &results);
+    tlv_query_diagnostic_t detail;
+    code = tlv_document_query_visit(d->document, &query, collect_query, &results, &detail);
     if (code != TLV_OK) {
         free(results.nodes);
+        *diagnostic = detail.diagnostic;
         return code;
     }
     *nodes = results.nodes;
@@ -912,7 +914,8 @@ tlv_result_t go_query_document(go_query_execution* q, const go_document* documen
 }
 tlv_result_t go_query_edit(go_query_execution* q, go_document* document, int kind,
                            const uint8_t* tag, size_t tag_size, const uint8_t* value,
-                           size_t value_size, size_t capacity, size_t* applied) {
+                           size_t value_size, size_t capacity, size_t* applied,
+                           tlv_query_diagnostic_t* diagnostic) {
     *applied = 0;
 #if OPENTLV_DOCUMENT
     if (!q->has_document || !document) return TLV_ERR_INVALID_ARG;
@@ -921,7 +924,7 @@ tlv_result_t go_query_edit(go_query_execution* q, go_document* document, int kin
     if (capacity && !targets) return TLV_ERR_OUT_OF_MEMORY;
     tlv_result_t rc = tlv_document_query_edit(
         document->document, q->exec, (tlv_document_query_edit_kind_t)kind, tlv_tag(tag, tag_size),
-        value, value_size, targets, capacity, applied);
+        value, value_size, targets, capacity, applied, diagnostic);
     free(targets);
     return rc;
 #else
@@ -933,18 +936,21 @@ tlv_result_t go_query_edit(go_query_execution* q, go_document* document, int kin
     (void)value;
     (void)value_size;
     (void)capacity;
+    (void)diagnostic;
     return TLV_ERR_UNSUPPORTED;
 #endif
 }
-tlv_result_t go_query_document_next(go_query_execution* q, void** node) {
+tlv_result_t go_query_document_next(go_query_execution* q, void** node,
+                                    tlv_query_diagnostic_t* diagnostic) {
 #if OPENTLV_DOCUMENT
     tlv_node_t*  result;
-    tlv_result_t rc = tlv_document_query_next(q->exec, &result);
+    tlv_result_t rc = tlv_document_query_next(q->exec, &result, diagnostic);
     if (rc == TLV_OK) *node = result;
     return rc;
 #else
     (void)q;
     (void)node;
+    (void)diagnostic;
     return TLV_ERR_UNSUPPORTED;
 #endif
 }

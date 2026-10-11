@@ -1439,7 +1439,7 @@ TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
     ASSERT_EQ(TLV_OK, tlv_query_parse("6F/A5/50", &query, nullptr));
     QueryCollection collection;
     EXPECT_EQ(TLV_OK, tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
-                                               &collection));
+                                               &collection, nullptr));
     ASSERT_EQ(2u, collection.nodes.size());
     tlv_node_t* first_match = nullptr;
     ASSERT_EQ(TLV_OK, tlv_document_find_path(document.get(), &query, &first_match));
@@ -1448,17 +1448,20 @@ TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
     collection.nodes.clear();
     collection.command = TLV_VISIT_STOP;
     EXPECT_EQ(TLV_OK, tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
-                                               &collection));
+                                               &collection, nullptr));
     EXPECT_EQ(1u, collection.nodes.size());
     collection.command = TLV_VISIT_ERROR;
-    EXPECT_EQ(TLV_ERR_VISITOR, tlv_document_query_visit(document.get(), &query,
-                                                        QueryCollection::collect, &collection));
+    EXPECT_EQ(TLV_ERR_VISITOR,
+              tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
+                                       &collection, nullptr));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_query_visit(nullptr, &query, QueryCollection::collect,
+                                                         &collection, nullptr));
     EXPECT_EQ(TLV_ERR_NULL_ARG,
-              tlv_document_query_visit(nullptr, &query, QueryCollection::collect, &collection));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_document_query_visit(document.get(), &query, nullptr, nullptr));
+              tlv_document_query_visit(document.get(), &query, nullptr, nullptr, nullptr));
     query = tlv_query_t{};
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_document_query_visit(document.get(), &query,
-                                                            QueryCollection::collect, &collection));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
+                                       &collection, nullptr));
 }
 
 TEST(Unit_Tlv_Document, RetirementEpochAdvancesWhenDeferredEraseActuallyCommits) {
@@ -1490,7 +1493,8 @@ TEST(Unit_Tlv_Document, RetirementEpochAdvancesWhenDeferredEraseActuallyCommits)
         EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_node_set_value(node, nullptr, 0));
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_visit(doc.get(), &query, callback, &state));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_query_visit(doc.get(), &query, callback, &state, nullptr));
     EXPECT_EQ(1u, state.calls);
     EXPECT_EQ(epoch + 1, tlv_document_retire_epoch(doc.get()));
     EXPECT_EQ(revision + 1, tlv_document_revision(doc.get()));

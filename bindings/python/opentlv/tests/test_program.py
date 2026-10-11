@@ -235,6 +235,7 @@ def test_completed_document_edits_preserve_short_selection_and_overlap():
     with pytest.raises(BufferTooShortError) as failure:
         execution.edit_document("replace", value=b"\x09", target_capacity=2)
     assert failure.value.applied == 0 and document.encode() == wire
+    assert failure.value.query["query_kind_name"] == "storage"
     assert execution.edit_document("replace", value=b"\x09", target_capacity=3) == 3
     with pytest.raises(ValueError, match="no longer valid"):
         old_node.value
@@ -257,6 +258,9 @@ def test_invalid_constructed_query_replacement_is_atomic():
     with pytest.raises(TruncatedError) as failure:
         execution.edit_document("replace", value=b"\x5a")
     assert failure.value.applied == 0 and document.encode() == wire
+    # The Reader detail of the rejected children survives the edit.
+    assert failure.value.query["query_kind_name"] == "reader"
+    assert failure.value.location.domain == "input"
     execution.reset()
     execution.evaluate_document(document)
     assert execution.edit_document("replace", value=b"\x5a\x00") == 1

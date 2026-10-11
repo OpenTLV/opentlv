@@ -349,7 +349,9 @@ func TestQueryCompletedDocumentEditRetryAndOverlap(t *testing.T) {
 	if err := q.EvaluateDocument(d, tlv.Node{}, -1); err != nil {
 		t.Fatal(err)
 	}
-	if applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{9}, 2); applied != 0 || !errors.Is(err, tlv.ErrBufferTooShort) {
+	applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{9}, 2)
+	var short *tlv.ProgramError
+	if applied != 0 || !errors.Is(err, tlv.ErrBufferTooShort) || !errors.As(err, &short) || short.Kind != tlv.QueryErrorKindStorage {
 		t.Fatal(applied, err)
 	}
 	encoded, err := d.Encode()
@@ -380,6 +382,27 @@ func TestQueryCompletedDocumentEditRetryAndOverlap(t *testing.T) {
 	encoded, err = d.Encode()
 	if err != nil || !bytes.Equal(encoded, []byte{0x5b, 1, 4}) {
 		t.Fatal(encoded, err)
+	}
+}
+
+func TestQueryDocumentEditKeepsReaderCauseOfConstructedValue(t *testing.T) {
+	f, err := tlv.Builtin(tlv.BER)
+	if err != nil {
+		t.Skip("BER disabled")
+	}
+	d := document(t, []byte{0x70, 3, 0x5a, 1, 1}, f)
+	q := execution(t, compiled(t, "//70", nil), true)
+	if err := q.EvaluateDocument(d, tlv.Node{}, -1); err != nil {
+		t.Fatal(err)
+	}
+	// The replacement children end inside a Value: the Reader detail survives the edit.
+	applied, err := q.EditDocument(tlv.QueryReplace, nil, []byte{0x5a, 3}, 1)
+	var detail *tlv.ProgramError
+	if applied != 0 || !errors.Is(err, tlv.ErrTruncated) || !errors.As(err, &detail) {
+		t.Fatal(applied, err)
+	}
+	if detail.Kind != tlv.QueryErrorKindReader || !detail.HasReader {
+		t.Fatalf("expected Reader cause, got %#v", detail)
 	}
 }
 

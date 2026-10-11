@@ -679,11 +679,11 @@ func (q *QueryExecution) EditDocument(kind QueryEditKind, tag, value []byte, tar
 	}
 	q.busy = true
 	defer func() { q.busy = false }()
-	applied, code := q.native.EditDocument(q.document.native, int(kind), tag, value, targetCapacity)
+	applied, code, diag := q.native.EditDocument(q.document.native, int(kind), tag, value, targetCapacity)
 	if applied > 0 {
 		q.document.changed()
 	}
-	return applied, programError(code, capi.ProgramDiagnostic{})
+	return applied, programError(code, diag)
 }
 
 // NextDocument returns a checked snapshot handle; edits are rejected by native revision validation.
@@ -694,9 +694,9 @@ func (q *QueryExecution) NextDocument() (Node, error) {
 	if q.document == nil {
 		return Node{}, programError(capi.InvalidArg, capi.ProgramDiagnostic{})
 	}
-	node, code := q.native.NextDocument()
+	node, code, diag := q.native.NextDocument()
 	if code != capi.OK {
-		return Node{}, programError(code, capi.ProgramDiagnostic{})
+		return Node{}, programError(code, diag)
 	}
 	return q.document.wrap(node), nil
 }

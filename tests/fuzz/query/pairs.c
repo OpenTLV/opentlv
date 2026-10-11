@@ -184,7 +184,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         size_t       count = 0;
         tlv_node_t*  selected;
         tlv_result_t rc;
-        while ((rc = tlv_document_query_next(exec, &selected)) == TLV_OK) {
+        while ((rc = tlv_document_query_next(exec, &selected, NULL)) == TLV_OK) {
             size_t offset = 0;
             if (selected != tlv_document_first(document)) {
                 tlv_node_t* child = tlv_node_first_child(tlv_document_first(document));

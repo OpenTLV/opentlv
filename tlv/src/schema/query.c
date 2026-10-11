@@ -55,7 +55,7 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
         size_t contexts = 0;
         for (;;) {
             tlv_node_t* node;
-            rc = tlv_document_query_next(exec, &node);
+            rc = tlv_document_query_next(exec, &node, detail);
             if (rc == TLV_END) break;
             if (rc != TLV_OK)
                 return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,

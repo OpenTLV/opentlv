@@ -227,6 +227,7 @@ if tlv.document and tlv.formats.ber then
     local short = fails(function() editing:edit_document("replace",nil,b(9),2) end,
                         tlv.errors.BUFFER_TOO_SHORT)
     assert(short.applied == 0)
+    assert(short.query and short.query.kind_name == "storage")
     assert(editing:edit_document("replace",nil,b(9),3) == 3)
     fails(function() old_node:tag() end)
     fails(function() editing:next() end,tlv.errors.INVALID_STATE)
@@ -236,6 +237,13 @@ if tlv.document and tlv.formats.ber then
     ancestors:evaluate_document(edit_doc)
     assert(ancestors:edit_document("remove") == 2)
     assert(edit_doc:serialize() == b(0x5b,1,4))
+    -- A rejected constructed replacement keeps the Reader cause of its children.
+    local reader_doc = tlv.document(b(0x70,3,0x5a,1,1),f)
+    local constructed = tlv.query_program("//70",f):execution()
+    constructed:evaluate_document(reader_doc)
+    local truncated = fails(function() constructed:edit_document("replace",nil,b(0x5a,3),1) end,
+                            tlv.errors.TRUNCATED)
+    assert(truncated.applied == 0 and truncated.query.kind_name == "reader")
     local located = tlv.document(b(0x50,0,0x57,1,0xaa),f,{retain_source_locations=true})
     local origins = tlv.query_program("//50/following::57[@offset=2 and @hlen=2]",f):execution()
     origins:evaluate_document(located)

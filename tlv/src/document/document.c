@@ -538,9 +538,37 @@ int document_query_callback(tlv_document_t* document, int active) {
 }
 
 #if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
+/* Count the nodes and relative depth of a constructed edit Value. A rejected Value
+ * fills the optional Reader detail, including tree preflight failures that the
+ * Reader leaves untouched. */
+static tlv_result_t edit_value_shape(const tlv_document_t* document, const uint8_t* value,
+                                     size_t size, tlv_tree_frame_t* frames, size_t capacity,
+                                     size_t* added, size_t* relative_depth,
+                                     tlv_reader_diagnostic_t* diagnostic) {
+    tlv_tree_reader_t reader;
+    tlv_result_t check =
+        tlv_tree_reader_init(&reader, value, size, document->options.format, frames, capacity,
+                             document->options.max_depth, document->options.max_elements);
+    while (check == TLV_OK) {
+        tlv_tree_event_t event;
+        check = tlv_tree_reader_next_event_diag(&reader, &event, diagnostic);
+        if (check == TLV_OK && event.kind != TLV_TREE_END) {
+            ++*added;
+            if (event.depth > *relative_depth) *relative_depth = event.depth;
+        }
+    }
+    if (check == TLV_END) return TLV_OK;
+    if (diagnostic && diagnostic->diagnostic.code != check) {
+        tlv_reader_diagnostic_init(diagnostic);
+        tlv_diagnostic_init(&diagnostic->diagnostic, check, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+    }
+    return check;
+}
+
 tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
                                    tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
-                                   const uint8_t* value, size_t size, size_t* applied) {
+                                   const uint8_t* value, size_t size, size_t* applied,
+                                   tlv_reader_diagnostic_t* diagnostic) {
     if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
     if (!count) return TLV_OK;
 #ifndef NDEBUG
@@ -597,20 +625,10 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
         tlv_tree_frame_t* frames =
             capacity ? document_memory_allocate(document, capacity * sizeof *frames) : NULL;
         if (capacity && !frames) return TLV_ERR_OUT_OF_MEMORY;
-        tlv_tree_reader_t reader;
-        tlv_result_t check =
-            tlv_tree_reader_init(&reader, value, size, document->options.format, frames, capacity,
-                                 document->options.max_depth, document->options.max_elements);
-        while (check == TLV_OK) {
-            tlv_tree_event_t event;
-            check = tlv_tree_reader_next_event(&reader, &event);
-            if (check == TLV_OK && event.kind != TLV_TREE_END) {
-                ++added;
-                if (event.depth > relative_depth) relative_depth = event.depth;
-            }
-        }
+        tlv_result_t check = edit_value_shape(document, value, size, frames, capacity, &added,
+                                              &relative_depth, diagnostic);
         document_memory_release(document, frames);
-        if (check != TLV_END) return check;
+        if (check != TLV_OK) return check;
     }
     size_t projected = document->count;
     for (size_t i = 0; i < count; ++i) {

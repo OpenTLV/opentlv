@@ -42,13 +42,13 @@ static int native_document(const tlv_query_program_t* p, size_t kind) {
     CHECK(tlv_query_exec_result(e, &result) == TLV_OK);
     if (kind < 4) {
         tlv_node_t* node = NULL;
-        CHECK(tlv_document_query_next(e, &node) == TLV_OK);
+        CHECK(tlv_document_query_next(e, &node, NULL) == TLV_OK);
         tlv_node_t* expected =
             kind == 3   ? tlv_document_first(document)
             : kind == 1 ? tlv_node_next(tlv_document_first(document))
                         : tlv_node_first_child(tlv_node_next(tlv_document_first(document)));
         CHECK(node == expected);
-        CHECK(tlv_document_query_next(e, &node) == TLV_END);
+        CHECK(tlv_document_query_next(e, &node, NULL) == TLV_END);
     } else if (kind == 4)
         CHECK(result.integer == 1);
     else if (kind == 5)

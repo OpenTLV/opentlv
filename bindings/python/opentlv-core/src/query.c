@@ -1056,16 +1056,17 @@ PyObject* opentlv_python_execution_edit(PyObject* module, PyObject* args) {
         return NULL;
     tlv_node_t** targets = capacity ? calloc((size_t)capacity, sizeof *targets) : NULL;
     if (capacity && !targets) return PyErr_NoMemory();
-    size_t applied = 0;
+    size_t                 applied = 0;
+    tlv_query_diagnostic_t diagnostic = {0};
     self->busy = 1;
     tlv_result_t rc = tlv_document_query_edit(
         document, self->native, (tlv_document_query_edit_kind_t)kind,
         tlv_tag((const uint8_t*)tag_data, (size_t)tag_size), (const uint8_t*)value_data,
-        (size_t)value_size, targets, (size_t)capacity, &applied);
+        (size_t)value_size, targets, (size_t)capacity, &applied, &diagnostic);
     self->busy = 0;
     free(targets);
     if (rc != TLV_OK) {
-        failure(rc, NULL);
+        failure(rc, &diagnostic);
         PyObject *type, *error, *traceback;
         PyErr_Fetch(&type, &error, &traceback);
         PyErr_NormalizeException(&type, &error, &traceback);
@@ -1086,9 +1087,10 @@ PyObject* opentlv_python_execution_next(PyObject* module, PyObject* capsule) {
     execution* self = get_execution(capsule);
     if (!self) return NULL;
     if (self->document) {
-        tlv_node_t*  node;
-        tlv_result_t rc = tlv_document_query_next(self->native, &node);
-        if (rc != TLV_OK) return failure(rc, NULL);
+        tlv_node_t*            node;
+        tlv_query_diagnostic_t diagnostic = {0};
+        tlv_result_t           rc = tlv_document_query_next(self->native, &node, &diagnostic);
+        if (rc != TLV_OK) return failure(rc, rc == TLV_END ? NULL : &diagnostic);
         return PyLong_FromVoidPtr(node);
     }
     tlv_tree_event_t event;

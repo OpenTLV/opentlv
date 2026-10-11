@@ -350,8 +350,13 @@ TEST(Unit_Tlvpp_FullQuery, NativeRevisionAndCallbackGuard) {
         EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_node_set_value(node, nullptr, 0));
         return TLV_VISIT_STOP;
     };
+    tlv_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_query_program_visit(tlv::native::handle(*execution), callback, nullptr));
+              TLV_DIAGNOSTIC_RESULT(
+                  diagnostic, tlv_document_query_program_visit(tlv::native::handle(*execution),
+                                                               callback, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STATE, diagnostic.kind);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(revision + 1, tlv_document_revision(tlv::native::handle(*doc)));
     doc->first().erase();
     EXPECT_FALSE(doc->next(*execution));
@@ -412,20 +417,24 @@ TEST(Unit_Tlvpp_FullQuery, NativeEditCapacityAndAncestorDominance) {
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
     ASSERT_TRUE(execution);
     ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
-    size_t      applied = 99;
-    tlv_node_t* targets[5]{};
-    auto        original = tlv_document_revision(tlv::native::handle(*doc));
+    size_t                 applied = 99;
+    tlv_node_t*            targets[5]{};
+    auto                   original = tlv_document_revision(tlv::native::handle(*doc));
+    tlv_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
-              tlv_document_query_edit(tlv::native::handle(*doc), tlv::native::handle(*execution),
-                                      TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0), nullptr, 0,
-                                      targets, 1, &applied));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_document_query_edit(
+                                        tlv::native::handle(*doc), tlv::native::handle(*execution),
+                                        TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0), nullptr, 0,
+                                        targets, 1, &applied, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.kind);
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(original, tlv_document_revision(tlv::native::handle(*doc)));
     EXPECT_EQ(nullptr, targets[0]);
     EXPECT_EQ(TLV_OK,
               tlv_document_query_edit(tlv::native::handle(*doc), tlv::native::handle(*execution),
                                       TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0), nullptr, 0,
-                                      targets, 5, &applied));
+                                      targets, 5, &applied, nullptr));
     EXPECT_EQ(3u, applied);
     EXPECT_TRUE(doc->empty());
 }
@@ -446,7 +455,8 @@ TEST(Unit_Tlvpp_FullQuery, EditRetriesSameExecutionAfterShortTargetStorage) {
     size_t      applied = 99;
     ASSERT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
               tlv_document_query_edit(tlv::native::handle(*doc), cursor, TLV_DOCUMENT_QUERY_REMOVE,
-                                      tlv_tag(nullptr, 0), nullptr, 0, small, 1, &applied));
+                                      tlv_tag(nullptr, 0), nullptr, 0, small, 1, &applied,
+                                      nullptr));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(sentinel, small[0]);
     EXPECT_EQ(revision, tlv_document_revision(tlv::native::handle(*doc)));
@@ -454,9 +464,9 @@ TEST(Unit_Tlvpp_FullQuery, EditRetriesSameExecutionAfterShortTargetStorage) {
 
     // No re-evaluation or cursor reset between the failed call and this retry.
     tlv_node_t* sufficient[3]{};
-    ASSERT_EQ(TLV_OK,
-              tlv_document_query_edit(tlv::native::handle(*doc), cursor, TLV_DOCUMENT_QUERY_REMOVE,
-                                      tlv_tag(nullptr, 0), nullptr, 0, sufficient, 3, &applied));
+    ASSERT_EQ(TLV_OK, tlv_document_query_edit(tlv::native::handle(*doc), cursor,
+                                              TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0),
+                                              nullptr, 0, sufficient, 3, &applied, nullptr));
     EXPECT_EQ(3u, applied);
     EXPECT_EQ(4u, doc->size());
     auto remaining = doc->select(*query);
@@ -499,10 +509,15 @@ TEST(Unit_Tlvpp_FullQuery, InsertPreflightChecksActualValueLengthBeforeAllocatio
     state.reject = true;
     // Length rejection must precede even the temporary Value copy: the old
     // zero-length preflight would instead reach allocation and return OOM.
+    tlv_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-              tlv_document_query_edit(doc, tlv::native::handle(*execution),
-                                      TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(&tag, 1), value,
-                                      sizeof value, targets, 1, &applied));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_document_query_edit(doc, tlv::native::handle(*execution),
+                                                            TLV_DOCUMENT_QUERY_INSERT_AFTER,
+                                                            tlv_tag(&tag, 1), value, sizeof value,
+                                                            targets, 1, &applied, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.kind);
+    EXPECT_EQ(TLV_QUERY_CAUSE_NONE, diagnostic.cause);
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(1u, tlv_document_count(doc));
     EXPECT_EQ(0u, tlv_document_revision(doc));
@@ -561,7 +576,15 @@ TEST(Unit_Tlvpp_FullQuery, MixedReplacementPrevalidatesConstructedValue) {
     const uint8_t replacement[] = {0x50, 3};
     size_t        applied = 99;
     auto changed = doc->query_replace(*all, bytes(replacement, sizeof replacement), &applied);
-    EXPECT_FALSE(changed);
+    ASSERT_FALSE(changed);
+    EXPECT_EQ(TLV_ERR_TRUNCATED, changed.error().code);
+    EXPECT_EQ(tlv::query_issue::reader, changed.error().kind());
+    const auto& diagnostic = changed.error().diagnostic;
+    EXPECT_TRUE(test_query_diagnostic_matches(changed.error().code, &diagnostic));
+    EXPECT_EQ(TLV_QUERY_CAUSE_READER, diagnostic.cause);
+    // INPUT coordinates are relative to the replacement Value, not the Document.
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_LE(diagnostic.diagnostic.location.end, sizeof replacement);
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(2u, doc->size());
     EXPECT_EQ(1u, doc->first().value().size());
@@ -606,11 +629,12 @@ TEST(Unit_Tlvpp_FullQuery, DeferredFreeReleasesDocumentAfterNestedCallbacks) {
             tlv_document_free(static_cast<context*>(opaque)->doc);
             return TLV_VISIT_STOP;
         };
-        EXPECT_EQ(TLV_OK, tlv_document_query_visit(ctx.doc, &ctx.query, inner, &ctx));
+        EXPECT_EQ(TLV_OK, tlv_document_query_visit(ctx.doc, &ctx.query, inner, &ctx, nullptr));
         EXPECT_EQ(7u, tlv_document_count(ctx.doc));
         return TLV_VISIT_STOP;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_visit(doc, &ctx.query, outer, &ctx));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_query_visit(doc, &ctx.query, outer, &ctx, nullptr));
     EXPECT_EQ(0u, allocations.live);
 }
 
@@ -629,11 +653,11 @@ TEST(Unit_Tlvpp_FullQuery, CompiledDeferredFreeInvalidatesCurrentExecution) {
         tlv_document_free(static_cast<tlv_document_t*>(context));
         return TLV_VISIT_CONTINUE;
     };
-    EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_query_program_visit(tlv::native::handle(*execution), callback, doc));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_program_visit(
+                                         tlv::native::handle(*execution), callback, doc, nullptr));
     tlv_node_t* node = nullptr;
     EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_query_next(tlv::native::handle(*execution), &node));
+              tlv_document_query_next(tlv::native::handle(*execution), &node, nullptr));
     EXPECT_FALSE(execution->result());
 }
 
@@ -649,8 +673,12 @@ TEST(Unit_Tlvpp_FullQuery, DeferredEraseAncestorDominatesPendingDescendant) {
         tlv_node_erase(node);
         return TLV_VISIT_CONTINUE;
     };
+    tlv_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_INVALID_STATE,
-              tlv_document_query_visit(tlv::native::handle(*doc), &query, callback, nullptr));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_document_query_visit(tlv::native::handle(*doc), &query,
+                                                             callback, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STATE, diagnostic.kind);
     EXPECT_EQ(5u, doc->size());
     EXPECT_EQ(0x6F, static_cast<unsigned>(doc->first().tag().data()[0]));
 }
@@ -678,7 +706,7 @@ TEST(Unit_Tlvpp_FullQuery, InsertAndDepthLimitsArePrevalidated) {
     EXPECT_NE(TLV_OK,
               tlv_document_query_edit(tlv::native::handle(*doc), tlv::native::handle(*execution),
                                       TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(nullptr, 1), nullptr,
-                                      0, targets, 2, &applied));
+                                      0, targets, 2, &applied, nullptr));
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(3u, doc->size());
 }
@@ -696,13 +724,16 @@ TEST(Unit_Tlvpp_FullQuery, AggregateInsertionLimitMakesNoChanges) {
     ASSERT_TRUE(execution);
     ASSERT_EQ(TLV_OK, tlv_document_query_evaluate(doc, tlv::native::handle(*execution), nullptr,
                                                   nullptr, 0, nullptr, nullptr));
-    tlv_node_t*   targets[2]{};
-    size_t        applied = 99;
-    const uint8_t tag = 0x50;
-    EXPECT_EQ(TLV_ERR_LIMIT,
-              tlv_document_query_edit(doc, tlv::native::handle(*execution),
-                                      TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(&tag, 1), nullptr, 0,
-                                      targets, 2, &applied));
+    tlv_node_t*            targets[2]{};
+    size_t                 applied = 99;
+    const uint8_t          tag = 0x50;
+    tlv_query_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_LIMIT, TLV_DIAGNOSTIC_RESULT(
+                                 diagnostic, tlv_document_query_edit(
+                                                 doc, tlv::native::handle(*execution),
+                                                 TLV_DOCUMENT_QUERY_INSERT_AFTER, tlv_tag(&tag, 1),
+                                                 nullptr, 0, targets, 2, &applied, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_LIMIT, diagnostic.kind);
     EXPECT_EQ(0u, applied);
     EXPECT_EQ(2u, tlv_document_count(doc));
     EXPECT_EQ(0u, tlv_document_revision(doc));
@@ -800,15 +831,134 @@ TEST(Unit_Tlvpp_FullQuery, AllocatorFailurePreservesUneditedTargetsAndReportsPar
     const uint8_t replacement[] = {7};
     size_t        applied;
     state.remaining = 2; // Copy the shared replacement, then replace the first target.
+    tlv_query_diagnostic_t diagnostic{};
     EXPECT_EQ(TLV_ERR_OUT_OF_MEMORY,
-              tlv_document_query_edit(raw, tlv::native::handle(*execution),
-                                      TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(nullptr, 0), replacement,
-                                      1, targets, 3, &applied));
+              TLV_DIAGNOSTIC_RESULT(diagnostic,
+                                    tlv_document_query_edit(raw, tlv::native::handle(*execution),
+                                                            TLV_DOCUMENT_QUERY_REPLACE,
+                                                            tlv_tag(nullptr, 0), replacement, 1,
+                                                            targets, 3, &applied, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.kind);
     EXPECT_EQ(1u, applied);
     EXPECT_EQ(7, tlv_node_value_data(targets[0])[0]);
     EXPECT_EQ(2, tlv_node_value_data(targets[1])[0]);
     EXPECT_EQ(9, tlv_node_value_data(targets[2])[0]);
     tlv_document_free(raw);
+}
+
+TEST(Unit_Tlvpp_FullQuery, DocumentPathVisitPublishesQueryDiagnostic) {
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
+    ASSERT_TRUE(doc);
+    auto* const raw = tlv::native::handle(*doc);
+    tlv_query_t query;
+    ASSERT_EQ(TLV_OK, tlv_query_parse("6F/A5/50", &query, nullptr));
+    auto                   continue_all = [](tlv_node_t*, void*) { return TLV_VISIT_CONTINUE; };
+    auto                   fail = [](tlv_node_t*, void*) { return TLV_VISIT_ERROR; };
+    tlv_query_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_document_query_visit(raw, &query, nullptr,
+                                                                         nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.kind);
+    const tlv_query_t empty{};
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_document_query_visit(raw, &empty, continue_all,
+                                                                         nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_VISITOR,
+              TLV_DIAGNOSTIC_RESULT(
+                  diagnostic, tlv_document_query_visit(raw, &query, fail, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, diagnostic.kind);
+    EXPECT_EQ(TLV_QUERY_CAUSE_NONE, diagnostic.cause);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(TLV_OK, tlv_document_query_visit(raw, &query, continue_all, nullptr, &diagnostic));
+}
+
+TEST(Unit_Tlvpp_FullQuery, DocumentResultPullsPublishOnlyFailures) {
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
+    ASSERT_TRUE(doc);
+    auto query = tlv::query_program::compile("//50");
+    ASSERT_TRUE(query);
+    auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
+    auto* const            exec = tlv::native::handle(*execution);
+    tlv_node_t*            node = nullptr;
+    tlv_query_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_NULL_ARG, TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_document_query_next(
+                                                                      exec, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.kind);
+    // Successful pulls and the normal end of iteration leave the diagnostic unchanged.
+    while (tlv_document_query_next(exec, &node, &diagnostic) == TLV_OK) {
+    }
+    EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_END, tlv_document_query_next(exec, &node, &diagnostic));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, diagnostic.diagnostic.code);
+    // A diagnostic inside the execution workspace is rejected before it is written.
+    EXPECT_EQ(
+        TLV_ERR_INVALID_ARG,
+        tlv_document_query_next(exec, &node, reinterpret_cast<tlv_query_diagnostic_t*>(exec)));
+    // An edit makes the retained selection stale.
+    doc->first().erase();
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_document_query_next(exec, &node, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STATE, diagnostic.kind);
+    auto stale = doc->next(*execution);
+    ASSERT_FALSE(stale);
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, stale.error().code);
+    EXPECT_EQ(tlv::query_issue::state, stale.error().kind());
+}
+
+TEST(Unit_Tlvpp_FullQuery, DocumentProgramVisitorErrorIsTerminalAndKeepsFirstFailure) {
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
+    ASSERT_TRUE(doc);
+    auto query = tlv::query_program::compile("//50");
+    ASSERT_TRUE(query);
+    auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
+    ASSERT_TRUE(execution);
+    ASSERT_TRUE(doc->evaluate(*execution, tlv::span<tlv::byte>{}));
+    auto* const            exec = tlv::native::handle(*execution);
+    auto                   fail = [](tlv_node_t*, void*) { return TLV_VISIT_ERROR; };
+    tlv_query_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_document_query_program_visit(
+                                                    exec, nullptr, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_VISITOR,
+              TLV_DIAGNOSTIC_RESULT(
+                  diagnostic, tlv_document_query_program_visit(exec, fail, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, diagnostic.kind);
+    // The failed execution rejects continuation without replacing the first failure.
+    tlv_node_t* node = nullptr;
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_query_next(exec, &node, &diagnostic));
+    EXPECT_EQ(TLV_ERR_INVALID_STATE,
+              tlv_document_query_program_visit(exec, fail, nullptr, &diagnostic));
+    EXPECT_EQ(TLV_ERR_VISITOR, diagnostic.diagnostic.code);
+    EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, diagnostic.kind);
+}
+
+TEST(Unit_Tlvpp_FullQuery, DocumentValueSizeClassifiesWriterFailures) {
+    auto doc = tlv::document::parse(bytes(input, sizeof input),
+                                    tlv::document_format(tlv::native::borrow_format(format)));
+    ASSERT_TRUE(doc);
+    auto* const                 raw = tlv::native::handle(*doc);
+    tlv_tree_writer_frame_t     frames[4]{};
+    tlv_tree_writer_workspace_t staging{};
+    staging.frames = frames;
+    staging.frame_capacity = 4;
+    size_t                 bytes_required = 0;
+    tlv_query_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              TLV_DIAGNOSTIC_RESULT(
+                  diagnostic, tlv_document_query_value_size(raw, &staging, nullptr, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, diagnostic.kind);
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_document_query_value_size(
+                                                    raw, &staging, &bytes_required, &diagnostic)));
+    EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.kind);
+    EXPECT_NE(0u, staging.required_data);
 }
 #endif
 

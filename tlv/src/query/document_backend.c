@@ -69,11 +69,17 @@ static tlv_result_t document_charge(void* context, size_t amount) {
 }
 
 tlv_result_t tlv_document_query_value_size(const tlv_document_t* document,
-                                           tlv_tree_writer_workspace_t* staging, size_t* bytes) {
-    if (!document || !staging || !bytes) return TLV_ERR_NULL_ARG;
+                                           tlv_tree_writer_workspace_t* staging, size_t* bytes,
+                                           tlv_query_diagnostic_t* d) {
+    query_diag_init(d);
+    if (!document || !staging || !bytes)
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
+                                     "required Document snapshot arguments");
     document_source_t source = {tlv_document_first(document), 0, 0};
-    return tlv_tree_writer_measure_events(document_format(document), document_event, &source,
-                                          staging, SIZE_MAX, SIZE_MAX, bytes, NULL);
+    tlv_result_t rc =
+        tlv_tree_writer_measure_events(document_format(document), document_event, &source, staging,
+                                       SIZE_MAX, SIZE_MAX, bytes, NULL);
+    return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "Document Value snapshot");
 }
 
 tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_query_exec_t* e,
@@ -196,28 +202,52 @@ failed:
     return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS,
                          "Document evaluation or Value snapshot failed");
 }
-tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node) {
-    if (!e || !node) return TLV_ERR_NULL_ARG;
-    if (e->busy || e->invalid) return TLV_ERR_INVALID_STATE;
-    if (query_output_overlap_live(e, node, sizeof *node)) return TLV_ERR_INVALID_ARG;
+/* A pull initializes the diagnostic only on failure, so iterating writes no detail. */
+static tlv_result_t document_pull_failure(tlv_query_diagnostic_t* d, tlv_result_t rc,
+                                          tlv_query_error_kind_t kind, const char* expected) {
+    query_diag_init(d);
+    return query_error_unlocated(d, rc, kind, expected);
+}
+tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node,
+                                     tlv_query_diagnostic_t* d) {
+    size_t node_size = node ? sizeof *node : 0, diagnostic_size = d ? sizeof *d : 0;
+    /* Reentrancy and failed-execution guards preserve the original failure. */
+    if (e && (e->busy || e->invalid)) return TLV_ERR_INVALID_STATE;
+    if ((e && (query_output_overlap_live(e, node, node_size) ||
+               query_output_overlap_live(e, d, diagnostic_size))) ||
+        query_overlap(node, node_size, d, diagnostic_size))
+        return TLV_ERR_INVALID_ARG;
+    if (!e || !node)
+        return document_pull_failure(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
+                                     "required Document result arguments");
     if (!e->document_owner || e->document_revision != tlv_document_revision(e->document_owner))
-        return TLV_ERR_INVALID_STATE;
+        return document_pull_failure(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
+                                     "evaluated execution of the current Document revision");
     void* handle;
     tlv_result_t rc = query_document_next(e, &handle);
     if (rc == TLV_OK) *node = handle;
-    return rc;
+    if (rc == TLV_OK || rc == TLV_END) return rc;
+    return document_pull_failure(d, rc, query_result_kind(rc, TLV_QUERY_ERROR_STATE),
+                                 "evaluated Document node execution");
 }
 tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
-                                              tlv_document_query_visitor_t visitor, void* context) {
-    if (!e || !visitor) return TLV_ERR_NULL_ARG;
-    if (e->busy || e->invalid || !e->document_owner ||
-        ((const tlv_document_t*)e->document_owner)->query_callbacks)
-        return TLV_ERR_INVALID_STATE;
+                                              tlv_document_query_visitor_t visitor, void* context,
+                                              tlv_query_diagnostic_t* d) {
+    if (e && (e->busy || e->invalid)) return TLV_ERR_INVALID_STATE;
+    if (e && query_output_overlap_live(e, d, d ? sizeof *d : 0)) return TLV_ERR_INVALID_ARG;
+    query_diag_init(d);
+    if (!e || !visitor)
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
+                                     "required Document result arguments");
+    if (!e->document_owner || ((const tlv_document_t*)e->document_owner)->query_callbacks)
+        return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
+                                     "evaluated Document execution outside callbacks");
     for (;;) {
         tlv_node_t* node;
-        tlv_result_t rc = tlv_document_query_next(e, &node);
+        tlv_result_t rc = tlv_document_query_next(e, &node, d);
         if (rc == TLV_END) return TLV_OK;
-        if (rc != TLV_OK) return rc;
+        if (rc != TLV_OK)
+            return query_failure(d, rc, TLV_QUERY_ERROR_STATE, "evaluated Document node execution");
         tlv_document_t* owner = (tlv_document_t*)e->document_owner;
         document_query_callback(owner, 1);
         e->busy = 1;
@@ -230,12 +260,15 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
         if (deferred || overwritten) {
             e->invalid = 1;
             if (deferred == 2) e->document_owner = NULL;
-            return TLV_ERR_INVALID_STATE;
+            return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
+                                         "callback preserves Document and execution workspace");
         }
         if (action == TLV_VISIT_STOP) return TLV_OK;
         if (action != TLV_VISIT_CONTINUE) {
             e->invalid = 1;
-            return action == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK;
+            return query_error_unlocated(
+                d, action == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
+                TLV_QUERY_ERROR_CALLBACK, "visitor continue or stop");
         }
     }
 }
@@ -243,36 +276,61 @@ tlv_result_t tlv_document_query_program_visit(tlv_query_exec_t* e,
 tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t* e,
                                      tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
                                      const uint8_t* value, size_t size, tlv_node_t** targets,
-                                     size_t capacity, size_t* applied) {
-    if (!document || !e || !applied || (!targets && capacity)) return TLV_ERR_NULL_ARG;
-    if (e->busy || document->query_callbacks) return TLV_ERR_INVALID_STATE;
-    if (query_output_overlap(e, applied, sizeof *applied) ||
-        capacity > SIZE_MAX / sizeof *targets ||
-        query_output_overlap(e, targets, capacity * sizeof *targets) ||
-        query_overlap(targets, capacity * sizeof *targets, applied, sizeof *applied) ||
-        (kind != TLV_DOCUMENT_QUERY_REMOVE &&
-         (query_overlap(value, size, targets, capacity * sizeof *targets) ||
-          query_overlap(value, size, applied, sizeof *applied))))
+                                     size_t capacity, size_t* applied, tlv_query_diagnostic_t* d) {
+    size_t diagnostic_size = d ? sizeof *d : 0, applied_size = applied ? sizeof *applied : 0;
+    if ((e && e->busy) || (document && document->query_callbacks)) return TLV_ERR_INVALID_STATE;
+    if (capacity > SIZE_MAX / sizeof *targets) return TLV_ERR_INVALID_ARG;
+    size_t targets_size = targets ? capacity * sizeof *targets : 0;
+    if ((e && (query_output_overlap(e, applied, applied_size) ||
+               query_output_overlap(e, targets, targets_size) ||
+               query_output_overlap(e, d, diagnostic_size))) ||
+        query_overlap(targets, targets_size, applied, applied_size) ||
+        query_overlap(d, diagnostic_size, targets, targets_size) ||
+        query_overlap(d, diagnostic_size, applied, applied_size) ||
+        (kind != TLV_DOCUMENT_QUERY_REMOVE && (query_overlap(value, size, targets, targets_size) ||
+                                               query_overlap(value, size, applied, applied_size) ||
+                                               query_overlap(value, size, d, diagnostic_size))))
         return TLV_ERR_INVALID_ARG;
+    query_diag_init(d);
+    if (!document || !e || !applied || (!targets && capacity))
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
+                                     "required Document edit arguments");
     *applied = 0;
     if ((kind != TLV_DOCUMENT_QUERY_REMOVE && kind != TLV_DOCUMENT_QUERY_REPLACE &&
          kind != TLV_DOCUMENT_QUERY_INSERT_AFTER) ||
         e->document_owner != document || (!value && size && kind != TLV_DOCUMENT_QUERY_REMOVE))
-        return TLV_ERR_INVALID_ARG;
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
+                                     "edit operation, owning Document and Value");
     if (e->result_cursor || e->document_revision != tlv_document_revision(document))
-        return TLV_ERR_INVALID_STATE;
+        return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
+                                     "unread selection of the current Document revision");
     size_t required;
     tlv_result_t status = query_document_result_count(e, &required);
-    if (status != TLV_OK) return status;
-    if (capacity < required) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (status != TLV_OK)
+        return query_failure(d, status, TLV_QUERY_ERROR_STATE, "evaluated Document node execution");
+    if (capacity < required)
+        return query_error_unlocated(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                     "target capacity for the complete selection");
     size_t count = 0;
     for (;;) {
         tlv_node_t* node;
-        tlv_result_t rc = tlv_document_query_next(e, &node);
+        tlv_result_t rc = tlv_document_query_next(e, &node, d);
         if (rc == TLV_END) break;
-        if (rc != TLV_OK) return rc;
-        if (count == capacity) return TLV_ERR_BUFFER_TOO_SHORT;
+        if (rc != TLV_OK)
+            return query_failure(d, rc, TLV_QUERY_ERROR_STATE, "evaluated Document node execution");
+        if (count == capacity)
+            return query_error_unlocated(d, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
+                                         "target capacity for the complete selection");
         targets[count++] = node;
     }
-    return document_edit_targets(document, targets, count, kind, tag, value, size, applied);
+    /* Only a constructed Value rejected by the Reader publishes Reader detail. */
+    tlv_reader_diagnostic_t reader;
+    if (d) reader.diagnostic.code = TLV_OK;
+    tlv_result_t rc = document_edit_targets(document, targets, count, kind, tag, value, size,
+                                            applied, d ? &reader : NULL);
+    if (rc != TLV_OK && d && reader.diagnostic.code == rc) {
+        query_reader_failure(d, rc, &reader);
+        return rc;
+    }
+    return query_failure(d, rc, TLV_QUERY_ERROR_ARGUMENT, "Document edit Tag, Value and limits");
 }

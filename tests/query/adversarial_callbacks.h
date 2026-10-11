@@ -197,7 +197,7 @@ static void               mutate(callback_state* s) {
                 ++s->errors;
             break;
         case 7:
-            if (tlv_document_query_program_visit(s->exec, document_visitor, s) !=
+            if (tlv_document_query_program_visit(s->exec, document_visitor, s, NULL) !=
                 TLV_ERR_INVALID_STATE)
                 ++s->errors;
             break;
@@ -730,7 +730,7 @@ static int document_reinitialization(const tlv_document_options_t* options) {
         CHECK(tlv_document_parse(wire, sizeof wire, options, &state.document, NULL) == TLV_OK);
         CHECK(tlv_document_query_evaluate(state.document, state.exec, NULL, NULL, 0, NULL, NULL) ==
               TLV_OK);
-        CHECK(tlv_document_query_program_visit(state.exec, reinitialize_visitor, &state) ==
+        CHECK(tlv_document_query_program_visit(state.exec, reinitialize_visitor, &state, NULL) ==
               TLV_ERR_INVALID_STATE);
         CHECK(state.calls == 1 && !state.errors);
         tlv_query_result_t result;
@@ -761,7 +761,7 @@ static int edit_aliases(void) {
     CHECK(compile_plan("//01", NULL, &image, &p) == 0);
     size_t bytes, alignment;
     CHECK(tlv_query_eval_size(p, 3, 8, &bytes, &alignment) == TLV_OK);
-    for (unsigned alias = 0; alias < 3; ++alias) {
+    for (unsigned alias = 0; alias < 5; ++alias) {
         const uint8_t     wire[] = {1, 1, 9, 1, 1, 8};
         tlv_document_t*   document;
         tlv_query_exec_t* e;
@@ -770,23 +770,33 @@ static int edit_aliases(void) {
         CHECK(tlv_document_query_evaluate(document, e, NULL, NULL, 0, NULL, NULL) == TLV_OK);
         tlv_node_t* targets[4];
         memset(targets, 0x5a, sizeof targets);
-        tlv_node_t*    saved[4];
-        size_t         applied = 77;
-        size_t*        count = &applied;
-        const uint8_t  replacement = 4;
-        const uint8_t* value = &replacement;
+        tlv_node_t*            saved[4];
+        size_t                 applied = 77;
+        size_t*                count = &applied;
+        const uint8_t          replacement = 4;
+        const uint8_t*         value = &replacement;
+        tlv_query_diagnostic_t diagnostic, saved_diagnostic;
+        memset(&diagnostic, 0x5a, sizeof diagnostic);
+        memcpy(&saved_diagnostic, &diagnostic, sizeof diagnostic);
         memcpy(saved, targets, sizeof targets);
         switch (alias) {
             case 0: count = (size_t*)(void*)&targets[1]; break;
             case 1: value = (const uint8_t*)(void*)&targets[0]; break;
             case 2: value = (const uint8_t*)(void*)&applied; break;
+            /* The diagnostic is an output too: an aliased Value or count is rejected
+             * before the diagnostic is initialized. */
+            case 3: value = (const uint8_t*)(void*)&diagnostic.kind; break;
+            case 4: count = &diagnostic.configured; break;
         }
         CHECK(tlv_document_query_edit(document, e, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(wire, 1),
-                                      value, 1, targets, 4, count) == TLV_ERR_INVALID_ARG);
+                                      value, 1, targets, 4, count,
+                                      &diagnostic) == TLV_ERR_INVALID_ARG);
         CHECK(applied == 77 && !memcmp(saved, targets, sizeof targets));
+        CHECK(!memcmp(&saved_diagnostic, &diagnostic, sizeof diagnostic));
         CHECK(tlv_node_value_data(tlv_document_first(document))[0] == 9);
         CHECK(tlv_document_query_edit(document, e, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(wire, 1),
-                                      &replacement, 1, targets, 4, &applied) == TLV_OK);
+                                      &replacement, 1, targets, 4, &applied,
+                                      &diagnostic) == TLV_OK);
         CHECK(applied == 2 && tlv_node_value_data(tlv_document_first(document))[0] == 4);
         tlv_document_free(document);
     }
@@ -839,20 +849,28 @@ static int documents(void) {
             staging.scratch_capacity = sizeof scratch;
             staging.frames = frames;
             staging.frame_capacity = 8;
+            tlv_query_diagnostic_t diagnostic = {0};
             tlv_result_t rc = tlv_document_query_evaluate(state.document, state.exec, NULL, values,
-                                                          sizeof values, &staging, NULL);
+                                                          sizeof values, &staging, &diagnostic);
             if (kind < 4) {
                 CHECK(rc == TLV_OK);
-                rc = tlv_document_query_program_visit(state.exec, document_visitor, &state);
+                rc = tlv_document_query_program_visit(state.exec, document_visitor, &state,
+                                                      &diagnostic);
             }
             int invalid = mutation == 1 || mutation == 2 || mutation == 8 || mutation == 9;
             CHECK(rc == (invalid ? TLV_ERR_INVALID_STATE : TLV_OK));
+            CHECK(test_query_diagnostic_matches(rc, &diagnostic));
             CHECK(state.calls && !state.errors);
             if (invalid) {
-                tlv_query_result_t output;
-                tlv_node_t*        node = NULL;
+                tlv_query_result_t     output;
+                tlv_node_t*            node = NULL;
+                tlv_query_diagnostic_t first;
+                memcpy(&first, &diagnostic, sizeof first);
                 CHECK(tlv_query_exec_result(state.exec, &output) == TLV_ERR_INVALID_STATE);
-                CHECK(tlv_document_query_next(state.exec, &node) == TLV_ERR_INVALID_STATE);
+                /* A failed execution keeps its first failure: the pull leaves it unchanged. */
+                CHECK(tlv_document_query_next(state.exec, &node, &diagnostic) ==
+                      TLV_ERR_INVALID_STATE);
+                CHECK(!memcmp(&first, &diagnostic, sizeof diagnostic));
             }
             CHECK(tlv_query_exec_reset(state.exec) == TLV_OK);
             if (mutation != 8) tlv_document_free(state.document);

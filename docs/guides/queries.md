@@ -546,6 +546,14 @@ terminal error. Global `following`/`preceding` plans require this backend and ar
 rejected by Reader execution before input is consumed. Original source offsets
 are available when retained during parsing and not invalidated by edits.
 
+Every Document Query entry point takes an optional trailing
+`tlv_query_diagnostic_t*`, the same diagnostic as program execution; pass NULL
+when not needed. A visitor error reports kind `CALLBACK`, a lifecycle failure
+`STATE`, and a conversion failure keeps its `CODEC` cause. A constructed edit
+Value rejected by the Reader keeps the original Reader detail, with input
+locations relative to that Value. `tlv_document_query_next` writes the
+diagnostic only on failure; `TLV_END` leaves it unchanged.
+
 The [language contract](../concepts/query-language.md#storage-and-execution)
 defines ordered emission, deduplication, capacity errors and backend costs.
 These compiled APIs currently have a C facade; the path APIs above retain their

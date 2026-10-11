@@ -1067,7 +1067,7 @@ static int execution_next_run(lua_State* L) {
 #if OPENTLV_DOCUMENT
     if (q->document_ref != LUA_NOREF) {
         tlv_node_t*  node = NULL;
-        tlv_result_t rc = tlv_document_query_next(q->exec, &node);
+        tlv_result_t rc = tlv_document_query_next(q->exec, &node, &diagnostic);
         if (rc == TLV_END) {
             lua_pushnil(L);
             return 1;
@@ -1305,14 +1305,15 @@ static int execution_edit_run(lua_State* L) {
     if (capacity > SIZE_MAX / sizeof(tlv_node_t*)) return query_error(L, TLV_ERR_OVERFLOW, NULL);
     tlv_node_t** targets = lua_newuserdata(L, capacity * sizeof *targets);
     lua_rawgeti(L, LUA_REGISTRYINDEX, q->document_ref);
-    tlv_document_t* document = opentlv_lua_document_native(L, lua_gettop(L));
-    size_t          applied = 0;
-    tlv_result_t    rc = tlv_document_query_edit(
+    tlv_document_t*        document = opentlv_lua_document_native(L, lua_gettop(L));
+    size_t                 applied = 0;
+    tlv_query_diagnostic_t diagnostic = {0};
+    tlv_result_t           rc = tlv_document_query_edit(
         document, q->exec, (tlv_document_query_edit_kind_t)kind, tlv_tag(tag, tag_size), value,
-        value_size, targets, capacity, &applied);
+        value_size, targets, capacity, &applied, &diagnostic);
     if (applied) opentlv_lua_document_invalidate(L, lua_gettop(L));
     if (rc != TLV_OK) {
-        opentlv_lua_push_error(L, rc, 0, 0);
+        push_query_error(L, rc, &diagnostic);
         field(L, "applied", applied);
         return lua_error(L);
     }
