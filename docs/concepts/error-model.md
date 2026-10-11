@@ -404,7 +404,8 @@ result and kind are not listed. `READER` and `CODEC` preserve a lower-layer
 result and `CAPABILITY` a Tag adapter or resolver result, so they also accept a
 propagated result. A lower-layer call that reports no Query detail is classified
 by its result: argument results become `ARGUMENT`, capacity and size results
-`STORAGE`, `UNSUPPORTED` becomes `CAPABILITY` and `LIMIT` stays `LIMIT`.
+`STORAGE`, `UNSUPPORTED` becomes `CAPABILITY`, `LIMIT` stays `LIMIT`, and
+`CALLBACK` and `VISITOR` become `CALLBACK`.
 
 ### Every current Schema issue kind
 

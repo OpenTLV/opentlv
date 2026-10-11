@@ -1205,6 +1205,35 @@ TEST(Unit_Tlv_QueryProgram, EventFeedRejectsUnbalancedEventsAndMissingSource) {
     EXPECT_EQ(TLV_QUERY_ERROR_SOURCE, p.diagnostic.kind);
 }
 
+TEST(Unit_Tlv_QueryProgram, FailuresWithoutQueryDetailAreClassifiedByResult) {
+    struct Case {
+        tlv_result_t           result;
+        tlv_query_error_kind_t kind;
+    };
+    for (const Case c : {Case{TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT},
+                         Case{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT},
+                         Case{TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE},
+                         Case{TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE},
+                         Case{TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY},
+                         Case{TLV_ERR_LIMIT, TLV_QUERY_ERROR_LIMIT},
+                         Case{TLV_ERR_CALLBACK, TLV_QUERY_ERROR_CALLBACK},
+                         Case{TLV_ERR_VISITOR, TLV_QUERY_ERROR_CALLBACK},
+                         Case{TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE},
+                         Case{TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_EVENTS}}) {
+        tlv_query_diagnostic_t d{};
+        // The fallback applies only when the callee left no Query detail.
+        EXPECT_EQ(c.result, TLV_DIAGNOSTIC_RESULT(
+                                d, query_failure(&d, c.result, TLV_QUERY_ERROR_EVENTS, "x")));
+        EXPECT_EQ(c.kind, d.kind) << "result=" << c.result;
+    }
+    tlv_query_diagnostic_t d{};
+    query_error_unlocated(&d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_TYPE, "typed");
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              TLV_DIAGNOSTIC_RESULT(
+                  d, query_failure(&d, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_EVENTS, "x")));
+    EXPECT_EQ(TLV_QUERY_ERROR_TYPE, d.kind);
+}
+
 TEST(Unit_Tlv_QueryProgram, ArgumentFailuresHaveArgumentKind) {
     tlv_query_diagnostic_t d{};
     size_t                 bytes, alignment;

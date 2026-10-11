@@ -85,8 +85,8 @@ Every Query failure pairs its result with one kind of the
 | `READER`, `CODEC` | The preserved Reader or conversion result |
 
 A lower-layer call that returns no Query detail is classified by its result, so
-an argument failure is `ARGUMENT` and a storage shortage `STORAGE` whichever
-Query operation propagates it.
+an argument failure is `ARGUMENT`, a storage shortage `STORAGE` and a callback
+or visitor failure `CALLBACK` whichever Query operation propagates it.
 
 The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
 native consumers with matching headers and bindings.

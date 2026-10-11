@@ -420,7 +420,7 @@ static inline tlv_result_t query_limit(tlv_query_diagnostic_t* d, const char* na
 }
 
 /* A lower-layer call that reports no Query detail is classified by its result:
- * argument, capacity and capability results never take the caller's category. */
+ * argument, capacity, capability and callback results never take the caller's category. */
 static inline tlv_query_error_kind_t query_result_kind(tlv_result_t rc,
                                                        tlv_query_error_kind_t kind) {
     switch (rc) {
@@ -431,6 +431,8 @@ static inline tlv_query_error_kind_t query_result_kind(tlv_result_t rc,
         case TLV_ERR_NATIVE_SIZE: return TLV_QUERY_ERROR_STORAGE;
         case TLV_ERR_UNSUPPORTED: return TLV_QUERY_ERROR_CAPABILITY;
         case TLV_ERR_LIMIT: return TLV_QUERY_ERROR_LIMIT;
+        case TLV_ERR_CALLBACK:
+        case TLV_ERR_VISITOR: return TLV_QUERY_ERROR_CALLBACK;
         default: return kind;
     }
 }

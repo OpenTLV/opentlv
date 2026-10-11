@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Classify a `VISITOR` or `CALLBACK` result propagated without Query detail, such as through a Schema Query execution, as Query kind `CALLBACK` instead of `EVENTS`, so it satisfies the #551 result and kind contract. (#587)
 - Document that `tlv_query_exec_finish()` returns `INVALID_VALUE` for a missing binding, as it already did, instead of `INVALID_ARG`. (#587)
 - Format the Go Codec detail struct after adding `Reason`, so the Go binding `gofmt` check passes. (#579)
 - Report a Reader workspace or Format rejected before a Schema Query traversal, and a refused Query subtree skip, without an empty Reader cause: they now have Query cause `NONE` with kind `STORAGE`/`CAPABILITY` or `STATE`. (#579)
