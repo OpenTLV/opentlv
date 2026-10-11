@@ -12,11 +12,11 @@ import "bytes"
 
 // CodecDetail owns conversion evidence before borrowed C buffers expire.
 type CodecDetail struct {
-	Diagnostic                            Diagnostic
+	Diagnostic                                    Diagnostic
 	Operation, Reported, Violation, Reason, Cause int
-	Representation                        string
-	Reader                                *Diagnostic
-	Schema                                *CodecSchemaDetail
+	Representation                                string
+	Reader                                        *Diagnostic
+	Schema                                        *CodecSchemaDetail
 }
 
 // CodecSchemaDetail retains delegated Schema rule evidence.

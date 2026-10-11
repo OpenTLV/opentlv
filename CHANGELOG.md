@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Format the Go Codec detail struct after adding `Reason`, so the Go binding `gofmt` check passes. (#579)
 - Report a Reader workspace or Format rejected before a Schema Query traversal, and a refused Query subtree skip, without an empty Reader cause: they now have Query cause `NONE` with kind `STORAGE`/`CAPABILITY` or `STATE`. (#579)
 - Keep the Query expression span as the primary location when a conversion failure reports no location, such as a provider output contract violation that Query rejects itself, instead of leaving `diagnostic.location` unknown. (#579)
 - Report the Query cause as `cause=` in compact `otlv query` diagnostics and remove the unreachable Schema branch of the JSON Query diagnostic. (#579)
