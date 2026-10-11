@@ -23,8 +23,12 @@ FAMILIES = (
      "tlv/include/tlv/writer/writer.h", "tlv_writer_operation_string", "writer_operation"),
     ("QueryErrorKind", "tlv_query_error_kind", "TLV_QUERY_ERROR_",
      "tlv/include/tlv/query/program.h", "tlv_query_error_kind_string", "query_error_kind"),
+    ("QueryCause", "tlv_query_cause", "TLV_QUERY_CAUSE_",
+     "tlv/include/tlv/query/program.h", "tlv_query_cause_string", "query_cause"),
     ("SchemaIssue", "tlv_schema_issue_kind", "TLV_SCHEMA_ISSUE_",
      "tlv/include/tlv/schema/schema.h", "tlv_schema_issue_kind_string", "schema_issue_kind"),
+    ("SchemaCause", "tlv_schema_cause", "TLV_SCHEMA_CAUSE_",
+     "tlv/include/tlv/schema/schema.h", "tlv_schema_cause_string", "schema_cause"),
     ("SchemaDefinitionKind", "tlv_schema_definition_kind", "TLV_SCHEMA_DEFINITION_",
      "tlv/include/tlv/schema/schema.h", "tlv_schema_definition_kind_string",
      "schema_definition_kind"),
@@ -34,6 +38,8 @@ FAMILIES = (
      "tlv/include/tlv/codec/diagnostic.h", "tlv_codec_cause_string", "codec_cause"),
     ("CodecViolation", "tlv_codec_violation", "TLV_CODEC_VIOLATION_",
      "tlv/include/tlv/codec/diagnostic.h", "tlv_codec_violation_string", "codec_violation"),
+    ("CodecReason", "tlv_codec_reason", "TLV_CODEC_REASON_",
+     "tlv/include/tlv/codec/diagnostic.h", "tlv_codec_reason_string", "codec_reason"),
     ("Severity", "tlv_diagnostic_severity", "TLV_DIAGNOSTIC_SEVERITY_",
      "tlv/include/tlv/diagnostic.h", "tlv_diagnostic_severity_string", "diagnostic_severity"),
 )
@@ -125,7 +131,14 @@ def rust(families):
 def rust_test(families):
     out = [HEADER, f"//! {NOTICE}\n", "use opentlv::{\n"]
     imports = sorted(binding for binding, *_ in families)
-    out.append("    " + ", ".join(imports[:5]) + ",\n    " + ", ".join(imports[5:]) + ",\n};\n")
+    # Fill import lines as rustfmt does: indented, comma-terminated, at most 100 columns.
+    line = "   "
+    for name in imports:
+        if len(line) + len(name) + 2 > 100:
+            out.append(line + "\n")
+            line = "   "
+        line += f" {name},"
+    out.append(line + "\n};\n")
     for binding, _, _, _, members in families:
         snake = re.sub(r"(?<!^)([A-Z])", r"_\1", binding).lower()
         out.append(f"\n#[test]\nfn {snake}_matches_native_vocabulary() {{\n    for (member, raw, name) in [\n")

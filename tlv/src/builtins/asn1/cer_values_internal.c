@@ -63,24 +63,24 @@ static tlv_result_t validate_character_segment(uint64_t number, unsigned width,
                                                const uint8_t* value, size_t length) {
     if (width == 4) {
         if (length % 4) return TLV_ERR_INVALID_VALUE;
-        return tlv_asn1_validate_universal_string(value, length);
+        return tlv_asn1_validate_universal_string(value, length, NULL);
     }
     if (width == 2) {
         if (length % 2) return TLV_ERR_INVALID_VALUE;
-        return tlv_asn1_validate_bmp_string(value, length);
+        return tlv_asn1_validate_bmp_string(value, length, NULL);
     }
     switch (number) {
-        case 18: return tlv_asn1_validate_numeric_string(value, length);
-        case 19: return tlv_asn1_validate_printable_string(value, length);
-        case 22: return tlv_asn1_validate_ia5_string(value, length);
-        case 26: return tlv_asn1_validate_visible_string(value, length);
+        case 18: return tlv_asn1_validate_numeric_string(value, length, NULL);
+        case 19: return tlv_asn1_validate_printable_string(value, length, NULL);
+        case 22: return tlv_asn1_validate_ia5_string(value, length, NULL);
+        case 26: return tlv_asn1_validate_visible_string(value, length, NULL);
         /* ObjectDescriptor, TeletexString, VideotexString, GraphicString,
          * GeneralString: unconstrained, like OCTET STRING. */
         case 7:
         case 20:
         case 21:
         case 25:
-        case 27: return tlv_asn1_validate_octet_string(value, length);
+        case 27: return tlv_asn1_validate_octet_string(value, length, NULL);
         default: return TLV_ERR_UNSUPPORTED; /* unreachable: no other number reaches here */
     }
 }
@@ -160,7 +160,7 @@ tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t
     if (state->strict) {
         tlv_result_t rc;
         if (state->info.form == TLV_CER_FORM_BIT_STRING) {
-            rc = tlv_asn1_validate_bit_string(state->pending_value, state->pending_length);
+            rc = tlv_asn1_validate_bit_string(state->pending_value, state->pending_length, NULL);
             if (rc != TLV_OK) {
                 if (error_offset) *error_offset = state->pending_offset;
                 return rc;

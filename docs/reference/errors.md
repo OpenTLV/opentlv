@@ -28,12 +28,15 @@ return describes that result:
 
 - `tlv_diagnostic_t` and the active diagnostic in an embedding type have
   `diagnostic.code == rc`.
-- `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` detail
-  sets `has_reader` and stores its result, location and path only in `diagnostic`; a `CODEC` detail has a non-OK codec result.
+- `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` kind
+  has cause `READER` and stores its result, location and path only in
+  `diagnostic`; a `CODEC` kind has cause `CODEC` with a non-OK
+  `detail.codec.reported`; a `SCHEMA` kind has cause `SCHEMA`.
 - An initialized Query diagnostic for `TLV_ERR_INVALID_STATE` has kind
   `TLV_QUERY_ERROR_STATE`. Pre-initialization preservation exceptions below still apply.
-- Schema Query has alternative detail channels: a false assertion sets
-  `schema.diagnostic.code`, while an execution failure fills `query`.
+- Schema Query reports every failure once in `query`: a false assertion has
+  `SCHEMA` result, kind and cause with `ASSERTION` detail, while an execution
+  failure keeps its own result, kind and cause.
 
 The rule includes `TLV_END` and `TLV_NEED_MORE_DATA` when returned
 through an initialized diagnostic channel; their severity is `INFO`, not `ERROR`. These are still normal iteration or
@@ -64,7 +67,7 @@ Query now uses `STATE` for lifecycle/reentrancy failures and `EVENTS` with
 `STORAGE` still covers compiler/plan arguments and capacities, `BINDING` covers
 binding arguments, `CAPABILITY` covers incompatible formats or hook configuration,
 while visitor/provider failures use `CALLBACK`. Diagnostic layouts changed in
-issues #553, #555 and #556; rebuild native consumers with matching headers and bindings.
+issues #553, #555, #556 and #579; rebuild native consumers with matching headers and bindings.
 
 ### Regression enforcement
 
@@ -82,6 +85,62 @@ propagated variables and callback behavior require runtime tests; it is not a
 control-flow proof. A separate lexical rule rejects `INVALID_ARG` returns under
 `busy`, `finished`, `invalid` or `query_callbacks` member predicates, including
 pre-initialization checks. Diagnostic-return comments do not waive that rule.
+
+## Diagnostic field ownership
+
+Each public diagnostic field has one meaning (#579). The common
+`tlv_diagnostic_t` owns the result, severity, primary location, expected and
+actual text, contexts and path. Layer detail types carry only layer-specific
+evidence and never repeat those common fields. An enclosing diagnostic holds at
+most one active lower-layer detail, selected by its cause.
+
+| Diagnostic | Common part | Layer-specific fields | Delegated cause |
+| --- | --- | --- | --- |
+| `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
+| `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`) or `detail.reader` |
+| `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
+| `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured` | `cause` selects `detail.reader`, `detail.codec` or `detail.schema` |
+| `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
+
+The Query `expression` field is related evidence: it holds the expression span
+only when another known location is primary, such as the INPUT or VALUE location
+of a Reader or conversion failure. Otherwise the span itself is primary
+(`TLV_LOCATION_EXPRESSION`) and `expression` is unknown. This includes
+conversion failures without a location, such as a provider output contract that
+Query rejects itself, so the span always remains visible in `diagnostic.location`. A Reader
+failure inside a conversion hook is reachable only as
+`detail.codec.detail.reader`; Query cause `READER` is reserved for its own
+Reader traversal.
+
+A Schema diagnostic reports a malformed wire input with cause `READER` and the
+original Reader detail instead of dropping it; argument and resource failures
+have cause `NONE`. A Structure Codec maps such a Reader failure to its own
+Reader cause, so the Reader detail stays reachable through one path. Codec
+`reason` is the typed explanation of an `INVALID_VALUE` conversion failure.
+
+Kind and cause agree in both directions: cause `READER` accompanies kind
+`READER` or `STATE`, cause `CODEC` accompanies `CODEC`, `CALLBACK` or `STATE`,
+cause `SCHEMA` accompanies only `SCHEMA`, and cause `NONE` never accompanies
+`READER`, `CODEC` or `SCHEMA`. Kind `TLV_QUERY_ERROR_SCHEMA` and cause
+`TLV_QUERY_CAUSE_SCHEMA` are reported only by the Schema Query entry points
+(`tlv_schema_query_validate_buffer()` and `tlv_schema_query_validate_document()`);
+Query compilation and plain execution never produce them.
+
+Fields removed in #579 and where their values now live:
+
+| Removed field | Replacement |
+| --- | --- |
+| `tlv_codec_schema_detail_t` | `tlv_schema_detail_t`, the same type as `tlv_schema_diagnostic_t::detail.schema` |
+| Schema diagnostic `kind`, `tag`, `definition`, `field`, occurrence, length and form fields | `tlv_schema_diagnostic_t::detail.schema.*` under cause `TLV_SCHEMA_CAUSE_SCHEMA` |
+| Query `begin` / `end` | `diagnostic.location` when it is an EXPRESSION span, otherwise `expression` |
+| Query `expected` | `diagnostic.expected`; a conversion's own expectation takes precedence and Query fills only a missing one |
+| Query `int32_t codec` | `detail.codec.reported` under cause `CODEC` |
+| Query `has_codec` / `codec_detail` | `cause == TLV_QUERY_CAUSE_CODEC` / `detail.codec` |
+| Query `has_reader` / `reader` | `cause == TLV_QUERY_CAUSE_READER` / `detail.reader` |
+| Schema Query `schema` | `query` with kind and cause `SCHEMA`; Schema detail in `query.detail.schema`, common evidence in `query.diagnostic` |
+
+`tlv_query_cause_string()` names the Query cause. The 64-bit Query diagnostic
+shrinks from 1000 to 840 bytes.
 
 ## Codes
 
@@ -239,10 +298,11 @@ These functions remain available with the processing capabilities disabled.
 | --- | --- |
 | Severity | `tlv_diagnostic_severity_string()` |
 | Location domain / anchor | `tlv_location_domain_string()` / `tlv_location_kind_string()` |
-| Query failure kind | `tlv_query_error_kind_string()` |
+| Query failure kind / delegated cause | `tlv_query_error_kind_string()` / `tlv_query_cause_string()` |
 | Reader / Writer operation | `tlv_reader_operation_string()` / `tlv_writer_operation_string()` |
 | Schema finding / definition object | `tlv_schema_issue_kind_string()` / `tlv_schema_definition_kind_string()` |
-| Codec operation / delegated cause / callback violation | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` |
+| Codec operation / delegated cause / callback violation / rejection reason | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` / `tlv_codec_reason_string()` |
+| Schema cause | `tlv_schema_cause_string()` |
 
 `tlv_result_string()` separately describes results, with `"unknown error"` as its
 fallback. Enum-name strings describe detail; they do not replace result codes.
@@ -302,8 +362,8 @@ results remain inspectable.
 
 | Facade | Diagnostic categories |
 | --- | --- |
-| C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`; `message(category)` calls C. |
-| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
+| C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`, `codec_reason`, `query_cause`; `message(category)` calls C. |
+| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `CodecReason`, `QueryCause`, `SchemaCause`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
 | Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C. Reader/Writer `operation` remains a canonical string. |
 | Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
 | Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
@@ -319,7 +379,11 @@ Unknown locations have no meaningful numeric coordinates. A known point at
 zero is distinct from absence. Related Query expression spans do not replace
 the primary input/output/Value location. Retained paths hold outermost scopes;
 `path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
-Reader-specific part of a Query failure.
+Reader-specific part of a Query failure. Binding Query `begin`/`end` fields
+report the expression span whether it is primary or related. The binding
+facades still repeat some common evidence, for example the Go and Python Schema
+Query projection copies `query.diagnostic` into its Schema part; aligning the
+binding shapes with the single-source C layout is follow-up work.
 
 CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common

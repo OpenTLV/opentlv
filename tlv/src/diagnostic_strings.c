@@ -52,6 +52,26 @@ const char* tlv_query_error_kind_string(tlv_query_error_kind_t value) {
         case TLV_QUERY_ERROR_CALLBACK: return "callback";
         case TLV_QUERY_ERROR_TYPE: return "type";
         case TLV_QUERY_ERROR_IMAGE: return "image";
+        case TLV_QUERY_ERROR_SCHEMA: return "schema";
+    }
+    return "unknown";
+}
+
+const char* tlv_query_cause_string(tlv_query_cause_t value) {
+    switch (value) {
+        case TLV_QUERY_CAUSE_NONE: return "none";
+        case TLV_QUERY_CAUSE_READER: return "reader";
+        case TLV_QUERY_CAUSE_CODEC: return "codec";
+        case TLV_QUERY_CAUSE_SCHEMA: return "schema";
+    }
+    return "unknown";
+}
+
+const char* tlv_schema_cause_string(tlv_schema_cause_t value) {
+    switch (value) {
+        case TLV_SCHEMA_CAUSE_NONE: return "none";
+        case TLV_SCHEMA_CAUSE_SCHEMA: return "schema";
+        case TLV_SCHEMA_CAUSE_READER: return "reader";
     }
     return "unknown";
 }
@@ -93,6 +113,20 @@ const char* tlv_codec_violation_string(tlv_codec_violation_t value) {
         case TLV_CODEC_VIOLATION_SIZE: return "size";
         case TLV_CODEC_VIOLATION_TYPE: return "type";
         case TLV_CODEC_VIOLATION_UTF8: return "utf8";
+    }
+    return "unknown";
+}
+
+const char* tlv_codec_reason_string(tlv_codec_reason_t value) {
+    switch (value) {
+        case TLV_CODEC_REASON_NONE: return "none";
+        case TLV_CODEC_REASON_LENGTH: return "length";
+        case TLV_CODEC_REASON_DIGIT: return "digit";
+        case TLV_CODEC_REASON_TEXT: return "text";
+        case TLV_CODEC_REASON_RANGE: return "range";
+        case TLV_CODEC_REASON_CANONICAL: return "canonical";
+        case TLV_CODEC_REASON_SYNTAX: return "syntax";
+        case TLV_CODEC_REASON_OBJECT: return "object";
     }
     return "unknown";
 }

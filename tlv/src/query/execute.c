@@ -811,10 +811,8 @@ events:
                                "balanced complete canonical events without pruning");
 failure:
     e->invalid = 1;
-    if (d && !d->has_codec && event->source.data) {
-        tlv_diagnostic_set_location(&d->diagnostic, TLV_LOCATION_INPUT, TLV_LOCATION_POINT,
-                                    event->offset, event->offset);
-    }
+    if (d && d->cause == TLV_QUERY_CAUSE_NONE && event->source.data)
+        query_input_location(d, event->offset);
     return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
 }
 
@@ -942,11 +940,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
                     tlv_reader_diagnostic_init(&reader_diag);
                     tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_INFO);
                 }
-                d->kind = TLV_QUERY_ERROR_READER;
-                d->has_reader = 1;
-                d->reader = reader_diag.detail;
-                d->diagnostic = reader_diag.diagnostic;
-                d->diagnostic.code = rc;
+                query_reader_failure(d, rc, &reader_diag);
             }
             return rc;
         }
@@ -957,11 +951,7 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
                     tlv_reader_diagnostic_init(&reader_diag);
                     tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
                 }
-                d->kind =
-                    rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE : TLV_QUERY_ERROR_READER;
-                d->has_reader = 1;
-                d->reader = reader_diag.detail;
-                d->diagnostic = reader_diag.diagnostic;
+                query_reader_failure(d, rc, &reader_diag);
             }
             return query_failure(d, rc, TLV_QUERY_ERROR_EVENTS, "valid execution operation");
         }
@@ -972,15 +962,10 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         if (event.kind == TLV_TREE_BEGIN && event.element.value.size && e->prune_allowed) {
             rc = tlv_tree_reader_skip_subtree(reader);
             if (rc != TLV_OK) {
+                /* Skipping only rejects a lifecycle misuse; no Reader input failure exists. */
                 e->invalid = 1;
-                if (d) {
-                    d->kind = rc == TLV_ERR_INVALID_STATE ? TLV_QUERY_ERROR_STATE
-                                                          : TLV_QUERY_ERROR_READER;
-                    d->has_reader = 1;
-                    memset(&d->reader, 0, sizeof d->reader);
-                    tlv_diagnostic_init(&d->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-                }
-                return rc;
+                return query_error_unlocated(d, rc, TLV_QUERY_ERROR_STATE,
+                                             "pending constructed subtree to skip");
             }
         }
         if (matched) {

@@ -25,6 +25,22 @@ inline const char* message(codec_violation value) noexcept {
     return tlv_codec_violation_string(static_cast<tlv_codec_violation_t>(value));
 }
 
+/** @brief Typed reason why a conversion rejected a Value or object. */
+enum class codec_reason {
+    none = TLV_CODEC_REASON_NONE,           /**< No conversion-specific reason. */
+    length = TLV_CODEC_REASON_LENGTH,       /**< Invalid encoded Value length. */
+    digit = TLV_CODEC_REASON_DIGIT,         /**< Invalid or misplaced decimal digit. */
+    text = TLV_CODEC_REASON_TEXT,           /**< Invalid character set or encoding. */
+    range = TLV_CODEC_REASON_RANGE,         /**< Number or field out of range. */
+    canonical = TLV_CODEC_REASON_CANONICAL, /**< Non-canonical or non-minimal form. */
+    syntax = TLV_CODEC_REASON_SYNTAX,       /**< Malformed internal Value structure. */
+    object = TLV_CODEC_REASON_OBJECT        /**< Application object mismatch. */
+};
+/** @brief Canonical static name, or unknown for unrecognized categories. */
+inline const char* message(codec_reason value) noexcept {
+    return tlv_codec_reason_string(static_cast<tlv_codec_reason_t>(value));
+}
+
 /** @brief Typed codec cause diagnostic category. */
 enum class codec_cause {
     none = TLV_CODEC_CAUSE_NONE /**< Canonical none category. */,
@@ -75,6 +91,10 @@ struct codec_failure {
     /** @brief Callback contract violation, if detected. */
     codec_violation violation() const noexcept {
         return static_cast<codec_violation>(diagnostic.codec.violation);
+    }
+    /** @brief Why the conversion rejected its Value or object, if known. */
+    codec_reason reason() const noexcept {
+        return static_cast<codec_reason>(diagnostic.codec.reason);
     }
     /** @brief Common C++ result classification. */
     errc status() const noexcept {

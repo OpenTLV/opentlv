@@ -17,14 +17,16 @@ tlv_result_t tlv_digits_decode(const void* context, const uint8_t* data, size_t 
     if (!config || !value || (!data && size))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if ((config->width && size != config->width) || size > (SIZE_MAX - 1) / 2)
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
     for (i = 0; i < size * 2; ++i) {
         unsigned digit = nibble(data, i);
         if (digit == 15)
             padding = 1;
         else {
             if (digit > 9 || padding)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_DIGIT);
             ++count;
         }
     }
@@ -47,14 +49,17 @@ tlv_result_t tlv_digits_encode(const void* context, const void* value, size_t si
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (config->width) {
         if (bytes > config->width)
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_LENGTH);
         bytes = config->width;
     }
     if (bytes > (SIZE_MAX - 1) / 2)
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
     for (i = 0; i < size; ++i)
         if (digits[i] < '0' || digits[i] > '9')
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_DIGIT);
     if (data) {
         if (capacity < bytes)
             return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);

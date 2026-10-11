@@ -23,8 +23,9 @@ static tlv_result_t violation(tlv_schema_diagnostic_t* diagnostic, tlv_schema_is
                                 kind == TLV_SCHEMA_ISSUE_MISSING ? TLV_LOCATION_SCOPE_END
                                                                  : TLV_LOCATION_POINT,
                                 offset, offset);
-    diagnostic->kind = kind;
-    diagnostic->tag = *tag;
+    diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
+    diagnostic->detail.schema.kind = kind;
+    diagnostic->detail.schema.tag = *tag;
     diagnostic->diagnostic.has_path = 1;
     tlv_diagnostic_path_init(&diagnostic->diagnostic.path);
     /* Pushing past capacity keeps the outer tags and counts the omitted ones. */
@@ -117,7 +118,8 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             for (size_t i = 0; i < current->count; ++i)
                 if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) {
-                        if (diagnostic) diagnostic->field = current->rules[i].entry->name;
+                        if (diagnostic)
+                            diagnostic->detail.schema.field = current->rules[i].entry->name;
                         return violation(diagnostic, TLV_SCHEMA_ISSUE_ORDER, &element.tag, pos,
                                          path, depth);
                     }
@@ -147,7 +149,7 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
             tlv_diagnostic_set_location(location, TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 0, 0);
         return TLV_ERR_NULL_ARG;
     }
-    rc = schema_check_tree(data, size, format, max_depth, max_elements, location);
+    rc = schema_check_tree(data, size, format, max_depth, max_elements, diagnostic);
     if (rc != TLV_OK) return rc;
     rc = check_scope(data, format, schema, 0, size, path, 0, location, diagnostic);
     if (rc != TLV_OK) return rc;

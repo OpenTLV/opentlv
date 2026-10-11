@@ -59,10 +59,24 @@ const (
 	QueryErrorKindCallback     QueryErrorKind = 13
 	QueryErrorKindType         QueryErrorKind = 14
 	QueryErrorKindImage        QueryErrorKind = 15
+	QueryErrorKindSchema       QueryErrorKind = 16
 )
 
 // String returns the canonical C spelling, or "unknown".
 func (v QueryErrorKind) String() string { return capi.QueryErrorKindName(int(v)) }
+
+// QueryCause identifies a canonical C diagnostic category.
+type QueryCause int
+
+const (
+	QueryCauseNone   QueryCause = 0
+	QueryCauseReader QueryCause = 1
+	QueryCauseCodec  QueryCause = 2
+	QueryCauseSchema QueryCause = 3
+)
+
+// String returns the canonical C spelling, or "unknown".
+func (v QueryCause) String() string { return capi.QueryCauseName(int(v)) }
 
 // SchemaIssue identifies a canonical C diagnostic category.
 type SchemaIssue int
@@ -82,6 +96,18 @@ const (
 
 // String returns the canonical C spelling, or "unknown".
 func (v SchemaIssue) String() string { return capi.SchemaIssueName(int(v)) }
+
+// SchemaCause identifies a canonical C diagnostic category.
+type SchemaCause int
+
+const (
+	SchemaCauseNone   SchemaCause = 0
+	SchemaCauseSchema SchemaCause = 1
+	SchemaCauseReader SchemaCause = 2
+)
+
+// String returns the canonical C spelling, or "unknown".
+func (v SchemaCause) String() string { return capi.SchemaCauseName(int(v)) }
 
 // SchemaDefinitionKind identifies a canonical C diagnostic category.
 type SchemaDefinitionKind int
@@ -135,6 +161,23 @@ const (
 
 // String returns the canonical C spelling, or "unknown".
 func (v CodecViolation) String() string { return capi.CodecViolationName(int(v)) }
+
+// CodecReason identifies a canonical C diagnostic category.
+type CodecReason int
+
+const (
+	CodecReasonNone      CodecReason = 0
+	CodecReasonLength    CodecReason = 1
+	CodecReasonDigit     CodecReason = 2
+	CodecReasonText      CodecReason = 3
+	CodecReasonRange     CodecReason = 4
+	CodecReasonCanonical CodecReason = 5
+	CodecReasonSyntax    CodecReason = 6
+	CodecReasonObject    CodecReason = 7
+)
+
+// String returns the canonical C spelling, or "unknown".
+func (v CodecReason) String() string { return capi.CodecReasonName(int(v)) }
 
 // Severity identifies a canonical C diagnostic category.
 type Severity int

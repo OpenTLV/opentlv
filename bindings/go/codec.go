@@ -169,6 +169,7 @@ type CodecDetail struct {
 	Operation      CodecOperation
 	Reported       int
 	Violation      CodecViolation
+	Reason         CodecReason
 	Cause          CodecCause
 	Representation string
 	Reader         *Diagnostic
@@ -195,7 +196,7 @@ func publicCodecDetail(d *capi.CodecDetail) *CodecDetail {
 	if d == nil {
 		return nil
 	}
-	result := &CodecDetail{Diagnostic: publicDiagnostic(d.Diagnostic), Operation: CodecOperation(d.Operation), Reported: d.Reported, Violation: CodecViolation(d.Violation), Cause: CodecCause(d.Cause), Representation: d.Representation}
+	result := &CodecDetail{Diagnostic: publicDiagnostic(d.Diagnostic), Operation: CodecOperation(d.Operation), Reported: d.Reported, Violation: CodecViolation(d.Violation), Reason: CodecReason(d.Reason), Cause: CodecCause(d.Cause), Representation: d.Representation}
 	if d.Reader != nil {
 		v := publicDiagnostic(*d.Reader)
 		result.Reader = &v

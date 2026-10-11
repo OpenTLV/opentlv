@@ -43,7 +43,10 @@ static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc
                                         TLV_LOCATION_POINT, offset, offset);
             diagnostic->diagnostic.location.kind = TLV_LOCATION_POINT;
         }
-        if (rc == TLV_ERR_SCHEMA) diagnostic->kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        if (rc == TLV_ERR_SCHEMA) {
+            diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
+            diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        }
         diagnostic->diagnostic.expected = expected;
         diagnostic->diagnostic.actual = tlv_result_string(rc);
     }
@@ -69,7 +72,10 @@ tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size, size_t max_elem
         if (rc != TLV_OK) return failure(diagnostic, rc, offset, "complete LLDP TLV");
         if (index < 3 && element.tag.data[0] != index + 1) {
             rc = failure(diagnostic, TLV_ERR_SCHEMA, offset, "Chassis ID, Port ID, TTL prefix");
-            if (diagnostic) diagnostic->kind = TLV_SCHEMA_ISSUE_ORDER;
+            if (diagnostic) {
+                diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
+                diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_ORDER;
+            }
             return rc;
         }
         if (element.tag.data[0] == 0 && !tlv_reader_at_end(&reader))

@@ -60,29 +60,31 @@ typedef enum tlv_codec_violation {
  * Available even when the corresponding capability is disabled.
  */
 TLV_API const char* tlv_codec_violation_string(tlv_codec_violation_t value);
-/** @brief Schema cause fields without a second copy of the common diagnostic.
- * @note Tag, field and definition owner borrow the original input/schema.
+/** @brief Typed reason why a conversion rejected an encoded Value or application object.
+ * @note The returned result stays authoritative (usually #TLV_ERR_INVALID_VALUE); the
+ * reason explains it. Argument, capacity, delegated and callback failures use NONE. */
+typedef enum tlv_codec_reason {
+    TLV_CODEC_REASON_NONE,   /**< No conversion-specific reason. */
+    TLV_CODEC_REASON_LENGTH, /**< The encoded Value length is invalid for the representation. */
+    TLV_CODEC_REASON_DIGIT,  /**< A decimal digit or BCD nibble is invalid or misplaced. */
+    TLV_CODEC_REASON_TEXT,   /**< Text violates its character set or encoding, such as UTF-8. */
+    TLV_CODEC_REASON_RANGE,  /**< A number or field is outside its representable or permitted range.
+                              */
+    TLV_CODEC_REASON_CANONICAL, /**< A valid encoding is not in the required canonical or minimal
+                                   form. */
+    TLV_CODEC_REASON_SYNTAX,    /**< The Value's internal structure is malformed. */
+    TLV_CODEC_REASON_OBJECT     /**< The application object does not match the representation. */
+} tlv_codec_reason_t;
+
+/**
+ * @brief Returns the diagnostic name of a codec reason.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
  */
-typedef struct tlv_codec_schema_detail {
-    tlv_schema_issue_kind_t kind;                /**< Schema issue. */
-    tlv_tag_t tag;                               /**< Affected identifier. */
-    tlv_schema_definition_location_t definition; /**< Native definition evidence. */
-    const char* field;                           /**< Borrowed field name. */
-    int is_group;                                /**< Group rather than individual rule. */
-    int has_occurs;                              /**< Occurrence fields are active. */
-    size_t min_occurs;                           /**< Minimum occurrences. */
-    size_t max_occurs;                           /**< Maximum occurrences. */
-    size_t occurs;                               /**< Observed occurrences. */
-    int has_length;                              /**< Length fields are active. */
-    size_t min_length;                           /**< Minimum length. */
-    size_t max_length;                           /**< Maximum length. */
-    size_t actual_length;                        /**< Observed length. */
-    int has_form;                                /**< Form fields are active. */
-    tlv_schema_kind_t expected_form;             /**< Required form. */
-    int actual_constructed;                      /**< Observed constructed flag. */
-    size_t length_multiple;                      /**< Required length multiple. */
-    uint32_t length_flags;                       /**< Schema length policy. */
-} tlv_codec_schema_detail_t;
+TLV_API const char* tlv_codec_reason_string(tlv_codec_reason_t value);
 /** @brief Conversion detail accompanying one shared common diagnostic.
  * @note Only the member selected by cause is active. All borrows must outlive copies.
  */
@@ -91,12 +93,13 @@ typedef struct tlv_codec_detail {
     int32_t reported; /**< Raw provider result, including unknown integers and OK for a bad
                           success payload. Kept outside the enum domain for safe FFI/C++ reads. */
     tlv_codec_violation_t violation; /**< Detected callback breach. */
+    tlv_codec_reason_t reason;       /**< Why the conversion rejected the Value or object. */
     const char* representation;      /**< Optional borrowed static representation name. */
     tlv_codec_cause_t cause;         /**< Active delegated detail. */
     union {
-        tlv_reader_detail_t reader;       /**< Reader cause. */
-        tlv_codec_schema_detail_t schema; /**< Schema cause. */
-    } detail;                             /**< Discriminated lower-layer detail. */
+        tlv_reader_detail_t reader; /**< Reader cause. */
+        tlv_schema_detail_t schema; /**< Schema cause. */
+    } detail;                       /**< Discriminated lower-layer detail. */
 } tlv_codec_detail_t;
 /** @brief Copyable conversion diagnostic with one common location/path.
  * @note Caller-owned and optional. NULL avoids collecting detail. Callback diagnostics
@@ -129,6 +132,18 @@ static inline tlv_result_t tlv_codec_diagnostic_result(tlv_codec_diagnostic_t* d
                                               : TLV_DIAGNOSTIC_SEVERITY_ERROR;
     }
     return result;
+}
+/** @brief Publish a rejected Value or object with its typed reason.
+ * @param[out] diagnostic Optional initialized destination.
+ * @param[in] result Result to publish unchanged, usually #TLV_ERR_INVALID_VALUE.
+ * @param[in] reason Why the conversion rejected its input.
+ * @return result.
+ */
+static inline tlv_result_t tlv_codec_diagnostic_reason(tlv_codec_diagnostic_t* diagnostic,
+                                                       tlv_result_t result,
+                                                       tlv_codec_reason_t reason) {
+    if (diagnostic) diagnostic->codec.reason = reason;
+    return tlv_codec_diagnostic_result(diagnostic, result);
 }
 #ifdef __cplusplus
 }

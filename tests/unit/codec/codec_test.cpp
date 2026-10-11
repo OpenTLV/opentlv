@@ -3,6 +3,10 @@
 
 #include <gtest/gtest.h>
 #include "tlv/codec/codec.h"
+#include "tlv/codec/digits.h"
+#include "tlv/codec/number.h"
+#include "tlv/codec/text.h"
+#include "tlv/codec/values.h"
 #include "tlv/endian.h"
 #include "tlv/element.h"
 #include "tlv/reader/reader.h"
@@ -207,4 +211,52 @@ TEST(Unit_Tlv_Codec, ForeignCallbackResultsRemainReadableInCpp) {
             EXPECT_EQ(0u, written);
         }
     }
+}
+
+TEST(Unit_Tlv_Codec, RejectionsCarryATypedReason) {
+    struct Case {
+        const char*          name;
+        tlv_codec_t          codec;
+        std::vector<uint8_t> wire;
+        tlv_codec_reason_t   reason;
+    };
+    static const tlv_digits_codec_config_t digits = {0};
+    static const tlv_digits_codec_config_t fixed_digits = {2};
+    static const tlv_number_codec_config_t bcd = {TLV_NUMBER_BCD, 0, 2};
+    static const tlv_text_codec_config_t   alnum = {TLV_TEXT_ASCII_ALNUM, 0, 0};
+    const Case                             cases[] = {
+        {"digit nibble", tlv_digits_codec(&digits), {0x1A}, TLV_CODEC_REASON_DIGIT},
+        {"digit width", tlv_digits_codec(&fixed_digits), {0x12}, TLV_CODEC_REASON_LENGTH},
+        {"bcd nibble", tlv_number_codec(&bcd), {0x1A}, TLV_CODEC_REASON_DIGIT},
+        {"bcd digits", tlv_number_codec(&bcd), {0x01, 0x23}, TLV_CODEC_REASON_RANGE},
+        {"text alphabet", tlv_text_codec(&alnum), {'a', '-'}, TLV_CODEC_REASON_TEXT},
+        {"u8 length", tlv_codec_uint8, {1, 2}, TLV_CODEC_REASON_LENGTH},
+        {"minimal integer", tlv_codec_int64_minimal_be, {0x00, 0x01}, TLV_CODEC_REASON_CANONICAL},
+    };
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.name);
+        uint8_t                value[32];
+        tlv_codec_diagnostic_t diagnostic;
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_decode(&test.codec, test.wire.data(), test.wire.size(), value,
+                                   sizeof value, &diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.diagnostic.code);
+        EXPECT_EQ(test.reason, diagnostic.codec.reason);
+        EXPECT_EQ(TLV_CODEC_CAUSE_NONE, diagnostic.codec.cause);
+    }
+    // An application object of the wrong size is an OBJECT rejection on encode.
+    const uint32_t         wide = 1;
+    uint8_t                out[4];
+    size_t                 written = 0;
+    tlv_codec_diagnostic_t diagnostic;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_codec_encode(&tlv_codec_uint8, &wide, sizeof wide, out,
+                                                      sizeof out, &written, &diagnostic));
+    EXPECT_EQ(TLV_CODEC_REASON_OBJECT, diagnostic.codec.reason);
+    // Capacity is the result itself, not a rejection reason.
+    uint8_t one = 0;
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_codec_encode(&tlv_codec_uint8, &one, sizeof one, out, 0, &written, &diagnostic));
+    EXPECT_EQ(TLV_CODEC_REASON_NONE, diagnostic.codec.reason);
+    EXPECT_STREQ("digit", tlv_codec_reason_string(TLV_CODEC_REASON_DIGIT));
+    EXPECT_STREQ("unknown", tlv_codec_reason_string(static_cast<tlv_codec_reason_t>(99)));
 }

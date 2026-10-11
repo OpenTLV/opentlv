@@ -51,12 +51,23 @@ static tlv_result_t validate_length(const emv_value_rule_t* rule, size_t size,
                : tlv_schema_codec_length_result(rule->schema, size, result, diagnostic);
 }
 
-/* Domain codecs compose the same numeric primitive as dictionary entries. */
-static int read_number(const uint8_t* data, size_t size, unsigned digits, uint64_t* value) {
+/* Domain codecs compose the same numeric primitive as dictionary entries. With a
+ * requested reason, decoding keeps the number codec's typed reason; without one, it
+ * collects no diagnostic on the successful path. */
+static int read_number(const uint8_t* data, size_t size, unsigned digits, uint64_t* value,
+                       tlv_codec_reason_t* reason) {
     const tlv_number_codec_config_t config = {digits ? TLV_NUMBER_BCD : TLV_NUMBER_BINARY_BE, size,
                                               digits};
-    return size <= 8 &&
-           tlv_number_decode(&config, data, size, value, sizeof(*value), NULL) == TLV_OK;
+    tlv_codec_diagnostic_t detail;
+    if (size > 8) {
+        if (reason) *reason = TLV_CODEC_REASON_LENGTH;
+        return 0;
+    }
+    if (tlv_number_decode(&config, data, size, value, sizeof(*value), reason ? &detail : NULL) ==
+        TLV_OK)
+        return 1;
+    if (reason) *reason = detail.codec.reason;
+    return 0;
 }
 
 static int write_number(uint64_t value, unsigned digits, uint8_t* data, size_t size) {
@@ -106,19 +117,26 @@ static size_t emv_strnlen(const char* value, size_t limit) {
 }
 
 static tlv_result_t decode_digits(const emv_value_rule_t* rule, const uint8_t* data, size_t size,
-                                  void* value, size_t capacity) {
+                                  void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
     const tlv_digits_codec_config_t config = {0};
     char pan[20];
     tlv_result_t result;
     size_t count;
-    if (!rule->argument) return tlv_digits_decode(&config, data, size, value, capacity, NULL);
-    result = tlv_digits_decode(&config, data, size, pan, sizeof(pan), NULL);
-    if (result != TLV_OK) return TLV_ERR_INVALID_VALUE;
+    if (!rule->argument) return tlv_digits_decode(&config, data, size, value, capacity, diagnostic);
+    result = tlv_digits_decode(&config, data, size, pan, sizeof(pan), diagnostic);
+    /* More digits than the local PAN buffer holds exceed every bounded rule. */
+    if (result == TLV_ERR_BUFFER_TOO_SHORT)
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
+    if (result != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     count = strlen(pan);
-    if (!count || count > rule->argument) return TLV_ERR_INVALID_VALUE;
-    if (capacity <= count) return TLV_ERR_BUFFER_TOO_SHORT;
+    if (!count || count > rule->argument)
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
+    if (capacity <= count) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     memcpy(value, pan, count + 1);
-    return TLV_OK;
+    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
 static tlv_result_t encode_digits(const emv_value_rule_t* rule, const void* value, size_t size,
@@ -127,8 +145,10 @@ static tlv_result_t encode_digits(const emv_value_rule_t* rule, const void* valu
     const tlv_digits_codec_config_t config = {0};
     tlv_result_t result = validate_length(rule, size / 2 + size % 2, diagnostic);
     if (result != TLV_OK) return result;
-    if (rule->argument && (!size || size > rule->argument)) return TLV_ERR_INVALID_VALUE;
-    return tlv_digits_encode(&config, value, size, data, capacity, written, NULL);
+    if (rule->argument && (!size || size > rule->argument))
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
+    return tlv_digits_encode(&config, value, size, data, capacity, written, diagnostic);
 }
 
 #define EMV_STORE(object)                                                                          \
@@ -144,41 +164,48 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
     uint64_t number;
+    tlv_codec_reason_t reason = TLV_CODEC_REASON_NONE;
+    tlv_codec_reason_t* why = diagnostic ? &reason : NULL;
     tlv_result_t result = validate_length(rule, size, diagnostic);
     if (result != TLV_OK) return result;
     switch (rule->kind) {
         case EMV_REP_DIGITS:
-            return tlv_codec_diagnostic_result(diagnostic,
-                                               decode_digits(rule, data, size, value, capacity));
+            return tlv_codec_diagnostic_result(
+                diagnostic, decode_digits(rule, data, size, value, capacity, diagnostic));
         case EMV_REP_DATE: {
             tlv_emv_date_t date;
-            if (!read_number(data, size, 6, &number))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            if (!read_number(data, size, 6, &number, why))
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE, reason);
             date.year = (uint8_t)(number / EMV_DATE_TIME_MAJOR_FIELD_SCALE);
             date.month = (uint8_t)((number / EMV_DATE_TIME_MINOR_FIELD_SCALE) %
                                    EMV_DATE_TIME_MINOR_FIELD_SCALE);
             date.day = (uint8_t)(number % EMV_DATE_TIME_MINOR_FIELD_SCALE);
             if (!valid_date(date))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             EMV_STORE(date);
         }
         case EMV_REP_TIME: {
             tlv_emv_time_t time;
-            if (!read_number(data, size, 6, &number))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            if (!read_number(data, size, 6, &number, why))
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE, reason);
             time.hour = (uint8_t)(number / EMV_DATE_TIME_MAJOR_FIELD_SCALE);
             time.minute = (uint8_t)((number / EMV_DATE_TIME_MINOR_FIELD_SCALE) %
                                     EMV_DATE_TIME_MINOR_FIELD_SCALE);
             time.second = (uint8_t)(number % EMV_DATE_TIME_MINOR_FIELD_SCALE);
             if (time.hour > EMV_MAX_HOUR || time.minute > EMV_MAX_MINUTE ||
                 time.second > EMV_MAX_SECOND)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             EMV_STORE(time);
         }
         case EMV_REP_ACCOUNT: {
             tlv_emv_account_type_t account;
-            if (!read_number(data, size, 2, &number) || !valid_account(number))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            if (!read_number(data, size, 2, &number, why))
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE, reason);
+            if (!valid_account(number))
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             account = (tlv_emv_account_type_t)number;
             EMV_STORE(account);
         }
@@ -190,8 +217,11 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
         }
         case EMV_REP_BIOMETRIC: {
             tlv_emv_biometric_type_t biometric;
-            if (!read_number(data, size, 0, &number) || !valid_biometric(number))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            if (!read_number(data, size, 0, &number, why))
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE, reason);
+            if (!valid_biometric(number))
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             biometric = (tlv_emv_biometric_type_t)number;
             EMV_STORE(biometric);
         }
@@ -200,10 +230,11 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
             size_t i, width = (rule->argument + 1) / 2;
             list.count = size / width;
             if (size % width || list.count > sizeof(list.values) / sizeof(list.values[0]))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_LENGTH);
             for (i = 0; i < list.count; ++i)
-                if (!read_number(data + i * width, width, rule->argument, &list.values[i]))
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                if (!read_number(data + i * width, width, rule->argument, &list.values[i], why))
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE, reason);
             EMV_STORE(list);
         }
         case EMV_REP_AFL: {
@@ -215,7 +246,8 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
                 const uint8_t* entry = data + i * 4;
                 uint8_t sfi = (uint8_t)(entry[0] >> EMV_AFL_SFI_SHIFT);
                 if (!valid_afl_entry(sfi, entry[1], entry[2], entry[3]))
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_RANGE);
                 afl.entries[i].sfi = sfi;
                 afl.entries[i].first_record = entry[1];
                 afl.entries[i].last_record = entry[2];
@@ -233,7 +265,9 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
         case EMV_REP_TRACK2: {
             tlv_emv_track2_t track2;
             size_t total_nibbles, pad = 0, sep = (size_t)-1, i, disc_len;
-            if (!size) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            if (!size)
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_LENGTH);
             total_nibbles = size * 2;
             memset(&track2, 0, sizeof(track2));
             if (track2_nibble(data, total_nibbles - 1) == EMV_BCD_PAD_NIBBLE) pad = 1;
@@ -244,30 +278,36 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
                     break;
                 }
                 if (nibble > 9)
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_DIGIT);
             }
             if (sep == (size_t)-1 || sep == 0 ||
                 sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS >
                     total_nibbles - pad)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_SYNTAX);
             for (i = 0; i < EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS; ++i)
                 if (track2_nibble(data, sep + 1 + i) > 9)
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_DIGIT);
             disc_len = (total_nibbles - pad) -
                        (sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS);
             if (disc_len > TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_LENGTH);
             for (i = 0; i < disc_len; ++i)
                 if (track2_nibble(data, sep + 1 + EMV_TRACK2_EXPIRY_DIGITS +
                                             EMV_TRACK2_SERVICE_CODE_DIGITS + i) > 9)
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_DIGIT);
             for (i = 0; i < sep; ++i) track2.pan[i] = (char)('0' + track2_nibble(data, i));
             track2.expiration_year =
                 (uint8_t)(track2_nibble(data, sep + 1) * 10 + track2_nibble(data, sep + 2));
             track2.expiration_month =
                 (uint8_t)(track2_nibble(data, sep + 3) * 10 + track2_nibble(data, sep + 4));
             if (track2.expiration_month < 1 || track2.expiration_month > 12)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             track2.service_code =
                 (uint16_t)(track2_nibble(data, sep + 5) * 100 + track2_nibble(data, sep + 6) * 10 +
                            track2_nibble(data, sep + 7));
@@ -285,7 +325,8 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
 #define EMV_LOAD(object)                                                                           \
     do {                                                                                           \
         if (size != sizeof(object))                                                                \
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);                 \
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,                  \
+                                               TLV_CODEC_REASON_OBJECT);                           \
         memcpy(&(object), value, sizeof(object));                                                  \
     } while (0)
 
@@ -305,7 +346,8 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             tlv_emv_date_t date;
             EMV_LOAD(date);
             if (!valid_date(date))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             number = (uint64_t)date.year * EMV_DATE_TIME_MAJOR_FIELD_SCALE +
                      (uint64_t)date.month * EMV_DATE_TIME_MINOR_FIELD_SCALE + date.day;
             write_number(number, 6, bytes, count);
@@ -316,7 +358,8 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             EMV_LOAD(time);
             if (time.hour > EMV_MAX_HOUR || time.minute > EMV_MAX_MINUTE ||
                 time.second > EMV_MAX_SECOND)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             number = (uint64_t)time.hour * EMV_DATE_TIME_MAJOR_FIELD_SCALE +
                      (uint64_t)time.minute * EMV_DATE_TIME_MINOR_FIELD_SCALE + time.second;
             write_number(number, 6, bytes, count);
@@ -326,7 +369,8 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             tlv_emv_account_type_t account;
             EMV_LOAD(account);
             if (!valid_account((uint64_t)account))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             write_number((uint64_t)account, 2, bytes, count);
             break;
         }
@@ -334,7 +378,8 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             tlv_emv_cryptogram_info_t info;
             EMV_LOAD(info);
             if ((unsigned)info.type > 3 || info.flags > EMV_CID_FLAGS_MASK)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             bytes[0] = (uint8_t)(((unsigned)info.type << EMV_CID_TYPE_SHIFT) | info.flags);
             break;
         }
@@ -342,7 +387,8 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             tlv_emv_biometric_type_t biometric;
             EMV_LOAD(biometric);
             if (!valid_biometric((uint64_t)biometric))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             count = biometric == TLV_EMV_BIOMETRIC_PALM ? 3 : 1;
             write_number((uint64_t)biometric, 0, bytes, count);
             break;
@@ -352,11 +398,13 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             size_t i, width = (rule->argument + 1) / 2;
             EMV_LOAD(list);
             if (!list.count || list.count > sizeof(list.values) / sizeof(list.values[0]))
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             count = list.count * width;
             for (i = 0; i < list.count; ++i)
                 if (!write_number(list.values[i], rule->argument, bytes + i * width, width))
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_RANGE);
             break;
         }
         case EMV_REP_AFL: {
@@ -364,13 +412,15 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             size_t i;
             EMV_LOAD(afl);
             if (!afl.count || afl.count > TLV_EMV_AFL_MAX_ENTRIES)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             count = afl.count * 4;
             for (i = 0; i < afl.count; ++i) {
                 const tlv_emv_afl_entry_t* entry = &afl.entries[i];
                 if (!valid_afl_entry(entry->sfi, entry->first_record, entry->last_record,
                                      entry->offline_auth_record_count))
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_RANGE);
                 bytes[i * 4 + 0] = (uint8_t)(entry->sfi << EMV_AFL_SFI_SHIFT);
                 bytes[i * 4 + 1] = entry->first_record;
                 bytes[i * 4 + 2] = entry->last_record;
@@ -394,13 +444,17 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             pan_len = emv_strnlen(track2.pan, sizeof(track2.pan));
             disc_len = emv_strnlen(track2.discretionary_data, sizeof(track2.discretionary_data));
             if (!pan_len || pan_len > TLV_EMV_TRACK2_PAN_MAX_DIGITS ||
-                disc_len > TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS || track2.expiration_month < 1 ||
-                track2.expiration_month > 12 || track2.expiration_year > 99 ||
-                track2.service_code > 999)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                disc_len > TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS)
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_LENGTH);
+            if (track2.expiration_month < 1 || track2.expiration_month > 12 ||
+                track2.expiration_year > 99 || track2.service_code > 999)
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_RANGE);
             for (i = 0; i < pan_len; ++i) {
                 if (track2.pan[i] < '0' || track2.pan[i] > '9')
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_DIGIT);
                 nibbles[n++] = (uint8_t)(track2.pan[i] - '0');
             }
             nibbles[n++] = EMV_TRACK2_FIELD_SEPARATOR;
@@ -413,7 +467,8 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
             nibbles[n++] = (uint8_t)(track2.service_code % 10);
             for (i = 0; i < disc_len; ++i) {
                 if (track2.discretionary_data[i] < '0' || track2.discretionary_data[i] > '9')
-                    return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                       TLV_CODEC_REASON_DIGIT);
                 nibbles[n++] = (uint8_t)(track2.discretionary_data[i] - '0');
             }
             if (n % 2) nibbles[n++] = EMV_BCD_PAD_NIBBLE;

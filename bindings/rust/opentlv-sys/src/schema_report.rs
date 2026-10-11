@@ -14,12 +14,10 @@ pub struct tlv_diagnostic_path_t {
     /// Number of innermost scope Tags omitted after the retained outer prefix.
     pub omitted: usize,
 }
-/// Detailed native Schema violation.
+/// Schema-specific violation evidence, shared by Schema, Codec and Query diagnostics.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
-pub struct tlv_schema_diagnostic_t {
-    /// Corresponding C field.
-    pub diagnostic: tlv_diagnostic_t,
+pub struct tlv_schema_detail_t {
     /// Corresponding C field.
     pub kind: c_int,
     /// Corresponding C field.
@@ -56,6 +54,35 @@ pub struct tlv_schema_diagnostic_t {
     pub length_multiple: usize,
     /// Corresponding C field.
     pub length_flags: u32,
+}
+/// Schema finding or definition failure.
+pub const TLV_SCHEMA_CAUSE_SCHEMA: c_int = 1;
+/// Reader rejected the input.
+pub const TLV_SCHEMA_CAUSE_READER: c_int = 2;
+/// Only the member selected by `cause` is active.
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub union tlv_schema_cause_detail_t {
+    /// Schema finding.
+    pub schema: tlv_schema_detail_t,
+    /// Original Reader detail.
+    pub reader: tlv_reader_detail_t,
+}
+impl std::fmt::Debug for tlv_schema_cause_detail_t {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("SchemaCause")
+    }
+}
+/// Detailed native Schema violation.
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
+pub struct tlv_schema_diagnostic_t {
+    /// Corresponding C field.
+    pub diagnostic: tlv_diagnostic_t,
+    /// Active member of `detail`.
+    pub cause: c_int,
+    /// Corresponding C field.
+    pub detail: tlv_schema_cause_detail_t,
 }
 /// Caller-owned detailed report storage.
 #[repr(C)]

@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Format the Go Codec detail struct after adding `Reason`, so the Go binding `gofmt` check passes. (#579)
+- Report a Reader workspace or Format rejected before a Schema Query traversal, and a refused Query subtree skip, without an empty Reader cause: they now have Query cause `NONE` with kind `STORAGE`/`CAPABILITY` or `STATE`. (#579)
+- Keep the Query expression span as the primary location when a conversion failure reports no location, such as a provider output contract violation that Query rejects itself, instead of leaving `diagnostic.location` unknown. (#579)
+- Report the Query cause as `cause=` in compact `otlv query` diagnostics and remove the unreachable Schema branch of the JSON Query diagnostic. (#579)
+- Check that Query kind and cause agree in both directions in the shared diagnostic assertions, so a stale cause fails, and document which entry points report `SCHEMA`. (#579)
+- Wrap the generated Rust diagnostic vocabulary imports as rustfmt does, so `generate_diagnostic_vocabulary.py --check` and `cargo fmt` agree. (#579)
 - Match the documented fixed-format example block to its source after the `tlv_result_string()` rename. (#580)
 - JS/WASM Query takes result codes from C (`opentlv_wasm_constants()`) instead of hard-coded numbers, so its own errors report the renumbered codes. (#578)
 - Document `TLV_ERR_SYNTAX` for invalid tokens returned by `tlv_query_compile_scratch()`. (#578)
@@ -127,6 +133,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** `tlv_schema_diagnostic_t` is `{diagnostic, cause, detail}`: `cause` (`tlv_schema_cause_t`: `NONE`, `SCHEMA`, `READER`) selects `detail.schema` (`tlv_schema_detail_t`) or `detail.reader`, so validation of malformed input keeps the original Reader detail instead of dropping it. Access Schema fields as `detail.schema.kind` and so on; report entries always have cause `SCHEMA`. A Structure Codec with a Schema reports such a failure as its own Reader cause, and the DHCP options validator keeps its Reader detail too. (#579)
+- **Breaking:** `tlv_codec_detail_t` gains `reason` (`tlv_codec_reason_t`: `NONE`, `LENGTH`, `DIGIT`, `TEXT`, `RANGE`, `CANONICAL`, `SYNTAX`, `OBJECT`), the typed explanation of a rejected Value or application object, filled by the generic, ASN.1 and EMV codecs and reachable from Query as `detail.codec.reason`. Custom codecs publish one with `tlv_codec_diagnostic_reason()`. The x86 Query diagnostic grows from 448 to 452 bytes; 64-bit and wasm32 layouts are unchanged. (#579)
+- **Breaking:** `otlv query` diagnostics drop the duplicate Query fields: JSON removes `begin`, `end`, the top-level `expected` and `codec` (use `location`, `diagnostic.expected` and `codec_detail.reported`), adds `cause`, and reports `expression` only when another known location is primary; compact text no longer repeats `expected=` and adds `cause=` for a lower-layer cause. Repeated common evidence in the nested Reader projection is left to a follow-up. (#579)
+- Rust, Go, Python, Lua and JS/WASM Query diagnostics read the single C sources; their `begin`/`end` report the expression span whether it is primary or related, and a failed Schema Query assertion now carries Query kind `schema` while its Schema fields come from the Query cause. Rebuild bindings. (#579)
+- **Breaking:** `tlv_schema_query_diagnostic_t` reports every failure once in `query` and loses its `schema` member: a false assertion has `TLV_ERR_SCHEMA`, the new kind `TLV_QUERY_ERROR_SCHEMA` and cause `TLV_QUERY_CAUSE_SCHEMA` with `ASSERTION` detail in `query.detail.schema`. (#579)
+- **Breaking:** `tlv_query_diagnostic_t` has one source of truth per field: result, location, path and expected text live only in `diagnostic`; a discriminated `cause` (`tlv_query_cause_t`) selects one of `detail.reader`, `detail.codec` or `detail.schema`; the expression span is the related `expression` location when a known Reader, conversion or input location is primary, and the primary location otherwise, including conversion contract violations that only Query detects. `begin`/`end`, `expected`, `codec`, `has_codec`/`codec_detail` and `has_reader`/`reader` are removed; a Reader failure inside a conversion hook is reachable only as `detail.codec.detail.reader`. The 64-bit layout shrinks from 1000 to 840 bytes. See the field table in the error reference and rebuild native consumers and bindings. (#579)
+- **Breaking:** Move the Schema detail of `tlv_schema_diagnostic_t` into the new `tlv_schema_detail_t`, so the diagnostic is `{diagnostic, detail}` like the Reader diagnostic, and use the same type for the Codec Schema cause instead of the removed `tlv_codec_schema_detail_t`. Access Schema fields as `detail.kind`, `detail.tag`, `detail.field` and so on. (#579)
 - **Breaking:** Rename `tlv/error.h` to `tlv/result.h` and `tlv_strerror()` to `tlv_result_string()`, so the header and text function match `tlv_result_t` and the `tlv_<enum>_string()` convention; the contract and the result names are unchanged. No compatibility header or alias is provided; update includes and calls, and rebuild native consumers. (#580)
 - `TLV_ERR_BUFFER_TOO_SHORT` belongs to the capacity, resources and numeric ranges category; values are unchanged. (#578)
 - **Breaking:** Renumber `tlv_result_t` by category: success, control statuses (`END`, `NEED_MORE_DATA`), invalid input data, invalid API use, resources and ranges, capabilities, and callbacks. Rebuild native consumers; bindings use the new values. (#578)
@@ -243,6 +256,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `tlv_codec_reason_string()` and `tlv_schema_cause_string()`, C++ `codec_reason` with `codec_failure::reason()`, Rust, Go and Python `CodecReason` and `SchemaCause`, and codec `reason`/`reason_name` in Python, Lua, JS/WASM and `otlv query` codec details. (#579)
+- Test that malformed input keeps its Reader cause through Schema validation, the report API and a Structure Codec, that every codec reason is produced by a representative codec, and that the shared assertions require cause `SCHEMA` for every Schema finding. (#579)
+- Add `tlv_query_cause_string()` and Query cause categories in the bindings: C++ `query_cause` with `query_failure::cause()` and `query_issue::schema`, Rust, Go and Python `QueryCause`. (#579)
+- Test that a Reader failure inside a Query conversion hook reaches Query only through the Codec cause and equals the original Reader detail; the shared diagnostic assertions check that kind and cause agree in both directions, so a stale cause fails, and that an expression span is never stored twice. (#579)
 - Rust error tests compare every variant with its exact `tlv_strerror()` text, so a result constant that drifts from C fails. (#578)
 - Test that an incremental Reader resumes after every truncated cut and then reports `TLV_END`, and that decoders cannot return control, capacity or unknown results while Tree Writer sources may end iteration. (#578)
 - Add prepared Schema handles that check a definition once for repeated validation: `tlv_schema_prepare()` and `tlv_der_schema_prepare()` with `_checked` validate, report, read and write functions, and C++ `tlv::checked_schema`. (#575)

@@ -5,18 +5,18 @@ package capi
 /*
 #include "bridge.h"
 static tlv_reader_detail_t codec_reader(tlv_codec_detail_t d) { return d.detail.reader; }
-static tlv_codec_schema_detail_t codec_schema(tlv_codec_detail_t d) { return d.detail.schema; }
+static tlv_schema_detail_t codec_schema(tlv_codec_detail_t d) { return d.detail.schema; }
 */
 import "C"
 import "bytes"
 
 // CodecDetail owns conversion evidence before borrowed C buffers expire.
 type CodecDetail struct {
-	Diagnostic                            Diagnostic
-	Operation, Reported, Violation, Cause int
-	Representation                        string
-	Reader                                *Diagnostic
-	Schema                                *CodecSchemaDetail
+	Diagnostic                                    Diagnostic
+	Operation, Reported, Violation, Reason, Cause int
+	Representation                                string
+	Reader                                        *Diagnostic
+	Schema                                        *CodecSchemaDetail
 }
 
 // CodecSchemaDetail retains delegated Schema rule evidence.
@@ -34,7 +34,7 @@ type CodecSchemaDetail struct {
 }
 
 func codecDetail(common C.tlv_diagnostic_t, d C.tlv_codec_detail_t) *CodecDetail {
-	result := &CodecDetail{Diagnostic: diagnostic(common, 0), Operation: int(d.operation), Cause: int(d.cause), Reported: int(d.reported), Violation: int(d.violation), Representation: C.GoString(d.representation)}
+	result := &CodecDetail{Diagnostic: diagnostic(common, 0), Operation: int(d.operation), Cause: int(d.cause), Reported: int(d.reported), Violation: int(d.violation), Reason: int(d.reason), Representation: C.GoString(d.representation)}
 	if d.cause == C.TLV_CODEC_CAUSE_READER {
 		reader := readerDiagnosticParts(common, C.codec_reader(d), Code(common.code))
 		result.Reader = &reader

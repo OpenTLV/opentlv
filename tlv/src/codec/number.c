@@ -29,22 +29,26 @@ tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t 
     if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     if (!size || size > (config->encoding == TLV_NUMBER_BCD ? 9u : 8u) ||
         (config->width && size != config->width))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
     if (config->encoding == TLV_NUMBER_BCD) {
         for (i = 0; i < size; ++i) {
             unsigned high = data[i] >> 4, low = data[i] & 15;
             if (high > 9 || low > 9)
-                return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                   TLV_CODEC_REASON_DIGIT);
             number = number * 100 + high * 10 + low;
         }
         if (number > decimal_limit(config->digits))
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_RANGE);
     } else {
         tlv_byte_order_t order = config->encoding == TLV_NUMBER_BINARY_BE
                                      ? TLV_BYTE_ORDER_BIG_ENDIAN
                                      : TLV_BYTE_ORDER_LITTLE_ENDIAN;
         if (tlv_read_uint(data, size, order, &number) != TLV_OK)
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_RANGE);
     }
     if (capacity < sizeof(number))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
@@ -67,10 +71,12 @@ tlv_result_t tlv_number_encode(const void* context, const void* value, size_t si
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     if (size != sizeof(number))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_OBJECT);
     memcpy(&number, value, sizeof(number));
     if (config->encoding == TLV_NUMBER_BCD && number > decimal_limit(config->digits))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_RANGE);
     radix = config->encoding == TLV_NUMBER_BCD ? 100 : 256;
     remaining = number;
     while (remaining >= radix) {
@@ -79,7 +85,8 @@ tlv_result_t tlv_number_encode(const void* context, const void* value, size_t si
     }
     if (config->width) {
         if (width > config->width)
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_RANGE);
         width = config->width;
     }
     if (data && capacity < width)
@@ -95,7 +102,8 @@ tlv_result_t tlv_number_encode(const void* context, const void* value, size_t si
                                      ? TLV_BYTE_ORDER_BIG_ENDIAN
                                      : TLV_BYTE_ORDER_LITTLE_ENDIAN;
         if (tlv_write_uint(bytes, width, order, number) != TLV_OK)
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_RANGE);
     }
     if (data) memcpy(data, bytes, width);
     *written = width;

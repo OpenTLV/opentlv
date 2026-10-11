@@ -227,7 +227,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                         value_length > TLV_CER_MAX_SEGMENT_OCTETS)
                         return fail(TLV_ERR_INVALID_LENGTH, base + length_offset, diagnostic);
                     if (strict) {
-                        rc = tlv_asn1_validate_universal_value(number, value_ptr, value_length);
+                        rc = tlv_asn1_validate_universal_value(number, value_ptr, value_length,
+                                                               NULL);
                         if (rc != TLV_OK) return fail(rc, base + pos, diagnostic);
                     }
                 }
@@ -334,7 +335,7 @@ static tlv_result_t check_primitive_value(tlv_tag_t tag, const uint8_t* value, s
             return fail(TLV_ERR_INVALID_LENGTH, offset_base, diagnostic);
     }
     if (!strict) return TLV_OK;
-    rc = tlv_asn1_validate_universal_value(number, value, length);
+    rc = tlv_asn1_validate_universal_value(number, value, length, NULL);
     if (rc != TLV_OK) return fail(rc, offset_base, diagnostic);
     return TLV_OK;
 }
@@ -466,7 +467,7 @@ static tlv_result_t write_segmented_string(uint8_t* data, size_t capacity, tlv_t
     info = tlv_cer_type_info(number);
     if (info.form == TLV_CER_FORM_PRIMITIVE_ONLY) return unlocated(TLV_ERR_INVALID_ARG, diagnostic);
 
-    rc = tlv_asn1_validate_universal_value(number, content, content_length);
+    rc = tlv_asn1_validate_universal_value(number, content, content_length, NULL);
     if (rc != TLV_OK) return fail(rc, tag_size, diagnostic);
 
     if (content_length <= TLV_CER_MAX_SEGMENT_OCTETS) {

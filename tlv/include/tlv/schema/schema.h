@@ -9,6 +9,7 @@
 #include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/diagnostic.h"
+#include "tlv/reader/diagnostic.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -310,11 +311,10 @@ typedef struct tlv_schema_definition_location {
 } tlv_schema_definition_location_t;
 
 /**
- * @brief Structured Schema failure detail shared by validation and definition checks.
+ * @brief Schema-specific failure evidence without common diagnostic metadata.
  *
- * Pairs a #tlv_diagnostic_t (code, severity and an optional byte position) with the schema-specific
- * detail needed to explain the violation: which rule or #tlv_structure_group_t it breaks, the tag
- * involved, the enclosing path, the schema field or group name if it has one, and the
+ * Identifies which rule or #tlv_structure_group_t a violation breaks, the tag
+ * involved, the schema field or group name if it has one, and the
  * expected-versus-actual detail for whichever of `kind`'s cases applies. A
  * field not applicable to `kind` is left unset, indicated by its paired
  * `has_*` flag being zero. Every field is a fixed-size value or a borrowed
@@ -327,15 +327,14 @@ typedef struct tlv_schema_definition_location {
  * group's `name`, and the occurrence fields are the group's own bounds and
  * summed occurrences rather than one rule's.
  *
- * The common base owns its bounded path value, so copies retain valid external
- * Tag borrows without self-references. Native definition failures identify the
- * owning table/type and offending member independently of byte locations.
+ * Native definition failures identify the owning table/type and offending
+ * member independently of byte locations.
  *
- * @see tlv_schema_diagnostic_init
+ * @note This fixed-size value contains no result, location or path. It is the
+ * single Schema detail type: #tlv_schema_diagnostic_t pairs it with one common
+ * #tlv_diagnostic_t, and Codec and Query embed it as their delegated Schema cause.
  */
-typedef struct tlv_schema_diagnostic {
-    /** Common result, severity, primary location and enclosing path. */
-    tlv_diagnostic_t diagnostic;
+typedef struct tlv_schema_detail {
     /** Which rule was violated; see #tlv_schema_issue_kind_t. */
     tlv_schema_issue_kind_t kind;
     /** Affected tag; for #TLV_SCHEMA_ISSUE_MISSING, the tag that is absent. Borrows the input
@@ -363,8 +362,7 @@ typedef struct tlv_schema_diagnostic {
      * nonzero, of the group's members combined. */
     size_t occurs;
     /** Nonzero if `min_length`, `max_length`, `actual_length`, `length_multiple` and `length_flags`
-     * are set
-     * (#TLV_SCHEMA_ISSUE_LENGTH). */
+     * are set (#TLV_SCHEMA_ISSUE_LENGTH). */
     int has_length;
     /** Minimum permitted value length in bytes, inclusive. */
     size_t min_length;
@@ -382,6 +380,50 @@ typedef struct tlv_schema_diagnostic {
     size_t length_multiple;
     /** Schema length-policy flags, including #TLV_SCHEMA_LENGTH_ENDPOINTS, when has_length. */
     uint32_t length_flags;
+} tlv_schema_detail_t;
+
+/** @brief Layer whose typed detail is active in #tlv_schema_diagnostic_t::detail. */
+typedef enum tlv_schema_cause {
+    TLV_SCHEMA_CAUSE_NONE,   /**< No typed detail, for example an argument or resource failure. */
+    TLV_SCHEMA_CAUSE_SCHEMA, /**< A Schema finding or definition failure; `detail.schema`. */
+    TLV_SCHEMA_CAUSE_READER  /**< The Reader rejected the input; `detail.reader`. */
+} tlv_schema_cause_t;
+
+/**
+ * @brief Returns the diagnostic name of a Schema cause.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_schema_cause_string(tlv_schema_cause_t value);
+
+/**
+ * @brief Common failure diagnostic paired with one discriminated typed detail.
+ *
+ * Shared by validation and definition checks. The common base carries the
+ * code, severity, primary location, expected text and enclosing path. `cause`
+ * selects the active `detail` member: the Schema finding that explains the
+ * violation, or the original Reader detail when the wire input itself is
+ * malformed. The common base owns its bounded path value, so copies retain valid
+ * external Tag borrows without self-references.
+ *
+ * @note Report entries are always Schema findings with cause #TLV_SCHEMA_CAUSE_SCHEMA.
+ * @see tlv_schema_diagnostic_init
+ */
+typedef struct tlv_schema_diagnostic {
+    /** Common result, severity, primary location and enclosing path. */
+    tlv_diagnostic_t diagnostic;
+    /** Active member of detail. */
+    tlv_schema_cause_t cause;
+    /** @brief Discriminated typed detail; only the member selected by cause is active. */
+    union {
+        /** Violated rule, affected tag and expected-versus-actual evidence. */
+        tlv_schema_detail_t schema;
+        /** Original Reader detail; its result, location and path are in `diagnostic`. */
+        tlv_reader_detail_t reader;
+    } detail;
 } tlv_schema_diagnostic_t;
 
 /**

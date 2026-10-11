@@ -454,6 +454,7 @@ pub struct SchemaDiagnostic {
 impl SchemaDiagnostic {
     // SAFETY: the caller keeps all native diagnostic spans and strings alive.
     pub(crate) unsafe fn from_raw(item: &native::tlv_schema_diagnostic_t) -> crate::Result<Self> {
+        let detail = schema_detail(item);
         let path = if item.diagnostic.has_path != 0 {
             let mut path = Vec::with_capacity(item.diagnostic.path.length);
             for tag in &item.diagnostic.path.tags[..item.diagnostic.path.length] {
@@ -466,15 +467,15 @@ impl SchemaDiagnostic {
         };
         // SAFETY: C returns a static NUL-terminated name for any kind.
         let kind_name =
-            unsafe { std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(item.kind)) }
+            unsafe { std::ffi::CStr::from_ptr(native::tlv_schema_issue_kind_string(detail.kind)) }
                 .to_string_lossy()
                 .into_owned();
-        let field = if item.field.is_null() {
+        let field = if detail.field.is_null() {
             None
         } else {
             // SAFETY: schema retains this NUL-terminated name during the copy.
             Some(
-                unsafe { std::ffi::CStr::from_ptr(item.field) }
+                unsafe { std::ffi::CStr::from_ptr(detail.field) }
                     .to_string_lossy()
                     .into_owned(),
             )
@@ -483,13 +484,13 @@ impl SchemaDiagnostic {
             error: Error::from_code(item.diagnostic.code).unwrap_or(Error::Schema),
             contexts: unsafe { crate::reader_diagnostic::contexts(&item.diagnostic) },
             severity: crate::Severity::from_raw(item.diagnostic.severity),
-            kind: crate::SchemaIssue::from_raw(item.kind),
+            kind: crate::SchemaIssue::from_raw(detail.kind),
             kind_name,
             location: crate::Location::from_raw(item.diagnostic.location),
-            definition_kind: crate::SchemaDefinitionKind::from_raw(item.definition.kind),
-            definition_index: item.definition.index,
+            definition_kind: crate::SchemaDefinitionKind::from_raw(detail.definition.kind),
+            definition_index: detail.definition.index,
             // SAFETY: affected tag borrows still-live storage.
-            tag: unsafe { Tag::from_raw(&item.tag) }?,
+            tag: unsafe { Tag::from_raw(&detail.tag) }?,
             path,
             path_omitted: item.diagnostic.path.omitted,
             offset: (item.diagnostic.location.kind != 0).then_some(item.diagnostic.location.begin),
@@ -512,27 +513,27 @@ impl SchemaDiagnostic {
                 )
             },
             field,
-            is_group: item.is_group != 0,
-            occurrences: (item.has_occurs != 0).then_some(SchemaBounds {
-                minimum: item.min_occurs,
-                maximum: item.max_occurs,
-                actual: item.occurs,
+            is_group: detail.is_group != 0,
+            occurrences: (detail.has_occurs != 0).then_some(SchemaBounds {
+                minimum: detail.min_occurs,
+                maximum: detail.max_occurs,
+                actual: detail.occurs,
             }),
-            length: (item.has_length != 0).then_some(SchemaBounds {
-                minimum: item.min_length,
-                maximum: item.max_length,
-                actual: item.actual_length,
+            length: (detail.has_length != 0).then_some(SchemaBounds {
+                minimum: detail.min_length,
+                maximum: detail.max_length,
+                actual: detail.actual_length,
             }),
-            form: (item.has_form != 0).then_some((
-                match item.expected_form {
+            form: (detail.has_form != 0).then_some((
+                match detail.expected_form {
                     1 => Kind::Primitive,
                     2 => Kind::Constructed,
                     _ => Kind::Any,
                 },
-                item.actual_constructed != 0,
+                detail.actual_constructed != 0,
             )),
-            length_multiple: item.length_multiple,
-            length_flags: item.length_flags,
+            length_multiple: detail.length_multiple,
+            length_flags: detail.length_flags,
         })
     }
 }
@@ -661,10 +662,12 @@ impl StructureSchema {
             return Err(SchemaError {
                 error: Error::from_code(code).unwrap(),
                 offset: crate::Location::from_raw(diagnostic.diagnostic.location).offset(),
-                kind: crate::SchemaIssue::from_raw(diagnostic.kind),
+                kind: crate::SchemaIssue::from_raw(schema_detail(&diagnostic).kind),
                 location: crate::Location::from_raw(diagnostic.diagnostic.location),
-                definition_kind: crate::SchemaDefinitionKind::from_raw(diagnostic.definition.kind),
-                definition_index: diagnostic.definition.index,
+                definition_kind: crate::SchemaDefinitionKind::from_raw(
+                    schema_detail(&diagnostic).definition.kind,
+                ),
+                definition_index: schema_detail(&diagnostic).definition.index,
             });
         }
         let mut diagnostics = Vec::new();
@@ -864,10 +867,12 @@ impl StructureSchema {
                 } else {
                     None
                 },
-                kind: crate::SchemaIssue::from_raw(diagnostic.kind),
+                kind: crate::SchemaIssue::from_raw(schema_detail(&diagnostic).kind),
                 location: crate::Location::from_raw(diagnostic.diagnostic.location),
-                definition_kind: crate::SchemaDefinitionKind::from_raw(diagnostic.definition.kind),
-                definition_index: diagnostic.definition.index,
+                definition_kind: crate::SchemaDefinitionKind::from_raw(
+                    schema_detail(&diagnostic).definition.kind,
+                ),
+                definition_index: schema_detail(&diagnostic).definition.index,
             }),
         }
     }
@@ -931,5 +936,16 @@ impl error::Error for SchemaError {
 impl From<SchemaError> for Error {
     fn from(err: SchemaError) -> Error {
         err.error
+    }
+}
+
+/// Schema detail of a native diagnostic; other causes carry no Schema finding.
+pub(crate) fn schema_detail(item: &native::tlv_schema_diagnostic_t) -> native::tlv_schema_detail_t {
+    if item.cause == native::TLV_SCHEMA_CAUSE_SCHEMA {
+        // SAFETY: cause selects the initialized Schema member.
+        unsafe { item.detail.schema }
+    } else {
+        // SAFETY: the all-zero Schema detail has valid enums and NULL pointers.
+        unsafe { std::mem::zeroed() }
     }
 }

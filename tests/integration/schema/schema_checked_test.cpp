@@ -47,11 +47,11 @@ void expectSame(const tlv_schema_diagnostic_t& plain, const tlv_schema_diagnosti
     EXPECT_EQ(plain.diagnostic.location.kind, checked.diagnostic.location.kind);
     EXPECT_EQ(plain.diagnostic.location.begin, checked.diagnostic.location.begin);
     EXPECT_EQ(plain.diagnostic.path.length, checked.diagnostic.path.length);
-    EXPECT_EQ(plain.kind, checked.kind);
-    EXPECT_TRUE(tlv_tag_equal(plain.tag, checked.tag));
-    EXPECT_EQ(plain.field, checked.field);
-    EXPECT_EQ(plain.occurs, checked.occurs);
-    EXPECT_EQ(plain.actual_length, checked.actual_length);
+    EXPECT_EQ(plain.detail.schema.kind, checked.detail.schema.kind);
+    EXPECT_TRUE(tlv_tag_equal(plain.detail.schema.tag, checked.detail.schema.tag));
+    EXPECT_EQ(plain.detail.schema.field, checked.detail.schema.field);
+    EXPECT_EQ(plain.detail.schema.occurs, checked.detail.schema.occurs);
+    EXPECT_EQ(plain.detail.schema.actual_length, checked.detail.schema.actual_length);
 }
 } // namespace
 
@@ -64,7 +64,7 @@ TEST(Integration_Tlv_SchemaChecked, PrepareBorrowsOnlyAValidDefinition) {
     // A failed preparation never leaves the handle on the previous definition.
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, tlv_schema_prepare(&checked, &invalidSchema, &diagnostic));
     EXPECT_EQ(nullptr, checked.schema);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.kind);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.detail.schema.kind);
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, diagnostic.diagnostic.code);
 
     ASSERT_EQ(TLV_OK, tlv_schema_prepare(&checked, &rootSchema, nullptr));
