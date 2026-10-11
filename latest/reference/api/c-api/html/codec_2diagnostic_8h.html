@@ -89,9 +89,6 @@ $(function() {
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec__schema__detail.html">tlv_codec_schema_detail</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema cause fields without a second copy of the common diagnostic.  <a href="structtlv__codec__schema__detail.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__codec__detail.html">tlv_codec_detail</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conversion detail accompanying one shared common diagnostic.  <a href="structtlv__codec__detail.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -110,9 +107,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ab3cabc7cfcb95ba774f8cbb20f0c28d1" id="r_ab3cabc7cfcb95ba774f8cbb20f0c28d1"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="codec_2diagnostic_8h.html#a33dcf749991961b62982a9e35eef7aa7">tlv_codec_violation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#ab3cabc7cfcb95ba774f8cbb20f0c28d1">tlv_codec_violation_t</a></td></tr>
 <tr class="memdesc:ab3cabc7cfcb95ba774f8cbb20f0c28d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detected callback contract violation, independent of a returned failure.  <br /></td></tr>
 <tr class="separator:ab3cabc7cfcb95ba774f8cbb20f0c28d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92f7ca9e4bb6c185542fbed9ffab6004" id="r_a92f7ca9e4bb6c185542fbed9ffab6004"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__codec__schema__detail.html">tlv_codec_schema_detail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a92f7ca9e4bb6c185542fbed9ffab6004">tlv_codec_schema_detail_t</a></td></tr>
-<tr class="memdesc:a92f7ca9e4bb6c185542fbed9ffab6004"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema cause fields without a second copy of the common diagnostic.  <br /></td></tr>
-<tr class="separator:a92f7ca9e4bb6c185542fbed9ffab6004"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7317f312e102e2ae8f099bfa6c4badad" id="r_a7317f312e102e2ae8f099bfa6c4badad"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fd">tlv_codec_reason</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a></td></tr>
+<tr class="memdesc:a7317f312e102e2ae8f099bfa6c4badad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed reason why a conversion rejected an encoded Value or application object.  <br /></td></tr>
+<tr class="separator:a7317f312e102e2ae8f099bfa6c4badad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa64e28234414f87b5689c490ee825229" id="r_aa64e28234414f87b5689c490ee825229"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__codec__detail.html">tlv_codec_detail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#aa64e28234414f87b5689c490ee825229">tlv_codec_detail_t</a></td></tr>
 <tr class="memdesc:aa64e28234414f87b5689c490ee825229"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conversion detail accompanying one shared common diagnostic.  <br /></td></tr>
 <tr class="separator:aa64e28234414f87b5689c490ee825229"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -145,6 +142,20 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a33dcf749991961b62982a9e35eef7aa7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Detected callback contract violation, independent of a returned failure.  <a href="codec_2diagnostic_8h.html#a33dcf749991961b62982a9e35eef7aa7">More...</a><br /></td></tr>
 <tr class="separator:a33dcf749991961b62982a9e35eef7aa7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3ae7d3923a43b7c1a0ed2fd4ab336fd" id="r_ad3ae7d3923a43b7c1a0ed2fd4ab336fd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fd">tlv_codec_reason</a> { <br />
+&#160;&#160;<a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fdad3abe31483f6a33a466f50449f78c40c">TLV_CODEC_REASON_NONE</a>
+, <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fdaae501dcfb470706ef2c41a2e360d9b14">TLV_CODEC_REASON_LENGTH</a>
+, <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fda724c88c951904612e792689166dde3ee">TLV_CODEC_REASON_DIGIT</a>
+, <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fdaeb5d693d3df616bda1e437394a8e191b">TLV_CODEC_REASON_TEXT</a>
+, <br />
+&#160;&#160;<a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fda615fd2d215f8521f3ea759b446c71c3a">TLV_CODEC_REASON_RANGE</a>
+, <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fda69299d6ad7b618a4523151f0ff6122b1">TLV_CODEC_REASON_CANONICAL</a>
+, <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fdab79a90c63f0df90a6159d93d0e6d061e">TLV_CODEC_REASON_SYNTAX</a>
+, <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fda49cbff9fb9269496181d1935e0234875">TLV_CODEC_REASON_OBJECT</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ad3ae7d3923a43b7c1a0ed2fd4ab336fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Typed reason why a conversion rejected an encoded Value or application object.  <a href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fd">More...</a><br /></td></tr>
+<tr class="separator:ad3ae7d3923a43b7c1a0ed2fd4ab336fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -157,12 +168,18 @@ Functions</h2></td></tr>
 <tr class="memitem:a080a5ff0c88d5694011b1d01de2b7598" id="r_a080a5ff0c88d5694011b1d01de2b7598"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a080a5ff0c88d5694011b1d01de2b7598">tlv_codec_violation_string</a> (<a class="el" href="codec_2diagnostic_8h.html#ab3cabc7cfcb95ba774f8cbb20f0c28d1">tlv_codec_violation_t</a> value)</td></tr>
 <tr class="memdesc:a080a5ff0c88d5694011b1d01de2b7598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a codec violation.  <br /></td></tr>
 <tr class="separator:a080a5ff0c88d5694011b1d01de2b7598"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbf6c509397b213739fa52b42b24b27b" id="r_abbf6c509397b213739fa52b42b24b27b"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#abbf6c509397b213739fa52b42b24b27b">tlv_codec_reason_string</a> (<a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a> value)</td></tr>
+<tr class="memdesc:abbf6c509397b213739fa52b42b24b27b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a codec reason.  <br /></td></tr>
+<tr class="separator:abbf6c509397b213739fa52b42b24b27b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a316bd8a3f86160b264da40666ef2e89c" id="r_a316bd8a3f86160b264da40666ef2e89c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a316bd8a3f86160b264da40666ef2e89c">tlv_codec_diagnostic_init</a> (<a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic, <a class="el" href="codec_2diagnostic_8h.html#ab5e99555c73a7de7caa482417563c421">tlv_codec_operation_t</a> operation)</td></tr>
 <tr class="memdesc:a316bd8a3f86160b264da40666ef2e89c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear optional conversion evidence for a new operation.  <br /></td></tr>
 <tr class="separator:a316bd8a3f86160b264da40666ef2e89c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab79b7438236b056d2f425a85f7847406" id="r_ab79b7438236b056d2f425a85f7847406"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#ab79b7438236b056d2f425a85f7847406">tlv_codec_diagnostic_result</a> (<a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic, <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> result)</td></tr>
 <tr class="memdesc:ab79b7438236b056d2f425a85f7847406"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish a conversion result without discarding supplied cause evidence.  <br /></td></tr>
 <tr class="separator:ab79b7438236b056d2f425a85f7847406"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c77462e2b86ec52515b329be5a46f47" id="r_a7c77462e2b86ec52515b329be5a46f47"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a7c77462e2b86ec52515b329be5a46f47">tlv_codec_diagnostic_reason</a> (<a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic, <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> result, <a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a> reason)</td></tr>
+<tr class="memdesc:a7c77462e2b86ec52515b329be5a46f47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish a rejected Value or object with its typed reason.  <br /></td></tr>
+<tr class="separator:a7c77462e2b86ec52515b329be5a46f47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Optional allocation-free conversion diagnostics and delegated causes. </p>
@@ -233,20 +250,20 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a92f7ca9e4bb6c185542fbed9ffab6004" name="a92f7ca9e4bb6c185542fbed9ffab6004"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a92f7ca9e4bb6c185542fbed9ffab6004">&#9670;&#160;</a></span>tlv_codec_schema_detail_t</h2>
+<a id="a7317f312e102e2ae8f099bfa6c4badad" name="a7317f312e102e2ae8f099bfa6c4badad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7317f312e102e2ae8f099bfa6c4badad">&#9670;&#160;</a></span>tlv_codec_reason_t</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">typedef struct <a class="el" href="structtlv__codec__schema__detail.html">tlv_codec_schema_detail</a> <a class="el" href="codec_2diagnostic_8h.html#a92f7ca9e4bb6c185542fbed9ffab6004">tlv_codec_schema_detail_t</a></td>
+          <td class="memname">typedef enum <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fd">tlv_codec_reason</a> <a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Schema cause fields without a second copy of the common diagnostic. </p>
-<dl class="section note"><dt>Note</dt><dd>Tag, field and definition owner borrow the original input/schema. </dd></dl>
+<p>Typed reason why a conversion rejected an encoded Value or application object. </p>
+<dl class="section note"><dt>Note</dt><dd>The returned result stays authoritative (usually <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>); the reason explains it. Argument, capacity, delegated and callback failures use NONE. </dd></dl>
 
 </div>
 </div>
@@ -310,6 +327,41 @@ Functions</h2></td></tr>
 <tr><td class="fieldname"><a id="acf7f46189f79de6053d25fe48be1703dafce66b0f160ad07a5b802807c27fc128" name="acf7f46189f79de6053d25fe48be1703dafce66b0f160ad07a5b802807c27fc128"></a>TLV_CODEC_OP_ENCODE&#160;</td><td class="fielddoc"><p>Encode an application representation. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="acf7f46189f79de6053d25fe48be1703da6b9f9b383b14d60369136f43ecc9ac19" name="acf7f46189f79de6053d25fe48be1703da6b9f9b383b14d60369136f43ecc9ac19"></a>TLV_CODEC_OP_MEASURE&#160;</td><td class="fielddoc"><p>Validate and measure without writing. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fd" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad3ae7d3923a43b7c1a0ed2fd4ab336fd">&#9670;&#160;</a></span>tlv_codec_reason</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="codec_2diagnostic_8h.html#ad3ae7d3923a43b7c1a0ed2fd4ab336fd">tlv_codec_reason</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Typed reason why a conversion rejected an encoded Value or application object. </p>
+<dl class="section note"><dt>Note</dt><dd>The returned result stays authoritative (usually <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>); the reason explains it. Argument, capacity, delegated and callback failures use NONE. </dd></dl>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fdad3abe31483f6a33a466f50449f78c40c" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fdad3abe31483f6a33a466f50449f78c40c"></a>TLV_CODEC_REASON_NONE&#160;</td><td class="fielddoc"><p>No conversion-specific reason. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fdaae501dcfb470706ef2c41a2e360d9b14" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fdaae501dcfb470706ef2c41a2e360d9b14"></a>TLV_CODEC_REASON_LENGTH&#160;</td><td class="fielddoc"><p>The encoded Value length is invalid for the representation. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fda724c88c951904612e792689166dde3ee" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fda724c88c951904612e792689166dde3ee"></a>TLV_CODEC_REASON_DIGIT&#160;</td><td class="fielddoc"><p>A decimal digit or BCD nibble is invalid or misplaced. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fdaeb5d693d3df616bda1e437394a8e191b" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fdaeb5d693d3df616bda1e437394a8e191b"></a>TLV_CODEC_REASON_TEXT&#160;</td><td class="fielddoc"><p>Text violates its character set or encoding, such as UTF-8. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fda615fd2d215f8521f3ea759b446c71c3a" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fda615fd2d215f8521f3ea759b446c71c3a"></a>TLV_CODEC_REASON_RANGE&#160;</td><td class="fielddoc"><p>A number or field is outside its representable or permitted range. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fda69299d6ad7b618a4523151f0ff6122b1" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fda69299d6ad7b618a4523151f0ff6122b1"></a>TLV_CODEC_REASON_CANONICAL&#160;</td><td class="fielddoc"><p>A valid encoding is not in the required canonical or minimal form. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fdab79a90c63f0df90a6159d93d0e6d061e" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fdab79a90c63f0df90a6159d93d0e6d061e"></a>TLV_CODEC_REASON_SYNTAX&#160;</td><td class="fielddoc"><p>The Value's internal structure is malformed. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ad3ae7d3923a43b7c1a0ed2fd4ab336fda49cbff9fb9269496181d1935e0234875" name="ad3ae7d3923a43b7c1a0ed2fd4ab336fda49cbff9fb9269496181d1935e0234875"></a>TLV_CODEC_REASON_OBJECT&#160;</td><td class="fielddoc"><p>The application object does not match the representation. </p>
 </td></tr>
 </table>
 
@@ -409,6 +461,59 @@ Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="a7c77462e2b86ec52515b329be5a46f47" name="a7c77462e2b86ec52515b329be5a46f47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c77462e2b86ec52515b329be5a46f47">&#9670;&#160;</a></span>tlv_codec_diagnostic_reason()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_codec_diagnostic_reason </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a>&#160;</td>
+          <td class="paramname"><em>reason</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Publish a rejected Value or object with its typed reason. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized destination. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">result</td><td>Result to publish unchanged, usually <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">reason</td><td>Why the conversion rejected its input. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>result. </dd></dl>
+
+</div>
+</div>
 <a id="ab79b7438236b056d2f425a85f7847406" name="ab79b7438236b056d2f425a85f7847406"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab79b7438236b056d2f425a85f7847406">&#9670;&#160;</a></span>tlv_codec_diagnostic_result()</h2>
 
@@ -472,6 +577,34 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Returns the diagnostic name of a codec operation. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
+
+</div>
+</div>
+<a id="abbf6c509397b213739fa52b42b24b27b" name="abbf6c509397b213739fa52b42b24b27b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbf6c509397b213739fa52b42b24b27b">&#9670;&#160;</a></span>tlv_codec_reason_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_codec_reason_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a codec reason. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>

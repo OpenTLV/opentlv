@@ -3826,10 +3826,17 @@ paths and Tags alive after returning. Decode can propagate <code>NEED_MORE_DATA<
 encode/measure cannot. <code>END</code>, unknown results and invalid successful
 payloads become <code>CALLBACK</code>, with the original result in <code>codec.reported</code>.</p>
 <p>Diagnostics contain one common result/location/path and conversion detail:
-operation, optional representation, callback violation, and a discriminated
-Reader or Schema cause. Unknown locations stay unknown. Query keeps the related
-expression span separately and exposes conversion evidence under <code>has_codec</code>
-and <code>codec_detail</code>. C++ uses <code>codec_failure</code>, whose status is the shared <code>errc</code>.</p>
+operation, optional representation, callback violation, a typed rejection
+<code>reason</code> and a discriminated Reader or Schema cause. The Schema cause is the
+shared <code>tlv_schema_detail_t</code>. The reason explains an invalid Value or object
+without replacing the result: <code>LENGTH</code>, <code>DIGIT</code>, <code>TEXT</code>, <code>RANGE</code>, <code>CANONICAL</code>,
+<code>SYNTAX</code> or <code>OBJECT</code> (the application object does not match the
+representation); argument, capacity, delegated and callback failures use
+<code>NONE</code>. Custom codecs publish one with <code>tlv_codec_diagnostic_reason()</code>.
+Unknown locations stay unknown. Query keeps a known conversion location primary
+and stores the expression span as related <code>expression</code> evidence; without one,
+the expression span stays primary. Conversion detail is <code>detail.codec</code> under
+cause <code>TLV_QUERY_CAUSE_CODEC</code>. C++ uses <code>codec_failure</code>, whose status is the shared <code>errc</code>.</p>
 <h2 id="c11-typed-fields-and-value-codecs">C++11 typed fields and Value codecs<a class="headerlink" href="#c11-typed-fields-and-value-codecs" title="Permanent link">&para;</a></h2>
 <p>Include <code>&lt;tlv++/codec/typed.hpp&gt;</code> (also included by <code>&lt;tlv++/tlv.hpp&gt;</code>).
 <code>field&lt;Tag, T, Codec = codec&lt;T&gt;&gt;</code> associates a canonical byte identifier with

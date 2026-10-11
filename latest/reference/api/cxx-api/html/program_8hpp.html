@@ -141,16 +141,28 @@ Enumerations</h2></td></tr>
 , <a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5a78805a221a988e79ef3f42d7c5bfd418">tlv::image</a> = TLV_QUERY_ERROR_IMAGE
 , <a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5a924a8ceeac17f54d3be3f8cdf1c04eb2">tlv::callback</a> = TLV_QUERY_ERROR_CALLBACK
 , <a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5a9ed39e2ea931586b6a985a6942ef573e">tlv::state</a> = TLV_QUERY_ERROR_STATE
+, <br />
+&#160;&#160;<a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5ac9550d5fad73447fc24ba47f95d1c6b7">tlv::schema</a> = TLV_QUERY_ERROR_SCHEMA
 <br />
  }</td></tr>
 <tr class="memdesc:a7bcb5c918f4c7e096cd783d894a7ffd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured Query error category.  <a href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5">More...</a><br /></td></tr>
 <tr class="separator:a7bcb5c918f4c7e096cd783d894a7ffd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c5b3b4b86d895c7b029a302b5f1dda9" id="r_a7c5b3b4b86d895c7b029a302b5f1dda9"><td class="memItemLeft" align="right" valign="top">enum class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9">tlv::query_cause</a> { <a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9a334c4a4c42fdb79d7ebc3e73b517e6f8">tlv::none</a> = TLV_QUERY_CAUSE_NONE
+, <a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9a1de9b0a30075ae8c303eb420c103c320">tlv::reader</a> = TLV_QUERY_CAUSE_READER
+, <a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9a6f0dcb649595714ca1d26d9c226003c1">tlv::codec</a> = TLV_QUERY_CAUSE_CODEC
+, <a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9ac9550d5fad73447fc24ba47f95d1c6b7">tlv::schema</a> = TLV_QUERY_CAUSE_SCHEMA
+ }</td></tr>
+<tr class="memdesc:a7c5b3b4b86d895c7b029a302b5f1dda9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in a Query diagnostic.  <a href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9">More...</a><br /></td></tr>
+<tr class="separator:a7c5b3b4b86d895c7b029a302b5f1dda9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a799802adfe5143cae17ef8f7f509477c" id="r_a799802adfe5143cae17ef8f7f509477c"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a799802adfe5143cae17ef8f7f509477c">tlv::message</a> (<a class="el" href="namespacetlv.html#a7bcb5c918f4c7e096cd783d894a7ffd5">query_issue</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
 <tr class="memdesc:a799802adfe5143cae17ef8f7f509477c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static Query category name, including unknown values.  <br /></td></tr>
 <tr class="separator:a799802adfe5143cae17ef8f7f509477c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7113744914254b18feb793e641be34b6" id="r_a7113744914254b18feb793e641be34b6"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a7113744914254b18feb793e641be34b6">tlv::message</a> (<a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9">query_cause</a> <a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
+<tr class="memdesc:a7113744914254b18feb793e641be34b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Canonical static Query cause name, including unknown values.  <br /></td></tr>
+<tr class="separator:a7113744914254b18feb793e641be34b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Full Query compilation and execution through the canonical C engine. </p>

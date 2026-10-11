@@ -133,6 +133,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga02827de4b2461e04efd2d10615344210" id="r_ga02827de4b2461e04efd2d10615344210"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">tlv_query_decision_timing</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga02827de4b2461e04efd2d10615344210">tlv_query_decision_timing_t</a></td></tr>
 <tr class="memdesc:ga02827de4b2461e04efd2d10615344210"><td class="mdescLeft">&#160;</td><td class="mdescRight">Earliest publication frontier for the conservatively selected backend.  <br /></td></tr>
 <tr class="separator:ga02827de4b2461e04efd2d10615344210"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf3c3179edee44b47d4696489eec098b1" id="r_gaf3c3179edee44b47d4696489eec098b1"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">tlv_query_cause</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf3c3179edee44b47d4696489eec098b1">tlv_query_cause_t</a></td></tr>
+<tr class="memdesc:gaf3c3179edee44b47d4696489eec098b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__query__diagnostic.html#a06de2a9a1f4b85727ec0d350cfae568f" title="Discriminated lower-layer detail; only the member selected by cause is active.">tlv_query_diagnostic_t::detail</a>.  <br /></td></tr>
+<tr class="separator:gaf3c3179edee44b47d4696489eec098b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga17f951dcf47161a07accd081699eff6f" id="r_ga17f951dcf47161a07accd081699eff6f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a></td></tr>
 <tr class="memdesc:ga17f951dcf47161a07accd081699eff6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <br /></td></tr>
 <tr class="separator:ga17f951dcf47161a07accd081699eff6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,6 +217,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287">TLV_QUERY_ERROR_TYPE</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5">TLV_QUERY_ERROR_IMAGE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda988a95fe562429327a997ec69d2988ab">TLV_QUERY_ERROR_SCHEMA</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -224,6 +229,13 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gadc433791e079a31ea6ca06547dc5cce2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Earliest publication frontier for the conservatively selected backend.  <a href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">More...</a><br /></td></tr>
 <tr class="separator:gadc433791e079a31ea6ca06547dc5cce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab59146d8bb1a6e5d0cee42bc752f7170" id="r_gab59146d8bb1a6e5d0cee42bc752f7170"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">tlv_query_cause</a> { <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170ab750cd566dcfd94081e6477508f30a22">TLV_QUERY_CAUSE_NONE</a>
+, <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a399d951d2b12fc9cd9e499ea444370c0">TLV_QUERY_CAUSE_READER</a>
+, <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a3c6d9c7aacb103779607f9b11ee36d43">TLV_QUERY_CAUSE_CODEC</a>
+, <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a26693eb658cad89efdb92a617a8bc644">TLV_QUERY_CAUSE_SCHEMA</a>
+ }</td></tr>
+<tr class="memdesc:gab59146d8bb1a6e5d0cee42bc752f7170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__query__diagnostic.html#a06de2a9a1f4b85727ec0d350cfae568f" title="Discriminated lower-layer detail; only the member selected by cause is active.">tlv_query_diagnostic_t::detail</a>.  <a href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">More...</a><br /></td></tr>
+<tr class="separator:gab59146d8bb1a6e5d0cee42bc752f7170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga43336be01e068a5916b4b8cdb7081c6b" id="r_ga43336be01e068a5916b4b8cdb7081c6b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga43336be01e068a5916b4b8cdb7081c6b">tlv_query_result_kind</a> { <br />
 &#160;&#160;<a class="el" href="group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29">TLV_QUERY_RESULT_NODES</a>
 , <a class="el" href="group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935">TLV_QUERY_RESULT_BOOL</a>
@@ -248,6 +260,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga581352132e5389327797f9cd282465ab" id="r_ga581352132e5389327797f9cd282465ab"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga581352132e5389327797f9cd282465ab">tlv_query_error_kind_string</a> (<a class="el" href="group__traversal.html#gafc4c0883612ef05066fbbd5afc6306d5">tlv_query_error_kind_t</a> value)</td></tr>
 <tr class="memdesc:ga581352132e5389327797f9cd282465ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a query error kind.  <br /></td></tr>
 <tr class="separator:ga581352132e5389327797f9cd282465ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaea53a1f0eb0d722e9da7c4bdc6a2383a" id="r_gaea53a1f0eb0d722e9da7c4bdc6a2383a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaea53a1f0eb0d722e9da7c4bdc6a2383a">tlv_query_cause_string</a> (<a class="el" href="group__traversal.html#gaf3c3179edee44b47d4696489eec098b1">tlv_query_cause_t</a> value)</td></tr>
+<tr class="memdesc:gaea53a1f0eb0d722e9da7c4bdc6a2383a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a query cause.  <br /></td></tr>
+<tr class="separator:gaea53a1f0eb0d722e9da7c4bdc6a2383a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7b03002e8b3fb150a6ab43d6d21e5634" id="r_ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7b03002e8b3fb150a6ab43d6d21e5634">tlv_query_program_variable_count</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program)</td></tr>
 <tr class="memdesc:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count unique referenced variables in first-reference order.  <br /></td></tr>
 <tr class="separator:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memSeparator" colspan="2">&#160;</td></tr>

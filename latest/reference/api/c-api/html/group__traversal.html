@@ -205,6 +205,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga02827de4b2461e04efd2d10615344210" id="r_ga02827de4b2461e04efd2d10615344210"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">tlv_query_decision_timing</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga02827de4b2461e04efd2d10615344210">tlv_query_decision_timing_t</a></td></tr>
 <tr class="memdesc:ga02827de4b2461e04efd2d10615344210"><td class="mdescLeft">&#160;</td><td class="mdescRight">Earliest publication frontier for the conservatively selected backend.  <br /></td></tr>
 <tr class="separator:ga02827de4b2461e04efd2d10615344210"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaf3c3179edee44b47d4696489eec098b1" id="r_gaf3c3179edee44b47d4696489eec098b1"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">tlv_query_cause</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaf3c3179edee44b47d4696489eec098b1">tlv_query_cause_t</a></td></tr>
+<tr class="memdesc:gaf3c3179edee44b47d4696489eec098b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__query__diagnostic.html#a06de2a9a1f4b85727ec0d350cfae568f" title="Discriminated lower-layer detail; only the member selected by cause is active.">tlv_query_diagnostic_t::detail</a>.  <br /></td></tr>
+<tr class="separator:gaf3c3179edee44b47d4696489eec098b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga17f951dcf47161a07accd081699eff6f" id="r_ga17f951dcf47161a07accd081699eff6f"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__query__diagnostic.html">tlv_query_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga17f951dcf47161a07accd081699eff6f">tlv_query_diagnostic_t</a></td></tr>
 <tr class="memdesc:ga17f951dcf47161a07accd081699eff6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fixed-layout compiler/execution failure, initialized by diagnostic entry points.  <br /></td></tr>
 <tr class="separator:ga17f951dcf47161a07accd081699eff6f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -417,6 +420,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda6b1d3f123241519789f685f72517ddb7">TLV_QUERY_ERROR_CALLBACK</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287">TLV_QUERY_ERROR_TYPE</a>
 , <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5">TLV_QUERY_ERROR_IMAGE</a>
+, <br />
+&#160;&#160;<a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda988a95fe562429327a997ec69d2988ab">TLV_QUERY_ERROR_SCHEMA</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ga66edcf242c8bc06318ff99b24f1ce0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Query-specific diagnostic category; original result codes remain intact.  <a href="group__traversal.html#ga66edcf242c8bc06318ff99b24f1ce0ed">More...</a><br /></td></tr>
@@ -427,6 +432,13 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gadc433791e079a31ea6ca06547dc5cce2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Earliest publication frontier for the conservatively selected backend.  <a href="group__traversal.html#gadc433791e079a31ea6ca06547dc5cce2">More...</a><br /></td></tr>
 <tr class="separator:gadc433791e079a31ea6ca06547dc5cce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab59146d8bb1a6e5d0cee42bc752f7170" id="r_gab59146d8bb1a6e5d0cee42bc752f7170"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">tlv_query_cause</a> { <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170ab750cd566dcfd94081e6477508f30a22">TLV_QUERY_CAUSE_NONE</a>
+, <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a399d951d2b12fc9cd9e499ea444370c0">TLV_QUERY_CAUSE_READER</a>
+, <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a3c6d9c7aacb103779607f9b11ee36d43">TLV_QUERY_CAUSE_CODEC</a>
+, <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a26693eb658cad89efdb92a617a8bc644">TLV_QUERY_CAUSE_SCHEMA</a>
+ }</td></tr>
+<tr class="memdesc:gab59146d8bb1a6e5d0cee42bc752f7170"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__query__diagnostic.html#a06de2a9a1f4b85727ec0d350cfae568f" title="Discriminated lower-layer detail; only the member selected by cause is active.">tlv_query_diagnostic_t::detail</a>.  <a href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">More...</a><br /></td></tr>
+<tr class="separator:gab59146d8bb1a6e5d0cee42bc752f7170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga43336be01e068a5916b4b8cdb7081c6b" id="r_ga43336be01e068a5916b4b8cdb7081c6b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga43336be01e068a5916b4b8cdb7081c6b">tlv_query_result_kind</a> { <br />
 &#160;&#160;<a class="el" href="group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba85bee7adeb5c3949f0a574cb32b27a29">TLV_QUERY_RESULT_NODES</a>
 , <a class="el" href="group__traversal.html#gga43336be01e068a5916b4b8cdb7081c6ba2b623cf52ce944aa0312276ba2792935">TLV_QUERY_RESULT_BOOL</a>
@@ -445,14 +457,14 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gaa33f785f75e65e8d241ed825b2b713ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closed conversion-function selectors; no arbitrary function execution.  <a href="group__traversal.html#gaa33f785f75e65e8d241ed825b2b713ed">More...</a><br /></td></tr>
 <tr class="separator:gaa33f785f75e65e8d241ed825b2b713ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gadb49720dc49f7d4e4cf9adbf2948e409" id="r_gadb49720dc49f7d4e4cf9adbf2948e409"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggadb49720dc49f7d4e4cf9adbf2948e409a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
+<tr class="memitem:gaae05225933a42f81e7c4a9fb286596f9" id="r_gaae05225933a42f81e7c4a9fb286596f9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaae05225933a42f81e7c4a9fb286596f9a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> = 65
  }</td></tr>
-<tr class="memdesc:gadb49720dc49f7d4e4cf9adbf2948e409"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#gadb49720dc49f7d4e4cf9adbf2948e409">More...</a><br /></td></tr>
-<tr class="separator:gadb49720dc49f7d4e4cf9adbf2948e409"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaae05225933a42f81e7c4a9fb286596f9" id="r_gaae05225933a42f81e7c4a9fb286596f9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#ggaae05225933a42f81e7c4a9fb286596f9a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
- }</td></tr>
-<tr class="memdesc:gaae05225933a42f81e7c4a9fb286596f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#gaae05225933a42f81e7c4a9fb286596f9">More...</a><br /></td></tr>
+<tr class="memdesc:gaae05225933a42f81e7c4a9fb286596f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Capacity of the inline query path; independent of Tree Reader limits.  <a href="group__traversal.html#gaae05225933a42f81e7c4a9fb286596f9">More...</a><br /></td></tr>
 <tr class="separator:gaae05225933a42f81e7c4a9fb286596f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga39fca1837c5ce7715cbf571669660c13" id="r_ga39fca1837c5ce7715cbf571669660c13"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__traversal.html#gga39fca1837c5ce7715cbf571669660c13a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> = 512
+ }</td></tr>
+<tr class="memdesc:ga39fca1837c5ce7715cbf571669660c13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum total number of tag bytes in a query, across all of its tags.  <a href="group__traversal.html#ga39fca1837c5ce7715cbf571669660c13">More...</a><br /></td></tr>
+<tr class="separator:ga39fca1837c5ce7715cbf571669660c13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -465,6 +477,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga581352132e5389327797f9cd282465ab" id="r_ga581352132e5389327797f9cd282465ab"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga581352132e5389327797f9cd282465ab">tlv_query_error_kind_string</a> (<a class="el" href="group__traversal.html#gafc4c0883612ef05066fbbd5afc6306d5">tlv_query_error_kind_t</a> value)</td></tr>
 <tr class="memdesc:ga581352132e5389327797f9cd282465ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a query error kind.  <br /></td></tr>
 <tr class="separator:ga581352132e5389327797f9cd282465ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaea53a1f0eb0d722e9da7c4bdc6a2383a" id="r_gaea53a1f0eb0d722e9da7c4bdc6a2383a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#gaea53a1f0eb0d722e9da7c4bdc6a2383a">tlv_query_cause_string</a> (<a class="el" href="group__traversal.html#gaf3c3179edee44b47d4696489eec098b1">tlv_query_cause_t</a> value)</td></tr>
+<tr class="memdesc:gaea53a1f0eb0d722e9da7c4bdc6a2383a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a query cause.  <br /></td></tr>
+<tr class="separator:gaea53a1f0eb0d722e9da7c4bdc6a2383a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7b03002e8b3fb150a6ab43d6d21e5634" id="r_ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__traversal.html#ga7b03002e8b3fb150a6ab43d6d21e5634">tlv_query_program_variable_count</a> (const <a class="el" href="group__traversal.html#ga45bdea1007b9780dba5559a2190f569d">tlv_query_program_t</a> *program)</td></tr>
 <tr class="memdesc:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count unique referenced variables in first-reference order.  <br /></td></tr>
 <tr class="separator:ga7b03002e8b3fb150a6ab43d6d21e5634"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -665,6 +680,22 @@ Functions</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Typedef Documentation</h2>
+<a id="gaf3c3179edee44b47d4696489eec098b1" name="gaf3c3179edee44b47d4696489eec098b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaf3c3179edee44b47d4696489eec098b1">&#9670;&#160;</a></span>tlv_query_cause_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">tlv_query_cause</a> <a class="el" href="group__traversal.html#gaf3c3179edee44b47d4696489eec098b1">tlv_query_cause_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Layer whose typed detail is active in <a class="el" href="structtlv__query__diagnostic.html#a06de2a9a1f4b85727ec0d350cfae568f" title="Discriminated lower-layer detail; only the member selected by cause is active.">tlv_query_diagnostic_t::detail</a>. </p>
+
+</div>
+</div>
 <a id="gaf426eeab5c08024d576603e4102962ec" name="gaf426eeab5c08024d576603e4102962ec"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaf426eeab5c08024d576603e4102962ec">&#9670;&#160;</a></span>tlv_query_compile_options_t</h2>
 
@@ -761,7 +792,9 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Fixed-layout compiler/execution failure, initialized by diagnostic entry points. </p>
-<dl class="section note"><dt>Note</dt><dd>After initialization, every non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return has a kind other than <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92">TLV_QUERY_ERROR_NONE</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> has kind <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6">TLV_QUERY_ERROR_STATE</a>. Reader failures and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> retain the returned code in <code>diagnostic.code</code> and set <code>has_reader</code>. Success need not clear old detail. </dd>
+<dl class="section note"><dt>Note</dt><dd>Every field has one meaning. Result, severity, primary location, path and expected text live only in <code>diagnostic</code>; lower-layer evidence lives only in the <code>detail</code> member selected by <code>cause</code>. A Reader failure delegated through a conversion hook is reachable only as <code>detail.codec.detail.reader</code>. </dd>
+<dd>
+After initialization, every non-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> return has a kind other than <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0eda4da745616825a057de93d032e3f90f92">TLV_QUERY_ERROR_NONE</a>. <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa9a17dc4b9c0e56681e4c8e458be09d2">TLV_ERR_INVALID_STATE</a> has kind <a class="el" href="group__traversal.html#gga66edcf242c8bc06318ff99b24f1ce0edab8a837296c6eba65f3836f28d73448d6">TLV_QUERY_ERROR_STATE</a>. Reader failures and <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ad90e4f5b2c36d63f9a93b92f1064a5e6">TLV_NEED_MORE_DATA</a> retain the returned code in <code>diagnostic.code</code> and set <code>cause</code> to <a class="el" href="group__traversal.html#ggab59146d8bb1a6e5d0cee42bc752f7170a399d951d2b12fc9cd9e499ea444370c0">TLV_QUERY_CAUSE_READER</a>. Success need not clear old detail. </dd>
 <dd>
 Pre-initialization overlap, reentrancy and failed-execution guards leave this output untouched. Compiler prepare/commit/load preflight argument, extent and alignment checks can also reject before initialization. </dd>
 <dd>
@@ -1127,7 +1160,7 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div><div class="memdoc">
 
 <p>A parsed query: the tags to follow from a top-level element down to the addressed ones. </p>
-<p>The opaque storage is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#ga2eb5624206246844e16d1a423460a2bd" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#ggaae05225933a42f81e7c4a9fb286596f9a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. sizeof(tlv_query_t) is 648 bytes; alignment is that of uint64_t on the target. Do not inspect opaque members. </p>
+<p>The opaque storage is self-contained: it holds a copy of every tag's bytes, never allocates and never points to other memory, so it can be copied freely. Build it with <a class="el" href="group__traversal.html#ga2eb5624206246844e16d1a423460a2bd" title="Parses the text of a query.">tlv_query_parse()</a> and read its tags with <a class="el" href="group__traversal.html#ga1d2bf69dfc017ebbac2be367da2d9c23" title="Returns one tag of a query.">tlv_query_step()</a>; a zero-initialized query has no tags and is rejected by the functions that take one. Each tag may have any length as long as all tags together stay within <a class="el" href="group__traversal.html#gga39fca1837c5ce7715cbf571669660c13a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a>. sizeof(tlv_query_t) is 648 bytes; alignment is that of uint64_t on the target. Do not inspect opaque members. </p>
 
 </div>
 </div>
@@ -1284,25 +1317,6 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="gadb49720dc49f7d4e4cf9adbf2948e409" name="gadb49720dc49f7d4e4cf9adbf2948e409"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#gadb49720dc49f7d4e4cf9adbf2948e409">&#9670;&#160;</a></span>anonymous enum</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Capacity of the inline query path; independent of Tree Reader limits. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggadb49720dc49f7d4e4cf9adbf2948e409a6e916ad17ed0c10580e0541c0b859b13" name="ggadb49720dc49f7d4e4cf9adbf2948e409a6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
 <a id="gaae05225933a42f81e7c4a9fb286596f9" name="gaae05225933a42f81e7c4a9fb286596f9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaae05225933a42f81e7c4a9fb286596f9">&#9670;&#160;</a></span>anonymous enum</h2>
 
@@ -1315,9 +1329,54 @@ This value type is not extensible; changing its layout requires an ABI change. <
       </table>
 </div><div class="memdoc">
 
+<p>Capacity of the inline query path; independent of Tree Reader limits. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaae05225933a42f81e7c4a9fb286596f9a6e916ad17ed0c10580e0541c0b859b13" name="ggaae05225933a42f81e7c4a9fb286596f9a6e916ad17ed0c10580e0541c0b859b13"></a>TLV_QUERY_MAX_STEPS&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga39fca1837c5ce7715cbf571669660c13" name="ga39fca1837c5ce7715cbf571669660c13"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga39fca1837c5ce7715cbf571669660c13">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Maximum total number of tag bytes in a query, across all of its tags. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaae05225933a42f81e7c4a9fb286596f9a25e94ebacffefe124afbbf879cd6ce7c" name="ggaae05225933a42f81e7c4a9fb286596f9a25e94ebacffefe124afbbf879cd6ce7c"></a>TLV_QUERY_MAX_BYTES&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga39fca1837c5ce7715cbf571669660c13a25e94ebacffefe124afbbf879cd6ce7c" name="gga39fca1837c5ce7715cbf571669660c13a25e94ebacffefe124afbbf879cd6ce7c"></a>TLV_QUERY_MAX_BYTES&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="gab59146d8bb1a6e5d0cee42bc752f7170" name="gab59146d8bb1a6e5d0cee42bc752f7170"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gab59146d8bb1a6e5d0cee42bc752f7170">&#9670;&#160;</a></span>tlv_query_cause</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__traversal.html#gab59146d8bb1a6e5d0cee42bc752f7170">tlv_query_cause</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Layer whose typed detail is active in <a class="el" href="structtlv__query__diagnostic.html#a06de2a9a1f4b85727ec0d350cfae568f" title="Discriminated lower-layer detail; only the member selected by cause is active.">tlv_query_diagnostic_t::detail</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggab59146d8bb1a6e5d0cee42bc752f7170ab750cd566dcfd94081e6477508f30a22" name="ggab59146d8bb1a6e5d0cee42bc752f7170ab750cd566dcfd94081e6477508f30a22"></a>TLV_QUERY_CAUSE_NONE&#160;</td><td class="fielddoc"><p>Query-owned failure without lower-layer detail. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab59146d8bb1a6e5d0cee42bc752f7170a399d951d2b12fc9cd9e499ea444370c0" name="ggab59146d8bb1a6e5d0cee42bc752f7170a399d951d2b12fc9cd9e499ea444370c0"></a>TLV_QUERY_CAUSE_READER&#160;</td><td class="fielddoc"><p>Reader detail is active. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab59146d8bb1a6e5d0cee42bc752f7170a3c6d9c7aacb103779607f9b11ee36d43" name="ggab59146d8bb1a6e5d0cee42bc752f7170a3c6d9c7aacb103779607f9b11ee36d43"></a>TLV_QUERY_CAUSE_CODEC&#160;</td><td class="fielddoc"><p>Conversion detail is active, with its own delegated cause. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ggab59146d8bb1a6e5d0cee42bc752f7170a26693eb658cad89efdb92a617a8bc644" name="ggab59146d8bb1a6e5d0cee42bc752f7170a26693eb658cad89efdb92a617a8bc644"></a>TLV_QUERY_CAUSE_SCHEMA&#160;</td><td class="fielddoc"><p>Schema detail is active. </p>
+</td></tr>
 </table>
 
 </div>
@@ -1418,6 +1477,8 @@ This value type is not extensible; changing its layout requires an ABI change. <
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287" name="gga66edcf242c8bc06318ff99b24f1ce0eda46154792343ccc1134ae20627ecd9287"></a>TLV_QUERY_ERROR_TYPE&#160;</td><td class="fielddoc"><p>Operand type, arity or numeric-range mismatch. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5" name="gga66edcf242c8bc06318ff99b24f1ce0eda066ed2a13452638b722699d00f74afd5"></a>TLV_QUERY_ERROR_IMAGE&#160;</td><td class="fielddoc"><p>Malformed stored program image. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga66edcf242c8bc06318ff99b24f1ce0eda988a95fe562429327a997ec69d2988ab" name="gga66edcf242c8bc06318ff99b24f1ce0eda988a95fe562429327a997ec69d2988ab"></a>TLV_QUERY_ERROR_SCHEMA&#160;</td><td class="fielddoc"><p>Schema Query assertion failed; Schema detail is the cause. </p>
 </td></tr>
 </table>
 
@@ -1708,6 +1769,34 @@ This value type is not extensible; changing its layout requires an ABI change. <
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
+<a id="gaea53a1f0eb0d722e9da7c4bdc6a2383a" name="gaea53a1f0eb0d722e9da7c4bdc6a2383a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gaea53a1f0eb0d722e9da7c4bdc6a2383a">&#9670;&#160;</a></span>tlv_query_cause_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_query_cause_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__traversal.html#gaf3c3179edee44b47d4696489eec098b1">tlv_query_cause_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a query cause. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
+
+</div>
+</div>
 <a id="gaa13b5eda51d3d42dd141c17bc10e4ee1" name="gaa13b5eda51d3d42dd141c17bc10e4ee1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaa13b5eda51d3d42dd141c17bc10e4ee1">&#9670;&#160;</a></span>tlv_query_compile()</h2>
 
@@ -2951,7 +3040,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61aa4a514ccb37d17b2cd7c7da47d2eab88">TLV_ERR_NULL_ARG</a> if <code>matcher</code> or <code>query</code> is <code>NULL</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#ggadb49720dc49f7d4e4cf9adbf2948e409a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a83b538a74c7058e8863132a6410b9d65">TLV_ERR_INVALID_ARG</a> if <code>query</code> has no tags or more than <a class="el" href="group__traversal.html#ggaae05225933a42f81e7c4a9fb286596f9a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a>.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*matcher</code> is unchanged. </dd></dl>
 
 </div>
@@ -3095,7 +3184,7 @@ struct_size must cover the prefix through result_kind. Writes are limited to min
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ab61f37dcff3da223087da4b9920122c1">TLV_ERR_SYNTAX</a> for a syntax error: an empty step, an odd number of digits, or a character other than a hexadecimal digit or <code>/</code>. </dd>
 <dd>
-<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#ggadb49720dc49f7d4e4cf9adbf2948e409a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags or more than <a class="el" href="group__traversal.html#ggaae05225933a42f81e7c4a9fb286596f9a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> tag bytes in total.</dd></dl>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a1e32eada09d59d834a685da1adeaaf97">TLV_ERR_LIMIT</a> if the query has more than <a class="el" href="group__traversal.html#ggaae05225933a42f81e7c4a9fb286596f9a6e916ad17ed0c10580e0541c0b859b13">TLV_QUERY_MAX_STEPS</a> tags or more than <a class="el" href="group__traversal.html#gga39fca1837c5ce7715cbf571669660c13a25e94ebacffefe124afbbf879cd6ce7c">TLV_QUERY_MAX_BYTES</a> tag bytes in total.</dd></dl>
 <dl class="section note"><dt>Note</dt><dd>Never allocates. On failure <code>*query</code> is unchanged. </dd></dl>
 
 </div>

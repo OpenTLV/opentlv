@@ -75,7 +75,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Structured Schema failure detail shared by validation and definition checks.  
+<p>Common failure diagnostic paired with one discriminated typed detail.  
  <a href="structtlv__schema__diagnostic.html#details">More...</a></p>
 
 <p><code>#include &lt;schema.h&gt;</code></p>
@@ -84,92 +84,52 @@ $(function() {
 Data Fields</h2></td></tr>
 <tr class="memitem:a087446c2e7bc844a34787bef34233407" id="r_a087446c2e7bc844a34787bef34233407"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e">tlv_diagnostic_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a087446c2e7bc844a34787bef34233407">diagnostic</a></td></tr>
 <tr class="separator:a087446c2e7bc844a34787bef34233407"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7131dd8623442e2ea4a4d11f4917fdd7" id="r_a7131dd8623442e2ea4a4d11f4917fdd7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a7131dd8623442e2ea4a4d11f4917fdd7">kind</a></td></tr>
-<tr class="separator:a7131dd8623442e2ea4a4d11f4917fdd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0c86ce192ee8bf2126514d0cb4dda1e1" id="r_a0c86ce192ee8bf2126514d0cb4dda1e1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a0c86ce192ee8bf2126514d0cb4dda1e1">tag</a></td></tr>
-<tr class="separator:a0c86ce192ee8bf2126514d0cb4dda1e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad110cca2ee925796d6c4558d9d9c8a91" id="r_ad110cca2ee925796d6c4558d9d9c8a91"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ad110cca2ee925796d6c4558d9d9c8a91">definition</a></td></tr>
-<tr class="separator:ad110cca2ee925796d6c4558d9d9c8a91"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69e74dc9e58ca0846a212d63f1d9fa0a" id="r_a69e74dc9e58ca0846a212d63f1d9fa0a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a69e74dc9e58ca0846a212d63f1d9fa0a">field</a></td></tr>
-<tr class="separator:a69e74dc9e58ca0846a212d63f1d9fa0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ff07c00e2adb83bb0f47b10ea649975" id="r_a6ff07c00e2adb83bb0f47b10ea649975"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a6ff07c00e2adb83bb0f47b10ea649975">is_group</a></td></tr>
-<tr class="separator:a6ff07c00e2adb83bb0f47b10ea649975"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9facd01e78ce65749b965ed790fdf26b" id="r_a9facd01e78ce65749b965ed790fdf26b"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a9facd01e78ce65749b965ed790fdf26b">has_occurs</a></td></tr>
-<tr class="separator:a9facd01e78ce65749b965ed790fdf26b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca5b00063c2dab680d2a0f0e45d66e38" id="r_aca5b00063c2dab680d2a0f0e45d66e38"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#aca5b00063c2dab680d2a0f0e45d66e38">min_occurs</a></td></tr>
-<tr class="separator:aca5b00063c2dab680d2a0f0e45d66e38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a443ce1a22a34753295ba9e7384de7baf" id="r_a443ce1a22a34753295ba9e7384de7baf"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a443ce1a22a34753295ba9e7384de7baf">max_occurs</a></td></tr>
-<tr class="separator:a443ce1a22a34753295ba9e7384de7baf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae57e6b4e4fa3d9d3f4946bd6beb8f030" id="r_ae57e6b4e4fa3d9d3f4946bd6beb8f030"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ae57e6b4e4fa3d9d3f4946bd6beb8f030">occurs</a></td></tr>
-<tr class="separator:ae57e6b4e4fa3d9d3f4946bd6beb8f030"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a48ac9125d43373a780018b1b7c6045da" id="r_a48ac9125d43373a780018b1b7c6045da"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a48ac9125d43373a780018b1b7c6045da">has_length</a></td></tr>
-<tr class="separator:a48ac9125d43373a780018b1b7c6045da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6abf86eeea8f4a5e24bdb3865617e68a" id="r_a6abf86eeea8f4a5e24bdb3865617e68a"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a6abf86eeea8f4a5e24bdb3865617e68a">min_length</a></td></tr>
-<tr class="separator:a6abf86eeea8f4a5e24bdb3865617e68a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa0a9f2922f884aebe1daaee196d1ac44" id="r_aa0a9f2922f884aebe1daaee196d1ac44"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#aa0a9f2922f884aebe1daaee196d1ac44">max_length</a></td></tr>
-<tr class="separator:aa0a9f2922f884aebe1daaee196d1ac44"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8d9397b83f807c06459765cb6d806cd" id="r_ae8d9397b83f807c06459765cb6d806cd"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ae8d9397b83f807c06459765cb6d806cd">actual_length</a></td></tr>
-<tr class="separator:ae8d9397b83f807c06459765cb6d806cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2770f07edd1d396d6a7aa18d0d81fa9e" id="r_a2770f07edd1d396d6a7aa18d0d81fa9e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a2770f07edd1d396d6a7aa18d0d81fa9e">has_form</a></td></tr>
-<tr class="separator:a2770f07edd1d396d6a7aa18d0d81fa9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa11c9145a0234f60d7c9ec300708c92f" id="r_aa11c9145a0234f60d7c9ec300708c92f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#ga1006ba0162e6d89504bf1ca404771314">tlv_schema_kind_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#aa11c9145a0234f60d7c9ec300708c92f">expected_form</a></td></tr>
-<tr class="separator:aa11c9145a0234f60d7c9ec300708c92f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a019f857940904b200295824ddba202db" id="r_a019f857940904b200295824ddba202db"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a019f857940904b200295824ddba202db">actual_constructed</a></td></tr>
-<tr class="separator:a019f857940904b200295824ddba202db"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab314a9325c1f7d0de54bf88701bc0fa1" id="r_ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab314a9325c1f7d0de54bf88701bc0fa1">length_multiple</a></td></tr>
-<tr class="separator:ab314a9325c1f7d0de54bf88701bc0fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab155844647b309fc9ccf17c3ff1a767d" id="r_ab155844647b309fc9ccf17c3ff1a767d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab155844647b309fc9ccf17c3ff1a767d">length_flags</a></td></tr>
-<tr class="separator:ab155844647b309fc9ccf17c3ff1a767d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab84afc74fc9d2aea496419a95d94deb0" id="r_ab84afc74fc9d2aea496419a95d94deb0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#ab84afc74fc9d2aea496419a95d94deb0">cause</a></td></tr>
+<tr class="separator:ab84afc74fc9d2aea496419a95d94deb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dabda44f1f34932cb921031a7a939fc" id="r_a8dabda44f1f34932cb921031a7a939fc"><td class="memItemLeft" >union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a484acb3e0fda14d090d8a5dee2099984" id="r_a484acb3e0fda14d090d8a5dee2099984"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="group__schemas.html#ga61ce33047a8977b82612d4db2c7a5919">tlv_schema_detail_t</a>&#160;&#160;&#160;<a class="el" href="structtlv__schema__diagnostic.html#a736d6fe1d6a98e43b84de6a9e350d1cb">schema</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a484acb3e0fda14d090d8a5dee2099984"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c24b2957baedbf8ba5809d02ed3c824" id="r_a4c24b2957baedbf8ba5809d02ed3c824"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a>&#160;&#160;&#160;<a class="el" href="structtlv__schema__diagnostic.html#a4667b0c9db2f83aac0c143d880a4c18b">reader</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a4c24b2957baedbf8ba5809d02ed3c824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dabda44f1f34932cb921031a7a939fc" id="r_a8dabda44f1f34932cb921031a7a939fc"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc">detail</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="memdesc:a8dabda44f1f34932cb921031a7a939fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discriminated typed detail; only the member selected by cause is active.  <br /></td></tr>
+<tr class="separator:a8dabda44f1f34932cb921031a7a939fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Structured Schema failure detail shared by validation and definition checks. </p>
-<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and an optional byte position) with the schema-specific detail needed to explain the violation: which rule or <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> it breaks, the tag involved, the enclosing path, the schema field or group name if it has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
-<p><a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> and <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> can be reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> instead of a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>, signaled by <code>is_group</code>: <code>tag</code> is then the group's first member rule's tag (missing) or the actual offending member's tag (duplicate), <code>field</code> is the group's <code>name</code>, and the occurrence fields are the group's own bounds and summed occurrences rather than one rule's.</p>
-<p>The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references. Native definition failures identify the owning table/type and offending member independently of byte locations.</p>
+<div class="textblock"><p>Common failure diagnostic paired with one discriminated typed detail. </p>
+<p>Shared by validation and definition checks. The common base carries the code, severity, primary location, expected text and enclosing path. <code>cause</code> selects the active <code>detail</code> member: the Schema finding that explains the violation, or the original Reader detail when the wire input itself is malformed. The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references.</p>
+<dl class="section note"><dt>Note</dt><dd>Report entries are always Schema findings with cause <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812">TLV_SCHEMA_CAUSE_SCHEMA</a>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
-<a id="a019f857940904b200295824ddba202db" name="a019f857940904b200295824ddba202db"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a019f857940904b200295824ddba202db">&#9670;&#160;</a></span>actual_constructed</h2>
+<a id="ab84afc74fc9d2aea496419a95d94deb0" name="ab84afc74fc9d2aea496419a95d94deb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab84afc74fc9d2aea496419a95d94deb0">&#9670;&#160;</a></span>cause</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">int tlv_schema_diagnostic::actual_constructed</td>
+          <td class="memname"><a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a> tlv_schema_diagnostic::cause</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Nonzero if the actual value was constructed, zero if primitive. </p>
+<p>Active member of detail. </p>
 
 </div>
 </div>
-<a id="ae8d9397b83f807c06459765cb6d806cd" name="ae8d9397b83f807c06459765cb6d806cd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae8d9397b83f807c06459765cb6d806cd">&#9670;&#160;</a></span>actual_length</h2>
+<a id="a8dabda44f1f34932cb921031a7a939fc" name="a8dabda44f1f34932cb921031a7a939fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dabda44f1f34932cb921031a7a939fc">&#9670;&#160;</a></span>[union]</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::actual_length</td>
+          <td class="memname">union  { ... }  tlv_schema_diagnostic::detail</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Actual value length in bytes. </p>
 
-</div>
-</div>
-<a id="ad110cca2ee925796d6c4558d9d9c8a91" name="ad110cca2ee925796d6c4558d9d9c8a91"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad110cca2ee925796d6c4558d9d9c8a91">&#9670;&#160;</a></span>definition</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a> tlv_schema_diagnostic::definition</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Faulty native definition object, or UNKNOWN for input violations. </p>
+<p>Discriminated typed detail; only the member selected by cause is active. </p>
 
 </div>
 </div>
@@ -188,228 +148,33 @@ Data Fields</h2></td></tr>
 
 </div>
 </div>
-<a id="aa11c9145a0234f60d7c9ec300708c92f" name="aa11c9145a0234f60d7c9ec300708c92f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa11c9145a0234f60d7c9ec300708c92f">&#9670;&#160;</a></span>expected_form</h2>
+<a id="a4667b0c9db2f83aac0c143d880a4c18b" name="a4667b0c9db2f83aac0c143d880a4c18b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4667b0c9db2f83aac0c143d880a4c18b">&#9670;&#160;</a></span>reader</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="group__schemas.html#ga1006ba0162e6d89504bf1ca404771314">tlv_schema_kind_t</a> tlv_schema_diagnostic::expected_form</td>
+          <td class="memname"><a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a> tlv_schema_diagnostic::reader</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Form the rule requires. </p>
+<p>Original Reader detail; its result, location and path are in <code>diagnostic</code>. </p>
 
 </div>
 </div>
-<a id="a69e74dc9e58ca0846a212d63f1d9fa0a" name="a69e74dc9e58ca0846a212d63f1d9fa0a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a69e74dc9e58ca0846a212d63f1d9fa0a">&#9670;&#160;</a></span>field</h2>
+<a id="a736d6fe1d6a98e43b84de6a9e350d1cb" name="a736d6fe1d6a98e43b84de6a9e350d1cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a736d6fe1d6a98e43b84de6a9e350d1cb">&#9670;&#160;</a></span>schema</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const char* tlv_schema_diagnostic::field</td>
+          <td class="memname"><a class="el" href="group__schemas.html#ga61ce33047a8977b82612d4db2c7a5919">tlv_schema_detail_t</a> tlv_schema_diagnostic::schema</td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Borrowed schema name for <code>tag</code> (the violated rule's <code>entry-&gt;name</code>, or the violated group's <code>name</code> when <code>is_group</code> is nonzero), or <code>NULL</code> if it has none or no rule matched (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdafc246b6e80fb54d8e829aec4992776a6">TLV_SCHEMA_ISSUE_UNEXPECTED</a>). </p>
-
-</div>
-</div>
-<a id="a2770f07edd1d396d6a7aa18d0d81fa9e" name="a2770f07edd1d396d6a7aa18d0d81fa9e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2770f07edd1d396d6a7aa18d0d81fa9e">&#9670;&#160;</a></span>has_form</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int tlv_schema_diagnostic::has_form</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Nonzero if <code>expected_form</code> and <code>actual_constructed</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda38bc5113a24c5cd1ec20ea2a9eff5db9">TLV_SCHEMA_ISSUE_KIND</a>). </p>
-
-</div>
-</div>
-<a id="a48ac9125d43373a780018b1b7c6045da" name="a48ac9125d43373a780018b1b7c6045da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a48ac9125d43373a780018b1b7c6045da">&#9670;&#160;</a></span>has_length</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int tlv_schema_diagnostic::has_length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Nonzero if <code>min_length</code>, <code>max_length</code>, <code>actual_length</code>, <code>length_multiple</code> and <code>length_flags</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda2b7227273ccca3c39415fbb9a626ff9f">TLV_SCHEMA_ISSUE_LENGTH</a>). </p>
-
-</div>
-</div>
-<a id="a9facd01e78ce65749b965ed790fdf26b" name="a9facd01e78ce65749b965ed790fdf26b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9facd01e78ce65749b965ed790fdf26b">&#9670;&#160;</a></span>has_occurs</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int tlv_schema_diagnostic::has_occurs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Nonzero if <code>min_occurs</code>, <code>max_occurs</code> and <code>occurs</code> are set (<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a>, <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a>). </p>
-
-</div>
-</div>
-<a id="a6ff07c00e2adb83bb0f47b10ea649975" name="a6ff07c00e2adb83bb0f47b10ea649975"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6ff07c00e2adb83bb0f47b10ea649975">&#9670;&#160;</a></span>is_group</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int tlv_schema_diagnostic::is_group</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Nonzero if this <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> or <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> is reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> rather than a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>. </p>
-
-</div>
-</div>
-<a id="a7131dd8623442e2ea4a4d11f4917fdd7" name="a7131dd8623442e2ea4a4d11f4917fdd7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7131dd8623442e2ea4a4d11f4917fdd7">&#9670;&#160;</a></span>kind</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a> tlv_schema_diagnostic::kind</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Which rule was violated; see <a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d" title="Schema failure detail, independent of the common result.">tlv_schema_issue_kind_t</a>. </p>
-
-</div>
-</div>
-<a id="ab155844647b309fc9ccf17c3ff1a767d" name="ab155844647b309fc9ccf17c3ff1a767d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab155844647b309fc9ccf17c3ff1a767d">&#9670;&#160;</a></span>length_flags</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint32_t tlv_schema_diagnostic::length_flags</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Schema length-policy flags, including <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a>, when has_length. </p>
-
-</div>
-</div>
-<a id="ab314a9325c1f7d0de54bf88701bc0fa1" name="ab314a9325c1f7d0de54bf88701bc0fa1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab314a9325c1f7d0de54bf88701bc0fa1">&#9670;&#160;</a></span>length_multiple</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::length_multiple</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Required value-length multiple for a length violation; 0 means unrestricted. </p>
-
-</div>
-</div>
-<a id="aa0a9f2922f884aebe1daaee196d1ac44" name="aa0a9f2922f884aebe1daaee196d1ac44"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa0a9f2922f884aebe1daaee196d1ac44">&#9670;&#160;</a></span>max_length</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::max_length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Maximum permitted value length in bytes, inclusive. </p>
-
-</div>
-</div>
-<a id="a443ce1a22a34753295ba9e7384de7baf" name="a443ce1a22a34753295ba9e7384de7baf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a443ce1a22a34753295ba9e7384de7baf">&#9670;&#160;</a></span>max_occurs</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::max_occurs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Maximum permitted occurrences of <code>tag</code> in its parent, or of the group's members combined when <code>is_group</code> is nonzero. </p>
-
-</div>
-</div>
-<a id="a6abf86eeea8f4a5e24bdb3865617e68a" name="a6abf86eeea8f4a5e24bdb3865617e68a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6abf86eeea8f4a5e24bdb3865617e68a">&#9670;&#160;</a></span>min_length</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::min_length</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Minimum permitted value length in bytes, inclusive. </p>
-
-</div>
-</div>
-<a id="aca5b00063c2dab680d2a0f0e45d66e38" name="aca5b00063c2dab680d2a0f0e45d66e38"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aca5b00063c2dab680d2a0f0e45d66e38">&#9670;&#160;</a></span>min_occurs</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::min_occurs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Minimum permitted occurrences of <code>tag</code> in its parent, or of the group's members combined when <code>is_group</code> is nonzero. </p>
-
-</div>
-</div>
-<a id="ae57e6b4e4fa3d9d3f4946bd6beb8f030" name="ae57e6b4e4fa3d9d3f4946bd6beb8f030"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae57e6b4e4fa3d9d3f4946bd6beb8f030">&#9670;&#160;</a></span>occurs</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">size_t tlv_schema_diagnostic::occurs</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Occurrences found so far at the point of the violation, of <code>tag</code> or, when <code>is_group</code> is nonzero, of the group's members combined. </p>
-
-</div>
-</div>
-<a id="a0c86ce192ee8bf2126514d0cb4dda1e1" name="a0c86ce192ee8bf2126514d0cb4dda1e1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0c86ce192ee8bf2126514d0cb4dda1e1">&#9670;&#160;</a></span>tag</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> tlv_schema_diagnostic::tag</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Affected tag; for <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a>, the tag that is absent. Borrows the input buffer, immutable format identifier storage, or the schema for a missing tag. </p>
+<p>Violated rule, affected tag and expected-versus-actual evidence. </p>
 
 </div>
 </div>

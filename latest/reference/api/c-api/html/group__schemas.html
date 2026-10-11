@@ -148,8 +148,11 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__definition__location.html">tlv_schema_definition_location</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition evidence, independent of wire/text byte locations.  <a href="structtlv__schema__definition__location.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-specific failure evidence without common diagnostic metadata.  <a href="structtlv__schema__detail.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html">tlv_schema_diagnostic</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured Schema failure detail shared by validation and definition checks.  <a href="structtlv__schema__diagnostic.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common failure diagnostic paired with one discriminated typed detail.  <a href="structtlv__schema__diagnostic.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__checked.html">tlv_schema_checked</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A structural schema whose definition has passed <a class="el" href="group__schemas.html#ga8c4f6da0e4af2acb0146526c89a9ebae" title="Checks every reachable structural schema table independently of input. Shared and recursive reference...">tlv_schema_check()</a>.  <a href="structtlv__schema__checked.html#details">More...</a><br /></td></tr>
@@ -223,8 +226,14 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga7c46528bfaebb8caed58ae50e480c10d" id="r_ga7c46528bfaebb8caed58ae50e480c10d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__definition__location.html">tlv_schema_definition_location</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a></td></tr>
 <tr class="memdesc:ga7c46528bfaebb8caed58ae50e480c10d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition evidence, independent of wire/text byte locations.  <br /></td></tr>
 <tr class="separator:ga7c46528bfaebb8caed58ae50e480c10d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga61ce33047a8977b82612d4db2c7a5919" id="r_ga61ce33047a8977b82612d4db2c7a5919"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga61ce33047a8977b82612d4db2c7a5919">tlv_schema_detail_t</a></td></tr>
+<tr class="memdesc:ga61ce33047a8977b82612d4db2c7a5919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-specific failure evidence without common diagnostic metadata.  <br /></td></tr>
+<tr class="separator:ga61ce33047a8977b82612d4db2c7a5919"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gac7e28a81ff7208693b76c1d3d33942fc" id="r_gac7e28a81ff7208693b76c1d3d33942fc"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">tlv_schema_cause</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a></td></tr>
+<tr class="memdesc:gac7e28a81ff7208693b76c1d3d33942fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc" title="Discriminated typed detail; only the member selected by cause is active.">tlv_schema_diagnostic_t::detail</a>.  <br /></td></tr>
+<tr class="separator:gac7e28a81ff7208693b76c1d3d33942fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga76559fb9baaff706b34cab6954926c98" id="r_ga76559fb9baaff706b34cab6954926c98"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__diagnostic.html">tlv_schema_diagnostic</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a></td></tr>
-<tr class="memdesc:ga76559fb9baaff706b34cab6954926c98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structured Schema failure detail shared by validation and definition checks.  <br /></td></tr>
+<tr class="memdesc:ga76559fb9baaff706b34cab6954926c98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common failure diagnostic paired with one discriminated typed detail.  <br /></td></tr>
 <tr class="separator:ga76559fb9baaff706b34cab6954926c98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gafcf2c284aa5756cae9b569b04bfda3a0" id="r_gafcf2c284aa5756cae9b569b04bfda3a0"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__checked.html">tlv_schema_checked</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gafcf2c284aa5756cae9b569b04bfda3a0">tlv_schema_checked_t</a></td></tr>
 <tr class="memdesc:gafcf2c284aa5756cae9b569b04bfda3a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">A structural schema whose definition has passed <a class="el" href="group__schemas.html#ga8c4f6da0e4af2acb0146526c89a9ebae" title="Checks every reachable structural schema table independently of input. Shared and recursive reference...">tlv_schema_check()</a>.  <br /></td></tr>
@@ -278,18 +287,18 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga9842d51d0f5706b1d13fea943bcb9def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of constraint a <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746" title="Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fix...">tlv_value_constraint_t</a> applies to a decoded value.  <a href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">More...</a><br /></td></tr>
 <tr class="separator:ga9842d51d0f5706b1d13fea943bcb9def"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga39fca1837c5ce7715cbf571669660c13" id="r_ga39fca1837c5ce7715cbf571669660c13"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a> = 64
+<tr class="memitem:gaaf8fd5f0e57d456151c951e0f3715fc4" id="r_gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a> = 64
  }</td></tr>
-<tr class="memdesc:ga39fca1837c5ce7715cbf571669660c13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting capacity of the Schema validators' local traversal storage.  <a href="group__schemas.html#ga39fca1837c5ce7715cbf571669660c13">More...</a><br /></td></tr>
-<tr class="separator:ga39fca1837c5ce7715cbf571669660c13"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaaf8fd5f0e57d456151c951e0f3715fc4" id="r_gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> = 256
- }</td></tr>
-<tr class="memdesc:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum distinct tables in one structural schema definition graph. Shared and recursive references count once, independently of input nesting. Exceeding this allocation-free checking capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>.  <a href="group__schemas.html#gaaf8fd5f0e57d456151c951e0f3715fc4">More...</a><br /></td></tr>
+<tr class="memdesc:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting capacity of the Schema validators' local traversal storage.  <a href="group__schemas.html#gaaf8fd5f0e57d456151c951e0f3715fc4">More...</a><br /></td></tr>
 <tr class="separator:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga94798fdadfbf49a7c658ace669a1d310" id="r_ga94798fdadfbf49a7c658ace669a1d310"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a> = 1
+<tr class="memitem:ga94798fdadfbf49a7c658ace669a1d310" id="r_ga94798fdadfbf49a7c658ace669a1d310"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> = 256
  }</td></tr>
-<tr class="memdesc:ga94798fdadfbf49a7c658ace669a1d310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permit only the two bounds, rather than every length between them. Equal bounds still specify an exact length; length_multiple also applies.  <a href="group__schemas.html#ga94798fdadfbf49a7c658ace669a1d310">More...</a><br /></td></tr>
+<tr class="memdesc:ga94798fdadfbf49a7c658ace669a1d310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum distinct tables in one structural schema definition graph. Shared and recursive references count once, independently of input nesting. Exceeding this allocation-free checking capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>.  <a href="group__schemas.html#ga94798fdadfbf49a7c658ace669a1d310">More...</a><br /></td></tr>
 <tr class="separator:ga94798fdadfbf49a7c658ace669a1d310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae4d5251432e1a9e6803c0240cc492e18" id="r_gae4d5251432e1a9e6803c0240cc492e18"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggae4d5251432e1a9e6803c0240cc492e18acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a> = 1
+ }</td></tr>
+<tr class="memdesc:gae4d5251432e1a9e6803c0240cc492e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permit only the two bounds, rather than every length between them. Equal bounds still specify an exact length; length_multiple also applies.  <a href="group__schemas.html#gae4d5251432e1a9e6803c0240cc492e18">More...</a><br /></td></tr>
+<tr class="separator:gae4d5251432e1a9e6803c0240cc492e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5c8a305dce94f119abad5b7137d21f51" id="r_ga5c8a305dce94f119abad5b7137d21f51"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">tlv_schema_kind</a> { <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a2e5e89f758aa8b01540f3be47293710d">TLV_SCHEMA_ANY</a> = 0
 , <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a9783161ba8613fd97ed438cab42799d0">TLV_SCHEMA_PRIMITIVE</a>
 , <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a3127834146a11209244a4045ffa26242">TLV_SCHEMA_CONSTRUCTED</a>
@@ -336,6 +345,12 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gae2c9c85a3201c42ae8bdb6ca266a9628"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition object identified by a Schema diagnostic.  <a href="group__schemas.html#gae2c9c85a3201c42ae8bdb6ca266a9628">More...</a><br /></td></tr>
 <tr class="separator:gae2c9c85a3201c42ae8bdb6ca266a9628"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga5afcfa3464f1e481521ba30509b23b38" id="r_ga5afcfa3464f1e481521ba30509b23b38"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">tlv_schema_cause</a> { <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a21e27180026c625cccafb9192898ad03">TLV_SCHEMA_CAUSE_NONE</a>
+, <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812">TLV_SCHEMA_CAUSE_SCHEMA</a>
+, <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a829174dee40848510fbff6fdf991a2fb">TLV_SCHEMA_CAUSE_READER</a>
+ }</td></tr>
+<tr class="memdesc:ga5afcfa3464f1e481521ba30509b23b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc" title="Discriminated typed detail; only the member selected by cause is active.">tlv_schema_diagnostic_t::detail</a>.  <a href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">More...</a><br /></td></tr>
+<tr class="separator:ga5afcfa3464f1e481521ba30509b23b38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
@@ -378,11 +393,14 @@ Functions</h2></td></tr>
 <tr class="memitem:gaafdbd1deb8a555e60d207b32d43d6572" id="r_gaafdbd1deb8a555e60d207b32d43d6572"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaafdbd1deb8a555e60d207b32d43d6572">tlv_schema_definition_kind_string</a> (<a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a> value)</td></tr>
 <tr class="memdesc:gaafdbd1deb8a555e60d207b32d43d6572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a schema definition kind.  <br /></td></tr>
 <tr class="separator:gaafdbd1deb8a555e60d207b32d43d6572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga1432c9f23130fad66bc7e9b772841766" id="r_ga1432c9f23130fad66bc7e9b772841766"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga1432c9f23130fad66bc7e9b772841766">tlv_schema_cause_string</a> (<a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a> value)</td></tr>
+<tr class="memdesc:ga1432c9f23130fad66bc7e9b772841766"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a Schema cause.  <br /></td></tr>
+<tr class="separator:ga1432c9f23130fad66bc7e9b772841766"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga3b0f2029a9060eab1d2fddc71269bd3e" id="r_ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e">tlv_schema_diagnostic_init</a> (<a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets a schema diagnostic to all-unset.  <br /></td></tr>
 <tr class="separator:ga3b0f2029a9060eab1d2fddc71269bd3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga8c4f6da0e4af2acb0146526c89a9ebae" id="r_ga8c4f6da0e4af2acb0146526c89a9ebae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga8c4f6da0e4af2acb0146526c89a9ebae">tlv_schema_check</a> (const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *schema, <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
-<tr class="memdesc:ga8c4f6da0e4af2acb0146526c89a9ebae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks every reachable structural schema table independently of input. Shared and recursive references are supported; every distinct table is checked once. The worklist holds at most <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> identities. Pointer lookup is linear in the number of discovered tables, in addition to each table's local rule/group checks. Definition graph depth is independent of the input nesting limit.  <br /></td></tr>
+<tr class="memdesc:ga8c4f6da0e4af2acb0146526c89a9ebae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks every reachable structural schema table independently of input. Shared and recursive references are supported; every distinct table is checked once. The worklist holds at most <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> identities. Pointer lookup is linear in the number of discovered tables, in addition to each table's local rule/group checks. Definition graph depth is independent of the input nesting limit.  <br /></td></tr>
 <tr class="separator:ga8c4f6da0e4af2acb0146526c89a9ebae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga68f232c8f3659b565c2e65ba7c68331c" id="r_ga68f232c8f3659b565c2e65ba7c68331c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga68f232c8f3659b565c2e65ba7c68331c">tlv_schema_prepare</a> (<a class="el" href="group__schemas.html#gafcf2c284aa5756cae9b569b04bfda3a0">tlv_schema_checked_t</a> *checked, const <a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a> *schema, <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98">tlv_schema_diagnostic_t</a> *diagnostic)</td></tr>
 <tr class="memdesc:ga68f232c8f3659b565c2e65ba7c68331c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks a schema definition once and prepares a handle for repeated validation.  <br /></td></tr>
@@ -592,6 +610,22 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
 
 </div>
 </div>
+<a id="gac7e28a81ff7208693b76c1d3d33942fc" name="gac7e28a81ff7208693b76c1d3d33942fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gac7e28a81ff7208693b76c1d3d33942fc">&#9670;&#160;</a></span>tlv_schema_cause_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef enum <a class="el" href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">tlv_schema_cause</a> <a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Layer whose typed detail is active in <a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc" title="Discriminated typed detail; only the member selected by cause is active.">tlv_schema_diagnostic_t::detail</a>. </p>
+
+</div>
+</div>
 <a id="gafcf2c284aa5756cae9b569b04bfda3a0" name="gafcf2c284aa5756cae9b569b04bfda3a0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gafcf2c284aa5756cae9b569b04bfda3a0">&#9670;&#160;</a></span>tlv_schema_checked_t</h2>
 
@@ -644,6 +678,26 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
 
 </div>
 </div>
+<a id="ga61ce33047a8977b82612d4db2c7a5919" name="ga61ce33047a8977b82612d4db2c7a5919"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga61ce33047a8977b82612d4db2c7a5919">&#9670;&#160;</a></span>tlv_schema_detail_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef struct <a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a> <a class="el" href="group__schemas.html#ga61ce33047a8977b82612d4db2c7a5919">tlv_schema_detail_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Schema-specific failure evidence without common diagnostic metadata. </p>
+<p>Identifies which rule or <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> a violation breaks, the tag involved, the schema field or group name if it has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
+<p><a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> and <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> can be reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> instead of a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>, signaled by <code>is_group</code>: <code>tag</code> is then the group's first member rule's tag (missing) or the actual offending member's tag (duplicate), <code>field</code> is the group's <code>name</code>, and the occurrence fields are the group's own bounds and summed occurrences rather than one rule's.</p>
+<p>Native definition failures identify the owning table/type and offending member independently of byte locations.</p>
+<dl class="section note"><dt>Note</dt><dd>This fixed-size value contains no result, location or path. It is the single Schema detail type: <a class="el" href="group__schemas.html#ga76559fb9baaff706b34cab6954926c98" title="Common failure diagnostic paired with one discriminated typed detail.">tlv_schema_diagnostic_t</a> pairs it with one common <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a>, and Codec and Query embed it as their delegated Schema cause. </dd></dl>
+
+</div>
+</div>
 <a id="ga2a417abf41a0ea0175f5f5a594940077" name="ga2a417abf41a0ea0175f5f5a594940077"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga2a417abf41a0ea0175f5f5a594940077">&#9670;&#160;</a></span>tlv_schema_diagnostic_report_t</h2>
 
@@ -673,10 +727,9 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
       </table>
 </div><div class="memdoc">
 
-<p>Structured Schema failure detail shared by validation and definition checks. </p>
-<p>Pairs a <a class="el" href="group__diagnostics.html#ga2118f30a61e0b0b3ba5d20c73a740b2e" title="A structured diagnostic: a stable code plus the state that produced it.">tlv_diagnostic_t</a> (code, severity and an optional byte position) with the schema-specific detail needed to explain the violation: which rule or <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> it breaks, the tag involved, the enclosing path, the schema field or group name if it has one, and the expected-versus-actual detail for whichever of <code>kind</code>'s cases applies. A field not applicable to <code>kind</code> is left unset, indicated by its paired <code>has_*</code> flag being zero. Every field is a fixed-size value or a borrowed pointer, so filling one never allocates.</p>
-<p><a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> and <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda05f1c3f3b1d70fc6f313a508592fdaeb">TLV_SCHEMA_ISSUE_DUPLICATE</a> can be reported against a <a class="el" href="group__schemas.html#ga0e910d012f13f14d54d2dc0746cacfc9" title="A CHOICE-like group of mutually related alternative rules.">tlv_structure_group_t</a> instead of a single <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>, signaled by <code>is_group</code>: <code>tag</code> is then the group's first member rule's tag (missing) or the actual offending member's tag (duplicate), <code>field</code> is the group's <code>name</code>, and the occurrence fields are the group's own bounds and summed occurrences rather than one rule's.</p>
-<p>The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references. Native definition failures identify the owning table/type and offending member independently of byte locations.</p>
+<p>Common failure diagnostic paired with one discriminated typed detail. </p>
+<p>Shared by validation and definition checks. The common base carries the code, severity, primary location, expected text and enclosing path. <code>cause</code> selects the active <code>detail</code> member: the Schema finding that explains the violation, or the original Reader detail when the wire input itself is malformed. The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references.</p>
+<dl class="section note"><dt>Note</dt><dd>Report entries are always Schema findings with cause <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812">TLV_SCHEMA_CAUSE_SCHEMA</a>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
 
 </div>
@@ -833,25 +886,6 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
 </div>
 </div>
 <h2 class="groupheader">Enumeration Type Documentation</h2>
-<a id="ga39fca1837c5ce7715cbf571669660c13" name="ga39fca1837c5ce7715cbf571669660c13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ga39fca1837c5ce7715cbf571669660c13">&#9670;&#160;</a></span>anonymous enum</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Nesting capacity of the Schema validators' local traversal storage. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977" name="gga39fca1837c5ce7715cbf571669660c13a73347319edde9db5a3ccc39892774977"></a>TLV_SCHEMA_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
-</table>
-
-</div>
-</div>
 <a id="gaaf8fd5f0e57d456151c951e0f3715fc4" name="gaaf8fd5f0e57d456151c951e0f3715fc4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#gaaf8fd5f0e57d456151c951e0f3715fc4">&#9670;&#160;</a></span>anonymous enum</h2>
 
@@ -864,9 +898,9 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
       </table>
 </div><div class="memdoc">
 
-<p>Maximum distinct tables in one structural schema definition graph. Shared and recursive references count once, independently of input nesting. Exceeding this allocation-free checking capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>. </p>
+<p>Nesting capacity of the Schema validators' local traversal storage. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaaf8fd5f0e57d456151c951e0f3715fc4a6d7e171536549f71d1dfa6096d17b9f8" name="ggaaf8fd5f0e57d456151c951e0f3715fc4a6d7e171536549f71d1dfa6096d17b9f8"></a>TLV_SCHEMA_MAX_TABLES&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggaaf8fd5f0e57d456151c951e0f3715fc4a73347319edde9db5a3ccc39892774977" name="ggaaf8fd5f0e57d456151c951e0f3715fc4a73347319edde9db5a3ccc39892774977"></a>TLV_SCHEMA_MAX_DEPTH&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -883,9 +917,28 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
       </table>
 </div><div class="memdoc">
 
+<p>Maximum distinct tables in one structural schema definition graph. Shared and recursive references count once, independently of input nesting. Exceeding this allocation-free checking capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8" name="gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8"></a>TLV_SCHEMA_MAX_TABLES&#160;</td><td class="fielddoc"></td></tr>
+</table>
+
+</div>
+</div>
+<a id="gae4d5251432e1a9e6803c0240cc492e18" name="gae4d5251432e1a9e6803c0240cc492e18"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#gae4d5251432e1a9e6803c0240cc492e18">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
 <p>Permit only the two bounds, rather than every length between them. Equal bounds still specify an exact length; length_multiple also applies. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga94798fdadfbf49a7c658ace669a1d310acc3339f15dea2994e9d305ae3c4d518a" name="gga94798fdadfbf49a7c658ace669a1d310acc3339f15dea2994e9d305ae3c4d518a"></a>TLV_SCHEMA_LENGTH_ENDPOINTS&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ggae4d5251432e1a9e6803c0240cc492e18acc3339f15dea2994e9d305ae3c4d518a" name="ggae4d5251432e1a9e6803c0240cc492e18acc3339f15dea2994e9d305ae3c4d518a"></a>TLV_SCHEMA_LENGTH_ENDPOINTS&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 </div>
@@ -1027,6 +1080,30 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
 <tr><td class="fieldname"><a id="gga63bfe5ec52632eddd23675864375d14ba3057bf9aa630fd1cc44a79d39068eabe" name="gga63bfe5ec52632eddd23675864375d14ba3057bf9aa630fd1cc44a79d39068eabe"></a>TLV_DER_TAG_IMPLICIT&#160;</td><td class="fielddoc"><p>Replaces the natural identifier with (<code>tag_class</code>, <code>tag_number</code>), validating content against the underlying type directly. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="gga63bfe5ec52632eddd23675864375d14ba3173055eca01a90ccff20b1f5dfc1b78" name="gga63bfe5ec52632eddd23675864375d14ba3173055eca01a90ccff20b1f5dfc1b78"></a>TLV_DER_TAG_EXPLICIT&#160;</td><td class="fielddoc"><p>Wraps the underlying type's own complete, natural encoding as the value of an outer constructed (<code>tag_class</code>, <code>tag_number</code>). </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ga5afcfa3464f1e481521ba30509b23b38" name="ga5afcfa3464f1e481521ba30509b23b38"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga5afcfa3464f1e481521ba30509b23b38">&#9670;&#160;</a></span>tlv_schema_cause</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">tlv_schema_cause</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Layer whose typed detail is active in <a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc" title="Discriminated typed detail; only the member selected by cause is active.">tlv_schema_diagnostic_t::detail</a>. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="gga5afcfa3464f1e481521ba30509b23b38a21e27180026c625cccafb9192898ad03" name="gga5afcfa3464f1e481521ba30509b23b38a21e27180026c625cccafb9192898ad03"></a>TLV_SCHEMA_CAUSE_NONE&#160;</td><td class="fielddoc"><p>No typed detail, for example an argument or resource failure. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812" name="gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812"></a>TLV_SCHEMA_CAUSE_SCHEMA&#160;</td><td class="fielddoc"><p>A Schema finding or definition failure; <code>detail.schema</code>. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="gga5afcfa3464f1e481521ba30509b23b38a829174dee40848510fbff6fdf991a2fb" name="gga5afcfa3464f1e481521ba30509b23b38a829174dee40848510fbff6fdf991a2fb"></a>TLV_SCHEMA_CAUSE_READER&#160;</td><td class="fielddoc"><p>The Reader rejected the input; <code>detail.reader</code>. </p>
 </td></tr>
 </table>
 
@@ -1698,6 +1775,34 @@ Any other error of <a class="el" href="group__schemas.html#ga25749641cbd1a60f48d
 
 </div>
 </div>
+<a id="ga1432c9f23130fad66bc7e9b772841766" name="ga1432c9f23130fad66bc7e9b772841766"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga1432c9f23130fad66bc7e9b772841766">&#9670;&#160;</a></span>tlv_schema_cause_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const char * tlv_schema_cause_string </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a>&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Returns the diagnostic name of a Schema cause. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">value</td><td>Diagnostic enum value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A static NUL-terminated string, or <code>"unknown"</code> for an unrecognized value. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>Never returns NULL or allocates. Do not free or modify the string. Available even when the corresponding capability is disabled. </dd></dl>
+
+</div>
+</div>
 <a id="ga8c4f6da0e4af2acb0146526c89a9ebae" name="ga8c4f6da0e4af2acb0146526c89a9ebae"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ga8c4f6da0e4af2acb0146526c89a9ebae">&#9670;&#160;</a></span>tlv_schema_check()</h2>
 
@@ -1724,7 +1829,7 @@ Any other error of <a class="el" href="group__schemas.html#ga25749641cbd1a60f48d
       </table>
 </div><div class="memdoc">
 
-<p>Checks every reachable structural schema table independently of input. Shared and recursive references are supported; every distinct table is checked once. The worklist holds at most <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> identities. Pointer lookup is linear in the number of discovered tables, in addition to each table's local rule/group checks. Definition graph depth is independent of the input nesting limit. </p>
+<p>Checks every reachable structural schema table independently of input. Shared and recursive references are supported; every distinct table is checked once. The worklist holds at most <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> identities. Pointer lookup is linear in the number of discovered tables, in addition to each table's local rule/group checks. Definition graph depth is independent of the input nesting limit. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">schema</td><td>Borrowed schema graph. </td></tr>
@@ -1936,7 +2041,7 @@ Any other error of <a class="el" href="group__schemas.html#ga8c4f6da0e4af2acb014
 </div><div class="memdoc">
 
 <p>Validates a value length against an entry's bounds. </p>
-<p>Checks only the length, independently of parsing or tag lookup. Bounds are inclusive; equal bounds specify an exact length, and <code>SIZE_MAX</code> can be used as an unrestricted upper bound. A nonzero <code>length_multiple</code> requires <code>length % length_multiple == 0</code>. <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a> additionally requires length to equal one of the two bounds. Unknown flag bits are ignored.</p>
+<p>Checks only the length, independently of parsing or tag lookup. Bounds are inclusive; equal bounds specify an exact length, and <code>SIZE_MAX</code> can be used as an unrestricted upper bound. A nonzero <code>length_multiple</code> requires <code>length % length_multiple == 0</code>. <a class="el" href="group__schemas.html#ggae4d5251432e1a9e6803c0240cc492e18acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a> additionally requires length to equal one of the two bounds. Unknown flag bits are ignored.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">entry</td><td>Entry providing the bounds. </td></tr>

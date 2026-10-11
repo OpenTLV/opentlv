@@ -3800,9 +3800,10 @@ and INSERTION describe missing content without claiming an element exists there.
 defines the source and origin: Reader input coordinates include discarded windows;
 Writer and DER write coordinates describe would-be output; Query parse spans
 index expression bytes. Query runtime errors may carry primary INPUT evidence
-and retain a separate related expression span in <code>begin</code>/<code>end</code>. VALUE is local
-evidence whose enclosing wire origin is unavailable. Native Schema definitions
-use <code>definition.kind</code>, <code>definition.owner</code> and <code>definition.index</code>, not invented
+and retain a separate related expression span in the EXPRESSION-domain
+<code>expression</code> location, which stays unknown when the span is already primary.
+VALUE is local evidence whose enclosing wire origin is unavailable. Native
+Schema definitions use <code>detail.schema.definition.kind</code>, <code>.owner</code> and <code>.index</code>, not invented
 wire offsets. The owner borrows the supplied table/type.</p>
 <p><code>tlv_location_translate()</code> checks both bounds. Overflow clears only the optional
 location and preserves the original result and detail. Diagnostics remain optional;
@@ -3860,10 +3861,12 @@ and <code>tag</code> borrows the input like any tag a reader produces.</p>
 the reader's buffer, not relative to the element being read.</p>
 <p>Reader-specific evidence lives in <code>tlv_reader_detail_t</code>. A standalone Reader
 failure pairs it with one common diagnostic as <code>diagnostic</code> and <code>detail</code>.
-Query embeds the same detail as <code>reader</code>, guarded by <code>has_reader</code>, while
-<code>query.diagnostic</code> is the sole result, location and path for the failure.
-Reader causes remain present under Query <code>STATE</code>; pure Query failures leave
-<code>has_reader</code> unset. Neither representation contains self-referential pointers.</p>
+Query embeds the same detail as <code>detail.reader</code>, selected by
+<code>cause == TLV_QUERY_CAUSE_READER</code>, while <code>query.diagnostic</code> is the sole result,
+location, path and expected text for the failure. Reader causes remain present
+under Query <code>STATE</code>; pure Query failures have cause <code>NONE</code>. A Reader failure
+inside a conversion hook is reachable only as <code>detail.codec.detail.reader</code>, under
+cause <code>CODEC</code>. Neither representation contains self-referential pointers.</p>
 <h2 id="writer-diagnostics">Writer diagnostics<a class="headerlink" href="#writer-diagnostics" title="Permanent link">&para;</a></h2>
 <p>The writer enriches a diagnostic the same way: <code>tlv_write_diag()</code> and
 <code>tlv_writer_write_diag()</code> behave exactly like <code>tlv_write()</code> and
@@ -3913,14 +3916,21 @@ as a <code>tlv_schema_diagnostic_t</code>; see
 <a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">        </span><span class="n">tlv_diagnostic_path_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">d</span><span class="o">-&gt;</span><span class="n">diagnostic</span><span class="p">.</span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">path</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
 <a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">        </span><span class="cm">/* d-&gt;diagnostic.code   == TLV_ERR_SCHEMA; kind distinguishes missing, length and other findings</span>
 <a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="cm">         * d-&gt;diagnostic.location.begin == the offset of the affected element, when d-&gt;diagnostic.location.kind != TLV_LOCATION_UNKNOWN</span>
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="cm">         * path                == the scopes enclosing d-&gt;tag, for example "6F &gt; A5 &gt; BF0C &gt; 61"</span>
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="cm">         * d-&gt;field             == the rule's schema name for d-&gt;tag, or NULL if it has none */</span>
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">    </span><span class="p">}</span>
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">}</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="cm">         * d-&gt;cause             == TLV_SCHEMA_CAUSE_SCHEMA for every report entry</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="cm">         * path                == the scopes enclosing d-&gt;detail.schema.tag, for example "6F &gt; A5 &gt; BF0C &gt; 61"</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="cm">         * d-&gt;detail.schema.field == the rule's schema name, or NULL if it has none */</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="p">}</span>
 </code></pre></div>
-<p>For a value whose length is outside its rule's bounds, <code>d-&gt;kind</code> is
-<code>TLV_SCHEMA_ISSUE_LENGTH</code>, <code>d-&gt;diagnostic.code</code> is <code>TLV_ERR_SCHEMA</code>,
-and <code>d-&gt;has_length</code> is set, with <code>min_length</code>/<code>max_length</code> from the rule and
+<p>Schema-specific evidence lives in <code>tlv_schema_detail_t</code>. A Schema diagnostic
+pairs one common <code>diagnostic</code> with a <code>cause</code> that selects the active <code>detail</code>
+member: <code>detail.schema</code> for a Schema finding or definition failure, or
+<code>detail.reader</code> with the original Reader detail when the wire input itself is
+malformed. Codec and Query embed <code>tlv_schema_detail_t</code> as their Schema cause; a
+Structure Codec reports a Reader failure under its Schema as its own Reader
+cause. For a value whose length is outside its rule's bounds,
+<code>d-&gt;detail.schema.kind</code> is <code>TLV_SCHEMA_ISSUE_LENGTH</code>, <code>d-&gt;diagnostic.code</code> is
+<code>TLV_ERR_SCHEMA</code>, and <code>d-&gt;detail.schema.has_length</code> is set, with <code>min_length</code>/<code>max_length</code> from the rule and
 <code>actual_length</code> from the value that violated it: validating a 4F (ADF Name)
 with only 3 bytes against a rule requiring 5 to 16 fills <code>min_length</code> with
 <code>5</code>, <code>max_length</code> with <code>16</code>, and <code>actual_length</code> with <code>3</code>. A missing or

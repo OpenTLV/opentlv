@@ -2495,6 +2495,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diagnostic-field-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic field ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3723,6 +3734,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#diagnostic-field-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic field ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#codes" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3888,12 +3910,15 @@ return describes that result:</p>
 <ul>
 <li><code>tlv_diagnostic_t</code> and the active diagnostic in an embedding type have
   <code>diagnostic.code == rc</code>.</li>
-<li><code>tlv_query_diagnostic_t</code> has <code>kind != TLV_QUERY_ERROR_NONE</code>. A <code>READER</code> detail
-  sets <code>has_reader</code> and stores its result, location and path only in <code>diagnostic</code>; a <code>CODEC</code> detail has a non-OK codec result.</li>
+<li><code>tlv_query_diagnostic_t</code> has <code>kind != TLV_QUERY_ERROR_NONE</code>. A <code>READER</code> kind
+  has cause <code>READER</code> and stores its result, location and path only in
+  <code>diagnostic</code>; a <code>CODEC</code> kind has cause <code>CODEC</code> with a non-OK
+  <code>detail.codec.reported</code>; a <code>SCHEMA</code> kind has cause <code>SCHEMA</code>.</li>
 <li>An initialized Query diagnostic for <code>TLV_ERR_INVALID_STATE</code> has kind
   <code>TLV_QUERY_ERROR_STATE</code>. Pre-initialization preservation exceptions below still apply.</li>
-<li>Schema Query has alternative detail channels: a false assertion sets
-  <code>schema.diagnostic.code</code>, while an execution failure fills <code>query</code>.</li>
+<li>Schema Query reports every failure once in <code>query</code>: a false assertion has
+  <code>SCHEMA</code> result, kind and cause with <code>ASSERTION</code> detail, while an execution
+  failure keeps its own result, kind and cause.</li>
 </ul>
 <p>The rule includes <code>TLV_END</code> and <code>TLV_NEED_MORE_DATA</code> when returned
 through an initialized diagnostic channel; their severity is <code>INFO</code>, not <code>ERROR</code>. These are still normal iteration or
@@ -3922,7 +3947,7 @@ validation result in every entry.</p>
 <code>STORAGE</code> still covers compiler/plan arguments and capacities, <code>BINDING</code> covers
 binding arguments, <code>CAPABILITY</code> covers incompatible formats or hook configuration,
 while visitor/provider failures use <code>CALLBACK</code>. Diagnostic layouts changed in
-issues #553, #555 and #556; rebuild native consumers with matching headers and bindings.</p>
+issues #553, #555, #556 and #579; rebuild native consumers with matching headers and bindings.</p>
 <h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>
 <p><code>tests/diagnostic_assertions.h</code> checks the invariant after an operation, including
 calls shared by table-driven Query tests. Tests for pre-initialization rejection
@@ -3937,6 +3962,120 @@ propagated variables and callback behavior require runtime tests; it is not a
 control-flow proof. A separate lexical rule rejects <code>INVALID_ARG</code> returns under
 <code>busy</code>, <code>finished</code>, <code>invalid</code> or <code>query_callbacks</code> member predicates, including
 pre-initialization checks. Diagnostic-return comments do not waive that rule.</p>
+<h2 id="diagnostic-field-ownership">Diagnostic field ownership<a class="headerlink" href="#diagnostic-field-ownership" title="Permanent link">&para;</a></h2>
+<p>Each public diagnostic field has one meaning (#579). The common
+<code>tlv_diagnostic_t</code> owns the result, severity, primary location, expected and
+actual text, contexts and path. Layer detail types carry only layer-specific
+evidence and never repeat those common fields. An enclosing diagnostic holds at
+most one active lower-layer detail, selected by its cause.</p>
+<table>
+<thead>
+<tr>
+<th>Diagnostic</th>
+<th>Common part</th>
+<th>Layer-specific fields</th>
+<th>Delegated cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_reader_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td><code>detail</code> (<code>tlv_reader_detail_t</code>)</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>tlv_schema_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td>none</td>
+<td><code>cause</code> selects <code>detail.schema</code> (<code>tlv_schema_detail_t</code>) or <code>detail.reader</code></td>
+</tr>
+<tr>
+<td><code>tlv_codec_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td><code>codec.operation</code>, <code>reported</code>, <code>violation</code>, <code>reason</code>, <code>representation</code></td>
+<td><code>codec.cause</code> selects <code>codec.detail.reader</code> or <code>codec.detail.schema</code></td>
+</tr>
+<tr>
+<td><code>tlv_query_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td><code>kind</code>, <code>expression</code>, <code>limit</code>, <code>configured</code></td>
+<td><code>cause</code> selects <code>detail.reader</code>, <code>detail.codec</code> or <code>detail.schema</code></td>
+</tr>
+<tr>
+<td><code>tlv_schema_query_diagnostic_t</code></td>
+<td><code>query.diagnostic</code></td>
+<td><code>rule</code></td>
+<td><code>query.cause</code>; a false assertion uses <code>SCHEMA</code></td>
+</tr>
+</tbody>
+</table>
+<p>The Query <code>expression</code> field is related evidence: it holds the expression span
+only when another known location is primary, such as the INPUT or VALUE location
+of a Reader or conversion failure. Otherwise the span itself is primary
+(<code>TLV_LOCATION_EXPRESSION</code>) and <code>expression</code> is unknown. This includes
+conversion failures without a location, such as a provider output contract that
+Query rejects itself, so the span always remains visible in <code>diagnostic.location</code>. A Reader
+failure inside a conversion hook is reachable only as
+<code>detail.codec.detail.reader</code>; Query cause <code>READER</code> is reserved for its own
+Reader traversal.</p>
+<p>A Schema diagnostic reports a malformed wire input with cause <code>READER</code> and the
+original Reader detail instead of dropping it; argument and resource failures
+have cause <code>NONE</code>. A Structure Codec maps such a Reader failure to its own
+Reader cause, so the Reader detail stays reachable through one path. Codec
+<code>reason</code> is the typed explanation of an <code>INVALID_VALUE</code> conversion failure.</p>
+<p>Kind and cause agree in both directions: cause <code>READER</code> accompanies kind
+<code>READER</code> or <code>STATE</code>, cause <code>CODEC</code> accompanies <code>CODEC</code>, <code>CALLBACK</code> or <code>STATE</code>,
+cause <code>SCHEMA</code> accompanies only <code>SCHEMA</code>, and cause <code>NONE</code> never accompanies
+<code>READER</code>, <code>CODEC</code> or <code>SCHEMA</code>. Kind <code>TLV_QUERY_ERROR_SCHEMA</code> and cause
+<code>TLV_QUERY_CAUSE_SCHEMA</code> are reported only by the Schema Query entry points
+(<code>tlv_schema_query_validate_buffer()</code> and <code>tlv_schema_query_validate_document()</code>);
+Query compilation and plain execution never produce them.</p>
+<p>Fields removed in #579 and where their values now live:</p>
+<table>
+<thead>
+<tr>
+<th>Removed field</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_codec_schema_detail_t</code></td>
+<td><code>tlv_schema_detail_t</code>, the same type as <code>tlv_schema_diagnostic_t::detail.schema</code></td>
+</tr>
+<tr>
+<td>Schema diagnostic <code>kind</code>, <code>tag</code>, <code>definition</code>, <code>field</code>, occurrence, length and form fields</td>
+<td><code>tlv_schema_diagnostic_t::detail.schema.*</code> under cause <code>TLV_SCHEMA_CAUSE_SCHEMA</code></td>
+</tr>
+<tr>
+<td>Query <code>begin</code> / <code>end</code></td>
+<td><code>diagnostic.location</code> when it is an EXPRESSION span, otherwise <code>expression</code></td>
+</tr>
+<tr>
+<td>Query <code>expected</code></td>
+<td><code>diagnostic.expected</code>; a conversion's own expectation takes precedence and Query fills only a missing one</td>
+</tr>
+<tr>
+<td>Query <code>int32_t codec</code></td>
+<td><code>detail.codec.reported</code> under cause <code>CODEC</code></td>
+</tr>
+<tr>
+<td>Query <code>has_codec</code> / <code>codec_detail</code></td>
+<td><code>cause == TLV_QUERY_CAUSE_CODEC</code> / <code>detail.codec</code></td>
+</tr>
+<tr>
+<td>Query <code>has_reader</code> / <code>reader</code></td>
+<td><code>cause == TLV_QUERY_CAUSE_READER</code> / <code>detail.reader</code></td>
+</tr>
+<tr>
+<td>Schema Query <code>schema</code></td>
+<td><code>query</code> with kind and cause <code>SCHEMA</code>; Schema detail in <code>query.detail.schema</code>, common evidence in <code>query.diagnostic</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>tlv_query_cause_string()</code> names the Query cause. The 64-bit Query diagnostic
+shrinks from 1000 to 840 bytes.</p>
 <h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
 <p>Codes are grouped by category: success, control statuses, invalid input data,
 invalid use of the API, capacity, resources and numeric ranges, capabilities,
@@ -4221,8 +4360,8 @@ These functions remain available with the processing capabilities disabled.</p>
 <td><code>tlv_location_domain_string()</code> / <code>tlv_location_kind_string()</code></td>
 </tr>
 <tr>
-<td>Query failure kind</td>
-<td><code>tlv_query_error_kind_string()</code></td>
+<td>Query failure kind / delegated cause</td>
+<td><code>tlv_query_error_kind_string()</code> / <code>tlv_query_cause_string()</code></td>
 </tr>
 <tr>
 <td>Reader / Writer operation</td>
@@ -4233,8 +4372,12 @@ These functions remain available with the processing capabilities disabled.</p>
 <td><code>tlv_schema_issue_kind_string()</code> / <code>tlv_schema_definition_kind_string()</code></td>
 </tr>
 <tr>
-<td>Codec operation / delegated cause / callback violation</td>
-<td><code>tlv_codec_operation_string()</code> / <code>tlv_codec_cause_string()</code> / <code>tlv_codec_violation_string()</code></td>
+<td>Codec operation / delegated cause / callback violation / rejection reason</td>
+<td><code>tlv_codec_operation_string()</code> / <code>tlv_codec_cause_string()</code> / <code>tlv_codec_violation_string()</code> / <code>tlv_codec_reason_string()</code></td>
+</tr>
+<tr>
+<td>Schema cause</td>
+<td><code>tlv_schema_cause_string()</code></td>
 </tr>
 </tbody>
 </table>
@@ -4337,11 +4480,11 @@ results remain inspectable.</p>
 <tbody>
 <tr>
 <td>C++</td>
-<td><code>errc</code>, <code>query_issue</code>, <code>reader_phase</code>, <code>writer_phase</code>, <code>schema_issue</code>, <code>schema_definition_kind</code>, <code>codec_phase</code>, <code>codec_cause</code>, <code>codec_violation</code>; <code>message(category)</code> calls C.</td>
+<td><code>errc</code>, <code>query_issue</code>, <code>reader_phase</code>, <code>writer_phase</code>, <code>schema_issue</code>, <code>schema_definition_kind</code>, <code>codec_phase</code>, <code>codec_cause</code>, <code>codec_violation</code>, <code>codec_reason</code>, <code>query_cause</code>; <code>message(category)</code> calls C.</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><code>Error</code> and typed <code>QueryErrorKind</code>, <code>ReaderOperation</code>, <code>WriterOperation</code>, <code>SchemaIssue</code>, <code>SchemaDefinitionKind</code>, <code>CodecOperation</code>, <code>CodecCause</code>, <code>CodecViolation</code>, <code>Severity</code>; category <code>name()</code> calls C. Categories are <code>#[non_exhaustive]</code>; <code>Unrecognized(RawCategory)</code> retains unrecognized values.</td>
+<td><code>Error</code> and typed <code>QueryErrorKind</code>, <code>ReaderOperation</code>, <code>WriterOperation</code>, <code>SchemaIssue</code>, <code>SchemaDefinitionKind</code>, <code>CodecOperation</code>, <code>CodecCause</code>, <code>CodecViolation</code>, <code>CodecReason</code>, <code>QueryCause</code>, <code>SchemaCause</code>, <code>Severity</code>; category <code>name()</code> calls C. Categories are <code>#[non_exhaustive]</code>; <code>Unrecognized(RawCategory)</code> retains unrecognized values.</td>
 </tr>
 <tr>
 <td>Python</td>
@@ -4370,7 +4513,11 @@ against the matching C library.</p>
 zero is distinct from absence. Related Query expression spans do not replace
 the primary input/output/Value location. Retained paths hold outermost scopes;
 <code>path_omitted</code> counts omitted innermost scopes. Go's <code>HasReader</code> guards the
-Reader-specific part of a Query failure.</p>
+Reader-specific part of a Query failure. Binding Query <code>begin</code>/<code>end</code> fields
+report the expression span whether it is primary or related. The binding
+facades still repeat some common evidence, for example the Go and Python Schema
+Query projection copies <code>query.diagnostic</code> into its Schema part; aligning the
+binding shapes with the single-source C layout is follow-up work.</p>
 <p>CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common
 diagnostic metadata and delegated Codec or Reader evidence.</p>
