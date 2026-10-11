@@ -25,7 +25,7 @@ enum class query_issue {
     syntax = TLV_QUERY_ERROR_SYNTAX,               /**< Invalid expression. */
     capability = TLV_QUERY_ERROR_CAPABILITY,       /**< Unavailable capability. */
     limit = TLV_QUERY_ERROR_LIMIT,                 /**< Exhausted budget. */
-    storage = TLV_QUERY_ERROR_STORAGE,             /**< Invalid storage. */
+    storage = TLV_QUERY_ERROR_STORAGE,             /**< Insufficient or unrepresentable storage. */
     events = TLV_QUERY_ERROR_EVENTS,               /**< Invalid event sequence. */
     source = TLV_QUERY_ERROR_SOURCE,               /**< Missing source locations. */
     reader = TLV_QUERY_ERROR_READER,               /**< Wire Reader failure. */
@@ -37,7 +37,8 @@ enum class query_issue {
     image = TLV_QUERY_ERROR_IMAGE,                 /**< Malformed stored program image. */
     callback = TLV_QUERY_ERROR_CALLBACK,           /**< Callback failure. */
     state = TLV_QUERY_ERROR_STATE,                 /**< Invalid lifecycle or callback reentrancy. */
-    schema = TLV_QUERY_ERROR_SCHEMA                /**< Failed Schema Query assertion. */
+    schema = TLV_QUERY_ERROR_SCHEMA,               /**< Failed Schema Query assertion. */
+    argument = TLV_QUERY_ERROR_ARGUMENT            /**< Invalid argument or configuration. */
 };
 /** @brief Canonical static Query category name, including unknown values. */
 inline const char* message(query_issue value) noexcept {

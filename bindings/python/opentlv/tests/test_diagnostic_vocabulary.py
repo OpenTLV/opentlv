@@ -50,6 +50,7 @@ VOCABULARY = [
     (QueryErrorKind, "TYPE", 14, "type"),
     (QueryErrorKind, "IMAGE", 15, "image"),
     (QueryErrorKind, "SCHEMA", 16, "schema"),
+    (QueryErrorKind, "ARGUMENT", 17, "argument"),
     (QueryCause, "NONE", 0, "none"),
     (QueryCause, "READER", 1, "reader"),
     (QueryCause, "CODEC", 2, "codec"),
@@ -108,7 +109,7 @@ def test_member_matches_native_vocabulary(category, member, value, label):
 @pytest.mark.parametrize("category,beyond", [
     (ReaderOperation, 5),
     (WriterOperation, 9),
-    (QueryErrorKind, 17),
+    (QueryErrorKind, 18),
     (QueryCause, 4),
     (SchemaIssue, 10),
     (SchemaCause, 3),

@@ -54,11 +54,11 @@ typedef enum tlv_query_level {
 typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_NONE,          /**< No failure. */
     TLV_QUERY_ERROR_SYNTAX,        /**< Invalid token or grammar; paired with #TLV_ERR_SYNTAX. */
-    TLV_QUERY_ERROR_CAPABILITY,    /**< Recognized feature unavailable in this backend. */
+    TLV_QUERY_ERROR_CAPABILITY,    /**< Recognized feature unavailable, or a Tag adapter failure. */
     TLV_QUERY_ERROR_LIMIT,         /**< Named capacity or work budget exhausted. */
-    TLV_QUERY_ERROR_STORAGE,       /**< Invalid storage or alignment. */
-    TLV_QUERY_ERROR_EVENTS,        /**< Unbalanced or otherwise invalid structural feed. */
-    TLV_QUERY_ERROR_SOURCE,        /**< Requested Source property unavailable. */
+    TLV_QUERY_ERROR_STORAGE,       /**< Caller storage too small or size not representable. */
+    TLV_QUERY_ERROR_EVENTS,        /**< Unbalanced or otherwise malformed structural feed. */
+    TLV_QUERY_ERROR_SOURCE,        /**< Requested Source property absent or inconsistent. */
     TLV_QUERY_ERROR_READER,        /**< Original Reader failure; reader detail is preserved. */
     TLV_QUERY_ERROR_BINDING,       /**< Missing, unknown, duplicate or incompatible variable. */
     TLV_QUERY_ERROR_CARDINALITY,   /**< Scalar conversion did not receive exactly one node. */
@@ -68,7 +68,8 @@ typedef enum tlv_query_error_kind {
     TLV_QUERY_ERROR_CALLBACK,      /**< Callback contract violation or explicit visitor error. */
     TLV_QUERY_ERROR_TYPE,          /**< Operand type, arity or numeric-range mismatch. */
     TLV_QUERY_ERROR_IMAGE,         /**< Malformed stored program image. */
-    TLV_QUERY_ERROR_SCHEMA /**< Schema Query assertion failed; Schema detail is the cause. */
+    TLV_QUERY_ERROR_SCHEMA,  /**< Schema Query assertion failed; Schema detail is the cause. */
+    TLV_QUERY_ERROR_ARGUMENT /**< Invalid API argument, descriptor, alignment or configuration. */
 } tlv_query_error_kind_t;
 
 /**
@@ -113,6 +114,8 @@ TLV_API const char* tlv_query_cause_string(tlv_query_cause_t value);
  * conversion hook is reachable only as `detail.codec.detail.reader`.
  * @note After initialization, every non-#TLV_OK return has a kind other than
  * #TLV_QUERY_ERROR_NONE. #TLV_ERR_INVALID_STATE has kind #TLV_QUERY_ERROR_STATE.
+ * Invalid arguments and configuration (#TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_ARG) have kind
+ * #TLV_QUERY_ERROR_ARGUMENT unless a Reader, conversion or Tag adapter result is preserved.
  * Reader failures and #TLV_NEED_MORE_DATA retain the returned code in
  * `diagnostic.code` and set `cause` to #TLV_QUERY_CAUSE_READER. Success need not
  * clear old detail.
@@ -659,8 +662,8 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * @brief Complete the virtual root at final EOF and require balanced events.
  * @param[in,out] exec Required active execution.
  * @param[out] diagnostic Optional failure detail.
- * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_VALUE for unclosed event parents;
- * #TLV_ERR_INVALID_ARG for a missing binding or a context absent from the input;
+ * @return #TLV_OK on balanced EOF; #TLV_ERR_INVALID_VALUE for unclosed event parents or a
+ * missing binding; #TLV_ERR_INVALID_ARG for a context absent from the input;
  * #TLV_ERR_INVALID_STATE for a failed execution or callback reentrancy; #TLV_ERR_UNSUPPORTED
  * for D programs without Document execution; #TLV_ERR_NULL_ARG for NULL execution. Repeated
  * successful finish is harmless.

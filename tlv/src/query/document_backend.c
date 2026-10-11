@@ -93,23 +93,23 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
     if (!document || !e || (!storage && capacity))
-        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required Document execution arguments");
     if (document->query_callbacks || e->elements || e->open || e->finished || e->invalid ||
         e->has_context)
         return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
                                      "fresh Document execution outside callbacks");
     if (!e->retained || (context && !document_contains(document, context)))
-        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_EVENTS,
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "fresh Document execution and valid context");
     const tlv_format_t* format = document_format(document);
     if (e->environment && e->environment->format &&
         !query_format_compatible(e->environment->format, format))
-        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,
+        return query_error_unlocated(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "compatible Document format");
     int values = query_program_needs_values(e->program);
     if (values && !staging)
-        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_STORAGE,
+        return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required Document execution arguments");
     document_query_callback((tlv_document_t*)document, 1);
     e->document_backend = 1;

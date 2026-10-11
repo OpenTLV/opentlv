@@ -6,15 +6,15 @@ for authors of C capabilities and language facades. Read the
 [current error reference](../reference/errors.md) first.
 
 **Status: design decided; lifecycle implemented by #552, Schema classification
-by #553, capability/resource/callback results by #554, common locations by #555, and the
-`END`, `TRUNCATED` and `SYNTAX` results by #578. Remaining API and binding
+by #553, capability/resource/callback results by #554, common locations by #555, the
+`END`, `TRUNCATED` and `SYNTAX` results by #578, and the Query kind `ARGUMENT`
+with the remaining Query kind classifications by #587. Remaining API and binding
 migration is separate work.** This page defines the target contract.
 `TLV_END`, `TLV_ERR_TRUNCATED`, `TLV_ERR_SYNTAX`, `TLV_ERR_INVALID_STATE`,
 `TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and `TLV_ERR_CALLBACK` are public,
-together with Query kinds `STATE`, `CALLBACK`, `TYPE` and `IMAGE`;
-`TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` are removed. Target
-names that are not yet declared, such as the Query kind `ARGUMENT`, appear only
-on this page; the reference page describes the running implementation. This design does not preserve source, binary, enum-number or
+together with Query kinds `STATE`, `CALLBACK`, `TYPE`, `IMAGE` and `ARGUMENT`;
+`TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` are removed. The
+reference page describes the running implementation. This design does not preserve source, binary, enum-number or
 diagnostic-layout compatibility. Removed names get no aliases, compatibility
 wrappers or deprecation period. Native consumers and bindings migrate together.
 
@@ -161,8 +161,9 @@ below constrain combinations rather than requiring a function from kind to
 result. Detail is discriminated; inactive fields must not be interpreted.
 
 Query detail kind `STATE` is implemented by #552; `TYPE`, `IMAGE` and `CALLBACK`
-by #554. `ARGUMENT` remains to be added for cases currently forced into
-`STORAGE`, `EVENTS` or `CAPABILITY`. Keep
+by #554; `ARGUMENT` by #587 for invalid API arguments, descriptors, alignment and
+configuration that were previously filed under `STORAGE`, `EVENTS`, `BINDING` or
+`CAPABILITY`. Keep
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
 records the codec operation and reported result, including a reported `OK`.
@@ -388,11 +389,22 @@ enums constitute a migration.
 | `TLV_QUERY_ERROR_CARDINALITY` | `INVALID_VALUE` + `CARDINALITY`; expected/actual counts are typed detail. |
 | `TLV_QUERY_ERROR_CODEC` | Preserve the shared result and typed conversion cause under `CODEC`; bad successful hook payload -> `CALLBACK` + `CALLBACK`. |
 | `TLV_QUERY_ERROR_IMAGE_VERSION` | Recognized incompatible version -> `UNSUPPORTED` + `IMAGE_VERSION`; malformed image -> `INVALID_VALUE` + `IMAGE`. |
+| `TLV_QUERY_ERROR_ARGUMENT` (#587) | Missing API pointer -> `NULL_ARG` + `ARGUMENT`; invalid options, variable declarations, hooks, alignment, info extent, selected context or incompatible Format -> `INVALID_ARG` + `ARGUMENT`. |
 
 Adapter failures under `CAPABILITY` are propagation, not a claim that their
 result is `UNSUPPORTED`. Invalid adapter success payloads instead use
 `CALLBACK`. Query-owned numeric overflow remains `OVERFLOW` with `TYPE` detail;
 do not label it an unsupported feature.
+
+Issue #587 implements this table. The allowed (result, kind) pairs are an executable
+contract: `TEST_QUERY_KIND_PAIRS` in `tests/diagnostic_invariant.h` lists them,
+the shared test assertions check every observed Query failure against it, and
+`scripts/check_diagnostic_returns.py` rejects a Query producer whose literal
+result and kind are not listed. `READER` and `CODEC` preserve a lower-layer
+result and `CAPABILITY` a Tag adapter or resolver result, so they also accept a
+propagated result. A lower-layer call that reports no Query detail is classified
+by its result: argument results become `ARGUMENT`, capacity and size results
+`STORAGE`, `UNSUPPORTED` becomes `CAPABILITY` and `LIMIT` stays `LIMIT`.
 
 ### Every current Schema issue kind
 

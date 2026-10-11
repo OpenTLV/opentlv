@@ -395,7 +395,7 @@ TEST(Unit_Tlv_QueryF3, DocumentInitializationFailuresCarryDetail) {
               TLV_DIAGNOSTIC_RESULT(e.diagnostic,
                                     tlv_document_query_evaluate(document, e.exec, nullptr, nullptr,
                                                                 0, nullptr, &e.diagnostic)));
-    EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, e.diagnostic.kind);
+    EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, e.diagnostic.kind);
     tlv_document_free(document);
 }
 

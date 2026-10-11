@@ -64,13 +64,14 @@ fn query_error_kind_matches_native_vocabulary() {
         (QueryErrorKind::Type, 14, "type"),
         (QueryErrorKind::Image, 15, "image"),
         (QueryErrorKind::Schema, 16, "schema"),
+        (QueryErrorKind::Argument, 17, "argument"),
     ] {
         assert_eq!(member.name(), name);
         assert_eq!(member.as_raw(), raw);
         assert_eq!(QueryErrorKind::from_raw(raw), member);
     }
-    let beyond = QueryErrorKind::from_raw(17);
-    assert_eq!((beyond.as_raw(), beyond.name()), (17, "unknown"));
+    let beyond = QueryErrorKind::from_raw(18);
+    assert_eq!((beyond.as_raw(), beyond.name()), (18, "unknown"));
 }
 
 #[test]

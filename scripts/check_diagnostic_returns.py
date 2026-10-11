@@ -15,6 +15,12 @@ a busy, finished, invalid or query_callbacks member. It includes query_error()
 returns and runs before diagnostic initialization too. Only the immediately
 governing branch is checked; propagated results and arbitrary control flow remain
 outside this lexical guard. Diagnostic-return comments cannot waive this check.
+
+A Query kind check reads the allowed (result, kind) pairs of the #551 failure
+model from TEST_QUERY_KIND_PAIRS in tests/diagnostic_invariant.h and rejects a
+query_error(), query_error_unlocated() or query_failure() call whose literal
+result and literal kind, including both branches of a literal conditional, are
+not listed. Computed results are checked at runtime by the shared assertions.
 """
 import argparse
 from pathlib import Path
@@ -29,6 +35,11 @@ IF = re.compile(r'\bif\s*\(')
 LIFECYCLE = re.compile(r'(?:->|\.)\s*(busy|finished|invalid|query_callbacks)\b')
 INVALID_ARGUMENT = re.compile(
     r'\breturn\s+(?:TLV_ERR_INVALID_ARG\s*;|query_error\s*\([^,;]*,\s*TLV_ERR_INVALID_ARG\b)')
+PRODUCER = re.compile(r'\b(query_error|query_error_unlocated|query_failure)\s*\(')
+RESULT = re.compile(r'TLV_ERR_\w+|TLV_NEED_MORE_DATA|TLV_END')
+KIND = re.compile(r'TLV_QUERY_ERROR_\w+')
+PAIRS = re.compile(r'#define\s+TEST_QUERY_KIND_PAIRS\(X\)((?:[^\n]*\\\n)*[^\n]*)')
+PAIR = re.compile(r'\bX\(\s*(TLV_\w+)\s*,\s*(TLV_QUERY_ERROR_\w+)\s*\)')
 
 
 def masked(source):
@@ -110,6 +121,78 @@ def lifecycle_violations(source):
     return errors
 
 
+def query_kind_pairs(header):
+    match = PAIRS.search(header)
+    if not match:
+        raise SystemExit('TEST_QUERY_KIND_PAIRS not found')
+    return set(PAIR.findall(match[1]))
+
+
+def top_level(text, start=0):
+    """Yield (index, character) outside parentheses."""
+    depth = 0
+    for index in range(start, len(text)):
+        character = text[index]
+        depth += (character == '(') - (character == ')')
+        if not depth:
+            yield index, character
+
+
+def call_arguments(clean, opening):
+    end = delimited_end(clean, opening, '(', ')')
+    inner = clean[opening + 1:end - 1]
+    arguments, begin = [], 0
+    for index, character in top_level(inner):
+        if character == ',':
+            arguments.append(inner[begin:index].strip())
+            begin = index + 1
+    arguments.append(inner[begin:].strip())
+    return arguments
+
+
+def literal_values(argument, literal):
+    """Literal values of an argument, or None when any branch is computed."""
+    argument = argument.strip()
+    while argument.startswith('(') and delimited_end(argument, 0, '(', ')') == len(argument):
+        argument = argument[1:-1].strip()
+    if literal.fullmatch(argument):
+        return [argument]
+    question = next((i for i, c in top_level(argument) if c == '?'), None)
+    if question is None:
+        return None
+    nested, colon = 0, None
+    for index, character in top_level(argument, question + 1):
+        if character == '?':
+            nested += 1
+        elif character == ':':
+            if not nested:
+                colon = index
+                break
+            nested -= 1
+    if colon is None:
+        return None
+    chosen = literal_values(argument[question + 1:colon], literal)
+    other = literal_values(argument[colon + 1:], literal)
+    return None if chosen is None or other is None else chosen + other
+
+
+def query_kind_violations(source, pairs):
+    clean = masked(source)
+    errors = []
+    for match in PRODUCER.finditer(clean):
+        arguments = call_arguments(clean, match.end() - 1)
+        if len(arguments) < 3:
+            continue
+        results = literal_values(arguments[1], RESULT)
+        kinds = literal_values(arguments[2], KIND)
+        if results is None or kinds is None:
+            continue
+        line = source.count('\n', 0, match.start()) + 1
+        errors.extend((line, match[1], result, kind) for result in results for kind in kinds
+                      if (result, kind) not in pairs)
+    return errors
+
+
 def violations(source):
     clean = masked(source)
     errors = []
@@ -142,8 +225,11 @@ def violations(source):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('paths', nargs='*', type=Path)
-    args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
+    parser.add_argument('--contract', type=Path, default=root / 'tests/diagnostic_invariant.h',
+                        help='header defining TEST_QUERY_KIND_PAIRS')
+    args = parser.parse_args()
+    pairs = query_kind_pairs(args.contract.read_text(encoding='utf-8'))
     paths = args.paths or [root / 'tlv/src']
     files = sorted({p for path in paths for p in (path.rglob('*.c') if path.is_dir() else [path])})
     if not files:
@@ -156,9 +242,12 @@ def main():
         for line, function, member in lifecycle_violations(source):
             failures.append(f'{path}:{line}: {function}: INVALID_ARG under lifecycle member {member}; '
                             'use INVALID_STATE or separate the argument check')
+        for line, producer, result, kind in query_kind_violations(source, pairs):
+            failures.append(f'{path}:{line}: {producer}: {result} with {kind} is not an allowed '
+                            'Query pair; see TEST_QUERY_KIND_PAIRS')
     if failures:
         raise SystemExit('\n'.join(failures))
-    print(f'Diagnostic return and lifecycle guards: {len(files)} C files checked')
+    print(f'Diagnostic return, lifecycle and Query kind guards: {len(files)} C files checked')
 
 
 if __name__ == '__main__':

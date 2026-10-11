@@ -3335,6 +3335,7 @@
       <enumerator name='TLV_QUERY_ERROR_TYPE' value='14'/>
       <enumerator name='TLV_QUERY_ERROR_IMAGE' value='15'/>
       <enumerator name='TLV_QUERY_ERROR_SCHEMA' value='16'/>
+      <enumerator name='TLV_QUERY_ERROR_ARGUMENT' value='17'/>
     </enum-decl>
     <enum-decl name='tlv_schema_cause' id='type-id-272'>
       <underlying-type type-id='type-id-32'/>

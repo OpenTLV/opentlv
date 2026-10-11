@@ -176,13 +176,14 @@ static inline int query_borrow_overlap(const tlv_query_exec_t* e, const void* p,
 }
 /* Location availability is independent of borrowed Source bytes on Document.
  * Reader events still validate the actual Source header envelope. */
+/* Absent or inconsistent Source metadata on supplied data is an invalid value. */
 static inline tlv_result_t query_source_metadata(const tlv_tree_event_t* event, int header,
                                                  size_t* value) {
     if (!event->source.data || (header && !event->source.header.present))
         return TLV_ERR_INVALID_VALUE;
     if (header && (event->source.header.offset > event->source.size ||
                    event->source.header.size > event->source.size - event->source.header.offset))
-        return TLV_ERR_INVALID_ARG;
+        return TLV_ERR_INVALID_VALUE;
     *value = header ? event->source.header.size : event->offset;
     return TLV_OK;
 }
@@ -418,11 +419,27 @@ static inline tlv_result_t query_limit(tlv_query_diagnostic_t* d, const char* na
     return query_error(d, TLV_ERR_LIMIT, TLV_QUERY_ERROR_LIMIT, begin, end, NULL);
 }
 
+/* A lower-layer call that reports no Query detail is classified by its result:
+ * argument, capacity and capability results never take the caller's category. */
+static inline tlv_query_error_kind_t query_result_kind(tlv_result_t rc,
+                                                       tlv_query_error_kind_t kind) {
+    switch (rc) {
+        case TLV_ERR_NULL_ARG:
+        case TLV_ERR_INVALID_ARG: return TLV_QUERY_ERROR_ARGUMENT;
+        case TLV_ERR_BUFFER_TOO_SHORT:
+        case TLV_ERR_OVERFLOW:
+        case TLV_ERR_NATIVE_SIZE: return TLV_QUERY_ERROR_STORAGE;
+        case TLV_ERR_UNSUPPORTED: return TLV_QUERY_ERROR_CAPABILITY;
+        case TLV_ERR_LIMIT: return TLV_QUERY_ERROR_LIMIT;
+        default: return kind;
+    }
+}
+
 /* Preserve callee detail; state results always have their own top-level kind. */
 static inline tlv_result_t query_failure(tlv_query_diagnostic_t* d, tlv_result_t rc,
                                          tlv_query_error_kind_t kind, const char* expected) {
     if (rc != TLV_OK && d && d->kind == TLV_QUERY_ERROR_NONE)
-        query_error_unlocated(d, rc, kind, expected);
+        query_error_unlocated(d, rc, query_result_kind(rc, kind), expected);
     if (rc == TLV_ERR_INVALID_STATE && d) d->kind = TLV_QUERY_ERROR_STATE;
     if (d && rc != TLV_OK) {
         d->diagnostic.code = rc;

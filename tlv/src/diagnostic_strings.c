@@ -53,6 +53,7 @@ const char* tlv_query_error_kind_string(tlv_query_error_kind_t value) {
         case TLV_QUERY_ERROR_TYPE: return "type";
         case TLV_QUERY_ERROR_IMAGE: return "image";
         case TLV_QUERY_ERROR_SCHEMA: return "schema";
+        case TLV_QUERY_ERROR_ARGUMENT: return "argument";
     }
     return "unknown";
 }

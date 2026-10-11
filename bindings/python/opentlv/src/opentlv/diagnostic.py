@@ -85,6 +85,7 @@ class QueryErrorKind(_Category):
     TYPE = 14
     IMAGE = 15
     SCHEMA = 16
+    ARGUMENT = 17
 
 
 class QueryCause(_Category):
