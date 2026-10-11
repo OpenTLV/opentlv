@@ -10,7 +10,9 @@ static inline int test_diagnostic_matches(tlv_result_t rc, const tlv_diagnostic_
 }
 /* The #551 Query failure model as allowed (result, kind) pairs. The shared assertions
  * check every observed Query failure against this list, and
- * scripts/check_diagnostic_returns.py checks every literal Query producer with it. */
+ * scripts/check_diagnostic_returns.py checks every literal Query producer with it.
+ * ARGUMENT keeps the Tag and Length validation result of a caller-supplied path Query
+ * or Document edit (#588); STORAGE includes exhausted Document allocation. */
 #define TEST_QUERY_KIND_PAIRS(X)                                                                   \
     X(TLV_ERR_SYNTAX, TLV_QUERY_ERROR_SYNTAX)                                                      \
     X(TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY)                                             \
@@ -18,6 +20,7 @@ static inline int test_diagnostic_matches(tlv_result_t rc, const tlv_diagnostic_
     X(TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE)                                           \
     X(TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_STORAGE)                                                   \
     X(TLV_ERR_NATIVE_SIZE, TLV_QUERY_ERROR_STORAGE)                                                \
+    X(TLV_ERR_OUT_OF_MEMORY, TLV_QUERY_ERROR_STORAGE)                                              \
     X(TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_EVENTS)                                               \
     X(TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_SOURCE)                                               \
     X(TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_SOURCE)                                                 \
@@ -32,7 +35,10 @@ static inline int test_diagnostic_matches(tlv_result_t rc, const tlv_diagnostic_
     X(TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE)                                                \
     X(TLV_ERR_SCHEMA, TLV_QUERY_ERROR_SCHEMA)                                                      \
     X(TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT)                                                  \
-    X(TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT)
+    X(TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_ARGUMENT)                                               \
+    X(TLV_ERR_INVALID_TAG, TLV_QUERY_ERROR_ARGUMENT)                                               \
+    X(TLV_ERR_INVALID_TAG_SIZE, TLV_QUERY_ERROR_ARGUMENT)                                          \
+    X(TLV_ERR_INVALID_LENGTH, TLV_QUERY_ERROR_ARGUMENT)
 #define TEST_QUERY_KIND_PAIR(result, kind_value) || (rc == (result) && kind == (kind_value))
 /* READER and CODEC preserve the lower-layer result, and CAPABILITY the result of a
  * Tag adapter or name resolver, so they also accept a propagated result. */

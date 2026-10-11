@@ -420,18 +420,18 @@ TEST(Unit_Tlv_QueryF3, DocumentAxesContextMutationValuesAndScalar) {
     ASSERT_EQ(e.compile("//5A/following::50"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
     size_t bytes;
-    ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes), TLV_OK);
+    ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes, nullptr), TLV_OK);
     EXPECT_EQ(bytes, sizeof wire);
     std::vector<uint8_t> values(bytes);
     ASSERT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values.data(), bytes, &staging,
                                           &e.diagnostic),
               TLV_OK);
     tlv_node_t* found = nullptr;
-    EXPECT_EQ(tlv_document_query_next(e.exec, &found), TLV_OK);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &found, nullptr), TLV_OK);
     EXPECT_EQ(found, tlv_node_next(child));
-    EXPECT_EQ(tlv_document_query_next(e.exec, &found), TLV_OK);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &found, nullptr), TLV_OK);
     EXPECT_EQ(found, tlv_node_next(root));
-    EXPECT_EQ(tlv_document_query_next(e.exec, &found), TLV_END);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &found, nullptr), TLV_END);
     uint8_t     tag = 0x5a;
     tlv_node_t* inserted;
     ASSERT_EQ(tlv_document_insert(document, root, child, tlv_tag(&tag, 1), nullptr, 0, &inserted),
@@ -442,7 +442,7 @@ TEST(Unit_Tlv_QueryF3, DocumentAxesContextMutationValuesAndScalar) {
     ASSERT_EQ(tlv_document_query_evaluate(document, e.exec, inserted, values.data(), values.size(),
                                           &staging, &e.diagnostic),
               TLV_OK);
-    ASSERT_EQ(tlv_document_query_next(e.exec, &found), TLV_OK);
+    ASSERT_EQ(tlv_document_query_next(e.exec, &found, nullptr), TLV_OK);
     EXPECT_EQ(found, inserted);
     ASSERT_EQ(e.compile("value(/70)"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
@@ -489,10 +489,10 @@ TEST(Unit_Tlv_QueryF3, DocumentStopResumeSourceErrorsAndResourceLimits) {
         static_cast<std::vector<tlv_node_t*>*>(state)->push_back(node);
         return TLV_VISIT_STOP;
     };
-    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected), TLV_OK);
-    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected), TLV_OK);
-    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected), TLV_OK);
-    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected), TLV_OK);
+    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected, nullptr), TLV_OK);
+    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected, nullptr), TLV_OK);
+    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected, nullptr), TLV_OK);
+    ASSERT_EQ(tlv_document_query_program_visit(e.exec, stop, &selected, nullptr), TLV_OK);
     EXPECT_EQ(selected.size(), 3u);
     ASSERT_EQ(e.compile("//5A[@offset=0]"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
@@ -568,7 +568,7 @@ TEST(Unit_Tlv_QueryF3, RetainedDocumentLocationsMatchStreamingAndSupportDocument
                   TLV_OK);
         std::vector<size_t> locations;
         tlv_node_t*         node;
-        while (tlv_document_query_next(e.exec, &node) == TLV_OK) {
+        while (tlv_document_query_next(e.exec, &node, nullptr) == TLV_OK) {
             auto location = tlv_node_source_location(node);
             EXPECT_TRUE(location.has_offset);
             locations.push_back(location.offset);
@@ -586,7 +586,7 @@ TEST(Unit_Tlv_QueryF3, RetainedDocumentLocationsMatchStreamingAndSupportDocument
                   TLV_OK);
         std::vector<size_t> locations;
         tlv_node_t*         node;
-        while (tlv_document_query_next(e.exec, &node) == TLV_OK)
+        while (tlv_document_query_next(e.exec, &node, nullptr) == TLV_OK)
             locations.push_back(tlv_node_source_location(node).offset);
         EXPECT_EQ(c.second, locations);
     }
@@ -637,7 +637,7 @@ TEST(Unit_Tlv_QueryF3, DocumentLocationPreservesEmptyHeaderAndZeroOffset) {
     ASSERT_EQ(tlv_document_query_evaluate(raw, e.exec, nullptr, nullptr, 0, nullptr, &e.diagnostic),
               TLV_OK);
     tlv_node_t* node = nullptr;
-    EXPECT_EQ(tlv_document_query_next(e.exec, &node), TLV_OK);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &node, nullptr), TLV_OK);
     EXPECT_EQ(node, tlv_document_first(raw));
 }
 
@@ -667,9 +667,9 @@ TEST(Unit_Tlv_QueryF3, OriginalLocationsAreIndependentOfCanonicalValueSnapshot) 
                                           &e.diagnostic),
               TLV_OK);
     tlv_node_t* node = nullptr;
-    ASSERT_EQ(tlv_document_query_next(e.exec, &node), TLV_OK);
+    ASSERT_EQ(tlv_document_query_next(e.exec, &node, nullptr), TLV_OK);
     EXPECT_EQ(node, tlv_node_next(tlv_document_first(raw)));
-    EXPECT_EQ(tlv_document_query_next(e.exec, &node), TLV_END);
+    EXPECT_EQ(tlv_document_query_next(e.exec, &node, nullptr), TLV_END);
 }
 #endif
 
@@ -705,7 +705,7 @@ TEST(Unit_Tlv_QueryF3, DocumentQueryNeverUsesOwningAllocator) {
     staging.scratch = scratch;
     staging.scratch_capacity = sizeof scratch;
     size_t bytes;
-    ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes), TLV_OK);
+    ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes, nullptr), TLV_OK);
     ASSERT_EQ(e.compile("value(/70)"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
     ASSERT_EQ(tlv_document_query_evaluate(document, e.exec, nullptr, values, sizeof values,
@@ -757,7 +757,7 @@ TEST(Unit_Tlv_QueryF3, DocumentSnapshotSlicesAndWorkIgnoreStagingCapacity) {
     size_t bytes = 0;
     for (size_t capacity : {sizeof wire, sizeof staged}) {
         staging.data_capacity = staging.scratch_capacity = capacity;
-        ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes), TLV_OK);
+        ASSERT_EQ(tlv_document_query_value_size(document, &staging, &bytes, nullptr), TLV_OK);
         EXPECT_EQ(bytes, sizeof wire);
         for (const auto& item : {std::make_pair("value(/70)", size_t(2)),
                                  std::make_pair("value(/70/70[1])", size_t(4)),

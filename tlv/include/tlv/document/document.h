@@ -221,8 +221,15 @@ typedef enum tlv_document_query_edit_kind {
  * @param capacity Array entries; short storage leaves the cursor and targets unchanged,
  * permitting retry of the same completed execution with a larger target array.
  * @param applied Required output, initialized to zero; successful edited selected roots.
- * Targets and applied must not overlap each other or a used Value; such overlap
- * returns #TLV_ERR_INVALID_ARG before writes.
+ * Targets, applied and diagnostic must not overlap each other, the execution or a used
+ * Value; such overlap returns #TLV_ERR_INVALID_ARG before writes.
+ * @param[out] diagnostic Optional Query failure detail; NULL when not needed. A
+ * constructed Value rejected by the Reader keeps the original Reader detail, with
+ * #TLV_LOCATION_INPUT relative to `value`. An edit exceeding the Document depth or
+ * element limit, including inside a constructed Value, reports #TLV_ERR_LIMIT with kind
+ * #TLV_QUERY_ERROR_LIMIT, `limit` "document-depth" or "document-elements" and its
+ * `configured` bound. A rejected Tag, Value framing or Document allocation keeps its
+ * result with kind #TLV_QUERY_ERROR_ARGUMENT or #TLV_QUERY_ERROR_STORAGE.
  * @return OK for no matches, or native error. Invalid operation/capacity/revision makes
  * no edits. Remove cannot fail after collection. Replace/insert commit in preorder,
  * stopping at first failure; previous successful edits remain, without rollback.
@@ -235,14 +242,17 @@ typedef enum tlv_document_query_edit_kind {
  * collection. Any successful edit invalidates the execution's whole-document revision.
  * REPLACE stores identical bytes on primitive targets but parses them as children on
  * constructed targets. Overlap filtering is O(target count * depth), allocation-free.
+ * @note Reentrancy, failed-execution and overlap guards return before initializing
+ * `diagnostic` and leave it untouched, preserving the original failure of the execution;
+ * after initialization, every non-#TLV_OK return has `diagnostic.code == rc`.
  * @return #TLV_ERR_INVALID_STATE during callbacks, for stale results or after result iteration has
  * begun.
  */
 TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tlv_query_exec* exec,
                                              tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
                                              const uint8_t* value, size_t size,
-                                             tlv_node_t** targets, size_t capacity,
-                                             size_t* applied);
+                                             tlv_node_t** targets, size_t capacity, size_t* applied,
+                                             struct tlv_query_diagnostic* diagnostic);
 
 #endif
 
@@ -461,16 +471,23 @@ typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, voi
  * @param query Parsed Query, borrowed for the call.
  * @param visitor Required callback.
  * @param context Optional caller context.
+ * @param[out] diagnostic Optional Query failure detail, initialized before the arguments
+ * are checked; NULL when not needed. Include tlv/query/program.h for its definition.
  * @return OK on exhaustion or STOP, NULL_ARG for missing arguments, Query validation
  * errors, VISITOR for ERROR, or CALLBACK for an unknown callback result.
  * @warning Do not mutate or destroy the Document during traversal. Nodes borrow it.
  * Callback effects are not rolled back on failure.
- * @note Never allocates.
+ * @note Never allocates. Every non-#TLV_OK return has `diagnostic.code == rc` and no
+ * location: missing arguments and an invalid parsed path have kind
+ * #TLV_QUERY_ERROR_ARGUMENT, keeping the path validation result, #TLV_ERR_VISITOR and
+ * #TLV_ERR_CALLBACK have #TLV_QUERY_ERROR_CALLBACK, and #TLV_ERR_INVALID_STATE has
+ * #TLV_QUERY_ERROR_STATE.
  * @return #TLV_ERR_INVALID_STATE if a callback requests deferred erasure or destruction.
  */
 TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
                                               const tlv_query_t* query,
-                                              tlv_document_query_visitor_t visitor, void* context);
+                                              tlv_document_query_visitor_t visitor, void* context,
+                                              struct tlv_query_diagnostic* diagnostic);
 
 #if OPENTLV_READER && OPENTLV_WRITER
 /** @brief Discover the complete encoded snapshot size for compiled Document Query Values.
@@ -479,14 +496,20 @@ TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
  * from Document storage. Short storage reports Writer requirements; resize
  * explicitly and repeat discovery from the start.
  * @param[out] bytes Complete encoded Document size, not a sum of nested Values.
+ * @param[out] diagnostic Optional Query failure detail, initialized before the arguments
+ * are checked; NULL when not needed.
  * @return OK, NULL argument, overflow or original Writer sizing error.
  * @note No allocation. Encodes the Document once through the canonical Writer.
  * Discovery is outside the execution work budget. It is unnecessary when program
  * info reports constructed_values_required == 0. Output may be reused as the
- * evaluation snapshot. Include tlv/writer/tree.h for the workspace definition. */
+ * evaluation snapshot. Include tlv/writer/tree.h for the workspace definition.
+ * @note Every non-#TLV_OK return has `diagnostic.code == rc` and no location. A Writer
+ * result is classified by result: short staging is #TLV_ERR_BUFFER_TOO_SHORT with kind
+ * #TLV_QUERY_ERROR_STORAGE and a missing argument has #TLV_QUERY_ERROR_ARGUMENT. */
 TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* document,
                                                    struct tlv_tree_writer_workspace* staging,
-                                                   size_t* bytes);
+                                                   size_t* bytes,
+                                                   struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Evaluate a compiled program over Document nodes using a fresh retained execution.
  * @param[in] document Live Document; must remain unchanged through result consumption.
@@ -532,29 +555,44 @@ TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
 /** @brief Pull the next finalized unique node handle in current Document preorder.
  * @param[in,out] exec Successfully evaluated Document node execution.
  * @param[out] node Borrowed node; unchanged on exhaustion or error.
+ * @param[out] diagnostic Optional Query failure detail; NULL when not needed. It is
+ * written only on failure, so a pull loop does not clear it on every node.
  * @return OK, #TLV_END at exhaustion, NULL argument or invalid execution state/revision.
  * @note Document and Value storage must remain alive and unchanged. First is one pull;
  * all is repeated pulls. Any successful Document edit rejects subsequent pulls
  * before dereferencing retained nodes. Iteration allocates nothing and also works
  * without Source. Keep the native Document alive; revision is not a destruction token.
+ * @note Every failure has `diagnostic.code == rc`, no location and kind
+ * #TLV_QUERY_ERROR_STATE or #TLV_QUERY_ERROR_ARGUMENT. #TLV_END ends the iteration
+ * normally and leaves `diagnostic` unchanged. Reentrancy, failed-execution and overlap
+ * guards also leave it unchanged, preserving the original failure of the execution.
  * @return #TLV_ERR_INVALID_STATE for unfinished/failed execution, reentrancy or a stale Document
  * revision.
  */
-TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node);
+TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node,
+                                             struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Visit remaining finalized Document results; STOP resumes after the delivered node.
  * @param[in,out] exec Successfully evaluated Document node execution.
  * @param[in] visitor Required callback; must not edit the Document.
  * @param[in] context Optional callback context.
+ * @param[out] diagnostic Optional Query failure detail; NULL when not needed. It must not
+ * overlap the execution workspace.
  * @return OK on exhaustion/STOP, VISITOR on callback error (terminal), or pull errors.
  * @warning Previously delivered callbacks are never rolled back. Erase/free requests
  * are deferred until callback return and invalidate this execution. Same-execution
  * feed, finish, reset, bind and nested visits are rejected without altering it.
+ * @note Every non-#TLV_OK return after initialization has `diagnostic.code == rc` and no
+ * location: #TLV_ERR_VISITOR and #TLV_ERR_CALLBACK have kind #TLV_QUERY_ERROR_CALLBACK,
+ * #TLV_ERR_INVALID_STATE has #TLV_QUERY_ERROR_STATE and a missing argument has
+ * #TLV_QUERY_ERROR_ARGUMENT. Reentrancy, failed-execution and overlap guards return before
+ * initialization and leave `diagnostic` untouched.
  * @return #TLV_ERR_INVALID_STATE for callback reentrancy, invalidated results or deferred mutation.
  */
 TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exec,
                                                       tlv_document_query_visitor_t visitor,
-                                                      void* context);
+                                                      void* context,
+                                                      struct tlv_query_diagnostic* diagnostic);
 
 #endif
 

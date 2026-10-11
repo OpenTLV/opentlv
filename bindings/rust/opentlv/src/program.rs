@@ -591,6 +591,7 @@ impl QueryProgram {
             QueryEdit::InsertAfter { tag, value } => (2, tag, value),
         };
         let mut applied = 0;
+        let mut diagnostic = unsafe { zeroed() };
         // SAFETY: &mut Document excludes external node borrows. The private
         // execution has yielded no Nodes; C collects/checks targets before writes.
         let rc = unsafe {
@@ -607,9 +608,10 @@ impl QueryProgram {
                 targets.as_mut_ptr(),
                 capacity,
                 &mut applied,
+                &mut diagnostic,
             )
         };
-        plain(rc).map_err(|failure| QueryEditError { failure, applied })?;
+        check(rc, &diagnostic).map_err(|failure| QueryEditError { failure, applied })?;
         Ok(applied)
     }
     /// Compile bounded UTF-8 text using caller-selected C options.
@@ -1503,11 +1505,12 @@ impl<'a> QueryExecution<'a> {
             .document
             .ok_or_else(|| plain(native::TLV_ERR_INVALID_ARG).unwrap_err())?;
         let mut node = ptr::null_mut();
-        let rc = unsafe { native::tlv_document_query_next(self.raw, &mut node) };
+        let mut diagnostic = unsafe { zeroed() };
+        let rc = unsafe { native::tlv_document_query_next(self.raw, &mut node, &mut diagnostic) };
         if rc == native::TLV_END {
             return Ok(None);
         }
-        plain(rc)?;
+        check(rc, &diagnostic)?;
         Ok(document.node(node))
     }
     /// Read a finalized scalar borrowing execution/input/program storage.

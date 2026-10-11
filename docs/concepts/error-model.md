@@ -226,6 +226,40 @@ Control status does not invalidate an incremental execution. Preserve its
 documented resume/reset behavior. Severity is presentation metadata, not the
 test for success, resumability or lifecycle validity.
 
+### Diagnostic channels
+
+Every Document Query entry point that can fail after Query initialization takes
+an optional `tlv_query_diagnostic_t*` (#588): `tlv_document_query_visit()`,
+`tlv_document_query_value_size()`, `tlv_document_query_evaluate()`,
+`tlv_document_query_next()`, `tlv_document_query_program_visit()` and
+`tlv_document_query_edit()`. A Reader or Codec failure therefore survives
+Document composition with its result, origin and typed detail, as it does for
+Reader execution. A constructed edit Value rejected by the Reader keeps the
+Reader cause, located relative to that Value. An edit that exceeds the Document
+depth or element limit reports `LIMIT` + `LIMIT` named `document-depth` or
+`document-elements` with its configured bound, also when the Tree Reader detects
+it while parsing that Value. Unlike a Reader processing budget during Reader
+execution, these bounds belong to the Document being edited, so they are not a
+Reader cause. A pull initializes the
+diagnostic only on failure, so `TLV_END` and successful pulls leave it
+unchanged. The executions store no last failure; the caller owns the output.
+
+`tlv_document_find_path()` stays result-only: it is a lookup over
+`tlv_document_query_visit()` with a private visitor, so its failures are the
+argument and path validation results already named by its contract. Callers
+needing the Query diagnostic call `tlv_document_query_visit()` directly.
+
+`tlv_generate()` also stays result-only (#588). It generates rather than reads
+caller input, so no input, output or expression location identifies a failure.
+Each result has one documented meaning tied to the options: missing pointers,
+unsupported Format capability or depth, invalid configuration, unrepresentable
+workspace, short output or workspace, an exhausted bounded search (`LIMIT`) and a
+detected callback contract violation (`CALLBACK`). Ordinary candidate failures
+are part of the bounded search, not caller failures. Detail of an aborting
+callback violation would describe a synthetic candidate that the deterministic
+seed and case index already reproduce. Reconsider this when a caller needs to
+identify the violated callback contract without replaying the case.
+
 ## Locations
 
 Location is a generic diagnostic value; it is not Element identity. The target
@@ -389,7 +423,7 @@ enums constitute a migration.
 | `TLV_QUERY_ERROR_CARDINALITY` | `INVALID_VALUE` + `CARDINALITY`; expected/actual counts are typed detail. |
 | `TLV_QUERY_ERROR_CODEC` | Preserve the shared result and typed conversion cause under `CODEC`; bad successful hook payload -> `CALLBACK` + `CALLBACK`. |
 | `TLV_QUERY_ERROR_IMAGE_VERSION` | Recognized incompatible version -> `UNSUPPORTED` + `IMAGE_VERSION`; malformed image -> `INVALID_VALUE` + `IMAGE`. |
-| `TLV_QUERY_ERROR_ARGUMENT` (#587) | Missing API pointer -> `NULL_ARG` + `ARGUMENT`; invalid options, variable declarations, hooks, alignment, info extent, selected context or incompatible Format -> `INVALID_ARG` + `ARGUMENT`. |
+| `TLV_QUERY_ERROR_ARGUMENT` (#587) | Missing API pointer -> `NULL_ARG` + `ARGUMENT`; invalid options, variable declarations, hooks, alignment, info extent, selected context or incompatible Format -> `INVALID_ARG` + `ARGUMENT`; a caller-supplied path Query, edit Tag or edit Value rejected by Tag or Length validation keeps `INVALID_TAG`, `INVALID_TAG_SIZE` or `INVALID_LENGTH` with `ARGUMENT` (#588). |
 
 Adapter failures under `CAPABILITY` are propagation, not a claim that their
 result is `UNSUPPORTED`. Invalid adapter success payloads instead use
@@ -403,9 +437,10 @@ the shared test assertions check every observed Query failure against it, and
 result and kind are not listed. `READER` and `CODEC` preserve a lower-layer
 result and `CAPABILITY` a Tag adapter or resolver result, so they also accept a
 propagated result. A lower-layer call that reports no Query detail is classified
-by its result: argument results become `ARGUMENT`, capacity and size results
-`STORAGE`, `UNSUPPORTED` becomes `CAPABILITY`, `LIMIT` stays `LIMIT`, and
-`CALLBACK` and `VISITOR` become `CALLBACK`.
+by its result: argument results become `ARGUMENT`, capacity, size and Document
+allocation (`OUT_OF_MEMORY`, #588) results `STORAGE`, `UNSUPPORTED` becomes
+`CAPABILITY`, `LIMIT` stays `LIMIT`, and `CALLBACK` and `VISITOR` become
+`CALLBACK`.
 
 ### Every current Schema issue kind
 

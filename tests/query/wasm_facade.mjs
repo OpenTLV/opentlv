@@ -193,7 +193,7 @@ const editingDocument = api.document(hexToBytes("70065a01015a01025a0103"));
 const editingProgram = api.compileQuery("//5A");
 const editing = editingProgram.execution().evaluateDocument(editingDocument);
 assert.throws(() => editing.editDocument("replace", { value: hexToBytes("09"), target_capacity: 2 }),
-  error => error.code === 14 && error.applied === 0);
+  error => error.code === 14 && error.applied === 0 && error.query.kind_name === "storage");
 assert.deepEqual(editingDocument.first.firstChild.value, hexToBytes("01"));
 assert.equal(editing.editDocument("replace", { value: hexToBytes("09"), target_capacity: 3 }), 3);
 assert.throws(() => editing.next(), error => error.code === 12 && error.query.kind === 12);
@@ -205,6 +205,13 @@ assert.equal(ancestors.editDocument("remove"), 2);
 assert.deepEqual(editingDocument.first.tag, hexToBytes("5b"));
 assert.equal(editingDocument.first.next, null);
 ancestors.close(); ancestorProgram.close(); editing.close(); editingProgram.close(); editingDocument.close();
+// A rejected constructed replacement keeps the Reader cause of its children.
+const readerDocument = api.document(hexToBytes("70035a0101"));
+const readerProgram = api.compileQuery("//70");
+const readerEdit = readerProgram.execution().evaluateDocument(readerDocument);
+assert.throws(() => readerEdit.editDocument("replace", { value: hexToBytes("5a03") }),
+  error => error.code === 3 && error.applied === 0 && error.query.kind_name === "reader");
+readerEdit.close(); readerProgram.close(); readerDocument.close();
 console.log("JS/WASM completed-selection edits: short-capacity retry, replacement, insertion and ancestor dominance passed");
 
 const schemaContext = api.compileQuery("//5A");

@@ -5,8 +5,8 @@ package opentlv
 
 import "github.com/marekcingel/OpenTLV/bindings/go/internal/capi"
 
-// QueryError preserves the native Query status and optional byte offset in the
-// query text. The C Document traversal supplies no additional diagnostics.
+// QueryError preserves the native Query status, the optional byte offset in the
+// query text and the common diagnostic of the C Document traversal.
 type QueryError struct {
 	Diagnostic
 	status StatusError

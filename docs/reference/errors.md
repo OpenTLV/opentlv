@@ -7,7 +7,7 @@ through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
 (#555), shared Codec results and propagation (#556), diagnostic names and
 Document lookup failure channels (#557), the `END`, `TRUNCATED` and
-`SYNTAX` results (#578), and the Query kind `ARGUMENT` (#587). The tables below describe the current
+`SYNTAX` results (#578), the Query kind `ARGUMENT` (#587) and Document Query diagnostics (#588). The tables below describe the current
 codes, not target names still awaiting implementation.
 
 Core and Codec operations return the shared `tlv_result_t` from `tlv/result.h`. Zero is success. `TLV_END` (normal end
@@ -60,6 +60,8 @@ Pre-initialization checks leave the diagnostic untouched. In particular:
 - Low-level Reader/Tree and Schema entry points can reject preflight arguments
   or resources before producing detail. An enclosing API which has already
   initialized its own diagnostic must nevertheless describe a propagated error.
+- `tlv_document_query_next()` initializes its diagnostic only when it fails, so a
+  pull loop writes no detail. `TLV_END` and successful pulls leave it unchanged.
 
 ### Query result and kind pairs
 
@@ -68,8 +70,8 @@ Every Query failure pairs its result with one kind of the
 
 | Kind | Results |
 | --- | --- |
-| `ARGUMENT` | `NULL_ARG` for a missing pointer; `INVALID_ARG` for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format |
-| `STORAGE` | `BUFFER_TOO_SHORT` for caller storage; `OVERFLOW` or `NATIVE_SIZE` for a size that is not representable |
+| `ARGUMENT` | `NULL_ARG` for a missing pointer; `INVALID_ARG` for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format; `INVALID_TAG`, `INVALID_TAG_SIZE` or `INVALID_LENGTH` for a caller-supplied path Query, edit Tag or edit Value rejected by Tag or Length validation (#588) |
+| `STORAGE` | `BUFFER_TOO_SHORT` for caller storage; `OVERFLOW` or `NATIVE_SIZE` for a size that is not representable; `OUT_OF_MEMORY` for exhausted Document allocation (#588) |
 | `LIMIT` | `LIMIT` for a named Query budget |
 | `SYNTAX` | `SYNTAX` |
 | `TYPE` | `INVALID_VALUE` for operand types, arity and ranges such as a negative substring bound; `OVERFLOW` for a value not representable as `int64` |
@@ -87,6 +89,16 @@ Every Query failure pairs its result with one kind of the
 A lower-layer call that returns no Query detail is classified by its result, so
 an argument failure is `ARGUMENT`, a storage shortage `STORAGE` and a callback
 or visitor failure `CALLBACK` whichever Query operation propagates it.
+
+The Document Query entry points `tlv_document_query_visit()`,
+`tlv_document_query_value_size()`, `tlv_document_query_evaluate()`,
+`tlv_document_query_next()`, `tlv_document_query_program_visit()` and
+`tlv_document_query_edit()` publish this Query diagnostic (#588). A constructed
+edit Value rejected by the Reader keeps the Reader cause, with `INPUT`
+locations relative to the edit Value. An edit exceeding the Document depth or
+element limit reports `LIMIT` with `limit` `document-depth` or
+`document-elements` and its `configured` bound. Other edit and Value snapshot
+failures are classified by their result as above.
 
 The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
 native consumers with matching headers and bindings.

@@ -15,6 +15,7 @@ extern "C" {
         targets: *mut *mut tlv_node_t,
         capacity: usize,
         applied: *mut usize,
+        diagnostic: *mut tlv_query_diagnostic_t,
     ) -> tlv_result_t;
     /// Stable native node identity, scoped to its owning Document.
     pub fn tlv_node_identity(node: *const tlv_node_t) -> u64;

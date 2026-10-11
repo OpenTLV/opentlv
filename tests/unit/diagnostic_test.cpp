@@ -364,6 +364,13 @@ TEST(Unit_Tlv_Diagnostic, QueryKindContractRejectsMisfiledArgumentFailures) {
                             Pair{TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_ARGUMENT, false},
                             Pair{TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_ARGUMENT, false},
                             Pair{TLV_ERR_OVERFLOW, TLV_QUERY_ERROR_BINDING, false},
+                            // A caller-supplied path or edit keeps its Tag/Length result (#588).
+                            Pair{TLV_ERR_INVALID_TAG, TLV_QUERY_ERROR_ARGUMENT, true},
+                            Pair{TLV_ERR_INVALID_TAG_SIZE, TLV_QUERY_ERROR_ARGUMENT, true},
+                            Pair{TLV_ERR_INVALID_LENGTH, TLV_QUERY_ERROR_ARGUMENT, true},
+                            Pair{TLV_ERR_OUT_OF_MEMORY, TLV_QUERY_ERROR_STORAGE, true},
+                            Pair{TLV_ERR_INVALID_TAG, TLV_QUERY_ERROR_EVENTS, false},
+                            Pair{TLV_ERR_OUT_OF_MEMORY, TLV_QUERY_ERROR_ARGUMENT, false},
                             // Reader, Codec and Tag adapter failures keep the lower-layer result.
                             Pair{TLV_ERR_TRUNCATED, TLV_QUERY_ERROR_READER, true},
                             Pair{TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY, true}}) {

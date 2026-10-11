@@ -825,6 +825,8 @@ public:
      * @note Allocates result storage and Node validity metadata. Insertions after
      * selection are not included. Erasure, Value replacement and Document destruction
      * invalidate handles following the normal Node contract; vector positions remain.
+     * @throws query_error If native path validation or traversal fails, carrying the
+     *         result and common diagnostic of tlv_document_query_visit().
      * @throws std::bad_alloc If result storage or validity metadata allocation fails.
      */
     std::vector<node> select(const query& path) {
@@ -843,11 +845,12 @@ public:
                 }
             }
         };
-        collection state{this, {}, {}};
-        auto       rc = tlv_document_query_visit(impl_->handle.get(), &path.c_query(),
-                                                 &collection::append, &state);
+        collection             state{this, {}, {}};
+        tlv_query_diagnostic_t d{};
+        auto                   rc = tlv_document_query_visit(impl_->handle.get(), &path.c_query(),
+                                                             &collection::append, &state, &d);
         if (state.failure) std::rethrow_exception(state.failure);
-        if (rc != TLV_OK) throw query_error(rc, tlv_diagnostic_t{});
+        if (rc != TLV_OK) throw query_error(rc, d.diagnostic);
         return std::move(state.results);
     }
 
@@ -880,12 +883,13 @@ public:
         std::vector<uint8_t> values;
         auto                 rc = evaluate_owned(program, *execution, values);
         if (!rc) return unexpected<query_failure>(rc.error());
-        std::vector<node> results;
+        std::vector<node>      results;
+        tlv_query_diagnostic_t d{};
         for (;;) {
             tlv_node_t* pointer = nullptr;
-            auto        code = tlv_document_query_next(execution->c_exec(), &pointer);
+            auto        code = tlv_document_query_next(execution->c_exec(), &pointer, &d);
             if (code == TLV_END) break;
-            if (code != TLV_OK) return unexpected<query_failure>(detail::query_failed(code));
+            if (code != TLV_OK) return unexpected<query_failure>(detail::query_failed(code, d));
             results.push_back(node(pointer, impl_->lifetime));
         }
         return results;
@@ -942,15 +946,18 @@ public:
     /** @brief Pull a checked Document handle from a completed execution for this Document.
      * @param execution Completed continuation, with this Document alive and unchanged.
      * @return Checked Node, TLV_END, or INVALID_STATE for missing, expired or stale
-     * Document execution; INVALID_ARG for an execution owned by a different Document. */
+     * Document execution; INVALID_ARG for an execution owned by a different Document.
+     * A native failure carries the diagnostic of tlv_document_query_next(). */
     expected<node, query_failure> next(query_execution& execution) {
         if (!execution.has_document_ || execution.document_lifetime_.expired())
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
         if (execution.document_lifetime_.lock() != impl_->lifetime)
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
-        tlv_node_t* pointer = nullptr;
-        auto        rc = tlv_document_query_next(execution.c_exec(), &pointer);
-        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        tlv_node_t*            pointer = nullptr;
+        tlv_query_diagnostic_t d{};
+        auto                   rc = tlv_document_query_next(execution.c_exec(), &pointer, &d);
+        if (rc == TLV_END) return unexpected<query_failure>(detail::query_failed(rc));
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return node(pointer, impl_->lifetime);
     }
 
@@ -1174,11 +1181,12 @@ private:
         auto                 evaluated = evaluate_owned(program, *execution, values);
         if (!evaluated) return unexpected<query_failure>(evaluated.error());
         std::vector<tlv_node_t*> targets(size());
+        tlv_query_diagnostic_t   d{};
         auto rc = tlv_document_query_edit(c_document(), execution->c_exec(), kind, tag,
                                           reinterpret_cast<const uint8_t*>(value.data()),
-                                          value.size(), targets.data(), targets.size(), &count);
+                                          value.size(), targets.data(), targets.size(), &count, &d);
         if (applied) *applied = count;
-        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
+        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return count;
     }
     expected<void, query_failure> evaluate_owned(const query_program&  program,
@@ -1197,13 +1205,14 @@ private:
             staging.data_capacity = values.size();
             staging.scratch = scratch.data();
             staging.scratch_capacity = scratch.size();
-            auto rc = tlv_document_query_value_size(c_document(), &staging, &bytes);
+            tlv_query_diagnostic_t d{};
+            auto rc = tlv_document_query_value_size(c_document(), &staging, &bytes, &d);
             if (rc == TLV_OK) break;
             if (rc != TLV_ERR_BUFFER_TOO_SHORT)
-                return unexpected<query_failure>(detail::query_failed(rc));
+                return unexpected<query_failure>(detail::query_failed(rc, d));
             if (staging.required_data <= values.size() &&
                 staging.required_scratch <= scratch.size())
-                return unexpected<query_failure>(detail::query_failed(rc));
+                return unexpected<query_failure>(detail::query_failed(rc, d));
             if (staging.required_data > values.size()) values.resize(staging.required_data);
             if (staging.required_scratch > scratch.size()) scratch.resize(staging.required_scratch);
         }

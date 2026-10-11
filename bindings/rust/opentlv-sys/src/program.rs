@@ -396,5 +396,6 @@ extern "C" {
     pub fn tlv_document_query_next(
         exec: *mut tlv_query_exec_t,
         node: *mut *mut tlv_node_t,
+        diagnostic: *mut tlv_query_diagnostic_t,
     ) -> tlv_result_t;
 }
