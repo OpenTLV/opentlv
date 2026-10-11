@@ -24,6 +24,10 @@ extern "C" {
     pub fn tlv_codec_cause_string(value: c_int) -> *const c_char;
     /// Canonical static CodecViolation label, including unknown values.
     pub fn tlv_codec_violation_string(value: c_int) -> *const c_char;
+    /// Canonical static CodecReason label, including unknown values.
+    pub fn tlv_codec_reason_string(value: c_int) -> *const c_char;
+    /// Canonical static SchemaCause label, including unknown values.
+    pub fn tlv_schema_cause_string(value: c_int) -> *const c_char;
     /// Canonical static Severity label, including unknown values.
     pub fn tlv_diagnostic_severity_string(value: c_int) -> *const c_char;
 }

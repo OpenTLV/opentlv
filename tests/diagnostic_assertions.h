@@ -26,6 +26,13 @@ inline tlv_result_t result(tlv_result_t rc, const tlv_query_diagnostic_t& diagno
     }
     return rc;
 }
+inline tlv_result_t result(tlv_result_t rc, const tlv_schema_diagnostic_t& diagnostic) {
+    if (rc != TLV_OK)
+        EXPECT_TRUE(test_schema_diagnostic_matches(rc, &diagnostic))
+            << "result=" << rc << " diagnostic=" << diagnostic.diagnostic.code
+            << " cause=" << diagnostic.cause;
+    return rc;
+}
 inline tlv_result_t result(tlv_result_t rc, const tlv_schema_query_diagnostic_t& diagnostic) {
     if (rc != TLV_OK) result(rc, diagnostic.query);
     return rc;

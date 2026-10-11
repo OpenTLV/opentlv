@@ -15,7 +15,10 @@ static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc
                                         TLV_LOCATION_POINT, offset, offset);
             diagnostic->diagnostic.location.kind = TLV_LOCATION_POINT;
         }
-        if (rc == TLV_ERR_SCHEMA) diagnostic->detail.kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        if (rc == TLV_ERR_SCHEMA) {
+            diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
+            diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_UNEXPECTED;
+        }
         diagnostic->diagnostic.expected = expected;
         diagnostic->diagnostic.actual = tlv_result_string(rc);
     }
@@ -49,6 +52,8 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
             rc = tlv_reader_next_diag(&reader, &element, &detail);
             if (rc != TLV_OK) {
                 diagnostic->diagnostic = detail.diagnostic;
+                diagnostic->cause = TLV_SCHEMA_CAUSE_READER;
+                diagnostic->detail.reader = detail.detail;
                 diagnostic->diagnostic.location.kind =
                     detail.diagnostic.location.kind ? TLV_LOCATION_POINT : TLV_LOCATION_UNKNOWN;
             }
@@ -75,11 +80,12 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
         static const uint8_t end_tag = 255;
         rc = failure(diagnostic, TLV_ERR_SCHEMA, size, "DHCP End option");
         if (diagnostic) {
-            diagnostic->detail.kind = TLV_SCHEMA_ISSUE_MISSING;
+            diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
+            diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_MISSING;
             diagnostic->diagnostic.location.kind = TLV_LOCATION_SCOPE_END;
-            diagnostic->detail.tag = tlv_tag(&end_tag, 1);
-            diagnostic->detail.has_occurs = 1;
-            diagnostic->detail.min_occurs = diagnostic->detail.max_occurs = 1;
+            diagnostic->detail.schema.tag = tlv_tag(&end_tag, 1);
+            diagnostic->detail.schema.has_occurs = 1;
+            diagnostic->detail.schema.min_occurs = diagnostic->detail.schema.max_occurs = 1;
         }
         return rc;
     }

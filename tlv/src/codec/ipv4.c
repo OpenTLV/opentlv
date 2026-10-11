@@ -10,7 +10,9 @@ static tlv_result_t decode_ipv4(const void* context, const uint8_t* data, size_t
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_ipv4_t result;
     (void)context;
-    if (size != 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (size != 4)
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
     if (capacity < sizeof(result))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     memcpy(result.bytes, data, 4);
@@ -25,7 +27,8 @@ static tlv_result_t encode_ipv4(const void* context, const void* value, size_t s
     tlv_ipv4_t input;
     (void)context;
     if (size != sizeof(input))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_OBJECT);
     if (data) {
         if (capacity < 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         memcpy(&input, value, sizeof(input));
@@ -50,7 +53,9 @@ static tlv_result_t decode_ipv4_list(const void* context, const uint8_t* data, s
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_ipv4_list_t result;
     (void)context;
-    if (size % 4) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (size % 4)
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
     if (capacity < sizeof(result))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     result.raw.data = data;
@@ -68,7 +73,8 @@ static tlv_result_t encode_ipv4_list(const void* context, const void* value, siz
     tlv_result_t rc;
     (void)context;
     if (size != sizeof(input))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_OBJECT);
     memcpy(&input, value, sizeof(input));
     rc = validate_list(input.raw, &length);
     if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);

@@ -9,6 +9,7 @@
 #include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/diagnostic.h"
+#include "tlv/reader/diagnostic.h"
 #include "tlv/export.h"
 
 #ifdef __cplusplus
@@ -381,21 +382,48 @@ typedef struct tlv_schema_detail {
     uint32_t length_flags;
 } tlv_schema_detail_t;
 
+/** @brief Layer whose typed detail is active in #tlv_schema_diagnostic_t::detail. */
+typedef enum tlv_schema_cause {
+    TLV_SCHEMA_CAUSE_NONE,   /**< No typed detail, for example an argument or resource failure. */
+    TLV_SCHEMA_CAUSE_SCHEMA, /**< A Schema finding or definition failure; `detail.schema`. */
+    TLV_SCHEMA_CAUSE_READER  /**< The Reader rejected the input; `detail.reader`. */
+} tlv_schema_cause_t;
+
 /**
- * @brief Common failure diagnostic paired with Schema-specific evidence.
+ * @brief Returns the diagnostic name of a Schema cause.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_schema_cause_string(tlv_schema_cause_t value);
+
+/**
+ * @brief Common failure diagnostic paired with one discriminated typed detail.
  *
  * Shared by validation and definition checks. The common base carries the
- * code, severity, primary location, expected text and enclosing path; `detail`
- * explains the violation. The common base owns its bounded path value, so copies
- * retain valid external Tag borrows without self-references.
+ * code, severity, primary location, expected text and enclosing path. `cause`
+ * selects the active `detail` member: the Schema finding that explains the
+ * violation, or the original Reader detail when the wire input itself is
+ * malformed. The common base owns its bounded path value, so copies retain valid
+ * external Tag borrows without self-references.
  *
+ * @note Report entries are always Schema findings with cause #TLV_SCHEMA_CAUSE_SCHEMA.
  * @see tlv_schema_diagnostic_init
  */
 typedef struct tlv_schema_diagnostic {
     /** Common result, severity, primary location and enclosing path. */
     tlv_diagnostic_t diagnostic;
-    /** Violated rule, affected tag and expected-versus-actual evidence. */
-    tlv_schema_detail_t detail;
+    /** Active member of detail. */
+    tlv_schema_cause_t cause;
+    /** @brief Discriminated typed detail; only the member selected by cause is active. */
+    union {
+        /** Violated rule, affected tag and expected-versus-actual evidence. */
+        tlv_schema_detail_t schema;
+        /** Original Reader detail; its result, location and path are in `diagnostic`. */
+        tlv_reader_detail_t reader;
+    } detail;
 } tlv_schema_diagnostic_t;
 
 /**

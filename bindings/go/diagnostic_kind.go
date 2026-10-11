@@ -97,6 +97,18 @@ const (
 // String returns the canonical C spelling, or "unknown".
 func (v SchemaIssue) String() string { return capi.SchemaIssueName(int(v)) }
 
+// SchemaCause identifies a canonical C diagnostic category.
+type SchemaCause int
+
+const (
+	SchemaCauseNone   SchemaCause = 0
+	SchemaCauseSchema SchemaCause = 1
+	SchemaCauseReader SchemaCause = 2
+)
+
+// String returns the canonical C spelling, or "unknown".
+func (v SchemaCause) String() string { return capi.SchemaCauseName(int(v)) }
+
 // SchemaDefinitionKind identifies a canonical C diagnostic category.
 type SchemaDefinitionKind int
 
@@ -149,6 +161,23 @@ const (
 
 // String returns the canonical C spelling, or "unknown".
 func (v CodecViolation) String() string { return capi.CodecViolationName(int(v)) }
+
+// CodecReason identifies a canonical C diagnostic category.
+type CodecReason int
+
+const (
+	CodecReasonNone      CodecReason = 0
+	CodecReasonLength    CodecReason = 1
+	CodecReasonDigit     CodecReason = 2
+	CodecReasonText      CodecReason = 3
+	CodecReasonRange     CodecReason = 4
+	CodecReasonCanonical CodecReason = 5
+	CodecReasonSyntax    CodecReason = 6
+	CodecReasonObject    CodecReason = 7
+)
+
+// String returns the canonical C spelling, or "unknown".
+func (v CodecReason) String() string { return capi.CodecReasonName(int(v)) }
 
 // Severity identifies a canonical C diagnostic category.
 type Severity int

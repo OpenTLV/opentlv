@@ -266,6 +266,10 @@ void opentlv_lua_push_codec_detail(lua_State* L, const tlv_codec_detail_t* d) {
     lua_setfield(L, -2, "violation");
     lua_pushstring(L, tlv_codec_violation_string(d->violation));
     lua_setfield(L, -2, "violation_name");
+    lua_pushinteger(L, d->reason);
+    lua_setfield(L, -2, "reason");
+    lua_pushstring(L, tlv_codec_reason_string(d->reason));
+    lua_setfield(L, -2, "reason_name");
     lua_pushinteger(L, d->cause);
     lua_setfield(L, -2, "cause");
     lua_pushstring(L, tlv_codec_cause_string(d->cause));

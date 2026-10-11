@@ -31,11 +31,13 @@ tlv_result_t tlv_text_decode(const void* context, const uint8_t* data, size_t si
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     if ((config->width && size != config->width))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
     if (config->zero_padding)
         while (size && data[size - 1] == 0) --size;
     if (!valid_text(config, data, size))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_TEXT);
     if (capacity < sizeof(text))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     text.data = data;
@@ -55,15 +57,22 @@ tlv_result_t tlv_text_encode(const void* context, const void* value, size_t size
     if (!config || !value || (!data && capacity))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
-    if (size != sizeof(text)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (size != sizeof(text))
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_OBJECT);
     memcpy(&text, value, sizeof(text));
     if (!text.data && text.size) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (tlv_size_to_native(text.size, &length) != TLV_OK)
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_OBJECT);
     bytes = length;
     if (config->zero_padding && bytes < config->width) bytes = config->width;
-    if ((config->width && bytes != config->width) || !valid_text(config, text.data, length))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+    if (config->width && bytes != config->width)
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_LENGTH);
+    if (!valid_text(config, text.data, length))
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_TEXT);
     if (data) {
         if (capacity < bytes)
             return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);

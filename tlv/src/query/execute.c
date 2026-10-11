@@ -962,14 +962,10 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         if (event.kind == TLV_TREE_BEGIN && event.element.value.size && e->prune_allowed) {
             rc = tlv_tree_reader_skip_subtree(reader);
             if (rc != TLV_OK) {
+                /* Skipping only rejects a lifecycle misuse; no Reader input failure exists. */
                 e->invalid = 1;
-                if (d) {
-                    tlv_reader_diagnostic_t skipped;
-                    tlv_reader_diagnostic_init(&skipped);
-                    tlv_diagnostic_init(&skipped.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-                    query_reader_failure(d, rc, &skipped);
-                }
-                return rc;
+                return query_error_unlocated(d, rc, TLV_QUERY_ERROR_STATE,
+                                             "pending constructed subtree to skip");
             }
         }
         if (matched) {

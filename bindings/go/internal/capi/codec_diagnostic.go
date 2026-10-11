@@ -13,7 +13,7 @@ import "bytes"
 // CodecDetail owns conversion evidence before borrowed C buffers expire.
 type CodecDetail struct {
 	Diagnostic                            Diagnostic
-	Operation, Reported, Violation, Cause int
+	Operation, Reported, Violation, Reason, Cause int
 	Representation                        string
 	Reader                                *Diagnostic
 	Schema                                *CodecSchemaDetail
@@ -34,7 +34,7 @@ type CodecSchemaDetail struct {
 }
 
 func codecDetail(common C.tlv_diagnostic_t, d C.tlv_codec_detail_t) *CodecDetail {
-	result := &CodecDetail{Diagnostic: diagnostic(common, 0), Operation: int(d.operation), Cause: int(d.cause), Reported: int(d.reported), Violation: int(d.violation), Representation: C.GoString(d.representation)}
+	result := &CodecDetail{Diagnostic: diagnostic(common, 0), Operation: int(d.operation), Cause: int(d.cause), Reported: int(d.reported), Violation: int(d.violation), Reason: int(d.reason), Representation: C.GoString(d.representation)}
 	if d.cause == C.TLV_CODEC_CAUSE_READER {
 		reader := readerDiagnosticParts(common, C.codec_reader(d), Code(common.code))
 		result.Reader = &reader

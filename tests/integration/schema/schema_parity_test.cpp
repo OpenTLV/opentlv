@@ -62,9 +62,10 @@ const char* form(int constructed) {
 // pointer identity. Fields whose has_* flag is clear are not rendered.
 std::string describe(const tlv_schema_diagnostic_t& d) {
     const tlv_location_t& at = d.diagnostic.location;
-    std::string           out =
-        std::string("severity=") + tlv_diagnostic_severity_string(d.diagnostic.severity) +
-        " kind=" + tlv_schema_issue_kind_string(d.detail.kind) + " tag=" + hex(d.detail.tag);
+    std::string           out = std::string("severity=") +
+                                tlv_diagnostic_severity_string(d.diagnostic.severity) +
+                                " kind=" + tlv_schema_issue_kind_string(d.detail.schema.kind) +
+                                " tag=" + hex(d.detail.schema.tag);
     out += " path=";
     if (!d.diagnostic.has_path) {
         out += "-";
@@ -73,20 +74,22 @@ std::string describe(const tlv_schema_diagnostic_t& d) {
             out += (i ? ">" : "") + hex(d.diagnostic.path.tags[i]);
         out += "+" + std::to_string(d.diagnostic.path.omitted);
     }
-    out += " field=" + std::string(d.detail.field ? d.detail.field : "-") +
-           (d.detail.is_group ? " group" : "");
-    if (d.detail.has_occurs)
-        out += " occurs=" + std::to_string(d.detail.occurs) + "[" +
-               std::to_string(d.detail.min_occurs) + "," + std::to_string(d.detail.max_occurs) +
-               "]";
-    if (d.detail.has_length)
-        out += " length=" + std::to_string(d.detail.actual_length) + "[" +
-               std::to_string(d.detail.min_length) + "," + std::to_string(d.detail.max_length) +
-               "]%" + std::to_string(d.detail.length_multiple) +
-               " flags=" + std::to_string(d.detail.length_flags);
-    if (d.detail.has_form)
-        out += std::string(" expected=") + form(d.detail.expected_form == TLV_SCHEMA_CONSTRUCTED) +
-               " actual=" + form(d.detail.actual_constructed);
+    out += " field=" + std::string(d.detail.schema.field ? d.detail.schema.field : "-") +
+           (d.detail.schema.is_group ? " group" : "");
+    if (d.detail.schema.has_occurs)
+        out += " occurs=" + std::to_string(d.detail.schema.occurs) + "[" +
+               std::to_string(d.detail.schema.min_occurs) + "," +
+               std::to_string(d.detail.schema.max_occurs) + "]";
+    if (d.detail.schema.has_length)
+        out += " length=" + std::to_string(d.detail.schema.actual_length) + "[" +
+               std::to_string(d.detail.schema.min_length) + "," +
+               std::to_string(d.detail.schema.max_length) + "]%" +
+               std::to_string(d.detail.schema.length_multiple) +
+               " flags=" + std::to_string(d.detail.schema.length_flags);
+    if (d.detail.schema.has_form)
+        out += std::string(" expected=") +
+               form(d.detail.schema.expected_form == TLV_SCHEMA_CONSTRUCTED) +
+               " actual=" + form(d.detail.schema.actual_constructed);
     out += " at=" + std::string(tlv_location_kind_string(at.kind)) + ":" +
            std::to_string(at.begin) + "-" + std::to_string(at.end);
     return out;

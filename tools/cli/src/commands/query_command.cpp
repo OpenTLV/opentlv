@@ -70,6 +70,7 @@ int query_command::run() {
                 {"operation", tlv::message(static_cast<tlv::codec_phase>(codec.operation))},
                 {"cause", tlv::message(static_cast<tlv::codec_cause>(codec.cause))},
                 {"violation", tlv::message(static_cast<tlv::codec_violation>(codec.violation))},
+                {"reason", tlv::message(static_cast<tlv::codec_reason>(codec.reason))},
                 {"reported", codec.reported}};
             if (codec.representation)
                 detail["codec_detail"]["representation"] = codec.representation;

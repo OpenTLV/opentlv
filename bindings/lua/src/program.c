@@ -1392,7 +1392,8 @@ static int schema_error_projection(lua_State* L) {
     tlv_schema_diagnostic_t schema = {0};
     if (diagnostic->query.cause == TLV_QUERY_CAUSE_SCHEMA) {
         schema.diagnostic = diagnostic->query.diagnostic;
-        schema.detail = diagnostic->query.detail.schema;
+        schema.cause = TLV_SCHEMA_CAUSE_SCHEMA;
+        schema.detail.schema = diagnostic->query.detail.schema;
     }
     opentlv_lua_push_schema_diagnostic(L, &schema);
     lua_setfield(L, -2, "schema");

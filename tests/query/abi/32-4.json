@@ -104,7 +104,7 @@
       "invalid": 24
     },
     "tlv_query_diagnostic_t": {
-      "size": 448,
+      "size": 452,
       "alignment": 4,
       "diagnostic": 0,
       "kind": 304,

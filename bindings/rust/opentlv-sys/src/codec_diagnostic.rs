@@ -12,6 +12,8 @@ pub struct tlv_codec_detail_t {
     pub reported: i32,
     /// Native field.
     pub violation: c_int,
+    /// Typed rejection reason.
+    pub reason: c_int,
     /// Native field.
     pub representation: *const c_char,
     /// Native field.

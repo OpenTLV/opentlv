@@ -857,3 +857,44 @@ TEST(Unit_Tlv_Asn1Codec, RelativeOidIri) {
               tlv_codec_decode(&tlv_asn1_codec_relative_oid_iri, leading_slash,
                                sizeof(leading_slash), &placeholder, sizeof(placeholder), NULL));
 }
+
+TEST(Unit_Tlv_Asn1Codec, RejectionsCarryATypedReason) {
+    struct Case {
+        const char*          name;
+        const tlv_codec_t*   codec;
+        std::vector<uint8_t> wire;
+        tlv_codec_reason_t   reason;
+    };
+    const Case cases[] = {
+        {"boolean length", &tlv_asn1_codec_boolean, {0x01, 0x01}, TLV_CODEC_REASON_LENGTH},
+        {"boolean form", &tlv_asn1_codec_boolean, {0x01}, TLV_CODEC_REASON_CANONICAL},
+        {"bit padding", &tlv_asn1_codec_bit_string, {0x01, 0x01}, TLV_CODEC_REASON_CANONICAL},
+        {"oid subidentifier", &tlv_asn1_codec_oid, {0x2A, 0x81}, TLV_CODEC_REASON_SYNTAX},
+        {"printable", &tlv_asn1_codec_printable_string, {'a', '*'}, TLV_CODEC_REASON_TEXT},
+        {"utc digit",
+         &tlv_asn1_codec_utc_time,
+         {'2', '6', '1', '0', '1', '1', '1', '2', '0', '0', '0', 'x', 'Z'},
+         TLV_CODEC_REASON_DIGIT},
+        {"utc month",
+         &tlv_asn1_codec_utc_time,
+         {'2', '6', '1', '3', '1', '1', '1', '2', '0', '0', '0', '0', 'Z'},
+         TLV_CODEC_REASON_RANGE},
+        {"utc zone",
+         &tlv_asn1_codec_utc_time,
+         {'2', '6', '1', '0', '1', '1', '1', '2', '0', '0', '0', '0', '+'},
+         TLV_CODEC_REASON_SYNTAX},
+    };
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.name);
+        uint8_t                value[512];
+        tlv_codec_diagnostic_t diagnostic;
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_decode(test.codec, test.wire.data(), test.wire.size(), value,
+                                   sizeof value, &diagnostic));
+        EXPECT_EQ(test.reason, diagnostic.codec.reason);
+        // The reason is optional evidence and never changes the result.
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_decode(test.codec, test.wire.data(), test.wire.size(), value,
+                                   sizeof value, NULL));
+    }
+}

@@ -92,7 +92,7 @@ tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
      * including tables reached through cycles or absent optional fields. */
     for (size_t next = 0; next < count; ++next) {
         const tlv_structure_schema_t* current = tables[next];
-        rc = check_table(current, diagnostic ? &diagnostic->detail.definition : NULL);
+        rc = check_table(current, diagnostic ? &diagnostic->detail.schema.definition : NULL);
         if (rc != TLV_OK) goto done;
         for (size_t rule = 0; rule < current->count; ++rule) {
             const tlv_structure_schema_t* child = current->rules[rule].children;
@@ -111,11 +111,17 @@ tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
     rc = TLV_OK;
 done:
     if (diagnostic && rc == TLV_OK)
-        memset(&diagnostic->detail.definition, 0, sizeof diagnostic->detail.definition);
+        memset(&diagnostic->detail.schema.definition, 0,
+               sizeof diagnostic->detail.schema.definition);
     if (diagnostic && rc != TLV_OK) {
         diagnostic->diagnostic.code = rc;
         diagnostic->diagnostic.severity = TLV_DIAGNOSTIC_SEVERITY_ERROR;
-        if (rc == TLV_ERR_INVALID_SCHEMA) diagnostic->detail.kind = TLV_SCHEMA_ISSUE_DEFINITION;
+        if (rc == TLV_ERR_INVALID_SCHEMA)
+            diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_DEFINITION;
+        /* Definition evidence, including capacity limits without an issue kind. */
+        if (diagnostic->detail.schema.kind != TLV_SCHEMA_ISSUE_NONE ||
+            diagnostic->detail.schema.definition.kind != TLV_SCHEMA_DEFINITION_UNKNOWN)
+            diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
     }
     return rc;
 }

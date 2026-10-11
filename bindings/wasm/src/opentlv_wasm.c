@@ -805,6 +805,10 @@ static void query_codec_diagnostic(builder_t* b, const tlv_codec_detail_t* d) {
     builder_number(b, d->violation);
     builder_text(b, ",\"violation_name\":");
     builder_json_string(b, tlv_codec_violation_string(d->violation));
+    builder_text(b, ",\"reason\":");
+    builder_number(b, d->reason);
+    builder_text(b, ",\"reason_name\":");
+    builder_json_string(b, tlv_codec_reason_string(d->reason));
     builder_text(b, ",\"cause\":");
     builder_number(b, d->cause);
     builder_text(b, ",\"cause_name\":");
@@ -1173,16 +1177,18 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     tlv_schema_diagnostic_t schema = {0};
     if (diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA) {
         schema.diagnostic = diagnostic.query.diagnostic;
-        schema.detail = diagnostic.query.detail.schema;
+        schema.cause = TLV_SCHEMA_CAUSE_SCHEMA;
+        schema.detail.schema = diagnostic.query.detail.schema;
     }
     builder_text(&owner->reply, ",\"schema\":{\"tag\":\"");
-    builder_hex(&owner->reply, schema.detail.tag.data, schema.detail.tag.size);
+    builder_hex(&owner->reply, schema.detail.schema.tag.data, schema.detail.schema.tag.size);
     builder_text(&owner->reply, "\",\"field\":");
-    builder_json_string(&owner->reply, schema.detail.field ? schema.detail.field : "");
-    query_field(&owner->reply, "kind", schema.detail.kind);
+    builder_json_string(&owner->reply,
+                        schema.detail.schema.field ? schema.detail.schema.field : "");
+    query_field(&owner->reply, "kind", schema.detail.schema.kind);
     write_location(&owner->reply, &schema.diagnostic.location);
     builder_text(&owner->reply, ",\"kind_name\":");
-    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(schema.detail.kind));
+    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(schema.detail.schema.kind));
     query_field(&owner->reply, "code", schema.diagnostic.code);
     query_field(&owner->reply, "severity", schema.diagnostic.severity);
     builder_text(&owner->reply, ",\"offset\":");

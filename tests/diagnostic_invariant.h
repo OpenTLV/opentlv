@@ -4,6 +4,7 @@
 #define OPENTLV_TEST_DIAGNOSTIC_INVARIANT_H
 #include "tlv/diagnostic.h"
 #include "tlv/query/program.h"
+#include "tlv/schema/schema.h"
 static inline int test_diagnostic_matches(tlv_result_t rc, const tlv_diagnostic_t* diagnostic) {
     return rc == TLV_OK || diagnostic->code == rc;
 }
@@ -32,5 +33,15 @@ static inline int test_query_diagnostic_matches(tlv_result_t                  rc
             /* An expression span is stored once: primary or related, never both. */
             (diagnostic->diagnostic.location.domain != TLV_LOCATION_EXPRESSION ||
              diagnostic->expression.kind == TLV_LOCATION_UNKNOWN));
+}
+/* A Schema finding always selects Schema detail; a Reader cause never claims a finding. */
+static inline int test_schema_diagnostic_matches(tlv_result_t                   rc,
+                                                 const tlv_schema_diagnostic_t* diagnostic) {
+    return rc == TLV_OK ||
+           (diagnostic->diagnostic.code == rc &&
+            (rc != TLV_ERR_SCHEMA || diagnostic->cause == TLV_SCHEMA_CAUSE_SCHEMA) &&
+            (diagnostic->cause == TLV_SCHEMA_CAUSE_NONE ||
+             diagnostic->cause == TLV_SCHEMA_CAUSE_SCHEMA ||
+             diagnostic->cause == TLV_SCHEMA_CAUSE_READER));
 }
 #endif

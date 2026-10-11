@@ -992,7 +992,8 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
         tlv_schema_diagnostic_t schema_value = {0};
         if (diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA) {
             schema_value.diagnostic = diagnostic.query.diagnostic;
-            schema_value.detail = diagnostic.query.detail.schema;
+            schema_value.cause = TLV_SCHEMA_CAUSE_SCHEMA;
+            schema_value.detail.schema = diagnostic.query.detail.schema;
         }
         const tlv_schema_diagnostic_t* schema = &schema_value;
         PyObject* path = PyTuple_New((Py_ssize_t)schema->diagnostic.path.length);
@@ -1012,11 +1013,11 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
                                : Py_NewRef(Py_None);
         PyObject* detail = Py_BuildValue(
             "{s:i,s:i,s:i,s:s,s:y#,s:z,s:N,s:N,s:z,s:z,s:K}", "code", (int)schema->diagnostic.code,
-            "severity", (int)schema->diagnostic.severity, "kind", (int)schema->detail.kind,
-            "kind_name", tlv_schema_issue_kind_string(schema->detail.kind), "tag",
-            schema->detail.tag.size ? (const char*)schema->detail.tag.data : "",
-            (Py_ssize_t)schema->detail.tag.size, "field", schema->detail.field, "path", path,
-            "offset", offset, "expected", schema->diagnostic.expected, "actual",
+            "severity", (int)schema->diagnostic.severity, "kind", (int)schema->detail.schema.kind,
+            "kind_name", tlv_schema_issue_kind_string(schema->detail.schema.kind), "tag",
+            schema->detail.schema.tag.size ? (const char*)schema->detail.schema.tag.data : "",
+            (Py_ssize_t)schema->detail.schema.tag.size, "field", schema->detail.schema.field,
+            "path", path, "offset", offset, "expected", schema->diagnostic.expected, "actual",
             schema->diagnostic.actual, "path_omitted",
             (unsigned long long)schema->diagnostic.path.omitted);
         if (!detail) return NULL;

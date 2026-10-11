@@ -15,10 +15,12 @@ _FAMILIES = {
     "QueryErrorKind": "query_error_kind",
     "QueryCause": "query_cause",
     "SchemaIssue": "schema_issue_kind",
+    "SchemaCause": "schema_cause",
     "SchemaDefinitionKind": "schema_definition_kind",
     "CodecOperation": "codec_operation",
     "CodecCause": "codec_cause",
     "CodecViolation": "codec_violation",
+    "CodecReason": "codec_reason",
     "Severity": "diagnostic_severity",
 }
 
@@ -107,6 +109,13 @@ class SchemaIssue(_Category):
     DEFINITION = 9
 
 
+class SchemaCause(_Category):
+    """Canonical SchemaCause category."""
+    NONE = 0
+    SCHEMA = 1
+    READER = 2
+
+
 class SchemaDefinitionKind(_Category):
     """Canonical SchemaDefinitionKind category."""
     UNKNOWN = 0
@@ -138,6 +147,18 @@ class CodecViolation(_Category):
     SIZE = 2
     TYPE = 3
     UTF8 = 4
+
+
+class CodecReason(_Category):
+    """Canonical CodecReason category."""
+    NONE = 0
+    LENGTH = 1
+    DIGIT = 2
+    TEXT = 3
+    RANGE = 4
+    CANONICAL = 5
+    SYNTAX = 6
+    OBJECT = 7
 
 
 class Severity(_Category):

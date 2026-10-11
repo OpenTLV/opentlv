@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Optional
 from opentlv.location import Location
-from opentlv.diagnostic import QueryErrorKind, CodecOperation, CodecCause, CodecViolation, SchemaDefinitionKind, Severity
+from opentlv.diagnostic import QueryErrorKind, CodecOperation, CodecCause, CodecViolation, CodecReason, SchemaDefinitionKind, Severity
 
 import _opentlv as _native
 
@@ -211,7 +211,8 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
     if result.query is not None:
         result.query["query_kind"] = QueryErrorKind(result.query["query_kind"])
     if result.codec_detail:
-        for key, category in (("operation", CodecOperation), ("cause", CodecCause), ("violation", CodecViolation)):
+        for key, category in (("operation", CodecOperation), ("cause", CodecCause), ("violation", CodecViolation),
+                              ("reason", CodecReason)):
             result.codec_detail[key] = category(result.codec_detail[key])
     if "applied" in fields:
         result.applied = fields["applied"]

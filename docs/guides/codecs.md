@@ -92,8 +92,13 @@ encode/measure cannot. `END`, unknown results and invalid successful
 payloads become `CALLBACK`, with the original result in `codec.reported`.
 
 Diagnostics contain one common result/location/path and conversion detail:
-operation, optional representation, callback violation, and a discriminated
-Reader or Schema cause. The Schema cause is the shared `tlv_schema_detail_t`.
+operation, optional representation, callback violation, a typed rejection
+`reason` and a discriminated Reader or Schema cause. The Schema cause is the
+shared `tlv_schema_detail_t`. The reason explains an invalid Value or object
+without replacing the result: `LENGTH`, `DIGIT`, `TEXT`, `RANGE`, `CANONICAL`,
+`SYNTAX` or `OBJECT` (the application object does not match the
+representation); argument, capacity, delegated and callback failures use
+`NONE`. Custom codecs publish one with `tlv_codec_diagnostic_reason()`.
 Unknown locations stay unknown. Query keeps a known conversion location primary
 and stores the expression span as related `expression` evidence; without one,
 the expression span stays primary. Conversion detail is `detail.codec` under

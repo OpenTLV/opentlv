@@ -217,9 +217,12 @@ static void bounds(lua_State* L, const char* name, size_t minimum, size_t maximu
 }
 
 void opentlv_lua_push_schema_diagnostic(lua_State* L, const tlv_schema_diagnostic_t* value) {
-    static const char* const   kinds[] = {"any", "primitive", "constructed"};
-    tlv_diagnostic_t           diagnostic = value->diagnostic;
-    const tlv_schema_detail_t* detail = &value->detail;
+    static const char* const kinds[] = {"any", "primitive", "constructed"};
+    tlv_diagnostic_t         diagnostic = value->diagnostic;
+    /* Reader and argument failures carry no Schema finding. */
+    static const tlv_schema_detail_t none;
+    const tlv_schema_detail_t*       detail =
+        value->cause == TLV_SCHEMA_CAUSE_SCHEMA ? &value->detail.schema : &none;
     opentlv_lua_push_diagnostic(L, &diagnostic);
     if (detail->kind != TLV_SCHEMA_ISSUE_NONE) {
         lua_pushstring(L, tlv_schema_issue_kind_string(detail->kind));

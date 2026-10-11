@@ -230,7 +230,10 @@ fn schema_result(
         let schema = if diagnostic.query.cause == native::TLV_QUERY_CAUSE_SCHEMA {
             let cause = native::tlv_schema_diagnostic_t {
                 diagnostic: diagnostic.query.diagnostic,
-                detail: unsafe { diagnostic.query.detail.schema },
+                cause: native::TLV_SCHEMA_CAUSE_SCHEMA,
+                detail: native::tlv_schema_cause_detail_t {
+                    schema: unsafe { diagnostic.query.detail.schema },
+                },
             };
             unsafe { crate::SchemaDiagnostic::from_raw(&cause) }
                 .ok()

@@ -27,6 +27,8 @@ FAMILIES = (
      "tlv/include/tlv/query/program.h", "tlv_query_cause_string", "query_cause"),
     ("SchemaIssue", "tlv_schema_issue_kind", "TLV_SCHEMA_ISSUE_",
      "tlv/include/tlv/schema/schema.h", "tlv_schema_issue_kind_string", "schema_issue_kind"),
+    ("SchemaCause", "tlv_schema_cause", "TLV_SCHEMA_CAUSE_",
+     "tlv/include/tlv/schema/schema.h", "tlv_schema_cause_string", "schema_cause"),
     ("SchemaDefinitionKind", "tlv_schema_definition_kind", "TLV_SCHEMA_DEFINITION_",
      "tlv/include/tlv/schema/schema.h", "tlv_schema_definition_kind_string",
      "schema_definition_kind"),
@@ -36,6 +38,8 @@ FAMILIES = (
      "tlv/include/tlv/codec/diagnostic.h", "tlv_codec_cause_string", "codec_cause"),
     ("CodecViolation", "tlv_codec_violation", "TLV_CODEC_VIOLATION_",
      "tlv/include/tlv/codec/diagnostic.h", "tlv_codec_violation_string", "codec_violation"),
+    ("CodecReason", "tlv_codec_reason", "TLV_CODEC_REASON_",
+     "tlv/include/tlv/codec/diagnostic.h", "tlv_codec_reason_string", "codec_reason"),
     ("Severity", "tlv_diagnostic_severity", "TLV_DIAGNOSTIC_SEVERITY_",
      "tlv/include/tlv/diagnostic.h", "tlv_diagnostic_severity_string", "diagnostic_severity"),
 )

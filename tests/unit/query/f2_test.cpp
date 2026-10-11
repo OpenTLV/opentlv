@@ -198,6 +198,8 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 1, 0xff}));
         EXPECT_EQ(TLV_QUERY_ERROR_CODEC, e.diagnostic.kind);
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.diagnostic.detail.codec.reported);
+        // The BCD nibble F is not a decimal digit; Query keeps the conversion's reason.
+        EXPECT_EQ(TLV_CODEC_REASON_DIGIT, e.diagnostic.detail.codec.reason);
         // The primitive supplies no byte coordinate, so the expression span stays primary.
         EXPECT_EXPRESSION_PRIMARY(e.diagnostic);
     }

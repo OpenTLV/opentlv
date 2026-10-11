@@ -170,14 +170,13 @@ static tlv_result_t buffer_evaluate(const uint8_t* data, size_t size, const tlv_
     tlv_result_t rc = tlv_tree_reader_init(&reader, data, size, format, workspace->frames,
                                            workspace->frame_capacity, depth, nodes);
     if (rc != TLV_OK) {
-        if (diagnostic) {
-            tlv_reader_diagnostic_t failed;
-            tlv_reader_diagnostic_init(&failed);
-            tlv_diagnostic_init(&failed.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
-            query_diag_init(diagnostic);
-            query_reader_failure(diagnostic, rc, &failed);
-        }
-        return rc;
+        /* Initialization rejects workspace or Format configuration, not input, so there
+         * is no Reader cause to report. */
+        query_diag_init(diagnostic);
+        return query_error_unlocated(diagnostic, rc,
+                                     rc == TLV_ERR_INVALID_ARG ? TLV_QUERY_ERROR_CAPABILITY
+                                                               : TLV_QUERY_ERROR_STORAGE,
+                                     "readable Format and Reader frame workspace");
     }
     tlv_reader_diagnostic_t original;
     for (;;) {

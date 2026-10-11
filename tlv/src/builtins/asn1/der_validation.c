@@ -85,7 +85,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             uint64_t number;
             rc = tlv_der_tag_number(&element.tag, &number);
             if (rc == TLV_OK)
-                rc = tlv_asn1_validate_universal_value(number, element.value.data, value_length);
+                rc = tlv_asn1_validate_universal_value(number, element.value.data, value_length,
+                                                       NULL);
             if (rc != TLV_OK) return fail(rc, base + end - value_length, diagnostic);
         }
         if (one && pos == 0) {
@@ -184,7 +185,7 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
         !tlv_asn1_tag_is_constructed(&tag)) {
         uint64_t number;
         rc = tlv_der_tag_number(&tag, &number);
-        if (rc == TLV_OK) rc = tlv_asn1_validate_universal_value(number, value, length);
+        if (rc == TLV_OK) rc = tlv_asn1_validate_universal_value(number, value, length, NULL);
         if (rc != TLV_OK) return fail(rc, total - length, diagnostic);
     }
     if (tlv_asn1_tag_is_constructed(&tag)) {

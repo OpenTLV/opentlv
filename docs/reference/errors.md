@@ -97,8 +97,8 @@ most one active lower-layer detail, selected by its cause.
 | Diagnostic | Common part | Layer-specific fields | Delegated cause |
 | --- | --- | --- | --- |
 | `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
-| `tlv_schema_diagnostic_t` | `diagnostic` | `detail` (`tlv_schema_detail_t`) | none |
-| `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
+| `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`) or `detail.reader` |
+| `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
 | `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured` | `cause` selects `detail.reader`, `detail.codec` or `detail.schema` |
 | `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
 
@@ -112,6 +112,12 @@ failure inside a conversion hook is reachable only as
 `detail.codec.detail.reader`; Query cause `READER` is reserved for its own
 Reader traversal.
 
+A Schema diagnostic reports a malformed wire input with cause `READER` and the
+original Reader detail instead of dropping it; argument and resource failures
+have cause `NONE`. A Structure Codec maps such a Reader failure to its own
+Reader cause, so the Reader detail stays reachable through one path. Codec
+`reason` is the typed explanation of an `INVALID_VALUE` conversion failure.
+
 Kind and cause agree in both directions: cause `READER` accompanies kind
 `READER` or `STATE`, cause `CODEC` accompanies `CODEC`, `CALLBACK` or `STATE`,
 cause `SCHEMA` accompanies only `SCHEMA`, and cause `NONE` never accompanies
@@ -124,8 +130,8 @@ Fields removed in #579 and where their values now live:
 
 | Removed field | Replacement |
 | --- | --- |
-| `tlv_codec_schema_detail_t` | `tlv_schema_detail_t`, the same type as `tlv_schema_diagnostic_t::detail` |
-| Schema diagnostic `kind`, `tag`, `definition`, `field`, occurrence, length and form fields | `tlv_schema_diagnostic_t::detail.*` |
+| `tlv_codec_schema_detail_t` | `tlv_schema_detail_t`, the same type as `tlv_schema_diagnostic_t::detail.schema` |
+| Schema diagnostic `kind`, `tag`, `definition`, `field`, occurrence, length and form fields | `tlv_schema_diagnostic_t::detail.schema.*` under cause `TLV_SCHEMA_CAUSE_SCHEMA` |
 | Query `begin` / `end` | `diagnostic.location` when it is an EXPRESSION span, otherwise `expression` |
 | Query `expected` | `diagnostic.expected`; a conversion's own expectation takes precedence and Query fills only a missing one |
 | Query `int32_t codec` | `detail.codec.reported` under cause `CODEC` |
@@ -295,7 +301,8 @@ These functions remain available with the processing capabilities disabled.
 | Query failure kind / delegated cause | `tlv_query_error_kind_string()` / `tlv_query_cause_string()` |
 | Reader / Writer operation | `tlv_reader_operation_string()` / `tlv_writer_operation_string()` |
 | Schema finding / definition object | `tlv_schema_issue_kind_string()` / `tlv_schema_definition_kind_string()` |
-| Codec operation / delegated cause / callback violation | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` |
+| Codec operation / delegated cause / callback violation / rejection reason | `tlv_codec_operation_string()` / `tlv_codec_cause_string()` / `tlv_codec_violation_string()` / `tlv_codec_reason_string()` |
+| Schema cause | `tlv_schema_cause_string()` |
 
 `tlv_result_string()` separately describes results, with `"unknown error"` as its
 fallback. Enum-name strings describe detail; they do not replace result codes.
@@ -355,8 +362,8 @@ results remain inspectable.
 
 | Facade | Diagnostic categories |
 | --- | --- |
-| C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`; `message(category)` calls C. |
-| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
+| C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`, `codec_reason`, `query_cause`; `message(category)` calls C. |
+| Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `CodecReason`, `QueryCause`, `SchemaCause`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
 | Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C. Reader/Writer `operation` remains a canonical string. |
 | Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
 | Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
@@ -376,7 +383,7 @@ Reader-specific part of a Query failure. Binding Query `begin`/`end` fields
 report the expression span whether it is primary or related. The binding
 facades still repeat some common evidence, for example the Go and Python Schema
 Query projection copies `query.diagnostic` into its Schema part; aligning the
-binding shapes with the single-source C layout is tracked in #558.
+binding shapes with the single-source C layout is follow-up work.
 
 CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common

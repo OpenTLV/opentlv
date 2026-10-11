@@ -394,6 +394,57 @@ impl fmt::Display for SchemaIssue {
     }
 }
 
+/// Canonical SchemaCause diagnostic category.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum SchemaCause {
+    /// C `none` category.
+    None,
+    /// C `schema` category.
+    Schema,
+    /// C `reader` category.
+    Reader,
+    /// Unrecognized native value, retained without loss.
+    Unrecognized(RawCategory),
+}
+impl SchemaCause {
+    /// Preserve a native category, including future values.
+    pub fn from_raw(value: i32) -> Self {
+        match value {
+            0 => Self::None,
+            1 => Self::Schema,
+            2 => Self::Reader,
+            other => Self::Unrecognized(RawCategory(other)),
+        }
+    }
+    /// Original C category value.
+    pub fn as_raw(self) -> i32 {
+        match self {
+            Self::None => 0,
+            Self::Schema => 1,
+            Self::Reader => 2,
+            Self::Unrecognized(value) => value.as_raw(),
+        }
+    }
+    /// Program-lifetime canonical C spelling.
+    pub fn name(self) -> &'static str {
+        // SAFETY: every integer maps to a static NUL-terminated ASCII string.
+        unsafe { CStr::from_ptr(native::tlv_schema_cause_string(self.as_raw())) }
+            .to_str()
+            .expect("ASCII diagnostic label")
+    }
+}
+impl Default for SchemaCause {
+    fn default() -> Self {
+        Self::from_raw(0)
+    }
+}
+impl fmt::Display for SchemaCause {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
+    }
+}
+
 /// Canonical SchemaDefinitionKind diagnostic category.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 #[non_exhaustive]
@@ -613,6 +664,77 @@ impl Default for CodecViolation {
     }
 }
 impl fmt::Display for CodecViolation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.name())
+    }
+}
+
+/// Canonical CodecReason diagnostic category.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum CodecReason {
+    /// C `none` category.
+    None,
+    /// C `length` category.
+    Length,
+    /// C `digit` category.
+    Digit,
+    /// C `text` category.
+    Text,
+    /// C `range` category.
+    Range,
+    /// C `canonical` category.
+    Canonical,
+    /// C `syntax` category.
+    Syntax,
+    /// C `object` category.
+    Object,
+    /// Unrecognized native value, retained without loss.
+    Unrecognized(RawCategory),
+}
+impl CodecReason {
+    /// Preserve a native category, including future values.
+    pub fn from_raw(value: i32) -> Self {
+        match value {
+            0 => Self::None,
+            1 => Self::Length,
+            2 => Self::Digit,
+            3 => Self::Text,
+            4 => Self::Range,
+            5 => Self::Canonical,
+            6 => Self::Syntax,
+            7 => Self::Object,
+            other => Self::Unrecognized(RawCategory(other)),
+        }
+    }
+    /// Original C category value.
+    pub fn as_raw(self) -> i32 {
+        match self {
+            Self::None => 0,
+            Self::Length => 1,
+            Self::Digit => 2,
+            Self::Text => 3,
+            Self::Range => 4,
+            Self::Canonical => 5,
+            Self::Syntax => 6,
+            Self::Object => 7,
+            Self::Unrecognized(value) => value.as_raw(),
+        }
+    }
+    /// Program-lifetime canonical C spelling.
+    pub fn name(self) -> &'static str {
+        // SAFETY: every integer maps to a static NUL-terminated ASCII string.
+        unsafe { CStr::from_ptr(native::tlv_codec_reason_string(self.as_raw())) }
+            .to_str()
+            .expect("ASCII diagnostic label")
+    }
+}
+impl Default for CodecReason {
+    fn default() -> Self {
+        Self::from_raw(0)
+    }
+}
+impl fmt::Display for CodecReason {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }

@@ -60,6 +60,31 @@ typedef enum tlv_codec_violation {
  * Available even when the corresponding capability is disabled.
  */
 TLV_API const char* tlv_codec_violation_string(tlv_codec_violation_t value);
+/** @brief Typed reason why a conversion rejected an encoded Value or application object.
+ * @note The returned result stays authoritative (usually #TLV_ERR_INVALID_VALUE); the
+ * reason explains it. Argument, capacity, delegated and callback failures use NONE. */
+typedef enum tlv_codec_reason {
+    TLV_CODEC_REASON_NONE,   /**< No conversion-specific reason. */
+    TLV_CODEC_REASON_LENGTH, /**< The encoded Value length is invalid for the representation. */
+    TLV_CODEC_REASON_DIGIT,  /**< A decimal digit or BCD nibble is invalid or misplaced. */
+    TLV_CODEC_REASON_TEXT,   /**< Text violates its character set or encoding, such as UTF-8. */
+    TLV_CODEC_REASON_RANGE,  /**< A number or field is outside its representable or permitted range.
+                              */
+    TLV_CODEC_REASON_CANONICAL, /**< A valid encoding is not in the required canonical or minimal
+                                   form. */
+    TLV_CODEC_REASON_SYNTAX,    /**< The Value's internal structure is malformed. */
+    TLV_CODEC_REASON_OBJECT     /**< The application object does not match the representation. */
+} tlv_codec_reason_t;
+
+/**
+ * @brief Returns the diagnostic name of a codec reason.
+ *
+ * @param[in] value Diagnostic enum value.
+ * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
+ * @note Never returns NULL or allocates. Do not free or modify the string.
+ * Available even when the corresponding capability is disabled.
+ */
+TLV_API const char* tlv_codec_reason_string(tlv_codec_reason_t value);
 /** @brief Conversion detail accompanying one shared common diagnostic.
  * @note Only the member selected by cause is active. All borrows must outlive copies.
  */
@@ -68,6 +93,7 @@ typedef struct tlv_codec_detail {
     int32_t reported; /**< Raw provider result, including unknown integers and OK for a bad
                           success payload. Kept outside the enum domain for safe FFI/C++ reads. */
     tlv_codec_violation_t violation; /**< Detected callback breach. */
+    tlv_codec_reason_t reason;       /**< Why the conversion rejected the Value or object. */
     const char* representation;      /**< Optional borrowed static representation name. */
     tlv_codec_cause_t cause;         /**< Active delegated detail. */
     union {
@@ -106,6 +132,18 @@ static inline tlv_result_t tlv_codec_diagnostic_result(tlv_codec_diagnostic_t* d
                                               : TLV_DIAGNOSTIC_SEVERITY_ERROR;
     }
     return result;
+}
+/** @brief Publish a rejected Value or object with its typed reason.
+ * @param[out] diagnostic Optional initialized destination.
+ * @param[in] result Result to publish unchanged, usually #TLV_ERR_INVALID_VALUE.
+ * @param[in] reason Why the conversion rejected its input.
+ * @return result.
+ */
+static inline tlv_result_t tlv_codec_diagnostic_reason(tlv_codec_diagnostic_t* diagnostic,
+                                                       tlv_result_t result,
+                                                       tlv_codec_reason_t reason) {
+    if (diagnostic) diagnostic->codec.reason = reason;
+    return tlv_codec_diagnostic_result(diagnostic, result);
 }
 #ifdef __cplusplus
 }

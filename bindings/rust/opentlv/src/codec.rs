@@ -86,6 +86,8 @@ pub struct CodecDiagnostic {
     pub reported: i32,
     /// Native callback contract violation discriminator.
     pub violation: crate::CodecViolation,
+    /// Why the conversion rejected its Value or object.
+    pub reason: crate::CodecReason,
     /// Optional provider representation name.
     pub representation: Option<String>,
     /// Shared primary failure location.
@@ -127,7 +129,10 @@ impl CodecDiagnostic {
         let schema = if raw.codec.cause == 2 {
             let cause = native::tlv_schema_diagnostic_t {
                 diagnostic: raw.diagnostic,
-                detail: unsafe { raw.codec.detail.schema },
+                cause: native::TLV_SCHEMA_CAUSE_SCHEMA,
+                detail: native::tlv_schema_cause_detail_t {
+                    schema: unsafe { raw.codec.detail.schema },
+                },
             };
             unsafe { crate::SchemaDiagnostic::from_raw(&cause) }
                 .ok()
@@ -147,6 +152,7 @@ impl CodecDiagnostic {
             cause: crate::CodecCause::from_raw(raw.codec.cause),
             reported: raw.codec.reported,
             violation: crate::CodecViolation::from_raw(raw.codec.violation),
+            reason: crate::CodecReason::from_raw(raw.codec.reason),
             representation: if raw.codec.representation.is_null() {
                 None
             } else {

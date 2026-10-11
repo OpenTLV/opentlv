@@ -13,9 +13,15 @@ static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* 
         rc = tlv_schema_validate(data, size, codec->format, codec->schema, codec->max_depth,
                                  codec->max_elements, diagnostic ? &cause : NULL);
         if (diagnostic && rc != TLV_OK) {
+            /* Keep one path per cause: a Reader failure under Schema is a Reader cause. */
             diagnostic->diagnostic = cause.diagnostic;
-            diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
-            diagnostic->codec.detail.schema = cause.detail;
+            if (cause.cause == TLV_SCHEMA_CAUSE_READER) {
+                diagnostic->codec.cause = TLV_CODEC_CAUSE_READER;
+                diagnostic->codec.detail.reader = cause.detail.reader;
+            } else if (cause.cause == TLV_SCHEMA_CAUSE_SCHEMA) {
+                diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
+                diagnostic->codec.detail.schema = cause.detail.schema;
+            }
         }
     } else {
         tlv_tree_reader_t reader;

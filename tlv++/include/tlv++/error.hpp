@@ -301,12 +301,18 @@ template <typename Failure> inline error to_error(const Failure& value) noexcept
 namespace detail {
 struct error_access {
     static error schema(const tlv_schema_diagnostic_t& value) noexcept {
-        error result =
-            diagnostic(value.diagnostic, operation::schema,
-                       value.detail.tag.size ? &value.detail.tag : nullptr, &value.diagnostic.path);
-        result.schema_kind_ = static_cast<schema_issue>(value.detail.kind);
-        result.definition_ = value.detail.definition;
-
+        if (value.cause == TLV_SCHEMA_CAUSE_READER) {
+            const auto& reader = value.detail.reader;
+            return diagnostic(value.diagnostic, operation::schema,
+                              reader.has_tag ? &reader.tag : nullptr, &value.diagnostic.path);
+        }
+        if (value.cause != TLV_SCHEMA_CAUSE_SCHEMA)
+            return diagnostic(value.diagnostic, operation::schema, nullptr, &value.diagnostic.path);
+        const auto& schema = value.detail.schema;
+        error result = diagnostic(value.diagnostic, operation::schema,
+                                  schema.tag.size ? &schema.tag : nullptr, &value.diagnostic.path);
+        result.schema_kind_ = static_cast<schema_issue>(schema.kind);
+        result.definition_ = schema.definition;
         return result;
     }
     static error diagnostic(const tlv_diagnostic_t& value, operation stage,
