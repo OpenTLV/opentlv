@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The Schema number composition reports the caller's `ENCODE` operation again when its Schema length check rejects a width after successful sizing; sizing no longer writes the diagnostic on success and repeats a rejected conversion only to collect its detail. (#589)
+- A located UTF-8 rejection covers only the maximal subpart of the ill-formed sequence (Unicode Table 3-7), so the byte that ends a truncated sequence is no longer included and an overlong or surrogate prefix stops at its first invalid byte. (#589)
+- DER Schema keeps the Value start when a leaf conversion location cannot be placed in input coordinates, and records that a write failure locates only the first byte of Value-local evidence. (#589)
+- `tlv_location_resolve()` leaves Value-local evidence unchanged for an invalid destination domain instead of clearing it, and a Bluetooth Local Name rejection without a located sequence stays unlocated instead of reporting byte zero. (#589)
 - Classify Document allocation-size arithmetic that cannot be represented as `OVERFLOW` instead of `OUT_OF_MEMORY`, so `OUT_OF_MEMORY` means only a failed allocation, as the error reference states. (#589)
 - Keep the nested codec diagnostic in the Schema number composition, the ASN.1 Query date hook and the Bluetooth AD Flags and Local Name codecs, so the typed `reason` and location of the lower conversion survive instead of being dropped; the Schema number composition still reports the caller's operation. (#589)
 - DER Schema keeps the result and conversion detail of a leaf Value that its constraint cannot decode, such as a non-minimal INTEGER, instead of a bare `INVALID_VALUE`, and reports a valid leaf constraint rejecting input with cause `SCHEMA` and `VALUE` detail when reading, as it already did when writing. (#589)
@@ -277,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Test that the Schema number composition keeps `ENCODE` and `MEASURE` for a Schema length rejection, that UTF-8 rejections report maximal subparts and that an invalid destination domain keeps the location. (#589)
 - Add `tlv_location_resolve()` and C++ `tlv::resolve_location()` to move Value-local evidence into the INPUT or OUTPUT coordinates that contain the Value, `tlv_codec_diagnostic_reason_at()` for codecs that publish a reason with the offending Value bytes, and `SchemaCause` `CODEC` in the Rust, Go and Python vocabularies. (#589)
 - Test that codecs locate the offending Value bytes, that Query resolves them to input offsets only when the Value origin is known, that DER Schema keeps the Codec cause and offending octet when reading and writing, that nested reasons survive the Schema number, ASN.1 date and Bluetooth AD codecs, and that CER segmentation reports scope ends and spans; the shared assertions accept a Schema Codec cause only with a matching reported result. (#589)
 - Test that every Document Query entry point publishes its diagnostic against the result and kind contract, rejects an aliased diagnostic before writing it, keeps the first failure of a failed execution, and that a malformed constructed edit Value reaches C++, Rust, Go, Python, Lua and JS/WASM with its Reader cause. (#588)

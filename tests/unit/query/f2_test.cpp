@@ -221,14 +221,14 @@ TEST(Unit_Tlv_QueryF2, TextConversionLocatesMalformedUtf8InTheInput) {
     Evaluation e;
     ASSERT_EQ(TLV_OK, e.compile("text(//5A)"));
     ASSERT_EQ(TLV_OK, e.init());
-    // C3 starts a two-byte character that 'b' does not continue: input bytes [3, 5).
+    // C3 starts a two-byte character that 'b' does not continue: input byte 3.
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 3, 'a', 0xC3, 'b'}));
     ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
     EXPECT_EQ(TLV_CODEC_REASON_TEXT, e.diagnostic.detail.codec.reason);
     EXPECT_EQ(TLV_LOCATION_INPUT, e.diagnostic.diagnostic.location.domain);
     EXPECT_EQ(TLV_LOCATION_SPAN, e.diagnostic.diagnostic.location.kind);
     EXPECT_EQ(3u, e.diagnostic.diagnostic.location.begin);
-    EXPECT_EQ(5u, e.diagnostic.diagnostic.location.end);
+    EXPECT_EQ(4u, e.diagnostic.diagnostic.location.end);
 }
 TEST(Unit_Tlv_QueryF2, RuntimePatternBindingsAndExplicitCapacity) {
     Evaluation           e;

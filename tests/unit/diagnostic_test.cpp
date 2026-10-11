@@ -78,12 +78,16 @@ TEST(Unit_Tlv_Diagnostic, ResolveMovesOnlyValueLocalEvidence) {
     EXPECT_EQ(TLV_LOCATION_UNKNOWN, unknown.kind);
     EXPECT_EQ(TLV_LOCATION_DOMAIN_UNKNOWN, unknown.domain);
     tlv_location_resolve(nullptr, 10, TLV_LOCATION_INPUT);
-    // Overflow and an invalid destination make the evidence unknown.
-    tlv_location_set(&location, TLV_LOCATION_VALUE, TLV_LOCATION_POINT, 2, 2);
-    tlv_location_resolve(&location, SIZE_MAX - 1, TLV_LOCATION_OUTPUT);
-    EXPECT_EQ(TLV_LOCATION_UNKNOWN, location.kind);
+    // An invalid destination keeps the Value-local evidence; overflow drops it.
     tlv_location_set(&location, TLV_LOCATION_VALUE, TLV_LOCATION_POINT, 2, 2);
     tlv_location_resolve(&location, 1, TLV_LOCATION_DOMAIN_UNKNOWN);
+    EXPECT_EQ(TLV_LOCATION_VALUE, location.domain);
+    EXPECT_EQ(TLV_LOCATION_POINT, location.kind);
+    EXPECT_EQ(2u, location.begin);
+    tlv_location_resolve(&location, 1, static_cast<tlv_location_domain_t>(99));
+    EXPECT_EQ(TLV_LOCATION_VALUE, location.domain);
+    EXPECT_EQ(2u, location.begin);
+    tlv_location_resolve(&location, SIZE_MAX - 1, TLV_LOCATION_OUTPUT);
     EXPECT_EQ(TLV_LOCATION_UNKNOWN, location.kind);
 }
 

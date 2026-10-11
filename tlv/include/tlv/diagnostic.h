@@ -83,10 +83,10 @@ TLV_API void tlv_location_translate(tlv_location_t* location, size_t origin);
  * @param[in,out] location Optional location.
  * @param[in] origin Offset of the Value's first byte in `domain`.
  * @param[in] domain Enclosing coordinate space, such as #TLV_LOCATION_INPUT.
- * @note Only a known #TLV_LOCATION_VALUE location changes: it is translated by
- * `origin` and takes `domain`. Other locations, including unknown ones, are
- * unchanged. Overflow or an invalid `domain` makes the location unknown; the
- * operation's result is never affected. */
+ * @note Only a known #TLV_LOCATION_VALUE location with a valid `domain` changes:
+ * it is translated by `origin` and takes `domain`. Other locations, including
+ * unknown ones, and an unknown or invalid `domain` leave it unchanged. Overflow
+ * makes the location unknown; the operation's result is never affected. */
 TLV_API void tlv_location_resolve(tlv_location_t* location, size_t origin,
                                   tlv_location_domain_t domain);
 

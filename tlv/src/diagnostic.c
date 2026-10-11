@@ -50,13 +50,11 @@ void tlv_location_translate(tlv_location_t* location, size_t origin) {
 
 void tlv_location_resolve(tlv_location_t* location, size_t origin, tlv_location_domain_t domain) {
     if (!location || location->kind == TLV_LOCATION_UNKNOWN ||
-        location->domain != TLV_LOCATION_VALUE)
+        location->domain != TLV_LOCATION_VALUE || domain < TLV_LOCATION_INPUT ||
+        domain > TLV_LOCATION_VALUE)
         return;
     tlv_location_translate(location, origin);
-    if (domain < TLV_LOCATION_INPUT || domain > TLV_LOCATION_VALUE)
-        memset(location, 0, sizeof *location);
-    else if (location->kind != TLV_LOCATION_UNKNOWN)
-        location->domain = domain;
+    if (location->kind != TLV_LOCATION_UNKNOWN) location->domain = domain;
 }
 
 void tlv_diagnostic_set_location(tlv_diagnostic_t* diagnostic, tlv_location_domain_t domain,

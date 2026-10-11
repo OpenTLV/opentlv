@@ -578,12 +578,14 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             if (rc == TLV_OK) return TLV_OK;
             fail(rc, value_offset, ctx->location);
             leaf_cause(ctx->diagnostic, rc, cause);
-            /* The offending Value bytes, when known, refine the Value start. */
+            /* The offending Value bytes, when known and representable, refine the
+             * Value start; otherwise the Value start remains the evidence. */
             conversion = leaf_conversion(cause, rc);
             if (conversion && ctx->location &&
-                conversion->diagnostic.location.kind != TLV_LOCATION_UNKNOWN) {
-                ctx->location->location = conversion->diagnostic.location;
-                tlv_location_resolve(&ctx->location->location, value_offset, TLV_LOCATION_INPUT);
+                conversion->diagnostic.location.domain == TLV_LOCATION_VALUE) {
+                tlv_location_t located = conversion->diagnostic.location;
+                tlv_location_resolve(&located, value_offset, TLV_LOCATION_INPUT);
+                if (located.kind != TLV_LOCATION_UNKNOWN) ctx->location->location = located;
             }
             return rc;
         }
@@ -879,14 +881,17 @@ static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc,
 }
 
 /* A rejected leaf keeps its first-failure conversion detail; the offending
- * Value byte, when known, locates it inside the leaf's content. */
+ * Value byte, when known, locates it inside the leaf's content. Deferred write
+ * failures carry a single offset, so a Value-local span is reported by its
+ * first byte as an OUTPUT point. */
 static tlv_result_t defer_leaf_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc, size_t owner,
                                        const tlv_codec_diagnostic_t* codec) {
     const tlv_codec_diagnostic_t* conversion = leaf_conversion(codec, rc);
     size_t offset = 0;
     if (wctx->locate_failure && composition_failure(rc) && wctx->failure == TLV_OK) {
         leaf_cause(wctx->diagnostic, rc, codec);
-        if (conversion && conversion->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)
+        if (conversion && conversion->diagnostic.location.domain == TLV_LOCATION_VALUE &&
+            conversion->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)
             offset = conversion->diagnostic.location.begin;
     }
     return defer_failure(wctx, rc, owner, offset);

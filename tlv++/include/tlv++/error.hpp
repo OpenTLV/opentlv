@@ -168,7 +168,8 @@ inline void translate_location(location& value, size_t origin) noexcept {
  * @param value Location; only a known location_domain::value location changes.
  * @param origin Offset of the Value's first byte in `domain`.
  * @param domain Enclosing coordinate space, such as location_domain::input.
- * @note Overflow or an invalid domain clears only the optional location.
+ * @note An invalid domain leaves the location unchanged; overflow clears only the
+ *       optional location.
  */
 inline void resolve_location(location& value, size_t origin, location_domain domain) noexcept {
     tlv_location_resolve(&value, origin, static_cast<tlv_location_domain_t>(domain));

@@ -180,4 +180,21 @@ TEST(Unit_Tlv_Schema, NumberCompositionPreservesSchemaDiagnostic) {
     EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.codec.detail.schema.kind);
     EXPECT_STREQ("number", diagnostic.codec.detail.schema.field);
     EXPECT_EQ(99u, decoded);
+
+    // Sizing succeeds, then the Schema rejects width 2: the caller's operation is kept.
+    const tlv_schema_entry_t  endpoints = {TLV_TAG(1), 1, 3, TLV_SCHEMA_LENGTH_ENDPOINTS,
+                                           nullptr,    0};
+    const tlv_schema_number_t fixed = {&endpoints, {TLV_NUMBER_BINARY_BE, 2, 0}};
+    const uint64_t            number = 1;
+    uint8_t                   out[3];
+    size_t                    written = 99;
+    for (uint8_t* data : {static_cast<uint8_t*>(nullptr), out}) {
+        EXPECT_EQ(TLV_ERR_SCHEMA,
+                  tlv_schema_number_encode(&fixed, &number, sizeof number, data,
+                                           data ? sizeof out : 0, &written, &diagnostic));
+        EXPECT_EQ(data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE, diagnostic.codec.operation);
+        EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
+        EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, diagnostic.codec.detail.schema.kind);
+        EXPECT_EQ(0u, written);
+    }
 }

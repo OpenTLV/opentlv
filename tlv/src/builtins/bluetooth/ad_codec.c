@@ -6,8 +6,8 @@
 #include <string.h>
 #include "tlv/codec/values.h"
 
-/* Validators return why the bytes are rejected, or NONE, and the offending
- * bytes [*begin, *end). */
+/* Validators return why the bytes are rejected, or NONE. When the offending
+ * bytes are known they set [*begin, *end); otherwise *end stays below *begin. */
 static tlv_codec_reason_t validate_flags(const uint8_t* data, size_t size, size_t* begin,
                                          size_t* end) {
     /* A trailing zero octet is not the minimal Flags encoding. */
@@ -23,7 +23,7 @@ static tlv_codec_reason_t validate_flags(const uint8_t* data, size_t size, size_
 static tlv_codec_reason_t validate_name(const uint8_t* data, size_t size, size_t* begin,
                                         size_t* end) {
     if (tlv_utf8_validate(data, size) == TLV_OK) return TLV_CODEC_REASON_NONE;
-    if (!tlv_utf8_find_invalid(data, size, begin, end)) *begin = *end = 0;
+    (void)tlv_utf8_find_invalid(data, size, begin, end);
     return TLV_CODEC_REASON_TEXT;
 }
 
@@ -31,8 +31,10 @@ typedef tlv_codec_reason_t (*ad_validator_t)(const uint8_t*, size_t, size_t*, si
 
 static tlv_result_t decode_span(const uint8_t* data, size_t size, void* value, size_t capacity,
                                 ad_validator_t validate, tlv_codec_diagnostic_t* diagnostic) {
-    size_t begin = 0, end = 0;
+    size_t begin = 1, end = 0;
     tlv_codec_reason_t reason = validate(data, size, &begin, &end);
+    if (reason != TLV_CODEC_REASON_NONE && begin > end)
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE, reason);
     if (reason != TLV_CODEC_REASON_NONE)
         return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE, reason,
                                               begin == end ? TLV_LOCATION_POINT : TLV_LOCATION_SPAN,

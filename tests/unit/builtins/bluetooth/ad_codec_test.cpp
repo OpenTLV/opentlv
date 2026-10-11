@@ -169,7 +169,7 @@ TEST(Unit_Tlv_BluetoothAdCodec, DecodingKeepsTheReasonAndOffendingBytes) {
          TLV_CODEC_REASON_TEXT,
          TLV_LOCATION_SPAN,
          1,
-         4},
+         3},
         {"tx power length",
          &tlv_bluetooth_ad_codec_tx_power,
          {0x01, 0x02},
