@@ -99,7 +99,7 @@ tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, c
     if (capacity > size) capacity = size;
     if (capacity > document->options.max_elements - document->count)
         capacity = document->options.max_elements - document->count;
-    if (capacity > SIZE_MAX / sizeof *frames) return TLV_ERR_OUT_OF_MEMORY;
+    if (capacity > SIZE_MAX / sizeof *frames) return TLV_ERR_OVERFLOW;
     if (capacity) {
         frames = (tlv_tree_frame_t*)document_memory_allocate(document, capacity * sizeof *frames);
         if (!frames) return TLV_ERR_OUT_OF_MEMORY;

@@ -73,6 +73,7 @@ const char* tlv_schema_cause_string(tlv_schema_cause_t value) {
         case TLV_SCHEMA_CAUSE_NONE: return "none";
         case TLV_SCHEMA_CAUSE_SCHEMA: return "schema";
         case TLV_SCHEMA_CAUSE_READER: return "reader";
+        case TLV_SCHEMA_CAUSE_CODEC: return "codec";
     }
     return "unknown";
 }

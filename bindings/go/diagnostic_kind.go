@@ -105,6 +105,7 @@ const (
 	SchemaCauseNone   SchemaCause = 0
 	SchemaCauseSchema SchemaCause = 1
 	SchemaCauseReader SchemaCause = 2
+	SchemaCauseCodec  SchemaCause = 3
 )
 
 // String returns the canonical C spelling, or "unknown".

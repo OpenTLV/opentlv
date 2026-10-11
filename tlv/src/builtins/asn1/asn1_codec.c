@@ -8,15 +8,28 @@
 
 /* BOOLEAN: X.690 section 8.2/11.1, canonical content is exactly one byte, 00 or FF. */
 
-/* Rejects a Value or object, recording why when the caller asks for a typed reason. */
-static tlv_result_t asn1_codec_reject(tlv_codec_reason_t* reason, tlv_codec_reason_t why) {
-    if (reason) *reason = why;
+/* Rejects a Value or object, recording why when the caller asks for a diagnostic. */
+static tlv_result_t asn1_codec_reject(tlv_codec_diagnostic_t* diagnostic, tlv_codec_reason_t why) {
+    if (diagnostic) diagnostic->codec.reason = why;
     return TLV_ERR_INVALID_VALUE;
 }
 
-/* Optional reason output of an initialized diagnostic, for helpers that return a result. */
-static tlv_codec_reason_t* tlv_codec_reason_slot(tlv_codec_diagnostic_t* diagnostic) {
-    return diagnostic ? &diagnostic->codec.reason : NULL;
+typedef tlv_result_t (*asn1_validator_t)(const uint8_t*, size_t, tlv_asn1_rejection_t*);
+
+/* Runs a content validator. A rejection publishes its reason and, when the
+ * content is the decoded Value, the offending Value bytes. Encoded objects have
+ * no Value coordinates, so their rejections stay unlocated. */
+static tlv_result_t asn1_codec_validate(asn1_validator_t validate, const uint8_t* data, size_t size,
+                                        int decoded, tlv_codec_diagnostic_t* diagnostic) {
+    tlv_asn1_rejection_t rejection;
+    tlv_result_t rc;
+    memset(&rejection, 0, sizeof rejection);
+    rc = validate(data, size, diagnostic ? &rejection : NULL);
+    if (rc != TLV_OK && diagnostic) {
+        diagnostic->codec.reason = rejection.reason;
+        if (decoded) diagnostic->diagnostic.location = rejection.location;
+    }
+    return rc;
 }
 
 static tlv_result_t decode_boolean(const void* context, const uint8_t* data, size_t size,
@@ -25,7 +38,7 @@ static tlv_result_t decode_boolean(const void* context, const uint8_t* data, siz
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     bool result;
     (void)context;
-    if (tlv_asn1_validate_boolean(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_boolean, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (capacity < sizeof(result))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
@@ -86,7 +99,7 @@ static tlv_result_t decode_bit_string(const void* context, const uint8_t* data, 
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_bit_string_t result;
     (void)context;
-    if (tlv_asn1_validate_bit_string(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_bit_string, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.unused_bits = data[0];
     result.length = size - 1;
@@ -165,7 +178,7 @@ static tlv_result_t decode_octet_string(const void* context, const uint8_t* data
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_octet_string_t result;
     (void)context;
-    if (tlv_asn1_validate_octet_string(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_octet_string, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.data = size ? data : NULL;
     result.length = size;
@@ -206,7 +219,7 @@ static tlv_result_t decode_null(const void* context, const uint8_t* data, size_t
     (void)context;
     (void)value;
     (void)capacity;
-    if (tlv_asn1_validate_null(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_null, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
@@ -249,14 +262,15 @@ static int decode_oid_subidentifiers(const uint8_t* data, size_t size, uint64_t*
 }
 
 static tlv_result_t decode_oid_like(int is_oid, const uint8_t* data, size_t size, void* value,
-                                    size_t capacity, tlv_codec_reason_t* reason) {
+                                    size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
     uint64_t raw[TLV_ASN1_OID_MAX_ARCS];
     size_t raw_count, max_raw, i;
     tlv_asn1_oid_t result;
-    if (tlv_asn1_validate_oid(data, size, reason) != TLV_OK) return TLV_ERR_INVALID_VALUE;
+    if (asn1_codec_validate(tlv_asn1_validate_oid, data, size, 1, diagnostic) != TLV_OK)
+        return TLV_ERR_INVALID_VALUE;
     max_raw = is_oid ? TLV_ASN1_OID_MAX_ARCS - 1 : TLV_ASN1_OID_MAX_ARCS;
     if (!decode_oid_subidentifiers(data, size, raw, max_raw, &raw_count))
-        return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+        return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
     memset(&result, 0, sizeof(result));
     if (is_oid) {
         uint64_t first = raw[0];
@@ -285,9 +299,8 @@ static tlv_result_t decode_oid(const void* context, const uint8_t* data, size_t 
                                size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
-    return tlv_codec_diagnostic_result(
-        diagnostic,
-        decode_oid_like(1, data, size, value, capacity, tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(diagnostic,
+                                       decode_oid_like(1, data, size, value, capacity, diagnostic));
 }
 
 static tlv_result_t decode_relative_oid(const void* context, const uint8_t* data, size_t size,
@@ -295,9 +308,8 @@ static tlv_result_t decode_relative_oid(const void* context, const uint8_t* data
                                         tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
-    return tlv_codec_diagnostic_result(
-        diagnostic,
-        decode_oid_like(0, data, size, value, capacity, tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(diagnostic,
+                                       decode_oid_like(0, data, size, value, capacity, diagnostic));
 }
 
 /* Writes one arc's minimal base-128 encoding; out may be NULL to only size it. */
@@ -314,26 +326,27 @@ static size_t encode_oid_arc(uint64_t arc, uint8_t* out) {
 }
 
 static tlv_result_t encode_oid_like(int is_oid, const void* value, size_t size, uint8_t* data,
-                                    size_t capacity, size_t* written, tlv_codec_reason_t* reason) {
+                                    size_t capacity, size_t* written,
+                                    tlv_codec_diagnostic_t* diagnostic) {
     tlv_asn1_oid_t input;
     uint64_t raw[TLV_ASN1_OID_MAX_ARCS];
     size_t raw_count, i, total = 0;
-    if (size != sizeof(input)) return asn1_codec_reject(reason, TLV_CODEC_REASON_OBJECT);
+    if (size != sizeof(input)) return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_OBJECT);
     memcpy(&input, value, sizeof(input));
     if (is_oid) {
         if (input.count < 2 || input.count > TLV_ASN1_OID_MAX_ARCS)
-            return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
-        if (input.arcs[0] > 2) return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+            return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
+        if (input.arcs[0] > 2) return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
         if (input.arcs[0] < 2 && input.arcs[1] >= 40)
-            return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+            return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
         if (input.arcs[0] == 2 && input.arcs[1] > UINT64_MAX - 80)
-            return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+            return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
         raw[0] = input.arcs[0] * 40 + input.arcs[1];
         for (i = 2; i < input.count; ++i) raw[i - 1] = input.arcs[i];
         raw_count = input.count - 1;
     } else {
         if (input.count < 1 || input.count > TLV_ASN1_OID_MAX_ARCS)
-            return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+            return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
         for (i = 0; i < input.count; ++i) raw[i] = input.arcs[i];
         raw_count = input.count;
     }
@@ -352,9 +365,8 @@ static tlv_result_t encode_oid(const void* context, const void* value, size_t si
                                tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     (void)context;
-    return tlv_codec_diagnostic_result(diagnostic,
-                                       encode_oid_like(1, value, size, data, capacity, written,
-                                                       tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(
+        diagnostic, encode_oid_like(1, value, size, data, capacity, written, diagnostic));
 }
 
 static tlv_result_t encode_relative_oid(const void* context, const void* value, size_t size,
@@ -362,21 +374,20 @@ static tlv_result_t encode_relative_oid(const void* context, const void* value, 
                                         tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     (void)context;
-    return tlv_codec_diagnostic_result(diagnostic,
-                                       encode_oid_like(0, value, size, data, capacity, written,
-                                                       tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(
+        diagnostic, encode_oid_like(0, value, size, data, capacity, written, diagnostic));
 }
 
 /* Restricted character strings: X.690 section 8.23, unconstrained borrowed
  * content bytes whose charset each codec's validator restricts; no extra
  * canonical (clause 11) rule beyond that charset. */
 
-typedef tlv_result_t (*string_validator_t)(const uint8_t*, size_t, tlv_codec_reason_t*);
-
-static tlv_result_t decode_string(string_validator_t validate, const uint8_t* data, size_t size,
-                                  void* value, size_t capacity, tlv_codec_reason_t* reason) {
+static tlv_result_t decode_string(asn1_validator_t validate, const uint8_t* data, size_t size,
+                                  void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
     tlv_asn1_string_t result;
-    if (validate(data, size, reason) != TLV_OK) return TLV_ERR_INVALID_VALUE;
+    if (asn1_codec_validate(validate, data, size, 1, diagnostic) != TLV_OK)
+        return TLV_ERR_INVALID_VALUE;
     result.data = size ? data : NULL;
     result.length = size;
     if (capacity < sizeof(result)) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -384,14 +395,15 @@ static tlv_result_t decode_string(string_validator_t validate, const uint8_t* da
     return TLV_OK;
 }
 
-static tlv_result_t encode_string(string_validator_t validate, const void* value, size_t size,
+static tlv_result_t encode_string(asn1_validator_t validate, const void* value, size_t size,
                                   uint8_t* data, size_t capacity, size_t* written,
-                                  tlv_codec_reason_t* reason) {
+                                  tlv_codec_diagnostic_t* diagnostic) {
     tlv_asn1_string_t input;
-    if (size != sizeof(input)) return asn1_codec_reject(reason, TLV_CODEC_REASON_OBJECT);
+    if (size != sizeof(input)) return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_OBJECT);
     memcpy(&input, value, sizeof(input));
-    if (input.length && !input.data) return asn1_codec_reject(reason, TLV_CODEC_REASON_OBJECT);
-    if (validate(input.data, input.length, reason) != TLV_OK) return TLV_ERR_INVALID_VALUE;
+    if (input.length && !input.data) return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_OBJECT);
+    if (asn1_codec_validate(validate, input.data, input.length, 0, diagnostic) != TLV_OK)
+        return TLV_ERR_INVALID_VALUE;
     if (data) {
         if (capacity < input.length) return TLV_ERR_BUFFER_TOO_SHORT;
         if (input.length) memcpy(data, input.data, input.length);
@@ -406,9 +418,8 @@ static tlv_result_t encode_string(string_validator_t validate, const void* value
                                       tlv_codec_diagnostic_t* diagnostic) {                        \
         tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);                                \
         (void)context;                                                                             \
-        return tlv_codec_diagnostic_result(diagnostic,                                             \
-                                           decode_string(validator, data, size, value, capacity,   \
-                                                         tlv_codec_reason_slot(diagnostic)));      \
+        return tlv_codec_diagnostic_result(                                                        \
+            diagnostic, decode_string(validator, data, size, value, capacity, diagnostic));        \
     }                                                                                              \
     static tlv_result_t encode_##name(const void* context, const void* value, size_t size,         \
                                       uint8_t* data, size_t capacity, size_t* written,             \
@@ -416,8 +427,8 @@ static tlv_result_t encode_string(string_validator_t validate, const void* value
         tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);  \
         (void)context;                                                                             \
         return tlv_codec_diagnostic_result(                                                        \
-            diagnostic, encode_string(validator, value, size, data, capacity, written,             \
-                                      tlv_codec_reason_slot(diagnostic)));                         \
+            diagnostic,                                                                            \
+            encode_string(validator, value, size, data, capacity, written, diagnostic));           \
     }
 
 ASN1_STRING_CODEC(utf8_string, tlv_asn1_validate_utf8)
@@ -439,7 +450,7 @@ static tlv_result_t decode_bmp_string(const void* context, const uint8_t* data, 
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_bmp_string_t result;
     (void)context;
-    if (tlv_asn1_validate_bmp_string(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_bmp_string, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.data = size ? data : NULL;
     result.length = size / 2;
@@ -467,7 +478,7 @@ static tlv_result_t encode_bmp_string(const void* context, const void* value, si
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_RANGE);
     byte_length = input.length * 2;
-    if (tlv_asn1_validate_bmp_string(input.data, byte_length, tlv_codec_reason_slot(diagnostic)) !=
+    if (asn1_codec_validate(tlv_asn1_validate_bmp_string, input.data, byte_length, 0, diagnostic) !=
         TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
@@ -485,7 +496,8 @@ static tlv_result_t decode_universal_string(const void* context, const uint8_t* 
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_universal_string_t result;
     (void)context;
-    if (tlv_asn1_validate_universal_string(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_universal_string, data, size, 1, diagnostic) !=
+        TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.data = size ? data : NULL;
     result.length = size / 4;
@@ -513,8 +525,8 @@ static tlv_result_t encode_universal_string(const void* context, const void* val
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_RANGE);
     byte_length = input.length * 4;
-    if (tlv_asn1_validate_universal_string(input.data, byte_length,
-                                           tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_universal_string, input.data, byte_length, 0,
+                            diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
         if (capacity < byte_length)
@@ -545,7 +557,7 @@ static tlv_result_t decode_utc_time(const void* context, const uint8_t* data, si
     tlv_asn1_utc_time_t result;
     uint8_t yy;
     (void)context;
-    if (tlv_asn1_validate_utc_time(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_utc_time, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     yy = time_digit_pair(data);
     result.year = (int32_t)(yy < 50 ? 2000 + yy : 1900 + yy);
@@ -606,7 +618,8 @@ static tlv_result_t decode_generalized_time(const void* context, const uint8_t* 
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_generalized_time_t result;
     (void)context;
-    if (tlv_asn1_validate_generalized_time(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_generalized_time, data, size, 1, diagnostic) !=
+        TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.year = (int32_t)(time_digit_pair(data) * 100 + time_digit_pair(data + 2));
     result.month = time_digit_pair(data + 4);
@@ -691,9 +704,8 @@ static tlv_result_t encode_generalized_time(const void* context, const void* val
                                       tlv_codec_diagnostic_t* diagnostic) {                        \
         tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);                                \
         (void)context;                                                                             \
-        return tlv_codec_diagnostic_result(diagnostic,                                             \
-                                           decode_string(validator, data, size, value, capacity,   \
-                                                         tlv_codec_reason_slot(diagnostic)));      \
+        return tlv_codec_diagnostic_result(                                                        \
+            diagnostic, decode_string(validator, data, size, value, capacity, diagnostic));        \
     }                                                                                              \
     static tlv_result_t encode_##name(const void* context, const void* value, size_t size,         \
                                       uint8_t* data, size_t capacity, size_t* written,             \
@@ -701,8 +713,8 @@ static tlv_result_t encode_generalized_time(const void* context, const void* val
         tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);  \
         (void)context;                                                                             \
         return tlv_codec_diagnostic_result(                                                        \
-            diagnostic, encode_string(validator, value, size, data, capacity, written,             \
-                                      tlv_codec_reason_slot(diagnostic)));                         \
+            diagnostic,                                                                            \
+            encode_string(validator, value, size, data, capacity, written, diagnostic));           \
     }
 
 ASN1_STRING_CODEC(time, tlv_asn1_validate_time)
@@ -718,7 +730,7 @@ static tlv_result_t decode_date(const void* context, const uint8_t* data, size_t
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_date_t result;
     (void)context;
-    if (tlv_asn1_validate_date(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_date, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.year = (int32_t)(time_digit_pair(data) * 100 + time_digit_pair(data + 2));
     result.month = time_digit_pair(data + 4);
@@ -765,7 +777,7 @@ static tlv_result_t decode_time_of_day(const void* context, const uint8_t* data,
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_time_of_day_t result;
     (void)context;
-    if (tlv_asn1_validate_time_of_day(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_time_of_day, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.hour = time_digit_pair(data);
     result.minute = time_digit_pair(data + 2);
@@ -808,7 +820,7 @@ static tlv_result_t decode_date_time(const void* context, const uint8_t* data, s
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_asn1_date_time_t result;
     (void)context;
-    if (tlv_asn1_validate_date_time(data, size, tlv_codec_reason_slot(diagnostic)) != TLV_OK)
+    if (asn1_codec_validate(tlv_asn1_validate_date_time, data, size, 1, diagnostic) != TLV_OK)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     result.year = (int32_t)(time_digit_pair(data) * 100 + time_digit_pair(data + 2));
     result.month = time_digit_pair(data + 4);
@@ -862,11 +874,12 @@ static tlv_result_t encode_date_time(const void* context, const void* value, siz
  * leading '/'. */
 
 static tlv_result_t decode_iri_like(int absolute, const uint8_t* data, size_t size, void* value,
-                                    size_t capacity, tlv_codec_reason_t* reason) {
+                                    size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
     tlv_asn1_iri_t result;
     size_t pos, arc_start;
-    tlv_result_t rc = absolute ? tlv_asn1_validate_oid_iri(data, size, reason)
-                               : tlv_asn1_validate_relative_oid_iri(data, size, reason);
+    tlv_result_t rc = asn1_codec_validate(absolute ? tlv_asn1_validate_oid_iri
+                                                   : tlv_asn1_validate_relative_oid_iri,
+                                          data, size, 1, diagnostic);
     if (rc != TLV_OK) return TLV_ERR_INVALID_VALUE;
     memset(&result, 0, sizeof(result));
     pos = absolute ? 1 : 0; /* skip the leading '/' the validator already confirmed */
@@ -874,7 +887,7 @@ static tlv_result_t decode_iri_like(int absolute, const uint8_t* data, size_t si
     while (pos <= size) {
         if (pos == size || data[pos] == '/') {
             if (result.count >= TLV_ASN1_IRI_MAX_ARCS)
-                return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+                return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
             result.arcs[result.count].data = data + arc_start;
             result.arcs[result.count].length = pos - arc_start;
             ++result.count;
@@ -892,9 +905,8 @@ static tlv_result_t decode_oid_iri(const void* context, const uint8_t* data, siz
                                    tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
-    return tlv_codec_diagnostic_result(
-        diagnostic,
-        decode_iri_like(1, data, size, value, capacity, tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(diagnostic,
+                                       decode_iri_like(1, data, size, value, capacity, diagnostic));
 }
 
 static tlv_result_t decode_relative_oid_iri(const void* context, const uint8_t* data, size_t size,
@@ -902,29 +914,30 @@ static tlv_result_t decode_relative_oid_iri(const void* context, const uint8_t* 
                                             tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
-    return tlv_codec_diagnostic_result(
-        diagnostic,
-        decode_iri_like(0, data, size, value, capacity, tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(diagnostic,
+                                       decode_iri_like(0, data, size, value, capacity, diagnostic));
 }
 
 static tlv_result_t encode_iri_like(int absolute, const void* value, size_t size, uint8_t* data,
-                                    size_t capacity, size_t* written, tlv_codec_reason_t* reason) {
+                                    size_t capacity, size_t* written,
+                                    tlv_codec_diagnostic_t* diagnostic) {
     tlv_asn1_iri_t input;
     size_t i, total = 0;
-    if (size != sizeof(input)) return asn1_codec_reject(reason, TLV_CODEC_REASON_OBJECT);
+    if (size != sizeof(input)) return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_OBJECT);
     memcpy(&input, value, sizeof(input));
     if (input.count == 0 || input.count > TLV_ASN1_IRI_MAX_ARCS)
-        return asn1_codec_reject(reason, TLV_CODEC_REASON_RANGE);
+        return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_RANGE);
     if (absolute) total += 1;
     for (i = 0; i < input.count; ++i) {
         size_t j;
         if (!input.arcs[i].length || !input.arcs[i].data)
-            return asn1_codec_reject(reason, TLV_CODEC_REASON_OBJECT);
-        if (tlv_asn1_validate_utf8(input.arcs[i].data, input.arcs[i].length, reason) != TLV_OK)
+            return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_OBJECT);
+        if (asn1_codec_validate(tlv_asn1_validate_utf8, input.arcs[i].data, input.arcs[i].length, 0,
+                                diagnostic) != TLV_OK)
             return TLV_ERR_INVALID_VALUE;
         for (j = 0; j < input.arcs[i].length; ++j)
             if (input.arcs[i].data[j] == '/')
-                return asn1_codec_reject(reason, TLV_CODEC_REASON_SYNTAX);
+                return asn1_codec_reject(diagnostic, TLV_CODEC_REASON_SYNTAX);
         total += input.arcs[i].length;
         if (i + 1 < input.count) total += 1;
     }
@@ -947,9 +960,8 @@ static tlv_result_t encode_oid_iri(const void* context, const void* value, size_
                                    tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     (void)context;
-    return tlv_codec_diagnostic_result(diagnostic,
-                                       encode_iri_like(1, value, size, data, capacity, written,
-                                                       tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(
+        diagnostic, encode_iri_like(1, value, size, data, capacity, written, diagnostic));
 }
 
 static tlv_result_t encode_relative_oid_iri(const void* context, const void* value, size_t size,
@@ -957,9 +969,8 @@ static tlv_result_t encode_relative_oid_iri(const void* context, const void* val
                                             tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     (void)context;
-    return tlv_codec_diagnostic_result(diagnostic,
-                                       encode_iri_like(0, value, size, data, capacity, written,
-                                                       tlv_codec_reason_slot(diagnostic)));
+    return tlv_codec_diagnostic_result(
+        diagnostic, encode_iri_like(0, value, size, data, capacity, written, diagnostic));
 }
 
 const tlv_codec_t tlv_asn1_codec_boolean = {NULL, decode_boolean, encode_boolean};

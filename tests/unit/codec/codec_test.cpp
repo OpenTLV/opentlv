@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include "tlv/codec/codec.h"
 #include "tlv/codec/digits.h"
+#include "tlv/codec/ipv4.h"
 #include "tlv/codec/number.h"
 #include "tlv/codec/text.h"
 #include "tlv/codec/values.h"
@@ -219,19 +220,64 @@ TEST(Unit_Tlv_Codec, RejectionsCarryATypedReason) {
         tlv_codec_t          codec;
         std::vector<uint8_t> wire;
         tlv_codec_reason_t   reason;
+        tlv_location_kind_t  kind; // Value-local evidence, UNKNOWN without a known byte
+        size_t               begin, end;
     };
     static const tlv_digits_codec_config_t digits = {0};
     static const tlv_digits_codec_config_t fixed_digits = {2};
     static const tlv_number_codec_config_t bcd = {TLV_NUMBER_BCD, 0, 2};
     static const tlv_text_codec_config_t   alnum = {TLV_TEXT_ASCII_ALNUM, 0, 0};
     const Case                             cases[] = {
-        {"digit nibble", tlv_digits_codec(&digits), {0x1A}, TLV_CODEC_REASON_DIGIT},
-        {"digit width", tlv_digits_codec(&fixed_digits), {0x12}, TLV_CODEC_REASON_LENGTH},
-        {"bcd nibble", tlv_number_codec(&bcd), {0x1A}, TLV_CODEC_REASON_DIGIT},
-        {"bcd digits", tlv_number_codec(&bcd), {0x01, 0x23}, TLV_CODEC_REASON_RANGE},
-        {"text alphabet", tlv_text_codec(&alnum), {'a', '-'}, TLV_CODEC_REASON_TEXT},
-        {"u8 length", tlv_codec_uint8, {1, 2}, TLV_CODEC_REASON_LENGTH},
-        {"minimal integer", tlv_codec_int64_minimal_be, {0x00, 0x01}, TLV_CODEC_REASON_CANONICAL},
+        {"digit nibble",
+         tlv_digits_codec(&digits),
+         {0x12, 0x1A},
+         TLV_CODEC_REASON_DIGIT,
+         TLV_LOCATION_POINT,
+         1,
+         1},
+        {"digit width",
+         tlv_digits_codec(&fixed_digits),
+         {0x12},
+         TLV_CODEC_REASON_LENGTH,
+         TLV_LOCATION_UNKNOWN,
+         0,
+         0},
+        {"bcd nibble",
+         tlv_number_codec(&bcd),
+         {0x1A},
+         TLV_CODEC_REASON_DIGIT,
+         TLV_LOCATION_POINT,
+         0,
+         0},
+        {"bcd digits",
+         tlv_number_codec(&bcd),
+         {0x01, 0x23},
+         TLV_CODEC_REASON_RANGE,
+         TLV_LOCATION_UNKNOWN,
+         0,
+         0},
+        {"text alphabet",
+         tlv_text_codec(&alnum),
+         {'a', '-'},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_POINT,
+         1,
+         1},
+        {"u8 length", tlv_codec_uint8, {1, 2}, TLV_CODEC_REASON_LENGTH, TLV_LOCATION_UNKNOWN, 0, 0},
+        {"minimal integer",
+         tlv_codec_int64_minimal_be,
+         {0x00, 0x01},
+         TLV_CODEC_REASON_CANONICAL,
+         TLV_LOCATION_POINT,
+         0,
+         0},
+        {"ipv4 list",
+         tlv_codec_ipv4_list,
+         {10, 0, 0, 1, 10, 0},
+         TLV_CODEC_REASON_LENGTH,
+         TLV_LOCATION_SPAN,
+         4,
+         6},
     };
     for (const auto& test : cases) {
         SCOPED_TRACE(test.name);
@@ -243,6 +289,11 @@ TEST(Unit_Tlv_Codec, RejectionsCarryATypedReason) {
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.diagnostic.code);
         EXPECT_EQ(test.reason, diagnostic.codec.reason);
         EXPECT_EQ(TLV_CODEC_CAUSE_NONE, diagnostic.codec.cause);
+        EXPECT_EQ(test.kind, diagnostic.diagnostic.location.kind);
+        if (test.kind == TLV_LOCATION_UNKNOWN) continue;
+        EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(test.begin, diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(test.end, diagnostic.diagnostic.location.end);
     }
     // An application object of the wrong size is an OBJECT rejection on encode.
     const uint32_t         wide = 1;

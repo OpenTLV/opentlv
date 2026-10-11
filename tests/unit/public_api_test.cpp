@@ -49,6 +49,19 @@ static_assert(!std::is_constructible<stationary_codec, const volatile stationary
               "Const volatile temporary owners must not enter the forwarding constructor");
 } // namespace
 
+TEST(Unit_Tlvpp, ResolveLocationPlacesValueEvidenceInItsEnclosingDomain) {
+    tlv::diagnostic diagnostic = tlv::make_diagnostic(tlv::errc::invalid_value);
+    tlv::set_location(diagnostic, tlv::location_domain::value, tlv::location_kind::point, 1, 1);
+    tlv::resolve_location(diagnostic.location, 4, tlv::location_domain::input);
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(diagnostic.location));
+    EXPECT_EQ(tlv::location_kind::point, tlv::kind(diagnostic.location));
+    EXPECT_EQ(5u, diagnostic.location.begin);
+    // Evidence already in an enclosing domain is not moved again.
+    tlv::resolve_location(diagnostic.location, 4, tlv::location_domain::output);
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(diagnostic.location));
+    EXPECT_EQ(5u, diagnostic.location.begin);
+}
+
 TEST(Unit_Tlvpp, RuntimeCodecAcceptsDefaultAndMultipleConstructorArguments) {
     stationary_codec default_owner;
     stationary_codec multiple_owner(1, 2);

@@ -115,6 +115,7 @@ class SchemaCause(_Category):
     NONE = 0
     SCHEMA = 1
     READER = 2
+    CODEC = 3
 
 
 class SchemaDefinitionKind(_Category):

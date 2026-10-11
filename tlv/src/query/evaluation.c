@@ -5,12 +5,40 @@
 #include "../codec/result_internal.h"
 #include <stdio.h>
 
+/* A conversion locates evidence in the bytes it received: VALUE, or INPUT for a
+ * codec, such as a Structure Codec, that reads those bytes as wire input. Both
+ * count from the first converted byte. They become Query input coordinates
+ * only when the converted bytes lie in the context node's Value and its
+ * retained Source maps that Value one to one; otherwise they stay VALUE. */
+static void codec_location(tlv_location_t* location, const tlv_tree_event_t* event,
+                           const query_value_t* bytes) {
+    const tlv_source_t* source;
+    uintptr_t value, first;
+    if (location->kind == TLV_LOCATION_UNKNOWN ||
+        (location->domain != TLV_LOCATION_INPUT && location->domain != TLV_LOCATION_VALUE))
+        return;
+    location->domain = TLV_LOCATION_VALUE;
+    if (!event || !bytes->data) return;
+    source = &event->source;
+    value = (uintptr_t)event->element.value.data;
+    first = (uintptr_t)bytes->data;
+    if (!source->data || !source->value.present || source->value.offset > source->size ||
+        event->element.value.data != source->data + source->value.offset ||
+        event->element.value.size != source->value.size || first < value ||
+        first - value > source->value.size || source->value.offset > SIZE_MAX - event->offset ||
+        first - value > SIZE_MAX - event->offset - source->value.offset)
+        return;
+    tlv_location_resolve(location, event->offset + source->value.offset + (size_t)(first - value),
+                         TLV_LOCATION_INPUT);
+}
+
 static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_codec_diagnostic_t* cause,
-                                  tlv_result_t result, const query_node_t* n,
-                                  const char* expected) {
+                                  tlv_result_t result, const query_node_t* n, const char* expected,
+                                  const tlv_tree_event_t* event, const query_value_t* bytes) {
     query_error(d, result, TLV_QUERY_ERROR_CODEC, n->begin, n->end, expected);
     if (d) {
         tlv_codec_diagnostic_result(cause, result);
+        codec_location(&cause->diagnostic.location, event, bytes);
         /* A known conversion location stays primary and the expression span becomes
          * related evidence. Without one, for example when Query itself rejects a
          * provider's output contract, the expression span remains the primary
@@ -356,11 +384,12 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         if (!e->busy) return TLV_ERR_INVALID_STATE;
         rc = tlv_codec_callback_result(cd, rc, TLV_CODEC_OP_DECODE);
         if (rc != TLV_OK) {
-            return codec_failure(d, cd, rc, n, "strict complete-Value decoding");
+            return codec_failure(d, cd, rc, n, "strict complete-Value decoding", event, &f->a);
         }
         if (query_private_type(result.kind) != n->type || (result.size && !result.data)) {
             if (cd) cd->codec.violation = TLV_CODEC_VIOLATION_TYPE;
-            return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "declared codec result type");
+            return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "declared codec result type", event,
+                                 &f->a);
         }
         if (result.kind == TLV_QUERY_RESULT_INTEGER)
             f->value = signed_value(result.integer);
@@ -369,7 +398,8 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             if (work != TLV_OK) return work;
             if (tlv_utf8_validate(result.data, result.size) != TLV_OK) {
                 if (cd) cd->codec.violation = TLV_CODEC_VIOLATION_UTF8;
-                return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "UTF-8 decoded string");
+                return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "UTF-8 decoded string", event,
+                                     &f->a);
             }
             f->value.kind = V_STRING;
             f->value.data = result.data;

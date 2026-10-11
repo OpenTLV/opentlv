@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/asn1/der_schema.h"
+#include "../../../diagnostic_assertions.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -31,6 +32,15 @@ tlv_result_t Read(const std::vector<uint8_t>& data, const tlv_der_schema_type_t&
                                           consumed ? consumed : &local_consumed, &diagnostic);
     if (error_offset) *error_offset = diagnostic.diagnostic.location.begin;
     return rc;
+}
+
+tlv_result_t ReadDiag(const std::vector<uint8_t>& data, const tlv_der_schema_type_t& root,
+                      tlv_schema_diagnostic_t* diagnostic) {
+    tlv_element_t element{};
+    size_t        consumed = 0;
+    return diagnostic_test::result(tlv_der_schema_read(data.data(), data.size(), &root, nullptr,
+                                                       &element, &consumed, diagnostic),
+                                   *diagnostic);
 }
 
 } // namespace
@@ -273,6 +283,51 @@ TEST(Unit_Tlv_DerSchema, LeafValueRangeConstraint) {
     EXPECT_EQ(TLV_ERR_SCHEMA, Read(std::vector<uint8_t>{0x02, 0x02, 0x01, 0x00},
                                    constrained_integer, nullptr, &offset));
     EXPECT_EQ(2u, offset);
+
+    /* A valid constraint rejecting data is a Schema VALUE finding, as on write. */
+    tlv_schema_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_SCHEMA, ReadDiag(std::vector<uint8_t>{0x02, 0x02, 0x01, 0x00},
+                                       constrained_integer, &diagnostic));
+    EXPECT_EQ(TLV_SCHEMA_CAUSE_SCHEMA, diagnostic.cause);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_VALUE, diagnostic.detail.schema.kind);
+
+    /* Nine minimal octets exceed the int64 conversion: the codec's own result and
+     * reason survive, and without a byte position the Value start stays primary. */
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              ReadDiag(std::vector<uint8_t>{0x02, 0x09, 0x01, 0, 0, 0, 0, 0, 0, 0, 0},
+                       constrained_integer, &diagnostic));
+    ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
+    EXPECT_EQ(TLV_CODEC_OP_DECODE, diagnostic.detail.codec.operation);
+    EXPECT_EQ(TLV_CODEC_REASON_LENGTH, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
+}
+
+TEST(Unit_Tlv_DerSchema, ReadKeepsCodecCauseAndOffendingOctetOfNonCanonicalLeaf) {
+    tlv_der_schema_component_t  component = Required(kInteger);
+    const tlv_der_schema_type_t seq = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &component, 1, nullptr, 0, 0, nullptr, 0};
+    tlv_schema_diagnostic_t diagnostic{};
+    /* 00 05 is not the minimal INTEGER 5: the redundant octet is at input offset 4. */
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              ReadDiag(std::vector<uint8_t>{0x30, 0x04, 0x02, 0x02, 0x00, 0x05}, seq, &diagnostic));
+    ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.detail.codec.reported);
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
+
+    /* An OBJECT IDENTIFIER arc with a leading 0x80 octet is located at that octet. */
+    const tlv_der_schema_type_t oid = {
+        TLV_DER_SCHEMA_UNIVERSAL, 6, nullptr, 0, nullptr, 0, 0, nullptr, 0};
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              ReadDiag(std::vector<uint8_t>{0x06, 0x03, 0x2A, 0x80, 0x01}, oid, &diagnostic));
+    ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_DerSchema, LeafSizeConstraint) {
@@ -558,6 +613,18 @@ tlv_result_t Write(const tlv_der_schema_type_t& root, const std::vector<ScriptEn
     return rc;
 }
 
+tlv_result_t WriteDiag(const tlv_der_schema_type_t& root, const std::vector<ScriptEntry>& script,
+                       tlv_schema_diagnostic_t* diagnostic) {
+    std::vector<uint8_t>                 arena(4096), output(256);
+    std::vector<tlv_der_schema_record_t> records(64);
+    size_t                               written = 0;
+    return diagnostic_test::result(tlv_der_schema_write(output.data(), output.size(), &root,
+                                                        ScriptEncode, &script, nullptr,
+                                                        arena.data(), arena.size(), records.data(),
+                                                        records.size(), &written, diagnostic),
+                                   *diagnostic);
+}
+
 } // namespace
 
 TEST(Unit_Tlv_DerSchema, WriteSequenceOmitsDefaultEqualComponent) {
@@ -655,6 +722,30 @@ TEST(Unit_Tlv_DerSchema, WriteRejectsValueOutsideConstraint) {
     ASSERT_EQ(TLV_OK, Write(seq, {{&component, 0, true, {0x05}}}, &output));
     const std::vector<uint8_t> expected = {0x30, 0x03, 0x02, 0x01, 0x05};
     EXPECT_EQ(expected, output);
+}
+
+TEST(Unit_Tlv_DerSchema, WriteConstraintKeepsCodecCauseOfNonCanonicalInteger) {
+    static const tlv_value_constraint_t kRange = {
+        TLV_VALUE_CONSTRAINT_RANGE, 0, 255, nullptr, 0, nullptr};
+    static const tlv_der_schema_leaf_constraint_t kConstraint = {0, SIZE_MAX, &kRange};
+    const tlv_der_schema_type_t                   constrained_integer = {
+        TLV_DER_SCHEMA_UNIVERSAL, 2, nullptr, 0, nullptr, 0, 0, &kConstraint, 0};
+    tlv_der_schema_component_t  component = Required(constrained_integer);
+    const tlv_der_schema_type_t seq = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &component, 1, nullptr, 0, 0, nullptr, 0};
+
+    /* The callback's 00 05 is not minimal: the constraint's INTEGER decoding keeps its
+     * result and reason, located at the redundant octet of the would-be output. */
+    tlv_schema_diagnostic_t diagnostic{};
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              WriteDiag(seq, {{&component, 0, true, {0x00, 0x05}}}, &diagnostic));
+    ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
+    EXPECT_EQ(TLV_CODEC_OP_DECODE, diagnostic.detail.codec.operation);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.detail.codec.reported);
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_OUTPUT, diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
 }
 
 TEST(Unit_Tlv_DerSchema, WriteMissingRequiredFails) {

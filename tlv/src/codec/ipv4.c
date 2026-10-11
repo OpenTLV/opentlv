@@ -53,9 +53,11 @@ static tlv_result_t decode_ipv4_list(const void* context, const uint8_t* data, s
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     tlv_ipv4_list_t result;
     (void)context;
+    /* The incomplete trailing address is the evidence. */
     if (size % 4)
-        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                           TLV_CODEC_REASON_LENGTH);
+        return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                              TLV_CODEC_REASON_LENGTH, TLV_LOCATION_SPAN,
+                                              size - size % 4, size);
     if (capacity < sizeof(result))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     result.raw.data = data;

@@ -25,8 +25,9 @@ tlv_result_t tlv_digits_decode(const void* context, const uint8_t* data, size_t 
             padding = 1;
         else {
             if (digit > 9 || padding)
-                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                                   TLV_CODEC_REASON_DIGIT);
+                return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                      TLV_CODEC_REASON_DIGIT, TLV_LOCATION_POINT,
+                                                      i / 2, i / 2);
             ++count;
         }
     }

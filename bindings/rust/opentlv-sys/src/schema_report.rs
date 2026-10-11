@@ -59,6 +59,8 @@ pub struct tlv_schema_detail_t {
 pub const TLV_SCHEMA_CAUSE_SCHEMA: c_int = 1;
 /// Reader rejected the input.
 pub const TLV_SCHEMA_CAUSE_READER: c_int = 2;
+/// A Value conversion rejected the input.
+pub const TLV_SCHEMA_CAUSE_CODEC: c_int = 3;
 /// Only the member selected by `cause` is active.
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -67,6 +69,8 @@ pub union tlv_schema_cause_detail_t {
     pub schema: tlv_schema_detail_t,
     /// Original Reader detail.
     pub reader: tlv_reader_detail_t,
+    /// Value conversion detail.
+    pub codec: tlv_codec_detail_t,
 }
 impl std::fmt::Debug for tlv_schema_cause_detail_t {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

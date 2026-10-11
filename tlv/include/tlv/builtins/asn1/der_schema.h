@@ -348,10 +348,14 @@ TLV_API tlv_result_t tlv_der_schema_prepare(tlv_der_schema_checked_t* checked,
  * @param[out] element         Receives the element; its value borrows `data`.
  * @param[out] consumed     Receives the encoded size of the element.
  * @param[out] diagnostic Optional first failure. Missing content has MISSING
- * detail and a SCOPE_END or INSERTION anchor. Definition errors are unlocated.
+ * detail and a SCOPE_END or INSERTION anchor. A leaf constraint rejecting data
+ * has VALUE detail. A leaf Value failing canonical decoding has cause
+ * #TLV_SCHEMA_CAUSE_CODEC with the conversion's reason, located at the
+ * offending INPUT octet when known. Definition errors are unlocated.
  *
  * @return #TLV_OK if the data conforms.
  * @return #TLV_ERR_SCHEMA for input violations, including an absent required root.
+ * @return #TLV_ERR_INVALID_VALUE for a leaf Value that fails canonical decoding.
  * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition, before input processing.
  * @return Any error of tlv_der_read_strict().
  *
@@ -505,7 +509,10 @@ typedef struct tlv_der_schema_record {
  *                              would start; a missing SET component points to
  *                              the enclosing content end. Both point just after
  *                              the header when empty. Leaf constraints point
- *                              to the Value.
+ *                              to the Value. A leaf Value whose constraint
+ *                              decoding fails has cause
+ *                              #TLV_SCHEMA_CAUSE_CODEC and points to the
+ *                              offending octet when the codec locates it.
  *                              Nested headers and canonical SET ordering are
  *                              included. Argument, configuration and capacity
  *                              failures have unknown byte location.
@@ -514,6 +521,8 @@ typedef struct tlv_der_schema_record {
  * @return #TLV_ERR_SCHEMA for a schema violation, including a missing
  *         #TLV_DER_REQUIRED component; this fails deterministically without
  *         partial output.
+ * @return #TLV_ERR_INVALID_VALUE for a constrained leaf Value that fails decoding,
+ *         such as a non-minimal INTEGER.
  * @return #TLV_ERR_INVALID_SCHEMA for an invalid definition, before callbacks.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the destination is insufficient.
  * @return #TLV_ERR_LIMIT if a valid configured processing limit is exceeded.

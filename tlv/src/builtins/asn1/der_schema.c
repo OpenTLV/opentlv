@@ -159,26 +159,75 @@ static int is_default_equal(const uint8_t* data, size_t elem_base, size_t elem_u
            memcmp(data + elem_base, component->default_encoding, elem_used) == 0;
 }
 
+/* Checks a UNIVERSAL leaf's raw content against the canonical DER rules of
+ * tlv_asn1_validate_universal_value(). A rejection is a decoding failure of
+ * that Value, so the optional codec diagnostic receives its reason and
+ * Value-local evidence; it is written only on failure. */
+static tlv_result_t validate_universal_leaf(uint64_t number, const uint8_t* data, size_t length,
+                                            tlv_codec_diagnostic_t* codec) {
+    tlv_asn1_rejection_t rejection;
+    tlv_result_t rc;
+    memset(&rejection, 0, sizeof rejection);
+    rc = tlv_asn1_validate_universal_value(number, data, length, codec ? &rejection : NULL);
+    if (rc != TLV_OK && codec) {
+        tlv_codec_diagnostic_init(codec, TLV_CODEC_OP_DECODE);
+        codec->codec.reason = rejection.reason;
+        codec->diagnostic.location = rejection.location;
+        tlv_codec_diagnostic_result(codec, rc);
+    }
+    return rc;
+}
+
 /* Checks a UNIVERSAL leaf's raw content against its own optional SIZE/
- * value-range constraint, beyond tlv_asn1_validate_universal_value(, NULL)'s
- * canonical DER rules. INTEGER and ENUMERATED share an identical minimal
- * two's complement wire representation (X.690 section 11.2), so
- * tlv_asn1_codec_integer's decode logic applies to either; tlv_der_schema_check()
- * (or, for a schema that skips it, the schema author) is responsible for only
- * setting value_constraint on one of those two universal numbers. */
+ * value-range constraint, beyond validate_universal_leaf()'s canonical DER
+ * rules. INTEGER and ENUMERATED share an identical minimal two's complement
+ * wire representation (X.690 section 11.2), so tlv_asn1_codec_integer's
+ * decode logic applies to either; tlv_der_schema_check() (or, for a schema
+ * that skips it, the schema author) is responsible for only setting
+ * value_constraint on one of those two universal numbers. A decoding failure
+ * keeps the codec's own result and detail in the optional codec diagnostic,
+ * which only a failure writes. */
 static tlv_result_t validate_leaf_constraint(const tlv_der_schema_type_t* type, const uint8_t* data,
-                                             size_t length) {
+                                             size_t length, tlv_codec_diagnostic_t* codec) {
     const tlv_der_schema_leaf_constraint_t* constraint = type->constraint;
     if (!constraint) return TLV_OK;
     if (length < constraint->min_length || length > constraint->max_length) return TLV_ERR_SCHEMA;
     if (constraint->value_constraint) {
         int64_t value = 0;
-        if (tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value), NULL) !=
-            TLV_OK)
-            return TLV_ERR_INVALID_VALUE;
+        tlv_result_t rc =
+            tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value), NULL);
+        /* The builtin decoding is deterministic, so repeating it for detail is exact. */
+        if (rc != TLV_OK) {
+            if (codec)
+                (void)tlv_codec_decode(&tlv_asn1_codec_integer, data, length, &value, sizeof(value),
+                                       codec);
+            return rc;
+        }
         return tlv_value_constraint_validate(constraint->value_constraint, value);
     }
     return TLV_OK;
+}
+
+/* The conversion that produced rc, or NULL. Callers clear codec's code first,
+ * so only a conversion failure published there matches rc. */
+static const tlv_codec_diagnostic_t* leaf_conversion(const tlv_codec_diagnostic_t* codec,
+                                                     tlv_result_t rc) {
+    return codec && rc != TLV_ERR_SCHEMA && codec->diagnostic.code == rc ? codec : NULL;
+}
+
+/* A rejected Value keeps its conversion detail as the Schema cause, and a
+ * valid leaf constraint rejecting data is a Schema VALUE finding. */
+static void leaf_cause(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc,
+                       const tlv_codec_diagnostic_t* codec) {
+    const tlv_codec_diagnostic_t* conversion = leaf_conversion(codec, rc);
+    if (!diagnostic) return;
+    if (rc == TLV_ERR_SCHEMA) {
+        diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
+        diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_VALUE;
+    } else if (conversion) {
+        diagnostic->cause = TLV_SCHEMA_CAUSE_CODEC;
+        diagnostic->detail.codec = conversion->codec;
+    }
 }
 
 /* ---- Schema self-check ---------------------------------------------- */
@@ -516,13 +565,28 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
     }
 
     switch (component->type->kind) {
-        case TLV_DER_SCHEMA_UNIVERSAL:
-            rc = tlv_asn1_validate_universal_value(component->type->universal_number,
-                                                   element.value.data, value_length, NULL);
-            if (rc != TLV_OK) return fail(rc, value_offset, ctx->location);
-            rc = validate_leaf_constraint(component->type, element.value.data, value_length);
-            if (rc != TLV_OK) return fail(rc, value_offset, ctx->location);
-            return TLV_OK;
+        case TLV_DER_SCHEMA_UNIVERSAL: {
+            tlv_codec_diagnostic_t codec;
+            tlv_codec_diagnostic_t* cause = ctx->diagnostic ? &codec : NULL;
+            const tlv_codec_diagnostic_t* conversion;
+            codec.diagnostic.code = TLV_OK;
+            rc = validate_universal_leaf(component->type->universal_number, element.value.data,
+                                         value_length, cause);
+            if (rc == TLV_OK)
+                rc = validate_leaf_constraint(component->type, element.value.data, value_length,
+                                              cause);
+            if (rc == TLV_OK) return TLV_OK;
+            fail(rc, value_offset, ctx->location);
+            leaf_cause(ctx->diagnostic, rc, cause);
+            /* The offending Value bytes, when known, refine the Value start. */
+            conversion = leaf_conversion(cause, rc);
+            if (conversion && ctx->location &&
+                conversion->diagnostic.location.kind != TLV_LOCATION_UNKNOWN) {
+                ctx->location->location = conversion->diagnostic.location;
+                tlv_location_resolve(&ctx->location->location, value_offset, TLV_LOCATION_INPUT);
+            }
+            return rc;
+        }
         case TLV_DER_SCHEMA_ANY:
             return dispatch_any(ctx, value_offset, value_length,
                                 tlv_asn1_tag_is_constructed(&element.tag), depth);
@@ -812,6 +876,20 @@ static tlv_result_t defer_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc,
         wctx->failure_location_known = 1;
     }
     return TLV_OK;
+}
+
+/* A rejected leaf keeps its first-failure conversion detail; the offending
+ * Value byte, when known, locates it inside the leaf's content. */
+static tlv_result_t defer_leaf_failure(der_schema_write_ctx_t* wctx, tlv_result_t rc, size_t owner,
+                                       const tlv_codec_diagnostic_t* codec) {
+    const tlv_codec_diagnostic_t* conversion = leaf_conversion(codec, rc);
+    size_t offset = 0;
+    if (wctx->locate_failure && composition_failure(rc) && wctx->failure == TLV_OK) {
+        leaf_cause(wctx->diagnostic, rc, codec);
+        if (conversion && conversion->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)
+            offset = conversion->diagnostic.location.begin;
+    }
+    return defer_failure(wctx, rc, owner, offset);
 }
 
 static tlv_result_t defer_missing(der_schema_write_ctx_t* wctx, size_t owner,
@@ -1201,11 +1279,14 @@ static tlv_result_t produce_raw_content(der_schema_write_ctx_t* wctx,
                                         size_t* out_len) {
     switch (type->kind) {
         case TLV_DER_SCHEMA_UNIVERSAL: {
-            tlv_result_t rc =
-                encode_leaf_content(wctx, callback_component, index, out_off, out_len);
+            tlv_codec_diagnostic_t codec;
+            tlv_codec_diagnostic_t* cause = wctx->diagnostic ? &codec : NULL;
+            tlv_result_t rc;
+            codec.diagnostic.code = TLV_OK;
+            rc = encode_leaf_content(wctx, callback_component, index, out_off, out_len);
             if (rc != TLV_OK) return rc;
-            rc = validate_leaf_constraint(type, wctx->arena + *out_off, *out_len);
-            return rc == TLV_OK ? TLV_OK : defer_failure(wctx, rc, *out_off, 0);
+            rc = validate_leaf_constraint(type, wctx->arena + *out_off, *out_len, cause);
+            return rc == TLV_OK ? TLV_OK : defer_leaf_failure(wctx, rc, *out_off, cause);
         }
         case TLV_DER_SCHEMA_ANY:
             return encode_leaf_content(wctx, callback_component, index, out_off, out_len);

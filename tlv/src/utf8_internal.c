@@ -84,3 +84,22 @@ tlv_result_t tlv_utf8_validate(const uint8_t* value, size_t length) {
     if (rc != TLV_OK) return rc;
     return tlv_utf8_stream_finish(&state);
 }
+
+/* Feeds one byte at a time so the byte that completes a rejection is known. */
+int tlv_utf8_find_invalid(const uint8_t* value, size_t length, size_t* begin, size_t* end) {
+    tlv_utf8_stream_t state;
+    size_t start = 0, i;
+    tlv_utf8_stream_init(&state);
+    for (i = 0; i < length; ++i) {
+        if (!state.pending_need) start = i;
+        if (tlv_utf8_stream_update(&state, value + i, 1) != TLV_OK) {
+            *begin = start;
+            *end = i + 1;
+            return 1;
+        }
+    }
+    if (!state.pending_need) return 0;
+    *begin = start;
+    *end = length;
+    return 1;
+}

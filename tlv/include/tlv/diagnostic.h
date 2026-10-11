@@ -40,7 +40,8 @@ typedef enum tlv_location_domain {
     TLV_LOCATION_OUTPUT,             /**< Would-be output wire bytes, even if writing failed. */
     TLV_LOCATION_EXPRESSION,         /**< Query expression text bytes. */
     TLV_LOCATION_DEFINITION,         /**< Schema/model definition text bytes. */
-    TLV_LOCATION_VALUE               /**< Value-local bytes whose enclosing origin is unknown. */
+    TLV_LOCATION_VALUE /**< Bytes of one Value, counted from its first byte, whose enclosing
+                          origin is unknown to the producer; see tlv_location_resolve(). */
 } tlv_location_domain_t;
 
 /** @brief Meaning of a location, independently of the failure class. */
@@ -77,6 +78,17 @@ TLV_API void tlv_location_set(tlv_location_t* location, tlv_location_domain_t do
  * @param[in] origin Bytes to add to both coordinates.
  * @note Unknown locations remain unknown; the coordinate domain is preserved. */
 TLV_API void tlv_location_translate(tlv_location_t* location, size_t origin);
+
+/** @brief Place Value-local evidence in the coordinate space that contains the Value.
+ * @param[in,out] location Optional location.
+ * @param[in] origin Offset of the Value's first byte in `domain`.
+ * @param[in] domain Enclosing coordinate space, such as #TLV_LOCATION_INPUT.
+ * @note Only a known #TLV_LOCATION_VALUE location changes: it is translated by
+ * `origin` and takes `domain`. Other locations, including unknown ones, are
+ * unchanged. Overflow or an invalid `domain` makes the location unknown; the
+ * operation's result is never affected. */
+TLV_API void tlv_location_resolve(tlv_location_t* location, size_t origin,
+                                  tlv_location_domain_t domain);
 
 /** @brief Return a static domain name, or "unknown" for an unrecognized value.
  * @param[in] domain Coordinate domain.

@@ -3,7 +3,7 @@
 #ifndef OPENTLV_CODEC_DIAGNOSTIC_H
 #define OPENTLV_CODEC_DIAGNOSTIC_H
 #include "tlv/reader/diagnostic.h"
-#include "tlv/schema/schema.h"
+#include "tlv/schema/detail.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -144,6 +144,27 @@ static inline tlv_result_t tlv_codec_diagnostic_reason(tlv_codec_diagnostic_t* d
                                                        tlv_codec_reason_t reason) {
     if (diagnostic) diagnostic->codec.reason = reason;
     return tlv_codec_diagnostic_result(diagnostic, result);
+}
+/** @brief Publish a rejected Value with its typed reason and the offending Value bytes.
+ * @param[out] diagnostic Optional initialized destination.
+ * @param[in] result Result to publish unchanged, usually #TLV_ERR_INVALID_VALUE.
+ * @param[in] reason Why the conversion rejected its input.
+ * @param[in] kind #TLV_LOCATION_POINT or #TLV_LOCATION_SPAN.
+ * @param[in] begin Inclusive offset from the first Value byte the codec received.
+ * @param[in] end Exclusive span end, or `begin` for a point.
+ * @return result.
+ * @note The location has domain #TLV_LOCATION_VALUE. A caller that knows where
+ * the Value starts places it in its own coordinates with tlv_location_resolve().
+ * Invalid coordinates leave the location unknown without changing the result.
+ */
+static inline tlv_result_t tlv_codec_diagnostic_reason_at(tlv_codec_diagnostic_t* diagnostic,
+                                                          tlv_result_t result,
+                                                          tlv_codec_reason_t reason,
+                                                          tlv_location_kind_t kind, size_t begin,
+                                                          size_t end) {
+    if (diagnostic)
+        tlv_location_set(&diagnostic->diagnostic.location, TLV_LOCATION_VALUE, kind, begin, end);
+    return tlv_codec_diagnostic_reason(diagnostic, result, reason);
 }
 #ifdef __cplusplus
 }

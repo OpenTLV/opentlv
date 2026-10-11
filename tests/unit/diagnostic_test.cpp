@@ -60,6 +60,33 @@ TEST(Unit_Tlv_Diagnostic, InvalidOrOverflowingEnrichmentPreservesOriginalFailure
     EXPECT_EQ(10u, diagnostic.location.end);
 }
 
+TEST(Unit_Tlv_Diagnostic, ResolveMovesOnlyValueLocalEvidence) {
+    tlv_location_t location{};
+    // A Value-local span moves into the enclosing domain at the Value origin.
+    tlv_location_set(&location, TLV_LOCATION_VALUE, TLV_LOCATION_SPAN, 1, 3);
+    tlv_location_resolve(&location, 10, TLV_LOCATION_INPUT);
+    EXPECT_EQ(TLV_LOCATION_INPUT, location.domain);
+    EXPECT_EQ(TLV_LOCATION_SPAN, location.kind);
+    EXPECT_EQ(11u, location.begin);
+    EXPECT_EQ(13u, location.end);
+    // Other domains and unknown locations are unchanged.
+    tlv_location_resolve(&location, 10, TLV_LOCATION_OUTPUT);
+    EXPECT_EQ(TLV_LOCATION_INPUT, location.domain);
+    EXPECT_EQ(11u, location.begin);
+    tlv_location_t unknown{};
+    tlv_location_resolve(&unknown, 10, TLV_LOCATION_INPUT);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, unknown.kind);
+    EXPECT_EQ(TLV_LOCATION_DOMAIN_UNKNOWN, unknown.domain);
+    tlv_location_resolve(nullptr, 10, TLV_LOCATION_INPUT);
+    // Overflow and an invalid destination make the evidence unknown.
+    tlv_location_set(&location, TLV_LOCATION_VALUE, TLV_LOCATION_POINT, 2, 2);
+    tlv_location_resolve(&location, SIZE_MAX - 1, TLV_LOCATION_OUTPUT);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, location.kind);
+    tlv_location_set(&location, TLV_LOCATION_VALUE, TLV_LOCATION_POINT, 2, 2);
+    tlv_location_resolve(&location, 1, TLV_LOCATION_DOMAIN_UNKNOWN);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, location.kind);
+}
+
 TEST(Unit_Tlv_Diagnostic, CopiedDiagnosticOwnsPathAndTruncationState) {
     const uint8_t         tag_bytes[] = {0x30};
     tlv_diagnostic_path_t path{};

@@ -14,6 +14,12 @@
  * Returns TLV_OK or TLV_ERR_INVALID_VALUE. */
 tlv_result_t tlv_utf8_validate(const uint8_t* value, size_t length);
 
+/* Finds the first malformed sequence of input that tlv_utf8_validate() rejects,
+ * for diagnostics only: [*begin, *end) runs from its lead byte through the byte
+ * that proved it invalid, or to length for an incomplete final sequence.
+ * Returns nonzero when such a sequence exists. */
+int tlv_utf8_find_invalid(const uint8_t* value, size_t length, size_t* begin, size_t* end);
+
 /* Streaming validation for byte spans whose boundaries may split a code
  * point (for example CER segments). Initialize before the first update and
  * finish after the final update. After any error, discard the state.

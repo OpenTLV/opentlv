@@ -95,6 +95,7 @@ int main(void) {
     CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_EXPRESSION), "expression");
     CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_DEFINITION), "definition");
     CHECK_NAME(tlv_location_domain_string(TLV_LOCATION_VALUE), "value");
+    CHECK_NAME(tlv_schema_cause_string(TLV_SCHEMA_CAUSE_CODEC), "codec");
     CHECK_NAME(tlv_location_domain_string((tlv_location_domain_t)127), "unknown");
     CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_UNKNOWN), "unknown");
     CHECK_NAME(tlv_location_kind_string(TLV_LOCATION_POINT), "point");
