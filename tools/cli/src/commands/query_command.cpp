@@ -96,12 +96,6 @@ int query_command::run() {
             detail["reader"] =
                 nlohmann::json::parse(format_reader_diagnostic(reader, diagnostic_format::json));
         }
-        if (failure.cause() == tlv::query_cause::schema) {
-            const auto& schema = d.detail.schema;
-            detail["schema"] = {
-                {"kind", tlv::message(static_cast<tlv::schema_issue>(schema.kind))}};
-            if (schema.field) detail["schema"]["field"] = schema.field;
-        }
         if (!strcmp(options_.diagnostics, "json"))
             std::cerr << detail.dump() << '\n';
         else {
@@ -109,6 +103,8 @@ int query_command::run() {
                       << format_diagnostic(d.diagnostic, diagnostic_format::compact, "query",
                                            nullptr)
                       << "; kind=" << tlv::message(failure.kind());
+            if (failure.cause() != tlv::query_cause::none)
+                std::cerr << "; cause=" << tlv::message(failure.cause());
             if (tlv::kind(d.expression) != tlv::location_kind::unknown)
                 std::cerr << "; expression=" << d.expression.begin << ':' << d.expression.end;
             if (failure.cause() == tlv::query_cause::codec)

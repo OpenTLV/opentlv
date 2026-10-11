@@ -17,6 +17,16 @@
 #include "../../unknown_result.h"
 #include "../codec/raw_result.h"
 
+// Query rejected the conversion itself or the provider gave no location, so the
+// expression span is the only evidence and stays primary instead of related.
+#define EXPECT_EXPRESSION_PRIMARY(d)                                                               \
+    do {                                                                                           \
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, (d).diagnostic.location.domain);                        \
+        EXPECT_EQ(TLV_LOCATION_SPAN, (d).diagnostic.location.kind);                                \
+        EXPECT_LT((d).diagnostic.location.begin, (d).diagnostic.location.end);                     \
+        EXPECT_EQ(TLV_LOCATION_UNKNOWN, (d).expression.kind);                                      \
+    } while (0)
+
 namespace {
 
 struct Buffer {
@@ -188,11 +198,8 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 1, 0xff}));
         EXPECT_EQ(TLV_QUERY_ERROR_CODEC, e.diagnostic.kind);
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.diagnostic.detail.codec.reported);
-        // The primitive supplies no byte coordinate; the expression span stays related evidence.
-        EXPECT_EQ(TLV_LOCATION_DOMAIN_UNKNOWN, e.diagnostic.diagnostic.location.domain);
-        EXPECT_EQ(TLV_LOCATION_UNKNOWN, e.diagnostic.diagnostic.location.kind);
-        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
-        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
+        // The primitive supplies no byte coordinate, so the expression span stays primary.
+        EXPECT_EXPRESSION_PRIMARY(e.diagnostic);
     }
     Evaluation e;
     ASSERT_EQ(TLV_OK, e.compile("text(//5A)"));
@@ -478,8 +485,7 @@ TEST(Unit_Tlv_QueryF2, ProviderScratchAlignmentAndResultValidation) {
     EXPECT_EQ(e.run({}), TLV_ERR_CALLBACK);
     EXPECT_EQ(e.diagnostic.kind, TLV_QUERY_ERROR_CALLBACK);
     EXPECT_EQ(e.diagnostic.detail.codec.reported, TLV_OK);
-    EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
-    EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
+    EXPECT_EXPRESSION_PRIMARY(e.diagnostic);
 }
 
 TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
@@ -512,8 +518,7 @@ TEST(Unit_Tlv_QueryF2, ProviderTextResultDiagnostics) {
         EXPECT_EQ(e.diagnostic.kind,
                   test.status == TLV_OK ? TLV_QUERY_ERROR_CALLBACK : TLV_QUERY_ERROR_CODEC);
         EXPECT_EQ(e.diagnostic.detail.codec.reported, test.status);
-        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
-        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
+        EXPECT_EXPRESSION_PRIMARY(e.diagnostic);
     }
 }
 
@@ -652,9 +657,7 @@ TEST(Unit_Tlv_QueryF2, ForeignCallbackResultsRemainReadableInCpp) {
         EXPECT_EQ(TLV_QUERY_ERROR_CALLBACK, e.diagnostic.kind);
         ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
         EXPECT_EQ(reported, e.diagnostic.detail.codec.reported);
-        EXPECT_EQ(reported, e.diagnostic.detail.codec.reported);
         EXPECT_EQ(TLV_CODEC_VIOLATION_RESULT, e.diagnostic.detail.codec.violation);
-        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
-        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
+        EXPECT_EXPRESSION_PRIMARY(e.diagnostic);
     }
 }

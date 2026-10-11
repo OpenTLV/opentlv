@@ -314,6 +314,27 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     query.expression = query.diagnostic.location;
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_SYNTAX, &query));
     query.expression = {};
+    // The reverse direction rejects a cause left behind by an earlier failure.
+    struct Pair {
+        tlv_query_cause_t      cause;
+        tlv_query_error_kind_t kind;
+        bool                   valid;
+    };
+    for (const Pair pair : {Pair{TLV_QUERY_CAUSE_SCHEMA, TLV_QUERY_ERROR_SYNTAX, false},
+                            Pair{TLV_QUERY_CAUSE_READER, TLV_QUERY_ERROR_SYNTAX, false},
+                            Pair{TLV_QUERY_CAUSE_READER, TLV_QUERY_ERROR_STATE, true},
+                            Pair{TLV_QUERY_CAUSE_CODEC, TLV_QUERY_ERROR_EVENTS, false},
+                            Pair{TLV_QUERY_CAUSE_CODEC, TLV_QUERY_ERROR_CALLBACK, true},
+                            Pair{TLV_QUERY_CAUSE_CODEC, TLV_QUERY_ERROR_STATE, true},
+                            Pair{TLV_QUERY_CAUSE_NONE, TLV_QUERY_ERROR_READER, false},
+                            Pair{TLV_QUERY_CAUSE_NONE, TLV_QUERY_ERROR_CODEC, false},
+                            Pair{TLV_QUERY_CAUSE_NONE, TLV_QUERY_ERROR_SCHEMA, false}}) {
+        query.cause = pair.cause;
+        query.kind = pair.kind;
+        EXPECT_EQ(pair.valid, test_query_cause_matches(&query) != 0)
+            << "cause=" << pair.cause << " kind=" << pair.kind;
+    }
+    query.cause = TLV_QUERY_CAUSE_NONE;
     for (auto kind : {TLV_QUERY_ERROR_EVENTS, TLV_QUERY_ERROR_BINDING, TLV_QUERY_ERROR_READER}) {
         query.kind = kind;
         query.diagnostic.code = TLV_ERR_INVALID_STATE;

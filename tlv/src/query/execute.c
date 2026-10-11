@@ -941,7 +941,6 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
                     tlv_diagnostic_init(&reader_diag.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_INFO);
                 }
                 query_reader_failure(d, rc, &reader_diag);
-                d->diagnostic.code = rc;
             }
             return rc;
         }

@@ -11,10 +11,15 @@ static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_codec_diagnosti
     query_error(d, result, TLV_QUERY_ERROR_CODEC, n->begin, n->end, expected);
     if (d) {
         tlv_codec_diagnostic_result(cause, result);
-        /* The conversion's own location and expectation stay primary; the expression
-         * span becomes related evidence and the Query expectation fills only a gap. */
-        query_relate_expression(d);
+        /* A known conversion location stays primary and the expression span becomes
+         * related evidence. Without one, for example when Query itself rejects a
+         * provider's output contract, the expression span remains the primary
+         * evidence. The Query expectation fills only a gap. */
+        const tlv_location_t span = d->diagnostic.location;
+        const int located = cause->diagnostic.location.kind != TLV_LOCATION_UNKNOWN;
+        if (located) query_relate_expression(d);
         d->diagnostic = cause->diagnostic;
+        if (!located) d->diagnostic.location = span;
         if (!d->diagnostic.expected) d->diagnostic.expected = expected;
         d->cause = TLV_QUERY_CAUSE_CODEC;
         d->detail.codec = cause->codec;

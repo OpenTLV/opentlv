@@ -103,12 +103,22 @@ most one active lower-layer detail, selected by its cause.
 | `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
 
 The Query `expression` field is related evidence: it holds the expression span
-only when the primary `diagnostic.location` is in another domain (INPUT, VALUE
-or unknown, for example a Reader or conversion failure). When the span is
-itself primary (`TLV_LOCATION_EXPRESSION`), `expression` is unknown. A Reader
+only when another known location is primary, such as the INPUT or VALUE location
+of a Reader or conversion failure. Otherwise the span itself is primary
+(`TLV_LOCATION_EXPRESSION`) and `expression` is unknown. This includes
+conversion failures without a location, such as a provider output contract that
+Query rejects itself, so the span always remains visible in `diagnostic.location`. A Reader
 failure inside a conversion hook is reachable only as
 `detail.codec.detail.reader`; Query cause `READER` is reserved for its own
 Reader traversal.
+
+Kind and cause agree in both directions: cause `READER` accompanies kind
+`READER` or `STATE`, cause `CODEC` accompanies `CODEC`, `CALLBACK` or `STATE`,
+cause `SCHEMA` accompanies only `SCHEMA`, and cause `NONE` never accompanies
+`READER`, `CODEC` or `SCHEMA`. Kind `TLV_QUERY_ERROR_SCHEMA` and cause
+`TLV_QUERY_CAUSE_SCHEMA` are reported only by the Schema Query entry points
+(`tlv_schema_query_validate_buffer()` and `tlv_schema_query_validate_document()`);
+Query compilation and plain execution never produce them.
 
 Fields removed in #579 and where their values now live:
 
@@ -363,7 +373,10 @@ zero is distinct from absence. Related Query expression spans do not replace
 the primary input/output/Value location. Retained paths hold outermost scopes;
 `path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
 Reader-specific part of a Query failure. Binding Query `begin`/`end` fields
-report the expression span whether it is primary or related.
+report the expression span whether it is primary or related. The binding
+facades still repeat some common evidence, for example the Go and Python Schema
+Query projection copies `query.diagnostic` into its Schema part; aligning the
+binding shapes with the single-source C layout is tracked in #558.
 
 CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common

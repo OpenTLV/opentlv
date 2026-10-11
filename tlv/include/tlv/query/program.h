@@ -125,12 +125,13 @@ TLV_API const char* tlv_query_cause_string(tlv_query_cause_t value);
  * @note This value type is not extensible; changing its layout requires an ABI change. */
 typedef struct tlv_query_diagnostic {
     /** Common result, severity, primary location, path and expected text. The primary
-     * location is an EXPRESSION span for compiler and expression failures, or the INPUT,
-     * VALUE or unknown location reported by the failing node or lower layer. */
+     * location is the known INPUT or VALUE location of the failing node or lower layer;
+     * otherwise it is the EXPRESSION span, including when a lower layer reports no
+     * location, or unknown for admission and lifecycle failures. */
     tlv_diagnostic_t diagnostic;
     tlv_query_error_kind_t kind; /**< Query failure category. */
-    /** Related expression span when the primary location is not in the EXPRESSION domain;
-     * otherwise UNKNOWN, so an expression span is never stored twice. */
+    /** Related expression span when another known location is primary; otherwise UNKNOWN,
+     * so an expression span is never stored twice. */
     tlv_location_t expression;
     const char* limit;       /**< Static resource name, or NULL. */
     size_t configured;       /**< Configured resource bound, when limit is present. */
