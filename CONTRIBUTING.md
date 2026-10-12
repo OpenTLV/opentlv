@@ -10,7 +10,15 @@ privately instead, following [SECURITY.md](SECURITY.md).
 All project spaces, including issues, pull requests, and reviews, are
 governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-For documentation changes, follow the [progressive learning conventions](docs/development/documentation-layout.md#progressive-learning-conventions).
+For documentation changes, first follow the
+[ownership rules](docs/development/documentation-ownership.md) and then the
+[progressive learning conventions](docs/development/documentation-layout.md#progressive-learning-conventions).
+Document new Core functionality alongside its implementation, public API comments
+and native examples. Bindings and tools own their documentation; their current
+co-location in Core is an explicit transitional exception. Portal assembly and
+publication belong to `opentlv-docs`; the existing pipeline stays in place until
+its replacement is validated. Core-only changes do not require unrelated binding
+updates.
 User onboarding starts at the [documentation homepage](docs/index.md); developer
 onboarding continues with [the development workflow](docs/development/workflow.md).
 

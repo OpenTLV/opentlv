@@ -182,6 +182,7 @@ nav:
       - Development workflow: development/workflow.md
       - C ABI compatibility: development/abi-compatibility.md
       - Where documentation belongs: development/documentation-layout.md
+      - Documentation ownership: development/documentation-ownership.md
       - Documentation audit: development/documentation-audit.md
       - Fuzzing: development/fuzzing.md
       - Valgrind checks: development/valgrind.md
