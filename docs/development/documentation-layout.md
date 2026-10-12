@@ -1,7 +1,15 @@
 # Where documentation belongs
 
-Each page lives in exactly one section of [docs/](../README.md). Choose its
-section by the page's primary purpose, and link to related material elsewhere.
+First choose the owning repository using the
+[documentation ownership rules and inventory](documentation-ownership.md).
+Core contracts and C/C++ examples remain in Core; binding/tool documentation
+follows its component, and portal infrastructure belongs to `opentlv-docs`.
+The inventory records temporary co-location and the conditions for moving it.
+
+Within an owner's documentation, each page lives in exactly one section. Choose
+its section by the page's primary purpose, and link to related material elsewhere.
+The paths below describe the current [docs/](../README.md) layout; they do not
+assign consumer or portal content permanently to Core.
 
 | Section | Put here | Example |
 | --- | --- | --- |
@@ -174,11 +182,12 @@ Conventions:
   in `reference/otlv/`, its model in `concepts/`, task-oriented usage in
   `guides/`, and tool commands in `cli/`. A definition language is distinct
   from the wire formats it describes; those remain in `formats/`.
-- **Language bindings**: one directory per binding under `reference/bindings/`,
+- **Language bindings**: in the owning binding repository, one directory per
+  binding under `reference/bindings/`,
   for example `reference/bindings/<language>/`, with task-oriented usage in
   `guides/`.
-- **Additional tooling**: a page or directory per tool in `cli/`; contributor
-  tooling in `development/`.
+- **Additional tooling**: in the owning tool repository, a page or directory per
+  tool in `cli/`; contributor tooling in `development/`.
 - **New formats and standard-specific capabilities**: a directory under `formats/` or `standards/`
   with a `README.md`, as the existing ones do.
 
@@ -189,7 +198,8 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
 
 - Give a section or topic a `README.md` when it needs an overview; a directory
   used only to group pages does not need a placeholder index.
-- Add every new page to the `nav` in [mkdocs.yml](../../mkdocs.yml). Keep the
+- Record every new page in the [ownership inventory](documentation-ownership.md#page-inventory).
+  During the transition, add it to the `nav` in [mkdocs.yml](../../mkdocs.yml). Keep the
   GitHub index [docs/README.md](../README.md), site landing page
   [docs/index.md](../index.md), and project [README.md](../../README.md)
   aligned with the sections and entry points they describe. The GitHub index
@@ -206,6 +216,12 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
   where prerequisite concepts are missing.
 
 ## Documentation inventory checks
+
+These checks currently span the monorepository. Their
+[ownership boundaries](documentation-ownership.md#infrastructure-and-sources-outside-the-page-inventory)
+identify which checks stay with Core and which follow a component or the portal
+when extracted. A Core documentation change does not require unrelated binding
+updates, and inventory success is not evidence of binding feature support.
 
 Run `python scripts/check_doc_inventory.py` and
 `python scripts/test_doc_inventory.py` alongside the existing example check,
