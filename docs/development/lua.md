@@ -78,7 +78,11 @@ runs on every push and pull request to `main`: it builds the module with
 `luarocks make` and runs `busted tests` and every script under `examples/`,
 across Lua 5.1, 5.3 and 5.4 on Linux and Windows, and additionally on macOS
 for release tags and manual runs. Windows jobs initialize the MSVC x64
-environment before installing Lua.
+environment before installing Lua. They install the native LuaRocks 3.11.1
+executable with an isolated rock tree and explicit MSVC configuration;
+the Unix LuaRocks setup action is used only on Linux and macOS.
+The Windows interpreter and native modules use the same shared Lua runtime,
+and rock builds use the Ninja CMake generator.
 
 ## Codec implementation
 

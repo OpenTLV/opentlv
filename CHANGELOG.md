@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Install native LuaRocks with MSVC configuration on Windows CI and use a shared Lua runtime for the interpreter and native modules. (#602)
 - Honor the required workspace alignment in Query diagnostic tests on Win32. (#597)
 - Restore GCC Release builds with warnings treated as errors for fixed-field tests and the C++ codec registry. (#599)
 - Check diagnostic path insertion results in C++ tests so MSVC C++23 builds accept them with warnings treated as errors. (#600)
