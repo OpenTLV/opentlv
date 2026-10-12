@@ -16,7 +16,7 @@
         <link rel="prev" href="../abi-compatibility/">
       
       
-        <link rel="next" href="../documentation-audit/">
+        <link rel="next" href="../documentation-ownership/">
       
       
         
@@ -3242,6 +3242,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../documentation-ownership/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../documentation-audit/" class="md-nav__link">
         
   
@@ -3796,8 +3824,15 @@
 
 
 <h1 id="where-documentation-belongs">Where documentation belongs<a class="headerlink" href="#where-documentation-belongs" title="Permanent link">&para;</a></h1>
-<p>Each page lives in exactly one section of <a href="../../">docs/</a>. Choose its
-section by the page's primary purpose, and link to related material elsewhere.</p>
+<p>First choose the owning repository using the
+<a href="../documentation-ownership/">documentation ownership rules and inventory</a>.
+Core contracts and C/C++ examples remain in Core; binding/tool documentation
+follows its component, and portal infrastructure belongs to <code>opentlv-docs</code>.
+The inventory records temporary co-location and the conditions for moving it.</p>
+<p>Within an owner's documentation, each page lives in exactly one section. Choose
+its section by the page's primary purpose, and link to related material elsewhere.
+The paths below describe the current <a href="../../">docs/</a> layout; they do not
+assign consumer or portal content permanently to Core.</p>
 <table>
 <thead>
 <tr>
@@ -3988,11 +4023,12 @@ without suppressions; do not use the indented <code>=== "Label"</code> syntax.</
   in <code>reference/otlv/</code>, its model in <code>concepts/</code>, task-oriented usage in
   <code>guides/</code>, and tool commands in <code>cli/</code>. A definition language is distinct
   from the wire formats it describes; those remain in <code>formats/</code>.</li>
-<li><strong>Language bindings</strong>: one directory per binding under <code>reference/bindings/</code>,
+<li><strong>Language bindings</strong>: in the owning binding repository, one directory per
+  binding under <code>reference/bindings/</code>,
   for example <code>reference/bindings/&lt;language&gt;/</code>, with task-oriented usage in
   <code>guides/</code>.</li>
-<li><strong>Additional tooling</strong>: a page or directory per tool in <code>cli/</code>; contributor
-  tooling in <code>development/</code>.</li>
+<li><strong>Additional tooling</strong>: in the owning tool repository, a page or directory per
+  tool in <code>cli/</code>; contributor tooling in <code>development/</code>.</li>
 <li><strong>New formats and standard-specific capabilities</strong>: a directory under <code>formats/</code> or <code>standards/</code>
   with a <code>README.md</code>, as the existing ones do.</li>
 </ul>
@@ -4002,7 +4038,8 @@ does not require placeholder pages or new OTLV, binding or tool documentation.</
 <ul>
 <li>Give a section or topic a <code>README.md</code> when it needs an overview; a directory
   used only to group pages does not need a placeholder index.</li>
-<li>Add every new page to the <code>nav</code> in <a href="https://github.com/marekcingel/OpenTLV/blob/main/mkdocs.yml">mkdocs.yml</a>. Keep the
+<li>Record every new page in the <a href="../documentation-ownership/#page-inventory">ownership inventory</a>.
+  During the transition, add it to the <code>nav</code> in <a href="https://github.com/marekcingel/OpenTLV/blob/main/mkdocs.yml">mkdocs.yml</a>. Keep the
   GitHub index <a href="../../">docs/README.md</a>, site landing page
   <a href="../../">docs/index.md</a>, and project <a href="https://github.com/marekcingel/OpenTLV/blob/main/README.md">README.md</a>
   aligned with the sections and entry points they describe. The GitHub index
@@ -4019,6 +4056,11 @@ does not require placeholder pages or new OTLV, binding or tool documentation.</
   where prerequisite concepts are missing.</li>
 </ul>
 <h2 id="documentation-inventory-checks">Documentation inventory checks<a class="headerlink" href="#documentation-inventory-checks" title="Permanent link">&para;</a></h2>
+<p>These checks currently span the monorepository. Their
+<a href="../documentation-ownership/#infrastructure-and-sources-outside-the-page-inventory">ownership boundaries</a>
+identify which checks stay with Core and which follow a component or the portal
+when extracted. A Core documentation change does not require unrelated binding
+updates, and inventory success is not evidence of binding feature support.</p>
 <p>Run <code>python scripts/check_doc_inventory.py</code> and
 <code>python scripts/test_doc_inventory.py</code> alongside the existing example check,
 Markdown lint, generated API references and strict MkDocs build. CI runs both
@@ -4213,13 +4255,13 @@ unchanged site URLs and preserved heading anchors continue to work.</p>
         
         
           
-          <a href="../documentation-audit/" class="md-footer__link md-footer__link--next" aria-label="Next: Documentation audit">
+          <a href="../documentation-ownership/" class="md-footer__link md-footer__link--next" aria-label="Next: Documentation ownership">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Documentation audit
+                Documentation ownership
               </div>
             </div>
             <div class="md-footer__button md-icon">
