@@ -66,7 +66,7 @@ Git tags; it follows its own release cadence, the same way the Rust crates'
 `opentlv.__version__` is a separate thing: it calls `tlv_version_string()` at
 import time (through `opentlv-core`) and reports the version of the
 *linked C library*, not either package's own version. The two can differ,
-for example packages at `0.1.0` built against OpenTLV C library `0.6.0`.
+for example packages at `0.1.0` built against OpenTLV C library `0.7.0`.
 
 ## Continuous integration
 

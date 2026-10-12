@@ -183,7 +183,7 @@ the same way the Python package's `pyproject.toml` version does (see
 [Python bindings](python.md#versioning)). `opentlv::version()` is a separate
 thing: it calls `tlv_version_string()` at run time and reports the version of
 the *linked C library*, not the crate's own version. The two can differ, for
-example crate `0.1.0` built against OpenTLV C library `0.6.0`.
+example crate `0.1.0` built against OpenTLV C library `0.7.0`.
 
 ## Continuous integration and quality checks
 
