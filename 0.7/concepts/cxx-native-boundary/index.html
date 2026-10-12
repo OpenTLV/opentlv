@@ -1,0 +1,4561 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
+      
+      
+      
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/0.7/concepts/cxx-native-boundary/">
+      
+      
+        <link rel="prev" href="../endian/">
+      
+      
+        <link rel="next" href="../cxx-formats/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>C++ public/native boundary - OpenTLV</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../playground/playground.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c-public-and-native-boundary" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenTLV
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C++ public/native boundary
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/processing/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/cxx-examples/" class="md-tabs__link">
+          
+  
+  
+  Language APIs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
+          
+  
+  
+  Formats
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/der/" class="md-tabs__link">
+          
+  
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cli/" class="md-tabs__link">
+          
+  
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../runtime-model/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    OpenTLV
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language APIs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language APIs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/webassembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly tooling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formats
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Formats
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV JSON document
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/compilers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#public-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public facade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ownership-allocation-and-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership, allocation and errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ownership, allocation and errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exception-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exception policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node-validity-and-allocation-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node validity and allocation costs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concurrent-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrent access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#explicit-interoperability-and-lifetime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit interoperability and lifetime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-and-traversal-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error and traversal contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error and traversal contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagnostic-storage-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic storage costs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traversal-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traversal outcomes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customization-and-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customization and ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-audit-and-enforcement-440" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage audit and enforcement (#440)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Coverage audit and enforcement (#440)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#builtin-metadata-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builtin metadata audit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Where documentation belongs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/reader-decode-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/indefinite-boundary-reuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indefinite boundary reuse follow-up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logo assets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#public-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Public facade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ownership-allocation-and-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ownership, allocation and errors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ownership, allocation and errors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exception-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exception policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#node-validity-and-allocation-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node validity and allocation costs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concurrent-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrent access
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#explicit-interoperability-and-lifetime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit interoperability and lifetime
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-and-traversal-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error and traversal contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Error and traversal contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#diagnostic-storage-costs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic storage costs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#traversal-outcomes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Traversal outcomes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customization-and-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customization and ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coverage-audit-and-enforcement-440" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coverage audit and enforcement (#440)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Coverage audit and enforcement (#440)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#builtin-metadata-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builtin metadata audit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#source-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Source migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/cxx-native-boundary.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="c-public-and-native-boundary">C++ public and native boundary<a class="headerlink" href="#c-public-and-native-boundary" title="Permanent link">&para;</a></h1>
+<p><code>tlv++</code> is an idiomatic C++11 API over the canonical C engine. It is
+header-only and links to <code>tlv</code>; all wire processing, traversal, Query and
+Document operations delegate to C. The
+<a href="../architecture/#conceptual-model">architecture overview</a> owns the shared model;
+exact declarations belong in the <a href="../../reference/cxx-api/">C++ reference</a>.</p>
+<h2 id="public-facade">Public facade<a class="headerlink" href="#public-facade" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Responsibility</th>
+<th>Public C++ API</th>
+<th>Contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Identifier and content</td>
+<td><code>tag</code>, <code>value_view</code>, <code>element_view</code>, <code>decoded</code></td>
+<td>Borrowed bytes; Tag is byte identity</td>
+</tr>
+<tr>
+<td>Format</td>
+<td><code>format</code>, <code>format_traits&lt;F&gt;</code>, <code>format_adapter&lt;F&gt;</code></td>
+<td>Non-owning execution view or owned immutable configuration adapted to C</td>
+</tr>
+<tr>
+<td>Sequential reading</td>
+<td><code>reader&lt;F&gt;</code>, <code>parse&lt;F&gt;</code>, built-in <code>parse</code></td>
+<td>Explicit pulls or ranges over complete borrowed Elements</td>
+</tr>
+<tr>
+<td>Nested reading</td>
+<td><code>tree_reader</code>, items, events and <code>visit</code></td>
+<td>Caller frames, limits, subtree skip and resumable windows</td>
+</tr>
+<tr>
+<td>Writing</td>
+<td><code>writer&lt;F&gt;</code>, <code>tree_writer</code>, <code>writer_builder</code>, built-in <code>encode</code></td>
+<td>Caller output and explicit scratch; staged constructed parents</td>
+</tr>
+<tr>
+<td>Owned data</td>
+<td><code>document</code>, <code>node</code>, <code>const_node</code>, <code>document_builder</code></td>
+<td>RAII ownership, checked mutable/read-only handles, edits and regenerated encoding</td>
+</tr>
+<tr>
+<td>Runtime configuration</td>
+<td><code>runtime_fixed_format</code>, <code>byte_order</code>, <code>element_order</code>, <code>length_scope</code></td>
+<td>Stable immutable owner; views borrow it and cannot be obtained from temporaries</td>
+</tr>
+<tr>
+<td>Schema</td>
+<td><code>schema_storage&lt;N&gt;</code>, <code>schema</code>, <code>validation_report&lt;N&gt;</code></td>
+<td>Caller-owned bounded tables and reports; validation delegates to C without allocation</td>
+</tr>
+<tr>
+<td>Runtime Values</td>
+<td><code>dynamic_codec</code>, <code>emv::dictionary</code></td>
+<td>Explicit representation contracts and immutable metadata; no tag lookup in Value conversion</td>
+</tr>
+<tr>
+<td>Selection</td>
+<td><code>query</code>, <code>query_matcher</code>, Document Query</td>
+<td>C grammar and matching over borrowed or owned traversal</td>
+</tr>
+<tr>
+<td>Typed Values</td>
+<td><code>field</code>, Value codecs, typed decode/find/write</td>
+<td>Explicit Tag/codec association; shared results with codec and framing context</td>
+</tr>
+<tr>
+<td>Standards</td>
+<td><code>ber</code>, <code>der</code>, <code>cer</code>, <code>asn1</code>, <code>emv</code>, <code>bluetooth</code>, <code>lldp</code>, <code>dhcp</code>, <code>nfc</code></td>
+<td>Domain conveniences under enabled native components</td>
+</tr>
+</tbody>
+</table>
+<p>Generic concepts stay public under <code>tlv</code>. <code>tlv::detail</code> contains descriptor
+access, callback trampolines and adaptation; it has no source-compatibility
+guarantee and is not an application API. Native callback tables, ABI parity fixtures and externally supplied C descriptors
+are intentional interoperability. Schema rules, runtime Format configuration,
+Codec selection and Query configuration have public C++ representations.</p>
+<p>Built-in framing types work with <code>tlv::reader&lt;tlv::ber::format&gt;</code> and
+<code>tlv::writer&lt;tlv::ber::format&gt;</code>; <code>tlv::ber::parse(data)</code> supplies a range.
+Protocol-specific Reader aliases remain unimplemented; the typed cursor and
+parse helper are the current API. See <a href="../cxx-formats/">Format customization</a>,
+<a href="../cxx-builtins/">built-in standards</a>, <a href="../../guides/cxx-examples/">compiled examples</a>
+and <a href="../../guides/codecs/#c11-typed-fields-and-value-codecs">typed fields</a>.</p>
+<h2 id="ownership-allocation-and-errors">Ownership, allocation and errors<a class="headerlink" href="#ownership-allocation-and-errors" title="Permanent link">&para;</a></h2>
+<p>Semantic views borrow Tag/Value storage; source metadata can also depend on the
+Format descriptor and context. Keep them alive and unchanged while retained
+results are used. Copying a <code>format</code> execution view allocates nothing and does
+not extend those lifetimes. Typed cursors own their Format configuration;
+higher-level consumers can share a named <code>format_adapter</code>. Views must not
+outlive the cursor/adapter that supplies their descriptor.</p>
+<p>Sequential Writer uses caller output. Tree Writer and scoped Builder stage
+constructed content in bounded scratch without implicit growth. Document owns
+copied data and allocates one shared lifetime record. Observing or copying Node
+handles does not allocate. Owning codec
+results, vector conveniences and application callbacks may also
+allocate. Successful borrowed/fixed-size codec operations retain their C
+allocation behavior.</p>
+<p>Cursor operations return <code>expected</code> with <code>tlv::error</code>; copying the error and its
+borrowed static message does not allocate. <code>status()</code> exposes <code>tlv::codec_failure</code>, with
+distinct <code>end</code> and <code>need_more_data</code> outcomes. Located errors expose
+<code>location()</code>, whose domain says whether its coordinates count input, would-be
+output, Query expression or Value bytes, and <code>stage()</code>. Custom error descriptions are borrowed
+and must outlive the errors. Format customization uses <code>format_failure</code> and scoped construction
+uses <code>writer_failure</code>, preserving codes/detail without allocating error strings.
+Typed field failures distinguish invalid handles, Tag mismatch, constructed
+Values, codec errors and Writer errors. Ranges use their documented failure
+channel; explicit pulls give control over resumable statuses.
+<code>errc::need_more_data</code> is a pause and <code>errc::end</code> is final exhaustion.
+C++11 remains the baseline; generic lambdas require C++14.</p>
+<h3 id="exception-policy">Exception policy<a class="headerlink" href="#exception-policy" title="Permanent link">&para;</a></h3>
+<p>The C++ facade requires compiler exception support. Operational failures from
+explicit cursor, validation and conversion operations use <code>expected</code>. Reader
+and Query range iteration throw on failure, including incomplete non-final input;
+malformed input never silently becomes a successful end iterator. Use explicit
+pulls when an application needs to resume input or handle errors without throwing.
+Checked access/precondition violations use the documented standard exceptions;
+allocations in owning operations can propagate <code>std::bad_alloc</code>. Callbacks retain
+their documented exception contracts. No second exception-disabled implementation
+of the C++ facade is provided. The canonical C engine remains available in builds
+that disable C++ exceptions.</p>
+<p>Successful <code>schema_storage&lt;N,G&gt;</code> construction uses only its bounded inline tables.
+Exceeding either capacity throws <code>std::length_error</code>; constructing that exception
+may allocate. The allocation-free guarantee does not cover this failure path.</p>
+<h3 id="node-validity-and-allocation-costs">Node validity and allocation costs<a class="headerlink" href="#node-validity-and-allocation-costs" title="Permanent link">&para;</a></h3>
+<p>Each Node handle stores a pointer, identity and cached Document retirement epoch
+and borrows the owner's lifetime record. Access is constant-time while that epoch
+is unchanged, including after insertion and primitive Value replacement.
+After an edit retires Nodes, the first access through each retained handle checks membership
+without dereferencing a possibly freed pointer; it also compares identity to
+reject allocator address reuse. This check scans the current Document in O(nodes).
+Subsequent accesses at the same epoch are constant-time. Copies validate
+independently; moving the owning Document preserves handles, and owner destruction
+invalidates them. A <code>const document</code> returns <code>const_node</code>, including through Query
+selection, so child traversal cannot recover mutation.</p>
+<p>The canonical <code>tlv_document_retire_epoch()</code> advances only on actual erasure or
+successful constructed Value replacement that removes existing descendants.
+Failed individual edits and replacing an empty constructed Value do not retire Nodes.
+The separate <code>tlv_document_revision()</code> still changes on every successful edit,
+preserving Query execution invalidation. Native and C++ edits use the same epochs.</p>
+<p>For primitive children, <code>for (auto child : parent.children()) child.set(value)</code>
+therefore has constant-time handle validation per iteration. Accessing H retained
+handles after one insertion or primitive replacement also avoids membership scans.
+After actual Node retirement, accessing H retained handles can still cost
+O(H * nodes), even for surviving siblings. Erasing Nodes or replacing subtrees
+during traversal can consequently remain quadratic. Value views still borrow
+bytes that a primitive replacement can invalidate; handle validity does not
+extend those byte lifetimes.</p>
+<p>The <a href="../../development/cxx-facade-performance/">C++ facade performance report</a>
+describes the Reader and Document workloads, measurement boundaries and retained
+retirement costs.</p>
+<p>The <code>test-document-handle-smoke</code> C++11 target checks zero C++ allocations during
+seven traversals of 10,000 nodes, handle invalidation, short typed writes and
+Reader failure reporting. Pass an extra argument to print raw repetitions as
+<code>repeat,observed_nodes,allocations,microseconds</code>. Local measurements before replacing
+the map/token tracker observed 20,007 allocations on the first traversal and 10,000
+on subsequent traversals; the checked identity handles observed zero in all seven.
+This is an allocation result for that workload, not a general timing guarantee.
+The smoke test does not measure traversal interleaved with edits.
+The owning C Document still allocates its tree. Typed Writer convenience operations
+use 64 bytes of stack scratch for short encoded values, then a vector for larger
+values; caller-supplied scratch avoids this fallback.</p>
+<h3 id="concurrent-access">Concurrent access<a class="headerlink" href="#concurrent-access" title="Permanent link">&para;</a></h3>
+<p><code>const document</code> and <code>const_node</code> restrict mutation through the public interface;
+they do not promise thread safety. Node accessors can update a handle's mutable
+pointer/epoch cache after a Document edit retires Nodes. Two threads reading the same
+<code>const_node</code> can therefore race even after the mutation has completed. Externally
+synchronize concurrent access to a Document and its shared handles, including
+const access; read-only traversal does not supply synchronization.</p>
+<h2 id="explicit-interoperability-and-lifetime">Explicit interoperability and lifetime<a class="headerlink" href="#explicit-interoperability-and-lifetime" title="Permanent link">&para;</a></h2>
+<p>Include <code>&lt;tlv++/native.hpp&gt;</code> explicitly to mix C and C++ APIs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">borrow_format</span><span class="p">(</span><span class="n">native_descriptor</span><span class="p">);</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">tlv</span><span class="o">::</span><span class="n">reader</span><span class="o">&lt;&gt;</span><span class="w"> </span><span class="n">reader</span><span class="p">(</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">format</span><span class="p">);</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="o">&amp;</span><span class="w"> </span><span class="n">descriptor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">native</span><span class="o">::</span><span class="n">descriptor</span><span class="p">(</span><span class="n">format</span><span class="p">);</span>
+</code></pre></div>
+<p>Import requires a named, live <code>tlv_format_t</code>, rejecting mutable and const
+temporaries. Export returns an immutable reference to the original descriptor.
+It neither copies configuration nor transfers ownership. The descriptor,
+context and Format-owned identifier storage must outlive dependent operations
+and retained views, even when the C++ view itself was temporary.</p>
+<p><code>document_format</code> and Document creation copy the descriptor into stable storage;
+the context remains borrowed. Builder-produced Documents retain the source
+Reader's descriptor dependency. Copying a descriptor does not copy its context.</p>
+<p>Semantic imports use checked <code>tlv::native::borrow_element</code>; the descriptor is
+copied but its bytes stay borrowed. Export is explicit through
+<code>tlv::native::descriptor</code>. Document and Node interoperability uses
+<code>tlv::native::handle()</code>, preserving constness for const Documents and <code>const_node</code>.
+Native Document edits participate in retirement-epoch/identity checks when retained
+C++ handles are accessed. Never free the borrowed owner or retain raw pointers
+after its destruction. Query path descriptors use <code>native::descriptor(query)</code>; compiled programs and
+mutable continuations use <code>native::handle()</code>. Temporary owning objects cannot
+export retained pointers.</p>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/fixed_format_runtime.cpp">runtime Fixed example</a>
+demonstrates <code>runtime_fixed_format</code> with caller-owned configuration. A copied
+owner rebinds its descriptor to its own configuration; existing views continue
+to borrow the original owner. Reader/Writer construction from a C descriptor now
+requires explicit <code>native::borrow_format()</code>. See the
+<a href="../format-contract/">Format contract</a>, <a href="../core-types/#c-semantic-views">semantic views</a>
+and <a href="../../guides/memory/">memory guide</a> for borrowing and preservation.</p>
+<h2 id="error-and-traversal-contract">Error and traversal contract<a class="headerlink" href="#error-and-traversal-contract" title="Permanent link">&para;</a></h2>
+<p><code>tlv::to_error(result.error())</code> projects ordinary and specialized errors into
+one allocation-free diagnostic: <code>status()</code>, <code>message()</code>, <code>severity()</code>, <code>stage()</code>,
+<code>location()</code>, optional <code>tag()</code>, enclosing <code>ancestor(i)</code> identifiers, and optional
+<code>expected()</code>/<code>actual()</code> descriptions. Check the location kind and <code>has_tag()</code>
+before using location metadata, and read <code>begin</code> in the location's domain. Ancestor descriptors are copied into bounded inline
+storage; their identifier bytes and diagnostic strings remain borrowed.
+Unavailable context stays absent rather than inventing an offset or constraint.
+Keep the original <code>typed_error</code>, <code>writer_failure</code>, <code>format_failure</code>,
+<code>validation_issue</code> or <code>query_failure</code> for subsystem-specific numeric details.
+Schema reports expose bounds, occurrence counts, form and alternative-group
+information through C++ accessors. Legacy diagnostic aliases remain useful for
+advanced diagnostic collection; common consumers need no native constants.</p>
+<h3 id="diagnostic-storage-costs">Diagnostic storage costs<a class="headerlink" href="#diagnostic-storage-costs" title="Permanent link">&para;</a></h3>
+<p>Allocation-free errors use fixed inline storage for up to 32 ancestor descriptors.
+This increases the size of every <code>error</code> and of result objects, including successful
+<code>expected&lt;element_view, error&gt;</code> results, even though success does not construct an
+error. Schema reports reserve full diagnostic records for their declared capacity.
+Representative GCC C++11 layouts measured with the default configuration are:</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th style="text-align: right;">x86-64 bytes</th>
+<th style="text-align: right;">x86 bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>error</code> before this facade change</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">28</td>
+</tr>
+<tr>
+<td><code>error</code> with inline diagnostic context</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">304</td>
+</tr>
+<tr>
+<td><code>expected&lt;element_view, error&gt;</code></td>
+<td style="text-align: right;">608</td>
+<td style="text-align: right;">308</td>
+</tr>
+<tr>
+<td><code>validation_report&lt;0&gt;</code></td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>validation_report&lt;1&gt;</code></td>
+<td style="text-align: right;">712</td>
+<td style="text-align: right;">368</td>
+</tr>
+<tr>
+<td><code>validation_report&lt;8&gt;</code></td>
+<td style="text-align: right;">5640</td>
+<td style="text-align: right;">2916</td>
+</tr>
+</tbody>
+</table>
+<p>These are measured layouts, not ABI size guarantees; check <code>sizeof</code> with the target
+compiler, standard library and configuration. Account for this storage in retained
+result vectors, recursive calls and embedded stack budgets. Consume results as they
+arrive when retaining the full diagnostics is unnecessary. Choose report capacity
+and storage placement explicitly; <code>validation_report&lt;0&gt;</code> counts violations without
+retaining records. The inline representation keeps returned errors self-contained
+without heap allocation for ancestor descriptors; their identifier bytes remain borrowed.</p>
+<h3 id="traversal-outcomes">Traversal outcomes<a class="headerlink" href="#traversal-outcomes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Completion</th>
+<th>Failure and continuation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reader / Tree Reader <code>next()</code></td>
+<td>Element or event</td>
+<td><code>end</code> is final exhaustion; <code>need_more_data</code> preserves resumable state</td>
+</tr>
+<tr>
+<td>Reader / Query range</td>
+<td>End iterator after final exhaustion</td>
+<td>Throws its documented parse/query exception, never silently drops malformed input</td>
+</tr>
+<tr>
+<td>Visitor</td>
+<td><code>visit_control::next</code> continues; <code>stop</code> succeeds</td>
+<td><code>error</code> reports a visitor failure; callback exceptions follow the documented callback contract</td>
+</tr>
+<tr>
+<td>Writer</td>
+<td>Successful result advances committed cursor</td>
+<td>Failed writes preserve cursor; a callback may have modified uncommitted destination bytes</td>
+</tr>
+<tr>
+<td>Schema report</td>
+<td>Total violation count, including omitted entries</td>
+<td>Wire/argument failure is an error; <code>truncated()</code> distinguishes bounded report storage</td>
+</tr>
+<tr>
+<td>Document parse</td>
+<td>Owning tree</td>
+<td>Operational status and available absolute offset; allocation exceptions can propagate</td>
+</tr>
+<tr>
+<td>Query pull</td>
+<td>Match or scalar</td>
+<td>Original limit, conversion, source or execution detail; reset requirements remain canonical</td>
+</tr>
+</tbody>
+</table>
+<h2 id="customization-and-ownership">Customization and ownership<a class="headerlink" href="#customization-and-ownership" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>Owns</th>
+<th>Borrows and invalidation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>runtime_fixed_format</code></td>
+<td>Configuration and descriptor</td>
+<td>Views borrow the named owner; copies rebind to independent configuration</td>
+</tr>
+<tr>
+<td><code>format_adapter&lt;F&gt;</code> / typed cursor</td>
+<td>C++ Format state</td>
+<td>Input and retained source views depend on its stable lifetime</td>
+</tr>
+<tr>
+<td><code>schema_storage&lt;N,G&gt;</code></td>
+<td>Bounded rule/group tables</td>
+<td>Identifier bytes, names and child schemas; no copy/move or temporary views</td>
+</tr>
+<tr>
+<td><code>codec_owner&lt;C&gt;</code></td>
+<td>Stateful codec and callback descriptor</td>
+<td>Runtime views borrow the stationary owner; decoded borrowed Values depend on input</td>
+</tr>
+<tr>
+<td><code>query_options</code></td>
+<td>Declaration table</td>
+<td>Names and optional environment during compilation; finish mutation before borrowing</td>
+</tr>
+<tr>
+<td><code>query_environment</code></td>
+<td>Provider table</td>
+<td>Format and provider contexts through all dependent programs/executions</td>
+</tr>
+<tr>
+<td><code>validation_report&lt;N&gt;</code> / copied issue</td>
+<td>Diagnostic records and ancestor descriptors</td>
+<td>Identifier bytes and field names from input, Format or Schema</td>
+</tr>
+<tr>
+<td><code>document</code> / <code>node</code></td>
+<td>Tree / checked non-owning handle</td>
+<td>All edits change Query revision; Node retirement changes the handle epoch; destruction invalidates handles</td>
+</tr>
+</tbody>
+</table>
+<p>Custom Format methods use exact C++ return types and <code>const noexcept</code> callbacks;
+the existing positive and negative compile checks enforce this contract. Typed
+codecs return <code>expected&lt;T, codec_failure&gt;</code> and may propagate their own allocation
+exceptions. <code>codec_owner&lt;C&gt;</code> additionally requires const, nonthrowing decode and
+encode methods and a nothrow move-assignable representation because it invokes
+those methods through the canonical C callback ABI. Non-default-constructible
+codec state can be constructed in place. Codec encode with <code>nullptr, 0</code> measures
+and validates; runtime decoding must use the exact documented representation.</p>
+<p>Schema rule modifiers return copies, so additional constraints can be composed in
+initializer lists without mutating a base rule:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">const</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">schema_storage</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">schema</span><span class="p">(</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="p">{</span><span class="n">tlv</span><span class="o">::</span><span class="n">schema_rule</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(),</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">}).</span><span class="n">with_length_multiple</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="n">in_group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">     </span><span class="n">tlv</span><span class="o">::</span><span class="n">schema_rule</span><span class="p">(</span><span class="n">tlv</span><span class="o">::</span><span class="n">tag_bytes</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(),</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">}).</span><span class="n">with_endpoints_only</span><span class="p">().</span><span class="n">in_group</span><span class="p">(</span><span class="mi">1</span><span class="p">)},</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">tlv</span><span class="o">::</span><span class="n">schema_order</span><span class="o">::</span><span class="n">any</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">tlv</span><span class="o">::</span><span class="n">bounds</span><span class="o">::</span><span class="n">exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="s">"choice"</span><span class="p">}});</span>
+</code></pre></div>
+<p>Here either identifier must occur exactly once across the group. The first accepts
+even Value lengths from 2 to 8; the second accepts only lengths 2 and 8.</p>
+<h2 id="coverage-audit-and-enforcement-440">Coverage audit and enforcement (#440)<a class="headerlink" href="#coverage-audit-and-enforcement-440" title="Permanent link">&para;</a></h2>
+<p>The closure boundary is complete supported consumer workflows, not a one-to-one
+copy of every C helper. All ordinary examples and CLI sources pass
+<code>scripts/check_cxx_boundary.py</code>; the CI job also runs the scanner's regression
+tests. The scanner rejects native headers, C identifiers/constants and
+<code>tlv::detail</code>/<code>tlv::native</code> usage. The generated <code>tlv/config.h</code> capability switches
+are allowed. Native parity, malformed-native-input fixtures and the explicit
+interoperability example have exact per-path, per-symbol occurrence baselines in
+<code>scripts/cxx_boundary_baseline.json</code>, each with a reason. These files remain
+checked: new symbols, additional occurrences and stale allowances fail the gate.
+Qualified <code>tlv::native</code> and <code>tlv::detail</code> members have separate counts. Changing a
+fixture requires reviewing its baseline alongside the source change; no entire
+file is exempt. Mixed historical parity files are not claimed as pure public
+examples. New public acceptance tests belong in <code>tests/unit/public_api_test.cpp</code>.
+The scanner covers <code>.cpp</code>, <code>.hpp</code>, <code>.h</code>, <code>.cc</code>, <code>.cxx</code> and <code>.inl</code> under the consumer
+roots; tests enter its scope when they directly include <code>tlv++/</code> headers, so pure
+C engine harnesses remain outside this gate. Run
+<code>--report build/cxx-boundary.json</code> for the audit.</p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Implemented contract and evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#451</td>
+<td>Public coverage table, CLI migration, public acceptance tests and explicit native baselines</td>
+</tr>
+<tr>
+<td>#452</td>
+<td>Common error projection, borrowed messages, located Reader/Writer/Document errors and Schema reports</td>
+</tr>
+<tr>
+<td>#453</td>
+<td>Bounded declarative Schema rules/groups, child schemas and validation/report APIs</td>
+</tr>
+<tr>
+<td>#454</td>
+<td>Runtime Fixed owner, configuration validation, independent copying and CLI selection</td>
+</tr>
+<tr>
+<td>#455</td>
+<td>Scoped status, codec, visitor, byte/order, Schema and Query enums plus domain constants</td>
+</tr>
+<tr>
+<td>#456</td>
+<td>Runtime Codec view, stateful owner and exact representation/error contracts</td>
+</tr>
+<tr>
+<td>#457</td>
+<td>Builtin metadata audit below and runtime EMV dictionary/Bluetooth metadata APIs</td>
+</tr>
+<tr>
+<td>#458</td>
+<td>Lifetime table, rejected temporary borrows and copied-owner/invalidated-handle tests</td>
+</tr>
+<tr>
+<td>#459</td>
+<td>Identity/retirement-epoch Node validation, zero-allocation traversal and edit/snapshot benchmarks</td>
+</tr>
+<tr>
+<td>#460</td>
+<td>Allocation-free returned errors and short typed writes; explicit scratch alternatives</td>
+</tr>
+<tr>
+<td>#461</td>
+<td>Completion/pause/failure table and failed-initialization/range regression tests</td>
+</tr>
+<tr>
+<td>#462</td>
+<td>C++ Format overloads and explicit native imports, descriptors and handles</td>
+</tr>
+<tr>
+<td>#463</td>
+<td>Exact Format/Codec contracts, positive/negative compile checks and stateful Codec test</td>
+</tr>
+<tr>
+<td>#464</td>
+<td>Read-only Document traversal, selection and semantic diff handles</td>
+</tr>
+<tr>
+<td>#465</td>
+<td>One exception-enabled C++ contract with a negative exception-disabled compile check</td>
+</tr>
+<tr>
+<td>#466</td>
+<td>Public runtime-format, validation, typed-field and traversal examples</td>
+</tr>
+<tr>
+<td>#467</td>
+<td>Public C++ CLI parsing, writing, metadata, validation, decoding, Query and diagnostics</td>
+</tr>
+<tr>
+<td>#468</td>
+<td>Architectural scanner, exact native symbol baselines, scanner tests and CI integration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="builtin-metadata-audit">Builtin metadata audit<a class="headerlink" href="#builtin-metadata-audit" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Legitimate public C++ metadata and composition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EMV</td>
+<td>With Codec and Schema enabled, <code>emv::dictionary</code> entries expose context-dependent name/symbol, kind, Codec, length bounds/step and validation; child contexts and structural Schema stay in the domain</td>
+</tr>
+<tr>
+<td>ASN.1</td>
+<td>Typed representations, identifier limits, BER identifier reading, DER limits/validation and explicit ASN.1 Query providers; no duplicate generic registry</td>
+</tr>
+<tr>
+<td>Bluetooth</td>
+<td>AD type/company names, structural Schema, container validation and typed UUID access; registry data remains canonical</td>
+</tr>
+<tr>
+<td>LLDP</td>
+<td>Framing, typed chassis/port/capability representations and separate container validation; no additional runtime dictionary is required by supported consumers</td>
+</tr>
+<tr>
+<td>DHCP</td>
+<td>Framing, typed Values and options-container validation; <code>dhcp::options_rules</code> selects End and tail policy without native tables</td>
+</tr>
+<tr>
+<td>NFC</td>
+<td>Framing and semantic element representation; no separate runtime dictionary/Schema surface is required by current supported use cases</td>
+</tr>
+<tr>
+<td>Future domains</td>
+<td>Add reusable Schema/Codec/definition concepts when real consumer workflows require them; protocol policy stays outside generic core</td>
+</tr>
+</tbody>
+</table>
+<h3 id="source-migration">Source migration<a class="headerlink" href="#source-migration" title="Permanent link">&para;</a></h3>
+<p>Use <code>error.message()</code> instead of the previous owning string field, and scoped
+<code>codec_failure</code>/<code>codec_failure</code> values instead of C constants in C++ callbacks. Custom typed
+codecs must update their <code>expected</code> error type to <code>codec_failure</code>. Use
+<code>fixed_format&lt;...&gt;::view()</code> or a preset object, and <code>runtime_fixed_format</code> for
+runtime policies. Raw Format overloads become <code>native::borrow_format(raw)</code>.
+Native typed codec adapters move to <code>native::codec_adapter</code>; raw Schema
+validation lives under <code>native::validate</code>. Query compiler settings and runtime
+capabilities are obtained from named C++ owners; existing C tables can be imported
+with <code>native::borrow_query_settings</code> and <code>native::borrow_query_capabilities</code>.
+These are C++ source changes. Existing C entry points and public layouts remain
+compatible; the additive <code>tlv_document_retire_epoch()</code> entry point requires users
+of the updated C++ Document headers to link a matching native library.</p>
+<p><code>reader::at_end()</code> and <code>tree_reader::at_end()</code> now return <code>false</code> after failed
+initialization; previously an initialization failure appeared to be clean
+end-of-input. A loop using <code>while (!reader.at_end())</code> must check the result of
+<code>next()</code> and stop or recover on failure. Ignoring that result can now repeat
+indefinitely with an invalid Format. In explicit pull loops, treat
+<code>errc::end</code> as completion, <code>errc::need_more_data</code> as a resumable pause,
+and other errors as failures requiring handling before another pull.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../endian/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Byte order">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Byte order
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../cxx-formats/" class="md-footer__link md-footer__link--next" aria-label="Next: C++ Format customization">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                C++ Format customization
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/marekcingel/OpenTLV" target="_blank" rel="noopener" title="OpenTLV on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../playground/playground.js" type="module"></script>
+      
+    
+  </body>
+</html>

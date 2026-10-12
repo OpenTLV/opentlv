@@ -1,0 +1,4799 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
+      
+      
+      
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/0.7/guides/lua/">
+      
+      
+        <link rel="prev" href="../python/">
+      
+      
+        <link rel="next" href="../../concepts/bindings/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Using OpenTLV from Lua - OpenTLV</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../playground/playground.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#using-opentlv-from-lua" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenTLV
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Using OpenTLV from Lua
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../processing/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../cxx-examples/" class="md-tabs__link">
+          
+  
+  
+  Language APIs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
+          
+  
+  
+  Formats
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/der/" class="md-tabs__link">
+          
+  
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cli/" class="md-tabs__link">
+          
+  
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/runtime-model/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    OpenTLV
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language APIs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language APIs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visitor-and-tree-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visitor and tree traversal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nested-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nested writing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writer-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writer errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structural-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural schemas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic tables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value codecs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers-and-configured-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integers and configured codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builtin-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builtin representations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-dictionary-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV dictionary selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#errors-and-custom-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors and custom codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-and-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/webassembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly tooling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formats
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Formats
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV JSON document
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/compilers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-native-boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Where documentation belongs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/reader-decode-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/indefinite-boundary-reuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indefinite boundary reuse follow-up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logo assets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visitor-and-tree-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visitor and tree traversal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#error-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error handling
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Writing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nested-writing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Nested writing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writer-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writer errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structural-schemas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural schemas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-tables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic tables
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value codecs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Value codecs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#integers-and-configured-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integers and configured codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builtin-representations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builtin representations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-dictionary-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV dictionary selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#errors-and-custom-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Errors and custom codecs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query-and-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query and Document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compiled-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compiled Query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/guides/lua.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="using-opentlv-from-lua">Using OpenTLV from Lua<a class="headerlink" href="#using-opentlv-from-lua" title="Permanent link">&para;</a></h1>
+<p>Start with setup below, then run the <a href="../../getting-started/#quick-start">Lua quick start</a>
+for input, expected output and the public API. You can use this guide without
+studying native C implementation contracts.</p>
+<p>The <code>opentlv</code> module is an experimental Lua binding for OpenTLV. It binds a
+Reader, Writer, Tree Writer, Schema, tag/length/value <code>Element</code> tables and preorder tree
+traversal, borrowed Query and an owned mutable Document with checked Nodes.
+Pull/resumable Tree Reader and Document Builder remain unbound; see the
+<a href="../../concepts/bindings/#capability-implementation-matrix">binding matrix</a> and
+<a href="../../development/lua/">Lua development guide</a>.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-lua<span class="w"> </span>-DOPENTLV_BUILD_LUA<span class="o">=</span>ON<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span>-DOPENTLV_BUILD_CXX<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_CLI<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-lua<span class="w"> </span>--target<span class="w"> </span>opentlv_lua
+</code></pre></div>
+<p>This requires CMake 3.16 or newer, a C99 compiler, and Lua 5.1 through 5.4 or
+LuaJIT headers and library; see <a href="../../development/lua/#build">Build</a> for the
+<code>luarocks make</code> alternative and a Windows-specific linking note.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">print</span><span class="p">(</span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">version</span><span class="p">())</span>
+</code></pre></div>
+<p>Runnable version:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/quick_start.lua">quick_start.lua</a>
+(<code>lua examples/quick_start.lua</code> from <code>bindings/lua</code>).</p>
+<h2 id="reading">Reading<a class="headerlink" href="#reading" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.reader(data, format)</code> returns a Reader over <code>data</code>, a Lua string.
+Using the reader directly as a generic-for iterator calls it as its own
+iterator function each time, so <code>for element in reader do ... end</code> reads
+sequentially with no explicit <code>next()</code>/<code>at_end()</code> loop:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">opentlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0xAA</span><span class="p">,</span><span class="w"> </span><span class="mh">0xBB</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x00</span><span class="p">)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="kr">for</span><span class="w"> </span><span class="nv">element</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">reader</span><span class="p">(</span><span class="nv">data</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">element</span><span class="p">.</span><span class="py">tag</span><span class="p">,</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">length</span><span class="p">,</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">value</span><span class="p">)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="kr">end</span>
+</code></pre></div>
+<p>Each <code>element</code> is a plain table with <code>tag</code>, <code>raw_length</code>, <code>value</code> (all copied out
+of <code>data</code>, since Lua strings cannot borrow foreign memory the way a C, C++,
+Rust or Python view can) plus numeric <code>length</code> (the value size) and <code>offset</code>, the absolute position of the element's
+tag within <code>data</code>. <code>format</code> defaults to <code>opentlv.formats.ber</code>; pass
+<code>opentlv.formats.ber</code>, <code>.cer</code>, <code>.der</code>, <code>.bluetooth_ltv</code>, or
+<code>opentlv.formats.fixed(tag_size, length_size, byte_order)</code> (<code>byte_order</code> is
+<code>"big"</code> or <code>"little"</code>, equivalent to the C <code>tlv_fixed_format_t</code>) for another
+wire format. Constructed elements are not expanded automatically; construct a
+new reader over <code>element.value</code> to descend, as in the runnable example below.</p>
+<p>The explicit method form, <code>reader:next()</code> (<code>nil</code> at the end) and
+<code>reader:at_end()</code>, is equivalent and reads the same way; <code>reader:position()</code>
+and <code>reader:format()</code> report the reader's current byte offset and the
+format it was constructed with.</p>
+<p>Runnable version, parsing a nested BER document and handling truncated
+input:
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/parse.lua">parse.lua</a>
+(<code>lua examples/parse.lua</code>).</p>
+<h2 id="visitor-and-tree-traversal">Visitor and tree traversal<a class="headerlink" href="#visitor-and-tree-traversal" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.visit(data, format, callback)</code> visits sequential top-level elements
+through the C Reader Visitor. It calls <code>callback(element)</code> with copied binary
+<code>tag</code> and <code>value</code> strings, <code>length</code>, zero-based wire <code>offset</code>, and <code>constructed</code>.
+It leaves nested bytes in the parent's Value, just like Reader:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">visited</span><span class="p">,</span><span class="w"> </span><span class="nv">stopped</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">visit</span><span class="p">(</span><span class="nv">data</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">element</span><span class="p">)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">element</span><span class="p">.</span><span class="py">tag</span><span class="p">,</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">value</span><span class="p">)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kr">end</span><span class="p">)</span>
+</code></pre></div>
+<p>Both visitor functions return <code>visited, stopped</code>. Only a boolean <code>false</code>
+stops traversal; other callback results continue. Calls are synchronous and
+callbacks cannot yield. Input, Format and callback remain alive during the call;
+copied elements may be retained afterward. Callback references and native
+traversal storage are released before returning or propagating an error.
+Callbacks may invoke a separate traversal, including on the same input.</p>
+<p><code>opentlv.visit_tree(data, format, callback, opts)</code> visits every element of
+<code>data</code> in preorder, calling <code>callback(element, depth)</code> for each; <code>element</code> has an
+additional <code>constructed</code> boolean field. Returning <code>false</code> from <code>callback</code>
+stops the traversal early:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">opentlv</span><span class="p">.</span><span class="nf">visit_tree</span><span class="p">(</span><span class="nv">data</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">element</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nb">string.rep</span><span class="p">(</span><span class="s2">"  "</span><span class="p">,</span><span class="w"> </span><span class="nv">depth</span><span class="p">)</span><span class="w"> </span><span class="o">..</span><span class="w"> </span><span class="nv">element</span><span class="p">.</span><span class="py">tag</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kr">end</span><span class="p">)</span>
+</code></pre></div>
+<p><code>opts</code> is an optional table with integer <code>max_depth</code> (default 64, the
+library's <code>TLV_TREE_DEFAULT_DEPTH</code>) and <code>max_elements</code> (default 65536); pass an
+explicit, tighter <code>max_elements</code> when traversing untrusted input, since the C
+<code>tlv_tree_reader_visit()</code> this wraps requires a real bound. <code>callback</code> may be omitted
+to validate structure and limits only. For <code>opentlv.formats.der</code>, traversal
+uses the stricter <code>tlv_der_visit()</code>, applying <code>max_depth</code> and <code>max_elements</code>
+while retaining the library's default DER input/value size limits. Omitted
+DER options retain the C defaults (depth 32 and 100000 elements); explicit
+DER depths may be up to 64. Limits must be nonnegative integers representable by native
+<code>size_t</code>; zero is a real limit. Without a callback, <code>visited</code> is zero.</p>
+<h2 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h2>
+<p>Every reading or traversal failure raises a table (via Lua's <code>error()</code>) with
+a <code>code</code> (the raw <code>tlv_result_t</code> value, also available named under
+<code>opentlv.errors</code>, for example <code>opentlv.errors.TRUNCATED</code>) and a
+<code>message</code> (the C <code>tlv_result_string()</code> text); <code>tostring()</code> on it formats both
+together. When the C API reports structured diagnostic detail for the
+failure, <code>offset</code>, <code>expected</code>, <code>actual</code>, <code>operation</code> and <code>tag</code> carry it;
+fields the failure does not report are absent, so check with <code>err.offset</code>
+rather than assuming every field is present.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">ok</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">_</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="nf">reader</span><span class="p">(</span><span class="nv">truncated</span><span class="p">,</span><span class="w"> </span><span class="nv">opentlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span><span class="w"> </span><span class="kr">end</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kr">end</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">ok</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">"%s at offset %s (%s)"</span><span class="p">,</span><span class="w"> </span><span class="nb">tostring</span><span class="p">(</span><span class="nv">err</span><span class="p">),</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">offset</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">operation</span><span class="p">))</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="kr">end</span>
+</code></pre></div>
+<p>A callback error inside <code>opentlv.visit</code> or <code>opentlv.visit_tree</code> propagates unchanged, so
+<code>pcall</code> catches whatever your callback raised, not a wrapped copy.</p>
+<h2 id="writing">Writing<a class="headerlink" href="#writing" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.writer(format, options)</code> creates a sequential Writer over a buffer
+owned by the Lua binding. <code>format</code> defaults to BER when enabled; otherwise
+it is required. <code>options.capacity</code> defaults to 1024 bytes, never grows, and
+may be zero. All encoding is performed by the OpenTLV C Writer and Format.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="nf">writer</span><span class="p">(</span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="p">})</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nv">writer</span><span class="p">:</span><span class="nf">write</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x5F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x2A</span><span class="p">),</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x09</span><span class="p">,</span><span class="w"> </span><span class="mh">0x78</span><span class="p">))</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nv">writer</span><span class="p">:</span><span class="nf">write</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">),</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="kd">local</span><span class="w"> </span><span class="nv">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">writer</span><span class="p">:</span><span class="nf">bytes</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li><code>write(tag, value)</code> appends one element. Both arguments are binary strings,
+  including embedded zero bytes; numbers and arbitrary userdata are rejected.
+  <code>nil</code> Tag represents an absent identifier when the Format permits it.
+  An empty Tag string represents an explicit empty identifier.</li>
+<li><code>write_element(element)</code> accepts a Reader-style table with <code>tag</code> and <code>value</code>.
+  Length is derived from <code>value</code>; metadata such as <code>length</code> and <code>offset</code> does
+  not override the content.</li>
+<li><code>bytes()</code> returns an independent immutable string containing written bytes.</li>
+<li><code>size()</code> and <code>remaining()</code> report written bytes and unused capacity.</li>
+<li><code>format()</code> returns the retained Format object.</li>
+</ul>
+<p>Tag strings represent raw byte identity: <code>"5F2A"</code> is four ASCII bytes, not
+<code>string.char(0x5F, 0x2A)</code>. Input strings are borrowed only during a write call.
+The binding keeps the Format alive and releases its output buffer at garbage
+collection. A failed sequential write does not advance the cursor; as in C,
+encoder callback failures may modify unused destination bytes.</p>
+<h3 id="nested-writing">Nested writing<a class="headerlink" href="#nested-writing" title="Permanent link">&para;</a></h3>
+<p><code>opentlv.tree_writer(format, options)</code> wraps the C Tree Writer. It supports
+<code>write</code>, <code>write_element</code>, <code>format</code> and <code>size</code>, plus <code>begin(tag)</code>,
+<code>end_element()</code> and <code>finish()</code>. <code>finish()</code> and <code>bytes()</code> both check that all
+parents are closed and return an independent output string; neither closes
+parents implicitly. <code>size()</code> reports only the finalized root prefix.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="nf">tree_writer</span><span class="p">(</span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="w"> </span><span class="p">})</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="nv">writer</span><span class="p">:</span><span class="nf">begin</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0xE1</span><span class="p">))</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nv">writer</span><span class="p">:</span><span class="nf">write</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x04</span><span class="p">),</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="nv">writer</span><span class="p">:</span><span class="nf">end_element</span><span class="p">()</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="kd">local</span><span class="w"> </span><span class="nv">encoded</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">writer</span><span class="p">:</span><span class="nf">finish</span><span class="p">()</span>
+</code></pre></div>
+<p>The selected C Format determines whether constructed encoding is supported.
+Tree options are <code>capacity</code> (1024), <code>scratch_capacity</code> and <code>tag_capacity</code>
+(both default to <code>capacity</code>), <code>frame_capacity</code> and <code>max_depth</code> (both default
+to the C <code>TLV_TREE_DEFAULT_DEPTH</code>), and <code>max_elements</code> (unbounded by default).
+Options must be nonnegative native integers. Scratch must hold the largest
+closed parent Value; each open parent uses one frame. Maximum item depth
+counts roots as zero. Open Tags are copied by the C Tree Writer into bounded
+Tag storage, so temporary Lua strings can be collected safely.</p>
+<h3 id="writer-errors">Writer errors<a class="headerlink" href="#writer-errors" title="Permanent link">&para;</a></h3>
+<p>Core failures raise the same structured error-table type as Reader. In addition
+to <code>code</code> and <code>message</code>, diagnostic operations copy <code>offset</code>, <code>operation</code>,
+<code>tag</code>, <code>length</code>, <code>required</code>, <code>available</code>, <code>expected</code> and <code>actual</code> when supplied
+by the C core. <code>required</code> and <code>available</code> describe the failing destination or
+workspace, not necessarily the complete final document. Tree offsets refer
+to the current provisional buffer. A failed <code>end_element()</code> preserves the
+open parent and its children, following the C Tree Writer contract.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">ok</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">pcall</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="kd">local</span><span class="w"> </span><span class="nv">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">).</span><span class="nf">writer</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="p">})</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="nv">writer</span><span class="p">:</span><span class="nf">write</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x04</span><span class="p">),</span><span class="w"> </span><span class="s2">"value"</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kr">end</span><span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">ok</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="nv">err</span><span class="p">.</span><span class="py">code</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">message</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">required</span><span class="p">,</span><span class="w"> </span><span class="nv">err</span><span class="p">.</span><span class="py">available</span><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="kr">end</span>
+</code></pre></div>
+<h2 id="structural-schemas">Structural schemas<a class="headerlink" href="#structural-schemas" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.schema(config)</code> creates an immutable structural Schema. It snapshots
+the rule/group tables and retains tag strings, field names and child Schema
+objects. Changing the original tables does not change the schema.
+Validation delegates to <code>tlv_schema_validate_all_diag()</code>; Lua implements no
+schema rules, wire parser or value decoding.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="nf">fixed</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="s2">"big"</span><span class="p">)</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">schema</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">        </span><span class="p">{</span><span class="nv">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="nv">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"identifier"</span><span class="p">,</span><span class="w"> </span><span class="nv">min_occurs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">         </span><span class="nv">max_occurs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nv">min_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nv">max_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nv">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"primitive"</span><span class="p">},</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">schema</span><span class="p">:</span><span class="nf">validate</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">255</span><span class="p">),</span><span class="w"> </span><span class="nv">format</span><span class="p">)</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="kr">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nv">result</span><span class="p">.</span><span class="py">ok</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="kr">for</span><span class="w"> </span><span class="nv">_</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="nb">ipairs</span><span class="p">(</span><span class="nv">result</span><span class="p">.</span><span class="py">diagnostics</span><span class="p">)</span><span class="w"> </span><span class="kr">do</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">        </span><span class="nb">print</span><span class="p">(</span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">code</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">offset</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">field</span><span class="p">)</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">        </span><span class="kr">if</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="w"> </span><span class="kr">then</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">            </span><span class="nb">print</span><span class="p">(</span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="p">.</span><span class="py">minimum</span><span class="p">,</span><span class="w"> </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="p">.</span><span class="py">maximum</span><span class="p">,</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">                  </span><span class="nv">diagnostic</span><span class="p">.</span><span class="py">length</span><span class="p">.</span><span class="py">actual</span><span class="p">)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">        </span><span class="kr">end</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">    </span><span class="kr">end</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="kr">end</span>
+</code></pre></div>
+<p><code>config.rules</code> is a dense array of rule tables (default empty). Each rule
+requires a binary-string <code>tag</code>; identifiers have exactly the same byte identity
+as Reader tags. Optional fields are:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>nil</code></td>
+<td>Diagnostic field name; embedded NUL bytes are rejected</td>
+</tr>
+<tr>
+<td><code>min_length</code>, <code>max_length</code></td>
+<td><code>0</code>, <code>math.huge</code></td>
+<td>Inclusive Value-length bounds</td>
+</tr>
+<tr>
+<td><code>length_multiple</code></td>
+<td><code>0</code></td>
+<td>Required length multiple; zero disables it</td>
+</tr>
+<tr>
+<td><code>flags</code></td>
+<td><code>0</code></td>
+<td>C length flags; <code>tlv.SCHEMA_LENGTH_ENDPOINTS</code> permits only the bounds</td>
+</tr>
+<tr>
+<td><code>min_occurs</code>, <code>max_occurs</code></td>
+<td><code>0</code>, <code>math.huge</code></td>
+<td>Inclusive occurrence bounds per parent</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td><code>"any"</code></td>
+<td><code>"any"</code>, <code>"primitive"</code> or <code>"constructed"</code></td>
+</tr>
+<tr>
+<td><code>children</code></td>
+<td><code>nil</code></td>
+<td>Another Schema object; requires <code>kind = "constructed"</code></td>
+</tr>
+<tr>
+<td><code>group</code></td>
+<td><code>0</code></td>
+<td>Alternative-group ID; zero means no group</td>
+</tr>
+</tbody>
+</table>
+<p>An omitted child schema leaves membership unrestricted; the C engine still
+checks wire structure. Constructed status comes from Format, so a Fixed
+format's values remain opaque. For example, when BER is enabled:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">child</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="nv">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span><span class="w"> </span><span class="nv">min_occurs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">}},</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="p">}</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="kd">local</span><span class="w"> </span><span class="nv">parent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">schema</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="w">    </span><span class="nv">rules</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{{</span><span class="nv">tag</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">48</span><span class="p">),</span><span class="w"> </span><span class="nv">kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"constructed"</span><span class="p">,</span><span class="w"> </span><span class="nv">children</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">child</span><span class="p">}},</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="p">}</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">parent</span><span class="p">:</span><span class="nf">validate</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mi">48</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">),</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">).</span><span class="nv">ok</span><span class="p">)</span>
+</code></pre></div>
+<p>At scope level, <code>allow_unknown</code> defaults to <code>false</code> and <code>order</code> defaults to
+<code>"any"</code>; <code>"sequence"</code> enforces relative rule order. Optional <code>groups</code> is a dense
+array of <code>{id, min_occurs, max_occurs, name}</code> tables using named fields.
+Group IDs must be nonzero and unique; bounds default to <code>0</code> and <code>math.huge</code>.
+A group's bounds apply to the sum of all matching alternatives. Grouped rules
+must have <code>min_occurs = 0</code>, and each rule's <code>max_occurs</code> still applies.
+C validates these constraints, including duplicate tags and invalid bounds,
+when validating the corresponding scope.</p>
+<p><code>schema:validate(data, format, options)</code> accepts a binary Lua string and an
+existing Format object. Format defaults to BER when enabled; otherwise it is
+required. Options are:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capacity</code></td>
+<td><code>64</code></td>
+<td>Maximum stored schema diagnostics; zero counts only</td>
+</tr>
+<tr>
+<td><code>max_depth</code></td>
+<td><code>32</code></td>
+<td>Native nesting limit</td>
+</tr>
+<tr>
+<td><code>max_elements</code></td>
+<td><code>100000</code></td>
+<td>Total element limit; zero allows only empty input</td>
+</tr>
+<tr>
+<td><code>unknown</code></td>
+<td><code>"by_schema"</code></td>
+<td><code>"by_schema"</code>, <code>"allow"</code> or <code>"reject"</code></td>
+</tr>
+</tbody>
+</table>
+<p>Numbers must be nonnegative native-size integers. <code>math.huge</code> represents
+<code>SIZE_MAX</code> for upper length/occurrence bounds and <code>max_elements</code>. Lua versions
+with floating-point-only numbers retain their usual integer precision limits.
+Native fixed traversal/path capacities also apply; exceeding them returns
+<code>LIMIT</code>. Format selects framing; Schema does not add semantic DER or protocol
+value validation.</p>
+<p>The result always contains <code>ok</code>, numeric <code>code</code>, <code>diagnostics</code>, <code>total_count</code>
+and <code>truncated</code>. Success has code <code>OK</code> and an empty diagnostics array. Schema
+violations return code <code>SCHEMA</code>; <code>total_count</code> counts every native violation,
+even when <code>capacity</code> stores only a prefix. <code>truncated</code> reports an omitted suffix.
+The C engine determines diagnostic ordering; within-scope order is unspecified.</p>
+<p>Malformed input, invalid schema configuration and exceeded limits return
+<code>ok = false</code> and the native error code. They return one basic diagnostic,
+<code>total_count = 1</code> and <code>truncated = false</code>, even at <code>capacity = 0</code>; this capacity
+limits schema reports only. C provides no partial schema report on these
+failures. Lua argument/type errors and allocation failures raise Lua errors.</p>
+<h2 id="diagnostic-tables">Diagnostic tables<a class="headerlink" href="#diagnostic-tables" title="Permanent link">&para;</a></h2>
+<p>Schema reports, Reader and Writer use the same common native diagnostic
+conversion. Tables own their strings and remain valid after the input,
+Schema or Reader/Writer is collected. Common fields are <code>code</code>, <code>message</code>
+(from <code>tlv_result_string()</code>), and <code>severity</code> (<code>"error"</code>, <code>"warning"</code>, <code>"info"</code>).
+<code>offset</code>, <code>expected</code>, <code>actual</code>, <code>path</code> and <code>contexts</code> appear only when supplied
+by C. Offsets remain zero-based bytes, independent of Lua array indexing.
+<code>contexts</code> is an array of <code>{layer, key, value}</code> tables in native order.</p>
+<p>Schema violations additionally provide:</p>
+<ul>
+<li><code>kind</code>: <code>"missing"</code>, <code>"duplicate"</code>, <code>"unexpected"</code>, <code>"kind"</code>, <code>"length"</code> or <code>"order"</code>.</li>
+<li><code>tag</code>: affected binary identifier; <code>path</code>: binary identifiers of enclosing
+  scopes, outermost first, excluding <code>tag</code>.</li>
+<li>Optional <code>field</code> and boolean <code>is_group</code>.</li>
+<li><code>occurrences</code> or <code>length</code>: <code>{minimum, maximum, actual}</code> when applicable.
+  An unrestricted maximum is <code>math.huge</code>.</li>
+<li><code>length_multiple</code> and <code>length_flags</code> for length failures.</li>
+<li><code>form</code>: <code>{expected, actual_constructed}</code> for kind failures, with an expected
+  kind string and an actual boolean.</li>
+</ul>
+<p>These typed fields are copied from the C report. The binding does not invent
+textual <code>expected</code>/<code>actual</code> descriptions. Missing-field reports use the native
+parent-element offset when nested and have no offset at root level. Fatal
+diagnostics carry only code/message/severity and the offset if C provided one;
+the binding does not reparse the input to reconstruct tag or path information.</p>
+<p>See the runnable <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua">schema example</a>.</p>
+<h2 id="value-codecs">Value codecs<a class="headerlink" href="#value-codecs" title="Permanent link">&para;</a></h2>
+<p>Select a codec explicitly and pass only an element's Value bytes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">uint16_be</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">codec</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0x34</span><span class="p">))</span><span class="w"> </span><span class="c1">-- 4660</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="kd">local</span><span class="w"> </span><span class="nv">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">codec</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="nv">value</span><span class="p">)</span><span class="w"> </span><span class="c1">-- binary string, no TLV framing</span>
+</code></pre></div>
+<p>Both methods invoke the existing C codec. They do not select a codec from a
+Tag, validate the enclosing schema, or reinterpret framing. Encode uses the
+C size query before allocating the output. Decoded strings and tables own
+their contents and survive collection of the source string and codec.</p>
+<p><code>tlv.codecs</code> is a namespace of exported descriptors and constructors, not a
+separate runtime registry. Standard Lua indexing provides name selection,
+for example <code>tlv.codecs["uint16_be"]</code>; an absent name returns <code>nil</code>.</p>
+<h3 id="integers-and-configured-codecs">Integers and configured codecs<a class="headerlink" href="#integers-and-configured-codecs" title="Permanent link">&para;</a></h3>
+<p>Integer codecs accept native Lua integers, exactly represented integral Lua
+numbers, or decimal strings. Lua 5.3+ returns a native integer when it fits
+<code>lua_Integer</code>. On Lua 5.1/5.2 and LuaJIT, the default double-number build
+returns numbers through ±(2^53−1). Larger results are decimal strings; this
+also covers unsigned values above Lua's signed integer range. Float-number
+builds use ±(2^24−1). Floating-point inputs outside that safe range, fractions,
+NaN, infinity and overflowing decimal strings are rejected rather than rounded.
+Use a decimal string to supply large exact values on every Lua version.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">number</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">number</span><span class="w"> </span><span class="p">{</span><span class="nv">encoding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"binary_be"</span><span class="p">,</span><span class="w"> </span><span class="nv">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">}</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">maximum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"18446744073709551615"</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">number</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nv">number</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="nv">maximum</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nv">maximum</span><span class="p">)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="kd">local</span><span class="w"> </span><span class="nv">text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">text</span><span class="w"> </span><span class="p">{</span><span class="nv">alphabet</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"ascii_printable"</span><span class="p">,</span><span class="w"> </span><span class="nv">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nv">zero_padding</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="s2">"abc"</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"abc</span><span class="se">\0\0</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="kd">local</span><span class="w"> </span><span class="nv">digits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">digits</span><span class="w"> </span><span class="p">{</span><span class="nv">width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">}</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">digits</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x00</span><span class="p">,</span><span class="w"> </span><span class="mh">0x12</span><span class="p">,</span><span class="w"> </span><span class="mh">0xFF</span><span class="p">))</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"0012"</span><span class="p">)</span>
+</code></pre></div>
+<p>All constructors take a table. Number <code>encoding</code> is <code>"binary_be"</code> (default),
+<code>"binary_le"</code>, or <code>"bcd"</code>; <code>width</code> defaults to zero (minimal encoding), and
+<code>digits</code> defaults to zero (supply the precision for BCD). Text <code>alphabet</code> is
+<code>"ascii_printable"</code> (default) or <code>"ascii_alnum"</code>; <code>width</code> defaults to zero and
+<code>zero_padding</code> to false. Digits <code>width</code> defaults to zero. The userdata owns
+its C configuration. The C engine validates configuration and Value semantics
+when the codec is invoked.</p>
+<h3 id="builtin-representations">Builtin representations<a class="headerlink" href="#builtin-representations" title="Permanent link">&para;</a></h3>
+<p>Names below are relative to <code>tlv.codecs</code>. Byte strings are binary Lua strings,
+including embedded zeros. Arrays are dense, one-based Lua tables. Integer
+fields use the exact integer rules above. Table field names match the C
+representation; required fields must be supplied on encode.</p>
+<table>
+<thead>
+<tr>
+<th>Codecs</th>
+<th>Lua representation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>uint8</code>, <code>uint16_be</code>, <code>uint16_le</code>, <code>uint32_be</code>, <code>uint32_le</code>, <code>int64_minimal_be</code></td>
+<td>Integer</td>
+</tr>
+<tr>
+<td><code>bytes</code></td>
+<td>Byte string</td>
+</tr>
+<tr>
+<td><code>ipv4</code>, <code>ipv4_list</code></td>
+<td>Four network-order bytes; array of four-byte strings</td>
+</tr>
+<tr>
+<td><code>dhcpv4.message_type</code>, <code>lldp.ttl</code>, <code>lldp.text</code>, <code>bluetooth.uuid16</code>, <code>bluetooth.uuid32</code></td>
+<td>C source aliases: integer, integer, bytes, integer, integer</td>
+</tr>
+<tr>
+<td><code>asn1.boolean</code>, <code>asn1.integer</code>, <code>asn1.enumerated</code>, <code>asn1.null</code></td>
+<td>Boolean, signed integer, signed integer, <code>nil</code></td>
+</tr>
+<tr>
+<td><code>asn1.bit_string</code></td>
+<td><code>{unused_bits, data}</code>; <code>data</code> excludes the count octet</td>
+</tr>
+<tr>
+<td><code>asn1.oid</code>, <code>asn1.relative_oid</code></td>
+<td>Array of unsigned integer arcs</td>
+</tr>
+<tr>
+<td><code>asn1.oid_iri</code>, <code>asn1.relative_oid_iri</code></td>
+<td>Array of string arc labels</td>
+</tr>
+<tr>
+<td><code>asn1.octet_string</code>, <code>asn1.object_descriptor</code>, <code>asn1.*_string</code></td>
+<td>Byte string; BMP and Universal strings retain big-endian UCS-2/UCS-4 bytes</td>
+</tr>
+<tr>
+<td><code>asn1.time</code>, <code>asn1.duration</code></td>
+<td>String validated by the C codec</td>
+</tr>
+<tr>
+<td><code>asn1.date</code></td>
+<td><code>{year, month, day}</code></td>
+</tr>
+<tr>
+<td><code>asn1.time_of_day</code></td>
+<td><code>{hour, minute, second}</code></td>
+</tr>
+<tr>
+<td><code>asn1.utc_time</code>, <code>asn1.date_time</code></td>
+<td><code>{year, month, day, hour, minute, second}</code></td>
+</tr>
+<tr>
+<td><code>asn1.generalized_time</code></td>
+<td>Same timestamp fields plus <code>fraction_digits</code> (empty string for no fraction)</td>
+</tr>
+<tr>
+<td><code>bluetooth.flags</code>, <code>bluetooth.local_name</code>, <code>bluetooth.tx_power</code></td>
+<td>Bytes, UTF-8 string, signed integer</td>
+</tr>
+<tr>
+<td><code>bluetooth.uuid128</code></td>
+<td>16 bytes in canonical printed UUID order; C handles wire reversal</td>
+</tr>
+<tr>
+<td><code>bluetooth.uuid16_list</code>, <code>bluetooth.uuid32_list</code>, <code>bluetooth.uuid128_list</code></td>
+<td>Arrays of the corresponding UUID representation</td>
+</tr>
+<tr>
+<td><code>bluetooth.service_data16</code>, <code>bluetooth.service_data32</code>, <code>bluetooth.service_data128</code></td>
+<td><code>{uuid, payload, raw}</code>; <code>raw</code> is informational, optional and ignored on encode</td>
+</tr>
+<tr>
+<td><code>bluetooth.manufacturer_data</code></td>
+<td><code>{company_id, payload, raw}</code>; same <code>raw</code> rule</td>
+</tr>
+<tr>
+<td><code>lldp.chassis_id</code>, <code>lldp.port_id</code></td>
+<td><code>{subtype, identifier}</code></td>
+</tr>
+<tr>
+<td><code>lldp.capabilities</code></td>
+<td><code>{supported, enabled}</code></td>
+</tr>
+<tr>
+<td><code>lldp.management_address</code></td>
+<td><code>{address_subtype, address, interface_subtype, interface_number, oid}</code></td>
+</tr>
+<tr>
+<td><code>lldp.organisation</code></td>
+<td><code>{oui, subtype, payload}</code>; <code>oui</code> is exactly three bytes</td>
+</tr>
+<tr>
+<td><code>emv.amount</code></td>
+<td>Unsigned integer in unscaled minor units</td>
+</tr>
+</tbody>
+</table>
+<p>ASN.1 exports require <code>OPENTLV_FORMAT_BER</code>; they preserve C's canonical
+content checks even when the caller reads permissive BER. Protocol-specific
+Bluetooth, LLDP and EMV exports follow their component options. C source
+aliases remain available even with optional components disabled.</p>
+<h3 id="emv-dictionary-selection">EMV dictionary selection<a class="headerlink" href="#emv-dictionary-selection" title="Permanent link">&para;</a></h3>
+<p><code>tlv.codecs.emv.find(tag, context)</code> delegates to <code>tlv_emv_find()</code> and selects
+the existing builtin descriptor. <code>tag</code> is a binary string; <code>context</code> defaults
+to <code>tlv.codecs.emv.contexts.BASE</code>. Other context constants are <code>BIT</code>, <code>BHT</code>,
+<code>BHT_FORMAT</code>, <code>BIT_GROUP</code>, <code>BIOMETRIC_COUNTERS</code>, <code>BIOMETRIC_ATTEMPTS</code> and
+<code>BIOMETRIC_VERIFICATION</code>. There is no fallback between contexts. Unknown
+entries and entries without a codec return <code>nil</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codecs</span><span class="p">.</span><span class="py">emv</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">))</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">bytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">amount</span><span class="p">:</span><span class="nf">encode</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">amount</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nv">bytes</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1234</span><span class="p">)</span>
+</code></pre></div>
+<p>The builtin C presentation adapter determines the representation: numbers,
+flags, account and biometric types are integers; digits are strings; dates
+and times are tables with the C field names; cryptogram information is
+<code>{type, flags}</code>; CVM results are <code>{method, condition, result}</code>; number lists
+are arrays; AFL is an array of <code>{sfi, first_record, last_record,
+offline_auth_record_count}</code>; Track 2 is <code>{pan, expiration_year,
+expiration_month, service_code, discretionary_data}</code>. This selection occurs
+before conversion, and does not add codec metadata to generic Definition.</p>
+<h3 id="errors-and-custom-codecs">Errors and custom codecs<a class="headerlink" href="#errors-and-custom-codecs" title="Permanent link">&para;</a></h3>
+<p>C codec failures raise an <code>opentlv.Error</code> table with the shared <code>tlv.errors</code>
+<code>code</code> and a <code>message</code> from <code>tlv_result_string()</code>. Optional <code>codec_detail</code> retains
+operation, reported result, callback violation and delegated cause. The old
+<code>codec_errors</code> and <code>codec_strerror</code> APIs have been removed.
+No source offset or Tag is invented for a Value-only operation. Incorrect
+Lua types and host representation bounds raise Lua argument errors.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">codec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">codec</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">    </span><span class="nv">decode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">bytes</span><span class="p">)</span><span class="w"> </span><span class="kr">return</span><span class="w"> </span><span class="p">{</span><span class="nv">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">bytes</span><span class="p">}</span><span class="w"> </span><span class="kr">end</span><span class="p">,</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="w">    </span><span class="nv">encode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="nv">value</span><span class="p">)</span><span class="w"> </span><span class="kr">return</span><span class="w"> </span><span class="nv">value</span><span class="p">.</span><span class="py">payload</span><span class="w"> </span><span class="kr">end</span><span class="p">,</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="p">}</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">codec</span><span class="p">:</span><span class="nf">decode</span><span class="p">(</span><span class="nv">codec</span><span class="p">:</span><span class="py">encode</span><span class="w"> </span><span class="p">{</span><span class="nv">payload</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">}).</span><span class="nv">payload</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">"hello"</span><span class="p">)</span>
+</code></pre></div>
+<p>Callbacks are optional and snapshotted at construction; a missing direction
+reports <code>UNSUPPORTED</code>. Decode returns one Lua value, including <code>nil</code>; encode
+must return a binary string. Encode calls the Lua function once and reuses
+that string for the C size query and write. Callbacks run through a native
+<code>tlv_codec_t</code> trampoline under protected Lua calls. Their original error
+objects propagate unchanged after the C call returns. Recursive codec calls
+and use from different coroutines are supported, but yielding through a
+callback is not. Callback references participate in Lua garbage collection,
+including cycles that capture the codec itself.</p>
+<p>This API binds Value codecs. The separate <code>tlv_structure_codec_t</code> contract
+for complete objects remains unbound. See the runnable
+<a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua">codec example</a>.</p>
+<h2 id="query-and-document">Query and Document<a class="headerlink" href="#query-and-document" title="Permanent link">&para;</a></h2>
+<p><code>tlv.query(path)</code> compiles the C Query language: exact hexadecimal tags separated
+by <code>/</code>, such as <code>E1/9F02</code>. Tags are byte identities; there are no wildcards,
+indexes, predicates or recursive searches. <code>query:steps()</code> returns binary tag
+strings. Query compilation errors raise <code>opentlv.Error</code> with a zero-based
+character <code>offset</code>, including rejected embedded NUL characters.</p>
+<p><code>query:evaluate(data, format, options)</code> returns all matching entries in document
+order, with the Reader fields <code>tag</code>, <code>length</code>, <code>value</code>, <code>offset</code>, plus <code>depth</code>
+and <code>constructed</code>. The returned strings are copies. Evaluation delegates to the
+native Query matcher over Tree Reader, scans the complete input (including
+nonmatching branches), and reports Reader errors with available diagnostics.
+<code>options.max_depth</code> defaults to the native tree default and <code>max_elements</code> to
+65536. Limits must be nonnegative integers. This uses the supplied Format's
+framing contract, not additional semantic Schema or full DER validation.</p>
+<p><code>query:matcher(format, options)</code> owns a resumable native matcher and Tree Reader.
+Use <code>set_input(bytes, discard, final)</code>, <code>next()</code> or <code>visit(callback)</code>; returning
+<code>false</code> stops after the current match, and subsequent calls resume. Nonfinal
+exhaustion raises <code>NEED_MORE_DATA</code>, preserving state for input replacement.
+<code>rebind(equivalent_query)</code> preserves suspended state; <code>reset()</code> clears both
+matching and Reader state. <code>matches(tag, depth)</code> also supports manual preorder
+feeds; reset before switching between manual and Reader input. Options bound
+<code>max_depth</code>, <code>frame_capacity</code> and <code>max_elements</code>. Results own copied strings,
+callback errors propagate, and callback reentry is rejected.</p>
+<p>With <code>OPENTLV_DOCUMENT=ON</code> (the default), <code>tlv.document(data, format, options)</code>
+parses into an owning native Document. Pass <code>nil</code> or an empty string to create
+an empty document. The input can be released after parsing. The Document keeps
+its Format alive, including configured Fixed formats. Options are native
+<code>max_depth</code> and <code>max_elements</code>, with the C Document defaults. Query evaluation
+and Document construction default to BER when the format is omitted; builds
+without BER require an explicit format. Disabling Document omits
+<code>tlv.document</code> and leaves Query available.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kd">local</span><span class="w"> </span><span class="nv">tlv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">require</span><span class="p">(</span><span class="s2">"opentlv"</span><span class="p">)</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="kd">local</span><span class="w"> </span><span class="nv">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="nf">document</span><span class="p">(</span><span class="nb">string.char</span><span class="p">(</span><span class="mh">0x9F</span><span class="p">,</span><span class="w"> </span><span class="mh">0x02</span><span class="p">,</span><span class="w"> </span><span class="mh">0x01</span><span class="p">,</span><span class="w"> </span><span class="mh">0x05</span><span class="p">),</span><span class="w"> </span><span class="nv">tlv</span><span class="p">.</span><span class="py">formats</span><span class="p">.</span><span class="py">ber</span><span class="p">)</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="kd">local</span><span class="w"> </span><span class="nv">amount</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">doc</span><span class="p">:</span><span class="nf">find</span><span class="p">(</span><span class="s2">"9F02"</span><span class="p">)</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">amount</span><span class="p">:</span><span class="nf">value</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="nb">assert</span><span class="p">(</span><span class="nv">doc</span><span class="p">:</span><span class="nf">set</span><span class="p">(</span><span class="s2">"9F02"</span><span class="p">,</span><span class="w"> </span><span class="nb">string.char</span><span class="p">(</span><span class="mi">6</span><span class="p">)))</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="kd">local</span><span class="w"> </span><span class="nv">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">doc</span><span class="p">:</span><span class="nf">serialize</span><span class="p">()</span>
+</code></pre></div>
+<p>Document operations:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Result and behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>find(path_or_query)</code></td>
+<td>First matching Node, or <code>nil</code>; searches past dead-end branches.</td>
+</tr>
+<tr>
+<td><code>query(path_or_query)</code></td>
+<td>Array of all matching Nodes in document order.</td>
+</tr>
+<tr>
+<td><code>first()</code> / <code>count()</code></td>
+<td>First root or <code>nil</code>; total number of nodes including descendants.</td>
+</tr>
+<tr>
+<td><code>set(target, value)</code></td>
+<td>Replace the first matched node's Value; returns <code>false</code> if absent, <code>true</code> on success.</td>
+</tr>
+<tr>
+<td><code>insert(tag, value, parent, before)</code></td>
+<td>Return a new Node; binary tag and Value strings are copied. Omitted parent means root level; omitted before means append.</td>
+</tr>
+<tr>
+<td><code>erase(target)</code></td>
+<td>Remove the node and descendants; returns whether a node was found.</td>
+</tr>
+<tr>
+<td><code>serialize(format)</code></td>
+<td>Encode the document, optionally with a compatible destination Format.</td>
+</tr>
+</tbody>
+</table>
+<p>Mutation targets and insertion positions accept a path, compiled Query or live
+Node from the same Document. Missing explicit insertion positions and foreign
+or invalidated Nodes raise Lua argument errors. <code>set</code> and <code>erase</code> affect only
+the first path match; use <code>query</code> to select repeated entries individually.</p>
+<p>Nodes expose <code>tag()</code>, <code>value()</code>, <code>is_constructed()</code>, <code>first_child()</code>, <code>next()</code>,
+<code>parent()</code>, <code>next_same_tag()</code>, <code>set(value)</code>, <code>erase()</code> and <code>serialize(format)</code>.
+Navigation returns <code>nil</code> at the end. <code>value()</code> returns copied primitive bytes,
+including <code>""</code> for an empty primitive, and <code>nil</code> for constructed nodes; read
+children or serialize the subtree instead. Constructed Value replacement and
+insertion parse child bytes through the native Document format.</p>
+<p>Each Node keeps its native Document alive. Removing a node invalidates all
+handles to it and its descendants. Successful constructed Value replacement
+invalidates handles to the former descendants; the parent and unrelated nodes
+remain usable. Failed mutations leave both content and handles unchanged.
+Invalidated handles raise argument errors before touching native node memory.</p>
+<p>Native mutation and encoding failures raise <code>opentlv.Error</code> with the original
+<code>code</code> and <code>message</code>. Document parse errors include a source <code>offset</code> when the
+C API supplies one; mutation and encoding APIs do not provide detailed offsets,
+so the binding does not invent them. Encoding uses the native Document/Tree
+Writer contract: framing can be normalized, and incompatible destination
+formats can reject the tree. Lua does not implement a separate DOM or mutation
+engine.</p>
+<h2 id="compiled-query">Compiled Query<a class="headerlink" href="#compiled-query" title="Permanent link">&para;</a></h2>
+<p><code>opentlv.query_program(text, format, options)</code> owns an immutable C program;
+<code>query_program_load(image, format, options)</code> validates a same-release image.
+Options include typed <code>variables</code>, named Tag maps and explicit compile limits.
+Programs expose <code>info()</code>, <code>variables()</code>, <code>format()</code>, <code>explain()</code> and <code>image()</code>.</p>
+<p>The program retains its Format, including configured Fixed Format userdata;
+reuse that Format object with Documents evaluated by the program. Options
+<code>tags = {id = ..., class_of = function(raw_tag) ... end, number_of = ...}</code>
+supply optional semantic Tag capabilities. Callbacks return signed 64-bit
+integers; IDs identify the contract when validating saved images. Missing
+capabilities are rejected during compilation.</p>
+<p><code>resolve = function(namespace, name) ... end</code> returns a raw Tag string or <code>nil</code>
+for an unknown name. It is mutually exclusive with a nonempty <code>names</code> map.
+Checked compilation rejects resolver drift between preparation and commit,
+including different Tags with equal byte lengths. Callback errors propagate.
+<code>tlv.query_definition_resolver({scope = {{tag = raw_tag, name = "leaf"}}})</code>
+snapshots the descriptors and returns a resolver using canonical C namespace and
+ambiguity rules. <code>resolve = tlv.query_emv_resolve</code> selects the native base EMV
+dictionary when enabled, including the <code>emv:PAN</code> alias.</p>
+<p><code>program:execution(options)</code> owns independent bounded state. <code>bind(name, type,
+value)</code>, <code>set_input(bytes, discard, final)</code>, <code>next()</code>, <code>visit(callback)</code>,
+<code>exists(early)</code>, <code>info()</code> and <code>reset()</code> delegate to C. Use
+<code>evaluate_document(document)</code> for checked Nodes and <code>result()</code> for scalars.
+Lua strings and match snapshots own copied bytes. Callback errors invalidate
+the execution until reset, and reentrant calls are rejected. <code>close()</code> releases
+native owners deterministically. Native failures raise tables with <code>code</code> and
+Query diagnostic detail. <code>error.query.kind_name</code> is the canonical C category,
+such as <code>syntax</code> or <code>state</code>. <code>error.query.expression</code> is the related expression
+location, with kind <code>unknown</code> when <code>error.location</code> already is that span, and
+<code>error.query.codec_detail.reported</code> is the raw provider result. A rejected path
+text raises the same Query syntax or limit error. A Schema Query failure's
+<code>error.schema</code> holds only the assertion's <code>kind</code>, <code>tag</code> and <code>field</code>, and is nil
+for any other failure; its
+location, path and expected text are the error's own. Reader <code>operation</code> includes <code>header</code>; Reader bounds
+and field offsets retain their presence, and lengths beyond Lua's exact numeric
+range use decimal strings. Codec detail adds <code>operation_name</code>, <code>cause_name</code> and
+<code>violation_name</code> beside raw numeric values. See the
+<a href="../../reference/errors/#binding-diagnostics">binding diagnostic reference</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/lua/tests/program_spec.lua">consumer tests</a>.</p>
+<p>Compile options accept <code>providers = {num = {id = ..., decode = ...}, ...}</code> for
+<code>num</code>, <code>bcd</code>, <code>text</code> and <code>date</code>. Callbacks receive a Value string and optional
+copied event metadata; return an integer or a UTF-8 string for <code>text</code>. Set
+<code>max_result_bytes</code> for text scratch and preserve IDs/contracts when loading
+images. Provider errors propagate after returning through C; Query reentry from
+providers is rejected.</p>
+<p><code>execution:feed(event)</code> accepts canonical event tables with <code>kind</code>, <code>tag</code>,
+<code>value</code>, <code>depth</code> and <code>offset</code>. An optional <code>source</code> string contains exactly one
+encoded element; C derives its Tag, Value and Layout through the program's
+Format, preserving metadata such as <code>@hlen</code>. The execution retains the string.
+Call <code>finish()</code> before pulling deferred results;
+raw events and Reader input cannot be mixed before reset.
+<code>next_ordinal()</code> returns an owned event table and traversal ordinal from a
+completed retained selection, including Document selections. <code>next()</code> continues
+to return checked Nodes for Documents.
+<code>execution:edit_document(kind, tag, value, target_capacity)</code> edits a completed
+selection and reports the applied count. Short target storage permits retry;
+successful mutations invalidate checked Nodes.</p>
+<p><code>opentlv.query_schema_validate(rules, input, options)</code> validates a buffer string
+or Document. Each rule has <code>context</code>, <code>assertion</code> and <code>name</code>; both programs are
+retained during validation. Options bound depth, nodes, work, contexts and
+Document Value snapshot capacity. Errors own the rule index, Query detail and
+Schema diagnostic context. Provider callbacks cannot mutate or close the
+Document being validated.</p>
+<h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
+<p>Use <a href="../../concepts/learning-model/">the basic model</a> to choose borrowed processing
+or owned editing, then <a href="../processing/">processing choices</a> for your next task.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../python/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using OpenTLV from Python">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Using OpenTLV from Python
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../concepts/bindings/" class="md-footer__link md-footer__link--next" aria-label="Next: Language bindings">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Language bindings
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/marekcingel/OpenTLV" target="_blank" rel="noopener" title="OpenTLV on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../playground/playground.js" type="module"></script>
+      
+    
+  </body>
+</html>

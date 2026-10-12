@@ -1,0 +1,4728 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
+      
+      
+      
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/0.7/concepts/architecture/">
+      
+      
+        <link rel="prev" href="../../reference/errors/">
+      
+      
+        <link rel="next" href="../core-types/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Architecture - OpenTLV</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../playground/playground.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#layered-opentlv-architecture-65-279-280-281-327" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenTLV
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/processing/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/cxx-examples/" class="md-tabs__link">
+          
+  
+  
+  Language APIs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
+          
+  
+  
+  Formats
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/der/" class="md-tabs__link">
+          
+  
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cli/" class="md-tabs__link">
+          
+  
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../runtime-model/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    OpenTLV
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language APIs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language APIs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/webassembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly tooling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formats
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Formats
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV JSON document
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/compilers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conceptual model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planned-runtime-and-compiled-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planned runtime and compiled models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responsibilities-and-dependency-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responsibilities and dependency direction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mutable-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutable document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reader-and-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader and traversal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structural-rules-and-object-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural rules and object codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#include-only-what-you-need" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include only what you need
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Build configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-capabilities-and-query-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core capabilities and Query features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removing-profile-380" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing Profile (#380)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-native-boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Where documentation belongs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/reader-decode-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/indefinite-boundary-reuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indefinite boundary reuse follow-up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logo assets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#conceptual-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conceptual model
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#planned-runtime-and-compiled-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Planned runtime and compiled models
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#responsibilities-and-dependency-direction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responsibilities and dependency direction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#repository-layout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repository layout
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mutable-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mutable document
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reader-and-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader and traversal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structural-rules-and-object-codecs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structural rules and object codecs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#include-only-what-you-need" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include only what you need
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Build configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generic-core-formats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic core formats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#built-in-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Built-in standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-capabilities-and-query-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core capabilities and Query features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Migration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removing-profile-380" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing Profile (#380)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next step
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/architecture.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="layered-opentlv-architecture-65-279-280-281-327">Layered OpenTLV architecture (#65, #279, #280, #281, #327)<a class="headerlink" href="#layered-opentlv-architecture-65-279-280-281-327" title="Permanent link">&para;</a></h1>
+<p>Prerequisite: Start with the <a href="../learning-model/">basic model</a> before the detailed contracts.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Format describes wire rules
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Reader/Writer use Format; Definition, Schema and Codec are optional
+</code></pre></div>
+<p>OpenTLV provides one C library (<code>tlv</code>) and a header-only C++ interface (<code>tlv++</code>)
+that links to it. Core is a logical responsibility, not a directory. Optional
+components are concrete formats and standard-specific capabilities, rather than entire layers.</p>
+<p>The <a href="../architectural-rules/">core architectural rules</a> define the design and
+review constraints. This page describes how the current repository implements
+those responsibilities.</p>
+<p>The <a href="../format-capabilities/">generic Format capability space</a> explains which
+wire dimensions can be configured today and which need custom callbacks or
+future extensions, with builtins shown as representative combinations.</p>
+<h2 id="conceptual-model">Conceptual model<a class="headerlink" href="#conceptual-model" title="Permanent link">&para;</a></h2>
+<p>This is the canonical architecture overview. The
+<a href="../architectural-rules/">architectural rules</a> constrain changes; specialized
+contract and audit pages extend this model rather than define another one.</p>
+<p>OpenTLV separates reusable definitions and rules, concrete runtime data, and
+operations that apply those rules to the data:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>REUSABLE DESCRIPTIONS
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Definition    Format    Field Encoding    Schema    Codec
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>FORMAT CONSTRUCTION (implementation choices)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Field Encoding + composition rules -- optional helpers --+
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Direct implementation ----------------------------------+--&gt; Format contract
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>OPERATIONS                              RUNTIME REPRESENTATIONS
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>wire bytes -- Reader using Format ----&gt; Element + source Layout
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>wire bytes &lt;-- Writer using Format ---- Element
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>Definition, Schema and Codec are optional, not processing stages.
+</code></pre></div>
+<p>Composition belongs to Format; it is not another canonical layer. The generic
+composition helpers are optional: a Format may implement the same complete
+contract directly. Reader and Writer use that contract regardless of how the
+Format was constructed. Writer can encode an application-created Element
+without a previously parsed source Layout.</p>
+<p>Independent standards are a playground for finding reusable mechanisms:
+protocol policy stays in standards and extensions.</p>
+<p>The declarative/semantic model describes meaning and rules: a Definition
+associates an identifier with a descriptive name in a registry, Format defines
+wire encoding, Field Encoding supplies reusable wire-field mechanics, Schema
+defines structural constraints, and Codec defines conversion between Value
+bytes and application values. These roles can be implemented by tables,
+descriptors and executable callbacks.</p>
+<p>The runtime representation describes a concrete instance. Element holds its
+semantic identifier and Value. Layout describes how that instance occupies
+wire bytes: Header, optional Tag and Length fields, Value, Trailer and their
+ranges. In the current C API, this source information belongs to <code>tlv_source_t</code>
+and <code>tlv_range_t</code>; <code>tlv_decoded_t</code> pairs it with <code>tlv_element_t</code>.</p>
+<p>Field Encoding has two reusable levels. Low-level bit, byte and integer
+primitives include packed fields in <code>tlv/field/packed.h</code>. Identifier and Length
+encodings use the callback contracts in <code>tlv/field/encoding.h</code> and the standalone
+fixed-width, variable-width and escape-prefixed primitives in <code>tlv/field/fixed.h</code>,
+<code>tlv/field/variable.h</code> and <code>tlv/field/escaped.h</code>. Neither level describes a
+complete element. Fixed, variable and escaped Format configurations embed
+their <code>identifier</code> and <code>length</code> descriptions and use <code>element_order</code> and
+<code>length_scope</code> for composition policy. Adapters follow the shared Field Encoding
+validation and prefix-reporting contract. Codec is reserved for converting Value bytes to and from
+application values; individual wire fields use field encodings.</p>
+<p>Format composition in <code>tlv/formats/compose.h</code> combines field encodings with
+ordering, count scope, tag-only selection and optional boundary resolution.
+Its <code>tlv_field_composition_t</code>, <code>tlv_binary_composition_t</code>,
+<code>tlv_tagged_fields_composition_t</code> and <code>tlv_tagged_binary_composition_t</code>
+configurations supply reusable rules. Format produces Layout when those rules
+are applied to concrete bytes. Composition belongs to Format; it is not another
+architectural layer.</p>
+<p>Operations consume or produce these representations using the selected model.
+Reader and Writer process caller-owned buffers, Query selects elements, and
+Visitor participates in traversal. Document is the core owned representation
+built on these primitives and supports editable collections of elements.
+Operations can carry runtime state; these categories describe their primary
+roles, not a one-to-one mapping to directories or C types.</p>
+<p>See the <a href="../format-contract/">Format and Element contract</a> for the precise
+boundary between semantic content, source layout and wire preservation.</p>
+<h2 id="planned-runtime-and-compiled-models">Planned runtime and compiled models<a class="headerlink" href="#planned-runtime-and-compiled-models" title="Permanent link">&para;</a></h2>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/ROADMAP.md">roadmap</a> separates Execution Foundation (Phase 1),
+Runtime Model &amp; OTLV (Phase 2), Protocol Inference (Phase 3), and Compilation
+(Phase 4). The latter three are
+planned capabilities built on the current execution contracts.</p>
+<p>Implemented facilities are the native C execution contracts and their
+language/tool facades. The OTLV frontend, immutable runtime model, Protocol Inference
+and compilation are planned directions, not currently
+available parsing modes. Document remains owned message data; the runtime
+model supplies reusable interpretation/configuration.</p>
+<p>Phase 2 makes Definition, Format composition / Field Encoding configuration,
+Schema and Codec dynamically describable as one complete model. The <code>.otlv</code>
+frontend produces an AST, performs semantic analysis and symbol resolution,
+and constructs a canonical internal IR. Model construction establishes
+<code>tlv_model_t</code> ownership and lowers the IR to the existing execution descriptors
+before publishing the immutable model. <code>tlv_format_t</code>
+remains a lightweight execution descriptor, not the canonical semantic Format
+representation. Loading and model construction may allocate; subsequent TLV
+processing should remain allocation-free with explicit buffers/workspaces.
+Document remains an explicitly owning representation with its own storage needs.</p>
+<p>The <a href="../runtime-model/">Phase 2 runtime model and canonical IR</a> defines the
+frontend, semantic representation, model lifetime, lowering and execution
+boundaries, including the shared IR requirement for future code generation.</p>
+<p>Phase 3 discovers candidate models from unknown observations, preserving
+alternatives and supporting or contradicting evidence in construction state.
+It validates candidates before publishing the same immutable executable model
+and exports editable <code>.otlv</code>. It reuses Reader, the canonical model and Phase 2
+tooling; observed structural facts remain distinct from analyst-added semantics.
+This phase stress-tests the model and IR before compilation depends on them.</p>
+<p>Phase 4 consumes the same frontend and IR through an optimizer/code generator.
+Runtime and compiled backends preserve equivalent OTLV semantics. It completes
+the planned foundational architecture; subsequent SemVer major versions do not
+introduce additional architectural phases by implication.</p>
+<h2 id="responsibilities-and-dependency-direction">Responsibilities and dependency direction<a class="headerlink" href="#responsibilities-and-dependency-direction" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Responsibility</th>
+<th>Allowed dependencies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared contracts</td>
+<td>Borrowed values, logical lengths, raw tags, errors, format callbacks</td>
+<td>Standard C types</td>
+</tr>
+<tr>
+<td>Field Encoding</td>
+<td>Individual Identifier and Length representations, packed fields</td>
+<td>Shared field types and byte-order helpers; no Format dependency</td>
+</tr>
+<tr>
+<td>Reader / writer</td>
+<td>Bounded raw TLV I/O, iteration, copies, generic traversal</td>
+<td>Shared contracts</td>
+</tr>
+<tr>
+<td>Formats</td>
+<td>Complete Header/Value/Trailer framing and identification of nested containers</td>
+<td>Shared contracts; Field Encoding; private wire helpers</td>
+</tr>
+<tr>
+<td>Schemas</td>
+<td>Tag length, occurrence, primitive/container and child membership rules</td>
+<td>Shared contracts, raw reader and traversal</td>
+</tr>
+<tr>
+<td>Codec</td>
+<td>Value conversion and complete-structure object mappings (bindings)</td>
+<td>Shared contracts; structure codecs may use schemas and raw I/O</td>
+</tr>
+</tbody>
+</table>
+<p>The format descriptor is a shared contract consumed by generic I/O; concrete
+format implementations never need to be named by the reader/writer. A codec
+does not have to use a schema. Existing C++ tag-associated codecs remain valid.
+Application-object structure mappings belong to Codec. Language bindings are
+facades over all exposed capabilities, not a codec-only architectural layer.</p>
+<p>A module is a reusable unit that may provide any subset of Definition, Format,
+Schema and Codec. This is composition, not a fifth capability or a layer.
+For example, a vendor tag module may provide only Definition, while another
+module provides only Format. No module registry or runtime loader is added.</p>
+<p>Builtins are native implementations optionally compiled into OpenTLV. Shipped
+protocol-specific functionality lives under <code>builtins/&lt;protocol&gt;/</code>, grouped by
+protocol. Builtins work without the future <code>.otlv</code> interpreter. Native C,
+runtime <code>.otlv</code> descriptions and future generated code all supply the same
+contracts to generic consumers. Generic subsystems (<code>reader/</code>, <code>writer/</code>,
+<code>query/</code>, <code>schema/</code>, <code>codec/</code>, <code>document/</code>) never depend on <code>builtins/</code>.</p>
+<p>A format mechanism that names no protocol -- it is parameterized entirely by
+caller-supplied widths and byte order, with no knowledge of any concrete
+wire standard -- lives under the separate top-level <code>formats/</code> instead. The
+configurable Fixed, Variable and Packed formats are current members; protocol-
+agnostic mechanisms (not per-protocol formats) would join it there. This is
+narrower than the pre-#279 <code>tlv/formats/</code> (see Migration): that one held
+every concrete format regardless of whether it was protocol-specific, and was
+retired in favor of <code>builtins/&lt;protocol&gt;/</code> for exactly the protocol-specific
+ones. <code>formats/</code> returns only for mechanisms that stay protocol-agnostic.</p>
+<p>Reader is the canonical pull-based cursor; Tree Reader composes it for nested
+traversal, and Visitor provides resumable callback adapters.
+Recovery and resynchronization are application policies implemented, when needed,
+using the public single-element <code>tlv_read()</code> primitive. Standard-specific
+implementations compose generic facilities; generic facilities do not depend on them. DER's wire callbacks and bounded
+validation operations live in separate files. BER uses generic Variable primitives
+through a private ASN.1 field adapter also consumed by DER/CER. The wrappers
+retain their concrete rules and current component dependencies.</p>
+<h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
+<p>Public headers under <code>tlv/include/tlv/</code> and sources under <code>tlv/src/</code> use:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>tlv/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  element.h, value.h, length.h, size.h, result.h, endian.h, copy.h, format.h, tlv.h
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  compiler.h, attributes.h, definition.h
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  reader/    reader.h, tree.h, visitor.h
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  query/     query.h
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>  document/  document.h
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>  writer/    writer.h
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>  schema/    schema.h
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>  codec/     codec.h, structure.h
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>  field/     encoding.h, fixed.h, packed.h, variable.h, escaped.h
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>  formats/
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>    compose.h, fixed.h, variable.h, escaped.h, packed.h
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>  builtins/
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>    bluetooth/ bluetooth_ltv.h, ad_types.h
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>    emv/       emv.h, emv_schema.h, dol.h, emv_codec.h
+</code></pre></div>
+<p>The tree shows the public layout; corresponding implementation files use <code>.c</code>.
+<code>definition.h</code> provides borrowed identifier/name entries and a generic registry
+lookup. Bluetooth AD types use this model independently of their wire format;
+definitions neither validate structure nor decode values.
+Identifier meaning is scoped to the selected registry, and descriptive names are
+not unique domain identities. Rich standard dictionaries may compose Definition,
+Schema and Codec without adding protocol fields to the generic Definition or
+requiring Definition lookup before parsing or decoding. The caller/dictionary
+selects the value codec; the codec does not resolve its enclosing tag.
+The <a href="../definition-boundaries/">Definition boundary audit</a> records this contract,
+evidence across five standard families and the identifier-mapping decision.
+Small fundamental types (<code>tag.h</code>, <code>length.h</code>, <code>size.h</code>, <code>value.h</code>, <code>element.h</code>, and the
+generic <code>format.h</code> descriptor contracts) sit directly under <code>tlv/</code>, alongside
+the generic subsystem folders. <code>field/</code> contains individual-field mechanics;
+<code>formats/compose.h</code> combines them into complete Format operations.
+<code>formats/fixed.h</code>, <code>formats/variable.h</code> and <code>formats/escaped.h</code> provide complete
+generic format configurations and their adapters. These mechanisms name no
+protocol; every protocol-specific format or standard OpenTLV ships lives under
+<code>builtins/&lt;protocol&gt;/</code>, so all of a protocol's
+functionality is in one place instead of scattered across role-based folders: EMV's schema,
+codec, DOL and dictionary header are all under <code>builtins/emv/</code>, and
+ASN.1's wire formats and bounded DER/CER validation operations are all under
+<code>builtins/asn1/</code>. Wire-level <code>der.h</code>/<code>cer.h</code> and the bounded validation headers
+that build on them would otherwise share a name, so the validation headers are
+<code>der_validation.h</code>/<code>cer_validation.h</code>; similarly <code>builtins/emv/emv_codec.h</code> (moved
+from <code>codec/emv.h</code>) is distinct from the umbrella <code>builtins/emv/emv.h</code>.
+BER, DER and CER share the ASN.1 field adapter in
+<code>src/builtins/asn1/ber_internal.c</code> and its private header. Reusable variable-width
+identifier and definite-length algorithms live in <code>src/field/variable.c</code>;
+<code>src/formats/variable.c</code> supplies their complete-format adapter. Fixed-width
+identifier and count algorithms live in <code>src/field/fixed.c</code>; binary composition
+and the Escaped format reuse them through thin field callback adapters.
+Internal schema validation, BER helpers and EMV value codecs have dedicated
+source files. <code>config.h</code> and <code>version.h</code> are generated into the build include
+directory. The public aggregate <code>tlv/tlv.h</code> includes enabled components; generic
+headers include only their direct contracts. Use explicit headers for small
+consumers. C++ common types are in <code>tlv++/types.hpp</code>, independent of codecs.</p>
+<p>Public headers under <code>tlv++/include/tlv++/</code> mirror the same layout (#280),
+grouping the C++ wrapper for each generic subsystem alongside its C
+counterpart and each protocol's wrapper under <code>builtins/&lt;protocol&gt;/</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>tlv++/
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  format.hpp, format_traits.hpp, native.hpp
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  reader/    reader.hpp, tree.hpp
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  query/     query.hpp
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  document/  document.hpp
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  writer/    writer.hpp, tree.hpp, builder.hpp
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  schema/    schema.hpp
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  codec/     dynamic.hpp, typed.hpp, structure.hpp, registry.hpp
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  formats/
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    fixed_format.hpp
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>  builtins/
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    asn1/       ber.hpp, der.hpp, cer.hpp, codec.hpp
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    bluetooth/  ltv.hpp, codec.hpp
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    emv/        format.hpp, codec.hpp
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>    lldp/       lldp.hpp, codec.hpp
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>    dhcp/       dhcpv4.hpp, codec.hpp, container.hpp
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    nfc/        type2.hpp
+</code></pre></div>
+<p><code>tlv++</code> is header-only, so there is no separate <code>tlv++/src/</code>. <code>registry.hpp</code>
+sits under <code>codec/</code> alongside the typed and structure codecs: it maps Tags to
+decoders selected at runtime, with no C counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
+and NFC under <code>builtins/&lt;protocol&gt;/</code>, following the enabled native components.
+See <a href="../cxx-builtins/">C++ built-in standards</a> for their scoped coverage.
+Every <code>tlv++</code> header keeps using full paths from the include root
+(<code>#include "tlv++/reader/reader.hpp"</code>, not a relative <code>#include
+"reader.hpp"</code>), so moving a header between folders only requires updating
+<code>#include</code> lines that name it, not every include inside sibling headers.</p>
+<p><code>tests/unit/</code>, <code>tests/integration/</code> and <code>tests/fuzz/</code> (#281) each keep their
+own existing top-level meaning â€” component contracts, concrete wire formats
+and layer interactions, and libFuzzer harnesses, respectively (see
+<a href="../../getting-started/#build-and-run-tests">tests</a>) â€” and each
+independently mirrors <code>tlv/src</code>'s own layout underneath: a generic
+subsystem's tests sit under its own <code>reader/</code>, <code>writer/</code>, <code>query/</code>, <code>schema/</code>,
+<code>codec/</code> or <code>document/</code> folder, and a built-in's tests sit together under
+<code>builtins/&lt;protocol&gt;/</code>, regardless of whether they exercise its schema, codec,
+DOL or parser. Small core-type tests and cross-cutting tests (such as
+<code>architecture_test.cpp</code>, and the <code>tlv++</code> aggregate <code>test_tlvpp.cpp</code>) stay
+directly under <code>tests/unit/</code> or <code>tests/integration/</code>, without a subsystem
+folder, the same way <code>tag.h</code> and <code>value.h</code> sit directly under <code>tlv/</code>. A
+shared folder's C and C++ files are told apart by name, not by a separate
+<code>tlv</code>/<code>tlv++</code> folder (<code>document_test.cpp</code> next to <code>test_document.cpp</code>).
+<code>tests/fuzz/</code> uses the same subsystem/<code>builtins/&lt;protocol&gt;/</code> split for its
+harnesses, each with its checked-in seed corpus in a sibling <code>corpus/</code> folder
+(<code>tests/fuzz/reader/read.c</code> and <code>tests/fuzz/reader/corpus/read/</code>,
+<code>tests/fuzz/builtins/asn1/der.c</code> and its <code>corpus/der/</code>); it keeps its own
+<code>tests/fuzz/CMakeLists.txt</code> since <code>OPENTLV_BUILD_FUZZING</code> is independent of
+<code>OPENTLV_BUILD_TESTS</code>. Compile/API checks stay separate from this tree.</p>
+<h2 id="mutable-document">Mutable document<a class="headerlink" href="#mutable-document" title="Permanent link">&para;</a></h2>
+<p><code>document/document.h</code> provides the canonical owned mutable tree, selected by
+<code>OPENTLV_DOCUMENT</code>. Programmatic construction and mutation need neither Reader
+nor Writer. Document owns its Tags and Values and supports a caller allocator;
+enabling the capability alone does not allocate a tree.</p>
+<p>Wire import is a Reader + Document integration (<code>document/reader.c</code>), serialization
+is a Writer + Document integration (<code>document/writer.c</code>), and path matching is a
+Query + Document integration (<code>document/query.c</code>). Nonempty constructed Values
+passed to insert/set-value are encoded children and require Reader; without it,
+these operations return <code>TLV_ERR_UNSUPPORTED</code> without changing the tree.
+Empty constructed nodes and programmatically inserted children remain available.
+Compiled Document Query currently also needs Reader and Writer for its Value
+snapshot; Query-specific execution dependency cleanup remains separate.
+See <a href="../../guides/document/">mutable documents</a>.</p>
+<p><code>tlv_document_builder_t</code> owns unfinished construction and consumes a caller-owned
+Tree Reader, resuming after <code>TLV_NEED_MORE_DATA</code>. It publishes a document only at
+final stream end or completion of a selected subtree. Complete-buffer parsing
+and constructed-value mutations reuse the same item consumer. Query can select
+the subtree root without introducing a dependency from Reader or Builder to Query
+matching semantics.</p>
+<h2 id="reader-and-traversal">Reader and traversal<a class="headerlink" href="#reader-and-traversal" title="Permanent link">&para;</a></h2>
+<p>The <a href="../processing-pipeline/">canonical processing pipeline audit</a> records the
+Reader/Query/Document/Writer dependency graph, ownership contracts and end-to-end
+regression coverage.</p>
+<ul>
+<li><code>tlv_reader_next</code> iterates adjacent elements without interpreting their values.</li>
+<li><code>tlv_reader_visit</code> visits adjacent elements from an initialized Reader.</li>
+<li><code>tlv_tree_reader_next</code> returns one preorder item with depth, absolute source
+  offset, source metadata and Format-owned construction classification. It uses
+  caller-provided structural frames and runtime depth/count limits, without
+  allocation or C recursion. Input windows and subtree skipping preserve Reader's
+  complete-element and borrowed-storage contracts.</li>
+<li><code>tlv_tree_reader_visit</code> is a resumable push adapter over a caller-owned Tree
+  Reader. It owns no traversal storage and has no fixed depth ceiling. C++
+  provides <code>tlv::tree_reader::visit</code> over the same initialized cursor.</li>
+</ul>
+<p>The <a href="../../guides/reader/">Reader contract</a> distinguishes an available element,
+final end of input, resumable input shortage and parsing errors. Incremental
+input uses caller-owned contiguous windows with absolute logical offsets. Scanner is removed
+from the core API (#391); applications own any recovery policy.</p>
+<p>The nesting contract covers containers whose value views contain a sequence
+in the same format, including BER indefinite lengths/EOC. A NULL nesting
+callback disables tree descent. BER still inspects descendant framing when
+needed to locate an indefinite element's end. Generic traversal separates the
+value end from the complete encoded end and skips enclosing trailers when
+resuming siblings. Mixed-format child payloads and stream reassembly remain
+outside this contract. Definite single-element I/O keeps values opaque;
+explicit BER indefinite writing validates child framing before writing.</p>
+<h2 id="structural-rules-and-object-codecs">Structural rules and object codecs<a class="headerlink" href="#structural-rules-and-object-codecs" title="Permanent link">&para;</a></h2>
+<p><code>tlv_schema_t</code> retains lightweight tag lookup and length validation for recovery
+and dictionaries. <code>tlv_structure_schema_t</code> adds per-parent rules: inclusive
+lengths, minimum/maximum occurrences, primitive/container constraints, nested
+schemas and explicit unknown-tag policy. Sibling order is unrestricted.
+Validation does not decode values or implement cross-field business rules.
+An empty container still has to satisfy required-child rules. Limits bound
+tree depth and the total number of elements. Validation rescans each scope for
+each rule rather than allocating occurrence counters.</p>
+<p><code>tlv_codec_t</code> converts an individual raw value. <code>tlv_structure_codec_t</code> maps a
+complete sequence into a caller-owned object, using an explicit <code>format</code> pointer (whose own
+<code>is_constructed</code> predicate governs nesting) and an optional structure schema. Decode requires
+<code>format</code> to be able to read. Encode needs it to also be able to write, since
+producing bytes and then validating them both go through the same descriptor.
+It validates input before calling the object decoder
+and validates encoded bytes before reporting success. It does not infer member
+offsets or allocate application objects. Application callbacks map fields and
+can invoke value codecs. Both APIs document object representation and ownership
+through the selected descriptor. C++ offers <code>decode_structure&lt;T&gt;</code> and
+<code>encode_structure</code> wrappers with caller-owned output storage.</p>
+<p>C++ Writers accept explicit Tags/bytes and typed fields that select Value codecs;
+raw I/O and the C codec wrappers do not allocate. C++ errors and user-defined object types may
+also allocate according to their representation.</p>
+<h2 id="include-only-what-you-need">Include only what you need<a class="headerlink" href="#include-only-what-you-need" title="Permanent link">&para;</a></h2>
+<p>A build contains only the components it asks for. A project that needs just the
+generic core builds just the core. A project that also needs BER enables BER and gets
+no other format. Formats and standard-specific capabilities are selectable components (see
+<a href="#build-configuration">Build configuration</a>), and each concrete component is compiled
+into the library only when it is enabled. Dependencies between components are explicit,
+for example the ASN.1 chain below, and nothing is pulled in implicitly. The header-only
+C++ wrapper adds cost only for the headers a program includes.</p>
+<p>Every new format or standard, including the candidates in the
+<a href="../../formats/format-roadmap/">format expansion candidates</a>, follows the same rule: its
+own option, and no code or dependency added to builds that do not enable it.</p>
+<p>Language bindings are expected to follow the same rule: a binding should expose a
+component only when the matching C component is enabled, so a binding build can also be
+limited to what it needs. Rust maps its default <code>lldp</code> Cargo feature to
+<code>OPENTLV_LLDP</code>; Reader, Writer, Query, Schema and Codec are explicitly enabled by its native build. Mapping the
+remaining component options to Cargo features is future work; see
+<a href="../../development/rust/#build">Rust bindings</a>. Ready-made CMake recipes are in
+<a href="../../guides/select-components/">building only the components you need</a>.</p>
+<h2 id="build-configuration">Build configuration<a class="headerlink" href="#build-configuration" title="Permanent link">&para;</a></h2>
+<p>Core primitives (Tag, Value, Element, Format, Field Encoding, runtime Layout,
+diagnostics and shared utilities) and configurable Fixed/Variable formats are always available.
+Reader, Writer, Document, Query, Schema and Codec are independent optional
+capabilities, enabled by default. Their source groups are excluded when disabled;
+this does not depend on static-linker dead stripping. A single <code>tlv</code> library
+remains the distribution unit.</p>
+<h3 id="generic-core-formats">Generic core formats<a class="headerlink" href="#generic-core-formats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Availability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../formats/fixed/configurable/">Configurable fixed-width TLV</a></td>
+<td>Always built; shared C implementation and C++ wrapper</td>
+</tr>
+<tr>
+<td><a href="../../formats/variable/">Configurable variable-width TLV</a></td>
+<td>Always built; C configuration and explicit C++ native interop</td>
+</tr>
+</tbody>
+</table>
+<h3 id="built-in-standards">Built-in standards<a class="headerlink" href="#built-in-standards" title="Permanent link">&para;</a></h3>
+<p>These packages default to ON and can be disabled subject to the dependencies below.</p>
+<table>
+<thead>
+<tr>
+<th>CMake option / generated config macro</th>
+<th>Included component</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENTLV_NFC</code></td>
+<td><a href="../../formats/nfc/">NFC Type 2 Tag framing</a> for contiguous TLV streams</td>
+</tr>
+<tr>
+<td><code>OPENTLV_DHCP</code></td>
+<td><a href="../../formats/dhcp/">DHCPv4 option framing</a>, including Pad and End</td>
+</tr>
+<tr>
+<td><code>OPENTLV_BLUETOOTH</code></td>
+<td>Bluetooth LTV format, containers, definitions, schemas and codecs</td>
+</tr>
+<tr>
+<td><code>OPENTLV_LLDP</code></td>
+<td>LLDP packed framing, base definitions, LLDPDU structural validation, Value codecs and binding presets</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_ASN1</code></td>
+<td>ASN.1-related wire formats (BER, DER, CER)</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_BER</code></td>
+<td>Public BER format</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_DER</code></td>
+<td>DER format and bounded DER validation operations</td>
+</tr>
+<tr>
+<td><code>OPENTLV_FORMAT_CER</code></td>
+<td>CER format and bounded CER validation operations</td>
+</tr>
+<tr>
+<td><code>OPENTLV_EMV</code></td>
+<td>EMV framing, dictionary, schemas and value codecs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="core-capabilities-and-query-features">Core capabilities and Query features<a class="headerlink" href="#core-capabilities-and-query-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>CMake option / generated config macro</th>
+<th>Included component</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENTLV_READER</code></td>
+<td>Wire Reader and Tree traversal</td>
+</tr>
+<tr>
+<td><code>OPENTLV_WRITER</code></td>
+<td>Wire Writer, Tree Writer and generation</td>
+</tr>
+<tr>
+<td><code>OPENTLV_QUERY</code></td>
+<td>Canonical Query compiler/execution and path matching</td>
+</tr>
+<tr>
+<td><code>OPENTLV_SCHEMA</code></td>
+<td>Schema descriptions, length and value constraints; wire traversal requires Reader</td>
+</tr>
+<tr>
+<td><code>OPENTLV_CODEC</code></td>
+<td>Semantic Value codecs; structure codecs require Schema and Reader</td>
+</tr>
+<tr>
+<td><code>OPENTLV_QUERY_FRONTEND</code></td>
+<td>Query text parser/compiler; disable for <a href="../../guides/queries/#static-c-plans-and-frontend-free-execution">static C plans</a></td>
+</tr>
+<tr>
+<td><code>OPENTLV_QUERY_SET_OPERATIONS</code></td>
+<td>Query union, intersection and difference in the shared executor</td>
+</tr>
+<tr>
+<td><code>OPENTLV_DOCUMENT</code></td>
+<td>Canonical owned mutable <a href="../../guides/document/">Document</a>; optional build inclusion, not a format or standard package</td>
+</tr>
+</tbody>
+</table>
+<p><code>OPENTLV_FORMAT_ASN1</code>, <code>OPENTLV_FORMAT_BER</code>, <code>OPENTLV_FORMAT_DER</code>, and
+<code>OPENTLV_EMV</code> form a tree (ASN1 -&gt; BER -&gt; DER/CER/EMV): disabling an
+option forces every option below it OFF as well, regardless of how that
+option was set, so <code>-DOPENTLV_FORMAT_BER=OFF</code> also disables DER, CER and EMV.
+<code>OPENTLV_FORMAT_CER</code> is an independent sibling of <code>OPENTLV_FORMAT_DER</code> under
+<code>OPENTLV_FORMAT_BER</code>, not a descendant of it: CER never depends on DER (or
+vice versa), and disabling DER does not affect CER or EMV. This cascade is
+centralized in <code>cmake/format_options.cmake</code>. EMV element framing uses generic
+variable-width primitives directly; the BER build dependency remains only for
+the unchanged DOL identifier helper. No component creates
+another public binary library. <code>tlv/config.h</code> exposes the configured
+selection, including <code>OPENTLV_FORMAT_ASN1</code>. Explicitly including a disabled
+component's header does not provide its symbols; consumers should use the
+config macros when supporting reduced builds.</p>
+<p>Tests that require disabled components and examples that demonstrate them are
+omitted. Generic architecture tests use an application-defined format and run
+even when all protocol extensions are disabled. The benchmark uses BER and
+is built only when that component is enabled.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-minimal<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>-DOPENTLV_BLUETOOTH<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_LLDP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_DHCP<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_NFC<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_FORMAT_ASN1<span class="o">=</span>OFF
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-minimal<span class="w"> </span>--parallel
+</code></pre></div>
+<h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
+<p>OpenTLV is before 1.0.0, so the public API is still allowed to change; see
+<a href="../../development/abi-compatibility/">C ABI compatibility</a>. This section is a
+best-effort record of the breaking changes below, not a compatibility
+guarantee or an exhaustive migration guide.</p>
+<p>Update flat includes to the folders above (<code>tlv/reader.h</code> becomes
+<code>tlv/reader/reader.h</code>, and so on). Concrete format declarations use
+<code>tlv/formats/fixed.h</code>,
+<code>tlv/builtins/asn1/ber.h</code>, or <code>tlv/builtins/asn1/der.h</code>; the public
+aggregate includes enabled formats.</p>
+<p><code>tlv/formats/</code> and <code>tlv/profiles/</code> (#279) no longer exist: every built-in
+protocol implementation moved under <code>builtins/&lt;protocol&gt;/</code>. Concrete format
+headers keep their names (<code>tlv/formats/asn1/der.h</code> becomes
+<code>tlv/builtins/asn1/der.h</code>); the bounded DER/CER validation headers are renamed
+to avoid colliding with the wire-format headers of the same name
+(<code>tlv/profiles/der.h</code> becomes <code>tlv/builtins/asn1/der_validation.h</code>,
+<code>tlv/profiles/cer.h</code> becomes <code>tlv/builtins/asn1/cer_validation.h</code>). EMV moves
+and consolidates under <code>tlv/builtins/emv/</code>: <code>tlv/profiles/emv.h</code> becomes
+<code>tlv/builtins/emv/emv.h</code>, <code>tlv/profiles/emv_schema.h</code>,
+and <code>tlv/profiles/dol.h</code> move alongside it unchanged, and <code>tlv/codec/emv.h</code> (the semantic value codecs) becomes
+<code>tlv/builtins/emv/emv_codec.h</code> to avoid colliding with the umbrella EMV
+header. The former <code>emv_tags.def</code> X-macro is subsequently removed in #381;
+EMV uses explicit domain dictionary tables. <code>tlv/schemas/schema.h</code> becomes <code>tlv/schema/schema.h</code>.</p>
+<p><code>tlv++</code>'s previously flat <code>tlv++/include/tlv++/*.hpp</code> headers (#280) move
+into the same folders as their C counterparts:
+the former flat reader headers become
+<code>tlv++/reader/reader.hpp</code>/<code>tlv++/reader/tree.hpp</code>;
+<code>tlv++/writer.hpp</code>, <code>tlv++/query.hpp</code> and <code>tlv++/schema.hpp</code> become
+<code>tlv++/writer/writer.hpp</code>, <code>tlv++/query/query.hpp</code> and
+<code>tlv++/schema/schema.hpp</code>; <code>tlv++/codec.hpp</code>, <code>tlv++/structure.hpp</code> and
+<code>tlv++/registry.hpp</code> become <code>tlv++/codec/codec.hpp</code>,
+<code>tlv++/codec/structure.hpp</code> and <code>tlv++/codec/registry.hpp</code>;
+<code>tlv++/document.hpp</code> becomes <code>tlv++/document/document.hpp</code>; and
+<code>tlv++/ber.hpp</code>/<code>tlv++/fixed_format.hpp</code> become
+<code>tlv++/builtins/asn1/ber.hpp</code>/<code>tlv++/builtins/fixed/fixed_format.hpp</code>.
+<code>tlv++/types.hpp</code>, <code>tlv++/compat.hpp</code>, <code>tlv++/diagnostic.hpp</code> and the
+aggregate <code>tlv++/tlv.hpp</code> are unaffected. No type, function or namespace
+changed; only header locations did. <code>tlv++/codec/codec.hpp</code> was later removed
+together with its tag-carrying payload interface; use typed fields instead.</p>
+<p>Typed C++ writes use typed fields (<code>writer.write&lt;Field&gt;(value)</code>). Raw
+<code>writer.write(tag, bytes)</code> is unchanged.
+Split custom descriptors into <code>tlv_reader_format_t</code> and <code>tlv_writer_format_t</code>.
+Use matching <code>tlv_reader_format_&lt;name&gt;</code> / <code>tlv_writer_format_&lt;name&gt;</code> constants
+at each call site. Runtime construction uses <code>tlv_reader_format_init</code> and
+<code>tlv_writer_format_init</code>; either direction can be implemented independently.</p>
+<p>Traversal and schema APIs obtain the optional nesting predicate from
+<code>tlv_format_t::is_constructed</code>; it receives the format context and parsed tag.
+BER, DER and CER share <code>tlv_asn1_is_constructed</code>. Structure codecs likewise
+use their Format descriptor for framing and constructed-element detection.</p>
+<p>Reunify the reader and writer format descriptors that #68 split apart:
+<code>tlv_reader_format_t</code>/<code>tlv_writer_format_t</code> are replaced by one <code>tlv_format_t</code>
+whose read and write callback groups are each independently optional. A
+format that only fills in the read group cannot be used to write, and vice
+versa; a format missing the capability an operation needs now fails at
+<code>tlv_reader_init</code>/<code>tlv_writer_init</code>/<code>tlv_structure_decode</code>-or-<code>_encode</code>/
+<code>tlv_document_create</code> time instead of being rejected by the compiler. Replace
+<code>tlv_reader_format_&lt;name&gt;</code>/<code>tlv_writer_format_&lt;name&gt;</code> constants with the
+single <code>tlv_format_&lt;name&gt;</code> per format. Replace
+<code>tlv_reader_format_init</code>/<code>tlv_writer_format_init</code>/<code>tlv_reader_format_init_element</code>/
+<code>tlv_writer_format_init_header</code> with the canonical <code>tlv_format_init</code>,
+and the private <code>tlv_reader_format_usable</code>/<code>tlv_writer_format_usable</code> checks
+with the now-public <code>tlv_format_can_read</code>/<code>tlv_format_can_write</code>.
+<code>tlv_fixed_reader_format_init</code>/<code>tlv_fixed_writer_format_init</code> become one
+<code>tlv_fixed_format_init</code>. <code>tlv_structure_codec_t</code> and <code>tlv_document_options_t</code>
+each replace their separate <code>reader_format</code>/<code>writer_format</code> pointers with one
+<code>format</code> field, and <code>tlv_document_options_init</code> drops its <code>writer_format</code>
+parameter. <code>tlv::document_format</code> and <code>tlv::fixed_format&lt;&gt;</code> (<code>tlv++</code>) collapse
+the same way, with <code>fixed_format&lt;&gt;::reader()</code>/<code>::writer()</code> replaced by
+<code>::format()</code>. Rebuild all consumers. (#326)</p>
+<p>Move the configurable fixed-width format out of <code>builtins/</code> into the new
+top-level <code>formats/</code>, since it names no protocol: <code>tlv/builtins/fixed/fixed.h</code>
+becomes <code>tlv/formats/fixed.h</code>, and <code>tlv++/builtins/fixed/fixed_format.hpp</code>
+becomes <code>tlv++/formats/fixed_format.hpp</code>. This is a narrower, second
+reintroduction of a <code>formats/</code> folder than the one #279 removed (see above):
+it holds only mechanisms that are themselves protocol-agnostic, not every
+concrete format regardless of protocol. <code>tlv_fixed_config_t</code> is renamed to <code>tlv_fixed_format_t</code>
+without any other change to its fields or to <code>tlv_fixed_format_init()</code>'s
+behavior. No compatibility shim; rebuild all consumers. (#327)</p>
+<p><code>tlv::fixed_format&lt;&gt;</code> (<code>tlv++</code>) no longer reimplements the wire-format
+callbacks; <code>format()</code> now builds and returns a descriptor from
+<code>tlv_fixed_format_init()</code>, so the C and C++ APIs share one implementation.
+Two consequences follow: the descriptor's <code>context</code> is no longer <code>NULL</code> (it
+is a static <code>tlv_fixed_format_t</code> built from <code>TagWidth</code>, <code>LengthWidth</code> and
+<code>Order</code>), and <code>tlv::fixed_format&lt;&gt;</code> links to the always-built C Fixed
+implementation. <code>static_assert</code>-checked compile-time validation of <code>TagWidth</code>,
+<code>LengthWidth</code> and <code>Order</code> is unchanged. No compatibility shim; rebuild all
+consumers.</p>
+<p>Move constructed-element detection into <code>tlv_format_t</code> as an optional
+<code>is_constructed</code> field, instead of passing a separate <code>tlv_is_constructed_fn</code>
+predicate alongside a format: <code>tlv_schema_validate</code>,
+<code>tlv_schema_validate_all</code>, <code>tlv_schema_validate_all_diag</code>, <code>tlv_query_visit_buffer</code>,
+<code>tlv::query::visit_buffer</code>, <code>tlv::validate</code>, <code>tlv::validate_all</code> and
+<code>tlv::validate_all_diag</code> each drop that parameter and read
+<code>format-&gt;is_constructed</code> instead. <code>tlv_document_options_t</code>/
+<code>tlv::document_format</code> and <code>tlv_structure_codec_t</code> likewise drop their own
+separate <code>is_constructed</code> field, and <code>tlv_document_options_init()</code> drops its
+<code>is_constructed</code> parameter. The BER, DER and CER format descriptors
+(<code>tlv_format_ber</code>, <code>tlv_format_der</code>, <code>tlv_format_cer</code>) now set
+<code>is_constructed</code> themselves; Fixed formats still leave it
+<code>NULL</code>. No compatibility shim; rebuild all consumers.</p>
+<p>See also the generated <a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API reference</a>.</p>
+<p>The current wire boundary is specified by the <a href="../format-contract/">Format/Element contract</a>.</p>
+<h3 id="removing-profile-380">Removing Profile (#380)<a class="headerlink" href="#removing-profile-380" title="Permanent link">&para;</a></h3>
+<p>The architectural capabilities are Definition, Format, Schema and Codec. Module
+means a reusable composition of any subset of them. Builtins remain native,
+optional implementations that work without the future <code>.otlv</code> interpreter.</p>
+<table>
+<thead>
+<tr>
+<th>Previous public name</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OPENTLV_PROFILE_EMV</code></td>
+<td><code>OPENTLV_EMV</code> (same defaults and dependencies)</td>
+</tr>
+<tr>
+<td><code>tlv_config_profile_emv()</code></td>
+<td><code>tlv_config_emv()</code></td>
+</tr>
+<tr>
+<td><code>tlv/builtins/asn1/der_profile.h</code></td>
+<td><code>tlv/builtins/asn1/der_validation.h</code></td>
+</tr>
+<tr>
+<td><code>tlv/builtins/asn1/cer_profile.h</code></td>
+<td><code>tlv/builtins/asn1/cer_validation.h</code></td>
+</tr>
+<tr>
+<td>CLI <code>--profile emv</code></td>
+<td><code>--module emv</code></td>
+</tr>
+<tr>
+<td>CLI/WASM JSON <code>profile</code></td>
+<td><code>module</code></td>
+</tr>
+<tr>
+<td>WASM <code>PROFILES</code>, <code>api.profiles</code>, parse option <code>profile</code></td>
+<td><code>MODULES</code>, <code>api.modules</code>, <code>module</code></td>
+</tr>
+<tr>
+<td>Rust <code>Profile::Der</code>, <code>Profile::Cer</code></td>
+<td><code>Format::Der</code>, <code>Format::Cer</code></td>
+</tr>
+<tr>
+<td>Rust <code>ProfileError</code></td>
+<td><code>ValidationError</code></td>
+</tr>
+</tbody>
+</table>
+<p>The old names have no compatibility aliases. Reconfigure existing builds using
+<code>OPENTLV_EMV</code>; an old cache entry does not control the renamed option. Rust
+<code>default_limits()</code> now returns a <code>Result</code>; bounded validation operations reject
+formats other than DER/CER with <code>InvalidArg</code> and unknown location. Reader/Writer keep
+using their selected Format directly. Standard guides now live in <code>standards/</code>.</p>
+<p>CLI <code>--module emv</code> selects the existing native EMV definitions, schemas and
+codecs for the relevant command; <code>--format</code> selects framing independently. WASM
+uses the selected module's definitions to annotate parsed elements. Neither
+selector loads <code>.otlv</code> files or requires a runtime interpreter.</p>
+<h2 id="next-step">Next step<a class="headerlink" href="#next-step" title="Permanent link">&para;</a></h2>
+<p>Next: <a href="../architectural-rules/">architectural rules</a> for extension design.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../reference/errors/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Error codes">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Error codes
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../core-types/" class="md-footer__link md-footer__link--next" aria-label="Next: Core types">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Core types
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/marekcingel/OpenTLV" target="_blank" rel="noopener" title="OpenTLV on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../playground/playground.js" type="module"></script>
+      
+    
+  </body>
+</html>

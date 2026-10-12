@@ -1,0 +1,5053 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
+      
+      
+      
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/0.7/cli/">
+      
+      
+        <link rel="prev" href="../standards/emv/">
+      
+      
+        <link rel="next" href="json-schema/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>otlv command line - OpenTLV</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../playground/playground.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#command-line-tool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenTLV
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              otlv command line
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/processing/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/cxx-examples/" class="md-tabs__link">
+          
+  
+  
+  Language APIs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../formats/" class="md-tabs__link">
+          
+  
+  
+  Formats
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../standards/der/" class="md-tabs__link">
+          
+  
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../concepts/architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../concepts/runtime-model/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    OpenTLV
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language APIs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language APIs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/webassembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly tooling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formats
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Formats
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/asn1/ber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/asn1/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/asn1/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/custom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/format-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/format-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../standards/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../standards/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../standards/emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#first-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First inspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-and-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build and install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphical-trees-and-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graphical trees and colors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV annotations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-decoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value decoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path queries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-compiled-query-and-semantic-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full compiled Query and semantic diff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag lookup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pdol-dol-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PDOL / DOL inspection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-schema-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV schema validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV contexts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recovery-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recovery scanning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation and limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shell-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostics-and-exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostics and exit codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bluetooth-semantic-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bluetooth semantic inspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-reproducible-wire-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate reproducible wire corpora
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV JSON document
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/cxx-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/compilers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/cxx-native-boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/abi-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/documentation-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Where documentation belongs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/reader-decode-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/indefinite-boundary-reuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indefinite boundary reuse follow-up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../assets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logo assets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#first-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First inspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#build-and-install" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build and install
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graphical-trees-and-colors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Graphical trees and colors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-annotations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV annotations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#value-decoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Value decoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON output
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encoding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encoding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-queries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path queries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-compiled-query-and-semantic-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Full compiled Query and semantic diff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tag-lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tag lookup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pdol-dol-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PDOL / DOL inspection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-schema-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV schema validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emv-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EMV contexts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recovery-scanning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recovery scanning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validation-and-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Validation and limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shell-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shell completion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostics-and-exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostics and exit codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bluetooth-semantic-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bluetooth semantic inspection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generate-reproducible-wire-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generate reproducible wire corpora
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/cli/README.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="command-line-tool">Command-line tool<a class="headerlink" href="#command-line-tool" title="Permanent link">&para;</a></h1>
+<p>The optional <code>otlv</code> executable inspects and structurally validates TLV
+data, converts it to and from a <a href="json-schema/">versioned JSON document</a>, and
+recovers elements from damaged input, using the public C library through the
+<code>tlv++</code> wrapper. Building it
+requires a C++11 (or newer) compiler; the underlying library itself remains a
+dependency-free C99 core, so this requirement affects only the CLI target.</p>
+<h2 id="first-inspection">First inspection<a class="headerlink" href="#first-inspection" title="Permanent link">&para;</a></h2>
+<p>Prerequisite: an installed <code>otlv</code> executable. If you need to build it, follow
+<a href="#build-and-install">Build and install</a> below.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"01 02 48 69"</span>
+</code></pre></div>
+<p>Expected output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>offset=0 tag=01 length=2 value=4869
+</code></pre></div>
+<p>This input contains tag <code>01</code> with the two Value bytes of <code>Hi</code>. Fixed defaults
+to one tag byte and one big-endian length byte. The tool requires an explicit
+format and checks errors; it does not detect the format or infer Value semantics.
+Next, try <a href="#commands">commands</a> for files, nested data and validation.</p>
+<h2 id="build-and-install">Build and install<a class="headerlink" href="#build-and-install" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cmake<span class="w"> </span>-S<span class="w"> </span>.<span class="w"> </span>-B<span class="w"> </span>build-cli<span class="w"> </span>-DOPENTLV_BUILD_TESTS<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_EXAMPLES<span class="o">=</span>OFF<span class="w"> </span>-DOPENTLV_BUILD_CLI_TESTS<span class="o">=</span>ON
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>cmake<span class="w"> </span>--build<span class="w"> </span>build-cli<span class="w"> </span>--config<span class="w"> </span>Release
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>ctest<span class="w"> </span>--test-dir<span class="w"> </span>build-cli<span class="w"> </span>-C<span class="w"> </span>Release<span class="w"> </span>--output-on-failure
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>cmake<span class="w"> </span>--install<span class="w"> </span>build-cli<span class="w"> </span>--config<span class="w"> </span>Release<span class="w"> </span>--prefix<span class="w"> </span>install-cli
+</code></pre></div>
+<p>For single-configuration generators, also configure <code>-DCMAKE_BUILD_TYPE=Release</code>.
+The executable is installed in the standard runtime directory (normally <code>bin</code>).
+Shared builds install the TLV runtime as well; retain the installed directory
+layout so the executable can locate it. <code>OPENTLV_BUILD_CLI</code> defaults to <code>ON</code>
+and requires <code>OPENTLV_BUILD_CXX=ON</code> (also the default); a C-only build
+(<code>OPENTLV_BUILD_CXX=OFF</code>) silently skips the CLI instead of failing.
+<code>OPENTLV_BUILD_CLI_TESTS</code> initially defaults to <code>OPENTLV_BUILD_TESTS</code>; CLI
+tests use CMake only and can run with library unit/integration tests disabled.
+Building the CLI fetches <a href="https://github.com/nlohmann/json">nlohmann/json</a>
+(header-only, used for JSON output and the JSON document of <code>decode</code> and
+<code>encode --input</code>) via CMake <code>FetchContent</code>; the <code>tlv</code>
+and <code>tlv++</code> libraries themselves remain dependency-free.</p>
+<p>See <a href="../guides/cxx-examples/#equivalent-cli-operations">C++ and CLI examples</a>
+for matching parsing, nested writing and Query operations with executable
+acceptance checks.</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>otlv<span class="w"> </span>--help
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>otlv<span class="w"> </span>--version
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>otlv<span class="w"> </span>formats
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"E1 03 5A 01 12"</span><span class="w"> </span>--tree
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--input<span class="w"> </span>sample.bin
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>bluetooth-ltv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"02 01 06 03 09 48 69"</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>der<span class="w"> </span>--input<span class="w"> </span>sample.der
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>-
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F0784050102030405"</span><span class="w"> </span>--pretty<span class="w"> </span>--describe
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>capture.hex<span class="w"> </span>--input-encoding<span class="w"> </span>hex
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--decode<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F0206000000001000"</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--decode<span class="w"> </span>--output<span class="w"> </span>json<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F0206000000001000"</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--input<span class="w"> </span>input.bin
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--tag<span class="w"> </span>9F02<span class="w"> </span>--value<span class="w"> </span><span class="m">000000001000</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>otlv<span class="w"> </span>decode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--input<span class="w"> </span>capture.bin<span class="w"> </span>&gt;<span class="w"> </span>capture.json
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>capture.json<span class="w"> </span>--output-encoding<span class="w"> </span>binary<span class="w"> </span>--output-file<span class="w"> </span>out.bin
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>damaged.bin<span class="w"> </span>--recover<span class="w"> </span>--tree
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--module<span class="w"> </span>emv
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--value
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>otlv<span class="w"> </span>completion<span class="w"> </span>bash
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>cat<span class="w"> </span>capture.bin<span class="w"> </span><span class="p">|</span><span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--output<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.elements'</span>
+</code></pre></div>
+<p><code>dump</code>, <code>validate</code>, <code>decode</code> and <code>query</code> require an explicit <code>--format</code>; <code>--input</code>
+and <code>--hex</code> cannot both be given. <code>--input -</code> (or a bare <code>--input PATH</code>) reads
+binary stdin, including on Windows, and so does omitting both <code>--input</code> and
+<code>--hex</code> entirely, letting these commands sit in the middle of a shell
+pipeline (<code>cat capture.bin | otlv dump --format ber</code>) without an explicit <code>-</code>.
+<code>encode</code> reads its <code>--tag</code>/<code>--value</code> construction from the command line, but
+falls back to reading its JSON document from stdin the same way when neither
+<code>--tag</code> nor <code>--input</code> is given. Command output always goes to stdout and
+diagnostics to stderr (see
+<a href="#diagnostics-and-exit-codes">Diagnostics and exit codes</a>), so redirecting one
+never corrupts the other. File input is binary as well by default. Use
+<code>--input-encoding hex</code> for hex text files or hex text on stdin;
+<code>--input-encoding binary</code> explicitly selects binary input. Input encoding is
+never guessed. <code>--hex</code> accepts case-insensitive contiguous hex bytes or
+whitespace between complete byte pairs; prefixes such as <code>0x</code>, separators,
+and incomplete pairs are rejected. An empty hex string or empty file is valid.
+The same hex syntax applies to files and stdin, including CR/LF between pairs.
+<code>--max-input-size</code> limits decoded bytes; hex whitespace is discarded as it is
+read without buffering the encoded text. It does not limit the number of
+whitespace characters read from a stream.</p>
+<p><code>formats</code> lists only enabled formats: <code>fixed</code>, <code>emv</code>, <code>ber</code>,
+<code>der</code>, <code>bluetooth-ltv</code>, and <code>nfc-type2</code>. Existing library CMake component options control availability. Unknown
+or disabled formats fail before reading input. No format detection is performed.</p>
+<p><code>--format fixed</code> defaults to one tag byte and one big-endian length byte, matching
+<code>tlv_fixed_format_t{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}}</code>. <code>--fixed-tag-size N</code> (any positive
+byte count), <code>--fixed-length-size N</code> (1 to 8) and <code>--fixed-byte-order big|little</code> configure it;
+all three require <code>--format fixed</code> and are otherwise rejected as invalid usage. For example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--fixed-tag-size<span class="w"> </span><span class="m">2</span><span class="w"> </span>--fixed-length-size<span class="w"> </span><span class="m">1</span><span class="w"> </span>--hex<span class="w"> </span><span class="s2">"0102 03 AABBCC"</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>fixed<span class="w"> </span>--fixed-tag-size<span class="w"> </span><span class="m">2</span><span class="w"> </span>--fixed-length-size<span class="w"> </span><span class="m">2</span><span class="w"> </span>--fixed-byte-order<span class="w"> </span>little<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span>--tag<span class="w"> </span><span class="m">0102</span><span class="w"> </span>--value<span class="w"> </span>AABBCC
+</code></pre></div>
+<h3 id="output">Output<a class="headerlink" href="#output" title="Permanent link">&para;</a></h3>
+<p>The tree example above prints:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>offset=0 tag=E1 length=3 value=5A0112
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  offset=2 tag=5A length=1 value=12
+</code></pre></div>
+<p>Offsets are decimal, zero-based absolute positions of tags in the original
+input. Tags and values are uppercase hexadecimal in wire order. Lengths are
+decimal value byte counts. Constructed values include their encoded children.
+Indefinite BER additionally prints <code>encoding=indefinite</code>; its resolved value
+length and value exclude the enclosing EOC. EOC is never a separate element.</p>
+<p>By default, <code>dump</code> prints top-level elements only. <code>--tree</code> prints nested
+BER/DER elements with two spaces per level; other formats and <code>validate</code>
+reject this option. Both dump modes still check nested BER/DER structure.
+Output is deterministic text for inspection, not a versioned serialization
+format. A malformed input may produce a partial dump before failure.</p>
+<h3 id="graphical-trees-and-colors">Graphical trees and colors<a class="headerlink" href="#graphical-trees-and-colors" title="Permanent link">&para;</a></h3>
+<p><code>--pretty</code> implies <code>--tree</code> and prints UTF-8 branches (<code>├──</code>, <code>└──</code>, <code>│</code>)
+instead of indentation alone. Top-level elements remain separate roots.
+The original <code>--tree</code> layout remains available.</p>
+<p>Tags are cyan when stdout is a supported terminal. Redirected output is
+colorless by default. <code>NO_COLOR</code> (when present) and <code>TERM=dumb</code> disable
+automatic color. <code>--force-color</code> emits ANSI sequences even when redirected
+and overrides those environment settings; <code>--no-color</code> always disables color.
+These two flags cannot be combined. Windows console mode and UTF-8 output
+code page are temporarily configured as needed and restored after printing.</p>
+<h3 id="emv-annotations">EMV annotations<a class="headerlink" href="#emv-annotations" title="Permanent link">&para;</a></h3>
+<p><code>dump --format ber --module emv</code> appends a readable name for each known tag.
+<code>--describe</code> additionally prints the dictionary's value representation and
+length bounds/step, for example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>offset=0 tag=5A length=1 value=12 name="Primary Account Number (PAN)" description="Decimal digits; dictionary length: 1..10 bytes; step: 1"
+</code></pre></div>
+<p>Annotations use the built-in EMV Contact Book 3 v4.4 dictionary. Common
+abbreviations have expanded display labels; other symbolic names are rendered
+as words. Descriptions are type and length metadata, not a complete prose
+explanation of every EMV data element or a copy of another parser's dictionary.
+No value decoding, EMV length enforcement, or transaction validation is added
+by these presentation options; raw values remain visible.</p>
+<p>Known biometric containers select their specific dictionary contexts during
+BER traversal. Unknown tags remain raw and are labelled unknown in the current
+context; unknown containers do not cause their descendants to be guessed as
+ordinary EMV tags. Primitive BER values remain opaque, including EMV elements
+that describe embedded structures. A standalone context-specific fragment has
+no enclosing context and begins in the base dictionary unless you select
+another one with <code>--emv-context NAME</code> (see <a href="#emv-contexts">EMV contexts</a>).</p>
+<p>The EMV module must be compiled in. <code>--describe</code>, <code>--decode</code> and
+<code>--emv-context</code> are accepted by <code>dump</code> and <code>decode</code> (and require
+<code>--module emv</code>); <code>--output</code> and the color flags are dump-only.
+<code>--module emv</code> itself is also accepted by <code>validate</code>, where it selects EMV
+checks instead of annotating output (see below). EMV annotations and checks
+both require BER, selected with <code>--format ber</code>; the wire format and the
+module are separate options, so <code>--format der --module emv</code> is an error. Use <code>--format emv --module emv</code>
+for definite EMV framing; <code>--format ber --module emv</code> retains general BER acceptance.</p>
+<h3 id="value-decoding">Value decoding<a class="headerlink" href="#value-decoding" title="Permanent link">&para;</a></h3>
+<p><code>--decode</code> additionally decodes each known tag's value through the OpenTLV
+codec layer (<code>tlv/codec/</code>) and appends it as <code>decoded="..."</code>, for example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>offset=0 tag=9F02 length=6 value=000000001000 name="Amount, Authorised" decoded="1000"
+</code></pre></div>
+<p>The raw <code>value=</code> field is always present; decoding never replaces it. Only
+tags with a dictionary entry and a registered codec are decoded - an unknown
+tag, or a known tag whose value kind carries no codec (raw bytes, text, or a
+template), is left with no <code>decoded</code> field and is not treated as an error. A
+value that fails to decode (wrong length, invalid BCD, an undefined enum
+value, and so on) instead reports <code>decode-error="..."</code>, drawn from the
+codec's own diagnostic; the element itself is still printed, and the command
+does not fail because of it.</p>
+<p>Decoded output favors the codec's own C representation over further
+interpretation: numeric fields (including currency amounts, which the codec
+returns as unscaled minor units - see <code>tlv/builtins/emv/emv_codec.h</code>) print as a plain
+decimal integer, bit flags print as hexadecimal, dates/times print as
+<code>YYYY-MM-DD</code>/<code>HH:MM:SS</code> (the century of a date is assumed, as the dictionary
+value itself does not carry one), and enumerated or composite kinds (account
+type, cryptogram information, biometric type, AFL, CVM Results, Track 2) print
+a short label or a compact field list. <code>--decode</code> cannot be combined with
+<code>--pdol</code>, since a DOL entry carries a requested length, not a value.</p>
+<h3 id="json-output">JSON output<a class="headerlink" href="#json-output" title="Permanent link">&para;</a></h3>
+<p><code>--output json</code> prints a single JSON document instead of the key=value text
+above: a top-level object with an <code>elements</code> array, carrying the same
+information under stable field names (<code>offset</code>, <code>tag</code>, <code>length</code>,
+<code>indefinite</code> when true, <code>value</code>, <code>name</code>, <code>description</code>, <code>decoded</code>,
+<code>decode_error</code>) and, for <code>--pdol</code>, (<code>offset</code>, <code>tag</code>, <code>requested_length</code>,
+<code>name</code>). Fields that do not apply to an element (an unset <code>--describe</code>
+description, an undecoded value, and so on) are simply omitted rather than
+set to <code>null</code>. When <code>--tree</code> is set, a constructed BER/DER element carries
+its children in its own nested <code>elements</code> array instead of a flat list, so
+the document's shape mirrors the input's structure; without <code>--tree</code>, only
+top-level elements appear and no element has an <code>elements</code> field.
+<code>--pretty</code>'s graphical tree connectors are a text-mode presentation only and
+have no effect on <code>--output json</code>. A malformed input may still produce a
+document containing the elements parsed before the failure, matching the
+partial-output-on-failure behavior described above; the diagnostic itself is
+always reported separately, on stderr.</p>
+<h3 id="json-export">JSON export<a class="headerlink" href="#json-export" title="Permanent link">&para;</a></h3>
+<p><code>decode</code> parses the input like <code>dump --tree</code> and prints it as the
+<a href="json-schema/">versioned JSON document</a>: tags and primitive values as
+hexadecimal strings, constructed elements as nested <code>children</code> arrays, and for
+BER an explicit <code>length_mode</code> of <code>definite</code> or <code>indefinite</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>otlv<span class="w"> </span>decode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"E1 05 5A 01 12 5A 00 30 80 04 01 AA 00 00"</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span><span class="nt">"schema"</span><span class="p">:</span><span class="s2">"opentlv.tlv"</span><span class="p">,</span><span class="nt">"version"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">"format"</span><span class="p">:</span><span class="s2">"ber"</span><span class="p">,</span><span class="nt">"elements"</span><span class="p">:[{</span><span class="nt">"tag"</span><span class="p">:</span><span class="s2">"E1"</span><span class="p">,</span><span class="nt">"length_mode"</span><span class="p">:</span><span class="s2">"definite"</span><span class="p">,</span><span class="nt">"children"</span><span class="p">:[{</span><span class="nt">"tag"</span><span class="p">:</span><span class="s2">"5A"</span><span class="p">,</span><span class="nt">"value"</span><span class="p">:</span><span class="s2">"12"</span><span class="p">},{</span><span class="nt">"tag"</span><span class="p">:</span><span class="s2">"5A"</span><span class="p">,</span><span class="nt">"value"</span><span class="p">:</span><span class="s2">""</span><span class="p">}]},{</span><span class="nt">"tag"</span><span class="p">:</span><span class="s2">"30"</span><span class="p">,</span><span class="nt">"length_mode"</span><span class="p">:</span><span class="s2">"indefinite"</span><span class="p">,</span><span class="nt">"children"</span><span class="p">:[{</span><span class="nt">"tag"</span><span class="p">:</span><span class="s2">"04"</span><span class="p">,</span><span class="nt">"value"</span><span class="p">:</span><span class="s2">"AA"</span><span class="p">}]}]}</span>
+</code></pre></div>
+<p><code>decode</code> takes the input, limit and module options of <code>dump</code> (<code>--format</code>,
+<code>--input</code>/<code>--hex</code>, <code>--input-encoding</code>, <code>--max-*</code>, <code>--module emv</code>,
+<code>--describe</code>, <code>--decode</code>, <code>--emv-context</code>, <code>--recover</code>) and rejects the text
+presentation options (<code>--tree</code>, <code>--pretty</code>, colors, <code>--output</code>, <code>--pdol</code>).
+The whole input is always parsed as a tree, so BER and DER nesting is followed
+up to <code>--max-depth</code>. A failed export prints nothing on stdout, unlike <code>dump</code>,
+so a partial document is never mistaken for a complete one. With
+<code>--module emv</code> each known element carries its dictionary <code>name</code>; unknown tags
+carry only their raw <code>tag</code> and <code>value</code>.</p>
+<p>Offsets are not part of the document. Use <code>dump --output json</code> when you need
+them.</p>
+<h3 id="encoding">Encoding<a class="headerlink" href="#encoding" title="Permanent link">&para;</a></h3>
+<p><code>encode</code> writes TLV data with the OpenTLV writer for the format chosen by
+<code>--format</code>, so the format alone determines the tag and length encoding. It has
+two input modes: one element from <code>--tag</code>/<code>--value</code>, or a whole
+<a href="json-schema/">JSON document</a> from <code>--input</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--tag<span class="w"> </span>9F02<span class="w"> </span>--value<span class="w"> </span><span class="m">000000001000</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>elements.json
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>otlv<span class="w"> </span>encode<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>-<span class="w"> </span>--output-encoding<span class="w"> </span>binary<span class="w"> </span>--output-file<span class="w"> </span>out.bin
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>9F0206000000001000
+</code></pre></div>
+<p>For a single element, <code>--format</code> and <code>--tag</code> are required; <code>--value</code> is
+optional and defaults to an empty value. <code>--tag</code> and <code>--value</code> use the same hex
+syntax as <code>--hex</code> (case-insensitive, complete byte pairs, optional whitespace
+between pairs). <code>--value</code> is limited by <code>--max-input-size</code>; a tag longer than
+8 bytes, the longest tag any built-in format accepts, is rejected.</p>
+<p><code>--input PATH</code> reads a JSON document instead (<code>-</code> for stdin, read as bytes on
+Windows too); it cannot be combined with <code>--tag</code> or <code>--value</code>. Omitting both
+<code>--tag</code> and <code>--input</code> reads the JSON document from stdin as well, the same as
+<code>--input -</code>. Every length is
+derived while encoding, children are written inside their parent, and BER
+elements marked <code>"length_mode":"indefinite"</code> get the <code>80</code> length and the
+end-of-contents octets. Before anything is printed the encoded bytes are read
+back with the format's reader and checked like <code>otlv validate</code> does, so the
+output is always accepted by the library reader and structural validator.
+<code>--max-input-size</code> limits the JSON text and the encoded bytes, <code>--max-depth</code>
+the nesting of <code>children</code> and <code>--max-elements</code> the number of elements. Nothing
+about the JSON is guessed: a document that does not follow the
+<a href="json-schema/">schema</a>, names another format than <code>--format</code>, or needs a
+representation the format lacks (children under <code>default</code>, indefinite length
+under <code>der</code>) is rejected. The round trip <code>decode</code> then <code>encode</code> preserves
+element structure and raw primitive values but not the exact bytes of length
+fields; see <a href="json-schema/#round-trip">Round trip</a>.</p>
+<p>Output is uppercase hex followed by a newline by default;
+<code>--output-encoding binary</code> writes the raw encoded bytes with no newline,
+including on Windows. <code>--output-file PATH</code> writes the result to a file instead
+of stdout, and only after the whole document was accepted, so a rejected
+document leaves no file behind. Either encoding can be read back with
+<code>otlv dump</code> (<code>--input -</code>, plus <code>--input-encoding hex</code> for the hex form).</p>
+<p>Nothing is printed for a rejected input. Malformed hex, an invalid JSON
+document, unknown or disabled formats, and options <code>encode</code> does not take exit
+with code 2; <code>encode</code> takes <code>--format</code>, <code>--tag</code>, <code>--value</code>, <code>--input</code>,
+<code>--output-encoding</code>, <code>--output-file</code>, <code>--max-input-size</code>, <code>--max-depth</code> and
+<code>--max-elements</code>. An element the writer rejects (an invalid BER tag, or a value
+too long for <code>fixed</code>) reports <code>otlv: cannot encode element N: &lt;reason&gt;</code>
+and exits with code 1; N counts elements from zero in document order. Exceeded
+limits and unreadable or unwritable files exit with code 3.</p>
+<h3 id="path-queries">Path queries<a class="headerlink" href="#path-queries" title="Permanent link">&para;</a></h3>
+<p><code>query</code> prints the elements addressed by a path of hexadecimal tags, so a
+script can read one value from nested data without post-processing the whole
+dump. The path is a positional argument and the input options are the same as
+for <code>dump</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--value
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>otlv<span class="w"> </span>query<span class="w"> </span>6F/A5/50<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>card.bin<span class="w"> </span>--output<span class="w"> </span>json
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>offset=8 tag=50 length=2 value=4142
+</code></pre></div>
+<p><code>6F/A5/50</code> means a top-level <code>6F</code>, its direct child <code>A5</code> and that element's
+direct child <code>50</code>. Every element reached this way is printed in document
+order; a tag that occurs several times can therefore produce several lines.
+Tags are hex in either case, separated by one <code>/</code>; spaces, empty steps and a
+leading or trailing <code>/</code> are usage errors. This first version supports exact tag
+paths only, with no wildcards, indexes or recursive search. The syntax and
+matching come from the library (<a href="../guides/queries/">Path queries</a>), not
+from the CLI.</p>
+<ul>
+<li>Text output is one line per match in the format of <code>dump</code>, without nesting.</li>
+<li><code>--value</code> prints only the value bytes of each match as one line of hex, an
+  empty line for an empty value.</li>
+<li><code>--output json</code> prints <code>{"matches":[...]}</code>; each match has <code>path</code>, <code>offset</code>,
+  <code>tag</code>, <code>length</code> and <code>value</code>. It cannot be combined with <code>--value</code>.</li>
+<li>A path of more than one tag needs <code>--format ber</code> or <code>--format der</code>, the
+  formats that have nested values; other formats accept one-tag paths.</li>
+<li>The whole input is still parsed, so damaged data after a match fails the
+  command with exit code 1, and <code>--max-depth</code>, <code>--max-elements</code> and
+  <code>--max-input-size</code> apply as for <code>dump</code>.</li>
+<li>No match is reported as <code>otlv: no match for query ...</code> with exit code 5, so a
+  script can tell a missing element from invalid data.</li>
+</ul>
+<h3 id="full-compiled-query-and-semantic-diff">Full compiled Query and semantic diff<a class="headerlink" href="#full-compiled-query-and-semantic-diff" title="Permanent link">&para;</a></h3>
+<p>Full expressions can be positional or supplied with <code>--query</code>. Existing exact
+paths preserve their text/JSON/<code>--value</code> behavior; descendants (<code>//</code>), predicates,
+sets, typed variables and scalar expressions use the compiled C Query engine
+through the C++ program/execution facade.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>otlv<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'count(//50)'</span><span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>capture.bin
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>otlv<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'//50[value(.) = $wanted]'</span><span class="w"> </span>--var<span class="w"> </span>wanted:bytes<span class="o">=</span><span class="m">4142</span><span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>capture.bin
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>otlv<span class="w"> </span>query<span class="w"> </span>--query<span class="w"> </span><span class="s1">'//50[num(.) &gt; $min]'</span><span class="w"> </span>--var<span class="w"> </span>min:int<span class="o">=</span><span class="m">100</span><span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>capture.bin<span class="w"> </span>--explain
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>otlv<span class="w"> </span>query<span class="w"> </span><span class="s1">'//51'</span><span class="w"> </span>--exists<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>capture.bin
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>otlv<span class="w"> </span>diff<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--input<span class="w"> </span>left.bin<span class="w"> </span>--against<span class="w"> </span>right.bin<span class="w"> </span>--where<span class="w"> </span><span class="s1">'//70/5A'</span><span class="w"> </span>--output<span class="w"> </span>json
+</code></pre></div>
+<p>Variable declarations use <code>NAME:int=DECIMAL</code>, <code>NAME:bytes=HEX</code> (even-length hex,
+including empty) or <code>NAME:string=UTF8</code>. The shell must preserve literal dollar
+signs; single-quoted examples work in Bash and PowerShell. Variables are bound
+through native slots, never substituted into Query text. <code>num</code> uses the generic
+minimal signed big-endian integer provider; <code>bcd</code> uses packed decimal, and <code>text</code>
+uses UTF-8. Symbolic EMV resolution is enabled with <code>--format emv</code>.</p>
+<p><code>--count</code> and <code>--exists</code> wrap a node expression into a scalar expression. False
+and zero return exit code 0, as does every successful scalar. Empty node results
+return 5. Full Query compilation/binding/backend failures return 2 and execution
+failures return 3; existing V1 input parse failures retain exit code 1. Scalar
+JSON is <code>{ "type": native_result_kind, "value": value }</code>, with integer JSON
+numbers, booleans, uppercase hex bytes and UTF-8 strings. <code>--value</code> is only for
+node selections and cannot be combined with JSON.</p>
+<p><code>--backend streaming</code> always uses retained canonical Tree events with explicit
+<code>--max-elements</code> capacity and rejects D before traversal. It never builds a
+Document. <code>--backend document</code> selects owning Document materialization explicitly.
+<code>auto</code> chooses retained streaming for S0-S2 and materializes D. Input is already
+owned by the CLI; retained payloads borrow that input. The owning C++ convenience
+and CLI allocate program/workspace/result storage; the C engine does not allocate.
+The Document backend retains input coordinates, so its matches report the same
+source offsets as streaming and <code>@offset</code>/<code>@hlen</code> are available in both.</p>
+<p><code>--explain</code> writes JSON to stderr with normalized Query, language/result/level,
+chosen backend, program/scratch sizing and alignment, capacities, work budget,
+validation policy and an explicitly unstable internal logical IR. It does not
+change the normal result output. Full execution drains to structural EOF; Schema
+or DER semantic validation is not implied. Human/compact/json diagnostics retain
+native Query byte spans and available resource/source context.</p>
+<p><code>diff</code> requires two files and the Document component. Its selector is compiled
+once and evaluated on each original complete input. It reports added, removed
+and changed direct nodes; zero differences succeeds with an empty result. Node
+correspondence uses ancestor tags and same-tag sibling occurrence, independent
+of byte offsets. A node selected on either side includes its counterpart. Selected
+ancestors do not implicitly include excluded descendants. Repeated-tag insertions
+may shift correspondence. JSON contains a <code>changes</code> array with kind, correspondence
+path and original left/right primitive content/classification; absent sides and
+constructed Values are <code>null</code>. This minimal surface does not bind typed variables
+or provider environments for diff. See <a href="../guides/queries/#full-programs-and-integration">Query integration contracts</a>.</p>
+<h3 id="tag-lookup">Tag lookup<a class="headerlink" href="#tag-lookup" title="Permanent link">&para;</a></h3>
+<p><code>tag</code> looks up one BER tag in the OpenTLV EMV dictionary, so the CLI can serve
+as a quick tag reference. The metadata comes from the native EMV definitions
+(<code>tlv_emv_find</code> in the base context); the CLI keeps no dictionary of its own.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>otlv<span class="w"> </span>tag<span class="w"> </span>9F02<span class="w"> </span>--module<span class="w"> </span>emv
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>Tag:         9F02
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>Name:        Amount Authorised
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>Type:        Numeric value (binary or decimal BCD, tag-dependent)
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>Form:        Primitive
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>Length:      6
+</code></pre></div>
+<p>The tag is a positional argument in the same hex syntax as <code>--hex</code>, and must
+be exactly one complete BER tag. <code>--module emv</code> is required. <code>Length step</code> is
+printed only when the dictionary's permitted lengths advance by more than one
+byte (for example the AFL). <code>--output json</code> prints one object with <code>tag</code>,
+<code>module</code>, <code>known</code> and, for known tags, <code>name</code>, <code>symbol</code>, <code>type</code>,
+<code>constructed</code>, <code>min_length</code>, <code>max_length</code> (omitted when unbounded) and
+<code>length_step</code>.</p>
+<p>A tag with no dictionary entry is a valid result, not malformed data: text
+output prints <code>Result:      Unknown tag in the EMV module (base context)</code>,
+JSON output has <code>"known":false</code>, and the exit code is 0. An invalid or
+incomplete tag, an unknown module, or any option other than <code>--module</code> and
+<code>--output</code> exits with code 2.</p>
+<p><code>tags</code> lists every tag in the dictionary (base context), sorted by tag, when
+you do not know which tag to look up:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>otlv<span class="w"> </span>tags<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--search<span class="w"> </span>amount
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>81      Amount Authorised Binary
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>9F02    Amount Authorised
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>9F03    Amount Other
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>...
+</code></pre></div>
+<p><code>--search TEXT</code> keeps only tags whose displayed name contains <code>TEXT</code>
+(case-insensitive). <code>--output json</code> prints <code>{"module":"emv","tags":[...]}</code>
+where each element has the same fields as a known <code>tag</code> result. A search with
+no matches is not an error: it prints nothing (or an empty array) and exits 0.
+<code>tags</code> accepts only <code>--module</code>, <code>--output</code> and <code>--search</code>; <code>--search</code> is
+rejected by every other command.</p>
+<h3 id="pdol-dol-inspection">PDOL / DOL inspection<a class="headerlink" href="#pdol-dol-inspection" title="Permanent link">&para;</a></h3>
+<p>Use <code>--pdol</code> to read a raw PDOL value as ordered tag/length pairs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--pdol<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02069F1A02"</span><span class="w"> </span>--module<span class="w"> </span>emv
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--pdol<span class="w"> </span>--input<span class="w"> </span>pdol.hex<span class="w"> </span>--input-encoding<span class="w"> </span>hex
+</code></pre></div>
+<p>Without annotations, the output is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>offset=0 tag=9F02 requested-length=6
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>offset=3 tag=9F1A requested-length=2
+</code></pre></div>
+<p>Supply the contents of tag <code>9F38</code>, not its enclosing TLV header. Ordinary TLV
+dumping still leaves that value opaque. The same pair representation is used by other
+EMV DOLs. Tags contain one or two bytes; each requested length is exactly one
+unsigned byte (0..255), including <code>80</code> and <code>FF</code>. No value follows the length.
+Order and duplicate tags are preserved. This mode neither constructs terminal
+response data nor checks whether the requested lengths match dictionary bounds.</p>
+<p>All existing input sources, decoded-input and element-count limits apply.
+Empty input succeeds. Missing lengths, malformed tags, and tags longer than
+two bytes fail with offsets. <code>--tree</code> and <code>--pretty</code> are rejected because a DOL
+is flat; <code>--max-depth</code> has no effect. BER must be enabled; the EMV dictionary
+is needed only for optional <code>--module emv</code> annotations.</p>
+<h3 id="emv-schema-validation">EMV schema validation<a class="headerlink" href="#emv-schema-validation" title="Permanent link">&para;</a></h3>
+<p><code>validate --format ber --module emv</code> additionally checks the parsed input
+against <code>tlv_emv_structure_schema</code> (see
+<a href="../standards/emv/#structural-validation">EMV structural validation</a>):
+mandatory tags, forbidden/unknown tags, duplicate tags, length bounds, and
+required nesting for the FCI Template, Application Template, and GPO
+Response Message Template Format 2. It runs only after the input has parsed
+as valid BER, only for <code>validate</code> (<code>dump --module emv</code> only annotates
+tags), and not with <code>--pdol</code> (a DOL's tag/length pairs are not a TLV
+structure to check against a schema).
+A schema violation is reported like any other failure, but prefixed with
+<code>schema</code> to keep it distinguishable from a format/framing error. A missing
+mandatory tag uses <code>TLV_ERR_SCHEMA</code> with <code>missing</code> detail. The reported Tag
+comes from the Schema, and its byte position is the enclosing scope end.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="gp">$ </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F00"</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="go">otlv: schema TLV_ERR_SCHEMA at byte 2 tag=84: schema constraint violated</span>
+</code></pre></div>
+<p>The exit code contract is unchanged (1 for a schema violation, 3 for an
+exceeded limit). Unmodeled top-level tags, such as the Read Record Template,
+are accepted unchecked; this is not a full EMV transaction or value validator.</p>
+<h3 id="emv-checks">EMV checks<a class="headerlink" href="#emv-checks" title="Permanent link">&para;</a></h3>
+<p><code>validate --module emv</code> runs the checks chosen by <code>--emv-check</code>, always on
+input that has already parsed as valid BER:</p>
+<table>
+<thead>
+<tr>
+<th><code>--emv-check</code></th>
+<th>Checks</th>
+<th><code>compact</code> prefix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>structure</code> (default)</td>
+<td>The structural schema above.</td>
+<td><code>schema</code></td>
+</tr>
+<tr>
+<td><code>dictionary</code></td>
+<td>Every element whose tag is in the EMV dictionary, in the context it appears in, has a length the dictionary permits (its bounds and length step).</td>
+<td><code>dictionary</code></td>
+</tr>
+<tr>
+<td><code>all</code></td>
+<td><code>structure</code>, then <code>dictionary</code>; the first failure is reported.</td>
+<td>either</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>compact</code> prefix distinguishes the two checks on one line; <code>human</code> and
+<code>json</code> do the same with structured detail instead: a structural violation
+carries a <code>path</code> and, for most kinds, a <code>field</code> name, while a dictionary
+violation carries a <code>dictionary</code> <code>stage</code>.</p>
+<p>The dictionary check uses the same lookup and contexts as <code>dump --module emv</code>
+and the library's <code>tlv_emv_validate_length</code>. It reports the first offending
+element, labeled <code>dictionary</code>, with exit code 1; see
+<a href="#diagnostics-and-exit-codes">Diagnostics and exit codes</a> for the <code>--diagnostics</code>
+renderers. In <code>compact</code> form:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"9F02050000000010"</span><span class="w"> </span>--diagnostics<span class="w"> </span>compact
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>otlv:<span class="w"> </span>dictionary<span class="w"> </span>TLV_ERR_INVALID_LENGTH<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>9F02:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
+</code></pre></div>
+<p>What runs, and what does not:</p>
+<ul>
+<li>Tags with no dictionary entry in their context are <strong>not</strong> errors; they are
+  preserved and left unchecked. The dictionary check does not require a tag to
+  be known, does not check that mandatory tags are present outside the
+  templates the structural schema models, and does not decode or check values
+  (BCD digits, dates, enumerations); <code>--decode</code> shows those diagnostics
+  without failing.</li>
+<li>Children of a container are looked up in that container's context, and
+  containers the dictionary does not know contribute no context, so their
+  children are unchecked (as they are labelled unknown by <code>dump</code>).</li>
+<li>Neither check is an EMV kernel, transaction, or cryptographic validation,
+  and cross-tag rules (for example that a tag must agree with another) are out
+  of scope.</li>
+<li><code>--emv-check</code> applies to <code>validate</code> only, and not with <code>--pdol</code>.</li>
+</ul>
+<h3 id="emv-contexts">EMV contexts<a class="headerlink" href="#emv-contexts" title="Permanent link">&para;</a></h3>
+<p>The dictionary is context dependent: the same tag can mean different things
+inside different templates (for example <code>82</code> is the 2-byte Application
+Interchange Profile at the top level but a 1-byte Biometric Subtype inside a
+Biometric Header Template). During a traversal the CLI switches context on known
+containers such as the Biometric Information Template <code>7F60</code>. A fragment cut
+out of such a container has no enclosing element to say which context applies,
+so select it explicitly with <code>--emv-context NAME</code>, for <code>dump</code>, <code>decode</code> and
+<code>validate --emv-check dictionary</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Context</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base</code> (default)</td>
+<td>Ordinary application data.</td>
+</tr>
+<tr>
+<td><code>bit</code></td>
+<td>Inside <code>7F60</code> (Biometric Information Template).</td>
+</tr>
+<tr>
+<td><code>bht</code></td>
+<td>Inside <code>A1</code> within <code>7F60</code> (Biometric Header Template).</td>
+</tr>
+<tr>
+<td><code>bht-format</code></td>
+<td>Inside a level-2 <code>A1</code>/<code>A2</code> within the BHT.</td>
+</tr>
+<tr>
+<td><code>bit-group</code></td>
+<td>Inside <code>BF4A</code>/<code>BF4B</code> or a terminal group.</td>
+</tr>
+<tr>
+<td><code>biometric-counters</code></td>
+<td>Inside <code>BF4C</code>.</td>
+</tr>
+<tr>
+<td><code>biometric-attempts</code></td>
+<td>Inside <code>BF4D</code>.</td>
+</tr>
+<tr>
+<td><code>biometric-verification</code></td>
+<td>Inside <code>BF4E</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--emv-context<span class="w"> </span>bht<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"820101"</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--emv-check<span class="w"> </span>dictionary<span class="w"> </span>--emv-context<span class="w"> </span>bht<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"82020101"</span>
+</code></pre></div>
+<p>The first prints the element as <code>Biometric Subtype</code>; the second fails because
+<code>82</code> is 1 byte in that context. Contexts never fall back to the base
+dictionary. The structural schema models base-context templates only, so
+<code>--emv-check structure</code> (and <code>all</code>) require the base context; use
+<code>--emv-check dictionary</code> with any other. <code>--emv-context</code> requires
+<code>--module emv</code> and cannot be combined with <code>--pdol</code>.</p>
+<h3 id="recovery-scanning">Recovery scanning<a class="headerlink" href="#recovery-scanning" title="Permanent link">&para;</a></h3>
+<p><code>dump</code> and <code>decode</code> stop at the first damaged byte by default. With
+<code>--recover</code> they instead resynchronize and keep going. This CLI-owned recovery
+policy uses the public single-element <code>tlv_read()</code> API: when the element at the
+current offset cannot be read, or its contents are malformed, it checks each following
+offset for the next plausible element, and the bytes in between are skipped.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"5A0112 0000 5A0134"</span><span class="w"> </span>--recover
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="nv">offset</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">12</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>skipped<span class="w"> </span><span class="nv">offset</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span>TLV_ERR_INVALID_TAG<span class="w"> </span>error-location<span class="o">=</span>input:point:3
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="nv">offset</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">34</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>otlv:<span class="w"> </span>skipped<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>at<span class="w"> </span>offset<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>TLV_ERR_INVALID_TAG<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>invalid<span class="w"> </span>tag
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>otlv:<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>incomplete:<span class="w"> </span>recovery<span class="w"> </span>skipped<span class="w"> </span><span class="m">1</span><span class="w"> </span>range<span class="o">(</span>s<span class="o">)</span>,<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>total
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>$<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="m">4</span>
+</code></pre></div>
+<ul>
+<li><strong>Skipped ranges</strong> are reported where they occur (<code>skipped offset= length=
+  error= error-location=</code> lines in <code>dump</code> text output), and again on stderr with
+  a summary. <code>error</code> and <code>error-location</code> describe the first failure that made
+  the range unreadable, with the same location as its stderr diagnostic:
+  <code>domain:kind:begin</code>, <code>domain:kind:begin..end</code> for a span, or
+  <code>unknown:unknown</code> when the failure has no location. The location can lie
+  inside or after the range.</li>
+<li><strong>Incomplete output.</strong> In <code>--output json</code> and in <code>decode</code>, the document
+  gains <code>"complete":false</code> and a <code>"skipped"</code> array of objects with <code>offset</code>,
+  <code>length</code>, <code>error</code>, <code>location</code> and <code>message</code>. <code>location</code> has the <code>domain</code> and
+  <code>kind</code> of the failure and, when known, its <code>begin</code> and <code>end</code>, like the
+  <code>location</code> of a JSON diagnostic. An undamaged input under
+  <code>--recover</code> reports <code>"complete":true</code> and an empty array. A recovered
+  <code>decode</code> document is incomplete and is rejected by <code>encode</code>.</li>
+<li><strong>Exit status 4</strong> means recovery skipped data, so the output is incomplete;
+  it is distinct from 1 (strict failure). Without <code>--recover</code>, or when nothing
+  was skipped, the exit codes are unchanged.</li>
+<li><strong>Offsets</strong> are absolute positions in the input. A recovered element is
+  always reported as a top-level element, even when the scanner found it inside
+  a damaged constructed element.</li>
+<li><strong>Limits are not damage.</strong> <code>--max-input-size</code>, <code>--max-depth</code> and
+  <code>--max-elements</code> still fail the run with exit code 3, and <code>--max-elements</code>
+  counts only the elements that were output.</li>
+<li><strong>Heuristic.</strong> The scanner accepts what looks like a well-formed element
+  (syntactic checks only, no dictionary or schema), so a match is not proof of
+  an original element boundary; damaged bytes can be mistaken for an element,
+  and an element inside a skipped range can be output where a byte-level
+  decoder would have skipped it. Treat recovered output as evidence for
+  inspection, not as a repaired copy.</li>
+<li><code>validate</code> stays strict and rejects <code>--recover</code>, as do <code>--pdol</code> and <code>encode</code>.
+  It is the only command whose exit status certifies that the input is valid.</li>
+</ul>
+<h3 id="validation-and-limits">Validation and limits<a class="headerlink" href="#validation-and-limits" title="Permanent link">&para;</a></h3>
+<p><code>validate</code> is silent on success. Both commands consume all concatenated
+elements; empty input succeeds and invalid trailing bytes fail. Default,
+fixed and bluetooth-ltv values are opaque unless a semantic module is selected.
+BER uses constructed-tag recognition; DER uses
+the existing structural validator. This does not provide full ASN.1 value
+validation or canonical SET/SET OF ordering; EMV structural
+validation is available via <code>--module emv</code>, above. Bluetooth schema and codec
+validation is available via <a href="#bluetooth-semantic-inspection"><code>--module bluetooth</code></a>.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--max-input-size N</code></td>
+<td>16777216</td>
+<td>Maximum decoded input bytes (16 MiB)</td>
+</tr>
+<tr>
+<td><code>--max-depth N</code></td>
+<td>64</td>
+<td>Maximum descendant depth; top-level depth is zero</td>
+</tr>
+<tr>
+<td><code>--max-elements N</code></td>
+<td>100000</td>
+<td>Maximum visited elements, including hidden descendants</td>
+</tr>
+</tbody>
+</table>
+<p>Limits are inclusive nonnegative decimal integers fitting native <code>size_t</code>.
+Depth is restricted to 0..64. Zero is a real limit, not an unlimited setting.
+Traversal follows library depth semantics: empty constructed values require
+no descent. BER indefinite-length resolution also has the library's fixed
+64-scope bound. The input is buffered in CLI-owned memory; this does not change
+the allocation-free library core. Limits constrain accepted input and traversal;
+they are not a wall-clock timeout or incremental streaming interface.</p>
+<h2 id="shell-completion">Shell completion<a class="headerlink" href="#shell-completion" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>otlv<span class="w"> </span>completion<span class="w"> </span>bash<span class="w"> </span>&gt;<span class="w"> </span>~/.local/share/bash-completion/completions/otlv
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>otlv<span class="w"> </span>completion<span class="w"> </span>zsh<span class="w"> </span>&gt;<span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">fpath</span><span class="p">[1]</span><span class="si">}</span><span class="s2">/_otlv"</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>otlv<span class="w"> </span>completion<span class="w"> </span>fish<span class="w"> </span>&gt;<span class="w"> </span>~/.config/fish/completions/otlv.fish
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>otlv<span class="w"> </span>completion<span class="w"> </span>powershell<span class="w"> </span>&gt;&gt;<span class="w"> </span><span class="nv">$PROFILE</span>
+</code></pre></div>
+<p><code>completion</code> prints a completion script for <code>bash</code>, <code>zsh</code>, <code>fish</code> or
+<code>powershell</code> to stdout; install it as shown above (once per shell, or on
+every prompt for bash/zsh, per that shell's own completion conventions) and
+restart the shell. The script completes top-level commands, each command's
+own options, and known option values (<code>--format</code>, <code>--output</code>, <code>--emv-context</code>
+and so on) from the same tables <code>otlv</code> itself uses, so it reflects this
+build: only formats enabled at compile time, and EMV/<code>--format fixed</code> options
+only when those are compiled in. Free-form arguments (<code>--hex</code>, <code>query</code>'s
+path, <code>tag</code>'s hex) and file arguments (<code>--input</code>, <code>--output-file</code>) fall back
+to the shell's own file completion where applicable.</p>
+<h2 id="diagnostics-and-exit-codes">Diagnostics and exit codes<a class="headerlink" href="#diagnostics-and-exit-codes" title="Permanent link">&para;</a></h2>
+<p>Command output goes to stdout; diagnostics go to stderr. <code>--diagnostics NAME</code>
+selects how a failure is rendered: <code>human</code> (the default), <code>compact</code>, or
+<code>json</code>. All three describe the same underlying detail, collected
+independently of how it is presented: the symbolic <code>TLV_ERR_*</code> code, a
+description, a byte offset, the affected tag when known, and, for a failure
+inside a constructed element, the hierarchical path of tags enclosing it
+(<code>dump</code>, <code>validate</code>, <code>decode</code> and <code>query</code> all track this, not just <code>dump</code>).
+Offsets do not promise the exact corrupted byte.</p>
+<p><code>human</code> prints one field per line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--module<span class="w"> </span>emv<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"6F048402AABB"</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>invalid<span class="w"> </span>length<span class="w"> </span>encoding
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>code:<span class="w"> </span>TLV_ERR_INVALID_LENGTH
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>path:<span class="w"> </span>6F
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>tag:<span class="w"> </span><span class="m">84</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>field:<span class="w"> </span>df_name
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a>expected<span class="w"> </span>length:<span class="w"> </span><span class="m">5</span>..16
+<a id="__codelineno-26-10" name="__codelineno-26-10" href="#__codelineno-26-10"></a>actual<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
+</code></pre></div>
+<p><code>compact</code> prints the same detail on one line: this is the CLI's original
+wording (<code>otlv: schema TLV_ERR_INVALID_LENGTH at byte 2 tag=84: invalid
+length encoding</code> for the example above), kept for scripts that scrape
+stderr. <code>json</code> prints a single-line JSON object with the same fields
+(<code>code</code>, <code>message</code>, <code>offset</code>, <code>tag</code>, <code>path</code>, <code>field</code>, and so on), for
+scripts that would otherwise have to reparse the human or compact text; a
+<code>--recover</code> run additionally wraps each skipped range's diagnostic with the
+<code>skipped_offset</code>/<code>skipped_length</code> of the range it recovered from.</p>
+<p>A plain wire-level failure (no <code>--module emv</code>) additionally reports which
+step failed (<code>tag</code>, <code>length</code>, <code>value</code> or <code>trailer</code>) and, for a value or
+trailer that does not fit, the declared length versus the bytes actually
+available:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"0402AA"</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>otlv:<span class="w"> </span>error:<span class="w"> </span>truncated<span class="w"> </span>input
+<a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a>
+<a id="__codelineno-27-4" name="__codelineno-27-4" href="#__codelineno-27-4"></a>code:<span class="w"> </span>TLV_ERR_TRUNCATED
+<a id="__codelineno-27-5" name="__codelineno-27-5" href="#__codelineno-27-5"></a>offset:<span class="w"> </span>0x2<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="o">)</span>
+<a id="__codelineno-27-6" name="__codelineno-27-6" href="#__codelineno-27-6"></a>tag:<span class="w"> </span><span class="m">04</span>
+<a id="__codelineno-27-7" name="__codelineno-27-7" href="#__codelineno-27-7"></a><span class="k">while</span><span class="w"> </span>reading:<span class="w"> </span>value
+<a id="__codelineno-27-8" name="__codelineno-27-8" href="#__codelineno-27-8"></a>declared<span class="w"> </span>length:<span class="w"> </span><span class="m">2</span>
+<a id="__codelineno-27-9" name="__codelineno-27-9" href="#__codelineno-27-9"></a>available:<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<p>This declared-length/available detail comes from re-reading the failing
+element on its own once the traversal has located it, bounded to the value it
+actually sits in (not necessarily the whole input); it is shown whenever
+that re-read reproduces the original failure exactly. BER and DER's
+constructed-length handling does not currently surface it back through this
+path, so a BER/DER value-length overrun shows the step, offset, tag and
+path, but not the two length lines above; every other format does.</p>
+<p>An EMV schema violation (<code>validate --module emv</code>) additionally carries the
+schema field name and the expected-versus-actual detail for the violated
+rule (occurrence counts, length bounds, or a primitive/constructed
+mismatch), computed directly by the schema check, so it is unaffected by
+that BER limitation. A dictionary-length violation (<code>--emv-check
+dictionary</code>) is labeled <code>dictionary</code> (see <a href="#emv-checks">EMV checks</a>) and
+similarly reports the permitted-versus-actual length and the dictionary
+field name. Missing mandatory tags use <code>TLV_ERR_SCHEMA</code> with <code>missing</code>
+detail, the absent tag from the schema, and the enclosing scope end. JSON's
+<code>anchor</code> identifies this boundary (<code>2</code>), separately from an existing element
+(<code>1</code>), insertion point (<code>3</code>) or unknown position (<code>0</code>).</p>
+<p>Formatting is presentation only, layered on top of the library's structured
+diagnostics; see <a href="../guides/diagnostics/">Diagnostics</a> for the underlying
+model.</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Invalid TLV data, or an element <code>encode</code> cannot write</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Invalid command, option, hex input, JSON document, or unavailable format</td>
+</tr>
+<tr>
+<td>3</td>
+<td>I/O failure, allocation failure, or exceeded resource limit</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>--recover</code> skipped damaged data: the output is incomplete</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>query</code> matched no element</td>
+</tr>
+</tbody>
+</table>
+<p>Automatic format detection, custom text input syntax, full ASN.1 value
+validation, EMV kernel behavior, and prebuilt release binaries are outside the
+scope of the CLI.</p>
+<h2 id="bluetooth-semantic-inspection">Bluetooth semantic inspection<a class="headerlink" href="#bluetooth-semantic-inspection" title="Permanent link">&para;</a></h2>
+<p>With <code>OPENTLV_BLUETOOTH=ON</code>, <code>--module bluetooth</code> adds AD Type names from the
+public Definition registry to <code>dump</code> and <code>decode</code>. Add <code>--decode</code> to render
+Flags, Local Names, Tx Power, 16/32/128-bit UUID lists, Service Data and
+Manufacturer Specific Data through the public value codecs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>bluetooth-ltv<span class="w"> </span>--module<span class="w"> </span>bluetooth<span class="w"> </span>--decode<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"020106020AFC0000"</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>otlv<span class="w"> </span>validate<span class="w"> </span>--format<span class="w"> </span>bluetooth-ltv<span class="w"> </span>--module<span class="w"> </span>bluetooth<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"020106020AFC0000"</span>
+</code></pre></div>
+<p>The dump includes:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>offset=0 tag=01 length=1 value=06 name="Flags" decoded="0x06"
+<a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a>offset=3 tag=0A length=1 value=FC name="Tx Power Level" decoded="-4 dBm"
+</code></pre></div>
+<p>The module accepts trailing zero padding using the public AD container API.
+Only significant structures are traversed; their offsets still refer to the
+original input. Embedded zeros remain value bytes. A nonzero byte after
+padding begins is an error. Without <code>--module bluetooth</code>, <code>bluetooth-ltv</code>
+remains strict wire inspection, including rejection of zero-length structures.</p>
+<p><code>validate --module bluetooth</code> checks the public AD schema first, then the
+supported value codecs. Schema and codec failures retain original offsets and
+raw AD Types in the selected diagnostic format. Unknown AD Types and Company
+Identifiers are accepted. Company names are annotations from the bundled,
+non-exhaustive registry; service and manufacturer payloads remain opaque hex.</p>
+<p><code>dump</code> and <code>decode</code> annotate malformed known values with <code>decode_error</code>
+(<code>decode-error</code> in text) without failing wire inspection. Use <code>validate</code> for
+semantic validity. Text output escapes Local Name control characters and
+quotes. <code>--output json</code> on <code>dump</code> retains <code>offset</code>, <code>tag</code>, <code>length</code> and <code>value</code>
+and adds <code>name</code> and optional <code>decoded</code> or <code>decode_error</code> strings.</p>
+<p><code>decode</code> exports the significant structures using the existing versioned JSON
+schema. Re-encoding preserves those structures but does not restore container
+padding. <code>--recover</code> is unsupported with this module; <code>--describe</code> and EMV
+options require the EMV module.</p>
+<h2 id="generate-reproducible-wire-corpora">Generate reproducible wire corpora<a class="headerlink" href="#generate-reproducible-wire-corpora" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a>otlv<span class="w"> </span>generate<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--seed<span class="w"> </span><span class="m">42</span><span class="w"> </span>--count<span class="w"> </span><span class="m">10000</span><span class="w"> </span>--output-dir<span class="w"> </span>build/property-data/ber
+</code></pre></div>
+<p><code>--format</code>, <code>--seed</code>, <code>--count</code> and <code>--output-dir</code> are required. Seed accepts
+an unsigned 64-bit decimal integer, including zero. Count must be positive and
+always means complete cases (files in the selected encoding), rather than elements. Case indices start at
+zero; names are decimal with at least six digits (<code>000000.bin</code>, <code>000001.bin</code>,
+and so on). Generation does not read stdin and is silent on success.</p>
+<p>Each case represents an independently round-trippable complete TLV stream.
+The native generator selects the number of elements and nesting per case.
+The same native generator algorithm version, CLI candidate domain, Format/configuration,
+limits, seed and case index reproduce identical bytes independently of call order.
+Retain those settings and the OpenTLV version with a corpus; upgrading can change
+its candidate domain or generator algorithm.</p>
+<p>Limits are <code>--max-elements</code> (default 32, including parents), <code>--max-depth</code>
+(default 4, roots at zero, at most 64), <code>--max-value-size</code> (default 256 bytes)
+and <code>--max-case-size</code> (default 4096 bytes). Elements and case size must be positive;
+Value size and depth may be zero. Nested formats use the requested depth; flat
+formats use zero. Scratch storage is <code>(effective depth + 1) * max-case-size</code> bytes,
+plus the owned case result. Cases are generated and written sequentially.</p>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Ordered candidate tags</th>
+<th>Value domain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ber</code>, <code>der</code>, <code>emv</code></td>
+<td><code>04</code>, <code>80</code>, <code>30</code>, <code>A0</code></td>
+<td>Primitive arbitrary bytes; constructed child streams</td>
+</tr>
+<tr>
+<td><code>fixed</code></td>
+<td>Identifier of configured width, every byte <code>01</code></td>
+<td>Capped to the configured Length capacity</td>
+</tr>
+<tr>
+<td><code>bluetooth-ltv</code></td>
+<td><code>09</code>, <code>FF</code></td>
+<td>Capped to 254 bytes</td>
+</tr>
+<tr>
+<td><code>nfc-type2</code></td>
+<td><code>03</code>, <code>FD</code></td>
+<td>Capped to 65534 bytes; excludes NULL and Terminator</td>
+</tr>
+</tbody>
+</table>
+<p>Fixed accepts the existing <code>--fixed-tag-size</code>, <code>--fixed-length-size</code> and
+<code>--fixed-byte-order</code> options. Optional formats must be enabled in the build.
+These are wire corpora: they do not promise Schema, Codec, EMV application,
+Bluetooth AD or NDEF semantic validity. No property runner is required.</p>
+<p>Missing directories are created. Existing target case files are rejected before
+writing any case, and each file is created exclusively. Unrelated directory
+contents are retained. A later generation or I/O failure leaves earlier completed
+files available and reports the failing case; a failed write removes its partial
+file. Use a fresh directory when retrying. Invalid usage/configuration returns 2;
+generation failure or I/O/resource failure returns 3. Unsupported formats and
+impossible limits produce a clear diagnostic.</p>
+<p>Choose <code>--output-encoding bin|json</code>. The default is <code>bin</code>; explicit <code>bin</code>
+behaves identically. Binary mode writes only <code>000000.bin</code>, <code>000001.bin</code>, etc.
+JSON mode writes only <code>000000.json</code>, <code>000001.json</code>, etc.; no binary files are
+written. Each JSON file uses the existing versioned model from <code>otlv decode</code>,
+including raw primitive Values, constructed children and BER length modes.
+Use <code>otlv encode --input</code> with the same Format/configuration to reconstruct the
+corresponding wire case. Both output modes use the same native generated bytes;
+JSON is decoded and serialized entirely within the CLI. Neither the native C
+generator nor its tlv++ wrapper depends on JSON or nlohmann/json.</p>
+<p>Collision checks apply only to paths of the selected encoding; unrelated files,
+including those in the other encoding, are retained. Failed writes remove their
+partial file; earlier complete cases remain available.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../standards/emv/" class="md-footer__link md-footer__link--prev" aria-label="Previous: EMV">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                EMV
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="json-schema/" class="md-footer__link md-footer__link--next" aria-label="Next: TLV JSON document">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                TLV JSON document
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/marekcingel/OpenTLV" target="_blank" rel="noopener" title="OpenTLV on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../playground/playground.js" type="module"></script>
+      
+    
+  </body>
+</html>

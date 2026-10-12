@@ -1,0 +1,4830 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
+      
+      
+      
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/0.7/reference/errors/">
+      
+      
+        <link rel="prev" href="../compilers/">
+      
+      
+        <link rel="next" href="../../concepts/architecture/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Error codes - OpenTLV</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../playground/playground.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#error-codes" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenTLV
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Error codes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/processing/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/cxx-examples/" class="md-tabs__link">
+          
+  
+  
+  Language APIs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
+          
+  
+  
+  Formats
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/der/" class="md-tabs__link">
+          
+  
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cli/" class="md-tabs__link">
+          
+  
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../concepts/runtime-model/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    OpenTLV
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language APIs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language APIs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/bindings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/webassembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly tooling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formats
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Formats
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV JSON document
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../compilers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#result-and-diagnostic-invariant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result and diagnostic invariant
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result and diagnostic invariant">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-result-and-kind-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query result and kind pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regression-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-field-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic field ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Codes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#end-truncated-input-and-buffer-capacity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End, truncated input and buffer capacity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments-versus-lifecycle-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments versus lifecycle state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capabilities-resources-and-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capabilities, resources and callbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offsets-and-diagnosis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offsets and diagnosis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-enum-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic enum names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lookup-and-pointer-returning-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup and pointer-returning APIs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binding-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-native-boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../concepts/definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Where documentation belongs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/reader-decode-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/indefinite-boundary-reuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indefinite boundary reuse follow-up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logo assets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#result-and-diagnostic-invariant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Result and diagnostic invariant
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Result and diagnostic invariant">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-result-and-kind-pairs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Query result and kind pairs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regression-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-field-ownership" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic field ownership
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Codes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Codes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#end-truncated-input-and-buffer-capacity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        End, truncated input and buffer capacity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments-versus-lifecycle-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments versus lifecycle state
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capabilities-resources-and-callbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capabilities, resources and callbacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#offsets-and-diagnosis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Offsets and diagnosis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagnostic-enum-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagnostic enum names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lookup-and-pointer-returning-apis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lookup and pointer-returning APIs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion-failures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion failures
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#binding-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Binding diagnostics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/reference/errors.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="error-codes">Error codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
+<p>This page describes the public results, diagnostics and facade projections of
+the <a href="../../concepts/error-model/">failure model</a> (#551). That page defines the
+contract and why each failure has its class; this page names the values that
+implement it. Epic #547 completed the migration through breaking API and ABI
+changes, with no aliases for removed names.</p>
+<p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/result.h</code>. Zero is success. <code>TLV_END</code> (normal end
+of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
+statuses, not failures; every other nonzero result is a failure. <code>tlv_result_string</code> returns a static, readable
+description of any code and <code>"unknown error"</code> for an unrecognized one; never free or
+modify the string. The Rust <code>Error</code> type maps every <code>TLV_ERR_*</code> code.</p>
+<p>Unless a function says otherwise, an error leaves its output parameters unchanged. A
+writer also keeps its position unchanged on failure, but an encoding callback failure can
+leave modified bytes beyond that position. Each function documents which codes it can
+return; this page explains what each code means and what to check first.</p>
+<h2 id="result-and-diagnostic-invariant">Result and diagnostic invariant<a class="headerlink" href="#result-and-diagnostic-invariant" title="Permanent link">&para;</a></h2>
+<p>When an API initializes a non-NULL diagnostic output, every subsequent non-OK
+return describes that result:</p>
+<ul>
+<li><code>tlv_diagnostic_t</code> and the active diagnostic in an embedding type have
+  <code>diagnostic.code == rc</code>.</li>
+<li><code>tlv_query_diagnostic_t</code> has <code>kind != TLV_QUERY_ERROR_NONE</code>. A <code>READER</code> kind
+  has cause <code>READER</code> and stores its result, location and path only in
+  <code>diagnostic</code>; a <code>CODEC</code> kind has cause <code>CODEC</code> with a non-OK
+  <code>detail.codec.reported</code>; a <code>SCHEMA</code> kind has cause <code>SCHEMA</code>.</li>
+<li>An initialized Query diagnostic for <code>TLV_ERR_INVALID_STATE</code> has kind
+  <code>TLV_QUERY_ERROR_STATE</code>. Pre-initialization preservation exceptions below still apply.</li>
+<li>Schema Query reports every failure once in <code>query</code>: a false assertion has
+  <code>SCHEMA</code> result, kind and cause with <code>ASSERTION</code> detail, while an execution
+  failure keeps its own result, kind and cause.</li>
+</ul>
+<p>The rule includes <code>TLV_END</code> and <code>TLV_NEED_MORE_DATA</code> when returned
+through an initialized diagnostic channel; their severity is <code>INFO</code>, not <code>ERROR</code>. These are still normal iteration or
+resumption conditions where the API says so. Query represents resumable Reader
+status as <code>READER</code>; this does not poison the execution.</p>
+<p>Diagnostics are failure outputs, so the general unchanged-output rule above does
+not prevent filling them on failure. A successful call need not clear an old
+diagnostic; inspect it only in conjunction with the returned result. Report
+collections describe individual findings, rather than repeating an aggregate
+validation result in every entry.</p>
+<p>Pre-initialization checks leave the diagnostic untouched. In particular:</p>
+<ul>
+<li>Query overlap checks protect borrowed input and execution storage. Reentrant
+  calls and rejected continuations of failed executions preserve the outer or
+  original failure. Do not move initialization ahead of these guards.</li>
+<li>Compiler prepare/commit/load entry points can reject required arguments,
+  output extents, alignment or overlapping storage before their first diagnostic
+  initialization (including initialization by a delegated compiler call).</li>
+<li>Low-level Reader/Tree and Schema entry points can reject preflight arguments
+  or resources before producing detail. An enclosing API which has already
+  initialized its own diagnostic must nevertheless describe a propagated error.</li>
+<li><code>tlv_document_query_next()</code> initializes its diagnostic only when it fails, so a
+  pull loop writes no detail. <code>TLV_END</code> and successful pulls leave it unchanged.</li>
+</ul>
+<h3 id="query-result-and-kind-pairs">Query result and kind pairs<a class="headerlink" href="#query-result-and-kind-pairs" title="Permanent link">&para;</a></h3>
+<p>Every Query failure pairs its result with one kind of the
+<a href="../../concepts/error-model/#every-query-error-kind">failure model</a> (#587):</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Results</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ARGUMENT</code></td>
+<td><code>NULL_ARG</code> for a missing pointer; <code>INVALID_ARG</code> for invalid options, variable declarations, hooks, alignment, info extent, a selected context absent from the input or an incompatible Reader/Document Format; <code>INVALID_TAG</code>, <code>INVALID_TAG_SIZE</code> or <code>INVALID_LENGTH</code> for a caller-supplied path Query, edit Tag or edit Value rejected by Tag or Length validation (#588)</td>
+</tr>
+<tr>
+<td><code>STORAGE</code></td>
+<td><code>BUFFER_TOO_SHORT</code> for caller storage; <code>OVERFLOW</code> or <code>NATIVE_SIZE</code> for a size that is not representable; <code>OUT_OF_MEMORY</code> for exhausted Document allocation (#588)</td>
+</tr>
+<tr>
+<td><code>LIMIT</code></td>
+<td><code>LIMIT</code> for a named Query budget</td>
+</tr>
+<tr>
+<td><code>SYNTAX</code></td>
+<td><code>SYNTAX</code></td>
+</tr>
+<tr>
+<td><code>TYPE</code></td>
+<td><code>INVALID_VALUE</code> for operand types, arity and ranges such as a negative substring bound; <code>OVERFLOW</code> for a value not representable as <code>int64</code></td>
+</tr>
+<tr>
+<td><code>BINDING</code></td>
+<td><code>INVALID_VALUE</code> for a missing, unknown, duplicate or mistyped variable binding</td>
+</tr>
+<tr>
+<td><code>EVENTS</code></td>
+<td><code>INVALID_VALUE</code> for a malformed structural feed, including a nonempty span without data</td>
+</tr>
+<tr>
+<td><code>SOURCE</code></td>
+<td><code>INVALID_VALUE</code> for absent or inconsistent Source metadata; <code>UNSUPPORTED</code> when a backend cannot provide it</td>
+</tr>
+<tr>
+<td><code>CARDINALITY</code></td>
+<td><code>INVALID_VALUE</code></td>
+</tr>
+<tr>
+<td><code>IMAGE</code>, <code>IMAGE_VERSION</code></td>
+<td><code>INVALID_VALUE</code> for a malformed image; <code>UNSUPPORTED</code> for an incompatible version</td>
+</tr>
+<tr>
+<td><code>STATE</code></td>
+<td><code>INVALID_STATE</code></td>
+</tr>
+<tr>
+<td><code>CALLBACK</code></td>
+<td><code>CALLBACK</code> for a provider contract violation; <code>VISITOR</code> for an explicit visitor error</td>
+</tr>
+<tr>
+<td><code>SCHEMA</code></td>
+<td><code>SCHEMA</code> for a false Schema Query assertion</td>
+</tr>
+<tr>
+<td><code>CAPABILITY</code></td>
+<td><code>UNSUPPORTED</code> for an unavailable feature; a Tag adapter or name resolver failure keeps its own result</td>
+</tr>
+<tr>
+<td><code>READER</code>, <code>CODEC</code></td>
+<td>The preserved Reader or conversion result</td>
+</tr>
+</tbody>
+</table>
+<p>A lower-layer call that returns no Query detail is classified by its result, so
+an argument failure is <code>ARGUMENT</code>, a storage shortage <code>STORAGE</code> and a callback
+or visitor failure <code>CALLBACK</code> whichever Query operation propagates it.</p>
+<p>The Document Query entry points <code>tlv_document_query_visit()</code>,
+<code>tlv_document_query_value_size()</code>, <code>tlv_document_query_evaluate()</code>,
+<code>tlv_document_query_next()</code>, <code>tlv_document_query_program_visit()</code> and
+<code>tlv_document_query_edit()</code> publish this Query diagnostic (#588). A constructed
+edit Value rejected by the Reader keeps the Reader cause, with <code>INPUT</code>
+locations relative to the edit Value. An edit exceeding the Document depth or
+element limit reports <code>LIMIT</code> with <code>limit</code> <code>document-depth</code> or
+<code>document-elements</code> and its <code>configured</code> bound. Other edit and Value snapshot
+failures are classified by their result as above.</p>
+<p>The diagnostic layouts changed in issues #553, #555, #556 and #579; rebuild
+native consumers with matching headers and bindings.</p>
+<h3 id="regression-enforcement">Regression enforcement<a class="headerlink" href="#regression-enforcement" title="Permanent link">&para;</a></h3>
+<p><code>tests/diagnostic_assertions.h</code> checks the invariant after an operation, including
+calls shared by table-driven Query tests. Tests for pre-initialization rejection
+instead verify that protected outputs remain unchanged.</p>
+<p>The same helper checks every Query failure against the allowed pairs above,
+listed once as <code>TEST_QUERY_KIND_PAIRS</code> in <code>tests/diagnostic_invariant.h</code>.</p>
+<p>Run <code>python scripts/test_diagnostic_returns.py</code> and
+<code>python scripts/check_diagnostic_returns.py</code> for the CI source guard. The guard
+reports direct error returns after explicit diagnostic initialization in C
+functions with a diagnostic output. A directly populated return requires an
+adjacent <code>diagnostic-return:</code> comment explaining where its detail was set.
+This lexical check is deliberately conservative: indirect initialization,
+propagated variables and callback behavior require runtime tests; it is not a
+control-flow proof. A separate lexical rule rejects <code>INVALID_ARG</code> returns under
+<code>busy</code>, <code>finished</code>, <code>invalid</code> or <code>query_callbacks</code> member predicates, including
+pre-initialization checks. Diagnostic-return comments do not waive that rule.
+A third rule reads <code>TEST_QUERY_KIND_PAIRS</code> and rejects a <code>query_error()</code>,
+<code>query_error_unlocated()</code> or <code>query_failure()</code> call whose literal result and
+kind are not an allowed pair; computed results are left to the runtime helper.</p>
+<h2 id="diagnostic-field-ownership">Diagnostic field ownership<a class="headerlink" href="#diagnostic-field-ownership" title="Permanent link">&para;</a></h2>
+<p>Each public diagnostic field has one meaning (#579). The common
+<code>tlv_diagnostic_t</code> owns the result, severity, primary location, expected and
+actual text, contexts and path. Layer detail types carry only layer-specific
+evidence and never repeat those common fields. An enclosing diagnostic holds at
+most one active lower-layer detail, selected by its cause.</p>
+<table>
+<thead>
+<tr>
+<th>Diagnostic</th>
+<th>Common part</th>
+<th>Layer-specific fields</th>
+<th>Delegated cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_reader_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td><code>detail</code> (<code>tlv_reader_detail_t</code>)</td>
+<td>none</td>
+</tr>
+<tr>
+<td><code>tlv_schema_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td>none</td>
+<td><code>cause</code> selects <code>detail.schema</code> (<code>tlv_schema_detail_t</code>), <code>detail.reader</code> or <code>detail.codec</code> (<code>tlv_codec_detail_t</code>)</td>
+</tr>
+<tr>
+<td><code>tlv_codec_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td><code>codec.operation</code>, <code>reported</code>, <code>violation</code>, <code>reason</code>, <code>representation</code></td>
+<td><code>codec.cause</code> selects <code>codec.detail.reader</code> or <code>codec.detail.schema</code></td>
+</tr>
+<tr>
+<td><code>tlv_query_diagnostic_t</code></td>
+<td><code>diagnostic</code></td>
+<td><code>kind</code>, <code>expression</code>, <code>limit</code>, <code>configured</code></td>
+<td><code>cause</code> selects <code>detail.reader</code>, <code>detail.codec</code> or <code>detail.schema</code></td>
+</tr>
+<tr>
+<td><code>tlv_schema_query_diagnostic_t</code></td>
+<td><code>query.diagnostic</code></td>
+<td><code>rule</code></td>
+<td><code>query.cause</code>; a false assertion uses <code>SCHEMA</code></td>
+</tr>
+</tbody>
+</table>
+<p>The Query <code>expression</code> field is related evidence: it holds the expression span
+only when another known location is primary, such as the INPUT or VALUE location
+of a Reader or conversion failure. Otherwise the span itself is primary
+(<code>TLV_LOCATION_EXPRESSION</code>) and <code>expression</code> is unknown. This includes
+conversion failures without a location, such as a provider output contract that
+Query rejects itself, so the span always remains visible in <code>diagnostic.location</code>. A Reader
+failure inside a conversion hook is reachable only as
+<code>detail.codec.detail.reader</code>; Query cause <code>READER</code> is reserved for its own
+Reader traversal.</p>
+<p>A Schema diagnostic reports a malformed wire input with cause <code>READER</code> and the
+original Reader detail instead of dropping it; argument and resource failures
+have cause <code>NONE</code>. A Structure Codec maps such a Reader failure to its own
+Reader cause, so the Reader detail stays reachable through one path. Codec
+<code>reason</code> is the typed explanation of an <code>INVALID_VALUE</code> conversion failure.
+DER Schema reports a leaf Value that its conversion rejects, such as a
+non-canonical INTEGER or one too long for a value constraint, with cause <code>CODEC</code>
+(#589): <code>detail.codec</code> keeps the conversion's operation, result and reason, and
+<code>detail.codec.reported</code> equals the returned result. A valid leaf constraint
+rejecting data is <code>SCHEMA</code> with <code>VALUE</code> detail when reading and writing.</p>
+<p>Kind and cause agree in both directions: cause <code>READER</code> accompanies kind
+<code>READER</code> or <code>STATE</code>, cause <code>CODEC</code> accompanies <code>CODEC</code>, <code>CALLBACK</code> or <code>STATE</code>,
+cause <code>SCHEMA</code> accompanies only <code>SCHEMA</code>, and cause <code>NONE</code> never accompanies
+<code>READER</code>, <code>CODEC</code> or <code>SCHEMA</code>. Kind <code>TLV_QUERY_ERROR_SCHEMA</code> and cause
+<code>TLV_QUERY_CAUSE_SCHEMA</code> are reported only by the Schema Query entry points
+(<code>tlv_schema_query_validate_buffer()</code> and <code>tlv_schema_query_validate_document()</code>);
+Query compilation and plain execution never produce them.</p>
+<p>Fields removed in #579 and where their values now live:</p>
+<table>
+<thead>
+<tr>
+<th>Removed field</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlv_codec_schema_detail_t</code></td>
+<td><code>tlv_schema_detail_t</code>, the same type as <code>tlv_schema_diagnostic_t::detail.schema</code></td>
+</tr>
+<tr>
+<td>Schema diagnostic <code>kind</code>, <code>tag</code>, <code>definition</code>, <code>field</code>, occurrence, length and form fields</td>
+<td><code>tlv_schema_diagnostic_t::detail.schema.*</code> under cause <code>TLV_SCHEMA_CAUSE_SCHEMA</code></td>
+</tr>
+<tr>
+<td>Query <code>begin</code> / <code>end</code></td>
+<td><code>diagnostic.location</code> when it is an EXPRESSION span, otherwise <code>expression</code></td>
+</tr>
+<tr>
+<td>Query <code>expected</code></td>
+<td><code>diagnostic.expected</code>; a conversion's own expectation takes precedence and Query fills only a missing one</td>
+</tr>
+<tr>
+<td>Query <code>int32_t codec</code></td>
+<td><code>detail.codec.reported</code> under cause <code>CODEC</code></td>
+</tr>
+<tr>
+<td>Query <code>has_codec</code> / <code>codec_detail</code></td>
+<td><code>cause == TLV_QUERY_CAUSE_CODEC</code> / <code>detail.codec</code></td>
+</tr>
+<tr>
+<td>Query <code>has_reader</code> / <code>reader</code></td>
+<td><code>cause == TLV_QUERY_CAUSE_READER</code> / <code>detail.reader</code></td>
+</tr>
+<tr>
+<td>Schema Query <code>schema</code></td>
+<td><code>query</code> with kind and cause <code>SCHEMA</code>; Schema detail in <code>query.detail.schema</code>, common evidence in <code>query.diagnostic</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>tlv_query_cause_string()</code> names the Query cause. The 64-bit Query diagnostic
+shrinks from 1000 to 840 bytes.</p>
+<h2 id="codes">Codes<a class="headerlink" href="#codes" title="Permanent link">&para;</a></h2>
+<p>Codes are grouped by category: success, control statuses, invalid input data,
+invalid use of the API, capacity, resources and numeric ranges, capabilities,
+and callbacks. Numbers below describe this release. Before 1.0.0 they are not
+stable ABI identifiers and may change to keep categories together.</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Value</th>
+<th>Meaning</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TLV_OK</code></td>
+<td>0</td>
+<td>The operation succeeded.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>TLV_END</code></td>
+<td>1</td>
+<td>Control status: normal end of iteration, or an empty single-read region. Not a failure.</td>
+<td><code>tlv_reader_next</code> and other iterators after the last element; <code>tlv_read</code> on empty input. No element is published.</td>
+</tr>
+<tr>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+<td>2</td>
+<td>Control status: incremental input is exhausted or incomplete.</td>
+<td>Supply an extended window or declare EOF. No element is published and the cursor does not advance.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_TRUNCATED</code></td>
+<td>3</td>
+<td>Final input ends inside a required representation.</td>
+<td>Supply complete input; a larger output buffer cannot help. Non-final Reader input reports <code>TLV_NEED_MORE_DATA</code> for the same cut.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG</code></td>
+<td>4</td>
+<td>A tag is malformed or invalid for the format or standard.</td>
+<td>Malformed BER identifier digits, or a tag the selected format rejects. Incomplete identifiers return <code>TLV_ERR_TRUNCATED</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_TAG_SIZE</code></td>
+<td>5</td>
+<td>A tag size is outside the range the operation or format supports.</td>
+<td>A tag length the selected format rejects (for example more than 8 bytes for BER, CER and DER, or a tag width different from the configured Fixed width), or an empty tag where the operation needs bytes. Also the numeric tag conversions for empty tags and tags longer than 8 bytes. <code>tlv_tag_t</code> itself has no size limit.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_LENGTH</code></td>
+<td>6</td>
+<td>A length is malformed or invalid for the wire encoding.</td>
+<td>The format's length limits (for example the length width for <a href="../../formats/fixed/configurable/">configurable fixed-width TLV</a>), or the reserved BER length prefix <code>FF</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_VALUE</code></td>
+<td>7</td>
+<td>Content or its interpretation is invalid.</td>
+<td>DER/CER canonical Value checks and SET ordering; Query operand types, variable bindings, malformed images, invalid converted Values and scalar cardinality; malformed structural event streams. Configuration and provider contract violations use separate results.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_SYNTAX</code></td>
+<td>8</td>
+<td>Text does not match the requested grammar.</td>
+<td>Query expressions and V1 paths. Query diagnostics pair it with kind <code>SYNTAX</code> and an expression span.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_SCHEMA</code></td>
+<td>9</td>
+<td>Input violates a valid schema.</td>
+<td>Missing or forbidden fields, excess occurrences, kind/order mismatches, and length or Value constraints. Schema detail identifies the reason, including <code>MISSING</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NULL_ARG</code></td>
+<td>10</td>
+<td>A required pointer argument is <code>NULL</code>.</td>
+<td>Required outputs and descriptors; <code>NULL</code> data is valid only with size zero.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_ARG</code></td>
+<td>11</td>
+<td>An API configuration or argument descriptor is invalid.</td>
+<td>A required callback missing from a format descriptor, an invalid option value, or an unknown <code>TLV_BYTE_ORDER_*</code> value.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_STATE</code></td>
+<td>12</td>
+<td>The operation is forbidden by the current lifecycle state.</td>
+<td>Reset a failed or used Query execution before reuse; leave the callback before mutating; close Tree Writer parents before finishing; only skip a pending Reader subtree. Stale Document results also use this code.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_INVALID_SCHEMA</code></td>
+<td>13</td>
+<td>A schema definition is invalid independently of input.</td>
+<td>Constraint kinds and bounds, required references, rule/group tables and DER type definitions.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+<td>14</td>
+<td>A caller-supplied destination or workspace is too small.</td>
+<td>Writing: the output capacity is smaller than <code>tlv_encoded_size</code> reports; also frame arrays, arenas and scratch. Never used for incomplete input.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_LIMIT</code></td>
+<td>15</td>
+<td>A configured depth, size or element-count limit was exceeded.</td>
+<td>The limits passed to the Tree Reader or validation function, <code>TLV_BER_MAX_DEPTH</code> (64). Limits are inclusive and zero is a real limit.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OVERFLOW</code></td>
+<td>16</td>
+<td>An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows.</td>
+<td>The value against the destination width in the same integer conversion functions, and Document allocation-size arithmetic.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_NATIVE_SIZE</code></td>
+<td>17</td>
+<td>A logical size exceeds the native address space.</td>
+<td>Checked conversion to <code>size_t</code>; the logical quantity itself remains valid.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
+<td>18</td>
+<td>An allocation by an owning operation failed.</td>
+<td>Document and Document Query allocation, where Query kind <code>STORAGE</code> accompanies it, and the allocations bindings make for owned results and workspaces. An allocation size that is not representable is <code>OVERFLOW</code>, and caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_UNSUPPORTED</code></td>
+<td>19</td>
+<td>A type, Query capability or program-image version is unsupported.</td>
+<td>Strict ASN.1 validation rejects unchecked types; see <a href="../../standards/der/#strict-universal-value-validation">DER validation</a>. Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_VISITOR</code></td>
+<td>20</td>
+<td>A visitor callback requested an error stop.</td>
+<td>Your visitor returned <code>TLV_VISIT_ERROR</code>. Unknown visitor results produce <code>CALLBACK</code>.</td>
+</tr>
+<tr>
+<td><code>TLV_ERR_CALLBACK</code></td>
+<td>21</td>
+<td>A callback violates its declared contract.</td>
+<td>Invalid discriminator or success payload; correct the provider. Legitimate provider failures keep their original result.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="end-truncated-input-and-buffer-capacity">End, truncated input and buffer capacity<a class="headerlink" href="#end-truncated-input-and-buffer-capacity" title="Permanent link">&para;</a></h3>
+<p>These outcomes need different responses and never share a code:</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Final input, no further element</td>
+<td><code>TLV_END</code></td>
+</tr>
+<tr>
+<td>Final input ends inside a Tag, Length, Value or trailer</td>
+<td><code>TLV_ERR_TRUNCATED</code>, with an INPUT location</td>
+</tr>
+<tr>
+<td>Non-final input, either of the above</td>
+<td><code>TLV_NEED_MORE_DATA</code></td>
+</tr>
+<tr>
+<td>Destination or workspace too small</td>
+<td><code>TLV_ERR_BUFFER_TOO_SHORT</code></td>
+</tr>
+</tbody>
+</table>
+<p>Format decode callbacks report incomplete input as <code>TLV_ERR_TRUNCATED</code>;
+decoding has no destination, so <code>TLV_ERR_BUFFER_TOO_SHORT</code> from a decoder is
+a <code>CALLBACK</code> violation. <code>TLV_ERR_END_OF_BUFFER</code> and <code>TLV_ERR_INVALID_BYTE_ORDER</code>
+were removed without aliases; an unknown byte order is <code>TLV_ERR_INVALID_ARG</code>.</p>
+<h3 id="arguments-versus-lifecycle-state">Arguments versus lifecycle state<a class="headerlink" href="#arguments-versus-lifecycle-state" title="Permanent link">&para;</a></h3>
+<p><code>TLV_ERR_INVALID_STATE</code> distinguishes lifecycle/reentrancy rejection from
+<code>TLV_ERR_INVALID_ARG</code>, which still describes bad arguments, configuration,
+and overlap. Malformed structural event input uses <code>TLV_ERR_INVALID_VALUE</code>;
+new Query state diagnostics use <code>TLV_QUERY_ERROR_STATE</code>.
+A state rejection does not bypass pre-initialization guards: callback reentrancy
+and rejected continuation of failed executions preserve protected outputs and
+the original diagnostic. Repeated successful Query finish and normal iterator
+exhaustion retain their existing behavior. Reader input may be relocated after
+EOF, but cannot be reopened or extended.</p>
+<h3 id="capabilities-resources-and-callbacks">Capabilities, resources and callbacks<a class="headerlink" href="#capabilities-resources-and-callbacks" title="Permanent link">&para;</a></h3>
+<p><code>UNSUPPORTED</code> replaces the former <code>UNSUPPORTED_TYPE</code> name without an alias.
+A valid DER/CER <code>max_depth</code> above the fixed implementation capacity is
+<code>UNSUPPORTED</code>; exceeding an accepted depth or element budget is <code>LIMIT</code>.
+Invalid options and inconsistent API descriptors are <code>INVALID_ARG</code>.
+Caller-provided frame arrays, tag storage, DER byte arenas and sorting records
+that cannot hold the required data produce <code>BUFFER_TOO_SHORT</code>.</p>
+<p>Callback errors that satisfy the callback contract retain their result. Invalid
+return discriminators, forbidden control statuses and inconsistent successful
+payloads produce <code>CALLBACK</code>. This includes Format source/framing sizes, Field
+Encoding extents, DER presence/size changes and impossible preorder depths.
+Explicit visitor error stops remain <code>VISITOR</code>; unknown visitor actions are
+<code>CALLBACK</code>, while normal early stop remains success.</p>
+<p>Query hook output with a wrong type, nonempty NULL span or invalid UTF-8 returns
+<code>CALLBACK</code> with Query kind <code>CALLBACK</code>, preserving the reported codec result
+(including <code>TLV_OK</code>). Ordinary conversion failures preserve their original
+result and typed cause with Query kind <code>CODEC</code> (or <code>STATE</code> for lifecycle misuse).
+Malformed stored images use <code>INVALID_VALUE</code> plus <code>IMAGE</code>; a recognized image
+with an incompatible version uses <code>UNSUPPORTED</code> plus <code>IMAGE_VERSION</code>.</p>
+<p>Optional path truncation keeps the operation's original result and increments
+<code>path.omitted</code>. The standalone path-push helper reports <code>BUFFER_TOO_SHORT</code>.
+Reports that explicitly permit partial collection retain their validation
+result and stored/omitted counts.</p>
+<h2 id="offsets-and-diagnosis">Offsets and diagnosis<a class="headerlink" href="#offsets-and-diagnosis" title="Permanent link">&para;</a></h2>
+<p>Diagnostic paths retain the outermost 32 enclosing tags. <code>path.omitted</code> counts
+innermost tags that did not fit; zero means the path is complete. Path text
+marks omissions with <code>&gt; ...</code>. The affected tag is still available separately
+in Schema diagnostics. See <a href="../../guides/diagnostics/#hierarchical-paths">Hierarchical paths</a>.</p>
+<p><code>tlv_der_schema_write()</code> reports schema/value failures relative to the would-be
+DER output, accounting for enclosing headers and canonical SET ordering. A
+missing required SEQUENCE component points where it would start; a missing SET
+component points to the enclosing content end. For an empty SEQUENCE the offset
+is 2. Leaf constraints point to the Value bytes, or to the offending octet when
+the leaf conversion locates it. Argument, configuration and
+capacity failures have unknown byte location. When a diagnostic is requested,
+composition can visit remaining components after detecting a failure. If a
+later callback or scratch failure prevents completing the hypothetical encoding,
+the original result and detail are retained with unknown byte location. The destination and <code>written</code>
+remain unchanged on failure.</p>
+<p>Failure locations use the common <code>tlv_location_t</code> value: a domain, kind and
+checked <code>[begin, end)</code> coordinates. UNKNOWN has no position; a POINT at zero or
+an empty SPAN at EOF is known evidence. INPUT, OUTPUT, EXPRESSION, DEFINITION
+and VALUE domains identify distinct coordinate spaces. Translation overflow
+drops optional location evidence while retaining the original result.</p>
+<p>Value codecs report the bytes that prove a rejection in the VALUE domain,
+counted from the first Value byte they received (#589): an invalid digit, text
+character, UTF-8 sequence, redundant INTEGER sign octet, non-minimal or
+unterminated OID arc, calendar field, or the incomplete trailing unit of a
+fixed-width list such as IPv4 addresses. A rejection of the whole length, an
+argument or an application object being encoded stays unlocated.
+<code>tlv_location_resolve()</code> places VALUE evidence in an enclosing domain when the
+caller knows where the Value starts. Query does so for a conversion hook when
+the converted bytes lie in the context node's Value and its retained Source maps
+that Value one to one, so the primary location is INPUT. A Document node does not
+record where its Value started, so Document Query keeps VALUE. Query also treats
+a conversion's INPUT location, such as a Structure Codec's Reader failure, as
+relative to the converted bytes; typed detail offsets keep the conversion's
+own coordinates. DER Schema resolves leaf evidence to INPUT when reading and
+to OUTPUT when writing.</p>
+<p>DER/CER, DOL, Bluetooth AD, Document, Query paths and Tree visitors accept
+structured diagnostics; their offset-only outputs were removed in #555.
+DER/CER reads report INPUT points at the failing field, writes report OUTPUT
+points in would-be encoding, and DOL reports INPUT positions within its DOL
+descriptor even while writing. CER segmentation uses the anchor its rule
+requires (#589): a constructed string without segments reports SCOPE_END at its
+EOC, unjustified segmentation the SPAN of the whole constructed element, a
+malformed segment the SPAN of its encoding and a segment content rule the SPAN
+of that segment's Value. Argument/configuration failures remain unknown.
+See <a href="../../guides/diagnostics/#evidence-locations">diagnostics</a> for origins and ownership.</p>
+<p>Schema validators distinguish invalid definitions (<code>TLV_ERR_INVALID_SCHEMA</code>) from
+valid definitions rejecting input (<code>TLV_ERR_SCHEMA</code>). Length constraints are Schema
+violations; malformed wire Length encodings still use <code>TLV_ERR_INVALID_LENGTH</code>.
+Missing required fields, groups, DHCP End and DER components/root use <code>SCHEMA</code>
+with <code>TLV_SCHEMA_ISSUE_MISSING</code>, consistently across generic Schema and builtins.
+<code>TLV_ERR_SCHEMA_MISSING</code> has been removed without an alias.</p>
+<p><code>tlv_schema_validate()</code>, DER schema check/read/write, LLDP and DHCP container
+validation return <code>tlv_schema_diagnostic_t</code> detail when requested. Its <code>diagnostic.location.kind</code>
+distinguishes a point, span, scope end, insertion point and unknown position.
+A missing field is not an element at its anchor; never decode a tag there to
+explain the failure. Generic report findings now use scope end for missing fields,
+including known offset zero for an empty root. Definition failures have no input
+byte location; <code>definition.kind</code>, <code>owner</code> and <code>index</code> identify native definitions.</p>
+<p>The Schema diagnostic layout and affected signatures changed in #553 and #555. Rebuild
+native clients and use the matching binding version. C++ errors expose
+<code>schema_kind()</code>, <code>location()</code> and <code>definition()</code>; Python uses <code>InvalidSchemaError</code> for definitions
+and <code>SchemaError</code> with <code>kind="missing"</code> for required absence.</p>
+<p>Custom Format callback failures permitted by the callback contract propagate
+unchanged through the generic Reader and Writer. Unknown results, forbidden
+control statuses and invalid successful payloads become <code>TLV_ERR_CALLBACK</code>;
+see the public callback contracts in <code>tlv/format.h</code>.</p>
+<h2 id="diagnostic-enum-names">Diagnostic enum names<a class="headerlink" href="#diagnostic-enum-names" title="Permanent link">&para;</a></h2>
+<p>The C library owns the diagnostic names; callers need no parallel name tables.
+Each function below returns a static NUL-terminated string, never NULL, with
+<code>"unknown"</code> for an unrecognized value. Names use lowercase words and underscores
+(for example <code>"image_version"</code>). Do not free or modify the returned storage.
+These functions remain available with the processing capabilities disabled.</p>
+<table>
+<thead>
+<tr>
+<th>Diagnostic value</th>
+<th>Name function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Severity</td>
+<td><code>tlv_diagnostic_severity_string()</code></td>
+</tr>
+<tr>
+<td>Location domain / anchor</td>
+<td><code>tlv_location_domain_string()</code> / <code>tlv_location_kind_string()</code></td>
+</tr>
+<tr>
+<td>Query failure kind / delegated cause</td>
+<td><code>tlv_query_error_kind_string()</code> / <code>tlv_query_cause_string()</code></td>
+</tr>
+<tr>
+<td>Reader / Writer operation</td>
+<td><code>tlv_reader_operation_string()</code> / <code>tlv_writer_operation_string()</code></td>
+</tr>
+<tr>
+<td>Schema finding / definition object</td>
+<td><code>tlv_schema_issue_kind_string()</code> / <code>tlv_schema_definition_kind_string()</code></td>
+</tr>
+<tr>
+<td>Codec operation / delegated cause / callback violation / rejection reason</td>
+<td><code>tlv_codec_operation_string()</code> / <code>tlv_codec_cause_string()</code> / <code>tlv_codec_violation_string()</code> / <code>tlv_codec_reason_string()</code></td>
+</tr>
+<tr>
+<td>Schema cause</td>
+<td><code>tlv_schema_cause_string()</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>tlv_result_string()</code> separately describes results, with <code>"unknown error"</code> as its
+fallback. Enum-name strings describe detail; they do not replace result codes.</p>
+<h2 id="lookup-and-pointer-returning-apis">Lookup and pointer-returning APIs<a class="headerlink" href="#lookup-and-pointer-returning-apis" title="Permanent link">&para;</a></h2>
+<p><code>tlv_document_find_path(document, query, &amp;node)</code> returns <code>TLV_OK</code> with the first
+match, or <code>TLV_OK</code> with NULL when the search completed without a match. Invalid
+queries and arguments retain the original failure result and leave <code>node</code>
+unchanged, even on an empty Document. The former pointer-returning signature
+has been replaced without a compatibility wrapper. Rebuild native callers.
+C++ path lookup throws <code>query_error</code>; Rust uses <code>Result&lt;Option&lt;Node&gt;&gt;</code> and
+<code>Result&lt;Option&lt;NodeMut&gt;&gt;</code>; Python and Lua raise the native failure category.</p>
+<p>The remaining exported pointer-returning APIs have these explicit contracts;
+none performs a delegated fallible traversal or allocation:</p>
+<table>
+<thead>
+<tr>
+<th>API family</th>
+<th>Pointer / NULL contract</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Document <code>first</code>, Node <code>first_child</code>, <code>next</code>, <code>parent</code>, <code>next_same_tag</code></td>
+<td>Borrowed node; NULL for no such node or a NULL input.</td>
+</tr>
+<tr>
+<td><code>tlv_document_find()</code></td>
+<td>Borrowed first direct match; NULL for no match, invalid Tag, or absent top-level Document. Parent ownership is a caller precondition.</td>
+</tr>
+<tr>
+<td><code>tlv_node_value_data()</code></td>
+<td>Borrowed primitive bytes; NULL for NULL node, empty Value, or constructed node.</td>
+</tr>
+<tr>
+<td><code>tlv_definition_find()</code>, <code>tlv_schema_find()</code></td>
+<td>Borrowed entry; NULL for no match or rejected arguments/table descriptor. They skip invalid entry Tags and do not validate complete definitions.</td>
+</tr>
+<tr>
+<td><code>tlv_value_constraint_name()</code></td>
+<td>Borrowed name; NULL for unavailable table/name, wrong constraint kind, or no match.</td>
+</tr>
+<tr>
+<td><code>tlv_asn1_named_bit_find()</code></td>
+<td>Borrowed name; NULL for no match or a NULL entry name. The caller supplies a valid table extent.</td>
+</tr>
+<tr>
+<td>EMV <code>dictionary_for</code>, <code>schema_for</code></td>
+<td>Static table; NULL for invalid context.</td>
+</tr>
+<tr>
+<td>EMV <code>dictionary_find</code>, <code>find</code></td>
+<td>Borrowed entry; NULL for no match or invalid lookup arguments/context.</td>
+</tr>
+<tr>
+<td><code>tlv_emv_symbol()</code>, <code>tlv_emv_display_label()</code></td>
+<td>Borrowed/static optional text; NULL for absent metadata/label, including NULL input.</td>
+</tr>
+<tr>
+<td><code>tlv_query_builtin_hooks()</code></td>
+<td>Non-NULL static provider array; optional count output.</td>
+</tr>
+<tr>
+<td>Version string and Git metadata accessors</td>
+<td>Non-NULL static build metadata; no prerelease is an empty string, unavailable Git metadata uses <code>"unknown"</code>.</td>
+</tr>
+<tr>
+<td>Diagnostic name functions, <code>tlv_result_string()</code>, <code>tlv_emv_value_kind_description()</code></td>
+<td>Non-NULL static text with the documented unknown-value fallback.</td>
+</tr>
+</tbody>
+</table>
+<p>A NULL lookup result alone therefore does not distinguish absence from rejected
+arguments unless the API has a separate result channel. Follow each header's
+argument, extent and lifetime preconditions.</p>
+<h2 id="conversion-failures">Conversion failures<a class="headerlink" href="#conversion-failures" title="Permanent link">&para;</a></h2>
+<p>Codec, Structure Codec and Query conversions return the same <code>tlv_result_t</code>.
+The separate Codec enum, constants and strerror entry point were removed in #556.
+Callbacks and entry points accept optional <code>tlv_codec_diagnostic_t</code> output.
+Structure validation preserves the original Reader/Schema/resource result and
+cause; Query retains this evidence alongside its related expression span.
+Builtin conversions that delegate to another codec, including the Schema
+number composition, the ASN.1 Query date hook and the Bluetooth AD codecs, pass
+their diagnostic through, so the nested result, reason and location survive
+(#589). Custom codecs publish located evidence with
+<code>tlv_codec_diagnostic_reason_at()</code>.
+Invalid callback discriminators or successful output contracts report <code>CALLBACK</code>
+while preserving the callback's reported value, including <code>OK</code>.</p>
+<p>This changes callback signatures and the Query diagnostic layout. Rebuild native
+clients and use matching bindings. Valid conversion bytes are unchanged.</p>
+<h2 id="binding-diagnostics">Binding diagnostics<a class="headerlink" href="#binding-diagnostics" title="Permanent link">&para;</a></h2>
+<p>Bindings use the C result domain, including resumable <code>NEED_MORE_DATA</code>, and
+preserve the independent detail, primary location and delegated cause. Category
+names come from the C string functions; an unrecognized value is named
+<code>unknown</code>. A raw callback <code>reported</code> result stays numeric so invalid provider
+results remain inspectable.</p>
+<table>
+<thead>
+<tr>
+<th>Facade</th>
+<th>Diagnostic categories</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td><code>errc</code>, <code>query_issue</code>, <code>reader_phase</code>, <code>writer_phase</code>, <code>schema_issue</code>, <code>schema_definition_kind</code>, <code>codec_phase</code>, <code>codec_cause</code>, <code>codec_violation</code>, <code>codec_reason</code>, <code>query_cause</code>; <code>message(category)</code> calls C.</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code>Error</code> and typed <code>QueryErrorKind</code>, <code>ReaderOperation</code>, <code>WriterOperation</code>, <code>SchemaIssue</code>, <code>SchemaDefinitionKind</code>, <code>CodecOperation</code>, <code>CodecCause</code>, <code>CodecViolation</code>, <code>CodecReason</code>, <code>QueryCause</code>, <code>SchemaCause</code>, <code>Severity</code>; category <code>name()</code> calls C. Categories are <code>#[non_exhaustive]</code>; <code>Unrecognized(RawCategory)</code> retains unrecognized values.</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Typed result exceptions; Query <code>query["query_kind"]</code>, Schema report fields and Codec detail fields use <code>IntEnum</code> categories exported by <code>opentlv</code>. Their <code>label</code> property calls C; the native module's <code>result_string()</code> returns the result text. Reader/Writer <code>operation</code> remains a canonical string.</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><code>errors.Is</code> classifies results and <code>errors.As</code> retrieves owned details. <code>ProgramError.Kind</code>, <code>QuerySchemaDetail.Kind</code> and Codec categories are typed; <code>String()</code> calls C. Reader/Writer errors expose typed <code>Phase()</code> methods; <code>Diagnostic.ReaderPhase()</code> and <code>WriterPhase()</code> type Query Reader causes too.</td>
+</tr>
+<tr>
+<td>Lua</td>
+<td>Error tables preserve result <code>code</code>, <code>location</code>, optional path and contexts. <code>query.kind_name</code> and Codec <code>operation_name</code>, <code>cause_name</code>, <code>violation_name</code> come from C alongside numeric values.</td>
+</tr>
+<tr>
+<td>JS/WASM</td>
+<td><code>QueryError</code> carries the C message, structured <code>location</code> and owned Query evidence. <code>query.kind_name</code>, Reader <code>operation_name</code> and Codec names accompany numeric categories. Common evidence appears once in <code>query.diagnostic</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, Rust consumers match <code>failure.kind == QueryErrorKind::Syntax</code>;
+Python consumers compare <code>error.query["query_kind"] is QueryErrorKind.SYNTAX</code>.
+Use <code>.as_raw()</code> in Rust when an external protocol explicitly requires the C
+integer. These diagnostic field changes are source-breaking; rebuild bindings
+against the matching C library.</p>
+<p>Unknown locations have no meaningful numeric coordinates. A known point at
+zero is distinct from absence. Related Query expression spans do not replace
+the primary input/output/Value location. Retained paths hold outermost scopes;
+<code>path_omitted</code> counts omitted innermost scopes. Go's <code>HasReader</code> guards the
+Reader-specific part of a Query failure.</p>
+<p>Binding Query and Schema Query projections follow the single-source C layout
+and read each value from one C member:</p>
+<table>
+<thead>
+<tr>
+<th>C member</th>
+<th>Binding projection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>diagnostic</code></td>
+<td>The error's common evidence: <code>location</code>, severity, path, expected and actual text, contexts</td>
+</tr>
+<tr>
+<td><code>kind</code>, <code>limit</code>, <code>configured</code></td>
+<td>Query <code>kind</code> (Python <code>query_kind</code>), <code>limit</code>, <code>configured</code></td>
+</tr>
+<tr>
+<td><code>expression</code></td>
+<td>Query <code>expression</code> location: the related span, unknown when the expression span is the primary <code>location</code></td>
+</tr>
+<tr>
+<td><code>detail.codec</code></td>
+<td>Codec detail; <code>reported</code> is the raw provider result</td>
+</tr>
+<tr>
+<td><code>detail.reader</code></td>
+<td>Reader detail beside the common evidence</td>
+</tr>
+<tr>
+<td><code>detail.schema</code></td>
+<td>Schema Query <code>schema</code>: <code>kind</code>, <code>tag</code> and <code>field</code> of the failed assertion; absent (<code>None</code>, <code>nil</code>, <code>null</code>) for any other cause</td>
+</tr>
+</tbody>
+</table>
+<p>There are no <code>begin</code>/<code>end</code>, <code>source_offset</code>, Query <code>expected</code> or <code>codec</code>
+copies. The expression span of a failure is its <code>location</code> when that has the
+<code>expression</code> domain, otherwise its related <code>expression</code>. Rust and Go derive
+<code>source_offset()</code>/<code>SourceOffset()</code> from a primary INPUT location without storing
+it. A rejected V1 path text, such as Python <code>Query("01/")</code>, Python
+<code>Document.find_path()</code> or Lua <code>opentlv.query()</code>, raises the Query syntax or limit
+error with its EXPRESSION location and no Reader detail; a limit error names
+<code>path-steps</code> (<code>configured</code> 65) or <code>path-bytes</code> (<code>configured</code> 512) like other
+Query limits.</p>
+<p>CLI diagnostics identify the location domain and anchor kind. Compact output
+includes truncated paths and omitted counts; Query JSON includes common
+diagnostic metadata and delegated Codec or Reader evidence. Every CLI failure is
+rendered from its diagnostic location; <code>--recover</code> reports each skipped range's
+error with the same <code>location</code> object instead of a separate offset.</p>
+<p>C++ <code>tlv::error</code>, <code>tlv::query_error</code> and <code>tlv::query_failure</code> expose
+<code>location()</code>, never a bare offset, because a location's coordinates belong to
+its domain: input, would-be output, Query expression or Value bytes.
+<code>query_failure::expression()</code> is the related expression span. <code>tlv::parse_error</code>
+keeps <code>offset()</code>, because it is not diagnostic evidence: it is always the input
+offset of the element whose read failed, beside the Reader diagnostic.</p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../c-api/">C API reference</a> for the documented codes per function.</li>
+<li><a href="../../formats/#reading-one-element">Format documentation</a> for the reader and
+  writer error behavior.</li>
+<li><a href="../../guides/reader/">Pull-based reading</a> for end, incomplete input and parsing errors.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../compilers/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Compilers and build settings">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Compilers and build settings
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../concepts/architecture/" class="md-footer__link md-footer__link--next" aria-label="Next: Architecture">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Architecture
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/marekcingel/OpenTLV" target="_blank" rel="noopener" title="OpenTLV on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../playground/playground.js" type="module"></script>
+      
+    
+  </body>
+</html>

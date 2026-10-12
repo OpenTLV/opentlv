@@ -1,0 +1,4632 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Portable TLV processing with a canonical C engine, language APIs, CLI and WebAssembly.">
+      
+      
+      
+        <link rel="canonical" href="https://marekcingel.github.io/OpenTLV/0.7/concepts/bindings/">
+      
+      
+        <link rel="prev" href="../../guides/lua/">
+      
+      
+        <link rel="next" href="../../guides/go/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Language bindings - OpenTLV</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../playground/playground.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#common-conceptual-model-for-language-bindings" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+            
+  
+
+          </div>
+          
+        </aside>
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OpenTLV" class="md-header__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpenTLV
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Language bindings
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="orange"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/processing/" class="md-tabs__link">
+          
+  
+  
+  Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../guides/cxx-examples/" class="md-tabs__link">
+          
+  
+  
+  Language APIs
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../formats/" class="md-tabs__link">
+          
+  
+  
+  Formats
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/der/" class="md-tabs__link">
+          
+  
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../cli/" class="md-tabs__link">
+          
+  
+  
+  CLI
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../playground/" class="md-tabs__link">
+          
+  
+  
+  Playground
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reference/" class="md-tabs__link">
+          
+  
+  
+  Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture and Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../runtime-model/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OpenTLV" class="md-nav__button md-logo" aria-label="OpenTLV" data-md-component="logo">
+      
+  <img src="../../assets/logo-mark.svg" alt="logo">
+
+    </a>
+    OpenTLV
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/marekcingel/OpenTLV" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    marekcingel/OpenTLV
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../learning-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Understand the basic model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/processing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Choose a processing API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pull-based Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/writer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writer and scoped construction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/document/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mutable documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/diagnostics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Diagnostics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/queries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Path queries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/schemas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schemas and length validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/codecs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Value codecs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Executable examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Memory ownership
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/copy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Copy helpers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/select-components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Building only the components you need
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language APIs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Language APIs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/cxx-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Rust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Lua
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Language bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-c-api-is-the-binding-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The C API is the binding boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-parity-through-the-public-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability parity through the public facade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-implementation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability implementation matrix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capability implementation matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-resumable-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ resumable traversal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-reader-and-query-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Reader and Query facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-tree-writer-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Tree Writer facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-constraints-and-bounded-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema constraints and bounded reports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owning-documents-and-safe-handles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owning Documents and safe handles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shared-concepts-and-intentional-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared concepts and intentional differences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adapting-ergonomics-not-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adapting ergonomics, not architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-across-current-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status across current bindings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-package-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation package names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Using OpenTLV from Go
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/webassembly/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    WebAssembly tooling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Formats
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Formats
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/support/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Implemented capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/fixed/configurable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable fixed-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/variable/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configurable variable-width TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../field-policies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Declarative field policy design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/packed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Packed Tag/Length headers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/bluetooth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bluetooth LTV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/nfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NFC Type 2 Tag framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/dhcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DHCPv4 option framing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP TLV support
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp/conformance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP reference and conformance notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/ber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/asn1/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER-TLV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/custom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Custom formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/format-catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format candidate catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../formats/lldp-review/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLDP requirements review
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Standards
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/der/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/cer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CER
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../standards/emv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EMV
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    otlv command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/json-schema/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV JSON document
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Playground
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Playground
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../playground/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TLV playground
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cxx-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/compilers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Compilers and build settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error codes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture and Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture and Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core-types/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core types
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../query-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query language contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic Format capability space
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Borrowed values
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../length/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logical lengths
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../endian/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Byte order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-native-boundary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ public/native boundary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ Format customization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cxx-builtins/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ built-in standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../runtime-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Runtime model and canonical IR
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../processing-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Processing pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architectural-rules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Core architectural rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../error-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Failure model design
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../format-contract/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Format and Element contract
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../definition-boundaries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Definition boundaries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/abi-compatibility/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C ABI compatibility
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-layout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Where documentation belongs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/documentation-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/fuzzing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fuzzing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/valgrind/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Valgrind checks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/reader-decode-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reader decode performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/cxx-facade-performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ facade performance
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/indefinite-boundary-reuse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Indefinite boundary reuse follow-up
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-release/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query release checklist
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-phase-audit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query phase implementation audit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/query-adversarial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Query adversarial verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rust bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/lua/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lua bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/go/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Go bindings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logo assets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-c-api-is-the-binding-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The C API is the binding boundary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-parity-through-the-public-facade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability parity through the public facade
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#capability-implementation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capability implementation matrix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Capability implementation matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-resumable-traversal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C++ resumable traversal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-reader-and-query-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Reader and Query facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rust-and-python-tree-writer-facades" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rust and Python Tree Writer facades
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#schema-constraints-and-bounded-reports" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Schema constraints and bounded reports
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#owning-documents-and-safe-handles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Owning Documents and safe handles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shared-concepts-and-intentional-differences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared concepts and intentional differences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adapting-ergonomics-not-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adapting ergonomics, not architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-across-current-bindings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status across current bindings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-package-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation package names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/marekcingel/OpenTLV/edit/main/docs/concepts/bindings.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<h1 id="common-conceptual-model-for-language-bindings">Common conceptual model for language bindings<a class="headerlink" href="#common-conceptual-model-for-language-bindings" title="Permanent link">&para;</a></h1>
+<p>OpenTLV ships a canonical C execution engine, the header-only idiomatic
+<code>tlv++</code> C++ API, and official experimental Rust, Python, Lua and Go bindings.
+All use the public C API as their interoperability boundary. WebAssembly is a
+narrow tooling embedding over the same engine. The
+<a href="../architecture/#conceptual-model">architecture overview</a> defines the concepts;
+this page is the canonical cross-language capability reference.</p>
+<p>This page is the design contract every official binding follows: the primary
+concepts below stay recognizable in every binding's public API, even where
+syntax and idiom differ.</p>
+<blockquote>
+<p>Bindings should preserve the OpenTLV conceptual model while adapting its
+ergonomics to the target language.</p>
+</blockquote>
+<h2 id="the-c-api-is-the-binding-boundary">The C API is the binding boundary<a class="headerlink" href="#the-c-api-is-the-binding-boundary" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>                    OpenTLV C API
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>                         |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    +----------+---------+---------+----------+----------+
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    |          |         |         |          |          |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>   C++       Rust        Go      Python      Lua        ...
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    |          |         |         |          |          |
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>idiomatic  idiomatic  idiomatic  idiomatic  idiomatic  idiomatic
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>   C++       Rust        Go       Python      Lua    &lt;language&gt;
+</code></pre></div>
+<p>All five language APIs expose Format, Element, Reader, Writer and owned
+Document processing. Their higher-level coverage differs as recorded below;
+Go includes Document Query and generic Value codecs, and Lua includes borrowed
+Query and checked Document Nodes. The trailing <code>...</code> stands for future bindings.</p>
+<p>The public OpenTLV C API (see the <a href="../../reference/c-api/">C API reference</a>) is
+the single language boundary every binding wraps. A binding calls into the C
+library directly for parsing, encoding, validation and codec work instead of
+reimplementing it, and it does not depend on another language's binding: the
+Rust crate does not sit on top of the C++ wrapper, and a future binding would
+not sit on top of Rust either. This keeps behavior identical across languages,
+since one C implementation backs every one of them, and lets each binding be
+built and shipped independently of the others. <code>tlv++</code> differs only in build
+shape, not in boundary: its facade is header-only, compiles against the public C
+headers and links the C library, without a separately compiled C++ facade library.
+It still wraps only the public C API. See <a href="../../guides/rust/#relationship-to-the-c-api">relationship to the C
+API</a> for how the Rust crate holds
+to this in practice.</p>
+<p>Deterministic wire generation (#503, #504) is currently available in native C and
+the C++ facade only, including a C++ generator with owned results and reusable
+scratch storage. Rust, Python, Lua, Go and WASM do not expose this capability;
+those facades are outside the first generator iteration.</p>
+<h2 id="capability-parity-through-the-public-facade">Capability parity through the public facade<a class="headerlink" href="#capability-parity-through-the-public-facade" title="Permanent link">&para;</a></h2>
+<p>The <a href="../processing-pipeline/">pipeline audit</a> describes selection of an already
+published subtree: C++ <code>document_builder::current_subtree(reader)</code>, Rust
+<code>DocumentBuilder::current_subtree</code> and Python <code>current_subtree=True</code> avoid pulling
+the selected root a second time.</p>
+<p>Every supported language binding must expose the complete capability set of
+the public C API through its public, idiomatic language facade. Access through
+raw FFI alone does not satisfy capability parity. Users must not need to bypass
+the facade to access advanced capabilities. Raw FFI may remain an internal
+implementation detail; exposing it publicly is not required.</p>
+<p>The call boundary is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Application
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    |
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Public idiomatic language facade
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    |
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Internal binding / FFI
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    |
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>Public C API and canonical C engine
+</code></pre></div>
+<p>These are responsibilities, not a requirement for separate packages. A native
+extension can implement the facade directly, and C++ can call C directly from
+its headers.</p>
+<p>The facade adapts calling conventions, ownership, lifetimes, iteration and
+error handling. Parsing, tree traversal, Query semantics, validation, value
+codecs and wire encoding must delegate to the canonical C engine. Bindings
+must not implement independent versions of those processing semantics.</p>
+<p>Parity covers single-element and sequential Readers and Writers, Tree Reader,
+incremental/resumable input, Reader and Writer diagnostics, source offsets and
+source information, Reader resource limits, subtree control, Visitor processing,
+Tree Writer, measurement, exact encoded copy and preservation, Query, Schema,
+Codec, Definition, Format, Layout and Document. It includes configuration and
+extension capabilities exposed by C, not just access to builtin presets.
+Compare bindings against the same enabled C components; a disabled optional
+component is distinct from an unimplemented binding capability.</p>
+<p>Convenience defaults and iterators may simplify ordinary use, but advanced
+operations must remain available through the facade. In particular, resumable
+reading must preserve the distinction between an element, a request for more
+input, final end of input and an error. An iterator must not make a resumable
+reader permanently exhausted merely because it needs more input.</p>
+<p>Preserve zero-copy access and borrowed lifetimes where the language supports
+them directly. Managed representations must keep backing storage alive or use
+documented copies, and must prevent access through invalidated native handles.
+Document intentional language-specific ownership and error-handling differences
+without treating missing functionality as an ergonomic difference.</p>
+<p>Capability tracking must identify the corresponding C operations, the public
+facade API and parity tests where practical. An FFI declaration without a public
+facade remains a gap. Tests should compare observable C semantics, including
+results, diagnostics, offsets, limits, incremental continuation and encoded
+bytes. The current coverage below is an implementation snapshot, not a claim
+that full parity has already been achieved. This contract is the long-term
+target; the matrix records current implemented workflows and remaining gaps.</p>
+<h2 id="capability-implementation-matrix">Capability implementation matrix<a class="headerlink" href="#capability-implementation-matrix" title="Permanent link">&para;</a></h2>
+<p>This is a current public-facade inventory, not the historical acceptance scope
+of a particular issue. <strong>Implemented</strong> means the named workflow has a public
+API, not complete coverage of every C overload. <strong>Partial</strong> names a restricted
+subset or a missing advanced operation. <strong>Missing</strong> means there is no public
+facade. Intentional copying, cleanup and error conventions are documented
+separately and do not close missing-operation gaps.</p>
+<p>Availability is another dimension: optional native components must be enabled.
+Python and Lua omit disabled presets; Go returns an unsupported error. Rust's
+native build does not yet offer the same per-protocol component selection and
+its <code>document</code> feature must match the linked C library. C++ headers follow the
+generated C configuration. Missing facade support is distinct from disabled
+native functionality; see <a href="../../guides/select-components/">component selection</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Capability / canonical C family</th>
+<th>C++</th>
+<th>Rust</th>
+<th>Python</th>
+<th>Lua</th>
+<th>Go</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Format (<code>tlv_format_t</code>)</td>
+<td>Implemented: traits, adapters and execution views</td>
+<td>Partial: presets and Fixed; no public custom callback adapter</td>
+<td>Partial: presets and Fixed</td>
+<td>Partial: presets and Fixed</td>
+<td>Partial: presets and Fixed; no custom callbacks</td>
+</tr>
+<tr>
+<td>Element / instance Layout (<code>tlv_element_t</code>, <code>tlv_source_t</code>)</td>
+<td>Implemented: borrowed semantic/source views</td>
+<td>Implemented: borrowed Element and Decoded</td>
+<td>Implemented: Element and Decoded; retained immutable backing</td>
+<td>Partial: copied Element tables and source detail</td>
+<td>Implemented: borrowed slices and Source; Clone owns bytes</td>
+</tr>
+<tr>
+<td>Single-element read (<code>tlv_read*</code>)</td>
+<td>Implemented: <code>read</code></td>
+<td>Implemented: <code>read</code>, <code>read_fixed</code></td>
+<td>Implemented: <code>read</code></td>
+<td>Missing standalone facade</td>
+<td>Missing standalone facade; use Reader</td>
+</tr>
+<tr>
+<td>Sequential Reader (<code>tlv_reader_*</code>)</td>
+<td>Implemented: typed <code>reader</code> and ranges</td>
+<td>Implemented: <code>Reader</code></td>
+<td>Implemented: <code>Reader</code></td>
+<td>Implemented: <code>reader</code></td>
+<td>Implemented: <code>Reader</code></td>
+</tr>
+<tr>
+<td>Resumable Reader (<code>init_incremental</code>, <code>set_input</code>)</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
+<td>Implemented: <code>NewIncrementalReader</code>, <code>SetInput</code></td>
+</tr>
+<tr>
+<td>Tree Reader / events (<code>tlv_tree_reader_*</code>)</td>
+<td>Implemented: items, events, limits and skip</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Partial: tree Visitor, no pull/event cursor</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Resumable Tree Reader</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Visitor (<code>tlv_reader_visit*</code>, <code>tlv_tree_reader_visit*</code>)</td>
+<td>Implemented: Reader and Tree Reader callbacks</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Partial: complete-buffer tree Visitor</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Sequential Writer (<code>tlv_writer_*</code>)</td>
+<td>Implemented: typed Writer, explicit output</td>
+<td>Implemented: fixed output</td>
+<td>Implemented: fixed or growable output</td>
+<td>Implemented: bounded output</td>
+<td>Implemented: fixed or growable output</td>
+</tr>
+<tr>
+<td>Tree Writer (<code>tlv_tree_writer_*</code>)</td>
+<td>Implemented: events, begin/end and scoped Builder</td>
+<td>Implemented: events, measure and Tag capacity</td>
+<td>Implemented: events, measure and Tag capacity</td>
+<td>Partial: begin/end, no public event/measure facade</td>
+<td>Partial: staged Begin/End; no public event facade</td>
+</tr>
+<tr>
+<td>Copy/preservation (<code>tlv_writer_copy_encoded*</code>, <code>tlv_source_preserve</code>)</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Reader/Writer diagnostics</td>
+<td>Implemented: native structured detail with C++ operation errors</td>
+<td>Implemented: owned snapshots</td>
+<td>Implemented: structured exceptions</td>
+<td>Implemented for exposed Reader/Writer operations: owned tables</td>
+<td>Implemented for exposed operations: owned ParseError/WriteError</td>
+</tr>
+<tr>
+<td>Borrowed Query (<code>tlv_query_*</code>)</td>
+<td>Implemented: Query and resumable matcher</td>
+<td>Implemented: Query, format and matcher reset/rebind</td>
+<td>Implemented: Query and matcher reset/rebind</td>
+<td>Implemented: Query and resumable owned Reader/matcher</td>
+<td>Implemented: bounded Query, format and explicit event matcher/reset/rebind</td>
+</tr>
+<tr>
+<td>Document Query</td>
+<td>Implemented: V1 first/all and compiled selection, checked snapshots, explicit workspace evaluation</td>
+<td>Partial: <code>find_path</code> / <code>find_path_mut</code> first match</td>
+<td>Partial: <code>find_path</code> first match</td>
+<td>Implemented: first match and Query results</td>
+<td>Implemented: <code>Document.Query</code> all matches</td>
+</tr>
+<tr>
+<td>Full compiled S0/S1/S2/D Query</td>
+<td>Checked compilation, typed composition, variables, environments, scalar/resumable execution and checked Document results</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, shared configured Fixed owner, source events/ordinals, Document edits and Schema</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, configured Formats, source events/ordinals, Document edits and Schema</td>
+<td>Checked programs/execution, providers, Tag/resolver adapters, configured Fixed, source events/ordinals, Document edits and Schema</td>
+</tr>
+<tr>
+<td>Schema (<code>tlv/schema/</code>)</td>
+<td>Partial: C schema descriptions with validation helpers and contextual Query assertions</td>
+<td>Partial: length/structure schemas, detailed reports and Query Schema</td>
+<td>Partial: length/structure schemas, detailed reports and Query Schema</td>
+<td>Partial: structural schemas/reports and Query Schema; no standalone length-schema facade</td>
+<td>Partial: contextual Query Schema; structural schemas/reports missing</td>
+</tr>
+<tr>
+<td>Value Codec (<code>tlv/codec/</code> and built-ins)</td>
+<td>Partial: generic typed codecs/fields and standard conveniences; no claim of every C descriptor</td>
+<td>Partial: configured NumberCodec and EMV codecs</td>
+<td>Partial: configured NumberCodec and EMV amount</td>
+<td>Partial: generic/configured codecs, EMV and custom callbacks</td>
+<td>Partial: generic typed codecs; no protocol/custom/Structure codecs</td>
+</tr>
+<tr>
+<td>Structure Codec (<code>tlv_structure_codec_t</code>)</td>
+<td>Implemented: application-object adapters</td>
+<td>Missing</td>
+<td>Missing</td>
+<td>Missing</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Definition / dictionaries (<code>tlv_definition_*</code>)</td>
+<td>Partial: generic registry and standard lookups</td>
+<td>Partial: generic registry and EMV dictionary</td>
+<td>Partial: generic registry</td>
+<td>Missing generic facade</td>
+<td>Missing</td>
+</tr>
+<tr>
+<td>Field Encoding / Format composition configuration</td>
+<td>Partial: custom Format can compose C through explicit interop; no complete idiomatic configuration facade</td>
+<td>Missing general configuration facade</td>
+<td>Missing general configuration facade</td>
+<td>Missing general configuration facade</td>
+<td>Missing general configuration facade</td>
+</tr>
+<tr>
+<td>Owned mutable Document (<code>tlv_document_*</code>)</td>
+<td>Implemented: RAII, Node, edit, encode; native allocator options</td>
+<td>Partial: Document/Node/NodeMut; no allocator adaptation</td>
+<td>Partial: safe Node handles; no allocator adaptation</td>
+<td>Partial: checked Nodes and edits; no allocator adaptation</td>
+<td>Partial: copied Node content, edits and Close; no allocator adaptation</td>
+</tr>
+<tr>
+<td>Resumable Document Builder</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Implemented</td>
+<td>Missing</td>
+<td>Missing</td>
+</tr>
+</tbody>
+</table>
+<p>Audit evidence is the public facade and consumer tests, rather than raw FFI:</p>
+<table>
+<thead>
+<tr>
+<th>Language</th>
+<th>Public implementation</th>
+<th>Consumer/parity tests</th>
+<th>User guide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/tlv++/include/tlv++">headers</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/tests/unit/reader">reader</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/tests/unit/writer">writer</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/tests/unit/document">document</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/tests/unit/codec">codecs</a></td>
+<td><a href="../../guides/cxx-examples/">C++ examples</a></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/rust/opentlv/src">opentlv/src</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/rust/opentlv/tests">opentlv/tests</a></td>
+<td><a href="../../guides/rust/">Rust</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/python/opentlv/src/opentlv">opentlv facade</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/python/opentlv/tests">facade tests</a></td>
+<td><a href="../../guides/python/">Python</a></td>
+</tr>
+<tr>
+<td>Lua</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/lua/src">facade adapters</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/lua/tests">consumer tests</a></td>
+<td><a href="../../guides/lua/">Lua</a></td>
+</tr>
+<tr>
+<td>Go</td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/go">public package</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/tests/reader_test.go">public tests</a>, <a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/go/internal/capi">boundary tests</a></td>
+<td><a href="../../guides/go/">Go</a></td>
+</tr>
+</tbody>
+</table>
+<p>WASM includes both the parse-to-JSON tooling embedding and an owning compiled
+Query/Document facade. Its Query facade provides configured/custom Formats,
+Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
+ordinals and bounded V1 path queries. General Reader/Writer parity remains a
+separate concern. Java remains future work. Exact signatures
+belong in generated references and binding source documentation; this matrix
+records supported workflows and their limits. Do not treat an experimental
+label or raw FFI declaration as proof of parity.</p>
+<h3 id="c-resumable-traversal">C++ resumable traversal<a class="headerlink" href="#c-resumable-traversal" title="Permanent link">&para;</a></h3>
+<p><code>tlv::reader&lt;&gt;</code> and <code>tlv::tree_reader</code> accept <code>tlv::input_mode::incremental</code>.
+Their <code>next</code> operations return <code>expected</code> results with the original C codes:
+<code>TLV_NEED_MORE_DATA</code> is resumable and <code>TLV_END</code> is final exhaustion.
+Use <code>set_input</code> to replace the contiguous input window and declare final input;
+<code>consumed</code> bounds the discardable prefix and <code>offset</code> remains absolute.</p>
+<p>Tree Reader takes a borrowed <code>span&lt;tree_frame&gt;</code> plus depth and item limits.
+<code>next</code> returns the complete borrowed Element, source ranges, depth, absolute
+offset and constructed classification together. <code>skip_subtree</code> can avoid
+descent even after a depth or frame limit error. Tree Reader is noncopyable
+because copying would alias its mutable frame storage.</p>
+<p>Both Readers expose <code>visit</code> for language callables, backed by the C Visitor
+engine. <code>query_matcher</code> owns a copy of its parsed <code>query</code> and exposes <code>matches</code>
+for externally supplied preorder items and <code>visit</code> for a <code>tree_reader</code>.
+Retain the matcher across STOP and input replacement; do not interleave
+unmatched pulls with Query traversal. The matcher is noncopyable to keep its
+native reference to the owned query stable.</p>
+<h2 id="rust-and-python-reader-and-query-facades">Rust and Python Reader and Query facades<a class="headerlink" href="#rust-and-python-reader-and-query-facades" title="Permanent link">&para;</a></h2>
+<p>Rust <code>Reader::incremental</code> and Python <code>Reader(..., final_input=False)</code> use the
+canonical C sequential cursor. Rust <code>read_source</code> and Python <code>read_source</code>
+return content and original source ranges in one decode. <code>TreeReader</code> in both
+languages yields complete preorder items containing source metadata, depth,
+absolute offset and constructed classification. Frame capacity, maximum depth
+and item count are explicit constructor options. <code>skip_subtree</code> delegates to C,
+including recovery after a descent limit failure.</p>
+<p><code>set_input</code> checks that undiscarded bytes remain identical before asking C to
+replace the window. <code>consumed</code> bounds the discardable prefix, while <code>offset</code>
+remains absolute. NEED_MORE_DATA remains distinct from final EOF and malformed
+input. Rust returns <code>Error::NeedMoreData</code>; Python raises <code>NeedMoreDataError</code>.
+Neither outcome permanently exhausts the incremental iterator. Sequential
+convenience iterators still stop after a terminal error; explicit source pulls
+remain available for advanced cursor control.</p>
+<p>Rust borrows input and Fixed configuration through lifetimes; retained items
+can outlive the cursor but not their storage. Frame storage is owned by the
+Tree Reader. Rust diagnostics copy borrowed diagnostic fields into owned values.
+Python retains immutable bytes without copying them; bytearray, memoryview and
+other buffer inputs are snapshotted into bytes. Returned memoryviews keep old
+storage alive across cursor destruction and input replacement. This deliberately
+changes Python's former borrowing of mutable input, making source metadata stable.</p>
+<p>Both languages expose <code>visit</code> on Readers and Tree Readers. Sequential callbacks
+receive an Element; tree callbacks also receive depth and absolute offset.
+Callbacks return <code>Visit</code> actions; Python also accepts None as CONTINUE. All
+iteration is performed by C Visitor functions. Python callbacks receive owned
+snapshots, and reentry into the active cursor is rejected. Rust callbacks borrow
+immutable input, and panics are caught before the C boundary and resumed after
+C returns. Python exceptions likewise propagate after the C adapter returns.
+STOP preserves canonical continuation; callback effects are never rolled back.</p>
+<p><code>Query</code> parses through C and exposes path steps. <code>QueryMatcher</code> owns a stable
+copy of its Query and provides <code>matches</code> and <code>visit</code>. Keep the same matcher
+across STOP and input replacement; do not interleave unmatched pulls. Python
+<code>Query.visit_buffer</code> composes the same C Tree Reader and Query matcher for
+complete input. No language implements its own query grammar or matching rules.</p>
+<p>Parity scenarios are exercised in <code>bindings/rust/opentlv/tests/tree_reader.rs</code>
+and <code>bindings/python/opentlv/tests/test_tree_reader.py</code>. Writer and Document
+coverage gaps remain tracked separately in the matrix above.</p>
+<h2 id="rust-and-python-tree-writer-facades">Rust and Python Tree Writer facades<a class="headerlink" href="#rust-and-python-tree-writer-facades" title="Permanent link">&para;</a></h2>
+<p><code>TreeWriter</code> in both languages delegates begin, write, end, finish and finalized
+output sizing to the C Tree Writer. Frame capacity, maximum item depth and
+element count are explicit. Scratch capacity bounds the largest parent Value
+that can be closed. Output and scratch do not grow implicitly.</p>
+<p>Rust borrows caller-owned output exclusively and owns stable frame/scratch
+storage. Python owns all these buffers and returns copied finalized bytes.
+Both retain immutable copies of open tags until a successful <code>end</code>; temporary
+language tag objects can therefore expire safely after <code>begin</code>. Neither facade
+implements header patching, encoding or a second tree construction engine.</p>
+<p>Rust <code>written</code> and Python <code>bytes()</code> expose only the finalized prefix, excluding
+open roots. <code>finish</code> rejects unclosed parents without sealing the cursor.
+Failures preserve the C operation's state/output guarantees. Rust exposes owned
+<code>WriterDiagnostic</code> detail and Python uses structured exceptions. Tests in
+<code>bindings/rust/opentlv/tests/tree_writer.rs</code> and
+<code>bindings/python/opentlv/tests/test_tree_writer.py</code> cover open-tag ownership,
+BER/CER output, item limits and scratch exhaustion.</p>
+<p>C++ <code>measure_tree</code>, Rust <code>TreeWriter::measure</code> and Python <code>TreeWriter.measure</code>
+consume semantic preorder records through <code>tlv_tree_writer_measure</code>. C owns
+parent closure, depth validation and content-dependent encoding. Successful
+measurement stages the actual bytes, so they can be reused without replay.
+C++ returns a size into caller-owned workspace; Rust returns a borrowed staged
+slice; Python returns immutable copied bytes. Source errors and native Writer
+errors propagate. Rust catches source panics before crossing C and resumes
+unwinding afterwards; Python propagates source exceptions after C returns.
+On exhaustion, workspace requirements are discovered lower bounds, not the
+final size prediction. Retrying requires a fresh source.</p>
+<p>Rust <code>Writer::preserve</code> and Python <code>Writer.preserve</code> append unchanged source
+bytes through C equality checks. <code>Decoded::preserve</code>/<code>Decoded.preserve_into</code>
+provide standalone preservation. Python retains both the immutable input and
+the native Format owner across cursor replacement or destruction. Changed
+semantic content is rejected; raw <code>copy_encoded</code> intentionally does not validate.</p>
+<h2 id="schema-constraints-and-bounded-reports">Schema constraints and bounded reports<a class="headerlink" href="#schema-constraints-and-bounded-reports" title="Permanent link">&para;</a></h2>
+<p>Lua <code>schema:validate(data, format, options)</code> delegates to the same C report
+validator. It snapshots rule/group descriptions, retains child schemas and
+returns owned diagnostic tables. Schema violations return bounded reports;
+fatal wire/configuration errors return a single basic diagnostic, including
+only the location/context available from C. See the
+<a href="../../guides/lua/#structural-schemas">Lua Schema guide</a>.</p>
+<p>Rust <code>StructureSchema::with_constraints</code> and Python <code>StructureSchema</code> accept
+<code>SchemaOrder</code> and <code>StructureGroup</code> descriptions. Each rule may select a group
+and set native length flags and multiples. C validates rule-table ordering,
+group identity, occurrence totals and all length policies; bindings only retain
+or marshal the descriptions. Rust keeps stable group storage when schemas move.</p>
+<p><code>StructureSchema.validate_diagnostics</code> in both languages uses the C diagnostic report validator.
+<code>UnknownPolicy</code> controls unknown-tag handling. A report retains at most the
+requested capacity while <code>total_count</code> reports every violation, including at
+zero capacity. Diagnostics own copied Tags, optional offsets and native issue names.
+Reports survive input and schema destruction. Schema
+violations return a report; malformed wire input and invalid configuration
+still fail. <code>validate_diagnostics</code> returns owned expected/actual length,
+occurrence and form constraints, group identity, severity, field names and
+source offsets. Its path contains enclosing scopes; the affected Tag is a
+separate field, matching the C diagnostic contract. Rust <code>validate_fixed</code> and
+<code>validate_diagnostics_fixed</code> accept a borrowed
+<code>FixedFormat</code>; Python accepts <code>FixedFormat</code> through the same <code>format</code> argument.</p>
+<p><code>NumberCodec</code> in Rust and Python selects binary big/little endian or BCD,
+fixed/minimal width and BCD precision. Decode, encode, size queries and writing
+into caller storage delegate to the C numeric codec. It interprets Values only;
+it does not attach protocol tags or field-length rules.</p>
+<p><code>DefinitionRegistry</code> owns immutable generic definitions in Rust and Python;
+C++ <code>definition_registry</code> borrows the caller's table. All three use the C lookup,
+including first-match behavior for duplicate identifiers and empty identifiers.
+Definition contains only a canonical identifier and optional descriptive name.
+It does not select codecs, validate fields or resolve protocol context.</p>
+<h2 id="owning-documents-and-safe-handles">Owning Documents and safe handles<a class="headerlink" href="#owning-documents-and-safe-handles" title="Permanent link">&para;</a></h2>
+<p>Rust's default-enabled <code>document</code> Cargo feature exposes <code>Document</code>, immutable
+<code>Node</code>, exclusive <code>NodeMut</code>, and <code>DocumentBuilder</code>. Disable it when linking C
+without <code>OPENTLV_DOCUMENT</code>. C owns parsing, navigation, Query lookup, edits,
+measurement and destination-format encoding. Immutable node/value borrows
+prevent document mutation or destruction. Mutable navigation consumes its
+handle; temporary immutable views block mutation until they expire. Fixed
+configuration is borrowed for the document lifetime.</p>
+<p>Python <code>Node</code> retains its Document and checks ownership metadata before each
+native access. Erasure invalidates the node and all descendants; replacing a
+constructed Value invalidates old descendants only after successful mutation.
+Unrelated handles and the replaced parent remain usable. Closing the document
+invalidates all handles. Invalid access and foreign-document arguments raise
+<code>ValueError</code> before dereferencing native storage. Ownership tokens follow
+parent relationships obtained from C; they do not parse or process TLV trees.
+Invalidation is armed before native mutation and rolled back on a reported C
+failure; asynchronous interruption may conservatively invalidate handles even
+if the operation did not complete, preventing stale access after an interrupt.</p>
+<p>Both languages expose the canonical resumable Document builder. Whole-stream
+materialization requires a fresh Tree Reader. The next-subtree operation pulls
+one root then copies exactly that subtree without decoding its following
+sibling. NEED_MORE_DATA retains unfinished state; terminal failure discards
+it. Rust borrows the reader exclusively and permits input replacement through
+the builder. Python rejects pulls/skips/visitors while a builder is active but
+allows <code>reader.set_input</code> and status queries. Closing or dropping the builder
+releases its reader; completed documents survive. Python retains the native
+cursor as the Format owner for such documents. Rust conservatively retains the
+reader's combined input/Format lifetime in the resulting Document.</p>
+<p>Python <code>Document.encode(format)</code> and <code>Node.encode(format)</code> support builtin
+destination formats, with <code>encoded_size_as</code> for measurement. Rust also offers
+caller-owned output and reports required capacity on shortage. Remaining
+configuration/allocator differences remain tracked coverage gaps and are
+not yet exposed by their public facades.</p>
+<h2 id="shared-concepts-and-intentional-differences">Shared concepts and intentional differences<a class="headerlink" href="#shared-concepts-and-intentional-differences" title="Permanent link">&para;</a></h2>
+<p>Format describes wire representation; Layout locates an encoded instance;
+Element holds its Tag and logical Value. Schema describes structural rules and
+Codec interprets Value. Reader/Writer, traversal, Query and Document consume
+these contracts as described in the <a href="../architecture/">canonical architecture</a>.</p>
+<p>Borrowed C/C++/Rust views preserve storage lifetimes explicitly. Python retains
+immutable bytes and snapshots mutable input; Lua copies bytes into strings;
+Go Elements borrow slices while Node content and diagnostics are copied.
+These are language ergonomics, not different TLV representations. Document
+owns data in every binding, with language-specific cleanup and invalidation.
+See each language's guide for the actual allocation and lifetime boundaries.</p>
+<h2 id="adapting-ergonomics-not-architecture">Adapting ergonomics, not architecture<a class="headerlink" href="#adapting-ergonomics-not-architecture" title="Permanent link">&para;</a></h2>
+<p>Bindings must adapt syntax and behavior to the conventions of their target
+language; they must not introduce a different conceptual architecture to do
+it. For example:</p>
+<ul>
+<li>Rust's <code>Reader</code> implements <code>Iterator&lt;Item = Result&lt;Element&gt;&gt;</code>, so callers
+  write <code>for element in reader { ... }</code> instead of an explicit <code>at_end()</code>/
+  <code>next()</code> loop. <code>tlv++</code> offers range iteration through <code>tlv::parse</code> and built-in <code>parse</code>
+  helpers, alongside explicit pulls and <code>reader.visit</code> / <code>tree_reader.visit</code>.</li>
+<li>Python's <code>Reader</code> iterates the same reader concept with
+  <code>for element in reader:</code>, and raises a native <code>Exception</code> subclass instead of
+  returning an error code.</li>
+<li>Lua's <code>Reader</code>, returned by <code>opentlv.reader()</code>, is directly usable as a
+  generic-for iterator (<code>for element in reader do ... end</code>) via Lua's <code>__call</code>
+  metamethod, rather than a separate iterator protocol; it raises a plain
+  table via <code>error()</code> instead of an exception object, since Lua has no
+  exception hierarchy to subclass.</li>
+<li>Rust's and <code>tlv++</code>'s <code>Writer</code> fill a caller-provided fixed-capacity buffer
+  and report an error when an element does not fit, matching the C library's
+  allocation-free <code>tlv_writer_t</code>. Python's <code>Writer(format, buffer=storage)</code>
+  borrows writable contiguous storage with the same capacity and position
+  semantics. Omitting <code>buffer</code> retains the growable <code>bytearray</code> convenience
+  wrapper. Exact Element sizing is available before allocating output in C,
+  C++, Rust and Python; see the <a href="../../guides/memory/#writing">allocation contract</a>.</li>
+<li><code>tlv_document_t</code> is explicitly freed with <code>tlv_document_free()</code> in C, and
+  by RAII (<code>tlv::document</code>'s destructor) in <code>tlv++</code>. Python's <code>Document</code>
+  frees the same underlying allocation either way: deterministically via
+  <code>close()</code> or a <code>with</code> block, the closest Python equivalent to RAII, or
+  otherwise whenever garbage collection reclaims it. Ownership (the document
+  owns every node, tag and value in it) is the same in every binding; only
+  how and when that ownership ends differs.</li>
+<li>Go exposes <code>Reader.Next()</code> as a boolean, the current <code>Element()</code> as a
+  borrowed view, and <code>Reader.Err()</code> after iteration. Fallible constructors,
+  writes and Document operations return errors through Go's normal conventions;
+  <code>errors.Is</code> and <code>errors.As</code> retain native status and diagnostic context.</li>
+<li>A future JavaScript binding could expose a reader as a JS iterable and
+  surface failures as native exceptions.</li>
+</ul>
+<p>The syntax changes; the concepts (a read-only, one-pass <code>Reader</code> yielding
+<code>Element</code> values) do not.</p>
+<h2 id="status-across-current-bindings">Status across current bindings<a class="headerlink" href="#status-across-current-bindings" title="Permanent link">&para;</a></h2>
+<p>Capability status is recorded once in the matrix above. Packaging and user
+entry points are:</p>
+<table>
+<thead>
+<tr>
+<th>Language / consumer</th>
+<th>Packaging and maturity</th>
+<th>Usage</th>
+<th>Development</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C++</td>
+<td>Header-only C++11 facade shipped with OpenTLV; links the C engine</td>
+<td><a href="../../guides/cxx-examples/">C++ examples</a></td>
+<td><a href="../cxx-native-boundary/">Public/native contract</a></td>
+</tr>
+<tr>
+<td>Rust</td>
+<td>Experimental <code>opentlv</code> facade plus <code>opentlv-sys</code> FFI crate</td>
+<td><a href="../../guides/rust/">Rust guide</a></td>
+<td><a href="../../development/rust/">Rust development</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>Experimental <code>opentlv</code> facade plus <code>opentlv-core</code> extension</td>
+<td><a href="../../guides/python/">Python guide</a></td>
+<td><a href="../../development/python/">Python development</a></td>
+</tr>
+<tr>
+<td>Lua</td>
+<td>Experimental <code>opentlv</code> module with native <code>opentlv._core</code> implementation</td>
+<td><a href="../../guides/lua/">Lua guide</a></td>
+<td><a href="../../development/lua/">Lua development</a></td>
+</tr>
+<tr>
+<td>Go</td>
+<td>Experimental public <code>opentlv</code> package with private <code>internal/capi</code> bridge</td>
+<td><a href="../../guides/go/">Go guide</a></td>
+<td><a href="../../development/go/">Go development</a></td>
+</tr>
+<tr>
+<td>WebAssembly</td>
+<td>Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete</td>
+<td><a href="../../development/webassembly/">WASM tooling</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/bindings/wasm">WASM sources</a></td>
+</tr>
+</tbody>
+</table>
+<p>Language-specific copying, cleanup, errors and current limitations are documented
+in those guides; an experimental label neither implies full parity nor excuses
+an undocumented missing capability.</p>
+<h2 id="implementation-package-names">Implementation package names<a class="headerlink" href="#implementation-package-names" title="Permanent link">&para;</a></h2>
+<p>The binding boundary is shared; implementation names follow each language.
+Rust uses the raw FFI crate <code>opentlv-sys</code> (<code>opentlv_sys</code> in code). Python uses
+the private extension module <code>_opentlv</code>, distributed as <code>opentlv-core</code>. Lua
+loads <code>opentlv._core</code> from <code>opentlv/_core</code> under its native module search path.
+Go keeps its C bridge in <code>internal/capi</code>; <code>internal</code> enforces the private import
+boundary, while <code>capi</code> describes the package responsibility. Applications use
+the public <code>opentlv</code> facade in each language.</p>
+<p>For existing checkouts, update Rust dependencies from <code>opentlv-native</code> to
+<code>opentlv-sys</code> and raw imports from <code>opentlv_native</code> to <code>opentlv_sys</code>. Python
+install commands now use <code>bindings/python/opentlv-core</code>; code directly using
+the implementation extension imports <code>_opentlv</code>. Lua installation places the
+compiled module under <code>opentlv/_core</code>, and direct implementation imports use
+<code>require("opentlv._core")</code>. Public facade imports remain <code>opentlv</code>.</p>
+<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../architecture/">Layered architecture</a> for how these concepts are
+  organized inside the C library and <code>tlv++</code> itself.</li>
+<li><a href="../../reference/c-api/">C API reference</a> and <a href="../../reference/cxx-api/">C++ API
+  reference</a>.</li>
+<li><a href="../../guides/rust/">Using OpenTLV from Rust</a> for a worked example of a
+  binding that follows this contract.</li>
+</ul>
+<p>Compiled full-language Query execution (<code>tlv_query_program_*</code>, S0/S1/S2 and the
+compiled Document backend) is exposed through each language facade. Public-facade
+runners in <code>tests/query/</code> compare the common language corpus against the independent
+oracle. Separate consumer tests cover custom conversion providers, completed
+selection edits, contextual Query Schema assertions, semantic Tag callbacks,
+dynamic/Definition/EMV resolvers, configured Fixed Formats and checked resolver
+stability. Query accepts each binding's existing Format configurations; general
+custom framing adapters remain a separate matrix row. Owning wrappers adapt
+storage according to their language contracts. See the
+<a href="../../development/query-release/">Query release requirements</a> for candidate gates.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../guides/lua/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Using OpenTLV from Lua">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Using OpenTLV from Lua
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../guides/go/" class="md-footer__link md-footer__link--next" aria-label="Next: Using OpenTLV from Go">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Using OpenTLV from Go
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/marekcingel/OpenTLV" target="_blank" rel="noopener" title="OpenTLV on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.action.edit", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"alias": true, "provider": "mike"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../../playground/playground.js" type="module"></script>
+      
+    
+  </body>
+</html>
