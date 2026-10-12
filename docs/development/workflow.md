@@ -44,7 +44,6 @@ question, so the expensive checks stay off the path of everyday development.
 | WebAssembly build and smoke test | if `tlv`, WebAssembly or CMake changed | yes | yes |
 | WebAssembly reproducibility (two builds, identical hashes) | | | yes |
 | Documentation validation | if documentation or public headers changed | yes | yes |
-| Documentation publishing | | `latest` | `stable` (not for `-rc` tags) |
 
 "If ... changed" rows use path filters, so a pull request that touches only
 documentation does not build the C library and a pull request that touches only
@@ -91,10 +90,11 @@ scope; its PR check is not required for merging.
 3. Fix anything the release candidate finds on `main` and tag `1.0.0-rc.2`,
    and so on.
 4. Tag the release, for example `1.0.0`. The same checks run again on the
-   released commit and the versioned documentation is published.
+   released commit. Documentation publication is a separate operation in the
+   standalone portal and is not a Core release prerequisite.
 
-Push release tags in ascending order, because the most recently published tag
-becomes `stable` (see [Publishing](../../CONTRIBUTING.md#publishing)).
+The portal selects a Core tag explicitly for release documentation. See
+[Publishing](../../CONTRIBUTING.md#publishing) for version selection.
 
 ## Running the checks locally
 

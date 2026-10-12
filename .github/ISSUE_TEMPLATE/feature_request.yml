@@ -8,10 +8,10 @@ body:
     attributes:
       value: |
         Thanks for proposing an improvement. Please search
-        [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+        [existing issues](https://github.com/OpenTLV/opentlv/issues) first.
 
         For substantial API or architecture changes, expect a design discussion
-        before implementation - see [CONTRIBUTING.md](https://github.com/marekcingel/OpenTLV/blob/main/CONTRIBUTING.md).
+        before implementation - see [CONTRIBUTING.md](https://github.com/OpenTLV/opentlv/blob/main/CONTRIBUTING.md).
   - type: textarea
     id: motivation
     attributes:

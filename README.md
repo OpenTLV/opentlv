@@ -1,7 +1,7 @@
 ![OpenTLV - Tag, Length, Value](docs/assets/opentlv.svg)
 
-[![Build and tests](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/build-gcc.yml)
-[![Documentation](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml/badge.svg?branch=main)](https://github.com/marekcingel/OpenTLV/actions/workflows/docs.yml)
+[![Build and tests](https://github.com/OpenTLV/opentlv/actions/workflows/build-gcc.yml/badge.svg?branch=main)](https://github.com/OpenTLV/opentlv/actions/workflows/build-gcc.yml)
+[![Documentation](https://github.com/OpenTLV/opentlv-docs/actions/workflows/docs.yml/badge.svg?branch=main)](https://opentlv.github.io/opentlv-docs/)
 
 **Read, write and inspect binary Tag-Length-Value data.**
 
@@ -62,8 +62,8 @@ and the lifetime rules needed to use them safely.
 ## Build and integrate
 
 ```sh
-git clone https://github.com/marekcingel/OpenTLV.git
-cd OpenTLV
+git clone https://github.com/OpenTLV/opentlv.git
+cd opentlv
 cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --parallel
 ```
@@ -74,6 +74,10 @@ See [integration and installation](docs/getting-started/README.md) for CMake
 consumer targets, runtime libraries and binding-specific setup.
 
 ## Documentation
+
+Read the [documentation portal](https://opentlv.github.io/opentlv-docs/) for
+versioned guides and generated C/C++ API references. Technical Markdown remains
+in this repository; the links below also work when browsing the sources.
 
 - [Start here](docs/index.md): choose a language or tool and follow the learning path.
 - [Read, write or edit](docs/guides/processing.md): choose an API for your task.
@@ -92,7 +96,7 @@ four architectural phases: Execution
 Foundation, Runtime Model & OTLV, Protocol Inference, and Compilation. The latter
 three are planned capabilities built on the same execution contracts; phase
 numbers are independent of SemVer major versions.
-See [releases](https://github.com/marekcingel/OpenTLV/releases) and
+See [releases](https://github.com/OpenTLV/opentlv/releases) and
 [the changelog](CHANGELOG.md) for version history.
 
 OpenTLV is distributed under the [MIT license](LICENSE).

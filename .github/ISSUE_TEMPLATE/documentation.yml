@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         Thanks for helping improve the docs. Please search
-        [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+        [existing issues](https://github.com/OpenTLV/opentlv/issues) first.
   - type: input
     id: area
     attributes:

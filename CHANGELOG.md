@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Move documentation publication to the standalone portal while retaining independent Core Markdown checks and C/C++ API generation; update repository and documentation links and document the cutover and historical URL policy. (#608)
+
 ### Added
 
 - Documentation ownership rules and a source inventory defining Core, binding, tool and portal responsibilities, transitional exceptions, and link preservation requirements for the independent documentation portal. (#605)

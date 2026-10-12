@@ -27,7 +27,7 @@ discussions, or pull requests.** Publicly disclosing an unresolved
 vulnerability puts users of OpenTLV at risk before a fix is available.
 
 Instead, use
-[GitHub Private Vulnerability Reporting](https://github.com/marekcingel/OpenTLV/security/advisories/new)
+[GitHub Private Vulnerability Reporting](https://github.com/OpenTLV/opentlv/security/advisories/new)
 for this repository (Security tab -> Report a vulnerability). If private
 reporting is unavailable to you, contact the maintainer through the profile
 contact information at <https://github.com/marekcingel> and mark the report as

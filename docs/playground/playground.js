@@ -187,7 +187,7 @@ async function start() {
   let opentlv;
   let hexToBytes;
   try {
-    // The WebAssembly files are published next to this script (tools/docs/hooks.py).
+    // The standalone portal publishes the WebAssembly files next to this script.
     const base = new URL("./wasm/", import.meta.url);
     const module = await import(new URL("opentlv.mjs", base));
     hexToBytes = module.hexToBytes;

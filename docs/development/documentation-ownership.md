@@ -88,7 +88,7 @@ structure; this table records ownership rather than replacing that audit.
 | --- | --- | --- |
 | [README.md](../README.md) | Core | Keep: repository documentation entry point |
 | [index.md](../index.md) | Portal | Portal: unified user landing page; retain a Core entry point when moved |
-| [assets/README.md](../assets/README.md) | Portal | Portal: shared visual assets |
+| [assets/README.md](../assets/README.md) | Core / Portal | Retained Core README logo; shared site variants are maintained in the portal |
 | [cli/README.md](../cli/README.md) | CLI | Component |
 | [cli/json-schema.md](../cli/json-schema.md) | CLI | Component: CLI JSON representation |
 | [concepts/architecture.md](../concepts/architecture.md) | Core | Mixed: repository map includes consumers |
@@ -182,10 +182,10 @@ API generation inputs and portal code.
 
 | Source / artifact | Owner and disposition |
 | --- | --- |
-| `favicon.svg`, `logo-mark.svg`, `opentlv.svg`, `opentlv-light.svg`, `opentlv-dark.svg` (all under `docs/assets/`) | Portal: move the shared site assets with their presentation configuration; preserve other repository users |
+| `docs/assets/opentlv.svg` and `docs/assets/README.md` | Retain the Core README logo and attribution; shared visual design, favicon, header mark and variants are maintained in the portal |
 | `docs/playground/playground.js`, `docs/playground/playground.css` | Portal: browser UI and styling; WebAssembly implementation remains component-owned |
-| `mkdocs.yml`, `requirements-docs.txt`, `tools/docs/hooks.py`, `tools/docs/overrides/main.html` | Portal: configuration, dependencies, source-link rewriting, generated artifact integration and version banner |
-| `.github/workflows/docs.yml` | Mixed: portal build/mike publication and current orchestration of component artifacts/checks; separate before removal |
+| `mkdocs.yml`, `requirements-docs.txt`, `tools/docs/hooks.py`, `tools/docs/overrides/main.html` in the portal repository | Portal: configuration, dependencies, source-link rewriting, generated artifact integration and version banner; removed from Core by #608 |
+| `.github/workflows/docs-validation.yml` | Core: read-only Markdown, example/inventory and Doxygen validation with API artifacts; replaces the removed `docs.yml` publisher |
 | `tools/docs/Doxyfile.in`, `Doxyfile.cxx.in`, `Doxyfile.common.in`, `c-api.dox`, `cxx-api.dox` (all under `tools/docs/`) | Core: independent C/C++ extraction configuration, groups and landing pages; preserve C/C++ cross-links and `@docs` links when portal URLs change |
 | `CMakeLists.txt`, `cmake/doxygen.cmake` | Core: retain `OPENTLV_BUILD_DOCS`, `c-api-docs` and `cxx-api-docs` generation without a portal checkout; normal builds do not require Doxygen |
 | `tlv/include/`, `tlv++/include/` | Core: canonical public API declarations and Doxygen comments |
@@ -193,7 +193,7 @@ API generation inputs and portal code.
 | `bindings/*/` documentation, examples and tests | Respective binding: Component exception; shared native helpers follow their actual implementation owner |
 | `tools/cli/` documentation, acceptance examples and tests | CLI: Component exception |
 | `scripts/check_doc_examples.py` | Mixed: owners check snippets against their own tested sources; portal integration checks assembled examples against the selected component revisions |
-| `scripts/check_doc_inventory.py`, `scripts/test_doc_inventory.py` | Mixed: native capability/Doxygen checks stay with Core; CLI/binding inventories follow components; global navigation checks follow Portal |
+| `scripts/check_doc_inventory.py`, `scripts/test_doc_inventory.py` | Native capability/Doxygen and existing component checks stay with Core; CLI/binding inventories follow components when extracted; assembled navigation is checked only in Portal |
 | `.pre-commit-config.yaml`, `.markdownlint.json`, source/license checks | Each repository retains checks for its own maintained sources; portal extraction does not remove Core Markdown linting |
 | `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `ROADMAP.md`, `AGENTS.md`, repository policies | Core: retain repository entry points, contribution rules, history and contracts; extract only portal/consumer-specific instructions where present |
 | `tests/`, `benchmarks/` and native component README files | Implementation owner: Core for native tests/benchmarks; consumer-specific harnesses move with that consumer |
@@ -213,8 +213,8 @@ single-repository base URL.
 | `docs/README.md`, root/component README files and `CONTRIBUTING.md` | Core pages and the unified landing page: preserve a Core entry point, update portal destinations and keep existing anchors where practical |
 | Doxygen `@docs` links, `OPENTLV_DOCS_URL` in `cmake/doxygen.cmake`, C++ tag-file references and reference entry pages | Hand-written guides and sibling C/C++ HTML trees: preserve both directions when generation and publication are separated |
 | `playground/index.md`, its JavaScript and `development/webassembly.md` | WebAssembly distribution/API and browser assets: component produces the module; Portal owns its selected-version integration |
-| `mkdocs.yml` (`repo_url`, `edit_uri`, `site_url`), `tools/docs/hooks.py` (`REPO_URL`, `REF`) and theme links | Current single-repository source/edit/version assumptions, including legacy `marekcingel/OpenTLV` URLs: portal migration must select the owning repository and revision for each source |
-| `development/workflow.md`, documentation layout, `CONTRIBUTING.md` and `.github/workflows/docs.yml` | Build/publishing commands, artifacts and deployment destinations: update together after the replacement pipeline is validated |
+| Portal `mkdocs.yml`, source hooks and theme links | The portal selects the owning repository and revision for each source; Core has no site configuration |
+| `development/workflow.md`, documentation layout, `CONTRIBUTING.md` and `.github/workflows/docs-validation.yml` | Core validation and API artifacts remain independent; portal build/publication commands live in the portal README |
 
 Keep published page paths and heading anchors where practical. Before moving a
 source, find inbound links in docs, headers, component READMEs and contributor
@@ -243,6 +243,73 @@ the extraction work which sources to retain, separate or move. This issue does
 not define an assembly engine, component version manifest, compatibility service
 or new publication workflow. Those belong to subsequent epic work. Remove the
 old portal infrastructure only after its replacement has been validated.
+
+## Cutover for issue #608
+
+The cleanup is prepared across Core and
+[`OpenTLV/opentlv-docs`](https://github.com/OpenTLV/opentlv-docs). Do not merge the
+Core cleanup until the replacement has successfully built and deployed to
+<https://opentlv.github.io/opentlv-docs/>. A successful validation job or local
+preview alone is insufficient. Record the successful hosted run and its live
+`latest/source-revision.json` in the cleanup PR; check the selected Core SHA,
+guide pages and both generated API references.
+
+Apply the changes in this order:
+
+1. Enable GitHub Pages with **Source: GitHub Actions** in the portal repository
+   and allow `main` in the `github-pages` environment. Complete a real deployment
+   and verify the published content and its API/guide links.
+2. Merge the portal navigation change first. It checks assembled Markdown rather
+   than Core's removed `mkdocs.yml`, and works with the existing pinned Core
+   revision. When publishing release documentation, validate its selection using
+   an actual Core release tag; do not retarget historical release links to development.
+3. Preserve the Core `gh-pages` branch and its branch-based Pages configuration
+   as the historical archive. Disable the old **Documentation** (`docs.yml`)
+   workflow in Core's Actions settings and cancel any queued or running publisher
+   before merging cleanup. Do not rerun or re-enable that workflow from old tags.
+   Update any repository rules that explicitly refer to its old check name.
+4. Merge Core cleanup after the publication and content checks pass. Its new
+   **Documentation validation** workflow only reads repository content and
+   generates API artifacts; it has no deployment job or write permission.
+   Core builds and releases neither check out the portal nor wait for it.
+5. Update the portal's `core-source.json` to the full merged Core commit SHA and
+   publish again. Do not pin an uncommitted preview or invent a future SHA. Check
+   the live source metadata and both API trees after this final publication.
+
+The repositories have separate Pages deployments and repository-scoped tokens.
+The retained Core validator cannot overwrite the new deployment. Changing
+repository settings and publishing are deployment operations; a local cleanup
+branch does not perform them.
+
+### Existing URLs and content
+
+| URL family | Preservation policy |
+| --- | --- |
+| `https://opentlv.github.io/opentlv/` | Retain the existing site and root default as an archive |
+| Core site `0.6/`, `0.7/`, `stable/`, `latest/` and their page fragments | Preserve existing `gh-pages` contents unchanged, including working playground assets; historical `latest` stops updating |
+| `https://opentlv.github.io/opentlv-docs/` | New maintained portal; preserve guide paths and anchors under `latest/`, `stable/` and new full `X.Y.Z` releases |
+| `https://marekcingel.github.io/OpenTLV/` | The former account URL returned 404 during cutover preparation; redirects require control of that account's Pages site and cannot be installed by either current repository |
+
+Keep old versions in their original location rather than relabeling `0.7` as a
+particular patch release. New README and Doxygen links use the new portal;
+standalone development API artifacts link to its `latest/` guides. The portal
+adapts those links to its actual version prefix when embedding the references.
+Do not delete or rewrite historical release content to create redirects.
+
+Core keeps all technical Markdown, public API comments, Doxygen inputs and
+targets, native examples, and existing binding/CLI documentation. Only migrated
+site configuration, Python site dependencies, hooks, theme and unused site asset
+variants are removed. The README logo remains usable offline.
+
+The playground page, JavaScript and stylesheet remain in Core as a documented
+transitional exception. Portal [#6](https://github.com/OpenTLV/opentlv-docs/issues/6)
+owns verified WASM artifact integration and eventual UI source transfer; Core's
+WebAssembly workflow remains its producer. The portal currently accepts an
+explicit `OPENTLV_WASM_DIR`, but its publication workflow does not supply one.
+Until integration is delivered, the historical site retains the working
+playground, linked from the current playground page with its version limitation.
+This preserves access without claiming that the new portal supplies a WASM
+module matching its selected Core revision.
 
 ## Documenting new Core functionality
 

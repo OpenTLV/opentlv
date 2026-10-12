@@ -1,7 +1,7 @@
 # Contributing to OpenTLV
 
 Report bugs and propose features through
-[GitHub issues](https://github.com/marekcingel/OpenTLV/issues), using the
+[GitHub issues](https://github.com/OpenTLV/opentlv/issues), using the
 Bug Report, Feature Request, or Documentation issue form. For bugs, include a
 small reproducer, expected and actual behavior, compiler, build options, and
 the version or commit used. Report suspected security vulnerabilities
@@ -178,10 +178,10 @@ a basename), assign its file documentation with `@ingroup`, and surround its
 declarations with `@addtogroup <group>` / `@{` / `@}` as in existing headers.
 Keep includes outside that group block.
 
-The [Documentation workflow](.github/workflows/docs.yml) generates the same
+The [Documentation validation workflow](.github/workflows/docs-validation.yml) generates the same
 reference, treats Doxygen warnings as errors and uploads the HTML as the
-`c-api-reference` artifact. The same generated HTML is published as part of the
-MkDocs site under [Reference](docs/reference/c-api.md).
+`c-api-reference` artifact. The standalone portal generates references from its
+selected Core revision and publishes them under [Reference](docs/reference/c-api.md).
 
 ## Generate the C++ API reference
 
@@ -207,17 +207,16 @@ Ownership, lifetime and error contracts come from the public header comments.
 warning settings with C. The [landing page](tools/docs/cxx-api.dox) provides
 reference navigation and compatibility notes, complementing conceptual docs.
 
-The Documentation workflow generates both references with warnings as errors.
+The Documentation validation workflow generates both references with warnings as errors.
 The `cxx-api-reference` artifact contains `cxx-api/html` and `c-api/html` as
 siblings so links to C declarations work after extraction. Keep that layout
 when copying the references.
 
-The site build embeds both generated trees under `reference/api/` through
-[tools/docs/hooks.py](tools/docs/hooks.py), so `mkdocs build` needs them first:
-run the `cxx-api-docs` target above, then `mkdocs build --strict`. Set
-`OPENTLV_API_DOCS_DIR` if the CMake build directory is not `build/docs`. Link to
-API pages from the guides through the [C](docs/reference/c-api.md) and
-[C++](docs/reference/cxx-api.md) reference pages, which stay valid on GitHub.
+The [standalone portal](https://github.com/OpenTLV/opentlv-docs) generates and
+embeds both trees under `reference/api/`. Its README describes local previews
+and verified external API artifacts. Core generation works without MkDocs or a
+portal checkout. Link to API pages through the [C](docs/reference/c-api.md) and
+[C++](docs/reference/cxx-api.md) entry pages, which also work on GitHub.
 
 ## Pre-commit hooks
 
@@ -331,67 +330,42 @@ counts as a breaking change and how to document one are in
 
 ## Documentation site
 
-The [docs/](docs) directory is also built into a [MkDocs](https://www.mkdocs.org/)
-site with the [Material](https://squidfunk.github.io/mkdocs-material/) theme,
-configured in [mkdocs.yml](mkdocs.yml). The Markdown files stay the single
-source and remain readable on GitHub. Build and preview it locally:
+Core owns technical Markdown in [docs/](docs), public Doxygen comments and API
+generation. The [standalone documentation repository](https://github.com/OpenTLV/opentlv-docs)
+owns MkDocs, navigation, theme, shared site assets and publication. Install its
+dependencies in an isolated environment and follow its README to preview this
+Core checkout with `OPENTLV_DOCS_LOCAL=1`. Core itself needs no MkDocs packages.
+
+Run Core source checks before opening a pull request:
 
 ```sh
-pip install -r requirements-docs.txt
-mkdocs serve   # live preview at http://127.0.0.1:8000
-mkdocs build   # writes the static site to site/ (git-ignored)
+pre-commit run markdownlint --all-files
+python scripts/check_doc_examples.py
+python scripts/test_doc_inventory.py
+python scripts/check_doc_inventory.py
 ```
 
-Run the same checks as CI before opening a pull request:
+Generate the API references with the CMake targets above. The
+[validation workflow](.github/workflows/docs-validation.yml) runs these source
+checks and Doxygen with warnings as errors, and uploads both API references.
+It has read-only repository permissions and never publishes a site.
 
-```sh
-pre-commit run markdownlint --all-files   # Markdown lint, rules in .markdownlint.json
-mkdocs build --strict                     # any warning fails the build
-```
-
-Documentation is grouped by purpose (`getting-started/`, `concepts/`, `guides/`,
-`formats/`, `standards/`, `cli/`, `reference/`, `development/`); see
-[where documentation belongs](docs/development/documentation-layout.md) before
-adding a page.
-
-For a documentation move, follow the repository-wide link checks and content
-preservation rules in that guide. The [migration table and URL policy](docs/development/documentation-layout.md#migration-for-issue-186)
-record the paths changed by the documentation reorganization.
-
-The build is strict: any warning fails it, including broken links and anchors
-between pages, links to repository files that do not exist, pages missing from
-`nav` and `nav` entries that point to no page. Add a new page to the `nav`
-section of `mkdocs.yml` so it appears in the site navigation. Relative links that leave `docs/` (to source files, `README.md`,
-`CHANGELOG.md` and so on) are rewritten to GitHub URLs by
-[tools/docs/hooks.py](tools/docs/hooks.py). The site landing page is
-[docs/index.md](docs/index.md); [docs/README.md](docs/README.md) remains the
-index shown on GitHub.
+See [where documentation belongs](docs/development/documentation-layout.md)
+before adding a page. Keep the ownership inventory, GitHub index and source
+links current. Add navigation entries in the portal and validate the assembled
+site there with `python tools/docs/ci.py check` and `python -m mkdocs build --strict`.
+The portal checks source-file links, page paths, anchors and navigation against
+the selected Core revision. This validation does not require binding builds.
 
 ### Publishing
 
-The [Documentation workflow](.github/workflows/docs.yml) publishes versioned
-documentation to GitHub Pages at <https://marekcingel.github.io/OpenTLV/> with
-[mike](https://github.com/jimporter/mike). Each version is a directory on the
-`gh-pages` branch, and the site header has a version selector:
+The [portal workflow](https://github.com/OpenTLV/opentlv-docs/actions/workflows/docs.yml)
+publishes to <https://opentlv.github.io/opentlv-docs/>. A portal push updates
+`latest` from its pinned Core revision. Release publication is requested in the
+portal using a Core release tag; it retains full `X.Y.Z` versions and selects
+the newest release as `stable`. Core tags and releases do not trigger or wait
+for portal publication.
 
-- Pull requests to `main` run Markdown lint and a strict site
-  build; either failing fails the check.
-- A push to `main` publishes the development documentation as `latest`. It
-  is labeled "latest (development)" and every page carries a development
-  banner.
-- A release tag `X.Y.Z` (no pre-release suffix) publishes version `X.Y`, built
-  from that tag so it matches the released sources, with the alias `stable`.
-  The site root redirects to `stable` once a release exists, and to `latest`
-  before that. A later patch tag replaces the content of its `X.Y`; other
-  versions stay available after newer releases. Push release tags in ascending
-  order, as the most recently published tag becomes `stable`.
-- Nothing is copied by hand: every version is built from its own tag. A failed
-  build stops the workflow before anything is published.
-
-One-time repository setup: under **Settings -> Pages**, set **Source** to
-**Deploy from a branch** and select `gh-pages` (root). The first publish
-creates the branch. The root `.nojekyll` keeps GitHub Pages from running Jekyll
-on the source branches, where Liquid would reject `{{` in the C code samples.
-Manage published versions locally with `mike list`,
-`mike delete` and `mike retitle`; add `--push` to publish the change.
-Preview the version selector with `mike serve`.
+The [cutover procedure](docs/development/documentation-ownership.md#cutover-for-issue-608)
+records deployment prerequisites, historical URL preservation, remaining
+playground integration and the order of changes across both repositories.

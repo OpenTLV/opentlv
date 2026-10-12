@@ -85,14 +85,16 @@ hand-written pages [c-api.md](../reference/c-api.md) and
 Guides and concepts link to those pages (and to their per-area sections) rather
 than into the generated files, which do not exist in the repository. Generated
 pages link back to the guides through the `@docs` Doxygen alias. Generate the
-references before `mkdocs build`; see
+references independently with Core CMake, or let the standalone portal generate
+them during its site build; see
 [CONTRIBUTING.md](../../CONTRIBUTING.md#generate-the-c-api-reference).
 
 ## Versioned documentation
 
 The site is published per release: `latest` is the development documentation
-built from `main`, and each released `X.Y` is built from its release tag and
-stays available after later releases. Write pages for the current sources; do
+built from the portal's pinned Core revision, and each new released `X.Y.Z` is
+built from its selected release tag and stays available after later releases.
+Historical `X.Y` versions remain on the archived Core site. Write pages for the current sources; do
 not copy the documentation tree or add version-specific pages by hand. Links
 that leave `docs/` point at the source of the same version. See
 [CONTRIBUTING.md](../../CONTRIBUTING.md#publishing) for how versions are
@@ -199,7 +201,7 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
 - Give a section or topic a `README.md` when it needs an overview; a directory
   used only to group pages does not need a placeholder index.
 - Record every new page in the [ownership inventory](documentation-ownership.md#page-inventory).
-  During the transition, add it to the `nav` in [mkdocs.yml](../../mkdocs.yml). Keep the
+  Add it to the `nav` in the [portal configuration](https://github.com/OpenTLV/opentlv-docs/blob/main/mkdocs.yml). Keep the
   GitHub index [docs/README.md](../README.md), site landing page
   [docs/index.md](../index.md), and project [README.md](../../README.md)
   aligned with the sections and entry points they describe. The GitHub index
@@ -208,9 +210,9 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
   including contributor documentation, examples and test documentation.
   Preserve heading anchors where possible and update fragment links when
   headings change.
-- Run `mkdocs build --strict` to check site pages and anchors. Also check
-  repository-relative links outside the site: the site build does not validate
-  their targets after the hook rewrites them to GitHub URLs.
+- Run `python -m mkdocs build --strict` in the portal to check assembled site
+  pages, anchors and source-file links. Review external links separately; the
+  site build does not fetch external HTTP destinations.
 - Preserve technical content and examples when reorganizing. Move detailed
   landing-page material to its canonical source, and use introductory bridges
   where prerequisite concepts are missing.
@@ -225,8 +227,10 @@ updates, and inventory success is not evidence of binding feature support.
 
 Run `python scripts/check_doc_inventory.py` and
 `python scripts/test_doc_inventory.py` alongside the existing example check,
-Markdown lint, generated API references and strict MkDocs build. CI runs both
-and watches native configuration, bindings, CLI sources, examples and doc tools.
+Markdown lint and generated API references. Core CI runs these checks without
+MkDocs or the portal. The portal checks navigation against assembled Markdown
+and runs the strict MkDocs build. Both retain binding/CLI checks while those
+sources remain here.
 
 The inventory check derives these small facts directly from repository sources:
 
@@ -236,7 +240,7 @@ The inventory check derives these small facts directly from repository sources:
 | Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
 | C++ built-in directories | C++ family links in the implemented inventory |
 | CLI registered `names.push_back` identifiers | Inventory CLI column and CLI guide identifiers |
-| Official binding directories | User guide and MkDocs navigation entry (WASM uses its tooling guide) |
+| Official binding directories | User guide exists (WASM uses its tooling guide); navigation is checked by the portal |
 | C/C++/Rust/Python/Lua/Go/WASM example sources | Marked source inventory in the examples guide |
 | Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
 

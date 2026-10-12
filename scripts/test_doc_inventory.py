@@ -28,7 +28,7 @@ class InventoryTests(unittest.TestCase):
             "bindings/go/examples/quick_start/main.go": "package main\n",
             "bindings/common/query_schema.h": "/* shared native ownership helper */\n",
             "docs/guides/go.md": "# Go\n",
-            "mkdocs.yml": "nav:\n  - Go: guides/go.md\n  - C++: guides/cxx-examples.md\n",
+            "docs/guides/cxx-examples.md": "# C++ examples\n",
             "docs/guides/examples.md": "<!-- example-inventory:start -->\n[Go](../../bindings/go/examples/quick_start/main.go)\n<!-- example-inventory:end -->\n",
             "tools/docs/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv/include/tlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
             "tools/docs/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
@@ -45,6 +45,7 @@ class InventoryTests(unittest.TestCase):
         self.assertTrue(any(text in error for error in check(self.root)), check(self.root))
 
     def test_consistent_inventory(self):
+        self.assertFalse((self.root / "mkdocs.yml").exists())
         self.assertEqual(check(self.root), [])
 
     def test_added_component_needs_option_and_documentation(self):
@@ -71,9 +72,13 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("CLI format identifiers: remove or correct stale ber")
         self.assert_drift("CLI new: add the registered identifier")
 
-    def test_binding_addition_requires_guide_and_navigation(self):
+    def test_binding_addition_requires_guide(self):
         self.write("bindings/new/README.md", "# New\n")
         self.assert_drift("binding new: add docs/guides/new.md")
+
+    def test_missing_cxx_guide(self):
+        (self.root / "docs/guides/cxx-examples.md").unlink()
+        self.assert_drift("C++: add docs/guides/cxx-examples.md")
 
     def test_example_addition_and_removal(self):
         (self.root / "bindings/go/examples/quick_start/main.go").unlink()
