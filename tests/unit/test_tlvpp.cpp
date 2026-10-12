@@ -210,4 +210,28 @@ TEST(Unit_Tlvpp, RegistryComparesValidTagBytesAndSize) {
     EXPECT_EQ(42, tlv::any_cast<int>(*decoded_first));
 }
 
+TEST(Unit_Tlvpp, RegistryKeepsPrefixesAndUnsignedBytesDistinct) {
+    tlv::codec_registry registry;
+    const tlv::tag      tags[] = {tlv::tag_bytes<0xFF>(), tlv::tag_bytes<0x80, 0x00>(),
+                                  tlv::tag_bytes<0x80>(), tlv::tag_bytes<0x00>(),
+                                  tlv::tag_bytes<0x7F, 0xFF>()};
+    for (size_t i = 0; i < sizeof tags / sizeof tags[0]; ++i) {
+        registry.register_decoder(tags[i], [i](tlv::bytes) -> tlv::expected<tlv::any, tlv::error> {
+            return tlv::any(static_cast<int>(i));
+        });
+    }
+    for (size_t i = 0; i < sizeof tags / sizeof tags[0]; ++i) {
+        const auto value = registry.decode(tags[i], tlv::bytes{});
+        ASSERT_TRUE(value.has_value());
+        EXPECT_EQ(static_cast<int>(i), tlv::any_cast<int>(*value));
+    }
+    registry.register_decoder(
+        tlv::tag_bytes<0x80>(),
+        [](tlv::bytes) -> tlv::expected<tlv::any, tlv::error> { return tlv::any(99); });
+    const auto replacement = registry.decode(tlv::tag_bytes<0x80>(), tlv::bytes{});
+    ASSERT_TRUE(replacement.has_value());
+    EXPECT_EQ(99, tlv::any_cast<int>(*replacement));
+    EXPECT_FALSE(registry.has_decoder(tlv::tag_bytes<0x80, 0x01>()));
+}
+
 } // namespace

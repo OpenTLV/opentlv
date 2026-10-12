@@ -4,6 +4,7 @@
 #ifndef OPENTLV_TLVPP_REGISTRY_HPP
 #define OPENTLV_TLVPP_REGISTRY_HPP
 
+#include <cstddef>
 #include <functional>
 #include <cstdint>
 #include <map>
@@ -78,12 +79,26 @@ private:
     /** Owning copy of a tag's bytes; ordered lexicographically like tlv_tag_compare(). */
     using tag_key = std::vector<std::uint8_t>;
 
+    /**
+     * Compares keys byte by byte instead of through std::vector's operator<,
+     * whose memcmp GCC 12 and 13 reject with a false -Wstringop-overread at -O2
+     * and above in C++20 and newer.
+     */
+    struct tag_key_less {
+        bool operator()(const tag_key& a, const tag_key& b) const {
+            const std::size_t common = a.size() < b.size() ? a.size() : b.size();
+            for (std::size_t i = 0; i < common; ++i)
+                if (a[i] != b[i]) return a[i] < b[i];
+            return a.size() < b.size();
+        }
+    };
+
     static tag_key key(tlv::tag tag) {
         const auto raw = detail::semantic_access::get(tag);
         return raw.data ? tag_key(raw.data, raw.data + raw.size) : tag_key();
     }
 
-    std::map<tag_key, decoder_fn> decoders_;
+    std::map<tag_key, decoder_fn, tag_key_less> decoders_;
 };
 
 } // namespace tlv

@@ -30,7 +30,7 @@ question, so the expensive checks stay off the path of everyday development.
 | cppcheck | | yes | yes |
 | C-only build | | Debug | Debug and Release |
 | Clang 18 Release build with tests | | | yes |
-| GCC and MSVC (x64, x86) builds with tests | | | yes |
+| GCC and MSVC (x64, x86) builds with tests | if native sources, tests, examples, CLI, CMake or their workflows changed | | yes |
 | CodeQL (required by the repository rules) | always | yes | yes |
 | C ABI compatibility (`abidiff`, see [ABI](abi-compatibility.md)) | if `tlv`, CMake or `scripts/abi/check.py` changed | yes | yes |
 | Fuzzing | | yes | yes |
@@ -39,6 +39,8 @@ question, so the expensive checks stay off the path of everyday development.
 | Google Benchmark build and advisory Query timings | if benchmarks, `tlv` or CMake changed | same | yes |
 | Rust bindings on Linux | if Rust, `tlv` or CMake changed | yes | yes |
 | Rust bindings on Windows and macOS | | | yes |
+| Lua bindings on Linux and Windows | if Lua, shared binding support, Query fixtures, `tlv`, CMake or the Lua workflow changed | yes | yes |
+| Lua bindings on macOS | | | yes |
 | WebAssembly build and smoke test | if `tlv`, WebAssembly or CMake changed | yes | yes |
 | WebAssembly reproducibility (two builds, identical hashes) | | | yes |
 | Documentation validation | if documentation or public headers changed | yes | yes |
@@ -51,6 +53,10 @@ the C library does not build the documentation. Pre-commit always runs.
 CodeQL runs on every pull request because the repository rules require it, and
 it runs in parallel with the Clang build. CodeQL and fuzzing also run weekly on
 `main`.
+
+GCC, MSVC and Lua workflows also support manual dispatch. GCC and MSVC use
+their full Debug/Release matrices; Lua includes Linux, Windows and macOS.
+Windows Lua initializes the MSVC x64 environment before building the interpreter.
 
 A pull request that keeps a path-filtered check from running does not block
 on it. If you make one of these checks a required status check in branch
