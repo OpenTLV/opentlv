@@ -41,6 +41,7 @@ in the existing ASan/UBSan fuzz workflow; release requirements are tracked by th
 | `fuzz_der` | `tlv_der_read` and `tlv_der_visit`, canonical DER-TLV framing, all four validation limits, unchanged read outputs on failure, error offsets, callbacks and validation-only traversal. |
 | `fuzz_der_schema` | `tlv_der_schema_read` against a fixed representative schema (IMPLICIT/EXPLICIT tagging, a DEFAULT component, SET, SET OF, SEQUENCE OF and CHOICE), all five schema limits, unchanged read outputs and bounded error offsets on failure. |
 | `fuzz_roundtrip` | Generated tags and values, sizing, insufficient-capacity output preservation, successful write/read tag and value equality. |
+| `fuzz_utf8` | Agreement of the internal UTF-8 validator, its streaming form split at an input-selected point (as between CER segments) and the diagnostic locator: rejection exactly when the locator finds a nonempty maximal subpart inside the input, preceded by well-formed text. |
 | `fuzz_fixed` | The configurable Fixed format (`tlv_fixed_format_init()`) with tag width, length width and byte order all derived from the fuzz input: exact framing-overhead round trips and insufficient-capacity output preservation for the derived configuration, plus sequential malformed-input `tlv_read` against the same raw bytes. |
 | `fuzz_codec` | `tlv_codec_decode`/`tlv_codec_encode` for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection. |
 | `fuzz_dol` | `tlv_dol_read` and `tlv_dol_write` (both a size query and a full write against a deterministic `resolve` callback exercising presence, padding and truncation), both DOL limits, and that `tlv_dol_write`'s output length depends only on the input DOL. |
@@ -79,6 +80,7 @@ folder in the same subsystem or built-in directory of `tests/fuzz/`, which
 mirrors `tlv/src`'s own layout: `tests/fuzz/reader/corpus/read` and
 `tests/fuzz/reader/corpus/visitor` for the generic reader/visitor targets,
 `tests/fuzz/corpus/roundtrip` for the cross-cutting round-trip target,
+`tests/fuzz/corpus/utf8` for the UTF-8 agreement target,
 `tests/fuzz/builtins/fixed/corpus/fixed`,
 `tests/fuzz/builtins/asn1/corpus/{der,der_schema}` /
 `tests/fuzz/builtins/emv/corpus/{codec,dol}` for the built-in-specific ones.
@@ -107,6 +109,10 @@ produces an empty candidate tag/value. Every input is also tested as a value
 with the valid primitive tag `04`, ensuring successful writes are exercised.
 Long-value seeds cover 127/128 and 255/256 length transitions, including the
 Bluetooth LTV 254/255-byte value limit.
+
+`corpus/utf8` holds raw text bytes, including truncated, overlong, surrogate
+and out-of-range sequences. Byte 0 modulo the input size plus one also selects
+where the streaming check splits the input.
 
 `builtins/fixed/corpus/fixed` uses its own input structure: the first three bytes
 select the `tlv_fixed_format_t` under test (tag width, length width, and
@@ -153,13 +159,14 @@ declare -A corpus_dir=(
   [read]=tests/fuzz/reader/corpus/read
   [visitor]=tests/fuzz/reader/corpus/visitor
   [roundtrip]=tests/fuzz/corpus/roundtrip
+  [utf8]=tests/fuzz/corpus/utf8
   [fixed]=tests/fuzz/builtins/fixed/corpus/fixed
   [der]=tests/fuzz/builtins/asn1/corpus/der
   [der_schema]=tests/fuzz/builtins/asn1/corpus/der_schema
   [codec]=tests/fuzz/builtins/emv/corpus/codec
   [dol]=tests/fuzz/builtins/emv/corpus/dol
 )
-for target in read visitor fixed der der_schema roundtrip codec dol; do
+for target in read visitor fixed der der_schema roundtrip utf8 codec dol; do
   executable="build/fuzz/tests/fuzz/fuzz_$target"
   [ -x "$executable" ] || continue
   mkdir -p "build/fuzz/corpus/$target" "build/fuzz/findings/$target"
@@ -200,7 +207,7 @@ build/fuzz/tests/fuzz/fuzz_read path/to/read/crash-<hash>
 ```
 
 Use the corresponding target for `visitor`, `fixed`, `der`, `der_schema`,
-`roundtrip`, `codec`, or `dol`. Findings
+`roundtrip`, `utf8`, `codec`, or `dol`. Findings
 may also use names such as `timeout-<hash>` or `oom-<hash>`; retain the original
 timeout/RSS settings when reproducing those. Keep the sanitizer environment
 variables from the local-run example and ensure `llvm-symbolizer-18` is on

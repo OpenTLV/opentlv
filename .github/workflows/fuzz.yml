@@ -65,6 +65,7 @@ jobs:
             [read]=tests/fuzz/reader/corpus/read
             [visitor]=tests/fuzz/reader/corpus/visitor
             [roundtrip]=tests/fuzz/corpus/roundtrip
+            [utf8]=tests/fuzz/corpus/utf8
             [fixed]=tests/fuzz/builtins/fixed/corpus/fixed
             [der]=tests/fuzz/builtins/asn1/corpus/der
             [der_schema]=tests/fuzz/builtins/asn1/corpus/der_schema
@@ -75,7 +76,7 @@ jobs:
             [query_image]=tests/fuzz/query/corpus/image
             [query_pairs]=tests/fuzz/query/corpus/match
           )
-          for target in read visitor fixed der der_schema roundtrip codec query_parse query_match query_program query_image query_pairs; do
+          for target in read visitor fixed der der_schema roundtrip utf8 codec query_parse query_match query_program query_image query_pairs; do
             mkdir -p "build/fuzz/findings/$target" "build/fuzz/corpus/$target"
             dictionary=()
             if [[ "$target" == query_program ]]; then

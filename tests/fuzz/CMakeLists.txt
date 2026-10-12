@@ -36,7 +36,7 @@ target_compile_options(tlv_fuzz PRIVATE
     -fsanitize=fuzzer-no-link,address,undefined -fno-sanitize-recover=all
     -fno-omit-frame-pointer -g)
 
-set(fuzz_targets read visitor roundtrip)
+set(fuzz_targets read visitor roundtrip utf8)
 list(APPEND fuzz_targets query_parse query_match query_program query_image query_pairs)
 set(fuzz_source_query_parse query/parse.c)
 set(fuzz_source_query_match query/match.c)
@@ -46,6 +46,7 @@ set(fuzz_source_query_pairs query/pairs.c)
 set(fuzz_source_read reader/read.c)
 set(fuzz_source_visitor reader/visitor.c)
 set(fuzz_source_roundtrip roundtrip.c)
+set(fuzz_source_utf8 utf8.c)
 list(APPEND fuzz_targets fixed)
 set(fuzz_source_fixed builtins/fixed/fixed.c)
 if(OPENTLV_FORMAT_DER)

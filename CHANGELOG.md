@@ -281,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add the `fuzz_utf8` target with a seed corpus, run by the C API Fuzzing workflow, which checks that the internal UTF-8 validator, its streaming form split at an arbitrary point and the diagnostic locator always agree, so the separate locator cannot drift from the validator. (#589)
 - Test that the Schema number composition keeps `ENCODE` and `MEASURE` for a Schema length rejection, that UTF-8 rejections report maximal subparts and that an invalid destination domain keeps the location. (#589)
 - Add `tlv_location_resolve()` and C++ `tlv::resolve_location()` to move Value-local evidence into the INPUT or OUTPUT coordinates that contain the Value, `tlv_codec_diagnostic_reason_at()` for codecs that publish a reason with the offending Value bytes, and `SchemaCause` `CODEC` in the Rust, Go and Python vocabularies. (#589)
 - Test that codecs locate the offending Value bytes, that Query resolves them to input offsets only when the Value origin is known, that DER Schema keeps the Codec cause and offending octet when reading and writing, that nested reasons survive the Schema number, ASN.1 date and Bluetooth AD codecs, and that CER segmentation reports scope ends and spans; the shared assertions accept a Schema Codec cause only with a matching reported result. (#589)
