@@ -359,7 +359,8 @@ if (!visited) return 1;
 
 Compile a reusable Query with `tlv::query::parse()` for explicit error handling,
 or `tlv::query::compile()` to throw `tlv::query_error`. The exception retains
-the original C result and the zero-based text error offset.
+the original C result and `location()`, the span of the offending text in the
+`expression` domain.
 
 An owning Document supports all-result lookup through normal Node handles:
 

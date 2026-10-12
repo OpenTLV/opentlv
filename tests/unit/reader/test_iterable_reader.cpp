@@ -179,7 +179,6 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
         EXPECT_EQ(tlv::errc::null_argument, error.status());
         EXPECT_EQ(tlv::operation::reader, error.stage());
         EXPECT_EQ(tlv::severity::error, error.severity());
-        EXPECT_FALSE(error.has_offset());
         EXPECT_EQ(tlv::location_kind::unknown, tlv::kind(error.location()));
         EXPECT_FALSE(error.has_tag());
         EXPECT_EQ(0u, error.depth());
@@ -193,7 +192,7 @@ TEST(Unit_Tlvpp_IterableReader, InvalidInitializationAndCallbackEndAreNotEmptyRa
         FAIL() << "callback TLV_END inside input is not final EOF";
     } catch (const tlv::parse_error& failure) {
         EXPECT_EQ(TLV_ERR_CALLBACK, failure.code());
-        EXPECT_FALSE(failure.failure().has_offset());
+        EXPECT_EQ(tlv::location_kind::unknown, tlv::kind(failure.failure().location()));
         EXPECT_FALSE(failure.failure().has_tag());
         EXPECT_EQ(0u, failure.failure().depth());
     }
@@ -217,8 +216,8 @@ TEST(Unit_Tlvpp_IterableReader, FailureAndPauseDecodeOnceAndEmptyBoundariesDoNot
             EXPECT_EQ(mode == tlv::input_mode::final ? tlv::errc::truncated
                                                      : tlv::errc::need_more_data,
                       error.status());
-            ASSERT_TRUE(error.has_offset());
-            EXPECT_EQ(1u, error.offset());
+            ASSERT_EQ(tlv::location_domain::input, tlv::domain(error.location()));
+            EXPECT_EQ(1u, error.location().begin);
             EXPECT_FALSE(error.has_tag());
             EXPECT_EQ(0u, error.depth());
         }
@@ -236,8 +235,8 @@ TEST(Unit_Tlvpp_IterableReader, FailureAndPauseDecodeOnceAndEmptyBoundariesDoNot
                 const auto error = failure.failure();
                 EXPECT_EQ(tlv::errc::need_more_data, error.status());
                 EXPECT_EQ(tlv::severity::info, error.severity());
-                ASSERT_TRUE(error.has_offset());
-                EXPECT_EQ(0u, error.offset());
+                ASSERT_EQ(tlv::location_domain::input, tlv::domain(error.location()));
+                EXPECT_EQ(0u, error.location().begin);
                 EXPECT_FALSE(error.has_tag());
                 EXPECT_EQ(0u, error.depth());
             }

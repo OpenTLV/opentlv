@@ -6,7 +6,6 @@
 #include "error.h"
 #include "format.h"
 #include "query.h"
-#include "schema.h"
 #include <tlv/query/adapters.h>
 #if OPENTLV_EMV
 #include <tlv/builtins/emv/query.h>
@@ -71,7 +70,8 @@ static void field(lua_State* L, const char* name, size_t value) {
     lua_pushnumber(L, (lua_Number)value);
     lua_setfield(L, -2, name);
 }
-static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_diagnostic_t* d) {
+void opentlv_lua_push_query_error(lua_State* L, tlv_result_t code,
+                                  const tlv_query_diagnostic_t* d) {
     tlv_query_diagnostic_t state = {0};
     if (code == TLV_ERR_INVALID_STATE) {
         if (d) state = *d;
@@ -91,25 +91,13 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
     field(L, "kind", d->kind);
     lua_pushstring(L, tlv_query_error_kind_string(d->kind));
     lua_setfield(L, -2, "kind_name");
-    /* The expression span is primary, or related evidence beside another location. */
-    const tlv_location_t* span = d->diagnostic.location.domain == TLV_LOCATION_EXPRESSION
-                                     ? &d->diagnostic.location
-                                     : &d->expression;
-    int                   known = span->kind != TLV_LOCATION_UNKNOWN;
-    field(L, "begin", known ? span->begin : 0);
-    field(L, "end", known ? span->end : 0);
+    /* Related span only: an expression span that is primary is already "location". */
+    opentlv_lua_push_location(L, &d->expression);
+    lua_setfield(L, -2, "expression");
     field(L, "configured", d->configured);
-    field(L, "codec", d->cause == TLV_QUERY_CAUSE_CODEC ? d->detail.codec.reported : 0);
     if (d->cause == TLV_QUERY_CAUSE_CODEC) {
         opentlv_lua_push_codec_detail(L, &d->detail.codec);
         lua_setfield(L, -2, "codec_detail");
-    }
-    if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
-         d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN))
-        field(L, "source_offset", d->diagnostic.location.begin);
-    if (d->diagnostic.expected) {
-        lua_pushstring(L, d->diagnostic.expected);
-        lua_setfield(L, -2, "expected");
     }
     if (d->limit) {
         lua_pushstring(L, d->limit);
@@ -118,7 +106,7 @@ static void push_query_error(lua_State* L, tlv_result_t code, const tlv_query_di
     lua_setfield(L, -2, "query");
 }
 static int query_error(lua_State* L, tlv_result_t code, const tlv_query_diagnostic_t* d) {
-    push_query_error(L, code, d);
+    opentlv_lua_push_query_error(L, code, d);
     return lua_error(L);
 }
 static int provider_active(lua_State* L) {
@@ -1313,7 +1301,7 @@ static int execution_edit_run(lua_State* L) {
         value_size, targets, capacity, &applied, &diagnostic);
     if (applied) opentlv_lua_document_invalidate(L, lua_gettop(L));
     if (rc != TLV_OK) {
-        push_query_error(L, rc, &diagnostic);
+        opentlv_lua_push_query_error(L, rc, &diagnostic);
         field(L, "applied", applied);
         return lua_error(L);
     }
@@ -1388,16 +1376,23 @@ static int execution_document(lua_State* L) {
 static int schema_error_projection(lua_State* L) {
     const tlv_schema_query_diagnostic_t* diagnostic = lua_touserdata(L, 1);
     tlv_result_t                         rc = (tlv_result_t)lua_tointeger(L, 2);
-    push_query_error(L, rc, &diagnostic->query);
+    opentlv_lua_push_query_error(L, rc, &diagnostic->query);
     field(L, "rule", diagnostic->rule);
-    tlv_schema_diagnostic_t schema = {0};
+    /* Only a failed assertion has Schema detail. Its common evidence (location,
+     * path, expected text) is the error's own, so the table adds only that detail. */
     if (diagnostic->query.cause == TLV_QUERY_CAUSE_SCHEMA) {
-        schema.diagnostic = diagnostic->query.diagnostic;
-        schema.cause = TLV_SCHEMA_CAUSE_SCHEMA;
-        schema.detail.schema = diagnostic->query.detail.schema;
+        const tlv_schema_detail_t* schema = &diagnostic->query.detail.schema;
+        lua_newtable(L);
+        lua_pushstring(L, tlv_schema_issue_kind_string(schema->kind));
+        lua_setfield(L, -2, "kind");
+        lua_pushlstring(L, schema->tag.size ? (const char*)schema->tag.data : "", schema->tag.size);
+        lua_setfield(L, -2, "tag");
+        if (schema->field) {
+            lua_pushstring(L, schema->field);
+            lua_setfield(L, -2, "field");
+        }
+        lua_setfield(L, -2, "schema");
     }
-    opentlv_lua_push_schema_diagnostic(L, &schema);
-    lua_setfield(L, -2, "schema");
     return 1;
 }
 static int query_schema_validate(lua_State* L) {

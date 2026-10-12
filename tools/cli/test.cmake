@@ -180,7 +180,7 @@ foreach(pair IN ITEMS "FIXED|fixed" "BER|ber" "DER|der")
     check(0 "offset=3 tag=04 length=0 value=" dump --format "${name}" --hex "0401AA0400")
     check(0 "^$" validate --format "${name}" --hex "0401AA" --max-input-size 3 --max-elements 1)
     # DER's own Tree Reader (excluded from the reader-diagnostic re-derivation --
-    # its error_offset is not always a re-readable element start) keeps the
+    # its failure location is not always a re-readable element start) keeps the
     # base offset it always had; every other format's compact/human/json
     # rendering now derives a full reader diagnostic, whose offset is the
     # specific field that overran (the value, here) rather than the
@@ -888,12 +888,12 @@ endfunction()
 
 if(HAS_BER)
     set(damaged "5A0112 0000 5A0134")
-    run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
+    run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-location=input:point:3\noffset=5 tag=5A length=1 value=34\n"
         "^otlv: skipped 2 byte\\(s\\) at offset 3: TLV_ERR_INVALID_TAG at byte 3 while reading tag; available=5: invalid tag; location=input:point\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics compact)
     # json wraps each skipped range's diagnostic with the range it recovered
     # from, since a schema-free tlv_diagnostic_t has no room for that itself.
-    run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3\noffset=5 tag=5A length=1 value=34\n"
+    run_cli(4 "offset=0 tag=5A length=1 value=12\nskipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-location=input:point:3\noffset=5 tag=5A length=1 value=34\n"
         "^\\{\"available\":5,\"code\":\"TLV_ERR_INVALID_TAG\",\"enclosing_end\":8,\"location\":{\"begin\":3,\"domain\":\"input\",\"end\":3,\"kind\":\"point\"},\"message\":\"invalid tag\",\"offset\":3,\"operation\":\"tag\",\"severity\":\"warning\",\"skipped_length\":2,\"skipped_offset\":3\\}\notlv: output is incomplete: recovery skipped 1 range\\(s\\), 2 byte\\(s\\) in total\n$"
         dump --format ber --hex "${damaged}" --recover --diagnostics json)
     # Without --recover the same input fails at the first error, and validate
@@ -903,11 +903,11 @@ if(HAS_BER)
     run_cli(1 "" "TLV_ERR_INVALID_TAG at byte 3" decode --format ber --hex "${damaged}" --diagnostics compact)
 
     # Truncated trailing data is one skipped range up to the end of the input.
-    set(cut_json [=[{"complete":false,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[{"error":"TLV_ERR_TRUNCATED","error_offset":3,"length":3,"message":"truncated input","offset":3}]}]=])
+    set(cut_json [=[{"complete":false,"elements":[{"length":1,"offset":0,"tag":"5A","value":"12"}],"skipped":[{"error":"TLV_ERR_TRUNCATED","length":3,"location":{"begin":5,"domain":"input","end":5,"kind":"point"},"message":"truncated input","offset":3}]}]=])
     run_cli(4 "${cut_json}\n" "skipped 3 byte\\(s\\) at offset 3" dump --format ber --hex "5A0112 5A05 AA" --recover --output json)
 
     # decode marks the document incomplete and lists every skipped range.
-    run_cli(4 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"E1\",\"length_mode\":\"definite\",\"children\":[{\"tag\":\"5A\",\"value\":\"12\"}]}],\"complete\":false,\"skipped\":[{\"offset\":0,\"length\":2,\"error\":\"TLV_ERR_INVALID_TAG\",\"error_offset\":0,\"message\":\"invalid tag\"},{\"offset\":7,\"length\":1,\"error\":\"TLV_ERR_INVALID_TAG\",\"error_offset\":7,\"message\":\"invalid tag\"}]}\n"
+    run_cli(4 "${doc_head},\"format\":\"ber\",\"elements\":[{\"tag\":\"E1\",\"length_mode\":\"definite\",\"children\":[{\"tag\":\"5A\",\"value\":\"12\"}]}],\"complete\":false,\"skipped\":[{\"offset\":0,\"length\":2,\"error\":\"TLV_ERR_INVALID_TAG\",\"location\":{\"domain\":\"input\",\"kind\":\"point\",\"begin\":0,\"end\":0},\"message\":\"invalid tag\"},{\"offset\":7,\"length\":1,\"error\":\"TLV_ERR_INVALID_TAG\",\"location\":{\"domain\":\"input\",\"kind\":\"point\",\"begin\":7,\"end\":7},\"message\":\"invalid tag\"}]}\n"
         "recovery skipped 2 range\\(s\\), 3 byte\\(s\\) in total" decode --format ber --hex "0000 E1 03 5A 01 12 00" --recover)
 
     # An undamaged input is complete and exits 0.
@@ -938,7 +938,9 @@ if(HAS_BER)
     run_cli(3 "" "TLV_ERR_LIMIT" decode --format ber --hex "E1035A0112 0000" --recover --max-depth 0)
 endif()
 if(HAS_BER)
-    check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=3 error=TLV_ERR_TRUNCATED error-offset=3\n$"
+    # The skipped range keeps its element start; the error is located where the
+    # declared Value overruns the input, as in the rendered diagnostic.
+    check_out(4 "^offset=0 tag=04 length=1 value=AA\nskipped offset=3 length=3 error=TLV_ERR_TRUNCATED error-location=input:point:5\n$"
         dump --format ber --hex "0401AA 04 05 AA" --recover)
 endif()
 if(HAS_DER)

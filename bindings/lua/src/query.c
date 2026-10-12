@@ -5,6 +5,8 @@
 #include "common.h"
 #include "error.h"
 #include "format.h"
+#include "program.h"
+#include "../../common/path_query.h"
 
 #include <string.h>
 #include <limits.h>
@@ -194,11 +196,11 @@ const tlv_query_t* opentlv_lua_check_query(lua_State* L, int arg, tlv_query_t* s
         return (const tlv_query_t*)luaL_checkudata(L, arg, QUERY_MT);
     size_t           length;
     const char*      text = luaL_checklstring(L, arg, &length);
-    tlv_diagnostic_t offset = {0};
-    tlv_result_t     code = tlv_query_parse_n(text, length, scratch, &offset);
+    tlv_diagnostic_t parse = {0};
+    tlv_result_t     code = tlv_query_parse_n(text, length, scratch, &parse);
     if (code != TLV_OK) {
-        offset.code = code;
-        opentlv_lua_push_diagnostic(L, &offset);
+        const tlv_query_diagnostic_t failure = opentlv_binding_path_failure(code, &parse);
+        opentlv_lua_push_query_error(L, code, &failure);
         lua_error(L);
     }
     return scratch;

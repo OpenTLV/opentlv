@@ -56,15 +56,29 @@ impl Default for QuerySchemaLimits {
     }
 }
 
+/// Owned Schema detail of a false contextual assertion.
+///
+/// The common evidence of the failure, such as its location, path and expected
+/// text, is the Query failure's own and is read from [`QuerySchemaError::failure`].
+#[derive(Clone, Debug)]
+pub struct QuerySchemaDetail {
+    /// Canonical violation kind, normally [`crate::SchemaIssue::Assertion`].
+    pub kind: crate::SchemaIssue,
+    /// Tag of the selected context.
+    pub tag: crate::Tag,
+    /// Owned rule name, when the rule has one.
+    pub field: Option<String>,
+}
+
 /// Owned rule-aware failure, independent of input, Document and program lifetimes.
 #[derive(Clone, Debug)]
 pub struct QuerySchemaError {
     /// Zero-based failing rule; zero also identifies failures before rule execution.
     pub rule: usize,
-    /// Original Query, Reader, codec or storage error.
+    /// Original Query, Reader, codec or storage error, including the common evidence.
     pub failure: Box<ProgramError>,
-    /// Complete native assertion diagnostic when a boolean assertion was false.
-    pub schema: Option<Box<crate::SchemaDiagnostic>>,
+    /// Schema detail when a boolean assertion was false.
+    pub schema: Option<Box<QuerySchemaDetail>>,
 }
 impl From<ProgramError> for QuerySchemaError {
     fn from(failure: ProgramError) -> Self {
@@ -228,16 +242,20 @@ fn schema_result(
         // SAFETY: input, Document and rule names are still alive. Only a false
         // assertion selects the Schema cause; its borrowed fields are copied.
         let schema = if diagnostic.query.cause == native::TLV_QUERY_CAUSE_SCHEMA {
-            let cause = native::tlv_schema_diagnostic_t {
-                diagnostic: diagnostic.query.diagnostic,
-                cause: native::TLV_SCHEMA_CAUSE_SCHEMA,
-                detail: native::tlv_schema_cause_detail_t {
-                    schema: unsafe { diagnostic.query.detail.schema },
-                },
-            };
-            unsafe { crate::SchemaDiagnostic::from_raw(&cause) }
+            let detail = unsafe { diagnostic.query.detail.schema };
+            unsafe { crate::Tag::from_raw(&detail.tag) }
                 .ok()
-                .map(Box::new)
+                .map(|tag| {
+                    Box::new(QuerySchemaDetail {
+                        kind: crate::SchemaIssue::from_raw(detail.kind),
+                        tag,
+                        field: (!detail.field.is_null()).then(|| {
+                            unsafe { CStr::from_ptr(detail.field) }
+                                .to_string_lossy()
+                                .into_owned()
+                        }),
+                    })
+                })
         } else {
             None
         };

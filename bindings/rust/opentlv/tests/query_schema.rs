@@ -54,18 +54,16 @@ fn false_assertion_preserves_owned_rule_path_offset_and_expectation() {
     assert_eq!(failure.rule, 1);
     assert_eq!(failure.failure.error, Error::Schema);
     let detail = failure.schema.unwrap();
-    assert_eq!(detail.kind_name, "assertion");
-    assert_eq!(detail.error, Error::Schema);
+    assert_eq!(detail.kind, opentlv::SchemaIssue::Assertion);
     assert_eq!(detail.tag.as_bytes(), &[0x5a]);
-    assert_eq!(detail.path.as_deref().unwrap().len(), 1);
-    assert_eq!(detail.path.as_deref().unwrap()[0].as_bytes(), &[0x70]);
-    assert_eq!(detail.offset, Some(2));
     assert_eq!(detail.field.as_deref(), Some("three-required"));
-    assert_eq!(
-        detail.expected.as_deref(),
-        Some("contextual Query assertion true")
-    );
-    assert_eq!(detail.actual, None);
+    // Common evidence is read once, from the Query failure.
+    let common = &failure.failure;
+    assert_eq!(common.path().unwrap().len(), 1);
+    assert_eq!(common.path().unwrap()[0], [0x70]);
+    assert_eq!(common.source_offset(), Some(2));
+    assert_eq!(common.expected(), Some("contextual Query assertion true"));
+    assert_eq!(common.actual(), None);
 }
 
 #[test]
@@ -204,7 +202,7 @@ fn schema_retains_programs_and_providers_and_preserves_codec_errors() {
             .validate_buffer(WIRE, QuerySchemaLimits::default())
             .unwrap_err();
         assert_eq!(
-            failure.failure.codec,
+            failure.failure.codec_detail.as_ref().unwrap().reported,
             if panic {
                 Error::Callback.code()
             } else {
@@ -283,12 +281,15 @@ fn document_supports_reverse_axes_and_bounded_canonical_values() {
     .unwrap_err();
     drop(document);
     let detail = failure.schema.unwrap();
-    assert_eq!(detail.offset, None);
+    assert_eq!(
+        failure.failure.location.kind,
+        opentlv::LocationKind::Unknown
+    );
     assert_eq!(detail.tag.as_bytes(), &[0x5a]);
-    assert_eq!(detail.path.as_deref().unwrap()[0].as_bytes(), &[0x70]);
+    assert_eq!(failure.failure.path().unwrap()[0], [0x70]);
     assert_eq!(detail.field.as_deref(), Some("three-required"));
     assert_eq!(
-        detail.expected.as_deref(),
+        failure.failure.expected(),
         Some("contextual Query assertion true")
     );
 }
@@ -328,15 +329,13 @@ fn deep_assertion_preserves_outermost_path_and_omitted_count() {
         enclosing.extend(wire);
         wire = enclosing;
     }
-    let detail = schema
+    let failure = schema
         .validate_buffer(&wire, QuerySchemaLimits::default())
-        .unwrap_err()
-        .schema
-        .unwrap();
-    assert_eq!(detail.path.as_deref().unwrap().len(), 32);
-    assert_eq!(detail.path.as_deref().unwrap()[0].as_bytes(), &[0x70]);
-    assert!(detail.path.as_deref().unwrap()[1..]
-        .iter()
-        .all(|tag| tag.as_bytes() == [0x30]));
-    assert_eq!(detail.path_omitted, 3);
+        .unwrap_err();
+    assert!(failure.schema.is_some());
+    let path = failure.failure.path().unwrap();
+    assert_eq!(path.len(), 32);
+    assert_eq!(path[0], [0x70]);
+    assert!(path[1..].iter().all(|tag| tag == &[0x30]));
+    assert_eq!(failure.failure.path_omitted(), 3);
 }

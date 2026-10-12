@@ -60,6 +60,31 @@ TEST(Unit_Tlvpp_FullQuery, OwningCompilationRejectsChangingResolver) {
         tlv::query_program::compile("//item", tlv::native::borrow_query_settings(&options)));
 }
 
+TEST(Unit_Tlvpp_FullQuery, FailureLocationsKeepTheirDomain) {
+    auto syntax = tlv::query_program::compile("/");
+    ASSERT_FALSE(syntax);
+    const auto primary = syntax.error().location();
+    EXPECT_EQ(tlv::location_domain::expression, tlv::domain(primary));
+    EXPECT_EQ(1u, primary.begin);
+    // The primary expression span is not repeated as related evidence.
+    EXPECT_EQ(tlv::location_kind::unknown, tlv::kind(syntax.error().expression()));
+    EXPECT_EQ(tlv::location_domain::expression, tlv::domain(syntax.error().failure().location()));
+
+    const uint8_t broken[] = {0x50, 0, 0x51, 2};
+    auto          program = tlv::query_program::compile("//50");
+    ASSERT_TRUE(program);
+    auto execution = tlv::query_execution::create(*program, 1, 10, 100000, nullptr, false);
+    ASSERT_TRUE(execution);
+    tlv::tree_frame  frames[1]{};
+    tlv::tree_reader reader(bytes(broken, sizeof broken), tlv::native::borrow_format(format),
+                            {frames, 1}, 1, 10);
+    auto             validated = execution->exists(reader, false);
+    ASSERT_FALSE(validated);
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(validated.error().location()));
+    EXPECT_EQ(validated.error().diagnostic.diagnostic.location.begin,
+              validated.error().location().begin);
+}
+
 TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
     auto expression =
         tlv::where(tlv::query_nodes("//50"), tlv::query_integer("@len") > tlv::integer(0));
@@ -997,7 +1022,8 @@ TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
         FAIL();
     } catch (const tlv::query_error& error) {
         EXPECT_EQ(TLV_ERR_SYNTAX, error.code());
-        EXPECT_EQ(3u, error.offset());
+        EXPECT_EQ(tlv::location_domain::expression, tlv::domain(error.location()));
+        EXPECT_EQ(3u, error.location().begin);
     }
     tlv_diagnostic_t offset{};
     EXPECT_FALSE(tlv::query::parse("6F//50", &offset));

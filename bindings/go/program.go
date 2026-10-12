@@ -20,18 +20,21 @@ const (
 	QueryString
 )
 
-// ProgramError preserves Query spans, named limits, codec and original Reader detail.
+// ProgramError preserves the Query category, related expression span, named limit
+// and the conversion or Reader cause. Each value comes from exactly one C field:
+// Diagnostic holds the common evidence, including the Reader detail when HasReader
+// is true, and Location is the primary location. Expression is the related
+// expression span when another location is primary; otherwise its Kind is
+// LocationUnknown, because the primary Location already is that span.
 type ProgramError struct {
 	Diagnostic
 	HasReader bool
 	StatusError
-	Kind                                 QueryErrorKind
-	Begin, End, SourceOffset, Configured uint64
-	HasSourceOffset                      bool
-	Expected, Limit                      string
-	CodecDetail                          *CodecDetail
-	Codec                                int
-	Reader                               Diagnostic
+	Kind        QueryErrorKind
+	Expression  Location
+	Configured  uint64
+	Limit       string
+	CodecDetail *CodecDetail
 }
 
 // Error renders the canonical result, Query category and primary evidence.
@@ -48,9 +51,19 @@ func programError(code capi.Code, d capi.ProgramDiagnostic) error {
 		d.Kind = capi.QueryErrorState
 	}
 	d.Common.Code = code
+	e := d.Expression
 	return &ProgramError{Diagnostic: publicDiagnostic(d.Common), HasReader: d.HasReader, StatusError: StatusError{code: code}, Kind: QueryErrorKind(d.Kind),
-		Begin: d.Begin, End: d.End, SourceOffset: d.SourceOffset, HasSourceOffset: d.HasSourceOffset,
-		Configured: d.Configured, Expected: d.Expected, Limit: d.Limit, Codec: d.Codec, CodecDetail: publicCodecDetail(d.CodecDetail), Reader: publicDiagnostic(d.Reader)}
+		Expression: Location{LocationDomain(e.Domain), LocationKind(e.Kind), e.Begin, e.End},
+		Configured: d.Configured, Limit: d.Limit, CodecDetail: publicCodecDetail(d.CodecDetail)}
+}
+
+// SourceOffset projects a known primary input location; ok is false for any
+// other domain, such as an expression span or a Value-local location.
+func (e *ProgramError) SourceOffset() (offset uint64, ok bool) {
+	if e.Location.Domain != LocationInput || e.Location.Kind == LocationUnknown {
+		return 0, false
+	}
+	return e.Location.Begin, true
 }
 
 // ProgramOptions declares immutable compile-time names, types and explicit bounds.
@@ -108,12 +121,14 @@ func DefaultQuerySchemaLimits() QuerySchemaLimits {
 	return QuerySchemaLimits{Depth: 64, Nodes: 1024, Work: 100000000, Contexts: 1024, ValueCapacity: -1}
 }
 
-// QuerySchemaError owns a rule-aware native Query/Schema failure.
+// QuerySchemaError owns a rule-aware native Query/Schema failure. It adds only
+// the Schema detail of a failed assertion; the common evidence, such as the
+// location, path and expected text, stays in Failure.
 type QuerySchemaError struct {
-	Diagnostic
 	Rule    int
 	Kind    SchemaIssue
 	Field   string
+	Tag     []byte
 	Failure *ProgramError
 }
 
@@ -175,8 +190,8 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 		return nil
 	}
 	failure := programError(code, detail.Query).(*ProgramError)
-	return &QuerySchemaError{Diagnostic: publicDiagnostic(detail.Schema), Rule: detail.Rule,
-		Kind: SchemaIssue(detail.Kind), Field: detail.Field, Failure: failure}
+	return &QuerySchemaError{Rule: detail.Rule, Kind: SchemaIssue(detail.Kind), Field: detail.Field,
+		Tag: detail.Tag, Failure: failure}
 }
 
 // ValidateQueryBuffer delegates contextual assertions to C over a copied complete

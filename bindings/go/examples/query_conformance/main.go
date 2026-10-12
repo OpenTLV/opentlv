@@ -17,7 +17,12 @@ import (
 func fail(err error) {
 	var diagnostic *tlv.ProgramError
 	if errors.As(err, &diagnostic) {
-		fmt.Fprintf(os.Stderr, "%d %d %d %d\n", diagnostic.Code(), diagnostic.Kind, diagnostic.Begin, diagnostic.End)
+		// The expression span is primary, or related evidence beside another location.
+		span := diagnostic.Expression
+		if diagnostic.Location.Domain == tlv.LocationExpression {
+			span = diagnostic.Location
+		}
+		fmt.Fprintf(os.Stderr, "%d %d %d %d\n", diagnostic.Code(), diagnostic.Kind, span.Begin, span.End)
 	} else {
 		fmt.Fprintln(os.Stderr, err)
 	}

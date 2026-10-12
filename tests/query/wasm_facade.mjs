@@ -36,8 +36,10 @@ for (const fixture of cases) {
       assert.equal(error.code, fixture.diagnostic.code, fixture.id);
       assert.equal(error.query.kind, fixture.diagnostic.kind, fixture.id);
       if (fixture.diagnostic.begin !== undefined) {
-        assert.equal(error.query.begin, fixture.diagnostic.begin, fixture.id);
-        assert.equal(error.query.end, fixture.diagnostic.end, fixture.id);
+        // The expression span is primary, or related evidence beside another location.
+        const span = error.location.domain === "expression" ? error.location : error.query.expression;
+        assert.equal(span.begin, fixture.diagnostic.begin, fixture.id);
+        assert.equal(span.end, fixture.diagnostic.end, fixture.id);
       }
       checks += 1;
       continue;
@@ -157,7 +159,7 @@ textProvider.close();
 const shortProvider = api.compileQuery("text(//5A)", { providers: {
   text: { id: 102, max_result_bytes: 2, decode: () => "a\0b" },
 } });
-assert.throws(() => shortProvider.evaluate(hexToBytes("5a00")), error => error.code === 14 && error.query.codec === 14 && error.query.codec_detail.reported === 14 && error.query.codec_detail.operation === 0);
+assert.throws(() => shortProvider.evaluate(hexToBytes("5a00")), error => error.code === 14 && error.query.codec_detail.reported === 14 && error.query.codec_detail.operation === 0);
 shortProvider.close();
 let active;
 const reentrant = api.compileQuery("num(//5A)", { providers: {
@@ -232,17 +234,19 @@ assert.throws(() => schema.validateBuffer(badSchemaInput), error => {
   return error.rule === 0 && error.schema.kind_name === "assertion";
 });
 assert.equal(schemaFailure.schema.tag, "5A");
-assert.deepEqual(schemaFailure.schema.path, ["70"]);
-assert.equal(schemaFailure.schema.offset, 2);
+// The Schema part adds only Schema detail; common evidence is the error's own.
+assert.deepEqual(Object.keys(schemaFailure.schema).sort(), ["field", "kind", "kind_name", "tag"]);
+assert.deepEqual(schemaFailure.query.diagnostic.path, ["70"]);
+assert.deepEqual(schemaFailure.location, { domain: "input", kind: "point", begin: 2, end: 2 });
 assert.equal(schemaFailure.schema.field, "one");
-assert.equal(schemaFailure.schema.expected, "contextual Query assertion true");
-assert.equal(schemaFailure.schema.path_omitted, 0);
+assert.equal(schemaFailure.query.diagnostic.expected, "contextual Query assertion true");
+assert.equal(schemaFailure.query.diagnostic.path_omitted, 0);
 let deepSchemaInput = new Uint8Array([0x5a, 1, 2]);
 for (let level = 0; level < 35; ++level)
   deepSchemaInput = new Uint8Array([level === 34 ? 0x70 : 0x30, deepSchemaInput.length, ...deepSchemaInput]);
 assert.throws(() => schema.validateBuffer(deepSchemaInput), error => {
-  assert.deepEqual(error.schema.path, ["70", ...Array(31).fill("30")]);
-  assert.equal(error.schema.path_omitted, 3);
+  assert.deepEqual(error.query.diagnostic.path, ["70", ...Array(31).fill("30")]);
+  assert.equal(error.query.diagnostic.path_omitted, 3);
   return error.schema.kind_name === "assertion";
 });
 
@@ -254,10 +258,10 @@ schema.validateDocument(schemaDocument);
 const badSchemaDocument = api.document(badSchemaInput);
 let documentSchemaFailure;
 assert.throws(() => schema.validateDocument(badSchemaDocument), error => {
-  documentSchemaFailure = error; return error.schema.offset === null;
+  documentSchemaFailure = error; return error.location.kind === "unknown";
 });
 badSchemaDocument.close(); schema.close(); badSchemaInput.fill(0);
-assert.deepEqual(documentSchemaFailure.schema.path, ["70"]);
+assert.deepEqual(documentSchemaFailure.query.diagnostic.path, ["70"]);
 assert.equal(schemaFailure.schema.tag, "5A");
 const schemaMarker = { reason: "schema provider" };
 let schemaProvider, throwSchemaProvider = false;
@@ -446,7 +450,8 @@ assert.equal(legacyMatcher.feed(hexToBytes("5a"), 1), true);
 legacyMatcher.reset(); legacyMatcher.close();
 assert.throws(() => new api.V1Query("70\0/5a"));
 assert.throws(() => new api.V1Query("70/5"), error =>
-  error.code === 8 && error.query.kind_name === "syntax" && error.query.begin === 3 && error.query.end === 4);
+  error.code === 8 && error.query.kind_name === "syntax" && error.location.begin === 3 &&
+  error.location.end === 4 && error.query.expression.kind === "unknown");
 assert.throws(() => new api.V1Query(Array(66).fill("5a").join("/")), error =>
   error.code === 15 && error.query.kind_name === "limit" && error.location.domain === "expression");
 assert.throws(() => new api.V1Query("5a".repeat(513)), error =>
@@ -465,8 +470,11 @@ diagnosticProgram.close();
 assert.equal(readerFailure.query.reader.declared_length, 258);
 assert.equal(readerFailure.query.reader.tag, "5A");
 assert.equal(readerFailure.query.diagnostic.path_omitted, 0);
-// Common evidence is emitted once, under query.diagnostic.
+// Common evidence is emitted once, under query.diagnostic; the result code and
+// primary location are the error's own.
 assert.equal(readerFailure.query.reader.path_omitted, undefined);
+assert.equal(readerFailure.query.diagnostic.location, undefined);
+assert.equal(readerFailure.query.diagnostic.code, undefined);
 assert.equal(readerFailure.query.kind_name, "reader");
 assert.equal(readerFailure.query.reader.operation_name, "value");
 assert.equal(readerFailure.message, "truncated input");

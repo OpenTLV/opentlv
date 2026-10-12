@@ -252,7 +252,13 @@ Fields the failure does not report are `None`.
 Query failures retain common `location`, `severity`, `path`, `path_omitted`
 and `contexts` even without a Reader cause. `error.query["query_kind"]` is a
 `QueryErrorKind`, for example `QueryErrorKind.SYNTAX`; its `label` property
-returns the C spelling. Codec and Schema categories are typed too. See the
+returns the C spelling. `error.query["expression"]` is the related expression
+`Location`, with kind `unknown` when the expression span is `error.location`
+itself; conversion detail is `error.codec_detail`. A Schema Query failure's
+`error.schema` holds only the assertion's `kind`, `kind_name`, `tag` and
+`field`; its location, path and expected text are the error's own. A rejected
+path text raises `InvalidSyntaxError` (or `LimitError`) with Query detail and no
+Reader `operation`. Codec and Schema categories are typed too. See the
 [binding diagnostic reference](../reference/errors.md#binding-diagnostics).
 
 ```python

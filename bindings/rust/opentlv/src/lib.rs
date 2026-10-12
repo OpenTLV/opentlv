@@ -135,8 +135,8 @@ mod program;
 pub use program::{
     ProgramError, ProgramOptions, ProgramResult, QueryBinding, QueryConversion, QueryDecoded,
     QueryDefinitionScope, QueryEvent, QueryExecution, QueryLimit, QueryMatch, QueryMetadata,
-    QueryProgram, QueryProvider, QueryResolver, QueryRule, QuerySchema, QuerySchemaError,
-    QuerySchemaLimits, QueryTagAdapter, QueryType, QueryValue,
+    QueryProgram, QueryProvider, QueryResolver, QueryRule, QuerySchema, QuerySchemaDetail,
+    QuerySchemaError, QuerySchemaLimits, QueryTagAdapter, QueryType, QueryValue,
 };
 #[cfg(feature = "document")]
 pub use program::{QueryEdit, QueryEditError, QueryEditOptions};

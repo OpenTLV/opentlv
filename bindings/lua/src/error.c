@@ -180,13 +180,7 @@ void opentlv_lua_add_reader_detail(lua_State* L, const tlv_reader_detail_t* deta
     }
 }
 
-void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic) {
-    const tlv_location_t* location = &diagnostic->location;
-    lua_newtable(L);
-    lua_pushinteger(L, (lua_Integer)diagnostic->code);
-    lua_setfield(L, -2, "code");
-    lua_pushstring(L, tlv_result_string(diagnostic->code));
-    lua_setfield(L, -2, "message");
+void opentlv_lua_push_location(lua_State* L, const tlv_location_t* location) {
     lua_newtable(L);
     lua_pushstring(L, tlv_location_domain_string(location->domain));
     lua_setfield(L, -2, "domain");
@@ -198,6 +192,16 @@ void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnosti
         opentlv_lua_codec_push_uint(L, location->end);
         lua_setfield(L, -2, "end");
     }
+}
+
+void opentlv_lua_push_diagnostic(lua_State* L, const tlv_diagnostic_t* diagnostic) {
+    const tlv_location_t* location = &diagnostic->location;
+    lua_newtable(L);
+    lua_pushinteger(L, (lua_Integer)diagnostic->code);
+    lua_setfield(L, -2, "code");
+    lua_pushstring(L, tlv_result_string(diagnostic->code));
+    lua_setfield(L, -2, "message");
+    opentlv_lua_push_location(L, location);
     lua_setfield(L, -2, "location");
     if (location->kind != TLV_LOCATION_UNKNOWN) {
         opentlv_lua_codec_push_uint(L, location->begin);

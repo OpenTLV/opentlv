@@ -129,7 +129,12 @@ reports native validation and resource coverage. Explicit limits include
 `max_depth`, `max_nodes` and `max_work`.
 Reader failures preserve copied field offsets, Tag and raw length in
 `error.query.reader`; expected/actual text, path and diagnostic context appear
-once in `error.query.diagnostic`, shared with any `codec_detail`.
+once in `error.query.diagnostic`, shared with any `codec_detail`. The result
+code and primary location are `error.code` and `error.location`;
+`error.query.expression` is the related expression span when another location
+is primary and has kind `unknown` otherwise. A Schema Query failure's
+`error.schema` holds only the assertion's `tag`, `field`, `kind` and
+`kind_name`.
 
 `new V1Query("70/5A")` exposes bounded legacy parsing, `format()`, copied `steps`,
 `evaluate(input, options)` and a native preorder matcher. `matcher()` creates an

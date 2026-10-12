@@ -23,12 +23,12 @@
 namespace cli {
 
 // A byte range --recover skipped, and the first error that made it unreadable.
+// The diagnostic's location, in input coordinates, is the only failure position.
 struct skipped_range {
     tlv::reader_diagnostic diagnostic{};
     std::size_t            offset;
     std::size_t            length;
     tlv::errc              error;
-    std::size_t            error_offset;
 };
 
 bool is_json(const options& o);
@@ -72,12 +72,14 @@ struct traversal_env {
 };
 
 // Traverses `slice_size` bytes of `slice`, which starts at absolute offset `base`
-// of the input, allowing at most `max_elements` elements. On failure
-// *error_offset receives the failing element's absolute offset.
+// of the input, allowing at most `max_elements` elements. On failure the
+// optional *diagnostic receives the failure with its location in input coordinates.
 tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_t slice_size,
                       std::size_t base, std::size_t max_elements, tree_visitor visitor,
-                      void* context, std::size_t* error_offset,
-                      tlv::reader_diagnostic* diagnostic = nullptr);
+                      void* context, tlv::reader_diagnostic* diagnostic = nullptr);
+
+// Compact text for a location: "input:point:3", "input:span:3..5" or "unknown:unknown".
+std::string location_text(const tlv::location& location);
 
 // Adds the "name" and, if requested, "description" EMV dictionary fields to
 // a JSON element object, from the same lookup the text renderer uses. A tag
@@ -107,6 +109,18 @@ void json_decode(Json& object, const cli_presentation_t& presentation,
         object["decode_error"] = result.text;
 }
 
+// A location object: domain and kind, plus begin and end when known.
+template <class Json> Json location_json(const tlv::location& location) {
+    Json object;
+    object["domain"] = tlv::message(tlv::domain(location));
+    object["kind"] = tlv::message(tlv::kind(location));
+    if (tlv::kind(location) != tlv::location_kind::unknown) {
+        object["begin"] = location.begin;
+        object["end"] = location.end;
+    }
+    return object;
+}
+
 // The "skipped" array shared by dump's and decode's JSON documents.
 template <class Json> Json skipped_json(const std::vector<skipped_range>& skipped) {
     Json array = Json::array();
@@ -115,7 +129,7 @@ template <class Json> Json skipped_json(const std::vector<skipped_range>& skippe
         object["offset"] = range.offset;
         object["length"] = range.length;
         object["error"] = error_name(range.error);
-        object["error_offset"] = range.error_offset;
+        object["location"] = location_json<Json>(range.diagnostic.diagnostic.location);
         object["message"] = tlv::message(range.error);
         array.push_back(std::move(object));
     }

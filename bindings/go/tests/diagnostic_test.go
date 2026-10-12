@@ -47,7 +47,11 @@ func TestQueryCategoryAndCommonEvidenceWithoutReader(t *testing.T) {
 		t.Fatal(err)
 	}
 	if failure.Kind != tlv.QueryErrorKindSyntax || failure.HasReader ||
-		failure.Location.Domain != tlv.LocationExpression || !failure.HasOffset {
+		failure.Location.Domain != tlv.LocationExpression || !failure.HasOffset ||
+		failure.Expression.Kind != tlv.LocationUnknown {
 		t.Fatalf("lost Query evidence: %#v", failure)
+	}
+	if _, ok := failure.SourceOffset(); ok {
+		t.Fatal("an expression span is not an input offset")
 	}
 }

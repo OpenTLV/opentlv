@@ -435,7 +435,7 @@ results remain inspectable.
 | --- | --- |
 | C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`, `codec_reason`, `query_cause`; `message(category)` calls C. |
 | Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `CodecReason`, `QueryCause`, `SchemaCause`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
-| Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C. Reader/Writer `operation` remains a canonical string. |
+| Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C; the native module's `result_string()` returns the result text. Reader/Writer `operation` remains a canonical string. |
 | Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
 | Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
 | JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. Common evidence appears once in `query.diagnostic`. |
@@ -450,15 +450,38 @@ Unknown locations have no meaningful numeric coordinates. A known point at
 zero is distinct from absence. Related Query expression spans do not replace
 the primary input/output/Value location. Retained paths hold outermost scopes;
 `path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
-Reader-specific part of a Query failure. Binding Query `begin`/`end` fields
-report the expression span whether it is primary or related. The binding
-facades still repeat some common evidence, for example the Go and Python Schema
-Query projection copies `query.diagnostic` into its Schema part; aligning the
-binding shapes with the single-source C layout is follow-up work.
+Reader-specific part of a Query failure.
+
+Binding Query and Schema Query projections follow the single-source C layout
+and read each value from one C member:
+
+| C member | Binding projection |
+| --- | --- |
+| `diagnostic` | The error's common evidence: `location`, severity, path, expected and actual text, contexts |
+| `kind`, `limit`, `configured` | Query `kind` (Python `query_kind`), `limit`, `configured` |
+| `expression` | Query `expression` location: the related span, unknown when the expression span is the primary `location` |
+| `detail.codec` | Codec detail; `reported` is the raw provider result |
+| `detail.reader` | Reader detail beside the common evidence |
+| `detail.schema` | Schema Query `schema`: `kind`, `tag` and `field` of the failed assertion |
+
+There are no `begin`/`end`, `source_offset`, Query `expected` or `codec`
+copies. The expression span of a failure is its `location` when that has the
+`expression` domain, otherwise its related `expression`. Rust and Go derive
+`source_offset()`/`SourceOffset()` from a primary INPUT location without storing
+it. A rejected V1 path text, such as Python `Query("01/")`, Python
+`Document.find_path()` or Lua `opentlv.query()`, raises the Query syntax or limit
+error with its EXPRESSION location and no Reader detail.
 
 CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common
-diagnostic metadata and delegated Codec or Reader evidence.
+diagnostic metadata and delegated Codec or Reader evidence. Every CLI failure is
+rendered from its diagnostic location; `--recover` reports each skipped range's
+error with the same `location` object instead of a separate offset.
+
+C++ `tlv::error`, `tlv::query_error` and `tlv::query_failure` expose
+`location()`, never a bare offset, because a location's coordinates belong to
+its domain: input, would-be output, Query expression or Value bytes.
+`query_failure::expression()` is the related expression span.
 
 ## See also
 

@@ -41,7 +41,9 @@ int main() {
             return 3;
 #endif
     } catch (const tlv::query_error& failure) {
-        std::cerr << "Query error at " << failure.offset() << ": " << failure.what() << '\n';
+        const auto location = failure.location();
+        std::cerr << "Query error at " << tlv::message(tlv::domain(location)) << ' '
+                  << location.begin << ": " << failure.what() << '\n';
         return 1;
     } catch (const tlv::parse_error& failure) {
         std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';

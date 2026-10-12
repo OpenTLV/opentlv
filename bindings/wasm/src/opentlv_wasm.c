@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../../common/query_schema.h"
+#include "../../common/path_query.h"
 
 #include "tlv/tlv.h"
 #include "tlv/query/adapters.h"
@@ -317,10 +318,12 @@ static const tlv_format_t* select_format(const char* name, int* ber, int* der,
     return NULL;
 }
 
-static void write_location(builder_t* b, const tlv_location_t* location) {
+static void write_named_location(builder_t* b, const char* name, const tlv_location_t* location) {
     tlv_location_t unknown = {0};
     if (!location) location = &unknown;
-    builder_text(b, ",\"location\":{\"domain\":");
+    builder_text(b, ",");
+    builder_json_string(b, name);
+    builder_text(b, ":{\"domain\":");
     builder_json_string(b, tlv_location_domain_string(location->domain));
     builder_text(b, ",\"kind\":");
     builder_json_string(b, tlv_location_kind_string(location->kind));
@@ -331,6 +334,10 @@ static void write_location(builder_t* b, const tlv_location_t* location) {
         builder_number(b, location->end);
     }
     builder_text(b, "}");
+}
+
+static void write_location(builder_t* b, const tlv_location_t* location) {
+    write_named_location(b, "location", location);
 }
 
 static void append_error(builder_t* b, tlv_result_t code, const tlv_location_t* location) {
@@ -713,7 +720,7 @@ static void query_unsigned(builder_t* b, uint64_t value) {
     builder_json_string(b, text);
 }
 static void query_common_diagnostic(builder_t* b, const tlv_diagnostic_t* common) {
-    builder_text(b, ",\"severity\":");
+    builder_text(b, "\"severity\":");
     builder_number(b, common->severity);
     builder_text(b, ",\"severity_name\":");
     builder_json_string(b, tlv_diagnostic_severity_string(common->severity));
@@ -951,37 +958,17 @@ static void query_status(builder_t* b, tlv_result_t code, const tlv_query_diagno
                                                            ? TLV_QUERY_ERROR_STATE
                                                        : d ? d->kind
                                                            : TLV_QUERY_ERROR_NONE));
-    /* The expression span is primary, or related evidence beside another location. */
-    const tlv_location_t* span = !d ? NULL
-                                 : d->diagnostic.location.domain == TLV_LOCATION_EXPRESSION
-                                     ? &d->diagnostic.location
-                                     : &d->expression;
-    int                   spanned = span && span->kind != TLV_LOCATION_UNKNOWN;
-    builder_text(b, ",\"begin\":");
-    builder_number(b, spanned ? span->begin : 0);
-    builder_text(b, ",\"end\":");
-    builder_number(b, spanned ? span->end : 0);
+    /* Related span only: an expression span that is primary is already "location". */
+    write_named_location(b, "expression", d ? &d->expression : NULL);
     if (d) {
         builder_text(b, ",\"configured\":");
         builder_number(b, d->configured);
-        builder_text(b, ",\"codec\":");
-        builder_number(b, d->cause == TLV_QUERY_CAUSE_CODEC ? d->detail.codec.reported : 0);
         if (d->limit) {
             builder_text(b, ",\"limit\":");
             builder_json_string(b, d->limit);
         }
-        if (d->diagnostic.expected) {
-            builder_text(b, ",\"expected\":");
-            builder_json_string(b, d->diagnostic.expected);
-        }
-        if ((d->diagnostic.location.domain == TLV_LOCATION_INPUT &&
-             d->diagnostic.location.kind != TLV_LOCATION_UNKNOWN)) {
-            builder_text(b, ",\"source_offset\":");
-            builder_number(b, d->diagnostic.location.begin);
-        }
-        builder_text(b, ",\"diagnostic\":{\"code\":");
-        builder_number(b, code);
-        write_location(b, &d->diagnostic.location);
+        /* The result code and primary location are the error's own "code" and "location". */
+        builder_text(b, ",\"diagnostic\":{");
         query_common_diagnostic(b, &d->diagnostic);
         builder_text(b, "}");
         if (d->cause == TLV_QUERY_CAUSE_CODEC) query_codec_diagnostic(b, &d->detail.codec);
@@ -1016,14 +1003,8 @@ opentlv_wasm_v1_t* opentlv_wasm_v1_new(const char* text, size_t size) {
 const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const uint8_t* data,
                                       size_t size, size_t depth) {
     tlv_query_diagnostic_t diagnostic = {0};
-    if (q->code != TLV_OK) {
-        /* Name only the V1 parse failures that a Query kind describes. */
-        diagnostic.kind = q->code == TLV_ERR_SYNTAX  ? TLV_QUERY_ERROR_SYNTAX
-                          : q->code == TLV_ERR_LIMIT ? TLV_QUERY_ERROR_LIMIT
-                                                     : TLV_QUERY_ERROR_NONE;
-        /* The V1 expression span is the primary location; it is not stored twice. */
-        diagnostic.diagnostic = q->diagnostic;
-    }
+    /* The V1 expression span is the primary location; it is not stored twice. */
+    if (q->code != TLV_OK) diagnostic = opentlv_binding_path_failure(q->code, &q->diagnostic);
     tlv_result_t rc = q->code;
     if (rc == TLV_OK && operation == 1) rc = tlv_query_matcher_init(&q->matcher, &q->query);
     if (operation < 0 || operation > 2) rc = TLV_ERR_INVALID_ARG;
@@ -1173,49 +1154,18 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     free(rules);
     query_status(&owner->reply, rc, &diagnostic.query);
     query_field(&owner->reply, "rule", diagnostic.rule);
-    /* Only a failed assertion has Schema detail; it shares the Query common part. */
-    tlv_schema_diagnostic_t schema = {0};
-    if (diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA) {
-        schema.diagnostic = diagnostic.query.diagnostic;
-        schema.cause = TLV_SCHEMA_CAUSE_SCHEMA;
-        schema.detail.schema = diagnostic.query.detail.schema;
-    }
+    /* Only a failed assertion has Schema detail. Its common evidence (location,
+     * path, expected text) is the error's own, so "schema" adds only that detail. */
+    static const tlv_schema_detail_t none;
+    const tlv_schema_detail_t*       schema =
+        diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA ? &diagnostic.query.detail.schema : &none;
     builder_text(&owner->reply, ",\"schema\":{\"tag\":\"");
-    builder_hex(&owner->reply, schema.detail.schema.tag.data, schema.detail.schema.tag.size);
+    builder_hex(&owner->reply, schema->tag.data, schema->tag.size);
     builder_text(&owner->reply, "\",\"field\":");
-    builder_json_string(&owner->reply,
-                        schema.detail.schema.field ? schema.detail.schema.field : "");
-    query_field(&owner->reply, "kind", schema.detail.schema.kind);
-    write_location(&owner->reply, &schema.diagnostic.location);
+    builder_json_string(&owner->reply, schema->field ? schema->field : "");
+    query_field(&owner->reply, "kind", schema->kind);
     builder_text(&owner->reply, ",\"kind_name\":");
-    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(schema.detail.schema.kind));
-    query_field(&owner->reply, "code", schema.diagnostic.code);
-    query_field(&owner->reply, "severity", schema.diagnostic.severity);
-    builder_text(&owner->reply, ",\"offset\":");
-    if (schema.diagnostic.location.kind)
-        builder_number(&owner->reply, schema.diagnostic.location.begin);
-    else
-        builder_text(&owner->reply, "null");
-    builder_text(&owner->reply, ",\"expected\":");
-    if (schema.diagnostic.expected)
-        builder_json_string(&owner->reply, schema.diagnostic.expected);
-    else
-        builder_text(&owner->reply, "null");
-    builder_text(&owner->reply, ",\"actual\":");
-    if (schema.diagnostic.actual)
-        builder_json_string(&owner->reply, schema.diagnostic.actual);
-    else
-        builder_text(&owner->reply, "null");
-    builder_text(&owner->reply, ",\"path\":[");
-    for (size_t i = 0; i < schema.diagnostic.path.length; ++i) {
-        if (i) builder_text(&owner->reply, ",");
-        builder_text(&owner->reply, "\"");
-        builder_hex(&owner->reply, schema.diagnostic.path.tags[i].data,
-                    schema.diagnostic.path.tags[i].size);
-        builder_text(&owner->reply, "\"");
-    }
-    builder_text(&owner->reply, "],\"path_omitted\":");
-    builder_number(&owner->reply, schema.diagnostic.path.omitted);
+    builder_json_string(&owner->reply, tlv_schema_issue_kind_string(schema->kind));
     builder_text(&owner->reply, "}");
     return query_reply(&owner->reply);
 }
