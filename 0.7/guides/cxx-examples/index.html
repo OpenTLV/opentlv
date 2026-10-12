@@ -3728,7 +3728,7 @@
 <h1 id="c-examples">C++ examples<a class="headerlink" href="#c-examples" title="Permanent link">&para;</a></h1>
 <p>The C++ facade delegates parsing, traversal, Query and encoding to the canonical
 C engine. The common examples below use C++11; no generic lambdas are required.
-The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/README.md">source index</a> lists all runnable examples.</p>
+The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/README.md">source index</a> lists all runnable examples.</p>
 <h2 id="borrowed-parsing-and-sequential-iteration">Borrowed parsing and sequential iteration<a class="headerlink" href="#borrowed-parsing-and-sequential-iteration" title="Permanent link">&para;</a></h2>
 <p>The <a href="../../getting-started/#quick-start">quick-start</a> uses
 scoped <code>tlv::encode&lt;Format&gt;()</code>, direct text and template Tag bytes, then
@@ -3741,7 +3741,7 @@ single-pass range of Elements at one level, including constructed Elements
 whose Values are still encoded child bytes. It does not recursively flatten
 the tree. Input must remain immutable and alive for the range and retained
 Elements. Iteration throws <code>tlv::parse_error</code> on malformed final input.</p>
-<p>The same rule applies to <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/basic_usage.cpp"><code>basic_usage.cpp</code></a>,
+<p>The same rule applies to <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/basic_usage.cpp"><code>basic_usage.cpp</code></a>,
 which writes two primitive elements and reads only the written output prefix.
 Writing returns a result; check it before reading output. A failed scoped write
 may leave a prefix in the output buffer; do not publish that output as a success.</p>
@@ -3781,7 +3781,7 @@ may leave a prefix in the output buffer; do not publish that output as a success
 <a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="p">}</span>
 </code></pre></div>
 <h2 id="nested-writing-and-traversal">Nested writing and traversal<a class="headerlink" href="#nested-writing-and-traversal" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/write.cpp"><code>write.cpp</code></a> expresses nesting with
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/write.cpp"><code>write.cpp</code></a> expresses nesting with
 <code>writer.constructed&lt;Tag&gt;(callback)</code> and writes Values directly from text or byte
 arrays. Its <code>encode&lt;12, 2&gt;</code> uses bounded local storage: 12 scratch bytes and two
 frames. No storage grows or allocates; insufficient output, scratch or depth
@@ -3789,7 +3789,7 @@ returns an error. The default overload uses 1024 scratch bytes and the default
 tree depth. Select capacities for your data, or pass caller-owned
 <code>writer_storage&lt;Scratch, Depth&gt;::view()</code> as described in the <a href="../writer/">Writer guide</a>.
 Scoped callbacks collect the first failure; check the outer result.</p>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/parse.cpp"><code>parse.cpp</code></a> visits all four Elements in the
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/parse.cpp"><code>parse.cpp</code></a> visits all four Elements in the
 same nested document through the canonical Tree Reader Visitor. It supplies two
 caller-owned frames, a depth limit of two and an element limit of 16. Those
 frames and input must outlive traversal. The callback supplies a C++ Element,
@@ -3800,7 +3800,7 @@ example. Use Document children for common owning traversal. See the <a href="../
 <p>Document parsing returns a checked result and owns the parsed data. Iteration
 visits roots; <code>node.children()</code> visits immediate children. Nodes borrow their
 Document and become invalid when the Document dies or their node is erased.
-See <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/document_edit.cpp"><code>document_edit.cpp</code></a> for mutation.</p>
+See <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/document_edit.cpp"><code>document_edit.cpp</code></a> for mutation.</p>
 <!-- example: examples/tlv++/src/document.cpp -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// SPDX-License-Identifier: MIT</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">// Copyright (c) 2026 Marek Cingel</span>
@@ -3833,25 +3833,25 @@ See <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/sr
 </code></pre></div>
 <p>For an owning Document, <code>document.select("6F/A5/50")</code> returns matching Node
 handles. For borrowed streaming traversal, <code>reader.select("6F/A5/50")</code> returns
-a lazy range. <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/query.cpp"><code>query.cpp</code></a> executes both
+a lazy range. <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/query.cpp"><code>query.cpp</code></a> executes both
 forms when Document is enabled. Invalid Query text throws <code>query_error</code>;
 streaming parse failures throw <code>parse_error</code>. Document parsing itself uses a
 result that must be checked before selection. Document and its selection
 snapshot may allocate; streaming selection does not allocate on success.</p>
 <h2 id="typed-values-and-custom-formats">Typed Values and custom Formats<a class="headerlink" href="#typed-values-and-custom-formats" title="Permanent link">&para;</a></h2>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/typed_fields.cpp"><code>typed_fields.cpp</code></a> defines an
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/typed_fields.cpp"><code>typed_fields.cpp</code></a> defines an
 application <code>Counter</code> field with byte Tag <code>9F36</code>, <code>uint16_t</code> and an explicit
 big-endian codec. It uses <code>writer.write&lt;Counter&gt;(value)</code>,
 <code>element.decode&lt;Counter&gt;()</code> and optional <code>document.get&lt;Counter&gt;()</code>.
 Typed results preserve codec and framing failures. The short Writer overload
-allocates temporary Value storage; <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/advanced_control.cpp"><code>advanced_control.cpp</code></a>
+allocates temporary Value storage; <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/advanced_control.cpp"><code>advanced_control.cpp</code></a>
 instead supplies two caller-owned scratch bytes.</p>
-<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/fixed_format.cpp"><code>formats/fixed_format.cpp</code></a>
+<p><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/formats/fixed_format.cpp"><code>formats/fixed_format.cpp</code></a>
 uses a compile-time Format with typed Reader and Writer; it needs no native
 descriptor access. Its byte-order template argument still uses
 <code>TLV_BYTE_ORDER_LITTLE_ENDIAN</code>: that is an existing public API requirement.
 A completely application-defined Format is shown separately in
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/custom_format.cpp"><code>formats/custom_format.cpp</code></a>.
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/formats/custom_format.cpp"><code>formats/custom_format.cpp</code></a>.
 It implements decode, measure and encode contracts and source ranges, while
 generic Reader and Writer still execute the canonical engine.</p>
 <h2 id="measuring-ceremony">Measuring ceremony<a class="headerlink" href="#measuring-ceremony" title="Permanent link">&para;</a></h2>
@@ -3903,7 +3903,7 @@ with the former BER parsing-only program because they perform different operatio
 parsing retains explicit Format selection, and borrowed input still requires a
 byte span. These remaining setup requirements are visible rather than hidden in
 example-only adapters. Allocation-free native control and explicit C structure
-access belong in the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/README.md#advanced-control">advanced examples</a>.</p>
+access belong in the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/README.md#advanced-control">advanced examples</a>.</p>
 <h2 id="equivalent-cli-operations">Equivalent CLI operations<a class="headerlink" href="#equivalent-cli-operations" title="Permanent link">&para;</a></h2>
 <p>With BER enabled, these commands use the same primitive and nested bytes as the
 C++ examples. <code>otlv</code> allocates its input/output storage; C++ callers can select

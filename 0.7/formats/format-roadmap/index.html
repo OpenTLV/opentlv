@@ -3796,7 +3796,7 @@
 CLI and language-preset support; this page records candidates and remaining work.</p>
 <p><a href="../../">Back to documentation</a></p>
 <p>This is a candidate catalogue, not a release schedule. The
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/README.md#format-and-standard-support">README checklist</a> records built-in support.
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/README.md#format-and-standard-support">README checklist</a> records built-in support.
 Unchecked entries are not implemented; application-defined callbacks may already
 support particular encodings. Each implementation needs a separate scope, chosen
 specification edition, limits, and conformance tests before its checkbox is enabled.
@@ -4118,7 +4118,7 @@ so a candidate's "components" show which layers stay separate.</p>
 <h2 id="framing-requirements">Framing requirements<a class="headerlink" href="#framing-requirements" title="Permanent link">&para;</a></h2>
 <p>These are reusable requirements collected from the candidates. Not one of them is a
 commitment. The <strong>fit</strong> column is by inspection of the callback contract in
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/tlv/include/tlv/format.h"><code>format.h</code></a>: <code>decode</code> sees the bytes from
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/tlv/include/tlv/format.h"><code>format.h</code></a>: <code>decode</code> sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
 trailer size; <code>encode</code> writes the complete Header/Value/Trailer representation. A tag is any
 number of raw bytes the format accepts. <strong>A generic packed-header fixture and the LLDP framing adapter exercise

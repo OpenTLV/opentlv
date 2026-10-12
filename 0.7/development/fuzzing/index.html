@@ -3853,7 +3853,7 @@ number of executions. <code>-max_len</code> limits generated inputs, not the API
 input size. <code>-timeout</code> bounds one execution and the RSS option limits memory.
 With <code>-runs=0</code>, libFuzzer replays the seed corpus without a mutation campaign.</p>
 <h2 id="reproduce-and-minimize-a-finding">Reproduce and minimize a finding<a class="headerlink" href="#reproduce-and-minimize-a-finding" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/.github/workflows/fuzz.yml">C API Fuzzing</a> workflow runs on pushes to
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/.github/workflows/fuzz.yml">C API Fuzzing</a> workflow runs on pushes to
 <code>main</code> (including merged pull requests), every Monday at 03:17 UTC even without
 new commits, and manually through <code>workflow_dispatch</code>. Scheduled runs use the
 latest commit on the default branch; the workflow must be merged there first.

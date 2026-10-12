@@ -4102,7 +4102,7 @@ depends on how much of X.680 these rows cover.</p>
 <td>X.680 with X.690 BER and CER rules</td>
 <td>Schema-aware reading with BER leniency (indefinite lengths, non-canonical forms) and CER canonical rules. The schema layer is DER only today, and it is unconditionally strict.</td>
 <td>DER schema (new BER and CER variants), structure schema</td>
-<td>Needed by <a href="#asn1-standards">CMS</a>, which mixes BER with DER-only fields, and by LDAP and SNMP. CER canonical SET/SET OF ordering is still open in the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/README.md#format-and-standard-support">README</a>.</td>
+<td>Needed by <a href="#asn1-standards">CMS</a>, which mixes BER with DER-only fields, and by LDAP and SNMP. CER canonical SET/SET OF ordering is still open in the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/README.md#format-and-standard-support">README</a>.</td>
 <td>Not verified: as above.</td>
 </tr>
 <tr>
@@ -4118,7 +4118,7 @@ depends on how much of X.680 these rows cover.</p>
 <td>X.680 module syntax; <a href="https://www.itu.int/rec/T-REC-X.683/en">X.683</a> parameterization</td>
 <td>A tool that turns ASN.1 modules into static schema tables so large modules are not hand-authored. Documented subset only.</td>
 <td>tool (outside the runtime library)</td>
-<td>The runtime library keeps no ASN.1 text parser. Hand-authored tables stay supported. Overlaps the planned complete runtime model and OTLV language in the long-term <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/ROADMAP.md">ROADMAP</a>; decide the relationship before any work. Module text is human-readable, so this stays a tool question, not a library one.</td>
+<td>The runtime library keeps no ASN.1 text parser. Hand-authored tables stay supported. Overlaps the planned complete runtime model and OTLV language in the long-term <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/ROADMAP.md">ROADMAP</a>; decide the relationship before any work. Module text is human-readable, so this stays a tool question, not a library one.</td>
 <td>Not verified: as above.</td>
 </tr>
 </tbody>

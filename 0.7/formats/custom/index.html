@@ -3709,7 +3709,7 @@ fields rather than packed bits. For definite packed Tag/Length headers, use
 the supplied <a href="../packed/">Packed configuration</a> and its complete callbacks.</p>
 <h2 id="c-usage">C usage<a class="headerlink" href="#c-usage" title="Permanent link">&para;</a></h2>
 <p>Use the complete custom-format implementation in the
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/custom_format.c">C example</a>, which includes callback
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/custom_format.c">C example</a>, which includes callback
 implementations, descriptor initialization, writing, and reading.
 The <a href="../#generic-interface">generic contract</a> documents each callback.</p>
 <p>Field write callbacks take <code>(context, tag/length, data, capacity, written)</code>, in
@@ -3728,7 +3728,7 @@ little-endian length:</p>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>`-- Value:  AA
 </code></pre></div>
 <p>See the custom-format implementation in the
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/custom_format.c">C example</a> and the
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/custom_format.c">C example</a> and the
 <a href="../#generic-interface">callback contracts</a>. This particular shape -
 a fixed-width tag and length - could also be built with the
 <a href="../fixed/configurable/">configurable fixed-width format</a>

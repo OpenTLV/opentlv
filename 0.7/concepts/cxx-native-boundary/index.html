@@ -4090,7 +4090,7 @@ C++ handles are accessed. Never free the borrowed owner or retain raw pointers
 after its destruction. Query path descriptors use <code>native::descriptor(query)</code>; compiled programs and
 mutable continuations use <code>native::handle()</code>. Temporary owning objects cannot
 export retained pointers.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/fixed_format_runtime.cpp">runtime Fixed example</a>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/formats/fixed_format_runtime.cpp">runtime Fixed example</a>
 demonstrates <code>runtime_fixed_format</code> with caller-owned configuration. A copied
 owner rebinds its descriptor to its own configuration; existing views continue
 to borrow the original owner. Reader/Writer construction from a C descriptor now

@@ -3773,7 +3773,7 @@ and publishes a decoded result only after validation. Source metadata and the
 transactional result copy remain intact. Configuration checks remain in place;
 this change introduces no pointer-keyed cache or new immutability assumption.</p>
 <h2 id="workloads-and-measurement-method">Workloads and measurement method<a class="headerlink" href="#workloads-and-measurement-method" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/README.md">benchmark guide</a> defines the datasets, exact
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/README.md">benchmark guide</a> defines the datasets, exact
 element denominators, allocation counters and commands. Reader reads roots;
 Tree Reader visits all elements and validates matching END events. Dataset
 generation and caller-owned traversal workspace allocation are outside timing.
@@ -3799,8 +3799,8 @@ matrix ran baseline then A; the independent Reader repeat ran A then baseline.
 The same benchmark executable loaded saved baseline/A libraries through
 <code>LD_LIBRARY_PATH</code>; <code>ldd</code> confirmed selection. The only library source difference
 is the retained <code>tlv_read_impl()</code> change described above.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/reader-decode-538.json">full evidence</a> and
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/reader-decode-538-repeat.json">reverse-order repeat</a>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/reader-decode-538.json">full evidence</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/reader-decode-538-repeat.json">reverse-order repeat</a>
 retain context, dataset counters, every repetition's iteration count and CPU/wall
 times, medians and sample coefficient of variation (CV). Times below are CPU
 microseconds per complete input, not per element. Negative changes mean less

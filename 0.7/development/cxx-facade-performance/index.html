@@ -3771,7 +3771,7 @@ unchanged.</p>
 public layouts are preserved. Updated C++ Document headers need a matching native
 library that exports it.</p>
 <h2 id="workloads">Workloads<a class="headerlink" href="#workloads" title="Permanent link">&para;</a></h2>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/README.md">benchmark guide</a> documents the 38 permanent
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/README.md">benchmark guide</a> documents the 38 permanent
 <code>cxx_reader/*</code> and <code>cxx_document/*</code> Google Benchmark cases. Reader cases cover
 BER and Fixed framing, explicit pulls, ranges, EOF, malformed input, incremental
 pauses, initialization failure and pause/resume. Each timed result is checked
@@ -3802,10 +3802,10 @@ not a confidence interval. Near-noise differences do not establish improvements.
 reverses that order. Raw samples, iteration counts, medians, compiler/CPU context
 and source hashes are retained in four files:</p>
 <ul>
-<li>Forward <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/cxx-facade-440-baseline.json">baseline</a> and
-  <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/cxx-facade-440-candidate.json">candidate</a>.</li>
-<li>Reverse-order <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/cxx-facade-440-baseline-reverse.json">baseline</a>
-  and <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/cxx-facade-440-candidate-reverse.json">candidate</a>.</li>
+<li>Forward <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/cxx-facade-440-baseline.json">baseline</a> and
+  <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/cxx-facade-440-candidate.json">candidate</a>.</li>
+<li>Reverse-order <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/cxx-facade-440-baseline-reverse.json">baseline</a>
+  and <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/cxx-facade-440-candidate-reverse.json">candidate</a>.</li>
 </ul>
 <p>These contain 1,064 raw measurements in total. They are local observations from
 one host, not release thresholds. The reverse baseline has substantial outliers,
@@ -4004,16 +4004,16 @@ were not rerun for this change.</p>
 They now use compact standard JSON and generic host/executable identifiers; no
 timing was changed during that metadata cleanup.</p>
 <h3 id="comparison-with-main">Comparison with main<a class="headerlink" href="#comparison-with-main" title="Permanent link">&para;</a></h3>
-<p>The separate <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/scripts/reader_api_comparison.py">collector</a> and
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/tools/reader_api_comparison.cpp">benchmark source</a> build exact
+<p>The separate <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/scripts/reader_api_comparison.py">collector</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/tools/reader_api_comparison.cpp">benchmark source</a> build exact
 revisions <code>89991d9f</code> (<code>main</code>), <code>a2d1fd3</code> (prior PR) and the working candidate with
 the C diagnostic change. Each uses its own native library and C++ headers, with
 matching generated capabilities, GCC 13.3, C++11 and <code>-O2 -DNDEBUG</code> without LTO.
 The old Fixed template argument type is the only compatibility adapter.</p>
 <p>The 2026-10-07 run uses the same WSL2 host and CPU affinity 2, without concurrent
 project builds or tests. Each of 60 cases has seven shuffled repetitions. The
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/reader-api-440.csv">420 raw timings</a> and
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/benchmarks/evidence/reader-api-440.json">build provenance and summaries</a>
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/reader-api-440.csv">420 raw timings</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/benchmarks/evidence/reader-api-440.json">build provenance and summaries</a>
 retain source commits/patches, checksums, hashes and every observation, without
 hostnames or absolute paths. The benchmark uses a typed <code>reader&lt;Format&gt;</code> and an
 elapsed wall-clock timer; its absolute times should not be mixed with the earlier

@@ -3776,7 +3776,7 @@ every example is runtime-tested. Python and Lua CI run their example programs.
 Go CI runs applicable examples in default/minimal builds, excluding Document
 and Query where Document is disabled. WASM's Node example is runnable after an
 Emscripten build; a WASM build alone does not prove that example was run.
-The CLI's <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/tools/cli/examples.cmake">acceptance script</a> exercises the
+The CLI's <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/tools/cli/examples.cmake">acceptance script</a> exercises the
 shared Fixed round trip and nested BER decode/encode/query workflows.</p>
 <p>Embedded complete programs use <code>&lt;!-- example: PATH --&gt;</code>; run
 <code>python scripts/check_doc_examples.py</code> to keep the copies identical. Small
@@ -3799,327 +3799,327 @@ removals and stale links. This is an inventory, not evidence of a CI runtime pas
 <tbody>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/builtins/asn1/ber.c">builtins/asn1/ber.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/builtins/asn1/ber.c">builtins/asn1/ber.c</a></td>
 <td>BER framing / construction</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/builtins/asn1/cer.c">builtins/asn1/cer.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/builtins/asn1/cer.c">builtins/asn1/cer.c</a></td>
 <td>CER framing</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/builtins/emv/tag_decoding.c">builtins/emv/tag_decoding.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/builtins/emv/tag_decoding.c">builtins/emv/tag_decoding.c</a></td>
 <td>EMV definitions / codecs</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/codecs_and_endian.c">codecs_and_endian.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/codecs_and_endian.c">codecs_and_endian.c</a></td>
 <td>Value codecs and byte order</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/copies.c">copies.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/copies.c">copies.c</a></td>
 <td>Explicit copy / preservation</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/custom_format.c">custom_format.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/custom_format.c">custom_format.c</a></td>
 <td>Application Format</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/dhcpv4.c">dhcpv4.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/dhcpv4.c">dhcpv4.c</a></td>
 <td>DHCPv4 framing / End policy</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/formats/fixed_format.c">formats/fixed_format.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/formats/fixed_format.c">formats/fixed_format.c</a></td>
 <td>Generic Fixed Format</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/incremental_reader.c">incremental_reader.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/incremental_reader.c">incremental_reader.c</a></td>
 <td>Resumable input</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/lldp.c">lldp.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/lldp.c">lldp.c</a></td>
 <td>LLDP validation / codecs</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/nfc_type2.c">nfc_type2.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/nfc_type2.c">nfc_type2.c</a></td>
 <td>NFC Type 2 framing</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/parse.c">parse.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/parse.c">parse.c</a></td>
 <td>Nested parsing / traversal</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/query.c">query.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/query.c">query.c</a></td>
 <td>Path Query</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/quick_start.c">quick_start.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/quick_start.c">quick_start.c</a></td>
 <td>Quick start / round trip</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/schema_visitor.c">schema_visitor.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/schema_visitor.c">schema_visitor.c</a></td>
 <td>Schema and Visitor</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/sequential_io.c">sequential_io.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/sequential_io.c">sequential_io.c</a></td>
 <td>Sequential Reader / Writer</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/tree_reader.c">tree_reader.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/tree_reader.c">tree_reader.c</a></td>
 <td>Pull Tree Reader</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/tree_writer.c">tree_writer.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/tree_writer.c">tree_writer.c</a></td>
 <td>Tree Writer</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/validate.c">validate.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/validate.c">validate.c</a></td>
 <td>Schema / validation</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/visitor.c">visitor.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/visitor.c">visitor.c</a></td>
 <td>Visitor traversal</td>
 </tr>
 <tr>
 <td>C</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/write.c">write.c</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/write.c">write.c</a></td>
 <td>Nested construction</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/advanced_control.cpp">advanced_control.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/advanced_control.cpp">advanced_control.cpp</a></td>
 <td>Input control, scratch and explicit native interop</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/basic_usage.cpp">basic_usage.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/basic_usage.cpp">basic_usage.cpp</a></td>
 <td>Reader / Writer / codecs</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/document.cpp">document.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/document.cpp">document.cpp</a></td>
 <td>Owned Document / traversal</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/document_edit.cpp">document_edit.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/document_edit.cpp">document_edit.cpp</a></td>
 <td>Document mutation</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/custom_format.cpp">formats/custom_format.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/formats/custom_format.cpp">formats/custom_format.cpp</a></td>
 <td>Application Format</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/fixed_format.cpp">formats/fixed_format.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/formats/fixed_format.cpp">formats/fixed_format.cpp</a></td>
 <td>Generic Fixed Format</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/formats/fixed_format_runtime.cpp">formats/fixed_format_runtime.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/formats/fixed_format_runtime.cpp">formats/fixed_format_runtime.cpp</a></td>
 <td>Runtime Fixed / explicit native interop</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/generate.cpp">generate.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/generate.cpp">generate.cpp</a></td>
 <td>Deterministic wire generation / owned cases</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/lldp.cpp">lldp.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/lldp.cpp">lldp.cpp</a></td>
 <td>LLDP validation / codecs</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/parse.cpp">parse.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/parse.cpp">parse.cpp</a></td>
 <td>Nested parsing / traversal</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/query.cpp">query.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/query.cpp">query.cpp</a></td>
 <td>Path Query</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/quick_start.cpp">quick_start.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/quick_start.cpp">quick_start.cpp</a></td>
 <td>Quick start / round trip</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/typed_fields.cpp">typed_fields.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/typed_fields.cpp">typed_fields.cpp</a></td>
 <td>Typed fields / Values</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/validate.cpp">validate.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/validate.cpp">validate.cpp</a></td>
 <td>Schema / validation</td>
 </tr>
 <tr>
 <td>C++</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/write.cpp">write.cpp</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/write.cpp">write.cpp</a></td>
 <td>Nested construction</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/parse.rs">parse.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/parse.rs">parse.rs</a></td>
 <td>Nested parsing / traversal</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/query_conformance.rs">query_conformance.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/query_conformance.rs">query_conformance.rs</a></td>
 <td>Common compiled Query corpus runner</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/quick_start.rs">quick_start.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/quick_start.rs">quick_start.rs</a></td>
 <td>Quick start / round trip</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/reader.rs">reader.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/reader.rs">reader.rs</a></td>
 <td>Sequential Reader and input control</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/validate.rs">validate.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/validate.rs">validate.rs</a></td>
 <td>Schema / validation</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/write.rs">write.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/write.rs">write.rs</a></td>
 <td>Nested construction</td>
 </tr>
 <tr>
 <td>Rust</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/writer.rs">writer.rs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/writer.rs">writer.rs</a></td>
 <td>Sequential Writer</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/codec.py">codec.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/codec.py">codec.py</a></td>
 <td>Typed Value codecs</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/document.py">document.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/document.py">document.py</a></td>
 <td>Owned Document / traversal</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/parse.py">parse.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/parse.py">parse.py</a></td>
 <td>Nested parsing / traversal</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/query.py">query.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/query.py">query.py</a></td>
 <td>Path Query</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/quick_start.py">quick_start.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/quick_start.py">quick_start.py</a></td>
 <td>Quick start / round trip</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/validate.py">validate.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/validate.py">validate.py</a></td>
 <td>Schema / validation</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/write.py">write.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/write.py">write.py</a></td>
 <td>Nested construction</td>
 </tr>
 <tr>
 <td>Python</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/writer.py">writer.py</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/writer.py">writer.py</a></td>
 <td>Sequential Writer</td>
 </tr>
 <tr>
 <td>Lua</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/lua/examples/codec.lua">codec.lua</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/lua/examples/codec.lua">codec.lua</a></td>
 <td>Typed Value codecs</td>
 </tr>
 <tr>
 <td>Lua</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/lua/examples/parse.lua">parse.lua</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/lua/examples/parse.lua">parse.lua</a></td>
 <td>Nested parsing / traversal</td>
 </tr>
 <tr>
 <td>Lua</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/lua/examples/quick_start.lua">quick_start.lua</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/lua/examples/quick_start.lua">quick_start.lua</a></td>
 <td>Quick start / round trip</td>
 </tr>
 <tr>
 <td>Lua</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/lua/examples/schema.lua">schema.lua</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/lua/examples/schema.lua">schema.lua</a></td>
 <td>Structural Schema</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/codec/main.go">codec/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/codec/main.go">codec/main.go</a></td>
 <td>Typed Value codecs</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/document/main.go">document/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/document/main.go">document/main.go</a></td>
 <td>Owned Document / traversal</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/errors/main.go">errors/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/errors/main.go">errors/main.go</a></td>
 <td>Owned diagnostics / error matching</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/query/main.go">query/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/query/main.go">query/main.go</a></td>
 <td>Path Query</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/query_conformance/main.go">query_conformance/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/query_conformance/main.go">query_conformance/main.go</a></td>
 <td>Common compiled Query corpus runner</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/quick_start/main.go">quick_start/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/quick_start/main.go">quick_start/main.go</a></td>
 <td>Quick start / round trip</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/reader/main.go">reader/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/reader/main.go">reader/main.go</a></td>
 <td>Sequential Reader and input control</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/version/main.go">version/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/version/main.go">version/main.go</a></td>
 <td>Version / native integration</td>
 </tr>
 <tr>
 <td>Go</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/writer/main.go">writer/main.go</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/writer/main.go">writer/main.go</a></td>
 <td>Sequential Writer</td>
 </tr>
 <tr>
 <td>WebAssembly</td>
-<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/wasm/examples/parse.mjs">parse.mjs</a></td>
+<td><a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/wasm/examples/parse.mjs">parse.mjs</a></td>
 <td>Nested parsing / traversal</td>
 </tr>
 </tbody>

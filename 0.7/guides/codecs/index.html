@@ -3910,7 +3910,7 @@ fails before the Writer is invoked. Codec failures preserve the output cursor;
 Writer failures also preserve it under the usual Writer contract, though bytes
 past the cursor may change. Custom codecs may allocate even with caller-owned
 scratch. The selected Format still generates all element framing.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/typed_fields.cpp">compiled typed-field example</a>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/typed_fields.cpp">compiled typed-field example</a>
 uses C++11 with no optional protocol component and exercises Document lookup
 when Document is enabled. <code>tlv::codec_registry</code> maps Tags to decoders selected
 at runtime.</p>
@@ -3942,8 +3942,8 @@ Object storage and encoded storage belong to the caller.</p>
 <code>tlv++/codec/structure.hpp</code> adapt this descriptor without allocating temporary output.
 T must match the descriptor's representation and be default constructible.
 For a tested two-field mapping, see
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/tests/integration/architecture_test.cpp"><code>architecture_test.cpp</code></a> and
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/tests/integration/layers_test.cpp"><code>layers_test.cpp</code></a>.</p>
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/tests/integration/architecture_test.cpp"><code>architecture_test.cpp</code></a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/tests/integration/layers_test.cpp"><code>layers_test.cpp</code></a>.</p>
 <p>Raw C++ readers and writers include only <code>tlv++/types.hpp</code> and the C I/O
 contracts; they do not depend on codecs.</p>
 <h2 id="other-languages">Other languages<a class="headerlink" href="#other-languages" title="Permanent link">&para;</a></h2>

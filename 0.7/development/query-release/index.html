@@ -3645,7 +3645,7 @@ Both <code>work-budgets-32-64</code> and
 <code>ABI-32-64</code> records require <code>pointer_bits: [32, 64]</code>. Artifact paths must stay
 inside the evidence directory. Run <code>python scripts/test_query_release.py</code> to
 check rejection of stale, malformed, incomplete or modified evidence.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/.github/workflows/query-release.yml">Query release candidate workflow</a>
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/.github/workflows/query-release.yml">Query release candidate workflow</a>
 executes this strict gate through <code>workflow_dispatch</code> or <code>workflow_call</code>. Supply
 the ID of a successful Actions run for the same candidate commit. That run must
 contain the <code>query-candidate-evidence</code> artifact with <code>manifest.json</code> at its root

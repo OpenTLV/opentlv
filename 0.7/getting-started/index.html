@@ -3738,7 +3738,7 @@ the same order as the tabs.</p>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <p>Save the example as <code>main.c</code>. It is
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/quick_start.c">examples/tlv/src/quick_start.c</a>. Place
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/quick_start.c">examples/tlv/src/quick_start.c</a>. Place
 the checkout at <code>external/OpenTLV</code> in your application.</p>
 <!-- example: examples/tlv/src/quick_start.c -->
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// SPDX-License-Identifier: MIT</span>
@@ -3791,7 +3791,7 @@ zero indicates a successful round trip.</p>
 </div>
 <div class="tabbed-block">
 <p>Save the example as <code>main.cpp</code>. It is
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/quick_start.cpp">examples/tlv++/src/quick_start.cpp</a>.
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/quick_start.cpp">examples/tlv++/src/quick_start.cpp</a>.
 Place the checkout at <code>external/OpenTLV</code> in your application. Enable <code>CXX</code> in
 <code>project</code>, set <code>OPENTLV_BUILD_CXX</code> to <code>ON</code>, and link <code>tlv++</code> instead of <code>tlv</code>;
 this target propagates the C library and include paths. <code>tlv::fixed_format</code>
@@ -3863,7 +3863,7 @@ Document, typed fields, Query and explicit control.</p>
 <div class="tabbed-block">
 <p>Save the example as <code>examples/quick_start.rs</code> in a crate that depends on
 <code>opentlv</code>. It is
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/rust/opentlv/examples/quick_start.rs">bindings/rust/opentlv/examples/quick_start.rs</a>.
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/rust/opentlv/examples/quick_start.rs">bindings/rust/opentlv/examples/quick_start.rs</a>.
 The crate is not published to crates.io yet; depend on it by path from a
 checkout of the repository. See <a href="../guides/rust/">Using OpenTLV from Rust</a>
 for the full setup, including how to link a prebuilt library.
@@ -3910,7 +3910,7 @@ saved under its <code>examples/</code>. Exit code zero indicates a successful ro
 <div class="tabbed-block">
 <p>Save the example as <code>quick_start.py</code> in a checkout with both Python packages
 installed. It is
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/examples/quick_start.py">bindings/python/opentlv/examples/quick_start.py</a>.
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/examples/quick_start.py">bindings/python/opentlv/examples/quick_start.py</a>.
 The <code>opentlv</code> package is not published to PyPI yet; install it, and the
 <code>opentlv-core</code> extension it depends on, by path from a checkout of the
 repository. See <a href="../guides/python/">Using OpenTLV from Python</a> for the full
@@ -3955,7 +3955,7 @@ iteration and UTF-8 decoding use normal Python exceptions.</p>
 <p>Exit code zero indicates a successful round trip.</p>
 </div>
 <div class="tabbed-block">
-<p>This is <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/lua/examples/quick_start.lua">bindings/lua/examples/quick_start.lua</a>.
+<p>This is <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/lua/examples/quick_start.lua">bindings/lua/examples/quick_start.lua</a>.
 Build the native module as described in <a href="../guides/lua/">Using OpenTLV from Lua</a>.
 Lua strings carry binary Tag and Value bytes; failed native operations raise errors.
 The Writer uses its default bounded capacity, and Reader works directly in a
@@ -3980,7 +3980,7 @@ generic <code>for</code> loop.</p>
 <code>LUA_PATH</code>/<code>LUA_CPATH</code>.</p>
 </div>
 <div class="tabbed-block">
-<p>This is <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/quick_start/main.go">bindings/go/examples/quick_start/main.go</a>.
+<p>This is <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/quick_start/main.go">bindings/go/examples/quick_start/main.go</a>.
 Build the C library and configure cgo as described in the
 <a href="../guides/go/#install-and-integrate">Go user guide</a>. Import the public
 <code>opentlv</code> package; no cgo or native package is needed in application code.
@@ -4036,10 +4036,10 @@ in the Rust bindings CI workflow, and the Python
 program is run directly in the Python bindings CI workflow. Lua CI runs the
 Lua quick start, and Go CI runs its quick start in both default and minimal
 configurations. The
-<a href="https://github.com/marekcingel/OpenTLV/tree/0.7.0/examples/tlv/src">C examples</a>, one topic per file (sequential I/O,
+<a href="https://github.com/marekcingel/OpenTLV/tree/0.7.1/examples/tlv/src">C examples</a>, one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and
-CER builtins), the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv++/src/basic_usage.cpp">C++ example</a>
-with BER, the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/examples/tlv/src/builtins/emv/tag_decoding.c">EMV example</a>,
+CER builtins), the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv++/src/basic_usage.cpp">C++ example</a>
+with BER, the <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/examples/tlv/src/builtins/emv/tag_decoding.c">EMV example</a>,
 the further <a href="../guides/rust/">Rust examples</a> (reading, writing, and the
 <code>parse</code>, <code>write</code> and <code>validate</code> use cases), and the further
 <a href="../guides/python/">Python examples</a> (reading, writing, validating, codecs

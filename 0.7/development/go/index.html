@@ -3528,7 +3528,7 @@
 
 <h1 id="go-binding-development">Go binding development<a class="headerlink" href="#go-binding-development" title="Permanent link">&para;</a></h1>
 <p>Use the <a href="../../guides/go/">Go user guide</a> for Format selection, processing,
-ownership and errors. The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/README.md">binding README</a>
+ownership and errors. The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/README.md">binding README</a>
 describes native build integration, the <code>internal/capi</code> boundary and extraction
 of the nested Go module.</p>
 <p>After configuring cgo against matching native headers and library, run from
@@ -3543,7 +3543,7 @@ of the nested Go module.</p>
 supported Go target and C toolchain; CI uses Linux amd64. It checks Go memory
 accesses, while <code>cgocheck2</code> checks the Go/C pointer boundary. Neither replaces
 native C sanitizer coverage.</p>
-<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/.github/workflows/go.yml">Go workflow</a> tests default and minimal
+<p>The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/.github/workflows/go.yml">Go workflow</a> tests default and minimal
 native configurations, with optional presets and Document disabled in the
 latter. It runs formatting, vet, tests, race checks, <code>cgocheck2</code> and applicable
 public examples. Document and Query examples require Document; generic Reader,

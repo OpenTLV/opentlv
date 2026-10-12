@@ -4124,8 +4124,8 @@ diagnostics, limits and continuation delegate to C. Match snapshots own their
 bytes. Reset separates input/binding lifetimes; callback exceptions require
 reset before reuse. Programs and executions retain their native owners until
 the Python objects are collected.
-The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/python/opentlv/tests/test_program.py">consumer tests</a> and
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/tests/query/python_facade.py">common corpus runner</a> exercise these APIs.</p>
+The <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/python/opentlv/tests/test_program.py">consumer tests</a> and
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/tests/query/python_facade.py">common corpus runner</a> exercise these APIs.</p>
 <p><code>providers={"num": QueryProvider(id, decode), ...}</code> replaces the closed <code>num</code>,
 <code>bcd</code>, <code>text</code> or <code>date</code> conversion. <code>decode(value, metadata)</code> receives owned bytes
 and optional copied <code>QueryMatch</code> metadata; return an integer or, for <code>text</code>, a

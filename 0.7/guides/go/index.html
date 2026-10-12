@@ -3799,7 +3799,7 @@ Generated <code>tlv/config.h</code>, <code>tlv/export.h</code> and <code>tlv/ver
 <code>CGO_LDFLAGS</code> at its library directory. The binding links <code>-ltlv</code>. Shared builds
 omit <code>TLV_STATIC_DEFINE</code> and require the platform loader to find the runtime
 library. Windows requires a compatible GCC/MinGW compiler and library; see the
-<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/README.md#build-and-run">binding build instructions</a> for
+<a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/README.md#build-and-run">binding build instructions</a> for
 PowerShell commands. After replacing native headers or the library, run
 <code>go clean -cache</code> before rebuilding. The Go module has no third-party Go dependencies.</p>
 <h2 id="format-and-element">Format and Element<a class="headerlink" href="#format-and-element" title="Permanent link">&para;</a></h2>
@@ -3826,7 +3826,7 @@ all undiscarded bytes and appending new input. Offsets stay absolute. An
 incomplete final element is an error; final input cannot be reopened.
 The caller assembles windows: the binding does not buffer an <code>io.Reader</code>.
 Readers require no <code>Close</code>.</p>
-<p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/reader/main.go">reader/main.go</a>.</p>
+<p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/reader/main.go">reader/main.go</a>.</p>
 <h2 id="writer-and-nested-construction">Writer and nested construction<a class="headerlink" href="#writer-and-nested-construction" title="Permanent link">&para;</a></h2>
 <p><code>NewWriter(format)</code> grows owned output. <code>NewWriterBuffer(format, buffer)</code> uses
 the slice's length as fixed capacity. <code>WriteElement(tag, value)</code> and
@@ -3843,7 +3843,7 @@ to a sink. <code>Bytes()</code> excludes unfinished parents.</p>
 reports total <code>Required</code> and <code>Available</code> sizes. <code>SetBuffer</code> copies the completed
 prefix into larger storage so the failed write or End can be retried. Writer
 requires no <code>Close</code>.</p>
-<p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/writer/main.go">writer/main.go</a>.</p>
+<p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/writer/main.go">writer/main.go</a>.</p>
 <h2 id="document-edits-and-cleanup">Document, edits and cleanup<a class="headerlink" href="#document-edits-and-cleanup" title="Permanent link">&para;</a></h2>
 <p><code>Parse(data, format)</code> copies input into the canonical owned mutable Document.
 <code>ParseWithOptions</code> accepts explicit depth and element limits; zero is a literal
@@ -3862,7 +3862,7 @@ Close. Nodes have no individual wire ranges. <code>Encode()</code> regenerates f
 <code>EncodeAs(format)</code> selects a compatible destination without remapping Tags.
 <code>writer.WriteDocument(doc)</code> writes in the Writer's Format, including inside an
 open parent. Capacity failures preserve the Writer.</p>
-<p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/document/main.go">document/main.go</a>.</p>
+<p>Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/document/main.go">document/main.go</a>.</p>
 <h2 id="query-and-typed-values">Query and typed Values<a class="headerlink" href="#query-and-typed-values" title="Permanent link">&para;</a></h2>
 <p>Compiled expressions use <code>CompileQuery(text, ProgramOptions)</code> and immutable
 <code>QueryProgram</code> owners. <code>LoadQuery</code> validates same-release images using the
@@ -3883,7 +3883,7 @@ Common <code>Diagnostic</code> evidence survives failures without a Reader cause
 <code>Expression</code> is the related expression span, with <code>LocationUnknown</code> kind when
 the primary <code>Location</code> already is that span, and <code>SourceOffset()</code> projects a
 primary input location. <code>CodecDetail.Reported</code> is the raw provider result.
-See <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/tests/program_test.go">consumer tests</a>.</p>
+See <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/tests/program_test.go">consumer tests</a>.</p>
 <p><code>ProgramOptions.Providers</code> maps <code>QueryNum</code>, <code>QueryBCD</code>, <code>QueryText</code> and <code>QueryDate</code>
 to <code>QueryProvider</code> values. Each owns a stable nonzero ID and a <code>Decode</code> callback
 receiving copied input and optional <code>QueryMetadata</code>. Text outputs use explicit
@@ -3914,8 +3914,8 @@ bytes for a Writer or edit. Numbers explicitly select width and byte order;
 decimal digit codecs preserve leading zeros. Codecs do not infer semantics from
 an enclosing Tag. Zero Codecs are unsupported. Protocol-specific and
 application-object Structure codecs remain unbound.</p>
-<p>Runnable versions: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/query/main.go">query/main.go</a>
-and <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/codec/main.go">codec/main.go</a>.</p>
+<p>Runnable versions: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/query/main.go">query/main.go</a>
+and <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/codec/main.go">codec/main.go</a>.</p>
 <h2 id="errors-diagnostics-and-concurrency">Errors, diagnostics and concurrency<a class="headerlink" href="#errors-diagnostics-and-concurrency" title="Permanent link">&para;</a></h2>
 <p>Use <code>errors.Is</code> with named statuses such as <code>ErrInvalidTag</code>; use <code>errors.As</code> for
 <code>*ParseError</code>, <code>*WriteError</code>, <code>*QueryError</code>, <code>CapacityError</code> or <code>StatusError</code>.
@@ -3929,7 +3929,7 @@ input reuse or Document cleanup. Presence flags distinguish absent information
 from zero or empty values. Only detail supplied by C is exposed: Document
 encoding can return a status without wire detail, Query reports its text error
 offset where available, and Value codecs supply no structured diagnostic.
-Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.0/bindings/go/examples/errors/main.go">errors/main.go</a>.</p>
+Runnable version: <a href="https://github.com/marekcingel/OpenTLV/blob/0.7.1/bindings/go/examples/errors/main.go">errors/main.go</a>.</p>
 <p>Immutable Formats and Codecs can be shared concurrently. Readers, Writers,
 Documents and their mutable buffers require separate instances or external
 synchronization. Returned slices are mutable; synchronize their use as well.
