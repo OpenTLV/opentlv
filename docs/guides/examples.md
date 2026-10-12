@@ -7,6 +7,20 @@ it is not the default application path. Go examples import only the public
 package. Rust uses `opentlv`, Python uses `opentlv`, Lua uses `require("opentlv")`
 and WebAssembly uses the supported JavaScript loader.
 
+## Fixed round trip by language
+
+These examples write and read `Hello, world!` using Fixed framing, a one-byte
+Tag `01`, and a one-byte Length. See the [quick start](../getting-started/README.md#quick-start)
+for setup, ownership notes and expected output.
+
+<!-- opentlv-examples: fixed.roundtrip -->
+
+Native executable sources: [C quick start](../../examples/tlv/src/quick_start.c)
+and [C++ quick start](../../examples/tlv++/src/quick_start.cpp).
+The documentation portal can add examples from independently selected bindings.
+
+<!-- /opentlv-examples -->
+
 ## Workflow coverage
 
 Links below name existing programs, not promised parity. A dash means there is

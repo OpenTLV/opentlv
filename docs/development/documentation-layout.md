@@ -109,6 +109,27 @@ directly above a fenced block to embed a source file verbatim; run
 block differs from its source or the source no longer builds. Small illustrative
 fragments may stay inline.
 
+### Portal example slots
+
+Core's root `docs-examples.json` associates stable feature IDs with native
+executable sources. The portal reads these files from the selected Core revision;
+Core builds and documentation checks do not require the portal. A feature ID
+describes a specific operation and input contract, not an entire API subsystem.
+`fixed.roundtrip` means the Fixed `Hello, world!` round trip described in the
+[example guide](../guides/examples.md#fixed-round-trip-by-language).
+
+A paired `<!-- opentlv-examples: fixed.roundtrip -->` and
+`<!-- /opentlv-examples -->` slot wraps ordinary Markdown fallback links.
+Keep that fallback useful when reading Core without the portal. Assembly replaces
+the slot with source-backed language tabs without editing the original page.
+Binding repositories own their own catalogs and examples; do not add their
+future sources to Core's native catalog. Existing `<!-- example: PATH -->`
+blocks and their synchronization checks remain supported.
+
+The portal documents the catalog format, unavailable states and verification
+inputs in its [integration guide](https://github.com/OpenTLV/opentlv-docs#language-example-integration).
+Declaring a source is not evidence of a successful test run.
+
 ## Language tabs
 
 OpenTLV provides an idiomatic C++ API and official language bindings over the

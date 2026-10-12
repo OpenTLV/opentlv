@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Expose native C/C++ Fixed round-trip examples through a source-owned feature catalog and a documentation slot for portal language tabs. (OpenTLV/opentlv-docs#5)
 - Documentation ownership rules and a source inventory defining Core, binding, tool and portal responsibilities, transitional exceptions, and link preservation requirements for the independent documentation portal. (#605)
 
 ## [0.7.1] - 2026-10-12
