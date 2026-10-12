@@ -8,7 +8,7 @@ from opentlv import (QueryProgram, TreeReader, Visit, Document, InvalidArgError,
                      NeedMoreDataError, LimitError, BufferTooShortError, QueryProvider,
                      InvalidValueError, CallbackError, QueryRule, QuerySchema, SchemaError, UnsupportedError)
 from opentlv import (QueryTagAdapter, QueryDefinitionResolver, Definition, DefinitionRegistry,
-                     FixedFormat, Query, query_emv_resolve)
+                     FixedFormat, Query, query_emv_resolve, Location)
 
 WIRE = bytes.fromhex("70065a01015001025a0103")
 
@@ -111,24 +111,27 @@ def test_query_schema_buffer_document_owned_diagnostics_and_limits():
         schema.validate_buffer(bad)
     detail = caught.value.schema
     assert caught.value.rule == 0
-    assert detail["kind_name"] == "assertion" and detail["code"] == caught.value.code
-    assert detail["tag"] == b"\x5a" and detail["path"] == (b"\x70",)
-    assert detail["offset"] == 2 and detail["field"] == "one"
-    assert detail["expected"] == "contextual Query assertion true"
+    # The Schema part carries only Schema detail; common evidence is the error's own.
+    assert sorted(detail) == ["field", "kind", "kind_name", "tag"]
+    assert detail["kind_name"] == "assertion"
+    assert detail["tag"] == b"\x5a" and caught.value.path == (b"\x70",)
+    assert caught.value.location == Location("input", "point", 2, 2) and detail["field"] == "one"
+    assert caught.value.expected == "contextual Query assertion true"
     document = Document(bad)
     with pytest.raises(SchemaError) as document_failure:
         schema.validate_document(document)
-    assert document_failure.value.schema["offset"] is None
+    assert document_failure.value.location.kind == "unknown"
     document.close()
     bad[:] = b"\0" * len(bad)
     del schema, context
     gc.collect()
-    assert document_failure.value.schema["path"] == (b"\x70",)
+    assert document_failure.value.path == (b"\x70",)
     assert detail["tag"] == b"\x5a" and detail["field"] == "one"
     schema = QuerySchema([QueryRule(QueryProgram("//5A"), QueryProgram("1 = 1"))])
     with pytest.raises(LimitError) as limit:
         schema.validate_buffer(good, max_contexts=0)
     assert limit.value.query["limit"] == "schema-contexts"
+    assert limit.value.schema is None
     with pytest.raises(LimitError):
         schema.validate_buffer(good, max_work=1)
     with pytest.raises(InvalidValueError):
@@ -204,7 +207,6 @@ def test_custom_text_provider_has_exact_bounded_result_scratch():
     short = QueryProvider(102, provider.decode, max_result_bytes=2)
     with pytest.raises(BufferTooShortError) as error:
         QueryProgram("text(//5A)", providers={"text": short}).evaluate(b"\x5a\0")
-    assert error.value.query["codec"] == _native.RESULT_BUFFER_TOO_SHORT
     assert error.value.codec_detail["reported"] == _native.RESULT_BUFFER_TOO_SHORT
     assert error.value.codec_detail["operation"] == 0
 
@@ -440,9 +442,9 @@ def test_query_schema_deep_diagnostic_retains_omitted_count():
         wire = bytes([0x70 if level == 34 else 0x30, len(wire)]) + wire
     with pytest.raises(SchemaError) as caught:
         schema.validate_buffer(wire)
-    detail = caught.value.schema
-    assert detail["path"] == (b"\x70",) + (b"\x30",) * 31
-    assert detail["path_omitted"] == 3
+    assert caught.value.schema["kind_name"] == "assertion"
+    assert caught.value.path == (b"\x70",) + (b"\x30",) * 31
+    assert caught.value.path_omitted == 3
 
 
 def test_invalid_successful_provider_output_is_callback_failure():
@@ -452,4 +454,4 @@ def test_invalid_successful_provider_output_is_callback_failure():
         program.evaluate(bytes.fromhex("5a0103"))
     assert failed.value.code == _native.RESULT_CALLBACK
     assert failed.value.query["query_kind"] == 13
-    assert failed.value.query["codec"] == 0
+    assert failed.value.codec_detail["reported"] == 0

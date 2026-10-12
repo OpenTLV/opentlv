@@ -78,6 +78,16 @@ void print_tag(tlv::tag tag, bool color) {
     print_hex(tag.as_bytes());
 }
 
+std::string location_text(const tlv::location& location) {
+    std::string text =
+        std::string(tlv::message(tlv::domain(location))) + ":" + tlv::message(tlv::kind(location));
+    if (tlv::kind(location) == tlv::location_kind::unknown) return text;
+    text += ":" + std::to_string(location.begin);
+    if (tlv::kind(location) == tlv::location_kind::span)
+        text += ".." + std::to_string(location.end);
+    return text;
+}
+
 std::string hex_string(tlv::bytes bytes) {
     return hex_string(reinterpret_cast<const uint8_t*>(bytes.data()), bytes.size());
 }
@@ -94,10 +104,8 @@ std::string hex_string(const uint8_t* data, std::size_t length) {
 
 tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_t slice_size,
                       std::size_t base, std::size_t max_elements, tree_visitor visitor,
-                      void* context, std::size_t* error_offset,
-                      tlv::reader_diagnostic* diagnostic) {
+                      void* context, tlv::reader_diagnostic* diagnostic) {
     const options& o = *env.options;
-    std::size_t    relative = 0;
     tlv::errc      result;
 #if OPENTLV_FORMAT_DER
     if (env.is_der) {
@@ -109,13 +117,10 @@ tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_
                                                : tlv::visit_control::next;
                             });
         result = status ? tlv::errc::ok : status.error().status();
-        if (!status) {
-            relative = status.error().offset();
-            if (diagnostic) {
-                diagnostic->diagnostic = tlv::make_diagnostic(result, tlv::severity::error);
-                diagnostic->diagnostic.location = status.error().location();
-                tlv::translate_location(diagnostic->diagnostic.location, base);
-            }
+        if (!status && diagnostic) {
+            diagnostic->diagnostic = tlv::make_diagnostic(result, tlv::severity::error);
+            diagnostic->diagnostic.location = status.error().location();
+            tlv::translate_location(diagnostic->diagnostic.location, base);
         }
     } else
 #endif
@@ -133,7 +138,6 @@ tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_
                                 diagnostic)
                           : reader.validate(diagnostic);
         result = status ? tlv::errc::ok : status.error().status();
-        if (!status && status.error().has_offset()) relative = status.error().offset();
         if (result != tlv::errc::ok && diagnostic &&
             tlv::status(diagnostic->diagnostic) != tlv::errc::ok) {
             tlv::translate_location(diagnostic->diagnostic.location, base);
@@ -143,7 +147,6 @@ tlv::errc visit_slice(const traversal_env& env, const uint8_t* slice, std::size_
             if (diagnostic->detail.has_enclosing_end) diagnostic->detail.enclosing_end += base;
         }
     }
-    if (result != tlv::errc::ok) *error_offset = base + relative;
     return result;
 }
 

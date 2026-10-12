@@ -168,12 +168,18 @@ fn main() {
         Ok(())
     })();
     if let Err(error) = result {
+        // The expression span is primary, or related evidence beside another location.
+        let span = if error.location.domain == opentlv::LocationDomain::Expression {
+            error.location
+        } else {
+            error.expression
+        };
         eprintln!(
             "{} {} {} {}",
             error.error.code(),
             error.kind.as_raw(),
-            error.begin,
-            error.end
+            span.begin,
+            span.end
         );
         std::process::exit(1);
     }

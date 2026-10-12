@@ -35,7 +35,10 @@ fn source_offset_projects_primary_input_evidence_only() {
         .err()
         .unwrap();
     assert_eq!(syntax.source_offset(), None);
-    assert!(syntax.expected.as_deref().is_some());
+    assert!(syntax.expected().is_some());
+    // The primary expression span is not repeated as related evidence.
+    assert_eq!(syntax.location.domain, opentlv::LocationDomain::Expression);
+    assert_eq!(syntax.expression.kind, opentlv::LocationKind::Unknown);
     let program = QueryProgram::compile("//5A", &ProgramOptions::default()).unwrap();
     for (input, offset) in [(vec![0], 0), (vec![0x5a, 2, 0], 2)] {
         let mut execution = program.execution(4, 20, 100000, true).unwrap();
@@ -90,7 +93,7 @@ fn provider_text_capacity_original_errors_and_panics_are_contained() {
         let mut reader = TreeReader::new(&[0x5a, 0], Format::Ber, 4, 4, 20, true).unwrap();
         let result = execution.visit(&mut reader, |_| Visit::Continue);
         if let Some(codec) = expected {
-            assert_eq!(result.unwrap_err().codec, codec);
+            assert_eq!(result.unwrap_err().codec_detail.unwrap().reported, codec);
         } else {
             result.unwrap();
             assert_eq!(execution.result().unwrap(), QueryValue::String("a\0b"));
@@ -116,7 +119,9 @@ fn provider_text_capacity_original_errors_and_panics_are_contained() {
             execution
                 .visit(&mut reader, |_| Visit::Continue)
                 .unwrap_err()
-                .codec,
+                .codec_detail
+                .unwrap()
+                .reported,
             if panic {
                 Error::Callback.code()
             } else {

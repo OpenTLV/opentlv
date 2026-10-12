@@ -43,10 +43,6 @@ public:
     tlv::error failure() const noexcept {
         return detail::error_access::diagnostic(diagnostic_, operation::query);
     }
-    /** @brief Zero-based offending character or tag position. */
-    size_t offset() const noexcept {
-        return diagnostic_.location.begin;
-    }
     /** @brief Primary expression evidence, or unknown when no text position is available. */
     tlv_location_t location() const noexcept {
         return diagnostic_.location;

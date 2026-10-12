@@ -988,46 +988,17 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
     Py_DECREF(format_owner);
     if (rc != TLV_OK) {
         if (PyErr_Occurred()) return NULL;
-        /* Only a failed assertion has Schema detail; it shares the Query common part. */
-        tlv_schema_diagnostic_t schema_value = {0};
-        if (diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA) {
-            schema_value.diagnostic = diagnostic.query.diagnostic;
-            schema_value.cause = TLV_SCHEMA_CAUSE_SCHEMA;
-            schema_value.detail.schema = diagnostic.query.detail.schema;
-        }
-        const tlv_schema_diagnostic_t* schema = &schema_value;
-        PyObject* path = PyTuple_New((Py_ssize_t)schema->diagnostic.path.length);
-        if (!path) return NULL;
-        for (size_t i = 0; i < schema->diagnostic.path.length; ++i) {
-            tlv_tag_t tag = schema->diagnostic.path.tags[i];
-            PyObject* value =
-                PyBytes_FromStringAndSize((const char*)tag.data, (Py_ssize_t)tag.size);
-            if (!value) {
-                Py_DECREF(path);
-                return NULL;
-            }
-            PyTuple_SetItem(path, (Py_ssize_t)i, value);
-        }
-        PyObject* offset = schema->diagnostic.location.kind
-                               ? PyLong_FromSize_t(schema->diagnostic.location.begin)
-                               : Py_NewRef(Py_None);
-        PyObject* detail = Py_BuildValue(
-            "{s:i,s:i,s:i,s:s,s:y#,s:z,s:N,s:N,s:z,s:z,s:K}", "code", (int)schema->diagnostic.code,
-            "severity", (int)schema->diagnostic.severity, "kind", (int)schema->detail.schema.kind,
-            "kind_name", tlv_schema_issue_kind_string(schema->detail.schema.kind), "tag",
-            schema->detail.schema.tag.size ? (const char*)schema->detail.schema.tag.data : "",
-            (Py_ssize_t)schema->detail.schema.tag.size, "field", schema->detail.schema.field,
-            "path", path, "offset", offset, "expected", schema->diagnostic.expected, "actual",
-            schema->diagnostic.actual, "path_omitted",
-            (unsigned long long)schema->diagnostic.path.omitted);
+        /* Only a failed assertion has Schema detail; other failures report None. Its
+         * common evidence (location, path, expected text) is the Query error's own. */
+        const tlv_schema_detail_t* schema = &diagnostic.query.detail.schema;
+        PyObject*                  detail =
+            diagnostic.query.cause != TLV_QUERY_CAUSE_SCHEMA
+                ? Py_NewRef(Py_None)
+                : Py_BuildValue("{s:i,s:s,s:y#,s:z}", "kind", (int)schema->kind, "kind_name",
+                                tlv_schema_issue_kind_string(schema->kind), "tag",
+                                schema->tag.size ? (const char*)schema->tag.data : "",
+                                (Py_ssize_t)schema->tag.size, "field", schema->field);
         if (!detail) return NULL;
-        PyObject* location = opentlv_python_location(&schema->diagnostic.location);
-        if (!location || PyDict_SetItemString(detail, "location", location) < 0) {
-            Py_XDECREF(location);
-            Py_DECREF(detail);
-            return NULL;
-        }
-        Py_DECREF(location);
         PyObject* details =
             Py_BuildValue("{s:n,s:N}", "rule", (Py_ssize_t)diagnostic.rule, "schema", detail);
         if (!details) return NULL;

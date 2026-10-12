@@ -6,7 +6,7 @@ use opentlv_sys as native;
 mod providers;
 mod schema;
 pub use providers::{QueryDefinitionScope, QueryResolver, QueryTagAdapter};
-pub use schema::{QueryRule, QuerySchema, QuerySchemaError, QuerySchemaLimits};
+pub use schema::{QueryRule, QuerySchema, QuerySchemaDetail, QuerySchemaError, QuerySchemaLimits};
 use std::{
     collections::BTreeMap,
     ffi::{CStr, CString},
@@ -201,26 +201,22 @@ pub struct ProgramError {
     /// reported only error severity without text, contexts or path. Use the accessors
     /// below to read either source.
     pub metadata: Option<Box<crate::DiagnosticMetadata>>,
-    /// Primary evidence coordinates; Query spans remain related expression context.
+    /// Primary evidence: the input or Value location of the failing node or lower
+    /// layer, otherwise the expression span, or unknown for admission and lifecycle
+    /// failures.
     pub location: crate::Location,
     /// Original native status, including resumable NEED_MORE_DATA.
     pub error: Error,
     /// Native Query diagnostic category.
     pub kind: crate::QueryErrorKind,
-    /// Inclusive Query byte offset of the expression span, whether it is the primary
-    /// location or related evidence beside another primary location; zero without one.
-    pub begin: usize,
-    /// Exclusive Query byte offset of the expression span; zero without one.
-    pub end: usize,
-    /// Owned immutable native expected-token or type description from the common diagnostic.
-    pub expected: Option<Box<str>>,
+    /// Related expression span when another known location is primary; otherwise
+    /// unknown, so the span `location` already holds is not repeated.
+    pub expression: crate::Location,
     /// Exhausted named resource and its configured bound, when present.
     ///
     /// Boxed with the rare limit evidence so `location` stays inline.
     pub limit: Option<Box<QueryLimit>>,
-    /// Original native codec status reported by an active conversion cause, otherwise zero.
-    pub codec: i32,
-    /// Owned conversion cause supplied by the provider.
+    /// Owned conversion cause supplied by the provider; `reported` holds its raw result.
     pub codec_detail: Option<Box<crate::CodecDiagnostic>>,
     /// Owned original Reader diagnostic for Reader failures.
     pub reader: Option<Box<ReaderDiagnostic>>,
@@ -247,6 +243,22 @@ impl ProgramError {
         match (&self.reader, &self.metadata) {
             (Some(reader), _) => reader.path.as_deref(),
             (None, Some(metadata)) => metadata.path.as_deref(),
+            (None, None) => None,
+        }
+    }
+    /// Native expected-token or type description of the common diagnostic.
+    pub fn expected(&self) -> Option<&str> {
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.expected.as_deref(),
+            (None, Some(metadata)) => metadata.expected.as_deref(),
+            (None, None) => None,
+        }
+    }
+    /// Native actual-value description of the common diagnostic.
+    pub fn actual(&self) -> Option<&str> {
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.actual.as_deref(),
+            (None, Some(metadata)) => metadata.actual.as_deref(),
             (None, None) => None,
         }
     }
@@ -286,12 +298,6 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 })
             };
             let common = &diagnostic.diagnostic;
-            // The expression span is primary, or related evidence beside another location.
-            let span = [common.location, diagnostic.expression]
-                .into_iter()
-                .find(|location| {
-                    location.domain == native::TLV_LOCATION_EXPRESSION && location.kind != 0
-                });
             // C initializes the whole union, so copying the inactive arm reads defined bytes.
             let codec = (diagnostic.cause == native::TLV_QUERY_CAUSE_CODEC)
                 .then_some(diagnostic.detail.codec);
@@ -321,16 +327,13 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
                 } else {
                     diagnostic.kind
                 }),
-                begin: span.map_or(0, |span| span.begin),
-                end: span.map_or(0, |span| span.end),
-                expected: text(common.expected),
+                expression: crate::Location::from_raw(diagnostic.expression),
                 limit: text(diagnostic.limit).map(|name| {
                     Box::new(QueryLimit {
                         name,
                         configured: diagnostic.configured,
                     })
                 }),
-                codec: codec.map_or(0, |codec| codec.reported),
                 codec_detail: codec.map(|codec| {
                     Box::new(crate::CodecDiagnostic::from_raw(
                         &native::tlv_codec_diagnostic_t {
@@ -1071,11 +1074,8 @@ unsafe fn project<'a>(event: &native::tlv_tree_event_t) -> ProgramResult<QueryMa
             metadata: None,
             error: e,
             kind: crate::QueryErrorKind::None,
-            begin: 0,
-            end: 0,
-            expected: None,
+            expression: crate::Location::default(),
             limit: None,
-            codec: 0,
             codec_detail: None,
             reader: None,
         })?,
@@ -1450,11 +1450,8 @@ impl<'a> QueryExecution<'a> {
                     metadata: None,
                     error,
                     kind: crate::QueryErrorKind::None,
-                    begin: 0,
-                    end: 0,
-                    expected: None,
+                    expression: crate::Location::default(),
                     limit: None,
-                    codec: 0,
                     codec_detail: None,
                     reader: None,
                 })?,

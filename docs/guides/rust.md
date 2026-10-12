@@ -196,11 +196,13 @@ or `QueryErrorKind::State` and use `name()` for the canonical C spelling.
 `severity()`, `contexts()`, `path()` and `path_omitted()` read the common
 evidence from the Reader cause when present, otherwise from the boxed
 `metadata`, which stays `None` when nothing beyond error severity was reported.
+`expected()` and `actual()` read the common texts from the same source.
 `ProgramError.location` holds primary evidence inline. `source_offset()` projects its
 start only for known INPUT locations, including zero; expression spans and
-unknown locations return `None`. `expected` is an owned immutable `Box<str>`
-(inspect with `as_deref()`); `limit` boxes the exhausted resource name with its
-configured bound as `QueryLimit`. Categories are `#[non_exhaustive]`;
+unknown locations return `None`. `expression` is the related expression span,
+with kind `Unknown` when `location` already is that span. `limit` boxes the
+exhausted resource name with its configured bound as `QueryLimit`, and
+`codec_detail.reported` is the raw provider result. Categories are `#[non_exhaustive]`;
 unrecognized native values become `Unrecognized(RawCategory)`.
 `ProgramOptions.providers` holds `QueryProvider` values for the closed NUM, BCD,
 TEXT and DATE conversions. Each owns a stable ID, scratch limit and `Send + Sync`
@@ -218,6 +220,8 @@ leaves the Document unchanged for a later retry with larger capacity.
 `QueryRule::new(context, assertion).named(name)` and validate a buffer or immutable
 Document with `QuerySchemaLimits`. C performs contextual selection and Boolean
 assertions; Rust owns workspace and failure context in `QuerySchemaError`.
+Its `schema` is a `QuerySchemaDetail` with the failed assertion's `kind`, `tag`
+and `field`; the location, path and expected text come from `failure`.
 Borrowing prevents Document mutation while validation runs.
 
 The [consumer example](../../bindings/rust/opentlv/examples/query_conformance.rs)

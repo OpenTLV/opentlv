@@ -175,8 +175,11 @@ inline void resolve_location(location& value, size_t origin, location_domain dom
     tlv_location_resolve(&value, origin, static_cast<tlv_location_domain_t>(domain));
 }
 /**
- * @brief Allocation-free operation error with optional absolute byte offset.
+ * @brief Allocation-free operation error with an optional primary location.
  *
+ * location() keeps the coordinate domain and anchor kind of the evidence; read
+ * `begin` only when its kind is not location_kind::unknown, and interpret it in
+ * the reported domain (input, would-be output, Query expression or Value bytes).
  * Text is borrowed, normally from immutable program-lifetime library strings.
  * Custom descriptions must outlive every error copy. Numeric context is copied.
  * @note Every error contains a full inline diagnostic path. Its storage also
@@ -214,7 +217,9 @@ struct error {
     schema_issue schema_kind() const noexcept {
         return schema_kind_;
     }
-    /** @brief Complete primary evidence location, including its domain and range. */
+    /** @brief Complete primary evidence location, including its domain and range.
+     * @return Unknown kind when no evidence is available; otherwise `begin` and `end`
+     *         are coordinates in the location's domain, not necessarily input offsets. */
     tlv_location_t location() const noexcept {
         return location_;
     }
@@ -229,14 +234,6 @@ struct error {
     /** @brief Whether an enclosing path was tracked, including a known empty path. */
     bool has_path() const noexcept {
         return has_path_;
-    }
-    /** @brief Whether offset() contains a known location. */
-    bool has_offset() const noexcept {
-        return location_.kind != TLV_LOCATION_UNKNOWN;
-    }
-    /** @brief Absolute byte offset, valid only when has_offset() is true. */
-    std::size_t offset() const noexcept {
-        return location_.begin;
     }
     /** @brief Whether tag() identifies the failing element; identifier bytes remain borrowed. */
     bool has_tag() const noexcept {

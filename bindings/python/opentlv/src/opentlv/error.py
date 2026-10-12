@@ -40,7 +40,7 @@ class OpenTLVError(Exception):
                  tag_offset: Optional[int] = None, length_offset: Optional[int] = None,
                  value_offset: Optional[int] = None, enclosing_end: Optional[int] = None, kind: Optional[str] = None,
                  location: Location | None = None) -> None:
-        super().__init__(_native.strerror(code))
+        super().__init__(_native.result_string(code))
         self.location = location if location is not None else Location()
         self.kind = kind
         self.code = code
@@ -204,12 +204,12 @@ def _from_native(error: "_native.Error") -> OpenTLVError:
         result.codec_detail["schema"] = _diagnostic_from_native(result.codec_detail["schema"])
     result.definition_kind = SchemaDefinitionKind(fields.get("definition_kind", 0))
     result.definition_index = fields.get("definition_index")
-    # Preserve every Query field alongside the original typed Reader/status error.
+    # Query-only fields; common evidence and codec_detail stay on the error itself.
     result.query = {key: fields.get(key) for key in (
-        "query_kind", "query_kind_name", "begin", "end", "source_offset", "query_expected",
-        "limit", "configured", "codec", "codec_detail")} if "query_kind" in fields else None
+        "query_kind", "query_kind_name", "expression", "limit", "configured")} if "query_kind" in fields else None
     if result.query is not None:
         result.query["query_kind"] = QueryErrorKind(result.query["query_kind"])
+        result.query["expression"] = Location(**result.query["expression"])
     if result.codec_detail:
         for key, category in (("operation", CodecOperation), ("cause", CodecCause), ("violation", CodecViolation),
                               ("reason", CodecReason)):

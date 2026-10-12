@@ -31,6 +31,7 @@
 #include <tlv/schema/schema.h>
 #include <tlv/version.h>
 #include <tlv/writer/writer.h>
+#include "../../../common/path_query.h"
 
 static PyObject* opentlv_python_error = NULL;
 
@@ -39,7 +40,7 @@ static PyObject* _opentlv_version_string(PyObject* module, PyObject* Py_UNUSED(a
     return PyUnicode_FromString(tlv_version_string());
 }
 
-static PyObject* _opentlv_strerror(PyObject* module, PyObject* args) {
+static PyObject* _opentlv_result_string(PyObject* module, PyObject* args) {
     (void)module;
     int code;
     if (!PyArg_ParseTuple(args, "i", &code)) {
@@ -220,34 +221,20 @@ void opentlv_python_raise_query(tlv_result_t code, const tlv_query_diagnostic_t*
                            ? &diagnostic->detail.reader
                            : NULL);
     if (!diagnostic || !PyErr_ExceptionMatches(opentlv_python_error)) return;
-    /* The expression span is primary, or related evidence beside another location. */
-    const tlv_location_t* span = diagnostic->diagnostic.location.domain == TLV_LOCATION_EXPRESSION
-                                     ? &diagnostic->diagnostic.location
-                                     : &diagnostic->expression;
-    int                   spanned = span->kind != TLV_LOCATION_UNKNOWN;
-    int                   converted = diagnostic->cause == TLV_QUERY_CAUSE_CODEC;
-    PyObject *            type, *value, *traceback;
+    /* Each Query field comes from one C member; common evidence is already set. */
+    int       converted = diagnostic->cause == TLV_QUERY_CAUSE_CODEC;
+    PyObject *type, *value, *traceback;
     PyErr_Fetch(&type, &value, &traceback);
     PyErr_NormalizeException(&type, &value, &traceback);
     PyObject* args = value ? PyObject_GetAttrString(value, "args") : NULL;
     PyObject* fields = args ? PyTuple_GetItem(args, 0) : NULL;
     if (fields &&
-        (dict_set(fields, "location", opentlv_python_location(&diagnostic->diagnostic.location)) <
-             0 ||
-         dict_set(fields, "query_kind", PyLong_FromLong(diagnostic->kind)) < 0 ||
+        (dict_set(fields, "query_kind", PyLong_FromLong(diagnostic->kind)) < 0 ||
          dict_set_str_or_none(fields, "query_kind_name",
                               tlv_query_error_kind_string(diagnostic->kind)) < 0 ||
-         dict_set(fields, "begin", PyLong_FromSize_t(spanned ? span->begin : 0)) < 0 ||
-         dict_set(fields, "end", PyLong_FromSize_t(spanned ? span->end : 0)) < 0 ||
-         dict_set_size_or_none(fields, "source_offset",
-                               (diagnostic->diagnostic.location.domain == TLV_LOCATION_INPUT &&
-                                diagnostic->diagnostic.location.kind != TLV_LOCATION_UNKNOWN),
-                               diagnostic->diagnostic.location.begin) < 0 ||
-         dict_set_str_or_none(fields, "query_expected", diagnostic->diagnostic.expected) < 0 ||
+         dict_set(fields, "expression", opentlv_python_location(&diagnostic->expression)) < 0 ||
          dict_set_str_or_none(fields, "limit", diagnostic->limit) < 0 ||
          dict_set(fields, "configured", PyLong_FromSize_t(diagnostic->configured)) < 0 ||
-         dict_set(fields, "codec",
-                  PyLong_FromLong(converted ? diagnostic->detail.codec.reported : 0)) < 0 ||
          dict_set(fields, "codec_detail",
                   converted ? codec_detail_value(&diagnostic->diagnostic, &diagnostic->detail.codec)
                             : Py_NewRef(Py_None)) < 0)) {
@@ -1188,11 +1175,13 @@ static PyObject* _opentlv_document_find_path(PyObject* module, PyObject* args) {
     if (document == NULL) {
         return NULL;
     }
-    tlv_query_t             query;
-    tlv_reader_diagnostic_t error_offset = {0};
-    tlv_result_t            code = tlv_query_parse(text, &query, &error_offset.diagnostic);
+    tlv_query_t      query;
+    tlv_diagnostic_t parse = {0};
+    tlv_result_t     code = tlv_query_parse(text, &query, &parse);
     if (code != TLV_OK) {
-        raise_reader_error(code, &error_offset);
+        const tlv_query_diagnostic_t failure =
+            opentlv_binding_path_failure(code, &parse, text, strlen(text));
+        opentlv_python_raise_query(code, &failure);
         return NULL;
     }
     tlv_node_t* node = NULL;
@@ -2037,7 +2026,7 @@ static PyMethodDef opentlv_python_methods[] = {
      "Visit matches through the C Query engine."},
     {"version_string", _opentlv_version_string, METH_NOARGS,
      "Return the version of the linked OpenTLV C library, for example \"0.6.0\"."},
-    {"strerror", _opentlv_strerror, METH_VARARGS,
+    {"result_string", _opentlv_result_string, METH_VARARGS,
      "Return the readable description of a tlv_result_t code."},
     {"read", _opentlv_read, METH_VARARGS,
      "Parse one element at an offset in a buffer using a wire format."},

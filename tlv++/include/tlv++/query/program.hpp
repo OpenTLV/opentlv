@@ -82,6 +82,17 @@ struct query_failure {
     query_cause cause() const noexcept {
         return static_cast<query_cause>(diagnostic.cause);
     }
+    /** @brief Primary evidence: input or Value location of the failing node or lower
+     *         layer, otherwise the expression span, or unknown for admission and
+     *         lifecycle failures. */
+    tlv_location_t location() const noexcept {
+        return diagnostic.diagnostic.location;
+    }
+    /** @brief Related expression span when another known location is primary;
+     *         otherwise unknown, so the span is never reported twice. */
+    tlv_location_t expression() const noexcept {
+        return diagnostic.expression;
+    }
     /** @brief Copy common diagnostic information while preserving Query detail on this object. */
     tlv::error failure() const noexcept {
         auto common = diagnostic.diagnostic;

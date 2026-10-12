@@ -135,8 +135,11 @@ panics invalidate an execution until reset; reentrant operations are rejected.
 Call `Close` for deterministic cleanup. `ProgramError` retains Query diagnostics.
 Its `Kind` is a `QueryErrorKind` with canonical `String()` names; use
 `QueryErrorKindSyntax` or `QueryErrorKindState` instead of numeric literals.
-Common `Diagnostic` evidence survives failures without a Reader cause;
-`HasReader` guards the separate `Reader` detail.
+Common `Diagnostic` evidence survives failures without a Reader cause; when
+`HasReader` is true, the same `Diagnostic` also carries the Reader detail.
+`Expression` is the related expression span, with `LocationUnknown` kind when
+the primary `Location` already is that span, and `SourceOffset()` projects a
+primary input location. `CodecDetail.Reported` is the raw provider result.
 See [consumer tests](../../bindings/go/tests/program_test.go).
 
 `ProgramOptions.Providers` maps `QueryNum`, `QueryBCD`, `QueryText` and `QueryDate`
@@ -154,7 +157,9 @@ on partial failure. Short target storage preserves the selection for retry.
 `ValidateQueryBuffer` and `ValidateQueryDocument` accept `[]QueryRule` with context
 selectors, Boolean assertions and diagnostic names. Pass
 `DefaultQuerySchemaLimits()` or explicit resource limits. Validation retains
-programs/providers and copies diagnostic context into `QuerySchemaError`.
+programs/providers. `QuerySchemaError.Schema` holds the failed assertion's `Kind`,
+`Tag` and `Field`, and is nil for any other failure; its location, path and
+expected text are read from `Failure`.
 Document mutation and close are rejected while provider callbacks are active.
 
 `doc.Query("6F/A5/50")` delegates path parsing and matching to C and returns all

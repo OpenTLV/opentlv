@@ -607,7 +607,7 @@ offset for the next plausible element, and the bytes in between are skipped.
 ```sh
 $ otlv dump --format ber --hex "5A0112 0000 5A0134" --recover
 offset=0 tag=5A length=1 value=12
-skipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-offset=3
+skipped offset=3 length=2 error=TLV_ERR_INVALID_TAG error-location=input:point:3
 offset=5 tag=5A length=1 value=34
 otlv: skipped 2 byte(s) at offset 3: TLV_ERR_INVALID_TAG at byte 3: invalid tag
 otlv: output is incomplete: recovery skipped 1 range(s), 2 byte(s) in total
@@ -616,13 +616,17 @@ $ echo $?
 ```
 
 - **Skipped ranges** are reported where they occur (`skipped offset= length=
-  error= error-offset=` lines in `dump` text output), and again on stderr with
-  a summary. `error` and `error-offset` describe the first failure that made
-  the range unreadable; the offset of that failure can lie inside or after the
-  range.
+  error= error-location=` lines in `dump` text output), and again on stderr with
+  a summary. `error` and `error-location` describe the first failure that made
+  the range unreadable, with the same location as its stderr diagnostic:
+  `domain:kind:begin`, `domain:kind:begin..end` for a span, or
+  `unknown:unknown` when the failure has no location. The location can lie
+  inside or after the range.
 - **Incomplete output.** In `--output json` and in `decode`, the document
   gains `"complete":false` and a `"skipped"` array of objects with `offset`,
-  `length`, `error`, `error_offset` and `message`. An undamaged input under
+  `length`, `error`, `location` and `message`. `location` has the `domain` and
+  `kind` of the failure and, when known, its `begin` and `end`, like the
+  `location` of a JSON diagnostic. An undamaged input under
   `--recover` reports `"complete":true` and an empty array. A recovered
   `decode` document is incomplete and is rejected by `encode`.
 - **Exit status 4** means recovery skipped data, so the output is incomplete;

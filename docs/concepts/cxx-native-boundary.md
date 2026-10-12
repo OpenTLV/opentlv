@@ -56,7 +56,8 @@ allocation behavior.
 Cursor operations return `expected` with `tlv::error`; copying the error and its
 borrowed static message does not allocate. `status()` exposes `tlv::codec_failure`, with
 distinct `end` and `need_more_data` outcomes. Located errors expose
-`has_offset()`, `offset()` and `stage()`. Custom error descriptions are borrowed
+`location()`, whose domain says whether its coordinates count input, would-be
+output, Query expression or Value bytes, and `stage()`. Custom error descriptions are borrowed
 and must outlive the errors. Format customization uses `format_failure` and scoped construction
 uses `writer_failure`, preserving codes/detail without allocating error strings.
 Typed field failures distinguish invalid handles, Tag mismatch, constructed
@@ -177,9 +178,9 @@ and [memory guide](../guides/memory.md) for borrowing and preservation.
 
 `tlv::to_error(result.error())` projects ordinary and specialized errors into
 one allocation-free diagnostic: `status()`, `message()`, `severity()`, `stage()`,
-optional `offset()`/`tag()`, enclosing `ancestor(i)` identifiers, and optional
-`expected()`/`actual()` descriptions. Check `has_offset()` and `has_tag()` before
-using location metadata. Ancestor descriptors are copied into bounded inline
+`location()`, optional `tag()`, enclosing `ancestor(i)` identifiers, and optional
+`expected()`/`actual()` descriptions. Check the location kind and `has_tag()`
+before using location metadata, and read `begin` in the location's domain. Ancestor descriptors are copied into bounded inline
 storage; their identifier bytes and diagnostic strings remain borrowed.
 Unavailable context stays absent rather than inventing an offset or constraint.
 Keep the original `typed_error`, `writer_failure`, `format_failure`,

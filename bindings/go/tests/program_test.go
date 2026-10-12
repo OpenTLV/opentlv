@@ -66,25 +66,30 @@ func TestQuerySchemaOwnedDiagnosticsAndBounds(t *testing.T) {
 	if !errors.As(err, &detail) || !errors.Is(err, tlv.ErrSchema) {
 		t.Fatal(err)
 	}
-	if detail.Rule != 0 || detail.Kind != 7 || detail.Field != "one" || !detail.HasOffset || detail.Offset != 2 ||
-		!bytes.Equal(detail.Tag, []byte{0x5a}) || len(detail.Path) != 1 || !bytes.Equal(detail.Path[0], []byte{0x70}) ||
-		detail.Expected != "contextual Query assertion true" {
+	common := detail.Failure
+	if detail.Rule != 0 || detail.Schema == nil || detail.Schema.Kind != 7 || detail.Schema.Field != "one" ||
+		common.Location != (tlv.Location{Domain: tlv.LocationInput, Kind: tlv.LocationPoint, Begin: 2, End: 2}) ||
+		!bytes.Equal(detail.Schema.Tag, []byte{0x5a}) || len(common.Path) != 1 || !bytes.Equal(common.Path[0], []byte{0x70}) ||
+		common.Expected != "contextual Query assertion true" {
 		t.Fatalf("lost diagnostic: %+v", detail)
 	}
 	broken := document(t, bad, f)
 	var documentDetail *tlv.QuerySchemaError
-	if err := tlv.ValidateQueryDocument(rules, broken, limits); !errors.As(err, &documentDetail) || documentDetail.HasOffset {
+	if err := tlv.ValidateQueryDocument(rules, broken, limits); !errors.As(err, &documentDetail) ||
+		documentDetail.Failure.Location.Kind != tlv.LocationUnknown {
 		t.Fatal(err)
 	}
 	_ = broken.Close()
 	clear(bad)
 	runtime.GC()
-	if !bytes.Equal(documentDetail.Path[0], []byte{0x70}) || !bytes.Equal(detail.Tag, []byte{0x5a}) {
+	if !bytes.Equal(documentDetail.Failure.Path[0], []byte{0x70}) || !bytes.Equal(detail.Schema.Tag, []byte{0x5a}) {
 		t.Fatal("borrowed diagnostics")
 	}
 	limits.Contexts = 0
 	var limit *tlv.ProgramError
-	if err := tlv.ValidateQueryBuffer(rules, good, f, limits); !errors.As(err, &limit) || limit.Limit != "schema-contexts" {
+	var limitSchema *tlv.QuerySchemaError
+	if err := tlv.ValidateQueryBuffer(rules, good, f, limits); !errors.As(err, &limit) || limit.Limit != "schema-contexts" ||
+		!errors.As(err, &limitSchema) || limitSchema.Schema != nil {
 		t.Fatal(err)
 	}
 	limits = tlv.DefaultQuerySchemaLimits()
@@ -157,7 +162,7 @@ func TestQuerySchemaProviderLifetimeAndDocumentGuards(t *testing.T) {
 	defer throwing.Close()
 	var failure *tlv.ProgramError
 	err = tlv.ValidateQueryDocument([]tlv.QueryRule{{Context: compiled(t, "//5A", nil), Assertion: throwing}}, doc, tlv.DefaultQuerySchemaLimits())
-	if !errors.As(err, &failure) || failure.Codec != tlv.ErrCallback.Code() {
+	if !errors.As(err, &failure) || failure.CodecDetail == nil || failure.CodecDetail.Reported != tlv.ErrCallback.Code() {
 		t.Fatal(err)
 	}
 	if err := doc.Close(); err != nil {
@@ -235,7 +240,7 @@ func TestQueryCustomProvidersLifetimeImageAndErrors(t *testing.T) {
 		err = e.Visit(func(tlv.QueryMatch) tlv.QueryVisit { return tlv.QueryContinue })
 		if capacity == 2 {
 			var failure *tlv.ProgramError
-			if !errors.As(err, &failure) || failure.Codec != tlv.ErrBufferTooShort.Code() {
+			if !errors.As(err, &failure) || failure.CodecDetail == nil || failure.CodecDetail.Reported != tlv.ErrBufferTooShort.Code() {
 				t.Fatal(err)
 			}
 		} else {
@@ -280,7 +285,7 @@ func TestQueryProviderPanicAndReentryDoNotCrossC(t *testing.T) {
 		if panicProvider {
 			expected = tlv.ErrCallback.Code()
 		}
-		if !errors.As(err, &failure) || failure.Codec != expected {
+		if !errors.As(err, &failure) || failure.CodecDetail == nil || failure.CodecDetail.Reported != expected {
 			t.Fatal(err)
 		}
 		if err := active.Reset(); err != nil {
@@ -581,7 +586,7 @@ func TestQuerySchemaDiagnosticPathTruncation(t *testing.T) {
 		t.Fatal(err)
 	}
 	clear(wire)
-	if len(detail.Path) != 32 || detail.PathOmitted != 3 || !bytes.Equal(detail.Path[0], []byte{0x70}) {
+	if common := detail.Failure; len(common.Path) != 32 || common.PathOmitted != 3 || !bytes.Equal(common.Path[0], []byte{0x70}) {
 		t.Fatalf("lost truncation metadata: %+v", detail)
 	}
 }

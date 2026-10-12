@@ -60,6 +60,17 @@ TEST(Unit_Tlvpp_FullQuery, OwningCompilationRejectsChangingResolver) {
         tlv::query_program::compile("//item", tlv::native::borrow_query_settings(&options)));
 }
 
+TEST(Unit_Tlvpp_FullQuery, FailureLocationsKeepTheirDomain) {
+    auto syntax = tlv::query_program::compile("/");
+    ASSERT_FALSE(syntax);
+    const auto primary = syntax.error().location();
+    EXPECT_EQ(tlv::location_domain::expression, tlv::domain(primary));
+    EXPECT_EQ(1u, primary.begin);
+    // The primary expression span is not repeated as related evidence.
+    EXPECT_EQ(tlv::location_kind::unknown, tlv::kind(syntax.error().expression()));
+    EXPECT_EQ(tlv::location_domain::expression, tlv::domain(syntax.error().failure().location()));
+}
+
 TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
     auto expression =
         tlv::where(tlv::query_nodes("//50"), tlv::query_integer("@len") > tlv::integer(0));
@@ -174,6 +185,8 @@ TEST(Unit_Tlvpp_FullQuery, StreamingExistencePreservesCoverageAndMalformedSuffix
     auto validated = execution->exists(reader, false);
     ASSERT_FALSE(validated);
     EXPECT_EQ(TLV_QUERY_ERROR_READER, validated.error().diagnostic.kind);
+    // A Reader failure is located in input coordinates.
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(validated.error().location()));
     auto failed = execution->info();
     ASSERT_TRUE(failed);
     EXPECT_TRUE(failed->invalid);
@@ -997,7 +1010,8 @@ TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
         FAIL();
     } catch (const tlv::query_error& error) {
         EXPECT_EQ(TLV_ERR_SYNTAX, error.code());
-        EXPECT_EQ(3u, error.offset());
+        EXPECT_EQ(tlv::location_domain::expression, tlv::domain(error.location()));
+        EXPECT_EQ(3u, error.location().begin);
     }
     tlv_diagnostic_t offset{};
     EXPECT_FALSE(tlv::query::parse("6F//50", &offset));

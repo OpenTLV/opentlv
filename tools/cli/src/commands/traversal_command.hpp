@@ -47,7 +47,7 @@ protected:
     // "validate --module" only: runs the selected module schema/value
     // checks once the format traversal itself succeeded (called from run() only
     // when result_ == tlv::errc::ok, options_.module and !options_.pdol). May
-    // update result_/error_offset_/stage_ and either has_schema_diag_ with
+    // update result_/stage_ and either has_schema_diag_ with
     // schema_diag_, or stage_ alone, for render_failure_diagnostic() below.
     // The base implementation does nothing.
     virtual void run_module_checks();
@@ -115,22 +115,23 @@ protected:
     std::size_t matches_;
 
     tlv::errc                  result_;
-    std::size_t                error_offset_;
     std::vector<skipped_range> skipped_;
     // Names the separate EMV pass ("schema ", "dictionary ") a failure came
     // from, as opposed to the format/framing traversal.
-    const char*            stage_;
-    tlv::validation_issue  schema_diag_;
-    bool                   has_schema_diag_;
+    const char*           stage_;
+    tlv::validation_issue schema_diag_;
+    bool                  has_schema_diag_;
+    // Failure evidence of the traversal and module checks; its location is the
+    // only failure position the generic rendering uses.
     tlv::reader_diagnostic reader_diag_{};
 
 private:
     static tlv::visit_control visit_trampoline(const tlv::element_view* element, std::size_t depth,
                                                std::size_t offset, void* context);
     // --pdol: raw DOL tag/one-byte-length pairs (BER only), not full TLV.
-    tlv::errc visit_pdol(std::size_t* error_offset);
+    tlv::errc visit_pdol();
     // --recover: scans past damaged top-level elements instead of failing.
-    tlv::errc visit_recovering(std::size_t* error_offset);
+    tlv::errc visit_recovering();
 
     std::vector<uint8_t> data_;
 };

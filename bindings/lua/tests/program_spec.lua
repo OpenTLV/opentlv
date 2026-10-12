@@ -218,7 +218,19 @@ fails(function() streaming:exists(false) end, tlv.errors.TRUNCATED)
 local names = tlv.query_program("count(//fixture:leaf)",f,{names={["fixture:leaf"]=b(0x5a)}}):execution()
 names:set_input(b(0x5a,0));names:visit(function() end);assert(names:result()==1)
 local diagnostic = fails(function() tlv.query_program("//5A[", f) end)
-assert(type(diagnostic.query) == "table" and type(diagnostic.query.begin)=="number")
+assert(type(diagnostic.query) == "table" and diagnostic.location.domain == "expression")
+-- The primary expression span is not repeated as related evidence.
+assert(diagnostic.query.expression.kind == "unknown" and diagnostic.query.begin == nil)
+-- A rejected path is a Query syntax error without a Reader operation.
+local path = fails(function() tlv.query("01/") end, tlv.errors.SYNTAX)
+assert(path.query.kind_name == "syntax" and path.operation == nil)
+assert(path.location.domain == "expression" and path.location.begin == 3)
+local steps = {}
+for i = 1, 66 do steps[i] = "5a" end
+local long = fails(function() tlv.query(table.concat(steps, "/")) end, tlv.errors.LIMIT)
+assert(long.query.limit == "path-steps" and long.query.configured == 65)
+local wide = fails(function() tlv.query(string.rep("5a", 513)) end, tlv.errors.LIMIT)
+assert(wide.query.limit == "path-bytes" and wide.query.configured == 512)
 if tlv.document and tlv.formats.ber then
     local edit_doc = tlv.document(b(0x70,6,0x5a,1,1,0x5a,1,2,0x5a,1,3),f)
     local old_node = edit_doc:first()
@@ -273,15 +285,17 @@ if tlv.formats.ber then
         assertion = tlv.query_program("1 = 0", f)}}, bad)
     local failed = fails(function() tlv.query_schema_validate(rules, bad) end, tlv.errors.SCHEMA)
     assert(failed.rule == 0 and failed.schema.kind == "assertion")
-    assert(failed.schema.tag == b(0x5a) and failed.schema.path[1] == b(0x70))
-    assert(failed.schema.path_omitted == 0)
+    -- The Schema part adds only Schema detail; common evidence is the error's own.
+    assert(failed.schema.tag == b(0x5a) and failed.path[1] == b(0x70))
+    assert(failed.path_omitted == 0 and failed.schema.path == nil)
     local deep = b(0x5a, 1, 2)
     for level = 1, 35 do deep = b(level == 35 and 0x70 or 0x30, #deep) .. deep end
     local truncated = fails(function() tlv.query_schema_validate(rules, deep) end, tlv.errors.SCHEMA)
-    assert(#truncated.schema.path == 32 and truncated.schema.path[1] == b(0x70))
-    assert(truncated.schema.path_omitted == 3)
-    assert(failed.schema.offset == 2 and failed.schema.field == "one")
-    assert(failed.schema.expected == "contextual Query assertion true")
+    assert(#truncated.path == 32 and truncated.path[1] == b(0x70))
+    assert(truncated.path_omitted == 3)
+    assert(failed.location.domain == "input" and failed.location.begin == 2)
+    assert(failed.schema.field == "one")
+    assert(failed.expected == "contextual Query assertion true")
     local bounded = fails(function() tlv.query_schema_validate(rules, good, {max_contexts=0}) end, tlv.errors.LIMIT)
     assert(bounded.query.limit == "schema-contexts")
     fails(function() tlv.query_schema_validate(rules, good, {max_work=1}) end, tlv.errors.LIMIT)
@@ -302,7 +316,7 @@ if tlv.formats.ber then
         local broken = tlv.document(bad, f)
         local from_document = fails(function() tlv.query_schema_validate(rules, broken) end, tlv.errors.SCHEMA)
         broken:close()
-        assert(from_document.schema.offset == nil and from_document.schema.path[1] == b(0x70))
+        assert(from_document.location.kind == "unknown" and from_document.path[1] == b(0x70))
         local root = doc:first()
         local provider_rules
         local calls = 0
@@ -362,7 +376,7 @@ if tlv.formats.ber then
             collectgarbage("restart")
             assert(not ok and diagnostic.code == tlv.errors.SCHEMA)
             assert(finalized and blocked, "Document guard ended before diagnostic projection")
-            assert(diagnostic.schema.path[1] == b(0x70))
+            assert(diagnostic.path[1] == b(0x70))
             guarded:close()
         end
     end

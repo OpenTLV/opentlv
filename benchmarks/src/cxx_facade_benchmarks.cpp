@@ -115,7 +115,7 @@ void cxx_reader_failure(benchmark::State& state, framing kind, failure outcome) 
                 return;
             }
             benchmark::DoNotOptimize(result.error().message());
-            benchmark::DoNotOptimize(result.error().has_offset());
+            benchmark::DoNotOptimize(result.error().location());
         }
         if (reader.offset() != 0) {
             state.SkipWithError("A failed C++ Reader advanced its position");

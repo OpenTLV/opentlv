@@ -31,7 +31,9 @@ def main():
                 expected = case["diagnostic"]
                 assert (error.code, error.query["query_kind"]) == (expected["code"], expected["kind"]), case["id"]
                 if "begin" in expected:
-                    assert (error.query["begin"], error.query["end"]) == (expected["begin"], expected["end"]), case["id"]
+                    # The expression span is primary, or related evidence beside another location.
+                    span = error.location if error.location.domain == "expression" else error.query["expression"]
+                    assert (span.begin, span.end) == (expected["begin"], expected["end"]), case["id"]
                 checks += 1
                 continue
             assert "diagnostic" not in case, case["id"]

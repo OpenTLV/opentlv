@@ -42,7 +42,9 @@ for _, case in ipairs(cases) do
             assert(not ok and type(p)=="table",case.id)
             assert(p.code==case.diagnostic.code and p.query.kind==case.diagnostic.kind,case.id)
             if case.diagnostic.begin then
-                assert(p.query.begin==case.diagnostic.begin and p.query["end"]==case.diagnostic["end"],case.id)
+                -- The expression span is primary, or related evidence beside another location.
+                local span = p.location.domain == "expression" and p.location or p.query.expression
+                assert(span.begin==case.diagnostic.begin and span["end"]==case.diagnostic["end"],case.id)
             end
             checks=checks+1
         else

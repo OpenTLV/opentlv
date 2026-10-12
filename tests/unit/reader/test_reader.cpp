@@ -46,8 +46,8 @@ TEST(Unit_Tlvpp_ReaderParity, PullFailuresDecodeOnceAndRetainDiagnosticContext) 
             EXPECT_EQ(tlv::operation::reader, result.error().stage());
             EXPECT_EQ(mode == tlv::input_mode::final ? tlv::severity::error : tlv::severity::info,
                       result.error().severity());
-            ASSERT_TRUE(result.error().has_offset());
-            EXPECT_EQ(5u, result.error().offset());
+            ASSERT_EQ(tlv::location_domain::input, tlv::domain(result.error().location()));
+            EXPECT_EQ(5u, result.error().location().begin);
             ASSERT_TRUE(result.error().has_tag());
             EXPECT_EQ(tlv::tag_bytes<2>(), result.error().tag());
             EXPECT_EQ(0u, result.error().depth());
@@ -64,8 +64,8 @@ TEST(Unit_Tlvpp_ReaderParity, PullFailuresDecodeOnceAndRetainDiagnosticContext) 
             ASSERT_FALSE(eof);
             EXPECT_EQ(tlv::errc::end, eof.error().status());
             EXPECT_EQ(4u, decode_calls);
-            ASSERT_TRUE(eof.error().has_offset());
-            EXPECT_EQ(sizeof data, eof.error().offset());
+            ASSERT_EQ(tlv::location_domain::input, tlv::domain(eof.error().location()));
+            EXPECT_EQ(sizeof data, eof.error().location().begin);
             EXPECT_FALSE(eof.error().has_tag());
             EXPECT_EQ(0u, eof.error().depth());
             EXPECT_TRUE(reader.at_end());

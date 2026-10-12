@@ -68,7 +68,11 @@ def test_every_known_code_maps_to_its_typed_error():
         assert isinstance(error, error_type)
         assert isinstance(error, OpenTLVError)
         assert error.code == code
-        assert str(error) == native.strerror(code)
+        assert str(error) == native.result_string(code)
+
+
+def test_result_text_has_only_the_c_name():
+    assert not hasattr(native, "strerror")
 
 
 def test_unknown_code_falls_back_to_the_base_error():

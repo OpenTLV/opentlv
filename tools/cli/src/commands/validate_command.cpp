@@ -23,7 +23,6 @@ void validate_command::run_module_checks() {
         const auto container = tlv::bluetooth::validate_container(input);
         if (!container) {
             result_ = container.error().status();
-            error_offset_ = container.error().offset();
             reader_diag_.diagnostic.location = container.error().location();
             return;
         }
@@ -34,13 +33,11 @@ void validate_command::run_module_checks() {
             tlv::unknown_policy::by_schema, options_.max_depth, options_.max_elements);
         if (!validated) {
             result_ = validated.error().status();
-            error_offset_ = validated.error().offset();
             reader_diag_.diagnostic.location = validated.error().location();
         } else if (report.size()) {
             schema_diag_ = report.at(0);
             has_schema_diag_ = true;
             result_ = schema_diag_.error().status();
-            error_offset_ = schema_diag_.error().offset();
         }
         if (result_ != tlv::errc::ok) {
             stage_ = "schema ";
@@ -52,7 +49,6 @@ void validate_command::run_module_checks() {
             const auto decoded = decode_bluetooth_value(element);
             if (decoded.status != decode_status::error) return tlv::visit_control::next;
             self.result_ = tlv::errc::invalid_value;
-            self.error_offset_ = offset;
             tlv::set_location(self.reader_diag_.diagnostic, tlv::location_domain::input,
                               tlv::location_kind::point, offset, offset);
             self.reader_diag_.detail.has_tag = 1;
@@ -61,9 +57,8 @@ void validate_command::run_module_checks() {
             return tlv::visit_control::stop;
         };
         const traversal_env env = {&options_, format_, is_der_};
-        size_t              fault = 0;
         const auto          rc =
-            visit_slice(env, data(), significant, 0, options_.max_elements, visitor, this, &fault);
+            visit_slice(env, data(), significant, 0, options_.max_elements, visitor, this);
         if (rc != tlv::errc::ok) result_ = rc;
         return;
     }
@@ -87,14 +82,12 @@ void validate_command::run_module_checks() {
                             options_.max_depth, options_.max_elements);
         if (!validated) {
             result_ = validated.error().status();
-            error_offset_ = validated.error().offset();
             reader_diag_.diagnostic.location = validated.error().location();
             stage_ = "schema ";
         } else if (report.size()) {
             schema_diag_ = report.at(0);
             has_schema_diag_ = true;
             result_ = schema_diag_.error().status();
-            error_offset_ = schema_diag_.error().offset();
             stage_ = "schema ";
         }
     }
@@ -104,10 +97,9 @@ void validate_command::run_module_checks() {
         check_.presentation.contexts[0] = options_.emv_context;
         const traversal_env env = {&options_, format_, is_der_};
         result_ = visit_slice(env, data(), size(), 0, options_.max_elements,
-                              check_dictionary_trampoline, this, &error_offset_);
+                              check_dictionary_trampoline, this, &reader_diag_);
         if (result_ == tlv::errc::ok && check_.result != tlv::errc::ok) {
             result_ = check_.result;
-            error_offset_ = check_.offset;
             stage_ = "dictionary ";
         }
     }
@@ -121,7 +113,7 @@ std::string validate_command::render_failure_diagnostic(diagnostic_format  diag_
     if (stage_name == "dictionary" && check_.result == result_) {
         tlv::diagnostic diag = tlv::make_diagnostic(result_, tlv::severity::error);
         tlv::set_location(diag, tlv::location_domain::input, tlv::location_kind::point,
-                          error_offset_, error_offset_);
+                          check_.offset, check_.offset);
         if (check_.scope.path.length) tlv::set_path(diag, check_.scope.path);
         if (!check_.expected.empty()) diag.expected = check_.expected.c_str();
         if (!check_.actual.empty()) diag.actual = check_.actual.c_str();

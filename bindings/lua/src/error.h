@@ -30,6 +30,9 @@ void opentlv_lua_register_error_codes(lua_State* L, int module_table_index);
  * stash it (see visitor.c), or raise it with lua_error(). */
 void opentlv_lua_push_error(lua_State* L, tlv_result_t code, int has_offset, size_t offset);
 
+/* Pushes a location table: "domain" and "kind", plus "begin" and "end" when known. */
+void opentlv_lua_push_location(lua_State* L, const tlv_location_t* location);
+
 /* Copies the common native diagnostic, including its complete location,
  * optional path and contexts, into an owned error table with the
  * "opentlv.Error" metatable. Does not raise. */

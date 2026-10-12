@@ -117,8 +117,8 @@ TEST(Unit_Tlvpp, PublicSchemaReportsMissingFieldAndBoundedViolations) {
     auto result = tlv::validate({input, sizeof input}, format, schema.view());
     ASSERT_FALSE(result);
     EXPECT_EQ(tlv::errc::schema, result.error().status());
-    EXPECT_TRUE(result.error().has_offset());
-    EXPECT_EQ(sizeof input, result.error().offset());
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(result.error().location()));
+    EXPECT_EQ(sizeof input, result.error().location().begin);
     EXPECT_EQ(tlv::operation::schema, result.error().stage());
     tlv::validation_report<1> report;
     auto                      missing = report.validate({}, format, schema.view());
@@ -153,7 +153,8 @@ TEST(Unit_Tlvpp, CheckedSchemaValidatesLikePlainSchema) {
     ASSERT_FALSE(plain);
     ASSERT_FALSE(prepared);
     EXPECT_EQ(plain.error().status(), prepared.error().status());
-    EXPECT_EQ(plain.error().offset(), prepared.error().offset());
+    EXPECT_EQ(tlv::domain(plain.error().location()), tlv::domain(prepared.error().location()));
+    EXPECT_EQ(plain.error().location().begin, prepared.error().location().begin);
 
     tlv::validation_report<1> report;
     auto                      missing = report.validate({}, format, *checked);
@@ -183,8 +184,8 @@ TEST(Unit_Tlvpp, ErrorCopiesPreserveLocationWithoutOwningText) {
     auto                                 result = reader.next();
     ASSERT_FALSE(result);
     EXPECT_EQ(tlv::errc::truncated, result.error().status());
-    EXPECT_TRUE(result.error().has_offset());
-    EXPECT_EQ(2u, result.error().offset());
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(result.error().location()));
+    EXPECT_EQ(2u, result.error().location().begin);
     EXPECT_EQ(tlv::operation::reader, result.error().stage());
     EXPECT_TRUE(result.error().has_tag());
     EXPECT_EQ(tlv::tag_bytes<1>(), result.error().tag());
@@ -263,8 +264,8 @@ TEST(Unit_Tlvpp, CommonErrorPreservesFullPathAfterDiagnosticStorageExpires) {
     EXPECT_EQ(tlv::errc::invalid_value, copied.status());
     EXPECT_EQ(tlv::operation::reader, copied.stage());
     EXPECT_EQ(tlv::severity::warning, copied.severity());
-    ASSERT_TRUE(copied.has_offset());
-    EXPECT_EQ(SIZE_MAX - 1, copied.offset());
+    ASSERT_EQ(tlv::location_domain::input, tlv::domain(copied.location()));
+    EXPECT_EQ(SIZE_MAX - 1, copied.location().begin);
     ASSERT_TRUE(copied.has_tag());
     EXPECT_EQ(tlv::tag_bytes<0xFE>(), copied.tag());
     ASSERT_EQ(tlv::diagnostic_path_capacity, copied.depth());
