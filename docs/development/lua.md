@@ -81,6 +81,9 @@ for release tags and manual runs. Windows jobs initialize the MSVC x64
 environment before installing Lua. They install the native LuaRocks 3.11.1
 executable with an isolated rock tree and explicit MSVC configuration;
 the Unix LuaRocks setup action is used only on Linux and macOS.
+Windows test dependencies are installed from PowerShell to preserve MSVC tool
+precedence in `PATH`; Git Bash otherwise shadows the MSVC linker with its own
+`link.exe`.
 The Windows interpreter and native modules use the same shared Lua runtime,
 and rock builds use the Ninja CMake generator.
 

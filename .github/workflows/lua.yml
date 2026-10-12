@@ -118,6 +118,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'LuaRocks installation failed' }
 
       - name: Install test dependencies
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           # Dependency rockspecs can fetch archives outside the LuaRocks server.
@@ -132,6 +133,22 @@ jobs:
             fi
           done
           echo "::error::Test dependency installation failed after 3 attempts."
+          exit 1
+
+      # Git Bash prepends its Unix tools to PATH and shadows MSVC's link.exe.
+      - name: Install test dependencies on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            luarocks install busted
+            if ($LASTEXITCODE -eq 0) { exit 0 }
+            if ($attempt -lt 3) {
+              Write-Output "::warning::Test dependency installation failed (attempt $attempt/3); retrying in 5 seconds."
+              Start-Sleep -Seconds 5
+            }
+          }
+          Write-Output '::error::Test dependency installation failed after 3 attempts.'
           exit 1
 
       - name: Build and install the opentlv rock
@@ -155,5 +172,5 @@ jobs:
 
       - name: Common compiled Query corpus through Lua facade
         run: |
-          python3 tests/query/lua_facade.py --output build/lua-query-conformance.lua
+          python tests/query/lua_facade.py --output build/lua-query-conformance.lua
           lua build/lua-query-conformance.lua

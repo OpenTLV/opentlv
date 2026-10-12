@@ -1507,17 +1507,21 @@ TEST(Unit_Tlv_QueryProgram, InitializedFailuresAlwaysCarryDiagnosticDetail) {
 
 TEST(Unit_Tlv_QueryProgram, VisitorFailureAndIncrementalStatusCarryDetail) {
     for (bool retained : {false, true}) {
+        SCOPED_TRACE(retained);
         Program p;
         ASSERT_EQ(TLV_OK, p.compile("//5A"));
         size_t bytes, alignment;
         ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_size(p.get(), 4, 10, &bytes, &alignment)
                                    : tlv_query_exec_size(p.get(), 4, &bytes, &alignment));
-        std::vector<uint64_t> storage((bytes + 7) / 8);
-        tlv_query_exec_t*     exec = nullptr;
-        ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_init(p.get(), nullptr, storage.data(), bytes, 4,
-                                                         10, 10000, &exec)
-                                   : tlv_query_exec_init(p.get(), storage.data(), bytes, 4, 10,
-                                                         10000, &exec));
+        // Retained evaluation can require stricter alignment than uint64_t on Win32.
+        std::vector<uint8_t> storage(bytes + alignment - 1);
+        void*                workspace = reinterpret_cast<void*>(
+            (reinterpret_cast<uintptr_t>(storage.data()) + alignment - 1) & ~(alignment - 1));
+        tlv_query_exec_t* exec = nullptr;
+        ASSERT_EQ(TLV_OK,
+                  retained
+                      ? tlv_query_eval_init(p.get(), nullptr, workspace, bytes, 4, 10, 10000, &exec)
+                      : tlv_query_exec_init(p.get(), workspace, bytes, 4, 10, 10000, &exec));
         const uint8_t     wire[] = {0x5a, 0};
         tlv_tree_reader_t reader;
         tlv_tree_frame_t  frames[4];
