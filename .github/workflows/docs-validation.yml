@@ -1,0 +1,101 @@
+name: Documentation validation
+
+on:
+  push:
+    branches: [main]
+    tags: ['[0-9]*.[0-9]*.[0-9]*']
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'tools/docs/**'
+      - 'scripts/check_doc_examples.py'
+      - 'scripts/check_doc_inventory.py'
+      - 'scripts/test_doc_inventory.py'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'tlv/resources/config.h.in'
+      - 'examples/**'
+      - 'tlv/include/**'
+      - 'tlv\+\+/include/**'
+      - 'bindings/**'
+      - 'tools/cli/**'
+      - 'README.md'
+      - 'ROADMAP.md'
+      - 'CONTRIBUTING.md'
+      - '.markdownlint.json'
+      - '.github/workflows/docs-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-validation-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    name: Validate Core documentation and API references
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Markdown linter
+        run: npm install --global markdownlint-cli@0.45.0
+
+      - name: Install Doxygen
+        run: sudo apt-get update && sudo apt-get install -y doxygen ninja-build
+
+      - name: Configure API documentation
+        run: >-
+          cmake -S . -B build/docs -G Ninja
+          -DOPENTLV_BUILD_DOCS=ON
+          -DOPENTLV_BUILD_CXX=OFF
+          -DOPENTLV_BUILD_CLI=OFF
+          -DOPENTLV_BUILD_TESTS=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF
+
+      # Core owns generation and warning policy; the standalone portal owns publication.
+      - name: Generate C and C++ API references
+        run: cmake --build build/docs --target cxx-api-docs
+
+      - name: Upload C API reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: c-api-reference
+          path: build/docs/docs/c-api/html
+          if-no-files-found: error
+
+      # Preserve sibling directories so C++ links to C declarations work.
+      - name: Upload C++ reference with linked C reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: cxx-api-reference
+          path: |
+            build/docs/docs/cxx-api/html
+            build/docs/docs/c-api/html
+          if-no-files-found: error
+
+      - name: Lint Core Markdown
+        run: git ls-files -z -- '*.md' | xargs -0 markdownlint --config .markdownlint.json
+
+      - name: Check documented examples match their sources
+        run: python scripts/check_doc_examples.py
+
+      - name: Check documentation inventories against implementation
+        run: |
+          python scripts/test_doc_inventory.py
+          python scripts/check_doc_inventory.py

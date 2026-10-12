@@ -94,7 +94,6 @@ def check(root):
         if f"`{name}`" not in cli_doc:
             errors.append(f"CLI {name}: add the registered identifier to docs/cli/README.md")
 
-    nav = read("mkdocs.yml")
     bindings_root = root / "bindings"
     # Shared native ownership helpers are not a separately supported language.
     bindings = {directory.name for directory in bindings_root.iterdir()
@@ -104,10 +103,10 @@ def check(root):
         errors.append("bindings/: no official bindings found")
     for language in sorted(bindings):
         page = "development/webassembly.md" if language == "wasm" else f"guides/{language}.md"
-        if page not in nav or not (root / "docs" / page).is_file():
-            errors.append(f"binding {language}: add docs/{page} and its MkDocs navigation entry")
-    if "guides/cxx-examples.md" not in nav:
-        errors.append("C++: add guides/cxx-examples.md to MkDocs navigation")
+        if not (root / "docs" / page).is_file():
+            errors.append(f"binding {language}: add docs/{page}")
+    if not (root / "docs/guides/cxx-examples.md").is_file():
+        errors.append("C++: add docs/guides/cxx-examples.md")
 
     examples = set()
     for path, suffix in EXAMPLE_ROOTS:

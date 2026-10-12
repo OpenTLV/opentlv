@@ -5,6 +5,11 @@ nested structure as a tree, a hex dump or JSON. Parsing runs in your browser wit
 [OpenTLV WebAssembly build](../development/webassembly.md), the same C core as
 native applications. Nothing you enter is uploaded.
 
+During the documentation migration, if this page reports that the module is
+unavailable, use the [archived playground](https://opentlv.github.io/opentlv/latest/playground/).
+It runs the archived Core version; its behavior may differ from the selected
+documentation version.
+
 <!-- markdownlint-disable MD033 -->
 <div id="opentlv-playground" class="otlv-pg">
   <noscript>The playground needs JavaScript and WebAssembly.</noscript>

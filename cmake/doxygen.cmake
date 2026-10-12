@@ -2,7 +2,7 @@ find_package(Doxygen 1.9.1 REQUIRED COMPONENTS doxygen)
 
 # Base URL of the published documentation site, used by the @docs alias to
 # link generated API pages back to the guides and concepts.
-set(OPENTLV_DOCS_URL "https://marekcingel.github.io/OpenTLV/")
+set(OPENTLV_DOCS_URL "https://opentlv.github.io/opentlv-docs/latest/")
 
 configure_file(
     "${PROJECT_SOURCE_DIR}/tools/docs/Doxyfile.in"

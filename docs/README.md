@@ -1,5 +1,8 @@
 # Documentation
 
+The [documentation portal](https://opentlv.github.io/opentlv-docs/) publishes
+versioned guides and API references from these Core-owned sources.
+
 Start with the [documentation homepage](index.md) for language and tool entry
 points and the progressive learning path. It is the canonical user index on
 GitHub and the documentation website.

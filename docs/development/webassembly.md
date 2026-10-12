@@ -237,11 +237,16 @@ call reads at most 65,536 elements and 64 levels of nesting.
 The [TLV playground](../playground/index.md) in the documentation site is built
 on this module: `docs/playground/playground.js` calls `parse` once and renders
 the result as tree, hex and JSON views, with no parsing logic of its own; the
-JSON view serializes the parse result itself. The Documentation workflow builds the
-module and `tools/docs/hooks.py` publishes it as `playground/wasm/`. To try it
-locally, build the module as above and run `mkdocs serve`; use
-`OPENTLV_WASM_DIR` if the build directory is not `build-wasm`. Without the
-module the site still builds and the playground page says it is unavailable.
+JSON view serializes the parse result itself. Core's WebAssembly workflow owns
+module build and validation. The standalone portal embeds supplied artifacts
+under `playground/wasm/`; it does not compile the module. To preview it, build
+the module as above, set `OPENTLV_WASM_DIR` to the absolute path of
+`build-wasm/bindings/wasm/dist`, then run the portal's local preview command.
+Without the module the site still builds and reports that the playground is
+unavailable. Automated artifact integration belongs to
+[portal #6](https://github.com/OpenTLV/opentlv-docs/issues/6). Keep the existing
+Core playground sources until that migration preserves the working application;
+the historical site remains available during this transition.
 
 ## Testing
 

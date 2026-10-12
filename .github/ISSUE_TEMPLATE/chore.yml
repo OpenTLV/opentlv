@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         Use this form for maintenance, build, CI, tooling, release, and repository workflow changes.
-        Please search [existing issues](https://github.com/marekcingel/OpenTLV/issues) first.
+        Please search [existing issues](https://github.com/OpenTLV/opentlv/issues) first.
   - type: dropdown
     id: chore-type
     attributes:
