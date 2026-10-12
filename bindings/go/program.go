@@ -53,7 +53,7 @@ func programError(code capi.Code, d capi.ProgramDiagnostic) error {
 	d.Common.Code = code
 	e := d.Expression
 	return &ProgramError{Diagnostic: publicDiagnostic(d.Common), HasReader: d.HasReader, StatusError: StatusError{code: code}, Kind: QueryErrorKind(d.Kind),
-		Expression: Location{LocationDomain(e.Domain), LocationKind(e.Kind), e.Begin, e.End},
+		Expression: Location{Domain: LocationDomain(e.Domain), Kind: LocationKind(e.Kind), Begin: e.Begin, End: e.End},
 		Configured: d.Configured, Limit: d.Limit, CodecDetail: publicCodecDetail(d.CodecDetail)}
 }
 
@@ -121,14 +121,19 @@ func DefaultQuerySchemaLimits() QuerySchemaLimits {
 	return QuerySchemaLimits{Depth: 64, Nodes: 1024, Work: 100000000, Contexts: 1024, ValueCapacity: -1}
 }
 
-// QuerySchemaError owns a rule-aware native Query/Schema failure. It adds only
-// the Schema detail of a failed assertion; the common evidence, such as the
-// location, path and expected text, stays in Failure.
+// QuerySchemaDetail is the Schema detail of a false contextual assertion.
+type QuerySchemaDetail struct {
+	Kind  SchemaIssue
+	Field string
+	Tag   []byte
+}
+
+// QuerySchemaError owns a rule-aware native Query/Schema failure. Schema is the
+// Schema detail of a failed assertion and nil for any other failure; the common
+// evidence, such as the location, path and expected text, stays in Failure.
 type QuerySchemaError struct {
 	Rule    int
-	Kind    SchemaIssue
-	Field   string
-	Tag     []byte
+	Schema  *QuerySchemaDetail
 	Failure *ProgramError
 }
 
@@ -190,8 +195,11 @@ func validateQuerySchema(rules []QueryRule, input []byte, document *Document, fo
 		return nil
 	}
 	failure := programError(code, detail.Query).(*ProgramError)
-	return &QuerySchemaError{Rule: detail.Rule, Kind: SchemaIssue(detail.Kind), Field: detail.Field,
-		Tag: detail.Tag, Failure: failure}
+	result := &QuerySchemaError{Rule: detail.Rule, Failure: failure}
+	if detail.HasSchema {
+		result.Schema = &QuerySchemaDetail{Kind: SchemaIssue(detail.Kind), Field: detail.Field, Tag: detail.Tag}
+	}
+	return result
 }
 
 // ValidateQueryBuffer delegates contextual assertions to C over a copied complete

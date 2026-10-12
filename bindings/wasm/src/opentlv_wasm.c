@@ -987,24 +987,27 @@ static void query_field(builder_t* b, const char* name, size_t value) {
     builder_number(b, value);
 }
 struct opentlv_wasm_v1 {
-    tlv_query_t         query;
-    tlv_query_matcher_t matcher;
-    tlv_result_t        code;
-    tlv_diagnostic_t    diagnostic;
-    builder_t           reply;
+    tlv_query_t            query;
+    tlv_query_matcher_t    matcher;
+    tlv_result_t           code;
+    tlv_query_diagnostic_t failure;
+    builder_t              reply;
 };
 opentlv_wasm_v1_t* opentlv_wasm_v1_new(const char* text, size_t size) {
     opentlv_wasm_v1_t* q = calloc(1, sizeof *q);
     if (!q) return NULL;
-    q->code = tlv_query_parse_n(text, size, &q->query, &q->diagnostic);
+    tlv_diagnostic_t parse = {0};
+    q->code = tlv_query_parse_n(text, size, &q->query, &parse);
     if (q->code == TLV_OK) q->code = tlv_query_matcher_init(&q->matcher, &q->query);
+    /* The text is not retained, so the Query diagnostic is built now. */
+    if (q->code != TLV_OK) q->failure = opentlv_binding_path_failure(q->code, &parse, text, size);
     return q;
 }
 const char* opentlv_wasm_v1_operation(opentlv_wasm_v1_t* q, int operation, const uint8_t* data,
                                       size_t size, size_t depth) {
     tlv_query_diagnostic_t diagnostic = {0};
     /* The V1 expression span is the primary location; it is not stored twice. */
-    if (q->code != TLV_OK) diagnostic = opentlv_binding_path_failure(q->code, &q->diagnostic);
+    if (q->code != TLV_OK) diagnostic = q->failure;
     tlv_result_t rc = q->code;
     if (rc == TLV_OK && operation == 1) rc = tlv_query_matcher_init(&q->matcher, &q->query);
     if (operation < 0 || operation > 2) rc = TLV_ERR_INVALID_ARG;
@@ -1154,11 +1157,10 @@ const char* opentlv_wasm_schema_validate(opentlv_wasm_program_t* owner, const ui
     free(rules);
     query_status(&owner->reply, rc, &diagnostic.query);
     query_field(&owner->reply, "rule", diagnostic.rule);
-    /* Only a failed assertion has Schema detail. Its common evidence (location,
-     * path, expected text) is the error's own, so "schema" adds only that detail. */
-    static const tlv_schema_detail_t none;
-    const tlv_schema_detail_t*       schema =
-        diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA ? &diagnostic.query.detail.schema : &none;
+    /* Only a failed assertion has Schema detail; other failures omit "schema". Its
+     * common evidence (location, path, expected text) is the error's own. */
+    if (diagnostic.query.cause != TLV_QUERY_CAUSE_SCHEMA) return query_reply(&owner->reply);
+    const tlv_schema_detail_t* schema = &diagnostic.query.detail.schema;
     builder_text(&owner->reply, ",\"schema\":{\"tag\":\"");
     builder_hex(&owner->reply, schema->tag.data, schema->tag.size);
     builder_text(&owner->reply, "\",\"field\":");

@@ -199,7 +199,8 @@ const tlv_query_t* opentlv_lua_check_query(lua_State* L, int arg, tlv_query_t* s
     tlv_diagnostic_t parse = {0};
     tlv_result_t     code = tlv_query_parse_n(text, length, scratch, &parse);
     if (code != TLV_OK) {
-        const tlv_query_diagnostic_t failure = opentlv_binding_path_failure(code, &parse);
+        const tlv_query_diagnostic_t failure =
+            opentlv_binding_path_failure(code, &parse, text, length);
         opentlv_lua_push_query_error(L, code, &failure);
         lua_error(L);
     }

@@ -1179,7 +1179,8 @@ static PyObject* _opentlv_document_find_path(PyObject* module, PyObject* args) {
     tlv_diagnostic_t parse = {0};
     tlv_result_t     code = tlv_query_parse(text, &query, &parse);
     if (code != TLV_OK) {
-        const tlv_query_diagnostic_t failure = opentlv_binding_path_failure(code, &parse);
+        const tlv_query_diagnostic_t failure =
+            opentlv_binding_path_failure(code, &parse, text, strlen(text));
         opentlv_python_raise_query(code, &failure);
         return NULL;
     }

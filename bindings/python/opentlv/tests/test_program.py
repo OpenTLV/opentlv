@@ -131,6 +131,7 @@ def test_query_schema_buffer_document_owned_diagnostics_and_limits():
     with pytest.raises(LimitError) as limit:
         schema.validate_buffer(good, max_contexts=0)
     assert limit.value.query["limit"] == "schema-contexts"
+    assert limit.value.schema is None
     with pytest.raises(LimitError):
         schema.validate_buffer(good, max_work=1)
     with pytest.raises(InvalidValueError):

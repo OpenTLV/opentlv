@@ -48,7 +48,8 @@ func programDiagnostic(d C.tlv_query_diagnostic_t, code Code) ProgramDiagnostic 
 		common = readerDiagnosticParts(d.diagnostic, C.query_reader(&d), code)
 	}
 	return ProgramDiagnostic{Common: common, HasReader: hasReader, Kind: int(d.kind),
-		Expression: Location{int(d.expression.domain), int(d.expression.kind), uint64(d.expression.begin), uint64(d.expression.end)},
+		Expression: Location{Domain: int(d.expression.domain), Kind: int(d.expression.kind),
+			Begin: uint64(d.expression.begin), End: uint64(d.expression.end)},
 		Configured: uint64(d.configured), Limit: C.GoString(d.limit), CodecDetail: queryCodecDetail(d)}
 }
 
@@ -134,11 +135,12 @@ type QueryRule struct {
 }
 type QuerySchemaLimits struct{ Depth, Nodes, Work, Contexts, ValueCapacity int }
 type QuerySchemaDiagnostic struct {
-	Rule  int
-	Field string
-	Kind  int
-	Tag   []byte
-	Query ProgramDiagnostic
+	Rule      int
+	HasSchema bool
+	Field     string
+	Kind      int
+	Tag       []byte
+	Query     ProgramDiagnostic
 }
 
 // ValidateQuerySchema owns storage adaptation only; canonical C evaluates every rule.
@@ -244,7 +246,7 @@ func ValidateQuerySchema(rules []QueryRule, data []byte, document *Document, for
 	detail := QuerySchemaDiagnostic{Rule: int(nativeDetail.rule), Query: programDiagnostic(nativeDetail.query, code)}
 	if nativeDetail.query.cause == C.TLV_QUERY_CAUSE_SCHEMA {
 		schema := C.query_schema(&nativeDetail.query)
-		detail.Field, detail.Kind = C.GoString(schema.field), int(schema.kind)
+		detail.HasSchema, detail.Field, detail.Kind = true, C.GoString(schema.field), int(schema.kind)
 		detail.Tag = bytes.Clone(nativeBytes(schema.tag.data, schema.tag.size))
 	}
 	runtime.KeepAlive(rules)

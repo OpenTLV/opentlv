@@ -157,8 +157,9 @@ on partial failure. Short target storage preserves the selection for retry.
 `ValidateQueryBuffer` and `ValidateQueryDocument` accept `[]QueryRule` with context
 selectors, Boolean assertions and diagnostic names. Pass
 `DefaultQuerySchemaLimits()` or explicit resource limits. Validation retains
-programs/providers. `QuerySchemaError` adds the failed assertion's `Kind`,
-`Tag` and `Field`; its location, path and expected text are read from `Failure`.
+programs/providers. `QuerySchemaError.Schema` holds the failed assertion's `Kind`,
+`Tag` and `Field`, and is nil for any other failure; its location, path and
+expected text are read from `Failure`.
 Document mutation and close are rejected while provider callbacks are active.
 
 `doc.Query("6F/A5/50")` delegates path parsing and matching to C and returns all

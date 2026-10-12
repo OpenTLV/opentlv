@@ -61,9 +61,7 @@ fn query_metadata_preserves_absent_reader_paths() {
     assert_eq!(failure.kind, QueryErrorKind::Reader);
     assert_eq!(failure.path(), None);
     assert_eq!(failure.path_omitted(), 0);
-    // The Reader cause owns severity, contexts and path; they are not duplicated.
-    if let Some(metadata) = &failure.metadata {
-        assert!(metadata.path.is_none() && metadata.contexts.is_empty());
-    }
+    // The Reader cause owns the common evidence; it is not duplicated.
+    assert!(failure.metadata.is_none());
     assert_eq!(failure.reader.as_ref().unwrap().path, None);
 }

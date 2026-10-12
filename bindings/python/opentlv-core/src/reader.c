@@ -496,9 +496,10 @@ PyObject* opentlv_python_query_create(PyObject* module, PyObject* input) {
     if (!self) return PyErr_NoMemory();
     tlv_result_t     code = TLV_OK;
     tlv_diagnostic_t parse = {0};
+    Py_ssize_t       length = 0;
+    const char*      text = NULL;
     if (PyUnicode_Check(input)) {
-        Py_ssize_t  length;
-        const char* text = PyUnicode_AsUTF8AndSize(input, &length);
+        text = PyUnicode_AsUTF8AndSize(input, &length);
         if (!text) {
             free(self);
             return NULL;
@@ -519,7 +520,8 @@ PyObject* opentlv_python_query_create(PyObject* module, PyObject* input) {
     }
     if (code == TLV_OK) code = tlv_query_matcher_init(&self->matcher, &self->query);
     if (code != TLV_OK) {
-        const tlv_query_diagnostic_t failure = opentlv_binding_path_failure(code, &parse);
+        const tlv_query_diagnostic_t failure =
+            opentlv_binding_path_failure(code, &parse, text, (size_t)length);
         free(self);
         opentlv_python_raise_query(code, &failure);
         return NULL;

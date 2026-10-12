@@ -42,8 +42,12 @@ int main() {
 #endif
     } catch (const tlv::query_error& failure) {
         const auto location = failure.location();
-        std::cerr << "Query error at " << tlv::message(tlv::domain(location)) << ' '
-                  << location.begin << ": " << failure.what() << '\n';
+        std::cerr << "Query error at ";
+        if (tlv::kind(location) == tlv::location_kind::unknown)
+            std::cerr << "unknown location";
+        else
+            std::cerr << tlv::message(tlv::domain(location)) << ' ' << location.begin;
+        std::cerr << ": " << failure.what() << '\n';
         return 1;
     } catch (const tlv::parse_error& failure) {
         std::cerr << "Parse error at " << failure.offset() << ": " << failure.what() << '\n';

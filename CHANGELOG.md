@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A binding Query error for a V1 path over its step or tag-byte limit names the exhausted bound, `path-steps` (65) or `path-bytes` (512), with its `configured` value like other Query limits, instead of no limit name. (#590)
+- Binding Schema Query errors omit the `schema` part when the failure is not a failed assertion, instead of reporting kind zero and an empty Tag: Python `None`, JS/WASM `null`, and Go `QuerySchemaError.Schema`, now a `*QuerySchemaDetail`, is nil. (#590)
+- Rust `ProgramError.metadata` stays `None` for a Reader cause again, and `expected()` and `actual()` read the Reader diagnostic, instead of placeholder metadata with error severity and no path or contexts. (#590)
+- The C++ Query example prints an unlocated failure as an unknown location instead of offset zero, and the error reference explains why `tlv::parse_error` keeps `offset()`. (#590)
+- Test the `--recover` error location for DER and Bluetooth LTV input, as for BER. (#590)
 - Fix the C++ consumer-boundary CI check by asserting the input location of a Query Reader failure in an existing test instead of a new test that borrowed another native Format. (#590)
 - Python `Query()` and `Document.find_path()` and Lua path lookups raise rejected path text as a Query syntax or limit error with its EXPRESSION location and no Reader detail, instead of a Reader error that claimed operation `tag`; JS/WASM V1 paths build the same Query diagnostic. (#590)
 - The Schema number composition reports the caller's `ENCODE` operation again when its Schema length check rejects a width after successful sizing; sizing no longer writes the diagnostic on success and repeats a rejected conversion only to collect its detail. (#589)

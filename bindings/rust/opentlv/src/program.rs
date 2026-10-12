@@ -195,12 +195,11 @@ pub struct QueryLimit {
 /// Complete owned native failure, independent of input/program lifetime.
 #[derive(Clone, Debug)]
 pub struct ProgramError {
-    /// Owned common evidence that no Reader cause carries.
+    /// Owned common evidence when no Reader cause carries it.
     ///
-    /// For a Reader failure only `expected` and `actual` are set here, because
-    /// `reader` holds its severity, contexts and path. None when C reported only
-    /// error severity without text, contexts or path. Use the accessors below to
-    /// read either source.
+    /// None for Reader failures, whose `reader` holds the same evidence, and when C
+    /// reported only error severity without text, contexts or path. Use the accessors
+    /// below to read either source.
     pub metadata: Option<Box<crate::DiagnosticMetadata>>,
     /// Primary evidence: the input or Value location of the failing node or lower
     /// layer, otherwise the expression span, or unknown for admission and lifecycle
@@ -249,15 +248,19 @@ impl ProgramError {
     }
     /// Native expected-token or type description of the common diagnostic.
     pub fn expected(&self) -> Option<&str> {
-        self.metadata
-            .as_ref()
-            .and_then(|metadata| metadata.expected.as_deref())
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.expected.as_deref(),
+            (None, Some(metadata)) => metadata.expected.as_deref(),
+            (None, None) => None,
+        }
     }
     /// Native actual-value description of the common diagnostic.
     pub fn actual(&self) -> Option<&str> {
-        self.metadata
-            .as_ref()
-            .and_then(|metadata| metadata.actual.as_deref())
+        match (&self.reader, &self.metadata) {
+            (Some(reader), _) => reader.actual.as_deref(),
+            (None, Some(metadata)) => metadata.actual.as_deref(),
+            (None, None) => None,
+        }
     }
     /// Number of omitted innermost path scopes.
     pub fn path_omitted(&self) -> usize {
@@ -298,38 +301,26 @@ fn check(code: i32, diagnostic: &native::tlv_query_diagnostic_t) -> ProgramResul
             // C initializes the whole union, so copying the inactive arm reads defined bytes.
             let codec = (diagnostic.cause == native::TLV_QUERY_CAUSE_CODEC)
                 .then_some(diagnostic.detail.codec);
-            // A Reader cause owns severity, contexts and path; only its text stays here.
-            let by_reader = diagnostic.cause == native::TLV_QUERY_CAUSE_READER;
-            let text_reported = !common.expected.is_null() || !common.actual.is_null();
-            // Plain failures skip the allocation.
-            let reported = text_reported
-                || (!by_reader
-                    && (!common.contexts.is_null()
-                        || common.has_path != 0
-                        || crate::Severity::from_raw(common.severity) != crate::Severity::Error));
+            // Reader causes own the common evidence; plain failures skip the allocation.
+            let reported = !common.expected.is_null()
+                || !common.actual.is_null()
+                || !common.contexts.is_null()
+                || common.has_path != 0
+                || crate::Severity::from_raw(common.severity) != crate::Severity::Error;
             ProgramError {
                 location: crate::Location::from_raw(common.location),
-                metadata: reported.then(|| {
-                    Box::new(if by_reader {
-                        crate::DiagnosticMetadata {
-                            expected: text(common.expected),
-                            actual: text(common.actual),
-                            severity: crate::Severity::Error,
-                            contexts: Vec::new(),
-                            path: None,
-                            path_omitted: 0,
-                        }
-                    } else {
-                        crate::DiagnosticMetadata {
+                metadata: (diagnostic.cause != native::TLV_QUERY_CAUSE_READER && reported).then(
+                    || {
+                        Box::new(crate::DiagnosticMetadata {
                             expected: text(common.expected),
                             actual: text(common.actual),
                             severity: crate::Severity::from_raw(common.severity),
                             contexts: crate::reader_diagnostic::contexts(common),
                             path: crate::reader_diagnostic::path(common),
                             path_omitted: common.path.omitted,
-                        }
-                    })
-                }),
+                        })
+                    },
+                ),
                 error,
                 kind: crate::QueryErrorKind::from_raw(if code == native::TLV_ERR_INVALID_STATE {
                     native::TLV_QUERY_ERROR_STATE

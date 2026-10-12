@@ -988,17 +988,16 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
     Py_DECREF(format_owner);
     if (rc != TLV_OK) {
         if (PyErr_Occurred()) return NULL;
-        /* Only a failed assertion has Schema detail. Its common evidence (location,
-         * path, expected text) is the Query error's own, so it is not copied here. */
-        static const tlv_schema_detail_t none;
-        const tlv_schema_detail_t*       schema = diagnostic.query.cause == TLV_QUERY_CAUSE_SCHEMA
-                                                      ? &diagnostic.query.detail.schema
-                                                      : &none;
-        PyObject*                        detail =
-            Py_BuildValue("{s:i,s:s,s:y#,s:z}", "kind", (int)schema->kind, "kind_name",
-                          tlv_schema_issue_kind_string(schema->kind), "tag",
-                          schema->tag.size ? (const char*)schema->tag.data : "",
-                          (Py_ssize_t)schema->tag.size, "field", schema->field);
+        /* Only a failed assertion has Schema detail; other failures report None. Its
+         * common evidence (location, path, expected text) is the Query error's own. */
+        const tlv_schema_detail_t* schema = &diagnostic.query.detail.schema;
+        PyObject*                  detail =
+            diagnostic.query.cause != TLV_QUERY_CAUSE_SCHEMA
+                ? Py_NewRef(Py_None)
+                : Py_BuildValue("{s:i,s:s,s:y#,s:z}", "kind", (int)schema->kind, "kind_name",
+                                tlv_schema_issue_kind_string(schema->kind), "tag",
+                                schema->tag.size ? (const char*)schema->tag.data : "",
+                                (Py_ssize_t)schema->tag.size, "field", schema->field);
         if (!detail) return NULL;
         PyObject* details =
             Py_BuildValue("{s:n,s:N}", "rule", (Py_ssize_t)diagnostic.rule, "schema", detail);

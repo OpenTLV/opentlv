@@ -134,7 +134,7 @@ code and primary location are `error.code` and `error.location`;
 `error.query.expression` is the related expression span when another location
 is primary and has kind `unknown` otherwise. A Schema Query failure's
 `error.schema` holds only the assertion's `tag`, `field`, `kind` and
-`kind_name`.
+`kind_name`, and is `null` for any other failure.
 
 `new V1Query("70/5A")` exposes bounded legacy parsing, `format()`, copied `steps`,
 `evaluate(input, options)` and a native preorder matcher. `matcher()` creates an

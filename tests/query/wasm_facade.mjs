@@ -251,7 +251,7 @@ assert.throws(() => schema.validateBuffer(deepSchemaInput), error => {
 });
 
 assert.throws(() => schema.validateBuffer(goodSchemaInput, { max_contexts: 0 }),
-  error => error.query.limit === "schema-contexts");
+  error => error.query.limit === "schema-contexts" && error.schema === null);
 assert.throws(() => schema.validateBuffer(goodSchemaInput, { max_work: 1 }), error => error.query.limit === "work");
 const schemaDocument = api.document(goodSchemaInput);
 schema.validateDocument(schemaDocument);
@@ -453,9 +453,11 @@ assert.throws(() => new api.V1Query("70/5"), error =>
   error.code === 8 && error.query.kind_name === "syntax" && error.location.begin === 3 &&
   error.location.end === 4 && error.query.expression.kind === "unknown");
 assert.throws(() => new api.V1Query(Array(66).fill("5a").join("/")), error =>
-  error.code === 15 && error.query.kind_name === "limit" && error.location.domain === "expression");
+  error.code === 15 && error.query.kind_name === "limit" && error.location.domain === "expression" &&
+  error.query.limit === "path-steps" && error.query.configured === 65);
 assert.throws(() => new api.V1Query("5a".repeat(513)), error =>
-  error.code === 15 && error.query.kind_name === "limit");
+  error.code === 15 && error.query.kind_name === "limit" && error.query.limit === "path-bytes" &&
+  error.query.configured === 512);
 const requirements = api.compileQuery("//5A[num(.)=$amount]", { variables: { unused: "bytes", amount: "integer" } });
 assert.deepEqual(requirements.variables, { amount: "integer" });
 const requiredLoaded = api.loadQuery(requirements.image(), { variables: { amount: "integer" } });

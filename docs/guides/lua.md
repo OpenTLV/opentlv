@@ -602,7 +602,8 @@ such as `syntax` or `state`. `error.query.expression` is the related expression
 location, with kind `unknown` when `error.location` already is that span, and
 `error.query.codec_detail.reported` is the raw provider result. A rejected path
 text raises the same Query syntax or limit error. A Schema Query failure's
-`error.schema` holds only the assertion's `kind`, `tag` and `field`; its
+`error.schema` holds only the assertion's `kind`, `tag` and `field`, and is nil
+for any other failure; its
 location, path and expected text are the error's own. Reader `operation` includes `header`; Reader bounds
 and field offsets retain their presence, and lengths beyond Lua's exact numeric
 range use decimal strings. Codec detail adds `operation_name`, `cause_name` and

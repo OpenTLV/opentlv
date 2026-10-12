@@ -225,6 +225,12 @@ assert(diagnostic.query.expression.kind == "unknown" and diagnostic.query.begin 
 local path = fails(function() tlv.query("01/") end, tlv.errors.SYNTAX)
 assert(path.query.kind_name == "syntax" and path.operation == nil)
 assert(path.location.domain == "expression" and path.location.begin == 3)
+local steps = {}
+for i = 1, 66 do steps[i] = "5a" end
+local long = fails(function() tlv.query(table.concat(steps, "/")) end, tlv.errors.LIMIT)
+assert(long.query.limit == "path-steps" and long.query.configured == 65)
+local wide = fails(function() tlv.query(string.rep("5a", 513)) end, tlv.errors.LIMIT)
+assert(wide.query.limit == "path-bytes" and wide.query.configured == 512)
 if tlv.document and tlv.formats.ber then
     local edit_doc = tlv.document(b(0x70,6,0x5a,1,1,0x5a,1,2,0x5a,1,3),f)
     local old_node = edit_doc:first()

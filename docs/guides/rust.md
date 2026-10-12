@@ -196,7 +196,7 @@ or `QueryErrorKind::State` and use `name()` for the canonical C spelling.
 `severity()`, `contexts()`, `path()` and `path_omitted()` read the common
 evidence from the Reader cause when present, otherwise from the boxed
 `metadata`, which stays `None` when nothing beyond error severity was reported.
-`expected()` and `actual()` read the common texts.
+`expected()` and `actual()` read the common texts from the same source.
 `ProgramError.location` holds primary evidence inline. `source_offset()` projects its
 start only for known INPUT locations, including zero; expression spans and
 unknown locations return `None`. `expression` is the related expression span,

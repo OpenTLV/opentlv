@@ -462,7 +462,7 @@ and read each value from one C member:
 | `expression` | Query `expression` location: the related span, unknown when the expression span is the primary `location` |
 | `detail.codec` | Codec detail; `reported` is the raw provider result |
 | `detail.reader` | Reader detail beside the common evidence |
-| `detail.schema` | Schema Query `schema`: `kind`, `tag` and `field` of the failed assertion |
+| `detail.schema` | Schema Query `schema`: `kind`, `tag` and `field` of the failed assertion; absent (`None`, `nil`, `null`) for any other cause |
 
 There are no `begin`/`end`, `source_offset`, Query `expected` or `codec`
 copies. The expression span of a failure is its `location` when that has the
@@ -470,7 +470,9 @@ copies. The expression span of a failure is its `location` when that has the
 `source_offset()`/`SourceOffset()` from a primary INPUT location without storing
 it. A rejected V1 path text, such as Python `Query("01/")`, Python
 `Document.find_path()` or Lua `opentlv.query()`, raises the Query syntax or limit
-error with its EXPRESSION location and no Reader detail.
+error with its EXPRESSION location and no Reader detail; a limit error names
+`path-steps` (`configured` 65) or `path-bytes` (`configured` 512) like other
+Query limits.
 
 CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common
@@ -481,7 +483,9 @@ error with the same `location` object instead of a separate offset.
 C++ `tlv::error`, `tlv::query_error` and `tlv::query_failure` expose
 `location()`, never a bare offset, because a location's coordinates belong to
 its domain: input, would-be output, Query expression or Value bytes.
-`query_failure::expression()` is the related expression span.
+`query_failure::expression()` is the related expression span. `tlv::parse_error`
+keeps `offset()`, because it is not diagnostic evidence: it is always the input
+offset of the element whose read failed, beside the Reader diagnostic.
 
 ## See also
 

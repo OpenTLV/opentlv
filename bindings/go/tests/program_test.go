@@ -67,9 +67,9 @@ func TestQuerySchemaOwnedDiagnosticsAndBounds(t *testing.T) {
 		t.Fatal(err)
 	}
 	common := detail.Failure
-	if detail.Rule != 0 || detail.Kind != 7 || detail.Field != "one" ||
+	if detail.Rule != 0 || detail.Schema == nil || detail.Schema.Kind != 7 || detail.Schema.Field != "one" ||
 		common.Location != (tlv.Location{Domain: tlv.LocationInput, Kind: tlv.LocationPoint, Begin: 2, End: 2}) ||
-		!bytes.Equal(detail.Tag, []byte{0x5a}) || len(common.Path) != 1 || !bytes.Equal(common.Path[0], []byte{0x70}) ||
+		!bytes.Equal(detail.Schema.Tag, []byte{0x5a}) || len(common.Path) != 1 || !bytes.Equal(common.Path[0], []byte{0x70}) ||
 		common.Expected != "contextual Query assertion true" {
 		t.Fatalf("lost diagnostic: %+v", detail)
 	}
@@ -82,12 +82,14 @@ func TestQuerySchemaOwnedDiagnosticsAndBounds(t *testing.T) {
 	_ = broken.Close()
 	clear(bad)
 	runtime.GC()
-	if !bytes.Equal(documentDetail.Failure.Path[0], []byte{0x70}) || !bytes.Equal(detail.Tag, []byte{0x5a}) {
+	if !bytes.Equal(documentDetail.Failure.Path[0], []byte{0x70}) || !bytes.Equal(detail.Schema.Tag, []byte{0x5a}) {
 		t.Fatal("borrowed diagnostics")
 	}
 	limits.Contexts = 0
 	var limit *tlv.ProgramError
-	if err := tlv.ValidateQueryBuffer(rules, good, f, limits); !errors.As(err, &limit) || limit.Limit != "schema-contexts" {
+	var limitSchema *tlv.QuerySchemaError
+	if err := tlv.ValidateQueryBuffer(rules, good, f, limits); !errors.As(err, &limit) || limit.Limit != "schema-contexts" ||
+		!errors.As(err, &limitSchema) || limitSchema.Schema != nil {
 		t.Fatal(err)
 	}
 	limits = tlv.DefaultQuerySchemaLimits()
