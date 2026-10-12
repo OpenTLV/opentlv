@@ -4642,7 +4642,13 @@ Lua strings and match snapshots own copied bytes. Callback errors invalidate
 the execution until reset, and reentrant calls are rejected. <code>close()</code> releases
 native owners deterministically. Native failures raise tables with <code>code</code> and
 Query diagnostic detail. <code>error.query.kind_name</code> is the canonical C category,
-such as <code>syntax</code> or <code>state</code>. Reader <code>operation</code> includes <code>header</code>; Reader bounds
+such as <code>syntax</code> or <code>state</code>. <code>error.query.expression</code> is the related expression
+location, with kind <code>unknown</code> when <code>error.location</code> already is that span, and
+<code>error.query.codec_detail.reported</code> is the raw provider result. A rejected path
+text raises the same Query syntax or limit error. A Schema Query failure's
+<code>error.schema</code> holds only the assertion's <code>kind</code>, <code>tag</code> and <code>field</code>, and is nil
+for any other failure; its
+location, path and expected text are the error's own. Reader <code>operation</code> includes <code>header</code>; Reader bounds
 and field offsets retain their presence, and lengths beyond Lua's exact numeric
 range use decimal strings. Codec detail adds <code>operation_name</code>, <code>cause_name</code> and
 <code>violation_name</code> beside raw numeric values. See the

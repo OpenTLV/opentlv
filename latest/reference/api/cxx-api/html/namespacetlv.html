@@ -190,7 +190,7 @@ Classes</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format-independent borrowed Tag and Value, without source metadata.  <a href="classtlv_1_1element__view.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html">error</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free operation error with optional absolute byte offset.  <a href="structtlv_1_1error.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocation-free operation error with an optional primary location.  <a href="structtlv_1_1error.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtlv_1_1expected.html">expected</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimal move-only result holding either a value or an error.  <a href="classtlv_1_1expected.html#details">More...</a><br /></td></tr>
@@ -1027,7 +1027,7 @@ Variables</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Public C++ wrappers, value types, codec traits and helpers for OpenTLV. </p>
-<p>Wrappers translate C result codes into <a class="el" href="classtlv_1_1expected.html" title="Minimal move-only result holding either a value or an error.">tlv::expected</a> results with <a class="el" href="structtlv_1_1error.html" title="Allocation-free operation error with optional absolute byte offset.">tlv::error</a>. Refer to each declaration for borrowed lifetimes and error behavior. </p>
+<p>Wrappers translate C result codes into <a class="el" href="classtlv_1_1expected.html" title="Minimal move-only result holding either a value or an error.">tlv::expected</a> results with <a class="el" href="structtlv_1_1error.html" title="Allocation-free operation error with an optional primary location.">tlv::error</a>. Refer to each declaration for borrowed lifetimes and error behavior. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
 <a id="a2abe7003a70af047ef9acae17f31f75d" name="a2abe7003a70af047ef9acae17f31f75d"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2abe7003a70af047ef9acae17f31f75d">&#9670;&#160;</a></span>bytes</h2>
@@ -5688,7 +5688,7 @@ template&lt;typename Failure &gt; </div>
 <p>Project a specialized failure while retaining its detailed original error object. </p>
 <dl class="tparams"><dt>Template Parameters</dt><dd>
   <table class="tparams">
-    <tr><td class="paramname">Failure</td><td>Specialized error exposing failure() returning <a class="el" href="structtlv_1_1error.html" title="Allocation-free operation error with optional absolute byte offset.">tlv::error</a>. </td></tr>
+    <tr><td class="paramname">Failure</td><td>Specialized error exposing failure() returning <a class="el" href="structtlv_1_1error.html" title="Allocation-free operation error with an optional primary location.">tlv::error</a>. </td></tr>
   </table>
   </dd>
 </dl>

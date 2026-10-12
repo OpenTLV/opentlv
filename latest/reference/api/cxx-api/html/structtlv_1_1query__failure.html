@@ -100,6 +100,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af9252dd99f0ab2f4733f83d8f089d476" id="r_af9252dd99f0ab2f4733f83d8f089d476"><td class="memItemLeft" align="right" valign="top"><a class="el" href="namespacetlv.html#a7c5b3b4b86d895c7b029a302b5f1dda9">query_cause</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#af9252dd99f0ab2f4733f83d8f089d476">cause</a> () const noexcept</td></tr>
 <tr class="memdesc:af9252dd99f0ab2f4733f83d8f089d476"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose detail is active in <code>diagnostic.detail</code>.  <br /></td></tr>
 <tr class="separator:af9252dd99f0ab2f4733f83d8f089d476"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acac0ab934f008137dc8bddca6e5e9357" id="r_acac0ab934f008137dc8bddca6e5e9357"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#acac0ab934f008137dc8bddca6e5e9357">location</a> () const noexcept</td></tr>
+<tr class="memdesc:acac0ab934f008137dc8bddca6e5e9357"><td class="mdescLeft">&#160;</td><td class="mdescRight">Primary evidence: input or Value location of the failing node or lower layer, otherwise the expression span, or unknown for admission and lifecycle failures.  <br /></td></tr>
+<tr class="separator:acac0ab934f008137dc8bddca6e5e9357"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7afcf5273f8f0b30f928c926e0a1f4b" id="r_ab7afcf5273f8f0b30f928c926e0a1f4b"><td class="memItemLeft" align="right" valign="top"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#ab7afcf5273f8f0b30f928c926e0a1f4b">expression</a> () const noexcept</td></tr>
+<tr class="memdesc:ab7afcf5273f8f0b30f928c926e0a1f4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Related expression span when another known location is primary; otherwise unknown, so the span is never reported twice.  <br /></td></tr>
+<tr class="separator:ab7afcf5273f8f0b30f928c926e0a1f4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ca757b3c7724aa17a1f92a1058eb811" id="r_a9ca757b3c7724aa17a1f92a1058eb811"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">tlv::error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1query__failure.html#a9ca757b3c7724aa17a1f92a1058eb811">failure</a> () const noexcept</td></tr>
 <tr class="memdesc:a9ca757b3c7724aa17a1f92a1058eb811"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy common diagnostic information while preserving Query detail on this object.  <br /></td></tr>
 <tr class="separator:a9ca757b3c7724aa17a1f92a1058eb811"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -138,6 +144,33 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Layer whose detail is active in <code>diagnostic.detail</code>. </p>
+
+</div>
+</div>
+<a id="ab7afcf5273f8f0b30f928c926e0a1f4b" name="ab7afcf5273f8f0b30f928c926e0a1f4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7afcf5273f8f0b30f928c926e0a1f4b">&#9670;&#160;</a></span>expression()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> tlv::query_failure::expression </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Related expression span when another known location is primary; otherwise unknown, so the span is never reported twice. </p>
 
 </div>
 </div>
@@ -192,6 +225,33 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Category identifying the relevant subsystem detail. </p>
+
+</div>
+</div>
+<a id="acac0ab934f008137dc8bddca6e5e9357" name="acac0ab934f008137dc8bddca6e5e9357"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acac0ab934f008137dc8bddca6e5e9357">&#9670;&#160;</a></span>location()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="elRef" href="../../c-api/html/group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> tlv::query_failure::location </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Primary evidence: input or Value location of the failing node or lower layer, otherwise the expression span, or unknown for admission and lifecycle failures. </p>
 
 </div>
 </div>

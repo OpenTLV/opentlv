@@ -4627,7 +4627,7 @@ results remain inspectable.</p>
 </tr>
 <tr>
 <td>Python</td>
-<td>Typed result exceptions; Query <code>query["query_kind"]</code>, Schema report fields and Codec detail fields use <code>IntEnum</code> categories exported by <code>opentlv</code>. Their <code>label</code> property calls C. Reader/Writer <code>operation</code> remains a canonical string.</td>
+<td>Typed result exceptions; Query <code>query["query_kind"]</code>, Schema report fields and Codec detail fields use <code>IntEnum</code> categories exported by <code>opentlv</code>. Their <code>label</code> property calls C; the native module's <code>result_string()</code> returns the result text. Reader/Writer <code>operation</code> remains a canonical string.</td>
 </tr>
 <tr>
 <td>Go</td>
@@ -4652,14 +4652,63 @@ against the matching C library.</p>
 zero is distinct from absence. Related Query expression spans do not replace
 the primary input/output/Value location. Retained paths hold outermost scopes;
 <code>path_omitted</code> counts omitted innermost scopes. Go's <code>HasReader</code> guards the
-Reader-specific part of a Query failure. Binding Query <code>begin</code>/<code>end</code> fields
-report the expression span whether it is primary or related. The binding
-facades still repeat some common evidence, for example the Go and Python Schema
-Query projection copies <code>query.diagnostic</code> into its Schema part; aligning the
-binding shapes with the single-source C layout is follow-up work.</p>
+Reader-specific part of a Query failure.</p>
+<p>Binding Query and Schema Query projections follow the single-source C layout
+and read each value from one C member:</p>
+<table>
+<thead>
+<tr>
+<th>C member</th>
+<th>Binding projection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>diagnostic</code></td>
+<td>The error's common evidence: <code>location</code>, severity, path, expected and actual text, contexts</td>
+</tr>
+<tr>
+<td><code>kind</code>, <code>limit</code>, <code>configured</code></td>
+<td>Query <code>kind</code> (Python <code>query_kind</code>), <code>limit</code>, <code>configured</code></td>
+</tr>
+<tr>
+<td><code>expression</code></td>
+<td>Query <code>expression</code> location: the related span, unknown when the expression span is the primary <code>location</code></td>
+</tr>
+<tr>
+<td><code>detail.codec</code></td>
+<td>Codec detail; <code>reported</code> is the raw provider result</td>
+</tr>
+<tr>
+<td><code>detail.reader</code></td>
+<td>Reader detail beside the common evidence</td>
+</tr>
+<tr>
+<td><code>detail.schema</code></td>
+<td>Schema Query <code>schema</code>: <code>kind</code>, <code>tag</code> and <code>field</code> of the failed assertion; absent (<code>None</code>, <code>nil</code>, <code>null</code>) for any other cause</td>
+</tr>
+</tbody>
+</table>
+<p>There are no <code>begin</code>/<code>end</code>, <code>source_offset</code>, Query <code>expected</code> or <code>codec</code>
+copies. The expression span of a failure is its <code>location</code> when that has the
+<code>expression</code> domain, otherwise its related <code>expression</code>. Rust and Go derive
+<code>source_offset()</code>/<code>SourceOffset()</code> from a primary INPUT location without storing
+it. A rejected V1 path text, such as Python <code>Query("01/")</code>, Python
+<code>Document.find_path()</code> or Lua <code>opentlv.query()</code>, raises the Query syntax or limit
+error with its EXPRESSION location and no Reader detail; a limit error names
+<code>path-steps</code> (<code>configured</code> 65) or <code>path-bytes</code> (<code>configured</code> 512) like other
+Query limits.</p>
 <p>CLI diagnostics identify the location domain and anchor kind. Compact output
 includes truncated paths and omitted counts; Query JSON includes common
-diagnostic metadata and delegated Codec or Reader evidence.</p>
+diagnostic metadata and delegated Codec or Reader evidence. Every CLI failure is
+rendered from its diagnostic location; <code>--recover</code> reports each skipped range's
+error with the same <code>location</code> object instead of a separate offset.</p>
+<p>C++ <code>tlv::error</code>, <code>tlv::query_error</code> and <code>tlv::query_failure</code> expose
+<code>location()</code>, never a bare offset, because a location's coordinates belong to
+its domain: input, would-be output, Query expression or Value bytes.
+<code>query_failure::expression()</code> is the related expression span. <code>tlv::parse_error</code>
+keeps <code>offset()</code>, because it is not diagnostic evidence: it is always the input
+offset of the element whose read failed, beside the Reader diagnostic.</p>
 <h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../c-api/">C API reference</a> for the documented codes per function.</li>

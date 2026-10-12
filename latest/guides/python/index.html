@@ -4041,7 +4041,14 @@ Fields the failure does not report are <code>None</code>.</p>
 <p>Query failures retain common <code>location</code>, <code>severity</code>, <code>path</code>, <code>path_omitted</code>
 and <code>contexts</code> even without a Reader cause. <code>error.query["query_kind"]</code> is a
 <code>QueryErrorKind</code>, for example <code>QueryErrorKind.SYNTAX</code>; its <code>label</code> property
-returns the C spelling. Codec and Schema categories are typed too. See the
+returns the C spelling. <code>error.query["expression"]</code> is the related expression
+<code>Location</code>, with kind <code>unknown</code> when the expression span is <code>error.location</code>
+itself; conversion detail is <code>error.codec_detail</code>. A Schema Query failure's
+<code>error.schema</code> holds only the assertion's <code>kind</code>, <code>kind_name</code>, <code>tag</code> and
+<code>field</code>, and is <code>None</code> for any other failure; its location, path and expected
+text are the error's own. A rejected
+path text raises <code>InvalidSyntaxError</code> (or <code>LimitError</code>) with Query detail and no
+Reader <code>operation</code>. Codec and Schema categories are typed too. See the
 <a href="../../reference/errors/#binding-diagnostics">binding diagnostic reference</a>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">try</span><span class="p">:</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="nb">list</span><span class="p">(</span><span class="n">opentlv</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="n">truncated</span><span class="p">))</span>

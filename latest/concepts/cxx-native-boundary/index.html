@@ -4003,7 +4003,8 @@ allocation behavior.</p>
 <p>Cursor operations return <code>expected</code> with <code>tlv::error</code>; copying the error and its
 borrowed static message does not allocate. <code>status()</code> exposes <code>tlv::codec_failure</code>, with
 distinct <code>end</code> and <code>need_more_data</code> outcomes. Located errors expose
-<code>has_offset()</code>, <code>offset()</code> and <code>stage()</code>. Custom error descriptions are borrowed
+<code>location()</code>, whose domain says whether its coordinates count input, would-be
+output, Query expression or Value bytes, and <code>stage()</code>. Custom error descriptions are borrowed
 and must outlive the errors. Format customization uses <code>format_failure</code> and scoped construction
 uses <code>writer_failure</code>, preserving codes/detail without allocating error strings.
 Typed field failures distinguish invalid handles, Tag mismatch, constructed
@@ -4103,9 +4104,9 @@ and <a href="../../guides/memory/">memory guide</a> for borrowing and preservati
 <h2 id="error-and-traversal-contract">Error and traversal contract<a class="headerlink" href="#error-and-traversal-contract" title="Permanent link">&para;</a></h2>
 <p><code>tlv::to_error(result.error())</code> projects ordinary and specialized errors into
 one allocation-free diagnostic: <code>status()</code>, <code>message()</code>, <code>severity()</code>, <code>stage()</code>,
-optional <code>offset()</code>/<code>tag()</code>, enclosing <code>ancestor(i)</code> identifiers, and optional
-<code>expected()</code>/<code>actual()</code> descriptions. Check <code>has_offset()</code> and <code>has_tag()</code> before
-using location metadata. Ancestor descriptors are copied into bounded inline
+<code>location()</code>, optional <code>tag()</code>, enclosing <code>ancestor(i)</code> identifiers, and optional
+<code>expected()</code>/<code>actual()</code> descriptions. Check the location kind and <code>has_tag()</code>
+before using location metadata, and read <code>begin</code> in the location's domain. Ancestor descriptors are copied into bounded inline
 storage; their identifier bytes and diagnostic strings remain borrowed.
 Unavailable context stays absent rather than inventing an offset or constraint.
 Keep the original <code>typed_error</code>, <code>writer_failure</code>, <code>format_failure</code>,

@@ -3882,8 +3882,11 @@ panics invalidate an execution until reset; reentrant operations are rejected.
 Call <code>Close</code> for deterministic cleanup. <code>ProgramError</code> retains Query diagnostics.
 Its <code>Kind</code> is a <code>QueryErrorKind</code> with canonical <code>String()</code> names; use
 <code>QueryErrorKindSyntax</code> or <code>QueryErrorKindState</code> instead of numeric literals.
-Common <code>Diagnostic</code> evidence survives failures without a Reader cause;
-<code>HasReader</code> guards the separate <code>Reader</code> detail.
+Common <code>Diagnostic</code> evidence survives failures without a Reader cause; when
+<code>HasReader</code> is true, the same <code>Diagnostic</code> also carries the Reader detail.
+<code>Expression</code> is the related expression span, with <code>LocationUnknown</code> kind when
+the primary <code>Location</code> already is that span, and <code>SourceOffset()</code> projects a
+primary input location. <code>CodecDetail.Reported</code> is the raw provider result.
 See <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/go/tests/program_test.go">consumer tests</a>.</p>
 <p><code>ProgramOptions.Providers</code> maps <code>QueryNum</code>, <code>QueryBCD</code>, <code>QueryText</code> and <code>QueryDate</code>
 to <code>QueryProvider</code> values. Each owns a stable nonzero ID and a <code>Decode</code> callback
@@ -3898,7 +3901,9 @@ on partial failure. Short target storage preserves the selection for retry.</p>
 <p><code>ValidateQueryBuffer</code> and <code>ValidateQueryDocument</code> accept <code>[]QueryRule</code> with context
 selectors, Boolean assertions and diagnostic names. Pass
 <code>DefaultQuerySchemaLimits()</code> or explicit resource limits. Validation retains
-programs/providers and copies diagnostic context into <code>QuerySchemaError</code>.
+programs/providers. <code>QuerySchemaError.Schema</code> holds the failed assertion's <code>Kind</code>,
+<code>Tag</code> and <code>Field</code>, and is nil for any other failure; its location, path and
+expected text are read from <code>Failure</code>.
 Document mutation and close are rejected while provider callbacks are active.</p>
 <p><code>doc.Query("6F/A5/50")</code> delegates path parsing and matching to C and returns all
 matching Nodes in document order. Exact hexadecimal tags and direct-child <code>/</code>

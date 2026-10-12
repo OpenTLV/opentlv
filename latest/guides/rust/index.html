@@ -3984,11 +3984,13 @@ or <code>QueryErrorKind::State</code> and use <code>name()</code> for the canoni
 <code>severity()</code>, <code>contexts()</code>, <code>path()</code> and <code>path_omitted()</code> read the common
 evidence from the Reader cause when present, otherwise from the boxed
 <code>metadata</code>, which stays <code>None</code> when nothing beyond error severity was reported.
+<code>expected()</code> and <code>actual()</code> read the common texts from the same source.
 <code>ProgramError.location</code> holds primary evidence inline. <code>source_offset()</code> projects its
 start only for known INPUT locations, including zero; expression spans and
-unknown locations return <code>None</code>. <code>expected</code> is an owned immutable <code>Box&lt;str&gt;</code>
-(inspect with <code>as_deref()</code>); <code>limit</code> boxes the exhausted resource name with its
-configured bound as <code>QueryLimit</code>. Categories are <code>#[non_exhaustive]</code>;
+unknown locations return <code>None</code>. <code>expression</code> is the related expression span,
+with kind <code>Unknown</code> when <code>location</code> already is that span. <code>limit</code> boxes the
+exhausted resource name with its configured bound as <code>QueryLimit</code>, and
+<code>codec_detail.reported</code> is the raw provider result. Categories are <code>#[non_exhaustive]</code>;
 unrecognized native values become <code>Unrecognized(RawCategory)</code>.
 <code>ProgramOptions.providers</code> holds <code>QueryProvider</code> values for the closed NUM, BCD,
 TEXT and DATE conversions. Each owns a stable ID, scratch limit and <code>Send + Sync</code>
@@ -4004,6 +4006,8 @@ leaves the Document unchanged for a later retry with larger capacity.</p>
 <code>QueryRule::new(context, assertion).named(name)</code> and validate a buffer or immutable
 Document with <code>QuerySchemaLimits</code>. C performs contextual selection and Boolean
 assertions; Rust owns workspace and failure context in <code>QuerySchemaError</code>.
+Its <code>schema</code> is a <code>QuerySchemaDetail</code> with the failed assertion's <code>kind</code>, <code>tag</code>
+and <code>field</code>; the location, path and expected text come from <code>failure</code>.
 Borrowing prevents Document mutation while validation runs.</p>
 <p>The <a href="https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/query_conformance.rs">consumer example</a>
 runs the common corpus through the public facade. Remaining custom Format and

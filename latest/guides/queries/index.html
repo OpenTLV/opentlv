@@ -4075,7 +4075,8 @@ element to a matcher instead:</p>
 <code>tlv::tree_reader::visit()</code>.</p>
 <p>Compile a reusable Query with <code>tlv::query::parse()</code> for explicit error handling,
 or <code>tlv::query::compile()</code> to throw <code>tlv::query_error</code>. The exception retains
-the original C result and the zero-based text error offset.</p>
+the original C result and <code>location()</code>, the span of the offending text in the
+<code>expression</code> domain.</p>
 <p>An owning Document supports all-result lookup through normal Node handles:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">auto</span><span class="w"> </span><span class="n">matches</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">document</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="s">"6F/A5/50"</span><span class="p">);</span>
 <a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">matches</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>

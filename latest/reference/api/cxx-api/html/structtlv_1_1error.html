@@ -82,7 +82,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Allocation-free operation error with optional absolute byte offset.  
+<p>Allocation-free operation error with an optional primary location.  
  <a href="structtlv_1_1error.html#details">More...</a></p>
 
 <p><code>#include &lt;error.hpp&gt;</code></p>
@@ -122,12 +122,6 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1971652f6e83c037b657514bd42d0ed4" id="r_a1971652f6e83c037b657514bd42d0ed4"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a1971652f6e83c037b657514bd42d0ed4">has_path</a> () const noexcept</td></tr>
 <tr class="memdesc:a1971652f6e83c037b657514bd42d0ed4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether an enclosing path was tracked, including a known empty path.  <br /></td></tr>
 <tr class="separator:a1971652f6e83c037b657514bd42d0ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb11e5286309cc54142d98d0c8a89dd6" id="r_afb11e5286309cc54142d98d0c8a89dd6"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6">has_offset</a> () const noexcept</td></tr>
-<tr class="memdesc:afb11e5286309cc54142d98d0c8a89dd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1" title="Absolute byte offset, valid only when has_offset() is true.">offset()</a> contains a known location.  <br /></td></tr>
-<tr class="separator:afb11e5286309cc54142d98d0c8a89dd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6140b63c1bfee3fedc88dfd392efe6c1" id="r_a6140b63c1bfee3fedc88dfd392efe6c1"><td class="memItemLeft" align="right" valign="top">std::size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1">offset</a> () const noexcept</td></tr>
-<tr class="memdesc:a6140b63c1bfee3fedc88dfd392efe6c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Absolute byte offset, valid only when <a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6" title="Whether offset() contains a known location.">has_offset()</a> is true.  <br /></td></tr>
-<tr class="separator:a6140b63c1bfee3fedc88dfd392efe6c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab6aea9ae5ed687e1b375c3789124c2c" id="r_aab6aea9ae5ed687e1b375c3789124c2c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#aab6aea9ae5ed687e1b375c3789124c2c">has_tag</a> () const noexcept</td></tr>
 <tr class="memdesc:aab6aea9ae5ed687e1b375c3789124c2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether tag() identifies the failing element; identifier bytes remain borrowed.  <br /></td></tr>
 <tr class="separator:aab6aea9ae5ed687e1b375c3789124c2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -152,7 +146,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afd22794e9fe0b61492f6f5661c6940ef" id="r_afd22794e9fe0b61492f6f5661c6940ef"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#afd22794e9fe0b61492f6f5661c6940ef">during</a> (<a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> <a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a>) const noexcept</td></tr>
 <tr class="memdesc:afd22794e9fe0b61492f6f5661c6940ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a copy annotated with a subsystem, without inventing a location.  <br /></td></tr>
 <tr class="separator:afd22794e9fe0b61492f6f5661c6940ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a488bce25cec1a775b5db3a5fbf204fb7" id="r_a488bce25cec1a775b5db3a5fbf204fb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a488bce25cec1a775b5db3a5fbf204fb7">at</a> (std::size_t <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1">offset</a>, <a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> <a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a>) const noexcept</td></tr>
+<tr class="memitem:a488bce25cec1a775b5db3a5fbf204fb7" id="r_a488bce25cec1a775b5db3a5fbf204fb7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv_1_1error.html#a488bce25cec1a775b5db3a5fbf204fb7">at</a> (std::size_t offset, <a class="el" href="namespacetlv.html#ada14a13dc88de11a2411e12027d8ad14">operation</a> <a class="el" href="structtlv_1_1error.html#a94746617f7a6e157d826099a8517ffd8">stage</a>) const noexcept</td></tr>
 <tr class="memdesc:a488bce25cec1a775b5db3a5fbf204fb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an enriched copy without modifying the original or allocating.  <br /></td></tr>
 <tr class="separator:a488bce25cec1a775b5db3a5fbf204fb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -168,8 +162,8 @@ Friends</h2></td></tr>
 <tr class="separator:a5aa0814eafb185264ebd11a615e0ae2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Allocation-free operation error with optional absolute byte offset. </p>
-<p>Text is borrowed, normally from immutable program-lifetime library strings. Custom descriptions must outlive every error copy. Numeric context is copied. </p><dl class="section note"><dt>Note</dt><dd>Every error contains a full inline diagnostic path. Its storage also contributes to sizeof(expected&lt;T, error&gt;) for successful results, although success does not construct an error. Check sizes when budgeting stack or retained results. </dd></dl>
+<div class="textblock"><p>Allocation-free operation error with an optional primary location. </p>
+<p><a class="el" href="namespacetlv.html#a4fac3d8a520e4264e1e44a90dbc01193" title="Allocation-free primary location value.">location()</a> keeps the coordinate domain and anchor kind of the evidence; read <code>begin</code> only when its kind is not <a class="el" href="namespacetlv.html#a1d189f8757dea18406596d1c3c5ff3ebaad921d60486366258809553a3db49a4a">location_kind::unknown</a>, and interpret it in the reported domain (input, would-be output, Query expression or Value bytes). Text is borrowed, normally from immutable program-lifetime library strings. Custom descriptions must outlive every error copy. Numeric context is copied. </p><dl class="section note"><dt>Note</dt><dd>Every error contains a full inline diagnostic path. Its storage also contributes to sizeof(expected&lt;T, error&gt;) for successful results, although success does not construct an error. Check sizes when budgeting stack or retained results. </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="af9d8a29d16864824544282ad83bee5af" name="af9d8a29d16864824544282ad83bee5af"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af9d8a29d16864824544282ad83bee5af">&#9670;&#160;</a></span>error() <span class="overload">[1/2]</span></h2>
@@ -505,33 +499,6 @@ Friends</h2></td></tr>
 
 </div>
 </div>
-<a id="afb11e5286309cc54142d98d0c8a89dd6" name="afb11e5286309cc54142d98d0c8a89dd6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afb11e5286309cc54142d98d0c8a89dd6">&#9670;&#160;</a></span>has_offset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool tlv::error::has_offset </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Whether <a class="el" href="structtlv_1_1error.html#a6140b63c1bfee3fedc88dfd392efe6c1" title="Absolute byte offset, valid only when has_offset() is true.">offset()</a> contains a known location. </p>
-
-</div>
-</div>
 <a id="a1971652f6e83c037b657514bd42d0ed4" name="a1971652f6e83c037b657514bd42d0ed4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1971652f6e83c037b657514bd42d0ed4">&#9670;&#160;</a></span>has_path()</h2>
 
@@ -610,6 +577,7 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Complete primary evidence location, including its domain and range. </p>
+<dl class="section return"><dt>Returns</dt><dd>Unknown kind when no evidence is available; otherwise <code>begin</code> and <code>end</code> are coordinates in the location's domain, not necessarily input offsets. </dd></dl>
 
 </div>
 </div>
@@ -637,33 +605,6 @@ Friends</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Borrowed NUL-terminated description, never null for library errors. </p>
-
-</div>
-</div>
-<a id="a6140b63c1bfee3fedc88dfd392efe6c1" name="a6140b63c1bfee3fedc88dfd392efe6c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6140b63c1bfee3fedc88dfd392efe6c1">&#9670;&#160;</a></span>offset()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::size_t tlv::error::offset </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Absolute byte offset, valid only when <a class="el" href="structtlv_1_1error.html#afb11e5286309cc54142d98d0c8a89dd6" title="Whether offset() contains a known location.">has_offset()</a> is true. </p>
 
 </div>
 </div>

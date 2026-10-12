@@ -3849,7 +3849,12 @@ reports native validation and resource coverage. Explicit limits include
 <code>max_depth</code>, <code>max_nodes</code> and <code>max_work</code>.
 Reader failures preserve copied field offsets, Tag and raw length in
 <code>error.query.reader</code>; expected/actual text, path and diagnostic context appear
-once in <code>error.query.diagnostic</code>, shared with any <code>codec_detail</code>.</p>
+once in <code>error.query.diagnostic</code>, shared with any <code>codec_detail</code>. The result
+code and primary location are <code>error.code</code> and <code>error.location</code>;
+<code>error.query.expression</code> is the related expression span when another location
+is primary and has kind <code>unknown</code> otherwise. A Schema Query failure's
+<code>error.schema</code> holds only the assertion's <code>tag</code>, <code>field</code>, <code>kind</code> and
+<code>kind_name</code>, and is <code>null</code> for any other failure.</p>
 <p><code>new V1Query("70/5A")</code> exposes bounded legacy parsing, <code>format()</code>, copied <code>steps</code>,
 <code>evaluate(input, options)</code> and a native preorder matcher. <code>matcher()</code> creates an
 independent owner; feed every Tag and depth with <code>feed(tag, depth)</code>, and call

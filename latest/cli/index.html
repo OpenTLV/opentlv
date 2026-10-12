@@ -4631,7 +4631,7 @@ current offset cannot be read, or its contents are malformed, it checks each fol
 offset for the next plausible element, and the bytes in between are skipped.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>$<span class="w"> </span>otlv<span class="w"> </span>dump<span class="w"> </span>--format<span class="w"> </span>ber<span class="w"> </span>--hex<span class="w"> </span><span class="s2">"5A0112 0000 5A0134"</span><span class="w"> </span>--recover
 <a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="nv">offset</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">12</span>
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>skipped<span class="w"> </span><span class="nv">offset</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span>TLV_ERR_INVALID_TAG<span class="w"> </span>error-offset<span class="o">=</span><span class="m">3</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>skipped<span class="w"> </span><span class="nv">offset</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">error</span><span class="o">=</span>TLV_ERR_INVALID_TAG<span class="w"> </span>error-location<span class="o">=</span>input:point:3
 <a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="nv">offset</span><span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="nv">tag</span><span class="o">=</span>5A<span class="w"> </span><span class="nv">length</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">value</span><span class="o">=</span><span class="m">34</span>
 <a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>otlv:<span class="w"> </span>skipped<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>at<span class="w"> </span>offset<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>TLV_ERR_INVALID_TAG<span class="w"> </span>at<span class="w"> </span>byte<span class="w"> </span><span class="m">3</span>:<span class="w"> </span>invalid<span class="w"> </span>tag
 <a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>otlv:<span class="w"> </span>output<span class="w"> </span>is<span class="w"> </span>incomplete:<span class="w"> </span>recovery<span class="w"> </span>skipped<span class="w"> </span><span class="m">1</span><span class="w"> </span>range<span class="o">(</span>s<span class="o">)</span>,<span class="w"> </span><span class="m">2</span><span class="w"> </span>byte<span class="o">(</span>s<span class="o">)</span><span class="w"> </span><span class="k">in</span><span class="w"> </span>total
@@ -4640,13 +4640,17 @@ offset for the next plausible element, and the bytes in between are skipped.</p>
 </code></pre></div>
 <ul>
 <li><strong>Skipped ranges</strong> are reported where they occur (<code>skipped offset= length=
-  error= error-offset=</code> lines in <code>dump</code> text output), and again on stderr with
-  a summary. <code>error</code> and <code>error-offset</code> describe the first failure that made
-  the range unreadable; the offset of that failure can lie inside or after the
-  range.</li>
+  error= error-location=</code> lines in <code>dump</code> text output), and again on stderr with
+  a summary. <code>error</code> and <code>error-location</code> describe the first failure that made
+  the range unreadable, with the same location as its stderr diagnostic:
+  <code>domain:kind:begin</code>, <code>domain:kind:begin..end</code> for a span, or
+  <code>unknown:unknown</code> when the failure has no location. The location can lie
+  inside or after the range.</li>
 <li><strong>Incomplete output.</strong> In <code>--output json</code> and in <code>decode</code>, the document
   gains <code>"complete":false</code> and a <code>"skipped"</code> array of objects with <code>offset</code>,
-  <code>length</code>, <code>error</code>, <code>error_offset</code> and <code>message</code>. An undamaged input under
+  <code>length</code>, <code>error</code>, <code>location</code> and <code>message</code>. <code>location</code> has the <code>domain</code> and
+  <code>kind</code> of the failure and, when known, its <code>begin</code> and <code>end</code>, like the
+  <code>location</code> of a JSON diagnostic. An undamaged input under
   <code>--recover</code> reports <code>"complete":true</code> and an empty array. A recovered
   <code>decode</code> document is incomplete and is rejected by <code>encode</code>.</li>
 <li><strong>Exit status 4</strong> means recovery skipped data, so the output is incomplete;
