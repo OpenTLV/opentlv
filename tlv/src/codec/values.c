@@ -200,10 +200,11 @@ static tlv_result_t decode_integer(const void* context, const uint8_t* data, siz
     if (size == 0 || size > sizeof(int64_t))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_LENGTH);
+    /* The redundant leading sign octet is the evidence. */
     if (size > 1 &&
         ((data[0] == 0 && (data[1] & 0x80) == 0) || (data[0] == 0xFF && (data[1] & 0x80) != 0)))
-        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                           TLV_CODEC_REASON_CANONICAL);
+        return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                              TLV_CODEC_REASON_CANONICAL, TLV_LOCATION_POINT, 0, 0);
     if (!integer_decode_value(data, size, &result))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_RANGE);

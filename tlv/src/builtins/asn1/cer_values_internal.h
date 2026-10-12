@@ -5,6 +5,7 @@
 #define OPENTLV_CER_VALUES_INTERNAL_H
 #include "tlv/result.h"
 #include "tlv/tag.h"
+#include "tlv/diagnostic.h"
 #include "asn1_values_internal.h"
 #include <stdint.h>
 #include <stddef.h>
@@ -56,28 +57,31 @@ typedef struct tlv_cer_segment_state {
     uint64_t number;
     tlv_cer_type_info_t info;
     int strict;
+    size_t element_offset; /* the constructed element's own tag offset */
     size_t segment_count;
     size_t total_octets;
     int has_pending;
     const uint8_t* pending_value; /* borrows the input; zero-copy */
     size_t pending_length;
-    size_t pending_offset;
+    size_t pending_offset; /* pending segment's tag offset */
+    size_t pending_end;    /* end of the pending segment's encoding */
     tlv_utf8_stream_t utf8;
 } tlv_cer_segment_state_t;
 
-/* element_tag is the enclosing constructed element's own tag (UNIVERSAL,
- * number, constructed bit set); every segment's tag must match it except
- * for the constructed bit, which must be clear. strict enables content
- * validation in addition to structural tag/form/size checks. */
+/* number is the enclosing constructed element's UNIVERSAL number; every
+ * segment's tag must match it, with the constructed bit clear. strict
+ * enables content validation in addition to structural tag/form/size
+ * checks. element_offset is the constructed element's own tag offset. */
 void tlv_cer_segment_state_init(tlv_cer_segment_state_t* state, uint64_t number,
-                                tlv_cer_type_info_t info, int strict);
+                                tlv_cer_type_info_t info, int strict, size_t element_offset);
 
 /* Call for every primitive child of the segmentable constructed value, in
- * order. tag/value/length describe the segment as read; offset is its
- * absolute tag offset, used for error reporting via *error_offset. */
+ * order. tag/value/length describe the segment as read; [offset, end) is its
+ * complete encoding. A failure sets the optional INPUT location: the
+ * offending segment's encoding, or its Value bytes for a content rule. */
 tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv_tag_t* tag,
                                        const uint8_t* value, size_t length, size_t offset,
-                                       size_t* error_offset);
+                                       size_t end, tlv_location_t* location);
 
 /* Call exactly once, when the enclosing element's matching EOC is found (so
  * every segment has already been fed to tlv_cer_segment_state_add()).
@@ -85,9 +89,11 @@ tlv_result_t tlv_cer_segment_state_add(tlv_cer_segment_state_t* state, const tlv
  * string is not canonical), the final segment's size (1..1000 octets) and,
  * in strict mode, its content, and that constructed encoding was actually
  * justified (total content exceeded TLV_CER_MAX_SEGMENT_OCTETS).
- * element_offset is the constructed element's own tag offset, used when
- * segmentation was unjustified or no segment was present. */
-tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t element_offset,
-                                          size_t* error_offset);
+ * content_end is the EOC offset and element_end follows the EOC. A failure
+ * sets the optional INPUT location: the scope end of a string without
+ * segments, the element span of unjustified segmentation, or the final
+ * segment's Value bytes for a content rule. */
+tlv_result_t tlv_cer_segment_state_finish(tlv_cer_segment_state_t* state, size_t content_end,
+                                          size_t element_end, tlv_location_t* location);
 
 #endif /* OPENTLV_CER_VALUES_INTERNAL_H */

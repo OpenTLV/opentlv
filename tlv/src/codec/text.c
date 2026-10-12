@@ -10,16 +10,18 @@ static int valid_config(const tlv_text_codec_config_t* config) {
            (config->zero_padding == 0 || config->zero_padding == 1);
 }
 
-static int valid_text(const tlv_text_codec_config_t* config, const uint8_t* data, size_t size) {
+/* Returns the offset of the first byte outside the alphabet, or size when all are valid. */
+static size_t invalid_text(const tlv_text_codec_config_t* config, const uint8_t* data,
+                           size_t size) {
     size_t i;
     for (i = 0; i < size; ++i) {
         unsigned c = data[i];
         if (config->alphabet == TLV_TEXT_ASCII_PRINTABLE) {
-            if (c < 0x20 || c > 0x7E) return 0;
+            if (c < 0x20 || c > 0x7E) break;
         } else if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')))
-            return 0;
+            break;
     }
-    return 1;
+    return i;
 }
 
 tlv_result_t tlv_text_decode(const void* context, const uint8_t* data, size_t size, void* value,
@@ -35,9 +37,11 @@ tlv_result_t tlv_text_decode(const void* context, const uint8_t* data, size_t si
                                            TLV_CODEC_REASON_LENGTH);
     if (config->zero_padding)
         while (size && data[size - 1] == 0) --size;
-    if (!valid_text(config, data, size))
-        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                           TLV_CODEC_REASON_TEXT);
+    size_t invalid = invalid_text(config, data, size);
+    if (invalid != size)
+        return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                              TLV_CODEC_REASON_TEXT, TLV_LOCATION_POINT, invalid,
+                                              invalid);
     if (capacity < sizeof(text))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     text.data = data;
@@ -70,7 +74,7 @@ tlv_result_t tlv_text_encode(const void* context, const void* value, size_t size
     if (config->width && bytes != config->width)
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_LENGTH);
-    if (!valid_text(config, text.data, length))
+    if (invalid_text(config, text.data, length) != length)
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_TEXT);
     if (data) {

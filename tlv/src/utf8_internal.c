@@ -84,3 +84,41 @@ tlv_result_t tlv_utf8_validate(const uint8_t* value, size_t length) {
     if (rc != TLV_OK) return rc;
     return tlv_utf8_stream_finish(&state);
 }
+
+/* Well-formed sequences per Unicode Table 3-7: the lead byte selects the
+ * continuation count and the narrower range of the first continuation byte,
+ * which excludes overlong forms, surrogates and code points above U+10FFFF. */
+int tlv_utf8_find_invalid(const uint8_t* value, size_t length, size_t* begin, size_t* end) {
+    size_t i = 0;
+    while (i < length) {
+        uint8_t lead = value[i], low = 0x80, high = 0xBF;
+        size_t need, j;
+        if (lead < 0x80) {
+            ++i;
+            continue;
+        }
+        if (lead >= 0xC2 && lead <= 0xDF)
+            need = 1;
+        else if (lead >= 0xE0 && lead <= 0xEF)
+            need = 2;
+        else if (lead >= 0xF0 && lead <= 0xF4)
+            need = 3;
+        else {
+            *begin = i;
+            *end = i + 1;
+            return 1;
+        }
+        if (lead == 0xE0) low = 0xA0;
+        if (lead == 0xED) high = 0x9F;
+        if (lead == 0xF0) low = 0x90;
+        if (lead == 0xF4) high = 0x8F;
+        for (j = 1; j <= need; ++j, low = 0x80, high = 0xBF)
+            if (i + j >= length || value[i + j] < low || value[i + j] > high) {
+                *begin = i;
+                *end = i + j;
+                return 1;
+            }
+        i += need + 1;
+    }
+    return 0;
+}

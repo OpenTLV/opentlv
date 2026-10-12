@@ -7,9 +7,9 @@ for authors of C capabilities and language facades. Read the
 
 **Status: design decided; lifecycle implemented by #552, Schema classification
 by #553, capability/resource/callback results by #554, common locations by #555, the
-`END`, `TRUNCATED` and `SYNTAX` results by #578, and the Query kind `ARGUMENT`
-with the remaining Query kind classifications by #587. Remaining API and binding
-migration is separate work.** This page defines the target contract.
+`END`, `TRUNCATED` and `SYNTAX` results by #578, the Query kind `ARGUMENT`
+with the remaining Query kind classifications by #587, and the remaining core
+producer gaps by #589. Remaining API and binding migration is separate work.** This page defines the target contract.
 `TLV_END`, `TLV_ERR_TRUNCATED`, `TLV_ERR_SYNTAX`, `TLV_ERR_INVALID_STATE`,
 `TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and `TLV_ERR_CALLBACK` are public,
 together with Query kinds `STATE`, `CALLBACK`, `TYPE`, `IMAGE` and `ARGUMENT`;
@@ -296,6 +296,16 @@ position, translate it only when the Value origin is known. Without it, retain
 the local domain/origin information or mark the enclosing source position
 unknown. Do not manufacture an absolute offset.
 
+`TLV_LOCATION_VALUE` is that local domain (#589). A Value codec reports the
+bytes that prove its rejection in VALUE coordinates, counted from the first
+byte it received, and an enclosing layer that knows the Value origin moves them
+with `tlv_location_resolve()`. Query resolves conversion evidence to INPUT when
+the converted bytes lie in a node Value whose retained Source records its start;
+a Document node does not, so Document Query keeps VALUE. A conversion's INPUT
+location, such as a Structure Codec's Reader failure, also counts from the
+converted bytes. DER Schema resolves leaf evidence to INPUT on read and OUTPUT
+on write.
+
 Preserve #549's useful DER write semantics: locations refer to would-be output
 with enclosing headers and canonical SET order. A missing SEQUENCE component
 uses an insertion point; a missing SET component uses scope end. If computing
@@ -502,6 +512,10 @@ Unknown visitor discriminators produce `CALLBACK`.
 | Structure Codec collapses all validation failures | Preserve the original Reader/Schema result and detail. |
 | Query lifecycle/provider/argument failures use temporary #548 categories | Apply the Query table while retaining pre-initialization safety guards. |
 | Diagnostic path overflows its optional inline capacity | Retain outer ancestors and `omitted`; do not turn a deeper input error into a location-collection error. |
+| Document allocation-size arithmetic returns `OUT_OF_MEMORY` | `OVERFLOW`; `OUT_OF_MEMORY` only for a failed allocation. Implemented in #589. |
+| Schema number composition, the ASN.1 Query date hook, the DER Schema leaf constraint and the Bluetooth AD codecs call a nested codec without a diagnostic | Pass the caller's diagnostic and keep the nested result, reason and location; DER Schema reports it as Schema cause `CODEC`. Implemented in #589. |
+| `TLV_LOCATION_VALUE` has no producer | Codecs that know the offending byte report a VALUE point or span; Query and DER Schema resolve it when the Value origin is known. Implemented in #589. |
+| CER segmentation reports only an offset | A constructed string without segments is SCOPE_END at its EOC; unjustified segmentation is the element SPAN; segment defects are SPANs of the segment or its Value. Implemented in #589. |
 
 ## Implementation handoff and validation
 

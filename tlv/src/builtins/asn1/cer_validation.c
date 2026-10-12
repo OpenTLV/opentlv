@@ -25,6 +25,16 @@ static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* diagn
     return rc;
 }
 
+/* Publishes a segmentation failure with the anchor its rule requires. */
+static tlv_result_t fail_at(tlv_result_t rc, const tlv_location_t* location,
+                            tlv_diagnostic_t* diagnostic) {
+    if (diagnostic) {
+        tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
+        diagnostic->location = *location;
+    }
+    return rc;
+}
+
 static tlv_result_t unlocated(tlv_result_t rc, tlv_diagnostic_t* diagnostic) {
     if (diagnostic) tlv_diagnostic_init(diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     return rc;
@@ -71,9 +81,8 @@ static tlv_cer_segment_state_t* parent_segments(cer_level_t* levels, size_t dept
  * inspecting further bytes. strict enables universal content validation.
  * outer_segments is non-NULL only from tlv_cer_write's constructed-child
  * validation, when the constructed element being written is itself a
- * segmentable UNIVERSAL type (see parent_segments()); base - 1 is then that
- * element's own would-be length-field offset, used if segmentation turns
- * out unjustified or absent once every child has been seen.
+ * segmentable UNIVERSAL type (see parent_segments()); its children then end
+ * at base + size, followed by the EOC tlv_cer_write appends.
  */
 static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size_t initial_depth,
                              size_t initial_count, const tlv_cer_limits_t* limits,
@@ -95,9 +104,11 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
         if (pos == size) {
             if (depth == 0) {
                 if (outer_segments) {
-                    size_t seg_err = 0;
-                    rc = tlv_cer_segment_state_finish(outer_segments, base - 1, &seg_err);
-                    if (rc != TLV_OK) return fail(rc, seg_err, diagnostic);
+                    tlv_location_t location = {TLV_LOCATION_DOMAIN_UNKNOWN, TLV_LOCATION_UNKNOWN, 0,
+                                               0};
+                    rc = tlv_cer_segment_state_finish(outer_segments, base + size, base + size + 2,
+                                                      &location);
+                    if (rc != TLV_OK) return fail_at(rc, &location, diagnostic);
                 }
                 return TLV_OK;
             }
@@ -116,10 +127,10 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
             if (value_len > limits->max_value_size)
                 return fail(TLV_ERR_LIMIT, base + lvl->length_offset, diagnostic);
             if (lvl->segmentable) {
-                size_t seg_err = 0;
-                rc = tlv_cer_segment_state_finish(&lvl->segment_state, base + lvl->length_offset,
-                                                  &seg_err);
-                if (rc != TLV_OK) return fail(rc, seg_err, diagnostic);
+                tlv_location_t location = {TLV_LOCATION_DOMAIN_UNKNOWN, TLV_LOCATION_UNKNOWN, 0, 0};
+                rc = tlv_cer_segment_state_finish(&lvl->segment_state, base + pos, base + pos + 2,
+                                                  &location);
+                if (rc != TLV_OK) return fail_at(rc, &location, diagnostic);
             }
             {
                 tlv_size_t vlen;
@@ -189,7 +200,8 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
                 lvl->segmentable = recognized_universal && !must_construct &&
                                    info.form != TLV_CER_FORM_PRIMITIVE_ONLY;
                 if (lvl->segmentable)
-                    tlv_cer_segment_state_init(&lvl->segment_state, number, info, strict);
+                    tlv_cer_segment_state_init(&lvl->segment_state, number, info, strict,
+                                               base + elem_start);
             }
             pos = levels[depth].content_start;
             ++depth;
@@ -215,10 +227,11 @@ static tlv_result_t traverse(const uint8_t* data, size_t size, size_t base, size
 
             tlv_cer_segment_state_t* parent = parent_segments(levels, depth, outer_segments);
             if (parent) {
-                size_t seg_err = 0;
+                tlv_location_t location = {TLV_LOCATION_DOMAIN_UNKNOWN, TLV_LOCATION_UNKNOWN, 0, 0};
                 rc = tlv_cer_segment_state_add(parent, &tag, value_ptr, value_length,
-                                               base + elem_start, &seg_err);
-                if (rc != TLV_OK) return fail(rc, seg_err, diagnostic);
+                                               base + elem_start, base + pos + value_length,
+                                               &location);
+                if (rc != TLV_OK) return fail_at(rc, &location, diagnostic);
             } else {
                 if (value_length > limits->max_value_size)
                     return fail(TLV_ERR_LIMIT, base + length_offset, diagnostic);
@@ -369,7 +382,7 @@ static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, co
                 !tlv_asn1_number_must_construct(number)) {
                 tlv_cer_type_info_t info = tlv_cer_type_info(number);
                 if (info.form != TLV_CER_FORM_PRIMITIVE_ONLY) {
-                    tlv_cer_segment_state_init(&outer_state, number, info, strict);
+                    tlv_cer_segment_state_init(&outer_state, number, info, strict, 0);
                     outer_segments = &outer_state;
                 }
             }

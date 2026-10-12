@@ -146,6 +146,73 @@ TEST(Unit_Tlv_BluetoothAdCodec, NamesRejectMalformedUtf8InBothDirections) {
         check_span(tlv_bluetooth_ad_codec_local_name, bytes, TLV_ERR_INVALID_VALUE);
 }
 
+TEST(Unit_Tlv_BluetoothAdCodec, DecodingKeepsTheReasonAndOffendingBytes) {
+    struct Case {
+        const char*          name;
+        const tlv_codec_t*   codec;
+        std::vector<uint8_t> wire;
+        tlv_codec_reason_t   reason;
+        tlv_location_kind_t  kind;
+        size_t               begin, end;
+    };
+    const Case cases[] = {
+        {"flags trailing zero",
+         &tlv_bluetooth_ad_codec_flags,
+         {0x06, 0x00},
+         TLV_CODEC_REASON_CANONICAL,
+         TLV_LOCATION_POINT,
+         1,
+         1},
+        {"name continuation",
+         &tlv_bluetooth_ad_codec_local_name,
+         {'a', 0xE2, 0x82, 'A'},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_SPAN,
+         1,
+         3},
+        {"tx power length",
+         &tlv_bluetooth_ad_codec_tx_power,
+         {0x01, 0x02},
+         TLV_CODEC_REASON_LENGTH,
+         TLV_LOCATION_UNKNOWN,
+         0,
+         0},
+        {"tx power reserved",
+         &tlv_bluetooth_ad_codec_tx_power,
+         {0x80},
+         TLV_CODEC_REASON_RANGE,
+         TLV_LOCATION_POINT,
+         0,
+         0},
+    };
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.name);
+        uint8_t                value[32];
+        tlv_codec_diagnostic_t diagnostic;
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_decode(test.codec, test.wire.data(), test.wire.size(), value,
+                                   sizeof value, &diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_CODEC_OP_DECODE, diagnostic.codec.operation);
+        EXPECT_EQ(test.reason, diagnostic.codec.reason);
+        EXPECT_EQ(test.kind, diagnostic.diagnostic.location.kind);
+        if (test.kind == TLV_LOCATION_UNKNOWN) continue;
+        EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(test.begin, diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(test.end, diagnostic.diagnostic.location.end);
+    }
+    // Encoding validates the application object, which has no Value coordinates.
+    const uint8_t          flags[] = {0x06, 0x00};
+    const tlv_value_t      input = {flags, sizeof flags};
+    size_t                 written = 0;
+    tlv_codec_diagnostic_t diagnostic;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_bluetooth_ad_codec_flags, &input, sizeof input, nullptr, 0,
+                               &written, &diagnostic));
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
+}
+
 TEST(Unit_Tlv_BluetoothAdCodec, NullArgumentsObjectSizesAndDestinationBounds) {
     const uint8_t     raw = 0x06;
     const tlv_value_t span = {&raw, 1};

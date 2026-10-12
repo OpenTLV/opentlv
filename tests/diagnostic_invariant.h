@@ -73,7 +73,8 @@ static inline int test_query_diagnostic_matches(tlv_result_t                  rc
             (diagnostic->diagnostic.location.domain != TLV_LOCATION_EXPRESSION ||
              diagnostic->expression.kind == TLV_LOCATION_UNKNOWN));
 }
-/* A Schema finding always selects Schema detail; a Reader cause never claims a finding. */
+/* A Schema finding always selects Schema detail; a Reader cause never claims a finding,
+ * and a Codec cause reports the conversion result that the Schema operation returns. */
 static inline int test_schema_diagnostic_matches(tlv_result_t                   rc,
                                                  const tlv_schema_diagnostic_t* diagnostic) {
     return rc == TLV_OK ||
@@ -81,6 +82,8 @@ static inline int test_schema_diagnostic_matches(tlv_result_t                   
             (rc != TLV_ERR_SCHEMA || diagnostic->cause == TLV_SCHEMA_CAUSE_SCHEMA) &&
             (diagnostic->cause == TLV_SCHEMA_CAUSE_NONE ||
              diagnostic->cause == TLV_SCHEMA_CAUSE_SCHEMA ||
-             diagnostic->cause == TLV_SCHEMA_CAUSE_READER));
+             diagnostic->cause == TLV_SCHEMA_CAUSE_READER ||
+             (diagnostic->cause == TLV_SCHEMA_CAUSE_CODEC &&
+              diagnostic->detail.codec.reported == (int32_t)rc)));
 }
 #endif

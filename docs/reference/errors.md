@@ -7,7 +7,7 @@ through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
 (#555), shared Codec results and propagation (#556), diagnostic names and
 Document lookup failure channels (#557), the `END`, `TRUNCATED` and
-`SYNTAX` results (#578), the Query kind `ARGUMENT` (#587) and Document Query diagnostics (#588). The tables below describe the current
+`SYNTAX` results (#578), the Query kind `ARGUMENT` (#587), Document Query diagnostics (#588) and the remaining core producers (#589). The tables below describe the current
 codes, not target names still awaiting implementation.
 
 Core and Codec operations return the shared `tlv_result_t` from `tlv/result.h`. Zero is success. `TLV_END` (normal end
@@ -137,7 +137,7 @@ most one active lower-layer detail, selected by its cause.
 | Diagnostic | Common part | Layer-specific fields | Delegated cause |
 | --- | --- | --- | --- |
 | `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
-| `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`) or `detail.reader` |
+| `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`), `detail.reader` or `detail.codec` (`tlv_codec_detail_t`) |
 | `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
 | `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured` | `cause` selects `detail.reader`, `detail.codec` or `detail.schema` |
 | `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
@@ -157,6 +157,11 @@ original Reader detail instead of dropping it; argument and resource failures
 have cause `NONE`. A Structure Codec maps such a Reader failure to its own
 Reader cause, so the Reader detail stays reachable through one path. Codec
 `reason` is the typed explanation of an `INVALID_VALUE` conversion failure.
+DER Schema reports a leaf Value that its conversion rejects, such as a
+non-canonical INTEGER or one too long for a value constraint, with cause `CODEC`
+(#589): `detail.codec` keeps the conversion's operation, result and reason, and
+`detail.codec.reported` equals the returned result. A valid leaf constraint
+rejecting data is `SCHEMA` with `VALUE` detail when reading and writing.
 
 Kind and cause agree in both directions: cause `READER` accompanies kind
 `READER` or `STATE`, cause `CODEC` accompanies `CODEC`, `CALLBACK` or `STATE`,
@@ -207,9 +212,9 @@ stable ABI identifiers and may change to keep categories together.
 | `TLV_ERR_INVALID_SCHEMA` | 13 | A schema definition is invalid independently of input. | Constraint kinds and bounds, required references, rule/group tables and DER type definitions. |
 | `TLV_ERR_BUFFER_TOO_SHORT` | 14 | A caller-supplied destination or workspace is too small. | Writing: the output capacity is smaller than `tlv_encoded_size` reports; also frame arrays, arenas and scratch. Never used for incomplete input. |
 | `TLV_ERR_LIMIT` | 15 | A configured depth, size or element-count limit was exceeded. | The limits passed to the Tree Reader or validation function, `TLV_BER_MAX_DEPTH` (64). Limits are inclusive and zero is a real limit. |
-| `TLV_ERR_OVERFLOW` | 16 | An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows. | The value against the destination width in the same integer conversion functions. |
+| `TLV_ERR_OVERFLOW` | 16 | An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows. | The value against the destination width in the same integer conversion functions, and Document allocation-size arithmetic. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
-| `TLV_ERR_OUT_OF_MEMORY` | 18 | An owning operation could not obtain storage. | Document allocation and allocation-size checks. Caller-supplied workspace exhaustion uses `BUFFER_TOO_SHORT`. |
+| `TLV_ERR_OUT_OF_MEMORY` | 18 | An owning operation could not obtain storage. | Document allocation. An allocation size that is not representable is `OVERFLOW`, and caller-supplied workspace exhaustion uses `BUFFER_TOO_SHORT`. |
 | `TLV_ERR_UNSUPPORTED` | 19 | A type, Query capability or program-image version is unsupported. | Strict ASN.1 validation rejects unchecked types; see [DER validation](../standards/der/README.md#strict-universal-value-validation). Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity. |
 | `TLV_ERR_VISITOR` | 20 | A visitor callback requested an error stop. | Your visitor returned `TLV_VISIT_ERROR`. Unknown visitor results produce `CALLBACK`. |
 | `TLV_ERR_CALLBACK` | 21 | A callback violates its declared contract. | Invalid discriminator or success payload; correct the provider. Legitimate provider failures keep their original result. |
@@ -281,7 +286,8 @@ in Schema diagnostics. See [Hierarchical paths](../guides/diagnostics.md#hierarc
 DER output, accounting for enclosing headers and canonical SET ordering. A
 missing required SEQUENCE component points where it would start; a missing SET
 component points to the enclosing content end. For an empty SEQUENCE the offset
-is 2. Leaf constraints point to the Value bytes. Argument, configuration and
+is 2. Leaf constraints point to the Value bytes, or to the offending octet when
+the leaf conversion locates it. Argument, configuration and
 capacity failures have unknown byte location. When a diagnostic is requested,
 composition can visit remaining components after detecting a failure. If a
 later callback or scratch failure prevents completing the hypothetical encoding,
@@ -294,11 +300,31 @@ an empty SPAN at EOF is known evidence. INPUT, OUTPUT, EXPRESSION, DEFINITION
 and VALUE domains identify distinct coordinate spaces. Translation overflow
 drops optional location evidence while retaining the original result.
 
+Value codecs report the bytes that prove a rejection in the VALUE domain,
+counted from the first Value byte they received (#589): an invalid digit, text
+character, UTF-8 sequence, redundant INTEGER sign octet, non-minimal or
+unterminated OID arc, calendar field, or the incomplete trailing unit of a
+fixed-width list such as IPv4 addresses. A rejection of the whole length, an
+argument or an application object being encoded stays unlocated.
+`tlv_location_resolve()` places VALUE evidence in an enclosing domain when the
+caller knows where the Value starts. Query does so for a conversion hook when
+the converted bytes lie in the context node's Value and its retained Source maps
+that Value one to one, so the primary location is INPUT. A Document node does not
+record where its Value started, so Document Query keeps VALUE. Query also treats
+a conversion's INPUT location, such as a Structure Codec's Reader failure, as
+relative to the converted bytes; typed detail offsets keep the conversion's
+own coordinates. DER Schema resolves leaf evidence to INPUT when reading and
+to OUTPUT when writing.
+
 DER/CER, DOL, Bluetooth AD, Document, Query paths and Tree visitors accept
 structured diagnostics; their offset-only outputs were removed in #555.
 DER/CER reads report INPUT points at the failing field, writes report OUTPUT
 points in would-be encoding, and DOL reports INPUT positions within its DOL
-descriptor even while writing. Argument/configuration failures remain unknown.
+descriptor even while writing. CER segmentation uses the anchor its rule
+requires (#589): a constructed string without segments reports SCOPE_END at its
+EOC, unjustified segmentation the SPAN of the whole constructed element, a
+malformed segment the SPAN of its encoding and a segment content rule the SPAN
+of that segment's Value. Argument/configuration failures remain unknown.
 See [diagnostics](../guides/diagnostics.md#evidence-locations) for origins and ownership.
 
 Schema validators distinguish invalid definitions (`TLV_ERR_INVALID_SCHEMA`) from
@@ -386,6 +412,11 @@ The separate Codec enum, constants and strerror entry point were removed in #556
 Callbacks and entry points accept optional `tlv_codec_diagnostic_t` output.
 Structure validation preserves the original Reader/Schema/resource result and
 cause; Query retains this evidence alongside its related expression span.
+Builtin conversions that delegate to another codec, including the Schema
+number composition, the ASN.1 Query date hook and the Bluetooth AD codecs, pass
+their diagnostic through, so the nested result, reason and location survive
+(#589). Custom codecs publish located evidence with
+`tlv_codec_diagnostic_reason_at()`.
 Invalid callback discriminators or successful output contracts report `CALLBACK`
 while preserving the callback's reported value, including `OK`.
 

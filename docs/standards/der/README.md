@@ -261,7 +261,12 @@ definitions return `TLV_ERR_INVALID_SCHEMA` before input or callbacks are
 processed and have no byte location. Missing required input or output returns
 `TLV_ERR_SCHEMA` with `kind = TLV_SCHEMA_ISSUE_MISSING`; `anchor` distinguishes
 scope ends from insertion points. Valid graphs exceeding fixed checking capacity
-return `TLV_ERR_UNSUPPORTED`. The broader result migration is separate work.
+return `TLV_ERR_UNSUPPORTED`. A leaf Value that fails canonical decoding, such
+as a non-minimal INTEGER, keeps the conversion's result with cause
+`TLV_SCHEMA_CAUSE_CODEC`: `detail.codec` holds its operation and typed reason,
+and the primary location is the offending octet in the input, or in the
+would-be output when writing. A valid leaf SIZE or value constraint rejecting
+data returns `TLV_ERR_SCHEMA` with `kind = TLV_SCHEMA_ISSUE_VALUE`.
 
 `tlv_der_schema_read` rejects a SET whose components are not encoded in
 ascending tag order and a SET OF whose elements are not encoded in ascending

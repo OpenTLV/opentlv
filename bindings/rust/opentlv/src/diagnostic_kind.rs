@@ -408,6 +408,8 @@ pub enum SchemaCause {
     Schema,
     /// C `reader` category.
     Reader,
+    /// C `codec` category.
+    Codec,
     /// Unrecognized native value, retained without loss.
     Unrecognized(RawCategory),
 }
@@ -418,6 +420,7 @@ impl SchemaCause {
             0 => Self::None,
             1 => Self::Schema,
             2 => Self::Reader,
+            3 => Self::Codec,
             other => Self::Unrecognized(RawCategory(other)),
         }
     }
@@ -427,6 +430,7 @@ impl SchemaCause {
             Self::None => 0,
             Self::Schema => 1,
             Self::Reader => 2,
+            Self::Codec => 3,
             Self::Unrecognized(value) => value.as_raw(),
         }
     }

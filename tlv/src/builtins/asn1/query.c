@@ -32,18 +32,21 @@ static tlv_result_t date_decode(const void* context, const tlv_tree_event_t* eve
     (void)context;
     (void)event;
     if (!scratch || !result) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
-    tlv_result_t rc =
-        tlv_codec_decode(&tlv_asn1_codec_generalized_time, data, size, scratch, capacity, NULL);
+    tlv_result_t rc = tlv_codec_decode(&tlv_asn1_codec_generalized_time, data, size, scratch,
+                                       capacity, diagnostic);
     if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
     tlv_asn1_generalized_time_t t;
     memcpy(&t, scratch, sizeof t);
+    /* A date has whole-second precision; fractional seconds are out of its range. */
     if (t.fraction_digits_length)
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_RANGE);
     static const unsigned days[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int leap = t.year % 4 == 0 && (t.year % 100 != 0 || t.year % 400 == 0);
     if (!t.month || t.month > 12 || !t.day ||
         t.day > days[t.month - 1] + (unsigned)(t.month == 2 && leap))
-        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                           TLV_CODEC_REASON_RANGE);
     /* Count whole Gregorian days from year zero, then shift to 1970-01-01. */
     int64_t year = t.year,
             total = 365 * year + (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;

@@ -58,13 +58,26 @@ tlv_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t*
     else if (adapter->representation == TLV_QUERY_CODEC_UNSIGNED) {
         uint64_t n;
         memcpy(&n, scratch, sizeof n);
-        if (n > INT64_MAX) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        if (n > INT64_MAX)
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_RANGE);
         out.integer = (int64_t)n;
     } else {
         tlv_value_t span;
         memcpy(&span, scratch, sizeof span);
-        if (span.size > SIZE_MAX || tlv_utf8_validate(span.data, (size_t)span.size) != TLV_OK)
-            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
+        if (span.size > SIZE_MAX || tlv_utf8_validate(span.data, (size_t)span.size) != TLV_OK) {
+            /* Text that borrows the Value locates the malformed sequence in it. */
+            uintptr_t first = (uintptr_t)data, text = (uintptr_t)span.data;
+            size_t begin, end;
+            if (diagnostic && span.size <= SIZE_MAX && text >= first && text - first <= size &&
+                span.size <= size - (text - first) &&
+                tlv_utf8_find_invalid(span.data, (size_t)span.size, &begin, &end))
+                return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                      TLV_CODEC_REASON_TEXT, TLV_LOCATION_SPAN,
+                                                      (text - first) + begin, (text - first) + end);
+            return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
+                                               TLV_CODEC_REASON_TEXT);
+        }
         out.kind = TLV_QUERY_RESULT_STRING;
         out.data = span.data;
         out.size = (size_t)span.size;

@@ -35,8 +35,9 @@ tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t 
         for (i = 0; i < size; ++i) {
             unsigned high = data[i] >> 4, low = data[i] & 15;
             if (high > 9 || low > 9)
-                return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                                   TLV_CODEC_REASON_DIGIT);
+                return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                      TLV_CODEC_REASON_DIGIT, TLV_LOCATION_POINT, i,
+                                                      i);
             number = number * 100 + high * 10 + low;
         }
         if (number > decimal_limit(config->digits))

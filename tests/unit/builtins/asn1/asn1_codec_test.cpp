@@ -898,3 +898,155 @@ TEST(Unit_Tlv_Asn1Codec, RejectionsCarryATypedReason) {
                                    sizeof value, NULL));
     }
 }
+
+TEST(Unit_Tlv_Asn1Codec, DecodingLocatesTheOffendingValueBytes) {
+    struct Case {
+        const char*          name;
+        const tlv_codec_t*   codec;
+        std::vector<uint8_t> wire;
+        tlv_codec_reason_t   reason;
+        tlv_location_kind_t  kind;
+        size_t               begin, end;
+    };
+    const Case cases[] = {
+        {"boolean form",
+         &tlv_asn1_codec_boolean,
+         {0x01},
+         TLV_CODEC_REASON_CANONICAL,
+         TLV_LOCATION_POINT,
+         0,
+         0},
+        {"integer sign octet",
+         &tlv_asn1_codec_integer,
+         {0xFF, 0x80},
+         TLV_CODEC_REASON_CANONICAL,
+         TLV_LOCATION_POINT,
+         0,
+         0},
+        {"bit padding",
+         &tlv_asn1_codec_bit_string,
+         {0x01, 0x00, 0x01},
+         TLV_CODEC_REASON_CANONICAL,
+         TLV_LOCATION_POINT,
+         2,
+         2},
+        {"oid arc",
+         &tlv_asn1_codec_oid,
+         {0x2A, 0x03, 0x80, 0x01},
+         TLV_CODEC_REASON_CANONICAL,
+         TLV_LOCATION_POINT,
+         2,
+         2},
+        {"oid unterminated arc",
+         &tlv_asn1_codec_oid,
+         {0x2A, 0x81, 0x82},
+         TLV_CODEC_REASON_SYNTAX,
+         TLV_LOCATION_SPAN,
+         1,
+         3},
+        {"printable",
+         &tlv_asn1_codec_printable_string,
+         {'a', '*'},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_POINT,
+         1,
+         1},
+        // A truncated sequence excludes the byte that ends it.
+        {"utf8 continuation",
+         &tlv_asn1_codec_utf8_string,
+         {'a', 0xC3, 'b'},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_SPAN,
+         1,
+         2},
+        // E0 80 is overlong from its second byte, so E0 alone is the maximal subpart.
+        {"utf8 overlong",
+         &tlv_asn1_codec_utf8_string,
+         {0xE0, 0x80, 0x80},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_SPAN,
+         0,
+         1},
+        {"utf8 incomplete",
+         &tlv_asn1_codec_utf8_string,
+         {'a', 0xE2, 0x82},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_SPAN,
+         1,
+         3},
+        {"bmp surrogate",
+         &tlv_asn1_codec_bmp_string,
+         {0x00, 0x41, 0xD8, 0x00},
+         TLV_CODEC_REASON_TEXT,
+         TLV_LOCATION_SPAN,
+         2,
+         4},
+        {"bmp partial unit",
+         &tlv_asn1_codec_bmp_string,
+         {0x00, 0x41, 0x00},
+         TLV_CODEC_REASON_LENGTH,
+         TLV_LOCATION_SPAN,
+         2,
+         3},
+        {"utc digit",
+         &tlv_asn1_codec_utc_time,
+         {'2', '6', '1', '0', '1', '1', '1', '2', '0', '0', '0', 'x', 'Z'},
+         TLV_CODEC_REASON_DIGIT,
+         TLV_LOCATION_POINT,
+         11,
+         11},
+        {"utc month",
+         &tlv_asn1_codec_utc_time,
+         {'2', '6', '1', '3', '1', '1', '1', '2', '0', '0', '0', '0', 'Z'},
+         TLV_CODEC_REASON_RANGE,
+         TLV_LOCATION_SPAN,
+         2,
+         4},
+        {"generalized trailing bytes",
+         &tlv_asn1_codec_generalized_time,
+         {'2', '0', '2', '6', '1', '0', '1', '1', '1', '2', '0', '0', '0', '0', 'Z', 'Z'},
+         TLV_CODEC_REASON_SYNTAX,
+         TLV_LOCATION_SPAN,
+         15,
+         16},
+        {"generalized missing zone",
+         &tlv_asn1_codec_generalized_time,
+         {'2', '0', '2', '6', '1', '0', '1', '1', '1', '2', '0', '0', '0', '0'},
+         TLV_CODEC_REASON_LENGTH,
+         TLV_LOCATION_UNKNOWN,
+         0,
+         0},
+        {"date time second",
+         &tlv_asn1_codec_date_time,
+         {'2', '0', '2', '6', '1', '0', '1', '1', '1', '2', '0', '0', '6', '0'},
+         TLV_CODEC_REASON_RANGE,
+         TLV_LOCATION_SPAN,
+         12,
+         14},
+    };
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.name);
+        uint8_t                value[512];
+        tlv_codec_diagnostic_t diagnostic;
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_codec_decode(test.codec, test.wire.data(), test.wire.size(), value,
+                                   sizeof value, &diagnostic));
+        EXPECT_EQ(test.reason, diagnostic.codec.reason);
+        EXPECT_EQ(test.kind, diagnostic.diagnostic.location.kind);
+        if (test.kind == TLV_LOCATION_UNKNOWN) continue;
+        EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(test.begin, diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(test.end, diagnostic.diagnostic.location.end);
+    }
+    // An application object has no Value coordinates, so encoding stays unlocated.
+    const uint8_t          invalid[] = {'a', '*'};
+    tlv_asn1_string_t      text = {invalid, sizeof invalid};
+    uint8_t                out[8];
+    size_t                 written = 0;
+    tlv_codec_diagnostic_t diagnostic;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_encode(&tlv_asn1_codec_printable_string, &text, sizeof text, out,
+                               sizeof out, &written, &diagnostic));
+    EXPECT_EQ(TLV_CODEC_REASON_TEXT, diagnostic.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
+}

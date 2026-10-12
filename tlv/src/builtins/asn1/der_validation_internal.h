@@ -10,8 +10,8 @@
 
 /* Parses one element's header (tag and length) from data[0..size), checking
  * it against limits->max_value_size and the available buffer. base is data's
- * absolute offset within the original input, used only to compute
- * error_offset. On success, *element holds the tag and a value borrowing data,
+ * absolute offset within the original input, used only to locate
+ * failures in diagnostic. On success, *element holds the tag and a value borrowing data,
  * and *consumed is the complete element size (tag + length + value).
  * Outputs are unchanged on failure. Shared by tlv_der_read/visit/write's
  * traversal and the schema-aware DER validator/encoder. */

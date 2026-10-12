@@ -87,7 +87,7 @@ static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_n
     /* Size only the structural stack here, never wire representations. */
     while (document_next(&source, &event) == TLV_OK) {
         if (event.kind == TLV_TREE_BEGIN) {
-            if (event.depth >= SIZE_MAX / sizeof *workspace->frames) return TLV_ERR_OUT_OF_MEMORY;
+            if (event.depth >= SIZE_MAX / sizeof *workspace->frames) return TLV_ERR_OVERFLOW;
             if (event.depth + 1 > workspace->frame_capacity)
                 workspace->frame_capacity = event.depth + 1;
         }

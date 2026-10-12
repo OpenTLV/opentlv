@@ -37,7 +37,12 @@ Writer and DER write coordinates describe would-be output; Query parse spans
 index expression bytes. Query runtime errors may carry primary INPUT evidence
 and retain a separate related expression span in the EXPRESSION-domain
 `expression` location, which stays unknown when the span is already primary.
-VALUE is local evidence whose enclosing wire origin is unavailable. Native
+VALUE counts from the first byte of one Value: Value codecs use it for the
+bytes that prove a rejection, such as an invalid digit or UTF-8 sequence,
+because they do not know where that Value sits in its input. A caller that does
+uses `tlv_location_resolve()` to move the evidence into its own INPUT or OUTPUT
+coordinates; Query does this when the Value's retained Source origin is known
+and otherwise keeps VALUE. Native
 Schema definitions use `detail.schema.definition.kind`, `.owner` and `.index`, not invented
 wire offsets. The owner borrows the supplied table/type.
 

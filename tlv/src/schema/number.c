@@ -35,8 +35,17 @@ tlv_result_t tlv_schema_number_encode(const void* context, const void* value, si
     if (!rule || !rule->schema || !value || (!data && capacity))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     representation = rule->representation;
+    /* Sizing publishes nothing on success. A rejection is repeated for its detail,
+     * which is exact for this deterministic conversion, and keeps the caller's
+     * operation instead of the nested measurement. */
     result = tlv_number_encode(&representation, value, size, NULL, 0, &width, NULL);
-    if (result != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, result);
+    if (result != TLV_OK) {
+        if (diagnostic) {
+            (void)tlv_number_encode(&representation, value, size, NULL, 0, &width, diagnostic);
+            diagnostic->codec.operation = data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE;
+        }
+        return tlv_codec_diagnostic_result(diagnostic, result);
+    }
     if (representation.width) {
         result = tlv_schema_validate_length(rule->schema, width);
         if (result != TLV_OK)

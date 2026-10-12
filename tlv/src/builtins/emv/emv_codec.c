@@ -278,28 +278,34 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
                     break;
                 }
                 if (nibble > 9)
-                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                                       TLV_CODEC_REASON_DIGIT);
+                    return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                          TLV_CODEC_REASON_DIGIT,
+                                                          TLV_LOCATION_POINT, i / 2, i / 2);
             }
             if (sep == (size_t)-1 || sep == 0 ||
                 sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS >
                     total_nibbles - pad)
                 return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                                    TLV_CODEC_REASON_SYNTAX);
-            for (i = 0; i < EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS; ++i)
-                if (track2_nibble(data, sep + 1 + i) > 9)
-                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                                       TLV_CODEC_REASON_DIGIT);
+            for (i = sep + 1;
+                 i < sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS; ++i)
+                if (track2_nibble(data, i) > 9)
+                    return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                          TLV_CODEC_REASON_DIGIT,
+                                                          TLV_LOCATION_POINT, i / 2, i / 2);
             disc_len = (total_nibbles - pad) -
                        (sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS);
             if (disc_len > TLV_EMV_TRACK2_DISCRETIONARY_MAX_DIGITS)
                 return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                                    TLV_CODEC_REASON_LENGTH);
-            for (i = 0; i < disc_len; ++i)
-                if (track2_nibble(data, sep + 1 + EMV_TRACK2_EXPIRY_DIGITS +
-                                            EMV_TRACK2_SERVICE_CODE_DIGITS + i) > 9)
-                    return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
-                                                       TLV_CODEC_REASON_DIGIT);
+            for (i = 0; i < disc_len; ++i) {
+                size_t index =
+                    sep + 1 + EMV_TRACK2_EXPIRY_DIGITS + EMV_TRACK2_SERVICE_CODE_DIGITS + i;
+                if (track2_nibble(data, index) > 9)
+                    return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
+                                                          TLV_CODEC_REASON_DIGIT,
+                                                          TLV_LOCATION_POINT, index / 2, index / 2);
+            }
             for (i = 0; i < sep; ++i) track2.pan[i] = (char)('0' + track2_nibble(data, i));
             track2.expiration_year =
                 (uint8_t)(track2_nibble(data, sep + 1) * 10 + track2_nibble(data, sep + 2));

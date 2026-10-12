@@ -200,8 +200,13 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.diagnostic.detail.codec.reported);
         // The BCD nibble F is not a decimal digit; Query keeps the conversion's reason.
         EXPECT_EQ(TLV_CODEC_REASON_DIGIT, e.diagnostic.detail.codec.reason);
-        // The primitive supplies no byte coordinate, so the expression span stays primary.
-        EXPECT_EXPRESSION_PRIMARY(e.diagnostic);
+        // The codec locates the octet in the Value; Query places it at input offset 2
+        // and keeps the expression span as related evidence.
+        EXPECT_EQ(TLV_LOCATION_INPUT, e.diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(TLV_LOCATION_POINT, e.diagnostic.diagnostic.location.kind);
+        EXPECT_EQ(2u, e.diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
+        EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
     }
     Evaluation e;
     ASSERT_EQ(TLV_OK, e.compile("text(//5A)"));
@@ -211,6 +216,19 @@ TEST(Unit_Tlv_QueryF2, StrictCodecErrorsAndEagerBooleanEvaluation) {
     EXPECT_EQ(TLV_QUERY_RESULT_STRING, e.result.kind);
     EXPECT_EQ(3u, e.result.size);
     EXPECT_EQ(0, std::memcmp(wire.data() + 2, e.result.data, 3));
+}
+TEST(Unit_Tlv_QueryF2, TextConversionLocatesMalformedUtf8InTheInput) {
+    Evaluation e;
+    ASSERT_EQ(TLV_OK, e.compile("text(//5A)"));
+    ASSERT_EQ(TLV_OK, e.init());
+    // C3 starts a two-byte character that 'b' does not continue: input byte 3.
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run({0x5a, 3, 'a', 0xC3, 'b'}));
+    ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
+    EXPECT_EQ(TLV_CODEC_REASON_TEXT, e.diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_INPUT, e.diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_SPAN, e.diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(3u, e.diagnostic.diagnostic.location.begin);
+    EXPECT_EQ(4u, e.diagnostic.diagnostic.location.end);
 }
 TEST(Unit_Tlv_QueryF2, RuntimePatternBindingsAndExplicitCapacity) {
     Evaluation           e;
@@ -554,7 +572,9 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
         EXPECT_EQ(expected, e.diagnostic.diagnostic.code);
         ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
         EXPECT_EQ(status, e.diagnostic.detail.codec.reported);
-        EXPECT_EQ(17u, e.diagnostic.diagnostic.location.begin);
+        // The hook's coordinates count from the Value, which starts at input offset 2.
+        EXPECT_EQ(TLV_LOCATION_INPUT, e.diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(19u, e.diagnostic.diagnostic.location.begin);
         EXPECT_EQ(42u, e.diagnostic.detail.codec.detail.reader.required);
         EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
         EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
@@ -633,10 +653,12 @@ TEST(Unit_Tlv_QueryF2, ReaderFailureReachesQueryOnlyThroughTheCodecCause) {
     EXPECT_EQ(expected.has_required, actual.has_required);
     EXPECT_EQ(expected.required, actual.required);
     EXPECT_EQ(original.diagnostic.code, d.diagnostic.code);
+    // The Reader location counts from the converted Value; Query places it in its input,
+    // where the Value starts at offset 2. The Reader detail keeps its own coordinates.
     EXPECT_EQ(original.diagnostic.location.domain, d.diagnostic.location.domain);
     EXPECT_EQ(original.diagnostic.location.kind, d.diagnostic.location.kind);
-    EXPECT_EQ(original.diagnostic.location.begin, d.diagnostic.location.begin);
-    EXPECT_EQ(original.diagnostic.location.end, d.diagnostic.location.end);
+    EXPECT_EQ(original.diagnostic.location.begin + 2, d.diagnostic.location.begin);
+    EXPECT_EQ(original.diagnostic.location.end + 2, d.diagnostic.location.end);
     // The expression span is related evidence, not a second primary location.
     EXPECT_EQ(TLV_LOCATION_EXPRESSION, d.expression.domain);
     EXPECT_LT(d.expression.begin, d.expression.end);

@@ -6,6 +6,7 @@
 #include "tlv/writer/tree.h"
 #include "tlv/builtins/emv/query.h"
 #include "tlv/builtins/asn1/query.h"
+#include "tlv/builtins/asn1/asn1_codec.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/config.h"
@@ -104,6 +105,39 @@ struct Evaluation {
     }
 };
 } // namespace
+
+#if OPENTLV_FORMAT_BER
+TEST(Unit_Tlv_QueryF3, AsnDateHookKeepsTheGeneralizedTimeDiagnostic) {
+    struct Case {
+        const char*         text;
+        tlv_location_kind_t kind;
+        size_t              begin, end;
+    };
+    // Month 13 is rejected by the GeneralizedTime codec, which locates the month; a
+    // fraction and 31 February are beyond what the whole-second date hook accepts.
+    const Case cases[] = {{"20261311120000Z", TLV_LOCATION_SPAN, 4, 6},
+                          {"20261011120000.5Z", TLV_LOCATION_UNKNOWN, 0, 0},
+                          {"20260231120000Z", TLV_LOCATION_UNKNOWN, 0, 0}};
+    for (const auto& test : cases) {
+        SCOPED_TRACE(test.text);
+        alignas(8) uint8_t     scratch[sizeof(tlv_asn1_generalized_time_t)];
+        tlv_query_result_t     result{};
+        tlv_codec_diagnostic_t diagnostic;
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                  tlv_asn1_query_date.decode(tlv_asn1_query_date.context, nullptr,
+                                             reinterpret_cast<const uint8_t*>(test.text),
+                                             std::strlen(test.text), scratch, sizeof scratch,
+                                             &result, &diagnostic));
+        EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.diagnostic.code);
+        EXPECT_EQ(TLV_CODEC_REASON_RANGE, diagnostic.codec.reason);
+        EXPECT_EQ(test.kind, diagnostic.diagnostic.location.kind);
+        if (test.kind == TLV_LOCATION_UNKNOWN) continue;
+        EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);
+        EXPECT_EQ(test.begin, diagnostic.diagnostic.location.begin);
+        EXPECT_EQ(test.end, diagnostic.diagnostic.location.end);
+    }
+}
+#endif
 
 TEST(Unit_Tlv_QueryF3, WholePlanRequirementsAndDocumentRejection) {
     for (const auto& c : std::vector<std::pair<const char*, tlv_query_level_t>>{
@@ -396,6 +430,42 @@ TEST(Unit_Tlv_QueryF3, DocumentInitializationFailuresCarryDetail) {
                                     tlv_document_query_evaluate(document, e.exec, nullptr, nullptr,
                                                                 0, nullptr, &e.diagnostic)));
     EXPECT_EQ(TLV_QUERY_ERROR_ARGUMENT, e.diagnostic.kind);
+    tlv_document_free(document);
+}
+
+TEST(Unit_Tlv_QueryF3, DocumentConversionKeepsValueLocalEvidence) {
+    Evaluation e;
+    ASSERT_EQ(TLV_OK, e.compile("bcd(//5A)"));
+    ASSERT_EQ(TLV_OK, e.init());
+    tlv_document_options_t options;
+    ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &e.format));
+    const uint8_t               wire[] = {0x5a, 1, 0xff};
+    tlv_tree_writer_frame_t     writer_frames[16];
+    uint8_t                     staged[64], scratch[64];
+    tlv_tree_writer_workspace_t staging{};
+    staging.frames = writer_frames;
+    staging.frame_capacity = 16;
+    staging.data = staged;
+    staging.data_capacity = sizeof staged;
+    staging.scratch = scratch;
+    staging.scratch_capacity = sizeof scratch;
+    tlv_document_t* document = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof wire, &options, &document, nullptr));
+    size_t bytes = 0;
+    ASSERT_EQ(TLV_OK, tlv_document_query_value_size(document, &staging, &bytes, nullptr));
+    std::vector<uint8_t> values(bytes);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              TLV_DIAGNOSTIC_RESULT(e.diagnostic, tlv_document_query_evaluate(
+                                                      document, e.exec, nullptr, values.data(),
+                                                      bytes, &staging, &e.diagnostic)));
+    ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
+    EXPECT_EQ(TLV_CODEC_REASON_DIGIT, e.diagnostic.detail.codec.reason);
+    // A Document node does not record where its Value starts in the original input,
+    // so the offending octet keeps its Value-local coordinate.
+    EXPECT_EQ(TLV_LOCATION_VALUE, e.diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_POINT, e.diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(0u, e.diagnostic.diagnostic.location.begin);
+    EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
     tlv_document_free(document);
 }
 

@@ -118,13 +118,14 @@ fn schema_cause_matches_native_vocabulary() {
         (SchemaCause::None, 0, "none"),
         (SchemaCause::Schema, 1, "schema"),
         (SchemaCause::Reader, 2, "reader"),
+        (SchemaCause::Codec, 3, "codec"),
     ] {
         assert_eq!(member.name(), name);
         assert_eq!(member.as_raw(), raw);
         assert_eq!(SchemaCause::from_raw(raw), member);
     }
-    let beyond = SchemaCause::from_raw(3);
-    assert_eq!((beyond.as_raw(), beyond.name()), (3, "unknown"));
+    let beyond = SchemaCause::from_raw(4);
+    assert_eq!((beyond.as_raw(), beyond.name()), (4, "unknown"));
 }
 
 #[test]

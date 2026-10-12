@@ -321,6 +321,7 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
  * @return #TLV_ERR_INVALID_VALUE for inconsistent structural depth or skipped events.
  * @return #TLV_ERR_LIMIT if document or reader limits are exceeded.
  * @return #TLV_ERR_OUT_OF_MEMORY if node allocation fails.
+ * @return #TLV_ERR_OVERFLOW if a node or traversal allocation size is not representable.
  * @return Any other Tree Reader error, propagated unchanged.
  * @note On terminal traversal/build failure all unfinished nodes are released.
  *       Only NEED_MORE_DATA is resumable. The cursor is not rolled back on failure.
@@ -389,6 +390,8 @@ TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
  * @return #TLV_OK on success.
  * @return Any error of tlv_document_create().
  * @return #TLV_ERR_LIMIT if the depth or element limit is exceeded.
+ * @return #TLV_ERR_OUT_OF_MEMORY if node allocation fails.
+ * @return #TLV_ERR_OVERFLOW if a node or traversal allocation size is not representable.
  * @return Any reader error, propagated unchanged.
  *
  * @note Nothing is retained on failure: everything allocated so far is released.
@@ -679,6 +682,7 @@ TLV_API size_t tlv_node_value_size(const tlv_node_t* node);
  * @return #TLV_ERR_NULL_ARG for a `NULL` node, or a `NULL` value with a nonzero length.
  * @return #TLV_ERR_LIMIT if the depth or element limit would be exceeded.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory is exhausted.
+ * @return #TLV_ERR_OVERFLOW if a node or traversal allocation size is not representable.
  * @return Any reader error for a constructed node's value.
  *
  * @warning Invalidates the previous value pointer of the node, and for a constructed node
@@ -710,6 +714,7 @@ TLV_API tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, 
  *         `before` is not a child of `parent`.
  * @return #TLV_ERR_LIMIT if the depth or element limit would be exceeded.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory is exhausted.
+ * @return #TLV_ERR_OVERFLOW if a node or traversal allocation size is not representable.
  * @return Any writer format error for the tag, or reader error for a constructed value.
  * @return #TLV_ERR_INVALID_STATE during a Query callback.
  */
@@ -754,6 +759,7 @@ TLV_API void tlv_node_erase(tlv_node_t* node);
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG for a `NULL` argument.
  * @return #TLV_ERR_OUT_OF_MEMORY if temporary traversal storage cannot be allocated.
+ * @return #TLV_ERR_OVERFLOW if the traversal stack size is not representable.
  * @return Any writer format error, such as #TLV_ERR_INVALID_LENGTH for a length the format
  *         cannot represent.
  */
@@ -774,6 +780,7 @@ TLV_API tlv_result_t tlv_document_encoded_size(const tlv_document_t* document, s
  * @return #TLV_ERR_NULL_ARG for a `NULL` argument.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory for a temporary buffer is exhausted.
+ * @return #TLV_ERR_OVERFLOW if the traversal stack size is not representable.
  * @return Any writer format error.
  *
  * @warning A failure other than the capacity check may leave `data` modified.

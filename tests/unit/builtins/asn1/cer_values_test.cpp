@@ -172,18 +172,62 @@ TEST(Unit_Tlv_CerValues, RejectsEmptySegment) {
     EXPECT_EQ(2u, offset.location.begin);
 }
 
+TEST(Unit_Tlv_CerValues, SegmentationFailuresUseTheAnchorTheirRuleRequires) {
+    tlv_diagnostic_t diagnostic = {};
+    /* A constructed string without segments lacks them at its scope end, the EOC. */
+    const uint8_t empty[] = {0x24, 0x80, 0, 0};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
+              tlv_cer_visit(empty, sizeof(empty), nullptr, nullptr, nullptr, &diagnostic));
+    EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_SCOPE_END, diagnostic.location.kind);
+    EXPECT_EQ(2u, diagnostic.location.begin);
+
+    /* An empty segment is evidenced by its whole encoding. */
+    const uint8_t empty_segment[] = {0x24, 0x80, 0x04, 0, 0, 0};
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_cer_visit(empty_segment, sizeof(empty_segment), nullptr,
+                                                    nullptr, nullptr, &diagnostic));
+    EXPECT_EQ(TLV_LOCATION_SPAN, diagnostic.location.kind);
+    EXPECT_EQ(2u, diagnostic.location.begin);
+    EXPECT_EQ(4u, diagnostic.location.end);
+
+    /* A short non-final segment is the earlier segment, proven by the later one. */
+    std::vector<uint8_t> short_segment = {0x24, 0x80, 0x04, 0x82, 0x03, 0xE7};
+    short_segment.resize(short_segment.size() + 999, 'a');
+    const uint8_t tail[] = {0x04, 1, 'z', 0, 0};
+    short_segment.insert(short_segment.end(), tail, tail + sizeof(tail));
+    EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_cer_visit(short_segment.data(), short_segment.size(),
+                                                    nullptr, nullptr, nullptr, &diagnostic));
+    EXPECT_EQ(TLV_LOCATION_SPAN, diagnostic.location.kind);
+    EXPECT_EQ(2u, diagnostic.location.begin);
+    EXPECT_EQ(2u + 4 + 999, diagnostic.location.end);
+
+    /* A final UTF-8 segment ending inside a character is evidenced by its Value. */
+    std::vector<uint8_t> utf8 = {0x2C, 0x80, 0x0C, 0x82, 0x03, 0xE8};
+    utf8.resize(utf8.size() + 1000, 'a');
+    const uint8_t incomplete[] = {0x0C, 1, 0xE2, 0, 0};
+    utf8.insert(utf8.end(), incomplete, incomplete + sizeof(incomplete));
+    tlv_element_t element{};
+    size_t        consumed = 0;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, tlv_cer_read_strict(utf8.data(), utf8.size(), nullptr,
+                                                         &element, &consumed, &diagnostic));
+    EXPECT_EQ(TLV_LOCATION_SPAN, diagnostic.location.kind);
+    EXPECT_EQ(1008u, diagnostic.location.begin);
+    EXPECT_EQ(1009u, diagnostic.location.end);
+}
+
 TEST(Unit_Tlv_CerValues, RejectsUnjustifiedConstructedEncoding) {
     /* Constructed OCTET STRING whose single segment is well under the
-     * 1000-octet threshold: should have used primitive form. Reported at
-     * the outer element's length field (its 0x80 indefinite marker),
-     * matching the "length-form errors point to the length field" offset
-     * convention used throughout these validators. */
+     * 1000-octet threshold: should have used primitive form. The whole
+     * constructed element, through its EOC, is the evidence. */
     const uint8_t    data[] = {0x24, 0x80, 0x04, 1, 'a', 0, 0};
     tlv_diagnostic_t offset = {};
     offset.location.begin = 99;
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               tlv_cer_visit(data, sizeof(data), nullptr, nullptr, nullptr, &offset));
-    EXPECT_EQ(1u, offset.location.begin);
+    EXPECT_EQ(TLV_LOCATION_INPUT, offset.location.domain);
+    EXPECT_EQ(TLV_LOCATION_SPAN, offset.location.kind);
+    EXPECT_EQ(0u, offset.location.begin);
+    EXPECT_EQ(sizeof(data), offset.location.end);
 }
 
 TEST(Unit_Tlv_CerValues, BitStringSegmentation) {

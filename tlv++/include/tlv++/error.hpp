@@ -139,7 +139,7 @@ enum class location_domain {
     output = TLV_LOCATION_OUTPUT,          /**< Would-be output wire bytes. */
     expression = TLV_LOCATION_EXPRESSION,  /**< Query expression bytes. */
     definition = TLV_LOCATION_DEFINITION,  /**< Definition text bytes. */
-    value = TLV_LOCATION_VALUE             /**< Value-local bytes with unknown outer origin. */
+    value = TLV_LOCATION_VALUE             /**< Bytes of one Value, counted from its first byte. */
 };
 /** @brief Allocation-free primary location value. */
 using location = tlv_location_t;
@@ -162,6 +162,17 @@ inline const char* message(location_kind value) noexcept {
 /** @brief Translate both coordinates; overflow clears only the optional location. */
 inline void translate_location(location& value, size_t origin) noexcept {
     tlv_location_translate(&value, origin);
+}
+/**
+ * @brief Place Value-local evidence in the coordinate space that contains the Value.
+ * @param value Location; only a known location_domain::value location changes.
+ * @param origin Offset of the Value's first byte in `domain`.
+ * @param domain Enclosing coordinate space, such as location_domain::input.
+ * @note An invalid domain leaves the location unchanged; overflow clears only the
+ *       optional location.
+ */
+inline void resolve_location(location& value, size_t origin, location_domain domain) noexcept {
+    tlv_location_resolve(&value, origin, static_cast<tlv_location_domain_t>(domain));
 }
 /**
  * @brief Allocation-free operation error with optional absolute byte offset.

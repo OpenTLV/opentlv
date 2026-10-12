@@ -399,6 +399,15 @@ TEST(Unit_Tlv_Emv, Track2CodecRejectsMalformedValues) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               tlv_codec_decode(codec, bad_discretionary, sizeof(bad_discretionary), &decoded,
                                sizeof(decoded), NULL));
+    // The diagnostic locates the octet holding the nibble E.
+    tlv_codec_diagnostic_t diagnostic;
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+              tlv_codec_decode(codec, bad_discretionary, sizeof(bad_discretionary), &decoded,
+                               sizeof(decoded), &diagnostic));
+    EXPECT_EQ(TLV_CODEC_REASON_DIGIT, diagnostic.codec.reason);
+    EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);
+    EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
+    EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
 
     tlv_emv_track2_t empty_pan_value{};
     std::strcpy(empty_pan_value.discretionary_data, "1");
