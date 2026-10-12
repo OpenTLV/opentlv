@@ -397,12 +397,12 @@ TEST(Integration_Tlv_Architecture, TreeCursorDiagnosticsKeepAbsoluteOffsetsAndPa
     // The child declares two bytes, but its parent contains only one. A later
     // top-level sibling must not supply the missing child byte.
     const uint8_t           data[] = {1, 0, 0x80, 3, 1, 2, 0xAA, 2, 0};
-    size_t                  error_offset = 99;
+    size_t                  cursor_offset = 99;
     tlv_reader_diagnostic_t diagnostic{};
     ASSERT_EQ(TLV_ERR_TRUNCATED,
               visit_tree_input_diag(data, sizeof(data), &constructed_format, 8, 8, nullptr, nullptr,
-                                    &error_offset, &diagnostic));
-    EXPECT_EQ(4u, error_offset);
+                                    &cursor_offset, &diagnostic));
+    EXPECT_EQ(4u, cursor_offset);
     EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
     EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
     EXPECT_EQ(4u, diagnostic.detail.tag_offset);

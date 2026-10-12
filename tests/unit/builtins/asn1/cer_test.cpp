@@ -141,8 +141,8 @@ TEST(Unit_Tlv_Cer, IsConstructedDistinguishesFormAndDrivesGenericTreeTraversal) 
      * same way tlv_cer_visit() does internally. */
     const uint8_t                           data[] = {0x30, 0x80, 0x02, 1, 5, 0, 0};
     std::vector<std::pair<size_t, uint8_t>> visits;
-    size_t                                  error_offset = 99;
+    size_t                                  cursor_offset = 99;
     EXPECT_EQ(TLV_OK, visit_tree_input(data, sizeof(data), &tlv_format_cer, TLV_TREE_DEFAULT_DEPTH,
-                                       100, collect_tags, &visits, &error_offset));
+                                       100, collect_tags, &visits, &cursor_offset));
     EXPECT_EQ((std::vector<std::pair<size_t, uint8_t>>{{0, 0x30}, {1, 0x02}}), visits);
 }

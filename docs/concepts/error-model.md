@@ -1,22 +1,23 @@
 # Failure model
 
-This is the accepted design for [#551](https://github.com/marekcingel/OpenTLV/issues/551),
+This is the failure model designed in [#551](https://github.com/OpenTLV/opentlv/issues/551),
 for authors of C capabilities and language facades. Read the
 [architectural rules](architectural-rules.md) and
-[current error reference](../reference/errors.md) first.
+[error reference](../reference/errors.md) first.
 
-**Status: design decided; lifecycle implemented by #552, Schema classification
-by #553, capability/resource/callback results by #554, common locations by #555, the
-`END`, `TRUNCATED` and `SYNTAX` results by #578, the Query kind `ARGUMENT`
-with the remaining Query kind classifications by #587, and the remaining core
-producer gaps by #589. Remaining API and binding migration is separate work.** This page defines the target contract.
-`TLV_END`, `TLV_ERR_TRUNCATED`, `TLV_ERR_SYNTAX`, `TLV_ERR_INVALID_STATE`,
-`TLV_ERR_INVALID_SCHEMA`, `TLV_ERR_UNSUPPORTED` and `TLV_ERR_CALLBACK` are public,
-together with Query kinds `STATE`, `CALLBACK`, `TYPE`, `IMAGE` and `ARGUMENT`;
-`TLV_ERR_END_OF_BUFFER` and `TLV_ERR_INVALID_BYTE_ORDER` are removed. The
-reference page describes the running implementation. This design does not preserve source, binary, enum-number or
-diagnostic-layout compatibility. Removed names get no aliases, compatibility
-wrappers or deprecation period. Native consumers and bindings migrate together.
+**Status: implemented.** Epic [#547](https://github.com/OpenTLV/opentlv/issues/547)
+implemented this design in the C library, the C++ facade, the Go, Rust, Python,
+Lua and JS/WASM bindings and the CLI. This page is the normative contract for
+results, detail, locations and propagation; the error reference names the public
+values that implement it. New producers and facades follow this page; a change
+to it is a design decision, not an implementation detail. The
+[migration record](#migration-record) lists how each former code and kind was
+reclassified.
+
+The migration did not preserve source, binary, enum-number or
+diagnostic-layout compatibility. Removed names, such as `TLV_ERR_END_OF_BUFFER`,
+`TLV_ERR_INVALID_BYTE_ORDER`, `TLV_ERR_SCHEMA_MISSING` and `tlv_codec_result_t`,
+got no aliases, compatibility wrappers or deprecation period.
 
 ## One failure, four questions
 
@@ -51,9 +52,9 @@ There are three kinds of outcome: success, control status and failure. A caller
 must not treat every nonzero result as a fatal error. `TLV_OK` remains zero;
 this design makes no other promise about numeric assignments.
 
-### Target results
+### Results
 
-| Target result | Meaning and caller response |
+| Result | Meaning and caller response |
 | --- | --- |
 | `TLV_OK` | Operation completed successfully. |
 | `TLV_END` | Normal end of an iteration or an empty single-read region. No element is published. |
@@ -134,14 +135,13 @@ schema requirements must not be inferred by the generic Reader.
 
 ## Typed detail and common diagnostics
 
-Keep `tlv_diagnostic_t` as the common diagnostic base and keep specialized
-Reader, Writer, Schema and Query value types. The target Query diagnostic
+`tlv_diagnostic_t` is the common diagnostic base, embedded by specialized
+Reader, Writer, Schema, Codec and Query value types. The Query diagnostic
 embeds the common base and retains typed Query span, resource, binding,
-cardinality, codec and Reader detail. Replace the present instruction that
-layers must use context nodes *instead of* specialized types: typed detail is
-the normal machine-readable extension; borrowed text contexts are optional
-human-readable enrichment. Programs must not parse context strings to classify
-an error.
+cardinality, codec and Reader detail. Layers do not use context nodes *instead
+of* specialized types: typed detail is the normal machine-readable extension;
+borrowed text contexts are optional human-readable enrichment. Programs must
+not parse context strings to classify an error.
 
 Every field of a public diagnostic has exactly one meaning (#579). Layer detail
 types (`tlv_reader_detail_t`, `tlv_schema_detail_t` and `tlv_codec_detail_t`)
@@ -188,7 +188,7 @@ and detail vocabulary is available without linking Reader, Query or Codec
 implementations. No successful parsing path must format strings, allocate,
 collect paths or build context chains for an unrequested diagnostic.
 
-The target common base stores a bounded path by value, with an explicit
+The common base stores a bounded path by value, with an explicit
 presence flag and `omitted` count. It retains the outermost 32 enclosing tags;
 the omitted count saturates. Path entries copy Tag spans, not Tag bytes, so
 their immutable backing storage must outlive the diagnostic. The affected Tag
@@ -262,7 +262,7 @@ identify the violated callback contract without replaying the case.
 
 ## Locations
 
-Location is a generic diagnostic value; it is not Element identity. The target
+Location is a generic diagnostic value; it is not Element identity. A
 location records a domain and an anchor kind, with checked coordinates. A
 domain distinguishes input wire bytes, would-be output wire bytes, expression
 text and definition text. Each API identifies the source object and origin
@@ -314,34 +314,33 @@ result and mark its location unknown. Do not retry callbacks merely to obtain
 a location. Argument/configuration/capacity errors have unknown byte location
 unless the operation actually knows relevant evidence.
 
-### Replacing offset-only APIs
+### No offset-only failure outputs
 
-Replace public failure-reporting `size_t* error_offset` parameters with the
-appropriate common or typed diagnostic output in the implementation work.
-Remove the offset-only signatures; there is no compatibility wrapper or zero
-sentinel convention in the target API. Operations needing no diagnostic pass
-NULL. This concerns error outputs, not ordinary cursor or source-range APIs.
+A failure location is reported only through a common or typed diagnostic
+output. #555 removed the public failure-reporting `size_t* error_offset`
+parameters without a compatibility wrapper or zero sentinel convention, and the
+facades followed in #590. Operations needing no diagnostic pass NULL. This
+concerns error outputs, not ordinary cursor or source-range APIs such as
+`tlv_tree_reader_offset()` or C++ `tlv::parse_error::offset()`.
 
-Migrate each producer at the point where its coordinate origin and anchor kind
-are known. Update all callers, builtin adapters, tests, examples and bindings
-in the same change. Do not infer `has_location` from `offset != 0`, or recover
-the missing anchor kind from an old result code. Existing offset-zero fallback
-cases become unknown; actual failures at byte zero remain located.
+A producer reports a location where its coordinate origin and anchor kind are
+known. Do not infer a location from `offset != 0`, or recover a missing anchor
+kind from the result code. A failure without known evidence is unknown; an
+actual failure at byte zero is located.
 
 ## Propagation and callbacks
 
-Use one result domain throughout the target C API: Codec operations and their
-callbacks return `tlv_result_t`. Remove `tlv_codec_result_t` and its independent
+The C API uses one result domain: Codec operations and their callbacks return
+`tlv_result_t`; #556 removed `tlv_codec_result_t` and its independent
 success/error enum. A codec remains a Value converter; sharing error vocabulary
 does not make it a wire parser or require Reader/Schema dependencies. Structure
-codecs already compose those capabilities and must preserve their results.
-The target typed codec diagnostic can carry Reader or Schema cause detail
-when it delegates, as well as its conversion operation and representation.
-Codec entry points, descriptor callbacks and Query conversion hooks receive an
-optional typed diagnostic output so that this cause can cross the callback
-boundary. When NULL, only the common result is propagated. Adding this output
-is part of the breaking callback-signature migration, not a second conversion
-engine or a required allocation.
+codecs compose those capabilities and preserve their results. The typed codec
+diagnostic carries Reader or Schema cause detail when it delegates, as well as
+its conversion operation and representation. Codec entry points, descriptor
+callbacks and Query conversion hooks receive an optional typed diagnostic
+output so that this cause can cross the callback boundary. When NULL, only the
+common result is propagated; the output is neither a second conversion engine
+nor a required allocation.
 
 1. Propagate a lower-layer result unchanged when the operation delegates that
    work. Add layer/operation context and preserve its typed cause and location.
@@ -357,29 +356,31 @@ engine or a required allocation.
    `CALLBACK`; a deliberate normal stop is `OK`. Preserve any separately
    documented richer visitor error channel without fabricating one.
 
-There is no target codec-to-core or core-to-codec lossy conversion. In
-particular, structure validation must not collapse `LIMIT`, `TRUNCATED`,
-`INVALID_SCHEMA` or `SCHEMA` into an invalid-structure bucket. The historical
-mapping below is for changing producers, not a runtime compatibility adapter.
+There is no codec-to-core or core-to-codec lossy conversion. In particular,
+structure validation must not collapse `LIMIT`, `TRUNCATED`, `INVALID_SCHEMA`
+or `SCHEMA` into an invalid-structure bucket. The migration record below
+classifies producers; it is not a runtime compatibility adapter.
 
 Reader resource failures within Query retain Reader origin and `READER`
 detail. An exhausted Reader processing budget remains `LIMIT`; Query does not
-rewrite it into its own `LIMIT` detail. The intent of
-`TreeResourceLimitsHaveOwnedSafeReaderDiagnostics` remains mandatory. Its
-frame-capacity case changes to `BUFFER_TOO_SHORT`, while depth/element budget
-cases remain `LIMIT`. All preserve safe absent fields and Reader provenance.
+rewrite it into its own `LIMIT` detail.
+`TreeResourceLimitsHaveOwnedSafeReaderDiagnostics` enforces this: its
+frame-capacity case is `BUFFER_TOO_SHORT`, while depth/element budget cases
+are `LIMIT`. All preserve safe absent fields and Reader provenance.
 
-## Migration inventory
+## Migration record
 
-This inventory is based on the public vocabulary at `977a60e7`, after
-issues #548, #549 and #550. It covers every current common result, codec result, Query error
-kind, Schema issue kind and Reader/Writer operation. Rows with multiple target
-outcomes require classification at the producer, not an enum-wide replacement.
-Names in the target columns omit `TLV_ERR_` where unambiguous.
+The migration is complete; this section is its record. It started from the
+public vocabulary at `977a60e7`, after issues #548, #549 and #550, and covers
+every former common result, codec result, Query error kind, Schema issue kind
+and Reader/Writer operation. Rows with multiple outcomes were classified at the
+producer, not by an enum-wide replacement, and a new producer of one of these
+conditions follows the same row. Names in the classification columns omit
+`TLV_ERR_` where unambiguous.
 
-### Every current common result
+### Every former common result
 
-| Current code | Target classification |
+| Former code | Classification |
 | --- | --- |
 | `TLV_OK` | Keep `TLV_OK`. |
 | `TLV_ERR_BUFFER_TOO_SHORT` | Final incomplete input -> `TRUNCATED`; non-final incremental input -> `TLV_NEED_MORE_DATA`; destination/workspace shortage -> `BUFFER_TOO_SHORT`. |
@@ -393,17 +394,17 @@ Names in the target columns omit `TLV_ERR_` where unambiguous.
 | `TLV_ERR_SCHEMA` | Input violation -> `SCHEMA` with finding detail; invalid schema definition -> `INVALID_SCHEMA`; a callback contradicting its own declared result -> `CALLBACK`. |
 | `TLV_ERR_INVALID_ARG` | API configuration/storage descriptors -> `INVALID_ARG`; lifecycle/reentrancy -> `INVALID_STATE`; text grammar -> `SYNTAX`; invalid schema definition -> `INVALID_SCHEMA`; unsupported capability -> `UNSUPPORTED`; invalid data/image/types/bindings -> `INVALID_VALUE`; provider contract violation -> `CALLBACK`. |
 | `TLV_ERR_INVALID_TAG_SIZE` | Keep operation-specific identifier-width class; an invalid configured width is `INVALID_ARG`. |
-| `TLV_ERR_INVALID_BYTE_ORDER` | Unknown enum/configuration -> `INVALID_ARG`; valid but unimplemented order -> `UNSUPPORTED`. Remove the old result. |
+| `TLV_ERR_INVALID_BYTE_ORDER` | Unknown enum/configuration -> `INVALID_ARG`; valid but unimplemented order -> `UNSUPPORTED`. Removed without an alias. |
 | `TLV_ERR_OVERFLOW` | Keep logical numeric/arithmetic overflow. |
 | `TLV_ERR_INVALID_VALUE` | Invalid interpreted data/canonicality -> `INVALID_VALUE`; Schema constraint -> `SCHEMA`; bad callback success payload -> `CALLBACK`; invalid configuration -> `INVALID_ARG`. |
-| Former `TLV_ERR_UNSUPPORTED_TYPE` | Replaced by `UNSUPPORTED` with type/capability/version detail in #554. |
-| `TLV_ERR_SCHEMA_MISSING` | `SCHEMA` + `MISSING` and explicit scope-end/insertion location. Remove the old result. |
+| `TLV_ERR_UNSUPPORTED_TYPE` | Replaced by `UNSUPPORTED` with type/capability/version detail in #554. |
+| `TLV_ERR_SCHEMA_MISSING` | `SCHEMA` + `MISSING` and explicit scope-end/insertion location. Removed without an alias. |
 | `TLV_ERR_NATIVE_SIZE` | Keep host-addressability distinction. |
 | `TLV_NEED_MORE_DATA` | Keep resumable control status; never convert a non-final shortage into a fatal error. |
 
-### Every current Codec result
+### Every former Codec result
 
-| Current code | Target producer result and detail |
+| Former code | Producer result and detail |
 | --- | --- |
 | `TLV_CODEC_OK` | `TLV_OK`; invalid successful payload is detected by the caller as `CALLBACK`. |
 | `TLV_CODEC_ERR_NULL_ARG` | `NULL_ARG` for a missing pointer; `INVALID_ARG` for invalid non-NULL configuration/descriptor. |
@@ -417,9 +418,9 @@ must adopt the shared result domain. Preserve codec operation detail without
 retaining a second semantic result taxonomy. No numeric casts between the old
 enums constitute a migration.
 
-### Every current Query error kind
+### Every Query error kind
 
-| Current kind | Target result/detail rule |
+| Kind | Result/detail rule |
 | --- | --- |
 | `TLV_QUERY_ERROR_NONE` | No active failure detail. Not valid after initialized non-OK publication. |
 | `TLV_QUERY_ERROR_SYNTAX` | `SYNTAX` + `SYNTAX` for grammar; resource exhaustion while parsing remains `LIMIT` + `LIMIT`; static type errors move to `INVALID_VALUE` + `TYPE`. |
@@ -452,9 +453,9 @@ allocation (`OUT_OF_MEMORY`, #588) results `STORAGE`, `UNSUPPORTED` becomes
 `CAPABILITY`, `LIMIT` stays `LIMIT`, and `CALLBACK` and `VISITOR` become
 `CALLBACK`.
 
-### Every current Schema issue kind
+### Every Schema issue kind
 
-| Current kind | Target result/detail rule |
+| Kind | Result/detail rule |
 | --- | --- |
 | `TLV_SCHEMA_ISSUE_MISSING` | `SCHEMA` + `MISSING`; absent Tag and scope-end/insertion anchor. |
 | `TLV_SCHEMA_ISSUE_DUPLICATE` | `SCHEMA` + `DUPLICATE`; maximum and actual occurrence counts. |
@@ -464,12 +465,12 @@ allocation (`OUT_OF_MEMORY`, #588) results `STORAGE`, `UNSUPPORTED` becomes
 | `TLV_SCHEMA_ISSUE_ORDER` | `SCHEMA` + `ORDER`; schema ordering rule and offending element. |
 | `TLV_SCHEMA_ISSUE_ASSERTION` | `SCHEMA` + `ASSERTION` for false boolean assertions. Query evaluation errors preserve their own result and Query detail instead. |
 
-### Every current Reader and Writer operation
+### Every Reader and Writer operation
 
 Operation identifies the failed step, not a result class. All retain their
 typed operation names; propagated callbacks retain that same step and cause.
 
-| Current operation | Target interpretation |
+| Operation | Interpretation |
 | --- | --- |
 | `TLV_READER_OP_TAG` | Identifier decoding. |
 | `TLV_READER_OP_LENGTH` | Length decoding; whole-header operations use `HEADER` when the Format can identify them as such. |
@@ -493,7 +494,7 @@ Unknown visitor discriminators produce `CALLBACK`.
 
 ### Concrete producer changes
 
-| Current producer or behavior | Required target change |
+| Former producer or behavior | Change |
 | --- | --- |
 | Generator reports `NULL_ARG` for a non-NULL Format without read/write capability | `UNSUPPORTED`; missing required top-level pointers retain `NULL_ARG`. C++ uses the same capability-before-configuration precedence. Implemented in #572. |
 | Generator rejects `max_depth > 64` as `INVALID_ARG` | `UNSUPPORTED` for a request beyond fixed implementation capability. Implemented in #572. |
@@ -517,46 +518,45 @@ Unknown visitor discriminators produce `CALLBACK`.
 | `TLV_LOCATION_VALUE` has no producer | Codecs that know the offending byte report a VALUE point or span; Query and DER Schema resolve it when the Value origin is known. Implemented in #589. |
 | CER segmentation reports only an offset | A constructed string without segments is SCOPE_END at its EOC; unjustified segmentation is the element SPAN; segment defects are SPANs of the segment or its Value. Implemented in #589. |
 
-## Implementation handoff and validation
+## Implementation and validation
 
-This design completes #551. Issue #552 implements `INVALID_STATE`, Query kind
-`STATE`, facade mappings and `INVALID_VALUE` for malformed structural feeds.
+Epic #547 implemented this design after the Memcheck safety net (#560) and the
+invariant, DER output-position and path work (#548, #549, #550):
 
-Issue #554 implements unsupported capability, workspace and callback classifications
-including impossible preorder depth returned by a Tree Writer source callback.
-Codec uses the shared result domain and lossless typed propagation as of #556;
-other Query detail kinds and the remaining result classes are follow-up work. No append-only or numeric ABI guarantee is attached to
-result or Query kind values; #578 regrouped `tlv_result_t` by category. The complete target API is not yet available.
-The follow-up implementation replaces enums/signatures/layouts directly and
-updates their Doxygen contracts. It must cover common result strings, all
-native producers, C++ facades, Go/Rust/Python/Lua/JS-WASM, CLI rendering and
-binding ownership/ABI declarations together. Rebuild native clients; regenerate
-ABI snapshots and serialized internal Query images as needed. Do not preserve
-obsolete enum numbers or introduce a translation mode for the old behavior.
+| Issue | Implemented |
+| --- | --- |
+| #552 | `INVALID_STATE`, Query kind `STATE` and `INVALID_VALUE` for malformed structural feeds |
+| #553 | `INVALID_SCHEMA` for definitions and uniform `SCHEMA` + `MISSING` |
+| #573, #574, #575 | Schema definition-checking workloads, fail-fast diagnostics matching the report API and the checked Schema handle |
+| #554, #572 | `UNSUPPORTED`, limit/configuration/workspace and callback classifications, including the wire generator |
+| #555 | Common `tlv_location_t` locations and removal of offset-only failure outputs |
+| #556 | Shared Codec result domain and lossless propagation across Codec, Structure Codec and Query |
+| #557, #558, #559 | Diagnostic name functions, failure channels and binding and CLI adoption |
+| #561 | Lazy diagnostic materialization and minimal successful-path work |
+| #578, #580 | `END`, `TRUNCATED` and `SYNTAX`; `tlv/result.h` and `tlv_result_string()` |
+| #579 | One source of truth per diagnostic field |
+| #587, #588 | Query kind `ARGUMENT` and Query diagnostics for Document Query entry points |
+| #589, #590 | Remaining core producer gaps; location-aware facades and single-source binding projections |
 
-Implementation acceptance requires the following semantic checks, in addition
-to documentation and build checks:
+Result and Query kind values carry no append-only or numeric ABI guarantee
+before 1.0; #578 regrouped `tlv_result_t` by category. A change to this model
+updates the enums, signatures, layouts and Doxygen contracts directly, together
+with common result strings, native producers, the C++ facade, every binding,
+CLI rendering and the ABI baseline. It does not preserve obsolete enum numbers
+or add a translation mode for old behavior.
 
-- Every result and detail in the inventory has a target producer classification;
-  no old enum name, codec conversion table or offset-only error signature remains.
-- Invalid schema definitions are distinguishable from input violations before
-  validating data; missing requirements behave uniformly across builtins.
-- Final truncation, non-final shortage, normal EOF, destination shortage,
-  workspace shortage and processing budgets have distinct specified outcomes.
-- Reader and Codec failures survive Query/Schema/Document composition with their
-  result, origin and typed detail. Reader limit tests include the frame-capacity
-  reclassification and safe absent detail.
-- Legitimate callback errors, valid early stops and invalid successful callback
-  payloads exercise separate paths; providers are not called twice for diagnosis.
-- Locations cover known zero, unknown, empty EOF spans, nested origins, absent
-  ordered/unordered components, DER hypothetical output and truncated paths.
-- Existing #548 aliasing, reentrancy, failed-execution and diagnostic publication
-  tests remain effective under the target codes and kinds. #549/#550 coverage
-  retains output-position and path information.
-- Unit, integration, standalone fuzz assertions, capability-disabled builds,
-  ABI checks and public binding conformance use the same target semantics.
-  Targeted local success must be reported separately from full hosted coverage.
+Each acceptance check of #551 maps to evidence that runs in CI:
 
-Use this inventory to implement producer changes, then update the
-[error reference](../reference/errors.md) to the resulting public API. Keep
-protocol policy in builtins and generic error semantics in the common contract.
+| Acceptance check | Evidence |
+| --- | --- |
+| Every result and detail has a producer classification; no old enum name, codec conversion table or offset-only error signature remains | The [migration record](#migration-record); `TEST_QUERY_KIND_PAIRS` with `scripts/check_diagnostic_returns.py`; a search for the removed names finds only the changelog, the migration notes on this page and in the error reference, and recorded benchmark evidence; `Unit_Tlv_ResultTaxonomy` |
+| Invalid schema definitions are distinguishable from input violations before validating data; missing requirements behave uniformly across builtins | `Unit_Tlv_SchemaFailure.ConstraintDefinitionAndInputRemainDistinct`, `DefinitionIsIndependentOfInputAndOptionalChildren` and `MissingHasOneResultAndExplicitScopeEnd`; `Unit_Tlv_DerSchema.InvalidDefinitionPrecedesInputAndCallbacks` and `RequiredRootHasMissingDetailForReadAndWrite`; `Integration_Tlv_DhcpContainer.MissingAndOptionalEndIncludingEmptyAndAllPad`; `Integration_Tlv_Lldp.SchemaMandatoryPrefixOptionalEndAndDiagnostics` |
+| Final truncation, non-final shortage, normal EOF, destination shortage, workspace shortage and processing budgets have distinct outcomes | `Unit_Tlv_ResultTaxonomy.BuiltinFormatsSeparateEndTruncationAndCapacity` and `ConfigurableFormatsSeparateEndTruncationAndCapacity`; `Unit_Tlv_TreeWriter.ScratchAndOutputShortagesPreserveAccumulatedBytes`; `Unit_Tlv_DerSchema.CallbackContractAndWorkspaceFailuresRemainDistinct` |
+| Reader and Codec failures survive Query, Schema and Document composition with result, origin and typed detail, including the frame-capacity reclassification | `Unit_Tlv_QueryProgram.TreeResourceLimitsHaveOwnedSafeReaderDiagnostics`; `Unit_Tlv_QueryF2.ReaderFailureReachesQueryOnlyThroughTheCodecCause`; `Unit_Tlv_SchemaFailure.MalformedInputKeepsTheReaderCause`; `Unit_Tlv_DerSchema.ReadKeepsCodecCauseAndOffendingOctetOfNonCanonicalLeaf`; `Unit_Tlvpp_FullQuery.DocumentPathVisitPublishesQueryDiagnostic` |
+| Legitimate callback errors, valid early stops and invalid successful payloads use separate paths; providers are not called twice for diagnosis | `Unit_Tlv_Format.ProviderResultsAreDistinctFromInvalidSuccessPayloads`; `Unit_Tlv_Codec.SharedResultsAndCallbackEvidenceAreLossless`; `Unit_Tlv_Visitor.PropagatesErrorsButRejectsCallbackEnd`; `Unit_Tlv_Document.CallbackBufferErrorDoesNotTriggerAllocationRetryOrChangeOutputs` |
+| Locations cover known zero, unknown, empty EOF spans, nested origins, absent ordered and unordered components, DER hypothetical output and truncated paths | `Unit_Tlv_Diagnostic.LocationDistinguishesUnknownZeroAndEmptyEofSpan`, `ResolveMovesOnlyValueLocalEvidence` and `PathPushRetainsOutermostTagsAndCountsOmittedTags`; `Unit_Tlv_DerSchema.WriteNestedSequenceMissingIncludesPrecedingSibling`, `WriteNestedMissingAccountsForLongHeadersAndSetOrder` and `WritePreservesFirstFailureWhenOffsetCompositionCannotFinish` |
+| #548 aliasing, reentrancy, failed-execution and publication tests remain effective; #549 and #550 coverage keeps output position and path | `tests/diagnostic_assertions.h` with `Unit_Tlv_Diagnostic.InvariantHelperRejectsEmptyAndMismatchedFailureDetail`; `Unit_Tlv_QueryProgram.LoaderRejectsAliasedStorageBeforeWriting` and `LifecycleErrorsDifferFromArgumentsAndResetRecovers`; the reentry checks of the Query adversarial campaign; `Unit_Tlv_DerSchema.WriteMissingRequiredMatchesReadPosition` |
+| Unit, integration, fuzz, capability-disabled builds, ABI checks and binding conformance use the same semantics | The GCC, Clang and MSVC Build, C API Fuzzing, Query hardening, Capability profiles, ABI Compatibility, Valgrind Memcheck and Static Analysis workflows (including `generate_diagnostic_vocabulary.py --check`), and the Go, Rust, Python and Lua Bindings and WebAssembly Build workflows, which run the shared Query conformance corpus |
+
+Keep protocol policy in builtins and generic error semantics in the common
+contract.

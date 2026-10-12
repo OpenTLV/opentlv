@@ -1,7 +1,7 @@
 # Follow-up: reuse indefinite element boundaries
 
 Status: proposed future work, recorded separately from the bounded decode
-optimization in [#538](https://github.com/marekcingel/OpenTLV/issues/538).
+optimization in [#538](https://github.com/OpenTLV/opentlv/issues/538).
 No boundary reuse or new traversal API is implemented by that change.
 
 ## Motivation and existing behavior

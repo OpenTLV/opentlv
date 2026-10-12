@@ -1,6 +1,6 @@
 # C++ Reader and Document performance
 
-This follow-up to [#440](https://github.com/marekcingel/OpenTLV/issues/440)
+This follow-up to [#440](https://github.com/OpenTLV/opentlv/issues/440)
 removes redundant Reader diagnostic work and separates Document handle
 invalidation from ordinary mutation. Wire behavior, diagnostic detail and Query
 mutation detection remain unchanged.

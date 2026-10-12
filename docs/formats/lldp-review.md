@@ -3,7 +3,7 @@
 <!-- markdownlint-disable-next-line MD033 -->
 <a id="lldp-requirements-and-formatlayout-review"></a>
 
-Architecture review for [#360](https://github.com/marekcingel/OpenTLV/issues/360).
+Architecture review for [#360](https://github.com/OpenTLV/opentlv/issues/360).
 [LLDP base support](lldp/README.md) now includes framing, definitions, structural
 validation and value codecs through the combined #362/#363 implementation. The review found a decoded-identifier restriction;
 the generic `TLV_TAG_BINDING_FORMAT` extension now allows canonical Type bytes
@@ -18,10 +18,10 @@ architecture review. This scope decision does not establish IEEE conformance.
 
 | Issue | Current coverage |
 | --- | --- |
-| [#360: requirements review](https://github.com/marekcingel/OpenTLV/issues/360) | Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure. |
-| [#361: packed Field Encoding primitive](https://github.com/marekcingel/OpenTLV/issues/361) | Implemented as `tlv_packed_field_t` in `tlv/field/packed.h` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
-| [#362: LLDP format and definitions](https://github.com/marekcingel/OpenTLV/issues/362) | Implemented with #363; see [combined coverage](lldp/README.md#coverage-of-362-and-363). Full normative verification remains separate. |
-| [#363: schemas, codecs and conformance](https://github.com/marekcingel/OpenTLV/issues/363) | Base structural validator, value codecs, reference tests and C/C++ examples implemented. See the [conformance boundary](lldp/conformance.md); full IEEE conformance is not established. |
+| [#360: requirements review](https://github.com/OpenTLV/opentlv/issues/360) | Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure. |
+| [#361: packed Field Encoding primitive](https://github.com/OpenTLV/opentlv/issues/361) | Implemented as `tlv_packed_field_t` in `tlv/field/packed.h` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
+| [#362: LLDP format and definitions](https://github.com/OpenTLV/opentlv/issues/362) | Implemented with #363; see [combined coverage](lldp/README.md#coverage-of-362-and-363). Full normative verification remains separate. |
+| [#363: schemas, codecs and conformance](https://github.com/OpenTLV/opentlv/issues/363) | Base structural validator, value codecs, reference tests and C/C++ examples implemented. See the [conformance boundary](lldp/conformance.md); full IEEE conformance is not established. |
 
 ## Evidence and scope
 

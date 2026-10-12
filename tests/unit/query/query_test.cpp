@@ -51,7 +51,7 @@ struct Match {
 struct Outcome {
     tlv_result_t       rc;
     std::vector<Match> matches;
-    size_t             error_offset = 0;
+    size_t             location_begin = 0;
 };
 
 struct Visit {
@@ -84,7 +84,7 @@ Outcome visit_buffer(const char* text, const std::vector<uint8_t>& input = data,
     tlv_reader_diagnostic_t diagnostic{};
     run.rc = tlv_query_visit_buffer(input.data(), input.size(), &format, &query, max_depth,
                                     max_elements, collect, &visit, &diagnostic);
-    run.error_offset = diagnostic.diagnostic.location.begin;
+    run.location_begin = diagnostic.diagnostic.location.begin;
     return run;
 }
 } // namespace
@@ -242,7 +242,7 @@ TEST(Unit_Tlv_Query, HonorsVisitorResults) {
     const Outcome failed =
         visit_buffer("6F/A5/50", data, is_constructed, 64, 1000, TLV_VISIT_ERROR);
     EXPECT_EQ(TLV_ERR_VISITOR, failed.rc);
-    EXPECT_EQ(8u, failed.error_offset);
+    EXPECT_EQ(8u, failed.location_begin);
     EXPECT_EQ(1u, failed.matches.size());
 }
 
@@ -256,7 +256,7 @@ TEST(Unit_Tlv_Query, PropagatesTraversalErrorsAndLimits) {
     std::vector<uint8_t> truncated(data.begin(), data.begin() + 14);
     const Outcome        run = visit_buffer("6F/A5/50", truncated);
     EXPECT_EQ(TLV_ERR_TRUNCATED, run.rc);
-    EXPECT_EQ(14u, run.error_offset);
+    EXPECT_EQ(14u, run.location_begin);
     EXPECT_EQ(1u, run.matches.size());
 }
 

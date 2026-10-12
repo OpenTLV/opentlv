@@ -361,7 +361,7 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
     const tlv_format_t*     reader;
     writer_context_t*       w;
     int                     ber, der;
-    tlv_reader_diagnostic_t error_offset = {0};
+    tlv_reader_diagnostic_t failure = {0};
     size_t                  padding_offset = size;
     /* Storage for select_format()'s "fixed" case; must outlive its use below. */
     tlv_fixed_format_t fixed_config;
@@ -420,25 +420,25 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
                     if (result->code == TLV_OK)
                         padding_offset = offset;
                     else {
-                        error_offset = relative_error;
-                        tlv_location_translate(&error_offset.diagnostic.location, offset);
+                        failure = relative_error;
+                        tlv_location_translate(&failure.diagnostic.location, offset);
                     }
                     break;
                 }
                 if (count++ == WASM_MAX_ELEMENTS) {
                     result->code = TLV_ERR_LIMIT;
-                    tlv_diagnostic_set_location(&error_offset.diagnostic, TLV_LOCATION_INPUT,
+                    tlv_diagnostic_set_location(&failure.diagnostic, TLV_LOCATION_INPUT,
                                                 TLV_LOCATION_POINT, offset, offset);
                     break;
                 }
                 result->code = tlv_reader_next_diag(&ad_reader, &element, &diagnostic);
                 if (result->code != TLV_OK) {
-                    error_offset = diagnostic;
+                    failure = diagnostic;
                     break;
                 }
                 if (emit_element(&element, 0, offset, w) != TLV_VISIT_CONTINUE) {
                     result->code = TLV_ERR_VISITOR;
-                    tlv_diagnostic_set_location(&error_offset.diagnostic, TLV_LOCATION_INPUT,
+                    tlv_diagnostic_set_location(&failure.diagnostic, TLV_LOCATION_INPUT,
                                                 TLV_LOCATION_POINT, offset, offset);
                 }
             }
@@ -446,8 +446,7 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
 #endif
 #if OPENTLV_FORMAT_DER
             if (der) {
-            result->code =
-                tlv_der_visit(data, size, NULL, emit_element, w, &error_offset.diagnostic);
+            result->code = tlv_der_visit(data, size, NULL, emit_element, w, &failure.diagnostic);
         } else
 #endif
         {
@@ -457,11 +456,11 @@ opentlv_wasm_result_t* opentlv_wasm_parse(const uint8_t* data, size_t size, cons
                 tlv_tree_reader_init(&cursor, data, size, reader, frames, WASM_TREE_CAPACITY,
                                      WASM_TREE_CAPACITY, WASM_MAX_ELEMENTS);
             if (result->code == TLV_OK)
-                result->code = tlv_tree_reader_visit(&cursor, emit_element, w, &error_offset);
+                result->code = tlv_tree_reader_visit(&cursor, emit_element, w, &failure);
         }
     }
     if (w->out.failed) result->code = TLV_ERR_OUT_OF_MEMORY;
-    result->location = error_offset.diagnostic.location;
+    result->location = failure.diagnostic.location;
 
     close_elements(w, 0);
     builder_text(&w->out, "]");

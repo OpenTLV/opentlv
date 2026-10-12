@@ -298,12 +298,12 @@ TEST(Unit_Tlv_BluetoothLtvConformance, ZeroLengthEndsParsingLikePadding) {
 
 TEST(Unit_Tlv_BluetoothLtvConformance, VisitorReportsElementOffsets) {
     VisitLog log;
-    size_t   error_offset = 99;
+    size_t   cursor_offset = 99;
     ASSERT_EQ(TLV_OK,
               visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
-                               TLV_TREE_DEFAULT_DEPTH, 100, log_visit, &log, &error_offset));
+                               TLV_TREE_DEFAULT_DEPTH, 100, log_visit, &log, &cursor_offset));
     EXPECT_EQ(std::vector<size_t>({0, 3, 9, 12}), log.offsets);
-    EXPECT_EQ(99u, error_offset);
+    EXPECT_EQ(99u, cursor_offset);
 
     VisitLog stopped;
     stopped.stop_after = 2;
@@ -317,25 +317,25 @@ TEST(Unit_Tlv_BluetoothLtvConformance, VisitorReportsOffsetOfMalformedElement) {
     // Element offsets 0, 3, then an element at 6 that overruns the buffer.
     const Bytes data = {0x02, 0x01, 0x06, 0x02, 0x0A, 0x04, 0x09, 0x09, 'H'};
     VisitLog    log;
-    size_t      error_offset = 0;
+    size_t      cursor_offset = 0;
     EXPECT_EQ(TLV_ERR_TRUNCATED,
               visit_tree_input(data.data(), data.size(), &reader_format, TLV_TREE_DEFAULT_DEPTH,
-                               100, log_visit, &log, &error_offset));
-    EXPECT_EQ(6u, error_offset);
+                               100, log_visit, &log, &cursor_offset));
+    EXPECT_EQ(6u, cursor_offset);
     EXPECT_EQ(2u, log.count);
 
     const Bytes zero = {0x02, 0x01, 0x06, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
               visit_tree_input(zero.data(), zero.size(), &reader_format, TLV_TREE_DEFAULT_DEPTH,
-                               100, nullptr, nullptr, &error_offset));
-    EXPECT_EQ(3u, error_offset);
+                               100, nullptr, nullptr, &cursor_offset));
+    EXPECT_EQ(3u, cursor_offset);
 }
 
 TEST(Unit_Tlv_BluetoothLtvConformance, VisitorEnforcesElementLimit) {
-    size_t error_offset = 0;
+    size_t cursor_offset = 0;
     EXPECT_EQ(TLV_ERR_LIMIT,
               visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
-                               TLV_TREE_DEFAULT_DEPTH, 3, nullptr, nullptr, &error_offset));
+                               TLV_TREE_DEFAULT_DEPTH, 3, nullptr, nullptr, &cursor_offset));
     EXPECT_EQ(TLV_OK,
               visit_tree_input(advertising_data.data(), advertising_data.size(), &reader_format,
                                TLV_TREE_DEFAULT_DEPTH, 4, nullptr, nullptr, nullptr));

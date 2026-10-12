@@ -1,14 +1,10 @@
 # Error codes
 
-This page describes the **currently implemented API**. The accepted
-[failure model](../concepts/error-model.md) (#551) defines a replacement taxonomy,
-typed diagnostic layering, locations and propagation rules. Migration proceeds
-through breaking API and ABI changes: lifecycle (#552),
-Schema classification (#553), resource/callback classification (#554), locations
-(#555), shared Codec results and propagation (#556), diagnostic names and
-Document lookup failure channels (#557), the `END`, `TRUNCATED` and
-`SYNTAX` results (#578), the Query kind `ARGUMENT` (#587), Document Query diagnostics (#588) and the remaining core producers (#589). The tables below describe the current
-codes, not target names still awaiting implementation.
+This page describes the public results, diagnostics and facade projections of
+the [failure model](../concepts/error-model.md) (#551). That page defines the
+contract and why each failure has its class; this page names the values that
+implement it. Epic #547 completed the migration through breaking API and ABI
+changes, with no aliases for removed names.
 
 Core and Codec operations return the shared `tlv_result_t` from `tlv/result.h`. Zero is success. `TLV_END` (normal end
 of iteration) and `TLV_NEED_MORE_DATA` (resumable non-final input) are control
@@ -66,7 +62,7 @@ Pre-initialization checks leave the diagnostic untouched. In particular:
 ### Query result and kind pairs
 
 Every Query failure pairs its result with one kind of the
-[failure model](../concepts/error-model.md#every-current-query-error-kind) (#587):
+[failure model](../concepts/error-model.md#every-query-error-kind) (#587):
 
 | Kind | Results |
 | --- | --- |
@@ -214,7 +210,7 @@ stable ABI identifiers and may change to keep categories together.
 | `TLV_ERR_LIMIT` | 15 | A configured depth, size or element-count limit was exceeded. | The limits passed to the Tree Reader or validation function, `TLV_BER_MAX_DEPTH` (64). Limits are inclusive and zero is a real limit. |
 | `TLV_ERR_OVERFLOW` | 16 | An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows. | The value against the destination width in the same integer conversion functions, and Document allocation-size arithmetic. |
 | `TLV_ERR_NATIVE_SIZE` | 17 | A logical size exceeds the native address space. | Checked conversion to `size_t`; the logical quantity itself remains valid. |
-| `TLV_ERR_OUT_OF_MEMORY` | 18 | An owning operation could not obtain storage. | Document allocation. An allocation size that is not representable is `OVERFLOW`, and caller-supplied workspace exhaustion uses `BUFFER_TOO_SHORT`. |
+| `TLV_ERR_OUT_OF_MEMORY` | 18 | An allocation by an owning operation failed. | Document and Document Query allocation, where Query kind `STORAGE` accompanies it, and the allocations bindings make for owned results and workspaces. An allocation size that is not representable is `OVERFLOW`, and caller-supplied workspace exhaustion uses `BUFFER_TOO_SHORT`. |
 | `TLV_ERR_UNSUPPORTED` | 19 | A type, Query capability or program-image version is unsupported. | Strict ASN.1 validation rejects unchecked types; see [DER validation](../standards/der/README.md#strict-universal-value-validation). Query also uses this code outside ASN.1; Schema definition checks use it for valid graphs exceeding fixed checking capacity. |
 | `TLV_ERR_VISITOR` | 20 | A visitor callback requested an error stop. | Your visitor returned `TLV_VISIT_ERROR`. Unknown visitor results produce `CALLBACK`. |
 | `TLV_ERR_CALLBACK` | 21 | A callback violates its declared contract. | Invalid discriminator or success payload; correct the provider. Legitimate provider failures keep their original result. |
@@ -436,7 +432,7 @@ results remain inspectable.
 | C++ | `errc`, `query_issue`, `reader_phase`, `writer_phase`, `schema_issue`, `schema_definition_kind`, `codec_phase`, `codec_cause`, `codec_violation`, `codec_reason`, `query_cause`; `message(category)` calls C. |
 | Rust | `Error` and typed `QueryErrorKind`, `ReaderOperation`, `WriterOperation`, `SchemaIssue`, `SchemaDefinitionKind`, `CodecOperation`, `CodecCause`, `CodecViolation`, `CodecReason`, `QueryCause`, `SchemaCause`, `Severity`; category `name()` calls C. Categories are `#[non_exhaustive]`; `Unrecognized(RawCategory)` retains unrecognized values. |
 | Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C; the native module's `result_string()` returns the result text. Reader/Writer `operation` remains a canonical string. |
-| Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaError.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
+| Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaDetail.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
 | Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
 | JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. Common evidence appears once in `query.diagnostic`. |
 

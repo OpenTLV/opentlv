@@ -130,9 +130,9 @@ TEST(Integration_Tlv_DerSchema, CompositeStructureRoundTrips) {
 
     tlv_element_t           element{};
     size_t                  consumed = 0;
-    tlv_schema_diagnostic_t error_offset{};
+    tlv_schema_diagnostic_t failure{};
     ASSERT_EQ(TLV_OK, tlv_der_schema_read(output.data(), output.size(), &root, nullptr, &element,
-                                          &consumed, &error_offset));
+                                          &consumed, &failure));
     EXPECT_EQ(output.size(), consumed);
 
     /* Schema output must also be plain, generic, strict-canonical DER. */

@@ -16,7 +16,10 @@ PyObject* opentlv_python_length_schema(PyObject* module, PyObject* args) {
         return NULL;
     }
     size_t count = (size_t)PyTuple_Size(rules);
-    if (count > SIZE_MAX / sizeof(tlv_schema_entry_t)) return PyErr_NoMemory();
+    if (count > SIZE_MAX / sizeof(tlv_schema_entry_t)) {
+        opentlv_python_raise_result(TLV_ERR_OVERFLOW);
+        return NULL;
+    }
     tlv_schema_entry_t* entries = count ? calloc(count, sizeof(*entries)) : NULL;
     if (count && !entries) return PyErr_NoMemory();
     PyObject* result = NULL;

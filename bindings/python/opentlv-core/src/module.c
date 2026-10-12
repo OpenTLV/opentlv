@@ -484,7 +484,7 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
         return NULL;
     }
     if ((size_t)count > SIZE_MAX / sizeof(tlv_structure_rule_t)) {
-        PyErr_NoMemory();
+        raise_code_only(TLV_ERR_OVERFLOW);
         return NULL;
     }
 
@@ -536,7 +536,8 @@ static tlv_structure_schema_t* build_structure_schema(PyObject* schema_obj) {
     size_t group_count = (size_t)PyTuple_Size(group_objects);
     if (group_count > SIZE_MAX / sizeof(tlv_structure_group_t)) {
         free_structure_schema(schema);
-        return (tlv_structure_schema_t*)PyErr_NoMemory();
+        raise_code_only(TLV_ERR_OVERFLOW);
+        return NULL;
     }
     tlv_structure_group_t* groups = group_count ? calloc(group_count, sizeof(*groups)) : NULL;
     if (group_count && !groups) {
@@ -809,7 +810,10 @@ static PyObject* _opentlv_definition_find(PyObject* module, PyObject* args) {
         return NULL;
     }
     size_t count = (size_t)PyTuple_Size(tags);
-    if (count > SIZE_MAX / sizeof(tlv_definition_t)) return PyErr_NoMemory();
+    if (count > SIZE_MAX / sizeof(tlv_definition_t)) {
+        raise_code_only(TLV_ERR_OVERFLOW);
+        return NULL;
+    }
     tlv_definition_t* entries = count ? calloc(count, sizeof(*entries)) : NULL;
     if (count && !entries) return PyErr_NoMemory();
     for (size_t i = 0; i < count; ++i) {
@@ -1103,12 +1107,12 @@ static PyObject* _opentlv_document_parse(PyObject* module, PyObject* args) {
     }
     options.retain_source_locations = retain_source_locations;
     tlv_document_t*         document = NULL;
-    tlv_reader_diagnostic_t error_offset = {0};
+    tlv_reader_diagnostic_t diagnostic = {0};
     tlv_result_t code = tlv_document_parse((const uint8_t*)buffer.buf, (size_t)buffer.len, &options,
-                                           &document, &error_offset);
+                                           &document, &diagnostic);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        raise_reader_error(code, &error_offset);
+        raise_reader_error(code, &diagnostic);
         Py_DECREF(owner);
         return NULL;
     }
@@ -1908,6 +1912,10 @@ static PyObject* _opentlv_element_encoded_size_fixed(PyObject* module, PyObject*
 
 void opentlv_python_raise_reader(tlv_result_t code, const tlv_reader_diagnostic_t* diagnostic) {
     raise_reader_error(code, diagnostic);
+}
+
+void opentlv_python_raise_result(tlv_result_t code) {
+    raise_code_only(code);
 }
 
 void opentlv_python_raise_writer(tlv_result_t code, const tlv_writer_diagnostic_t* diagnostic) {

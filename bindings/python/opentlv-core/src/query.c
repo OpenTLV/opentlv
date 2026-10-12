@@ -265,7 +265,7 @@ PyObject* opentlv_python_query_definition_resolve(PyObject* module, PyObject* ar
     if (count < 0 || !scope || !spelling) return NULL;
     if ((size_t)count > SIZE_MAX / sizeof(tlv_query_definition_scope_t) ||
         (size_t)count > SIZE_MAX / sizeof(tlv_definition_registry_t))
-        return PyErr_NoMemory();
+        return failure(TLV_ERR_OVERFLOW, NULL);
     tlv_query_definition_scope_t* scopes = calloc(count ? (size_t)count : 1, sizeof *scopes);
     tlv_definition_registry_t* registries = calloc(count ? (size_t)count : 1, sizeof *registries);
     if (!scopes || !registries) {
@@ -283,7 +283,7 @@ PyObject* opentlv_python_query_definition_resolve(PyObject* module, PyObject* ar
         Py_ssize_t length = PyTuple_Size(definitions);
         if (!scopes[i].namespace_name || length < 0) goto done;
         if ((size_t)length > SIZE_MAX / sizeof(tlv_definition_t)) {
-            PyErr_NoMemory();
+            failure(TLV_ERR_OVERFLOW, NULL);
             goto done;
         }
         tlv_definition_t* entries = calloc(length ? (size_t)length : 1, sizeof *entries);
@@ -944,7 +944,8 @@ PyObject* opentlv_python_query_schema(PyObject* module, PyObject* args) {
     if (depth < 0 || nodes < 0 || work < 0 || contexts < 0 || value_capacity < -1)
         return failure(TLV_ERR_INVALID_ARG, NULL);
     Py_ssize_t count = PyTuple_Size(records);
-    if ((size_t)count > SIZE_MAX / sizeof(tlv_schema_query_rule_t)) return PyErr_NoMemory();
+    if ((size_t)count > SIZE_MAX / sizeof(tlv_schema_query_rule_t))
+        return failure(TLV_ERR_OVERFLOW, NULL);
     tlv_schema_query_rule_t* rules = count ? calloc((size_t)count, sizeof *rules) : NULL;
     if (count && !rules) return PyErr_NoMemory();
     for (Py_ssize_t i = 0; i < count; ++i) {

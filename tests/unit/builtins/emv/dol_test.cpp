@@ -15,11 +15,10 @@ tlv_result_t CollectVisitor(const tlv_dol_entry_t* entry, size_t index, void* co
 }
 
 tlv_result_t Read(const std::vector<uint8_t>& data, std::vector<tlv_dol_entry_t>* entries,
-                  tlv_diagnostic_t*       error_offset = nullptr,
-                  const tlv_dol_limits_t* limits = nullptr) {
+                  tlv_diagnostic_t* failure = nullptr, const tlv_dol_limits_t* limits = nullptr) {
     tlv_diagnostic_t local_offset{};
     return tlv_dol_read(data.data(), data.size(), limits, CollectVisitor, entries,
-                        error_offset ? error_offset : &local_offset);
+                        failure ? failure : &local_offset);
 }
 
 struct ScriptValue {
@@ -50,14 +49,14 @@ tlv_result_t ScriptResolve(const tlv_dol_entry_t* entry, size_t index, size_t sk
 }
 
 tlv_result_t Write(const std::vector<uint8_t>& dol, const std::vector<ScriptValue>& script,
-                   std::vector<uint8_t>* output, tlv_diagnostic_t* error_offset = nullptr,
+                   std::vector<uint8_t>* output, tlv_diagnostic_t* failure = nullptr,
                    const tlv_dol_limits_t* limits = nullptr) {
     tlv_diagnostic_t local_offset{};
     size_t           written = 0;
     output->assign(256, 0xCC);
     tlv_result_t rc = tlv_dol_write(dol.data(), dol.size(), output->data(), output->size(), limits,
                                     ScriptResolve, const_cast<std::vector<ScriptValue>*>(&script),
-                                    &written, error_offset ? error_offset : &local_offset);
+                                    &written, failure ? failure : &local_offset);
     output->resize(rc == TLV_OK ? written : output->size());
     return rc;
 }

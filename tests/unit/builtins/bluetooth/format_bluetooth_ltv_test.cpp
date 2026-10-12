@@ -155,13 +155,13 @@ TEST(Unit_Tlv_BluetoothLtv, SequentialAndTreeVisitorsWork) {
               visit_input(advertising, sizeof(advertising), &reader_format, count_element, &count));
     EXPECT_EQ(3u, count);
 
-    size_t error_offset = 99;
+    size_t cursor_offset = 99;
     EXPECT_EQ(TLV_OK, visit_tree_input(advertising, sizeof(advertising), &reader_format, 8, 100,
-                                       nullptr, nullptr, &error_offset));
+                                       nullptr, nullptr, &cursor_offset));
     const uint8_t bad[] = {0x02, 0x01, 0x06, 0x00};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, visit_tree_input(bad, sizeof(bad), &reader_format, 8, 100,
-                                                       nullptr, nullptr, &error_offset));
-    EXPECT_EQ(3u, error_offset);
+                                                       nullptr, nullptr, &cursor_offset));
+    EXPECT_EQ(3u, cursor_offset);
 }
 
 TEST(Unit_Tlv_BluetoothLtv, CapabilitiesUseCanonicalContract) {

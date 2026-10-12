@@ -1,7 +1,7 @@
 # Query hardening and release checklist
 
 Query F1–F5 are delivery phases within the Execution Foundation and all are 1.0
-prerequisites. [Epic #518](https://github.com/marekcingel/OpenTLV/issues/518)
+prerequisites. [Epic #518](https://github.com/OpenTLV/opentlv/issues/518)
 replaces the former 44 child issues with #519–#523. Completion requires equivalent
 phase evidence, rather than closed issue states alone.
 [F6 / #536](query-adversarial.md) adds the final adversarial verification layer;
