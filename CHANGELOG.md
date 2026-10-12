@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix the C++ consumer-boundary CI check by asserting the input location of a Query Reader failure in an existing test instead of a new test that borrowed another native Format. (#590)
 - Python `Query()` and `Document.find_path()` and Lua path lookups raise rejected path text as a Query syntax or limit error with its EXPRESSION location and no Reader detail, instead of a Reader error that claimed operation `tag`; JS/WASM V1 paths build the same Query diagnostic. (#590)
 - The Schema number composition reports the caller's `ENCODE` operation again when its Schema length check rejects a width after successful sizing; sizing no longer writes the diagnostic on success and repeats a rejected conversion only to collect its detail. (#589)
 - A located UTF-8 rejection covers only the maximal subpart of the ill-formed sequence (Unicode Table 3-7), so the byte that ends a truncated sequence is no longer included and an overlong or surrogate prefix stops at its first invalid byte. (#589)

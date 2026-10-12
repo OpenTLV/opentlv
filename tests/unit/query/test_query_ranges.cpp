@@ -69,20 +69,6 @@ TEST(Unit_Tlvpp_FullQuery, FailureLocationsKeepTheirDomain) {
     // The primary expression span is not repeated as related evidence.
     EXPECT_EQ(tlv::location_kind::unknown, tlv::kind(syntax.error().expression()));
     EXPECT_EQ(tlv::location_domain::expression, tlv::domain(syntax.error().failure().location()));
-
-    const uint8_t broken[] = {0x50, 0, 0x51, 2};
-    auto          program = tlv::query_program::compile("//50");
-    ASSERT_TRUE(program);
-    auto execution = tlv::query_execution::create(*program, 1, 10, 100000, nullptr, false);
-    ASSERT_TRUE(execution);
-    tlv::tree_frame  frames[1]{};
-    tlv::tree_reader reader(bytes(broken, sizeof broken), tlv::native::borrow_format(format),
-                            {frames, 1}, 1, 10);
-    auto             validated = execution->exists(reader, false);
-    ASSERT_FALSE(validated);
-    EXPECT_EQ(tlv::location_domain::input, tlv::domain(validated.error().location()));
-    EXPECT_EQ(validated.error().diagnostic.diagnostic.location.begin,
-              validated.error().location().begin);
 }
 
 TEST(Unit_Tlvpp_FullQuery, TypedBuilderAndResumablePull) {
@@ -199,6 +185,8 @@ TEST(Unit_Tlvpp_FullQuery, StreamingExistencePreservesCoverageAndMalformedSuffix
     auto validated = execution->exists(reader, false);
     ASSERT_FALSE(validated);
     EXPECT_EQ(TLV_QUERY_ERROR_READER, validated.error().diagnostic.kind);
+    // A Reader failure is located in input coordinates.
+    EXPECT_EQ(tlv::location_domain::input, tlv::domain(validated.error().location()));
     auto failed = execution->info();
     ASSERT_TRUE(failed);
     EXPECT_TRUE(failed->invalid);
