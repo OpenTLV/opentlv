@@ -92,13 +92,15 @@ Data Fields</h2></td></tr>
 <tr class="separator:a484acb3e0fda14d090d8a5dee2099984"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c24b2957baedbf8ba5809d02ed3c824" id="r_a4c24b2957baedbf8ba5809d02ed3c824"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="reader_2diagnostic_8h.html#a367e97df35b6ec522746678b01a02236">tlv_reader_detail_t</a>&#160;&#160;&#160;<a class="el" href="structtlv__schema__diagnostic.html#a4667b0c9db2f83aac0c143d880a4c18b">reader</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:a4c24b2957baedbf8ba5809d02ed3c824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeaf0c01dc23463c052d131d3ed9ddd94" id="r_aeaf0c01dc23463c052d131d3ed9ddd94"><td class="memItemLeft" >&#160;&#160;&#160;<a class="el" href="codec_2diagnostic_8h.html#aa64e28234414f87b5689c490ee825229">tlv_codec_detail_t</a>&#160;&#160;&#160;<a class="el" href="structtlv__schema__diagnostic.html#a2c70b97135eff1ea4e8992d9d7a44ae6">codec</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:aeaf0c01dc23463c052d131d3ed9ddd94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8dabda44f1f34932cb921031a7a939fc" id="r_a8dabda44f1f34932cb921031a7a939fc"><td class="memItemLeft" valign="top">}&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc">detail</a>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="memdesc:a8dabda44f1f34932cb921031a7a939fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Discriminated typed detail; only the member selected by cause is active.  <br /></td></tr>
 <tr class="separator:a8dabda44f1f34932cb921031a7a939fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Common failure diagnostic paired with one discriminated typed detail. </p>
-<p>Shared by validation and definition checks. The common base carries the code, severity, primary location, expected text and enclosing path. <code>cause</code> selects the active <code>detail</code> member: the Schema finding that explains the violation, or the original Reader detail when the wire input itself is malformed. The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references.</p>
+<p>Shared by validation and definition checks. The common base carries the code, severity, primary location, expected text and enclosing path. <code>cause</code> selects the active <code>detail</code> member: the Schema finding that explains the violation, the original Reader detail when the wire input itself is malformed, or the Codec detail when a builtin rejects a Value it interprets, such as a non-canonical DER INTEGER. The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references.</p>
 <dl class="section note"><dt>Note</dt><dd>Report entries are always Schema findings with cause <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812">TLV_SCHEMA_CAUSE_SCHEMA</a>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
 </div><h2 class="groupheader">Field Documentation</h2>
@@ -114,6 +116,21 @@ Data Fields</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <p>Active member of detail. </p>
+
+</div>
+</div>
+<a id="a2c70b97135eff1ea4e8992d9d7a44ae6" name="a2c70b97135eff1ea4e8992d9d7a44ae6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c70b97135eff1ea4e8992d9d7a44ae6">&#9670;&#160;</a></span>codec</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="codec_2diagnostic_8h.html#aa64e28234414f87b5689c490ee825229">tlv_codec_detail_t</a> tlv_schema_diagnostic::codec</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Value conversion detail, including its typed reason; its location is in <code>diagnostic</code>. </p>
 
 </div>
 </div>

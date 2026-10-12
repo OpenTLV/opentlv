@@ -4006,7 +4006,12 @@ definitions return <code>TLV_ERR_INVALID_SCHEMA</code> before input or callbacks
 processed and have no byte location. Missing required input or output returns
 <code>TLV_ERR_SCHEMA</code> with <code>kind = TLV_SCHEMA_ISSUE_MISSING</code>; <code>anchor</code> distinguishes
 scope ends from insertion points. Valid graphs exceeding fixed checking capacity
-return <code>TLV_ERR_UNSUPPORTED</code>. The broader result migration is separate work.</p>
+return <code>TLV_ERR_UNSUPPORTED</code>. A leaf Value that fails canonical decoding, such
+as a non-minimal INTEGER, keeps the conversion's result with cause
+<code>TLV_SCHEMA_CAUSE_CODEC</code>: <code>detail.codec</code> holds its operation and typed reason,
+and the primary location is the offending octet in the input, or in the
+would-be output when writing. A valid leaf SIZE or value constraint rejecting
+data returns <code>TLV_ERR_SCHEMA</code> with <code>kind = TLV_SCHEMA_ISSUE_VALUE</code>.</p>
 <p><code>tlv_der_schema_read</code> rejects a SET whose components are not encoded in
 ascending tag order and a SET OF whose elements are not encoded in ascending
 order of their complete encodings (both violations return

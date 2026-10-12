@@ -168,6 +168,9 @@ Functions</h2></td></tr>
 <tr class="memitem:ga792b53fe8aeb4040b3b44cf04422c6b9" id="r_ga792b53fe8aeb4040b3b44cf04422c6b9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga792b53fe8aeb4040b3b44cf04422c6b9">tlv_location_translate</a> (<a class="el" href="group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> *location, size_t origin)</td></tr>
 <tr class="memdesc:ga792b53fe8aeb4040b3b44cf04422c6b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translate a known location by a byte origin using checked arithmetic.  <br /></td></tr>
 <tr class="separator:ga792b53fe8aeb4040b3b44cf04422c6b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga8e431dd5f1410e4ac775826f10c75bc0" id="r_ga8e431dd5f1410e4ac775826f10c75bc0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga8e431dd5f1410e4ac775826f10c75bc0">tlv_location_resolve</a> (<a class="el" href="group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> *location, size_t origin, <a class="el" href="group__diagnostics.html#gad60029a1c5134eccdd000c315937e0ad">tlv_location_domain_t</a> domain)</td></tr>
+<tr class="memdesc:ga8e431dd5f1410e4ac775826f10c75bc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Place Value-local evidence in the coordinate space that contains the Value.  <br /></td></tr>
+<tr class="separator:ga8e431dd5f1410e4ac775826f10c75bc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1d5752398d875a86e87c425443b2b4fd" id="r_ga1d5752398d875a86e87c425443b2b4fd"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__diagnostics.html#ga1d5752398d875a86e87c425443b2b4fd">tlv_location_domain_string</a> (<a class="el" href="group__diagnostics.html#gad60029a1c5134eccdd000c315937e0ad">tlv_location_domain_t</a> domain)</td></tr>
 <tr class="memdesc:ga1d5752398d875a86e87c425443b2b4fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return a static domain name, or "unknown" for an unrecognized value.  <br /></td></tr>
 <tr class="separator:ga1d5752398d875a86e87c425443b2b4fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -392,7 +395,7 @@ Functions</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="gga4e3daddfc10ca6a60e0d92a80c8ed61ca237545c2a08c6c85872f907cc8ac0e61" name="gga4e3daddfc10ca6a60e0d92a80c8ed61ca237545c2a08c6c85872f907cc8ac0e61"></a>TLV_LOCATION_DEFINITION&#160;</td><td class="fielddoc"><p>Schema/model definition text bytes. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="gga4e3daddfc10ca6a60e0d92a80c8ed61ca4c17edabdba774419c566394814ccb1a" name="gga4e3daddfc10ca6a60e0d92a80c8ed61ca4c17edabdba774419c566394814ccb1a"></a>TLV_LOCATION_VALUE&#160;</td><td class="fielddoc"><p>Value-local bytes whose enclosing origin is unknown. </p>
+<tr><td class="fieldname"><a id="gga4e3daddfc10ca6a60e0d92a80c8ed61ca4c17edabdba774419c566394814ccb1a" name="gga4e3daddfc10ca6a60e0d92a80c8ed61ca4c17edabdba774419c566394814ccb1a"></a>TLV_LOCATION_VALUE&#160;</td><td class="fielddoc"><p>Bytes of one Value, counted from its first byte, whose enclosing origin is unknown to the producer; see <a class="el" href="group__diagnostics.html#ga8e431dd5f1410e4ac775826f10c75bc0" title="Place Value-local evidence in the coordinate space that contains the Value.">tlv_location_resolve()</a>. </p>
 </td></tr>
 </table>
 
@@ -863,6 +866,51 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Immutable NUL-terminated name. </dd></dl>
+
+</div>
+</div>
+<a id="ga8e431dd5f1410e4ac775826f10c75bc0" name="ga8e431dd5f1410e4ac775826f10c75bc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ga8e431dd5f1410e4ac775826f10c75bc0">&#9670;&#160;</a></span>tlv_location_resolve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv_location_resolve </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#gae2e0e7ca068fc25af03d3fc94f347ca0">tlv_location_t</a> *&#160;</td>
+          <td class="paramname"><em>location</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>origin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#gad60029a1c5134eccdd000c315937e0ad">tlv_location_domain_t</a>&#160;</td>
+          <td class="paramname"><em>domain</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Place Value-local evidence in the coordinate space that contains the Value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in,out]</td><td class="paramname">location</td><td>Optional location. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">origin</td><td>Offset of the Value's first byte in <code>domain</code>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">domain</td><td>Enclosing coordinate space, such as <a class="el" href="group__diagnostics.html#gga4e3daddfc10ca6a60e0d92a80c8ed61ca0f5636ccf02e33c0417b18deb10db2c9">TLV_LOCATION_INPUT</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>Only a known <a class="el" href="group__diagnostics.html#gga4e3daddfc10ca6a60e0d92a80c8ed61ca4c17edabdba774419c566394814ccb1a">TLV_LOCATION_VALUE</a> location with a valid <code>domain</code> changes: it is translated by <code>origin</code> and takes <code>domain</code>. Other locations, including unknown ones, and an unknown or invalid <code>domain</code> leave it unchanged. Overflow makes the location unknown; the operation's result is never affected. </dd></dl>
 
 </div>
 </div>

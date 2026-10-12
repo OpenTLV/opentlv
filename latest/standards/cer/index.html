@@ -3937,8 +3937,12 @@ conventions as DER: it identifies the absolute start of the failing tag, length,
 or value field, relative to the supplied input (or would-be encoded output for
 writes). A missing EOC is reported at the position where it was expected (the
 enclosing element's length field); a truncated or unexpected EOC is reported at
-its own position. A segment-level structural or content defect is reported at
-the start of the offending segment. Value-size limit failures point to the
+its own position. Segmentation failures use the anchor their rule requires: a
+constructed string without segments reports a scope end at its EOC,
+unjustified segmentation (content that fits one segment) a span over the whole
+constructed element, a malformed or misplaced segment a span over that
+segment's encoding, and a segment content defect a span over that segment's
+Value. Value-size limit failures point to the
 length field; depth/count limits point to the first disallowed element.
 Argument, configuration, total-size and destination-capacity errors use offset
 zero.</p>

@@ -3832,10 +3832,20 @@ shared <code>tlv_schema_detail_t</code>. The reason explains an invalid Value or
 without replacing the result: <code>LENGTH</code>, <code>DIGIT</code>, <code>TEXT</code>, <code>RANGE</code>, <code>CANONICAL</code>,
 <code>SYNTAX</code> or <code>OBJECT</code> (the application object does not match the
 representation); argument, capacity, delegated and callback failures use
-<code>NONE</code>. Custom codecs publish one with <code>tlv_codec_diagnostic_reason()</code>.
-Unknown locations stay unknown. Query keeps a known conversion location primary
-and stores the expression span as related <code>expression</code> evidence; without one,
-the expression span stays primary. Conversion detail is <code>detail.codec</code> under
+<code>NONE</code>. Custom codecs publish one with <code>tlv_codec_diagnostic_reason()</code>, or with
+<code>tlv_codec_diagnostic_reason_at()</code> when they know the offending Value bytes.
+Those use the VALUE location domain, counted from the first Value byte the codec
+received, since a codec does not know where its Value sits in the input. Builtin
+codecs locate invalid digits, characters and UTF-8 sequences, redundant INTEGER
+octets, non-minimal OID arcs, out-of-range calendar fields and incomplete
+trailing list units; whole-length and encode-side object rejections stay
+unlocated. Unknown locations stay unknown. Query keeps a known conversion
+location primary and stores the expression span as related <code>expression</code>
+evidence; without one, the expression span stays primary. A VALUE or INPUT
+conversion location counts from the converted bytes: Query moves it to INPUT
+with <code>tlv_location_resolve()</code> when those bytes lie in the context node's Value
+and its retained Source records where that Value starts, and keeps VALUE
+otherwise, as for Document Query. Conversion detail is <code>detail.codec</code> under
 cause <code>TLV_QUERY_CAUSE_CODEC</code>. C++ uses <code>codec_failure</code>, whose status is the shared <code>errc</code>.</p>
 <h2 id="c11-typed-fields-and-value-codecs">C++11 typed fields and Value codecs<a class="headerlink" href="#c11-typed-fields-and-value-codecs" title="Permanent link">&para;</a></h2>
 <p>Include <code>&lt;tlv++/codec/typed.hpp&gt;</code> (also included by <code>&lt;tlv++/tlv.hpp&gt;</code>).
@@ -3926,7 +3936,10 @@ object mapper. <code>tlv_structure_encode</code> supports a NULL/0 size query an
 produced bytes on an actual write. A query relies on the callback to validate
 the object without generating bytes. Validation preserves the actual Reader,
 Schema or resource result and its cause; output validation locations use OUTPUT
-coordinates. As with value codecs, destination contents
+coordinates. A decode callback that converts a field with a Value codec knows
+where that field's Value starts in <code>data</code>, so it can move the codec's VALUE
+evidence into its own coordinates with
+<code>tlv_location_resolve(&amp;diagnostic-&gt;diagnostic.location, offset, TLV_LOCATION_INPUT)</code>. As with value codecs, destination contents
 on failure are unspecified and failed encoding reports zero written bytes.
 Object storage and encoded storage belong to the caller.</p>
 <p>C++ <code>tlv::decode_structure&lt;T&gt;</code> and <code>tlv::encode_structure</code> in

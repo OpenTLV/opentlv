@@ -97,6 +97,9 @@ Files</h2></td></tr>
 <tr class="memitem:constraint_8h" id="r_constraint_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="constraint_8h.html">constraint.h</a></td></tr>
 <tr class="memdesc:constraint_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic value constraints checked against a decoded value. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:detail_8h" id="r_detail_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="detail_8h.html">detail.h</a></td></tr>
+<tr class="memdesc:detail_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema finding detail, shared by Schema, Codec and Query diagnostics. <br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:schema_2number_8h" id="r_schema_2number_8h"><td class="memItemLeft" align="right" valign="top">file &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="schema_2number_8h.html">number.h</a></td></tr>
 <tr class="memdesc:schema_2number_8h"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional composition of field Schema and numeric Value conversion. <br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -130,6 +133,12 @@ Data Structures</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__value__constraint.html">tlv_value_constraint</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fixed set of legal values.  <a href="structtlv__value__constraint.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__definition__location.html">tlv_schema_definition_location</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition evidence, independent of wire/text byte locations.  <a href="structtlv__schema__definition__location.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-specific failure evidence without common diagnostic metadata.  <a href="structtlv__schema__detail.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length rule for one tag in a <a class="el" href="structtlv__schema__t.html" title="Borrowed table of per-tag length rules.">tlv_schema_t</a>.  <a href="structtlv__schema__entry__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -144,12 +153,6 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__structure__schema.html">tlv_structure_schema</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed set of structural rules for one parent scope.  <a href="structtlv__structure__schema.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__definition__location.html">tlv_schema_definition_location</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition evidence, independent of wire/text byte locations.  <a href="structtlv__schema__definition__location.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-specific failure evidence without common diagnostic metadata.  <a href="structtlv__schema__detail.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structtlv__schema__diagnostic.html">tlv_schema_diagnostic</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common failure diagnostic paired with one discriminated typed detail.  <a href="structtlv__schema__diagnostic.html#details">More...</a><br /></td></tr>
@@ -202,6 +205,18 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga1006ba0162e6d89504bf1ca404771314" id="r_ga1006ba0162e6d89504bf1ca404771314"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">tlv_schema_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga1006ba0162e6d89504bf1ca404771314">tlv_schema_kind_t</a></td></tr>
 <tr class="memdesc:ga1006ba0162e6d89504bf1ca404771314"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expected form of a value described by a <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>.  <br /></td></tr>
 <tr class="separator:ga1006ba0162e6d89504bf1ca404771314"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3227a53ef45b23ad3a68daf7a412be6d" id="r_ga3227a53ef45b23ad3a68daf7a412be6d"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a></td></tr>
+<tr class="memdesc:ga3227a53ef45b23ad3a68daf7a412be6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema failure detail, independent of the common result.  <br /></td></tr>
+<tr class="separator:ga3227a53ef45b23ad3a68daf7a412be6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga61f8b4cdcf9c639a9a779a20c7bb012a" id="r_ga61f8b4cdcf9c639a9a779a20c7bb012a"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gae2c9c85a3201c42ae8bdb6ca266a9628">tlv_schema_definition_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a></td></tr>
+<tr class="memdesc:ga61f8b4cdcf9c639a9a779a20c7bb012a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition object identified by a Schema diagnostic.  <br /></td></tr>
+<tr class="separator:ga61f8b4cdcf9c639a9a779a20c7bb012a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga7c46528bfaebb8caed58ae50e480c10d" id="r_ga7c46528bfaebb8caed58ae50e480c10d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__definition__location.html">tlv_schema_definition_location</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a></td></tr>
+<tr class="memdesc:ga7c46528bfaebb8caed58ae50e480c10d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition evidence, independent of wire/text byte locations.  <br /></td></tr>
+<tr class="separator:ga7c46528bfaebb8caed58ae50e480c10d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga61ce33047a8977b82612d4db2c7a5919" id="r_ga61ce33047a8977b82612d4db2c7a5919"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga61ce33047a8977b82612d4db2c7a5919">tlv_schema_detail_t</a></td></tr>
+<tr class="memdesc:ga61ce33047a8977b82612d4db2c7a5919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-specific failure evidence without common diagnostic metadata.  <br /></td></tr>
+<tr class="separator:ga61ce33047a8977b82612d4db2c7a5919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gacd252f1238fc84a85a4ebc66d17aeeab" id="r_gacd252f1238fc84a85a4ebc66d17aeeab"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__structure__rule.html">tlv_structure_rule</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab">tlv_structure_rule_t</a></td></tr>
 <tr class="memdesc:gacd252f1238fc84a85a4ebc66d17aeeab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Structural rule for one tag within a single parent.  <br /></td></tr>
 <tr class="separator:gacd252f1238fc84a85a4ebc66d17aeeab"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,21 +229,9 @@ Typedefs</h2></td></tr>
 <tr class="memitem:ga86e8ecc543b5d6b397732cbcf2db59cf" id="r_ga86e8ecc543b5d6b397732cbcf2db59cf"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__structure__schema.html">tlv_structure_schema</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga86e8ecc543b5d6b397732cbcf2db59cf">tlv_structure_schema_t</a></td></tr>
 <tr class="memdesc:ga86e8ecc543b5d6b397732cbcf2db59cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Borrowed set of structural rules for one parent scope.  <br /></td></tr>
 <tr class="separator:ga86e8ecc543b5d6b397732cbcf2db59cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3227a53ef45b23ad3a68daf7a412be6d" id="r_ga3227a53ef45b23ad3a68daf7a412be6d"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a></td></tr>
-<tr class="memdesc:ga3227a53ef45b23ad3a68daf7a412be6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema failure detail, independent of the common result.  <br /></td></tr>
-<tr class="separator:ga3227a53ef45b23ad3a68daf7a412be6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7537f035621096beea18ca83bd278646" id="r_ga7537f035621096beea18ca83bd278646"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7537f035621096beea18ca83bd278646">tlv_schema_unknown_policy_t</a></td></tr>
 <tr class="memdesc:ga7537f035621096beea18ca83bd278646"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown-tag policy applied by tlv_schema_validate_all_diag().  <br /></td></tr>
 <tr class="separator:ga7537f035621096beea18ca83bd278646"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga61f8b4cdcf9c639a9a779a20c7bb012a" id="r_ga61f8b4cdcf9c639a9a779a20c7bb012a"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#gae2c9c85a3201c42ae8bdb6ca266a9628">tlv_schema_definition_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a></td></tr>
-<tr class="memdesc:ga61f8b4cdcf9c639a9a779a20c7bb012a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition object identified by a Schema diagnostic.  <br /></td></tr>
-<tr class="separator:ga61f8b4cdcf9c639a9a779a20c7bb012a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga7c46528bfaebb8caed58ae50e480c10d" id="r_ga7c46528bfaebb8caed58ae50e480c10d"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__definition__location.html">tlv_schema_definition_location</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7c46528bfaebb8caed58ae50e480c10d">tlv_schema_definition_location_t</a></td></tr>
-<tr class="memdesc:ga7c46528bfaebb8caed58ae50e480c10d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition evidence, independent of wire/text byte locations.  <br /></td></tr>
-<tr class="separator:ga7c46528bfaebb8caed58ae50e480c10d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga61ce33047a8977b82612d4db2c7a5919" id="r_ga61ce33047a8977b82612d4db2c7a5919"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structtlv__schema__detail.html">tlv_schema_detail</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga61ce33047a8977b82612d4db2c7a5919">tlv_schema_detail_t</a></td></tr>
-<tr class="memdesc:ga61ce33047a8977b82612d4db2c7a5919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema-specific failure evidence without common diagnostic metadata.  <br /></td></tr>
-<tr class="separator:ga61ce33047a8977b82612d4db2c7a5919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gac7e28a81ff7208693b76c1d3d33942fc" id="r_gac7e28a81ff7208693b76c1d3d33942fc"><td class="memItemLeft" align="right" valign="top">typedef enum <a class="el" href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">tlv_schema_cause</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a></td></tr>
 <tr class="memdesc:gac7e28a81ff7208693b76c1d3d33942fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc" title="Discriminated typed detail; only the member selected by cause is active.">tlv_schema_diagnostic_t::detail</a>.  <br /></td></tr>
 <tr class="separator:gac7e28a81ff7208693b76c1d3d33942fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -287,29 +290,12 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:ga9842d51d0f5706b1d13fea943bcb9def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kind of constraint a <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746" title="Generic constraint on one decoded scalar value, such as an ASN.1 INTEGER (X.690) value range or a fix...">tlv_value_constraint_t</a> applies to a decoded value.  <a href="group__schemas.html#ga9842d51d0f5706b1d13fea943bcb9def">More...</a><br /></td></tr>
 <tr class="separator:ga9842d51d0f5706b1d13fea943bcb9def"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaaf8fd5f0e57d456151c951e0f3715fc4" id="r_gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a> = 64
- }</td></tr>
-<tr class="memdesc:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting capacity of the Schema validators' local traversal storage.  <a href="group__schemas.html#gaaf8fd5f0e57d456151c951e0f3715fc4">More...</a><br /></td></tr>
-<tr class="separator:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga94798fdadfbf49a7c658ace669a1d310" id="r_ga94798fdadfbf49a7c658ace669a1d310"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> = 256
- }</td></tr>
-<tr class="memdesc:ga94798fdadfbf49a7c658ace669a1d310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum distinct tables in one structural schema definition graph. Shared and recursive references count once, independently of input nesting. Exceeding this allocation-free checking capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>.  <a href="group__schemas.html#ga94798fdadfbf49a7c658ace669a1d310">More...</a><br /></td></tr>
-<tr class="separator:ga94798fdadfbf49a7c658ace669a1d310"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gae4d5251432e1a9e6803c0240cc492e18" id="r_gae4d5251432e1a9e6803c0240cc492e18"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggae4d5251432e1a9e6803c0240cc492e18acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a> = 1
- }</td></tr>
-<tr class="memdesc:gae4d5251432e1a9e6803c0240cc492e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permit only the two bounds, rather than every length between them. Equal bounds still specify an exact length; length_multiple also applies.  <a href="group__schemas.html#gae4d5251432e1a9e6803c0240cc492e18">More...</a><br /></td></tr>
-<tr class="separator:gae4d5251432e1a9e6803c0240cc492e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5c8a305dce94f119abad5b7137d21f51" id="r_ga5c8a305dce94f119abad5b7137d21f51"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">tlv_schema_kind</a> { <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a2e5e89f758aa8b01540f3be47293710d">TLV_SCHEMA_ANY</a> = 0
 , <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a9783161ba8613fd97ed438cab42799d0">TLV_SCHEMA_PRIMITIVE</a>
 , <a class="el" href="group__schemas.html#gga5c8a305dce94f119abad5b7137d21f51a3127834146a11209244a4045ffa26242">TLV_SCHEMA_CONSTRUCTED</a>
  }</td></tr>
 <tr class="memdesc:ga5c8a305dce94f119abad5b7137d21f51"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expected form of a value described by a <a class="el" href="group__schemas.html#gacd252f1238fc84a85a4ebc66d17aeeab" title="Structural rule for one tag within a single parent.">tlv_structure_rule_t</a>.  <a href="group__schemas.html#ga5c8a305dce94f119abad5b7137d21f51">More...</a><br /></td></tr>
 <tr class="separator:ga5c8a305dce94f119abad5b7137d21f51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3687d250fd81cbe36e88129a2ea1cc0b" id="r_ga3687d250fd81cbe36e88129a2ea1cc0b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3687d250fd81cbe36e88129a2ea1cc0b">tlv_schema_order</a> { <a class="el" href="group__schemas.html#gga3687d250fd81cbe36e88129a2ea1cc0ba96970df693b13921e74b13938759a5ce">TLV_SCHEMA_ORDER_ANY</a> = 0
-, <a class="el" href="group__schemas.html#gga3687d250fd81cbe36e88129a2ea1cc0baad2d9e708bae288f99341d3e7850fc6b">TLV_SCHEMA_ORDER_SEQUENCE</a>
- }</td></tr>
-<tr class="memdesc:ga3687d250fd81cbe36e88129a2ea1cc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ordering required among a scope's matched elements.  <a href="group__schemas.html#ga3687d250fd81cbe36e88129a2ea1cc0b">More...</a><br /></td></tr>
-<tr class="separator:ga3687d250fd81cbe36e88129a2ea1cc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae8780ff71af2d72d1dcb5f8189af7dfd" id="r_gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">tlv_schema_issue_kind</a> { <br />
 &#160;&#160;<a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfdaced11e29c5de4909b5ec37c8f35fbc2f">TLV_SCHEMA_ISSUE_NONE</a> = 0
 , <a class="el" href="group__schemas.html#ggae8780ff71af2d72d1dcb5f8189af7dfda45498156b89c6b1e0fd85997a96f3e2e">TLV_SCHEMA_ISSUE_MISSING</a> = 1
@@ -327,12 +313,6 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Schema failure detail, independent of the common result.  <a href="group__schemas.html#gae8780ff71af2d72d1dcb5f8189af7dfd">More...</a><br /></td></tr>
 <tr class="separator:gae8780ff71af2d72d1dcb5f8189af7dfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gaac0ce480d18e12ccf642fc85a59f8419" id="r_gaac0ce480d18e12ccf642fc85a59f8419"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a> { <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a> = 0
-, <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448">TLV_SCHEMA_UNKNOWN_ALLOW</a>
-, <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077">TLV_SCHEMA_UNKNOWN_REJECT</a>
- }</td></tr>
-<tr class="memdesc:gaac0ce480d18e12ccf642fc85a59f8419"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown-tag policy applied by tlv_schema_validate_all_diag().  <a href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">More...</a><br /></td></tr>
-<tr class="separator:gaac0ce480d18e12ccf642fc85a59f8419"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gae2c9c85a3201c42ae8bdb6ca266a9628" id="r_gae2c9c85a3201c42ae8bdb6ca266a9628"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gae2c9c85a3201c42ae8bdb6ca266a9628">tlv_schema_definition_kind</a> { <br />
 &#160;&#160;<a class="el" href="group__schemas.html#ggae2c9c85a3201c42ae8bdb6ca266a9628adf62d1923ec5ffc0d263579d81dda28f">TLV_SCHEMA_DEFINITION_UNKNOWN</a> = 0
 , <a class="el" href="group__schemas.html#ggae2c9c85a3201c42ae8bdb6ca266a9628a49f596a695a2922f7cf1eb4c297a1013">TLV_SCHEMA_DEFINITION_TABLE</a>
@@ -345,9 +325,33 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:gae2c9c85a3201c42ae8bdb6ca266a9628"><td class="mdescLeft">&#160;</td><td class="mdescRight">Native definition object identified by a Schema diagnostic.  <a href="group__schemas.html#gae2c9c85a3201c42ae8bdb6ca266a9628">More...</a><br /></td></tr>
 <tr class="separator:gae2c9c85a3201c42ae8bdb6ca266a9628"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaaf8fd5f0e57d456151c951e0f3715fc4" id="r_gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggaaf8fd5f0e57d456151c951e0f3715fc4a73347319edde9db5a3ccc39892774977">TLV_SCHEMA_MAX_DEPTH</a> = 64
+ }</td></tr>
+<tr class="memdesc:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Nesting capacity of the Schema validators' local traversal storage.  <a href="group__schemas.html#gaaf8fd5f0e57d456151c951e0f3715fc4">More...</a><br /></td></tr>
+<tr class="separator:gaaf8fd5f0e57d456151c951e0f3715fc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga94798fdadfbf49a7c658ace669a1d310" id="r_ga94798fdadfbf49a7c658ace669a1d310"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#gga94798fdadfbf49a7c658ace669a1d310a6d7e171536549f71d1dfa6096d17b9f8">TLV_SCHEMA_MAX_TABLES</a> = 256
+ }</td></tr>
+<tr class="memdesc:ga94798fdadfbf49a7c658ace669a1d310"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum distinct tables in one structural schema definition graph. Shared and recursive references count once, independently of input nesting. Exceeding this allocation-free checking capacity returns <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a09879563fe6271975928879b0de69bc1">TLV_ERR_UNSUPPORTED</a>.  <a href="group__schemas.html#ga94798fdadfbf49a7c658ace669a1d310">More...</a><br /></td></tr>
+<tr class="separator:ga94798fdadfbf49a7c658ace669a1d310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gae4d5251432e1a9e6803c0240cc492e18" id="r_gae4d5251432e1a9e6803c0240cc492e18"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="group__schemas.html#ggae4d5251432e1a9e6803c0240cc492e18acc3339f15dea2994e9d305ae3c4d518a">TLV_SCHEMA_LENGTH_ENDPOINTS</a> = 1
+ }</td></tr>
+<tr class="memdesc:gae4d5251432e1a9e6803c0240cc492e18"><td class="mdescLeft">&#160;</td><td class="mdescRight">Permit only the two bounds, rather than every length between them. Equal bounds still specify an exact length; length_multiple also applies.  <a href="group__schemas.html#gae4d5251432e1a9e6803c0240cc492e18">More...</a><br /></td></tr>
+<tr class="separator:gae4d5251432e1a9e6803c0240cc492e18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3687d250fd81cbe36e88129a2ea1cc0b" id="r_ga3687d250fd81cbe36e88129a2ea1cc0b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3687d250fd81cbe36e88129a2ea1cc0b">tlv_schema_order</a> { <a class="el" href="group__schemas.html#gga3687d250fd81cbe36e88129a2ea1cc0ba96970df693b13921e74b13938759a5ce">TLV_SCHEMA_ORDER_ANY</a> = 0
+, <a class="el" href="group__schemas.html#gga3687d250fd81cbe36e88129a2ea1cc0baad2d9e708bae288f99341d3e7850fc6b">TLV_SCHEMA_ORDER_SEQUENCE</a>
+ }</td></tr>
+<tr class="memdesc:ga3687d250fd81cbe36e88129a2ea1cc0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ordering required among a scope's matched elements.  <a href="group__schemas.html#ga3687d250fd81cbe36e88129a2ea1cc0b">More...</a><br /></td></tr>
+<tr class="separator:ga3687d250fd81cbe36e88129a2ea1cc0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gaac0ce480d18e12ccf642fc85a59f8419" id="r_gaac0ce480d18e12ccf642fc85a59f8419"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">tlv_schema_unknown_policy</a> { <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af5fe9db07d3fb3ef3e1c0326a05ccf82">TLV_SCHEMA_UNKNOWN_BY_SCHEMA</a> = 0
+, <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419af072c0e4269aea574e493a08006b9448">TLV_SCHEMA_UNKNOWN_ALLOW</a>
+, <a class="el" href="group__schemas.html#ggaac0ce480d18e12ccf642fc85a59f8419a6b926c816e076a0ffbbc502f1d015077">TLV_SCHEMA_UNKNOWN_REJECT</a>
+ }</td></tr>
+<tr class="memdesc:gaac0ce480d18e12ccf642fc85a59f8419"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown-tag policy applied by tlv_schema_validate_all_diag().  <a href="group__schemas.html#gaac0ce480d18e12ccf642fc85a59f8419">More...</a><br /></td></tr>
+<tr class="separator:gaac0ce480d18e12ccf642fc85a59f8419"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga5afcfa3464f1e481521ba30509b23b38" id="r_ga5afcfa3464f1e481521ba30509b23b38"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">tlv_schema_cause</a> { <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a21e27180026c625cccafb9192898ad03">TLV_SCHEMA_CAUSE_NONE</a>
 , <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812">TLV_SCHEMA_CAUSE_SCHEMA</a>
 , <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a829174dee40848510fbff6fdf991a2fb">TLV_SCHEMA_CAUSE_READER</a>
+, <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a89e27ebd0dcdfbecb68f494489ed77c6">TLV_SCHEMA_CAUSE_CODEC</a>
  }</td></tr>
 <tr class="memdesc:ga5afcfa3464f1e481521ba30509b23b38"><td class="mdescLeft">&#160;</td><td class="mdescRight">Layer whose typed detail is active in <a class="el" href="structtlv__schema__diagnostic.html#a8dabda44f1f34932cb921031a7a939fc" title="Discriminated typed detail; only the member selected by cause is active.">tlv_schema_diagnostic_t::detail</a>.  <a href="group__schemas.html#ga5afcfa3464f1e481521ba30509b23b38">More...</a><br /></td></tr>
 <tr class="separator:ga5afcfa3464f1e481521ba30509b23b38"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -381,18 +385,18 @@ Functions</h2></td></tr>
 <tr class="memitem:ga9f65d8609fbecec1618cb1acde16e380" id="r_ga9f65d8609fbecec1618cb1acde16e380"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga9f65d8609fbecec1618cb1acde16e380">tlv_value_constraint_name</a> (const <a class="el" href="group__schemas.html#ga5d4983376138fadfe511311122f86746">tlv_value_constraint_t</a> *constraint, int64_t value)</td></tr>
 <tr class="memdesc:ga9f65d8609fbecec1618cb1acde16e380"><td class="mdescLeft">&#160;</td><td class="mdescRight">Looks up an allowed value's display name, such as an ASN.1 named number.  <br /></td></tr>
 <tr class="separator:ga9f65d8609fbecec1618cb1acde16e380"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:gab16e87ef133a0a302ada88c41d48a471" id="r_gab16e87ef133a0a302ada88c41d48a471"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gab16e87ef133a0a302ada88c41d48a471">tlv_schema_find</a> (const <a class="el" href="structtlv__schema__t.html">tlv_schema_t</a> *schema, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
-<tr class="memdesc:gab16e87ef133a0a302ada88c41d48a471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Looks up a tag's entry by linear search.  <br /></td></tr>
-<tr class="separator:gab16e87ef133a0a302ada88c41d48a471"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ga3391256e3b7bf6aa7c03c8ccb41f1dd2" id="r_ga3391256e3b7bf6aa7c03c8ccb41f1dd2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3391256e3b7bf6aa7c03c8ccb41f1dd2">tlv_schema_validate_length</a> (const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> *entry, size_t length)</td></tr>
-<tr class="memdesc:ga3391256e3b7bf6aa7c03c8ccb41f1dd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a value length against an entry's bounds.  <br /></td></tr>
-<tr class="separator:ga3391256e3b7bf6aa7c03c8ccb41f1dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga7f8651f7f1f83f182b82bdb42e07c519" id="r_ga7f8651f7f1f83f182b82bdb42e07c519"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga7f8651f7f1f83f182b82bdb42e07c519">tlv_schema_issue_kind_string</a> (<a class="el" href="group__schemas.html#ga3227a53ef45b23ad3a68daf7a412be6d">tlv_schema_issue_kind_t</a> kind)</td></tr>
 <tr class="memdesc:ga7f8651f7f1f83f182b82bdb42e07c519"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a short name for a violation kind.  <br /></td></tr>
 <tr class="separator:ga7f8651f7f1f83f182b82bdb42e07c519"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:gaafdbd1deb8a555e60d207b32d43d6572" id="r_gaafdbd1deb8a555e60d207b32d43d6572"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gaafdbd1deb8a555e60d207b32d43d6572">tlv_schema_definition_kind_string</a> (<a class="el" href="group__schemas.html#ga61f8b4cdcf9c639a9a779a20c7bb012a">tlv_schema_definition_kind_t</a> value)</td></tr>
 <tr class="memdesc:gaafdbd1deb8a555e60d207b32d43d6572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a schema definition kind.  <br /></td></tr>
 <tr class="separator:gaafdbd1deb8a555e60d207b32d43d6572"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:gab16e87ef133a0a302ada88c41d48a471" id="r_gab16e87ef133a0a302ada88c41d48a471"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#gab16e87ef133a0a302ada88c41d48a471">tlv_schema_find</a> (const <a class="el" href="structtlv__schema__t.html">tlv_schema_t</a> *schema, const <a class="el" href="structtlv__tag__t.html">tlv_tag_t</a> *tag)</td></tr>
+<tr class="memdesc:gab16e87ef133a0a302ada88c41d48a471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Looks up a tag's entry by linear search.  <br /></td></tr>
+<tr class="separator:gab16e87ef133a0a302ada88c41d48a471"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ga3391256e3b7bf6aa7c03c8ccb41f1dd2" id="r_ga3391256e3b7bf6aa7c03c8ccb41f1dd2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga3391256e3b7bf6aa7c03c8ccb41f1dd2">tlv_schema_validate_length</a> (const <a class="el" href="structtlv__schema__entry__t.html">tlv_schema_entry_t</a> *entry, size_t length)</td></tr>
+<tr class="memdesc:ga3391256e3b7bf6aa7c03c8ccb41f1dd2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Validates a value length against an entry's bounds.  <br /></td></tr>
+<tr class="separator:ga3391256e3b7bf6aa7c03c8ccb41f1dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ga1432c9f23130fad66bc7e9b772841766" id="r_ga1432c9f23130fad66bc7e9b772841766"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__schemas.html#ga1432c9f23130fad66bc7e9b772841766">tlv_schema_cause_string</a> (<a class="el" href="group__schemas.html#gac7e28a81ff7208693b76c1d3d33942fc">tlv_schema_cause_t</a> value)</td></tr>
 <tr class="memdesc:ga1432c9f23130fad66bc7e9b772841766"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the diagnostic name of a Schema cause.  <br /></td></tr>
 <tr class="separator:ga1432c9f23130fad66bc7e9b772841766"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -728,7 +732,7 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
 </div><div class="memdoc">
 
 <p>Common failure diagnostic paired with one discriminated typed detail. </p>
-<p>Shared by validation and definition checks. The common base carries the code, severity, primary location, expected text and enclosing path. <code>cause</code> selects the active <code>detail</code> member: the Schema finding that explains the violation, or the original Reader detail when the wire input itself is malformed. The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references.</p>
+<p>Shared by validation and definition checks. The common base carries the code, severity, primary location, expected text and enclosing path. <code>cause</code> selects the active <code>detail</code> member: the Schema finding that explains the violation, the original Reader detail when the wire input itself is malformed, or the Codec detail when a builtin rejects a Value it interprets, such as a non-canonical DER INTEGER. The common base owns its bounded path value, so copies retain valid external Tag borrows without self-references.</p>
 <dl class="section note"><dt>Note</dt><dd>Report entries are always Schema findings with cause <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a9f8acaa66ec4e8df7429a9ac08462812">TLV_SCHEMA_CAUSE_SCHEMA</a>. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd><a class="el" href="group__schemas.html#ga3b0f2029a9060eab1d2fddc71269bd3e" title="Resets a schema diagnostic to all-unset.">tlv_schema_diagnostic_init</a> </dd></dl>
 
@@ -1105,6 +1109,8 @@ Allowed results are <a class="el" href="group__core.html#gga516c7250563ee9332e2f
 </td></tr>
 <tr><td class="fieldname"><a id="gga5afcfa3464f1e481521ba30509b23b38a829174dee40848510fbff6fdf991a2fb" name="gga5afcfa3464f1e481521ba30509b23b38a829174dee40848510fbff6fdf991a2fb"></a>TLV_SCHEMA_CAUSE_READER&#160;</td><td class="fielddoc"><p>The Reader rejected the input; <code>detail.reader</code>. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="gga5afcfa3464f1e481521ba30509b23b38a89e27ebd0dcdfbecb68f494489ed77c6" name="gga5afcfa3464f1e481521ba30509b23b38a89e27ebd0dcdfbecb68f494489ed77c6"></a>TLV_SCHEMA_CAUSE_CODEC&#160;</td><td class="fielddoc"><p>A Value conversion rejected the input; <code>detail.codec</code>. </p>
+</td></tr>
 </table>
 
 </div>
@@ -1435,13 +1441,15 @@ Any other error of <a class="el" href="group__schemas.html#ga93207ef0764ce3c3ae4
     <tr><td class="paramdir">[in]</td><td class="paramname">limits</td><td>Limits, or <code>NULL</code> for <a class="el" href="group__schemas.html#ga0a1118c0cbb0fb019323e0f347579c9e" title="Default limits used when a function receives NULL limits.">tlv_der_schema_default_limits</a>. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">element</td><td>Receives the element; its value borrows <code>data</code>. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">consumed</td><td>Receives the encoded size of the element. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional first failure. Missing content has MISSING detail and a SCOPE_END or INSERTION anchor. Definition errors are unlocated.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional first failure. Missing content has MISSING detail and a SCOPE_END or INSERTION anchor. A leaf constraint rejecting data has VALUE detail. A leaf Value failing canonical decoding has cause <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a89e27ebd0dcdfbecb68f494489ed77c6">TLV_SCHEMA_CAUSE_CODEC</a> with the conversion's reason, located at the offending INPUT octet when known. Definition errors are unlocated.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> if the data conforms. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> for input violations, including an absent required root. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for a leaf Value that fails canonical decoding. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a24e39c80bdf7f0aaed0a3f01349ecd8c">TLV_ERR_INVALID_SCHEMA</a> for an invalid definition, before input processing. </dd>
 <dd>
@@ -1634,13 +1642,15 @@ Any other error of <a class="el" href="group__schemas.html#gabe7c5b601336a7279cc
     <tr><td class="paramdir">[out]</td><td class="paramname">scratch</td><td>SET OF sort / SEQUENCE OF composition records; <code>NULL</code> only for a schema with no SET OF or SEQUENCE OF. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">scratch_capacity</td><td>Number of records in <code>scratch</code>. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">written</td><td>Receives the encoded (or required) size. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional first failure, using the would-be-output conventions of tlv_der_write(). A missing SEQUENCE component points where it would start; a missing SET component points to the enclosing content end. Both point just after the header when empty. Leaf constraints point to the Value. Nested headers and canonical SET ordering are included. Argument, configuration and capacity failures have unknown byte location.</td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional first failure, using the would-be-output conventions of tlv_der_write(). A missing SEQUENCE component points where it would start; a missing SET component points to the enclosing content end. Both point just after the header when empty. Leaf constraints point to the Value. A leaf Value whose constraint decoding fails has cause <a class="el" href="group__schemas.html#gga5afcfa3464f1e481521ba30509b23b38a89e27ebd0dcdfbecb68f494489ed77c6">TLV_SCHEMA_CAUSE_CODEC</a> and points to the offending octet when the codec locates it. Nested headers and canonical SET ordering are included. Argument, configuration and capacity failures have unknown byte location.</td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd><a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61ac763c25dd3e807fae4d8078c3d3e94ed">TLV_OK</a> on success. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61afe701b08473c7ec9597853fe737a62b4">TLV_ERR_SCHEMA</a> for a schema violation, including a missing <a class="el" href="group__schemas.html#ggaf5151939698b214c757c2cc214f04f73a6b15618fe859fc6b8b423831f5df0b55">TLV_DER_REQUIRED</a> component; this fails deterministically without partial output. </dd>
+<dd>
+<a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a> for a constrained leaf Value that fails decoding, such as a non-minimal INTEGER. </dd>
 <dd>
 <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a24e39c80bdf7f0aaed0a3f01349ecd8c">TLV_ERR_INVALID_SCHEMA</a> for an invalid definition, before callbacks. </dd>
 <dd>

@@ -3915,7 +3915,7 @@ through breaking API and ABI changes: lifecycle (#552),
 Schema classification (#553), resource/callback classification (#554), locations
 (#555), shared Codec results and propagation (#556), diagnostic names and
 Document lookup failure channels (#557), the <code>END</code>, <code>TRUNCATED</code> and
-<code>SYNTAX</code> results (#578), the Query kind <code>ARGUMENT</code> (#587) and Document Query diagnostics (#588). The tables below describe the current
+<code>SYNTAX</code> results (#578), the Query kind <code>ARGUMENT</code> (#587), Document Query diagnostics (#588) and the remaining core producers (#589). The tables below describe the current
 codes, not target names still awaiting implementation.</p>
 <p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/result.h</code>. Zero is success. <code>TLV_END</code> (normal end
 of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
@@ -4097,7 +4097,7 @@ most one active lower-layer detail, selected by its cause.</p>
 <td><code>tlv_schema_diagnostic_t</code></td>
 <td><code>diagnostic</code></td>
 <td>none</td>
-<td><code>cause</code> selects <code>detail.schema</code> (<code>tlv_schema_detail_t</code>) or <code>detail.reader</code></td>
+<td><code>cause</code> selects <code>detail.schema</code> (<code>tlv_schema_detail_t</code>), <code>detail.reader</code> or <code>detail.codec</code> (<code>tlv_codec_detail_t</code>)</td>
 </tr>
 <tr>
 <td><code>tlv_codec_diagnostic_t</code></td>
@@ -4132,7 +4132,12 @@ Reader traversal.</p>
 original Reader detail instead of dropping it; argument and resource failures
 have cause <code>NONE</code>. A Structure Codec maps such a Reader failure to its own
 Reader cause, so the Reader detail stays reachable through one path. Codec
-<code>reason</code> is the typed explanation of an <code>INVALID_VALUE</code> conversion failure.</p>
+<code>reason</code> is the typed explanation of an <code>INVALID_VALUE</code> conversion failure.
+DER Schema reports a leaf Value that its conversion rejects, such as a
+non-canonical INTEGER or one too long for a value constraint, with cause <code>CODEC</code>
+(#589): <code>detail.codec</code> keeps the conversion's operation, result and reason, and
+<code>detail.codec.reported</code> equals the returned result. A valid leaf constraint
+rejecting data is <code>SCHEMA</code> with <code>VALUE</code> detail when reading and writing.</p>
 <p>Kind and cause agree in both directions: cause <code>READER</code> accompanies kind
 <code>READER</code> or <code>STATE</code>, cause <code>CODEC</code> accompanies <code>CODEC</code>, <code>CALLBACK</code> or <code>STATE</code>,
 cause <code>SCHEMA</code> accompanies only <code>SCHEMA</code>, and cause <code>NONE</code> never accompanies
@@ -4300,7 +4305,7 @@ stable ABI identifiers and may change to keep categories together.</p>
 <td><code>TLV_ERR_OVERFLOW</code></td>
 <td>16</td>
 <td>An unsigned value cannot fit the requested numeric width, or logical size arithmetic overflows.</td>
-<td>The value against the destination width in the same integer conversion functions.</td>
+<td>The value against the destination width in the same integer conversion functions, and Document allocation-size arithmetic.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_NATIVE_SIZE</code></td>
@@ -4312,7 +4317,7 @@ stable ABI identifiers and may change to keep categories together.</p>
 <td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
 <td>18</td>
 <td>An owning operation could not obtain storage.</td>
-<td>Document allocation and allocation-size checks. Caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
+<td>Document allocation. An allocation size that is not representable is <code>OVERFLOW</code>, and caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_UNSUPPORTED</code></td>
@@ -4408,7 +4413,8 @@ in Schema diagnostics. See <a href="../../guides/diagnostics/#hierarchical-paths
 DER output, accounting for enclosing headers and canonical SET ordering. A
 missing required SEQUENCE component points where it would start; a missing SET
 component points to the enclosing content end. For an empty SEQUENCE the offset
-is 2. Leaf constraints point to the Value bytes. Argument, configuration and
+is 2. Leaf constraints point to the Value bytes, or to the offending octet when
+the leaf conversion locates it. Argument, configuration and
 capacity failures have unknown byte location. When a diagnostic is requested,
 composition can visit remaining components after detecting a failure. If a
 later callback or scratch failure prevents completing the hypothetical encoding,
@@ -4419,11 +4425,30 @@ checked <code>[begin, end)</code> coordinates. UNKNOWN has no position; a POINT 
 an empty SPAN at EOF is known evidence. INPUT, OUTPUT, EXPRESSION, DEFINITION
 and VALUE domains identify distinct coordinate spaces. Translation overflow
 drops optional location evidence while retaining the original result.</p>
+<p>Value codecs report the bytes that prove a rejection in the VALUE domain,
+counted from the first Value byte they received (#589): an invalid digit, text
+character, UTF-8 sequence, redundant INTEGER sign octet, non-minimal or
+unterminated OID arc, calendar field, or the incomplete trailing unit of a
+fixed-width list such as IPv4 addresses. A rejection of the whole length, an
+argument or an application object being encoded stays unlocated.
+<code>tlv_location_resolve()</code> places VALUE evidence in an enclosing domain when the
+caller knows where the Value starts. Query does so for a conversion hook when
+the converted bytes lie in the context node's Value and its retained Source maps
+that Value one to one, so the primary location is INPUT. A Document node does not
+record where its Value started, so Document Query keeps VALUE. Query also treats
+a conversion's INPUT location, such as a Structure Codec's Reader failure, as
+relative to the converted bytes; typed detail offsets keep the conversion's
+own coordinates. DER Schema resolves leaf evidence to INPUT when reading and
+to OUTPUT when writing.</p>
 <p>DER/CER, DOL, Bluetooth AD, Document, Query paths and Tree visitors accept
 structured diagnostics; their offset-only outputs were removed in #555.
 DER/CER reads report INPUT points at the failing field, writes report OUTPUT
 points in would-be encoding, and DOL reports INPUT positions within its DOL
-descriptor even while writing. Argument/configuration failures remain unknown.
+descriptor even while writing. CER segmentation uses the anchor its rule
+requires (#589): a constructed string without segments reports SCOPE_END at its
+EOC, unjustified segmentation the SPAN of the whole constructed element, a
+malformed segment the SPAN of its encoding and a segment content rule the SPAN
+of that segment's Value. Argument/configuration failures remain unknown.
 See <a href="../../guides/diagnostics/#evidence-locations">diagnostics</a> for origins and ownership.</p>
 <p>Schema validators distinguish invalid definitions (<code>TLV_ERR_INVALID_SCHEMA</code>) from
 valid definitions rejecting input (<code>TLV_ERR_SCHEMA</code>). Length constraints are Schema
@@ -4569,6 +4594,11 @@ The separate Codec enum, constants and strerror entry point were removed in #556
 Callbacks and entry points accept optional <code>tlv_codec_diagnostic_t</code> output.
 Structure validation preserves the original Reader/Schema/resource result and
 cause; Query retains this evidence alongside its related expression span.
+Builtin conversions that delegate to another codec, including the Schema
+number composition, the ASN.1 Query date hook and the Bluetooth AD codecs, pass
+their diagnostic through, so the nested result, reason and location survive
+(#589). Custom codecs publish located evidence with
+<code>tlv_codec_diagnostic_reason_at()</code>.
 Invalid callback discriminators or successful output contracts report <code>CALLBACK</code>
 while preserving the callback's reported value, including <code>OK</code>.</p>
 <p>This changes callback signatures and the Query diagnostic layout. Rebuild native

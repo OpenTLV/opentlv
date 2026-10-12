@@ -85,7 +85,7 @@ $(function() {
 <p>Optional allocation-free conversion diagnostics and delegated causes.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="reader_2diagnostic_8h.html">tlv/reader/diagnostic.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="schema_2schema_8h.html">tlv/schema/schema.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="detail_8h.html">tlv/schema/detail.h</a>&quot;</code><br />
 </div><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Structures</h2></td></tr>
@@ -180,6 +180,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a7c77462e2b86ec52515b329be5a46f47" id="r_a7c77462e2b86ec52515b329be5a46f47"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#a7c77462e2b86ec52515b329be5a46f47">tlv_codec_diagnostic_reason</a> (<a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic, <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> result, <a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a> reason)</td></tr>
 <tr class="memdesc:a7c77462e2b86ec52515b329be5a46f47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish a rejected Value or object with its typed reason.  <br /></td></tr>
 <tr class="separator:a7c77462e2b86ec52515b329be5a46f47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa2bf7d86bffff1591c280e44ea54b5b2" id="r_aa2bf7d86bffff1591c280e44ea54b5b2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="codec_2diagnostic_8h.html#aa2bf7d86bffff1591c280e44ea54b5b2">tlv_codec_diagnostic_reason_at</a> (<a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *diagnostic, <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> result, <a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a> reason, <a class="el" href="group__diagnostics.html#gab1c733b981d6bebb32818c801694e6c0">tlv_location_kind_t</a> kind, size_t begin, size_t end)</td></tr>
+<tr class="memdesc:aa2bf7d86bffff1591c280e44ea54b5b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Publish a rejected Value with its typed reason and the offending Value bytes.  <br /></td></tr>
+<tr class="separator:aa2bf7d86bffff1591c280e44ea54b5b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Optional allocation-free conversion diagnostics and delegated causes. </p>
@@ -511,6 +514,81 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>result. </dd></dl>
+
+</div>
+</div>
+<a id="aa2bf7d86bffff1591c280e44ea54b5b2" name="aa2bf7d86bffff1591c280e44ea54b5b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa2bf7d86bffff1591c280e44ea54b5b2">&#9670;&#160;</a></span>tlv_codec_diagnostic_reason_at()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static <a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a> tlv_codec_diagnostic_reason_at </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a59f8458396cf6b5047ba62210725b13c">tlv_codec_diagnostic_t</a> *&#160;</td>
+          <td class="paramname"><em>diagnostic</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__core.html#ga164d2817a32e5d7b7aa1472e887b47c3">tlv_result_t</a>&#160;</td>
+          <td class="paramname"><em>result</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="codec_2diagnostic_8h.html#a7317f312e102e2ae8f099bfa6c4badad">tlv_codec_reason_t</a>&#160;</td>
+          <td class="paramname"><em>reason</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="group__diagnostics.html#gab1c733b981d6bebb32818c801694e6c0">tlv_location_kind_t</a>&#160;</td>
+          <td class="paramname"><em>kind</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>begin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>end</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Publish a rejected Value with its typed reason and the offending Value bytes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">diagnostic</td><td>Optional initialized destination. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">result</td><td>Result to publish unchanged, usually <a class="el" href="group__core.html#gga516c7250563ee9332e2f45f2d203ae61a07580ca64f30aa1a72a405fcbca72f10">TLV_ERR_INVALID_VALUE</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">reason</td><td>Why the conversion rejected its input. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">kind</td><td><a class="el" href="group__diagnostics.html#gga8609e2e38d2650ee9cdfe2851146625aa170e941bcd24c30d5dcc0e22ad75e487">TLV_LOCATION_POINT</a> or <a class="el" href="group__diagnostics.html#gga8609e2e38d2650ee9cdfe2851146625aa239a0a7796682c31b0d65d856f13b1dd">TLV_LOCATION_SPAN</a>. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">begin</td><td>Inclusive offset from the first Value byte the codec received. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">end</td><td>Exclusive span end, or <code>begin</code> for a point. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>result. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>The location has domain <a class="el" href="group__diagnostics.html#gga4e3daddfc10ca6a60e0d92a80c8ed61ca4c17edabdba774419c566394814ccb1a">TLV_LOCATION_VALUE</a>. A caller that knows where the Value starts places it in its own coordinates with <a class="el" href="group__diagnostics.html#ga8e431dd5f1410e4ac775826f10c75bc0" title="Place Value-local evidence in the coordinate space that contains the Value.">tlv_location_resolve()</a>. Invalid coordinates leave the location unknown without changing the result. </dd></dl>
 
 </div>
 </div>

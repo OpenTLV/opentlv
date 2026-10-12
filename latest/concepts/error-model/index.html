@@ -4070,9 +4070,9 @@ for authors of C capabilities and language facades. Read the
 <a href="../../reference/errors/">current error reference</a> first.</p>
 <p><strong>Status: design decided; lifecycle implemented by #552, Schema classification
 by #553, capability/resource/callback results by #554, common locations by #555, the
-<code>END</code>, <code>TRUNCATED</code> and <code>SYNTAX</code> results by #578, and the Query kind <code>ARGUMENT</code>
-with the remaining Query kind classifications by #587. Remaining API and binding
-migration is separate work.</strong> This page defines the target contract.
+<code>END</code>, <code>TRUNCATED</code> and <code>SYNTAX</code> results by #578, the Query kind <code>ARGUMENT</code>
+with the remaining Query kind classifications by #587, and the remaining core
+producer gaps by #589. Remaining API and binding migration is separate work.</strong> This page defines the target contract.
 <code>TLV_END</code>, <code>TLV_ERR_TRUNCATED</code>, <code>TLV_ERR_SYNTAX</code>, <code>TLV_ERR_INVALID_STATE</code>,
 <code>TLV_ERR_INVALID_SCHEMA</code>, <code>TLV_ERR_UNSUPPORTED</code> and <code>TLV_ERR_CALLBACK</code> are public,
 together with Query kinds <code>STATE</code>, <code>CALLBACK</code>, <code>TYPE</code>, <code>IMAGE</code> and <code>ARGUMENT</code>;
@@ -4465,6 +4465,15 @@ twice when it is already primary. If the lower layer gives a Value-relative
 position, translate it only when the Value origin is known. Without it, retain
 the local domain/origin information or mark the enclosing source position
 unknown. Do not manufacture an absolute offset.</p>
+<p><code>TLV_LOCATION_VALUE</code> is that local domain (#589). A Value codec reports the
+bytes that prove its rejection in VALUE coordinates, counted from the first
+byte it received, and an enclosing layer that knows the Value origin moves them
+with <code>tlv_location_resolve()</code>. Query resolves conversion evidence to INPUT when
+the converted bytes lie in a node Value whose retained Source records its start;
+a Document node does not, so Document Query keeps VALUE. A conversion's INPUT
+location, such as a Structure Codec's Reader failure, also counts from the
+converted bytes. DER Schema resolves leaf evidence to INPUT on read and OUTPUT
+on write.</p>
 <p>Preserve #549's useful DER write semantics: locations refer to would-be output
 with enclosing headers and canonical SET order. A missing SEQUENCE component
 uses an insertion point; a missing SET component uses scope end. If computing
@@ -4919,6 +4928,22 @@ Unknown visitor discriminators produce <code>CALLBACK</code>.</p>
 <tr>
 <td>Diagnostic path overflows its optional inline capacity</td>
 <td>Retain outer ancestors and <code>omitted</code>; do not turn a deeper input error into a location-collection error.</td>
+</tr>
+<tr>
+<td>Document allocation-size arithmetic returns <code>OUT_OF_MEMORY</code></td>
+<td><code>OVERFLOW</code>; <code>OUT_OF_MEMORY</code> only for a failed allocation. Implemented in #589.</td>
+</tr>
+<tr>
+<td>Schema number composition, the ASN.1 Query date hook, the DER Schema leaf constraint and the Bluetooth AD codecs call a nested codec without a diagnostic</td>
+<td>Pass the caller's diagnostic and keep the nested result, reason and location; DER Schema reports it as Schema cause <code>CODEC</code>. Implemented in #589.</td>
+</tr>
+<tr>
+<td><code>TLV_LOCATION_VALUE</code> has no producer</td>
+<td>Codecs that know the offending byte report a VALUE point or span; Query and DER Schema resolve it when the Value origin is known. Implemented in #589.</td>
+</tr>
+<tr>
+<td>CER segmentation reports only an offset</td>
+<td>A constructed string without segments is SCOPE_END at its EOC; unjustified segmentation is the element SPAN; segment defects are SPANs of the segment or its Value. Implemented in #589.</td>
 </tr>
 </tbody>
 </table>

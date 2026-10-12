@@ -840,6 +840,9 @@ Functions</h2></td></tr>
 <tr class="memitem:a65ad25fed0d57807f8b097da2411bac8" id="r_a65ad25fed0d57807f8b097da2411bac8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#a65ad25fed0d57807f8b097da2411bac8">translate_location</a> (<a class="el" href="namespacetlv.html#a4fac3d8a520e4264e1e44a90dbc01193">location</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, size_t origin) noexcept</td></tr>
 <tr class="memdesc:a65ad25fed0d57807f8b097da2411bac8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Translate both coordinates; overflow clears only the optional location.  <br /></td></tr>
 <tr class="separator:a65ad25fed0d57807f8b097da2411bac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad90d494e09321f94dd836f0ed77ff7be" id="r_ad90d494e09321f94dd836f0ed77ff7be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ad90d494e09321f94dd836f0ed77ff7be">resolve_location</a> (<a class="el" href="namespacetlv.html#a4fac3d8a520e4264e1e44a90dbc01193">location</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>, size_t origin, <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7">location_domain</a> <a class="el" href="namespacetlv.html#ad34af8ea6e99862f3fa9038d4e15794b">domain</a>) noexcept</td></tr>
+<tr class="memdesc:ad90d494e09321f94dd836f0ed77ff7be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Place Value-local evidence in the coordinate space that contains the Value.  <br /></td></tr>
+<tr class="separator:ad90d494e09321f94dd836f0ed77ff7be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae07f918496e530d0e05b6e515423189e" id="r_ae07f918496e530d0e05b6e515423189e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structtlv_1_1error.html">error</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacetlv.html#ae07f918496e530d0e05b6e515423189e">to_error</a> (const <a class="el" href="structtlv_1_1error.html">error</a> &amp;<a class="el" href="namespacetlv.html#a0e9dc5e120173d6322fc63d2d1fc09c3a2063c1608d6e0baf80249c42e2be5804">value</a>) noexcept</td></tr>
 <tr class="memdesc:ae07f918496e530d0e05b6e515423189e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Project an ordinary error into the common diagnostic contract without allocation.  <br /></td></tr>
 <tr class="separator:ae07f918496e530d0e05b6e515423189e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1911,7 +1914,7 @@ Variables</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="a55a9e58b26605c8d07848f7a2721b1d7a30618b3b44fa316257d07e387759fae5" name="a55a9e58b26605c8d07848f7a2721b1d7a30618b3b44fa316257d07e387759fae5"></a>definition&#160;</td><td class="fielddoc"><p>Definition text bytes. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a55a9e58b26605c8d07848f7a2721b1d7a2063c1608d6e0baf80249c42e2be5804" name="a55a9e58b26605c8d07848f7a2721b1d7a2063c1608d6e0baf80249c42e2be5804"></a>value&#160;</td><td class="fielddoc"><p>Value-local bytes with unknown outer origin. </p>
+<tr><td class="fieldname"><a id="a55a9e58b26605c8d07848f7a2721b1d7a2063c1608d6e0baf80249c42e2be5804" name="a55a9e58b26605c8d07848f7a2721b1d7a2063c1608d6e0baf80249c42e2be5804"></a>value&#160;</td><td class="fielddoc"><p>Bytes of one Value, counted from its first byte. </p>
 </td></tr>
 </table>
 
@@ -5198,6 +5201,59 @@ template&lt;typename F &gt; </div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Decoded element and source, or the original C Reader error. </dd></dl>
 <dl class="section warning"><dt>Warning</dt><dd>Input and Format storage must outlive the returned borrowed views. </dd></dl>
+
+</div>
+</div>
+<a id="ad90d494e09321f94dd836f0ed77ff7be" name="ad90d494e09321f94dd836f0ed77ff7be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad90d494e09321f94dd836f0ed77ff7be">&#9670;&#160;</a></span>resolve_location()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void tlv::resolve_location </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a4fac3d8a520e4264e1e44a90dbc01193">location</a> &amp;&#160;</td>
+          <td class="paramname"><em>value</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>origin</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7">location_domain</a>&#160;</td>
+          <td class="paramname"><em>domain</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">noexcept</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Place Value-local evidence in the coordinate space that contains the Value. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Location; only a known <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7a2063c1608d6e0baf80249c42e2be5804">location_domain::value</a> location changes. </td></tr>
+    <tr><td class="paramname">origin</td><td>Offset of the Value's first byte in <code>domain</code>. </td></tr>
+    <tr><td class="paramname">domain</td><td>Enclosing coordinate space, such as <a class="el" href="namespacetlv.html#a55a9e58b26605c8d07848f7a2721b1d7aa43c1b0aa53a0c908810c06ab1ff3967">location_domain::input</a>. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>An invalid domain leaves the location unchanged; overflow clears only the optional location. </dd></dl>
 
 </div>
 </div>
