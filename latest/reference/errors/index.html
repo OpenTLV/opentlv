@@ -3908,15 +3908,11 @@
 
 
 <h1 id="error-codes">Error codes<a class="headerlink" href="#error-codes" title="Permanent link">&para;</a></h1>
-<p>This page describes the <strong>currently implemented API</strong>. The accepted
-<a href="../../concepts/error-model/">failure model</a> (#551) defines a replacement taxonomy,
-typed diagnostic layering, locations and propagation rules. Migration proceeds
-through breaking API and ABI changes: lifecycle (#552),
-Schema classification (#553), resource/callback classification (#554), locations
-(#555), shared Codec results and propagation (#556), diagnostic names and
-Document lookup failure channels (#557), the <code>END</code>, <code>TRUNCATED</code> and
-<code>SYNTAX</code> results (#578), the Query kind <code>ARGUMENT</code> (#587), Document Query diagnostics (#588) and the remaining core producers (#589). The tables below describe the current
-codes, not target names still awaiting implementation.</p>
+<p>This page describes the public results, diagnostics and facade projections of
+the <a href="../../concepts/error-model/">failure model</a> (#551). That page defines the
+contract and why each failure has its class; this page names the values that
+implement it. Epic #547 completed the migration through breaking API and ABI
+changes, with no aliases for removed names.</p>
 <p>Core and Codec operations return the shared <code>tlv_result_t</code> from <code>tlv/result.h</code>. Zero is success. <code>TLV_END</code> (normal end
 of iteration) and <code>TLV_NEED_MORE_DATA</code> (resumable non-final input) are control
 statuses, not failures; every other nonzero result is a failure. <code>tlv_result_string</code> returns a static, readable
@@ -3967,7 +3963,7 @@ validation result in every entry.</p>
 </ul>
 <h3 id="query-result-and-kind-pairs">Query result and kind pairs<a class="headerlink" href="#query-result-and-kind-pairs" title="Permanent link">&para;</a></h3>
 <p>Every Query failure pairs its result with one kind of the
-<a href="../../concepts/error-model/#every-current-query-error-kind">failure model</a> (#587):</p>
+<a href="../../concepts/error-model/#every-query-error-kind">failure model</a> (#587):</p>
 <table>
 <thead>
 <tr>
@@ -4316,8 +4312,8 @@ stable ABI identifiers and may change to keep categories together.</p>
 <tr>
 <td><code>TLV_ERR_OUT_OF_MEMORY</code></td>
 <td>18</td>
-<td>An owning operation could not obtain storage.</td>
-<td>Document allocation. An allocation size that is not representable is <code>OVERFLOW</code>, and caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
+<td>An allocation by an owning operation failed.</td>
+<td>Document and Document Query allocation, where Query kind <code>STORAGE</code> accompanies it, and the allocations bindings make for owned results and workspaces. An allocation size that is not representable is <code>OVERFLOW</code>, and caller-supplied workspace exhaustion uses <code>BUFFER_TOO_SHORT</code>.</td>
 </tr>
 <tr>
 <td><code>TLV_ERR_UNSUPPORTED</code></td>
@@ -4631,7 +4627,7 @@ results remain inspectable.</p>
 </tr>
 <tr>
 <td>Go</td>
-<td><code>errors.Is</code> classifies results and <code>errors.As</code> retrieves owned details. <code>ProgramError.Kind</code>, <code>QuerySchemaError.Kind</code> and Codec categories are typed; <code>String()</code> calls C. Reader/Writer errors expose typed <code>Phase()</code> methods; <code>Diagnostic.ReaderPhase()</code> and <code>WriterPhase()</code> type Query Reader causes too.</td>
+<td><code>errors.Is</code> classifies results and <code>errors.As</code> retrieves owned details. <code>ProgramError.Kind</code>, <code>QuerySchemaDetail.Kind</code> and Codec categories are typed; <code>String()</code> calls C. Reader/Writer errors expose typed <code>Phase()</code> methods; <code>Diagnostic.ReaderPhase()</code> and <code>WriterPhase()</code> type Query Reader causes too.</td>
 </tr>
 <tr>
 <td>Lua</td>

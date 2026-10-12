@@ -3766,7 +3766,7 @@
 <h1 id="lldp-requirements-format-and-runtime-layout-review">LLDP requirements, Format and runtime Layout review<a class="headerlink" href="#lldp-requirements-format-and-runtime-layout-review" title="Permanent link">&para;</a></h1>
 <!-- markdownlint-disable-next-line MD033 -->
 <p><a id="lldp-requirements-and-formatlayout-review"></a></p>
-<p>Architecture review for <a href="https://github.com/marekcingel/OpenTLV/issues/360">#360</a>.
+<p>Architecture review for <a href="https://github.com/OpenTLV/opentlv/issues/360">#360</a>.
 <a href="../lldp/">LLDP base support</a> now includes framing, definitions, structural
 validation and value codecs through the combined #362/#363 implementation. The review found a decoded-identifier restriction;
 the generic <code>TLV_TAG_BINDING_FORMAT</code> extension now allows canonical Type bytes
@@ -3785,19 +3785,19 @@ architecture review. This scope decision does not establish IEEE conformance.</p
 </thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/marekcingel/OpenTLV/issues/360">#360: requirements review</a></td>
+<td><a href="https://github.com/OpenTLV/opentlv/issues/360">#360: requirements review</a></td>
 <td>Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure.</td>
 </tr>
 <tr>
-<td><a href="https://github.com/marekcingel/OpenTLV/issues/361">#361: packed Field Encoding primitive</a></td>
+<td><a href="https://github.com/OpenTLV/opentlv/issues/361">#361: packed Field Encoding primitive</a></td>
 <td>Implemented as <code>tlv_packed_field_t</code> in <code>tlv/field/packed.h</code> with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks.</td>
 </tr>
 <tr>
-<td><a href="https://github.com/marekcingel/OpenTLV/issues/362">#362: LLDP format and definitions</a></td>
+<td><a href="https://github.com/OpenTLV/opentlv/issues/362">#362: LLDP format and definitions</a></td>
 <td>Implemented with #363; see <a href="../lldp/#coverage-of-362-and-363">combined coverage</a>. Full normative verification remains separate.</td>
 </tr>
 <tr>
-<td><a href="https://github.com/marekcingel/OpenTLV/issues/363">#363: schemas, codecs and conformance</a></td>
+<td><a href="https://github.com/OpenTLV/opentlv/issues/363">#363: schemas, codecs and conformance</a></td>
 <td>Base structural validator, value codecs, reference tests and C/C++ examples implemented. See the <a href="../lldp/conformance/">conformance boundary</a>; full IEEE conformance is not established.</td>
 </tr>
 </tbody>
