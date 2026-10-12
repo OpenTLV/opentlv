@@ -76,8 +76,9 @@ The [Lua Bindings
 workflow](https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/lua.yml)
 runs on every push and pull request to `main`: it builds the module with
 `luarocks make` and runs `busted tests` and every script under `examples/`,
-across Lua 5.1, 5.3 and 5.4, on Linux, and additionally on Windows and macOS
-for release tags.
+across Lua 5.1, 5.3 and 5.4 on Linux and Windows, and additionally on macOS
+for release tags and manual runs. Windows jobs initialize the MSVC x64
+environment before installing Lua.
 
 ## Codec implementation
 

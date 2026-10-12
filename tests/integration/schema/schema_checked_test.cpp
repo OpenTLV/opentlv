@@ -41,17 +41,64 @@ const Wire inputs[] = {
     {0x30, 0x05, 0x80, 0x01},                         // truncated
 };
 
+const tlv_result_t results[] = {TLV_OK,         TLV_ERR_SCHEMA, TLV_ERR_SCHEMA,   TLV_ERR_SCHEMA,
+                                TLV_ERR_SCHEMA, TLV_ERR_SCHEMA, TLV_ERR_TRUNCATED};
+
 void expectSame(const tlv_schema_diagnostic_t& plain, const tlv_schema_diagnostic_t& checked) {
     EXPECT_EQ(plain.diagnostic.code, checked.diagnostic.code);
     EXPECT_EQ(plain.diagnostic.severity, checked.diagnostic.severity);
+    EXPECT_EQ(plain.diagnostic.location.domain, checked.diagnostic.location.domain);
     EXPECT_EQ(plain.diagnostic.location.kind, checked.diagnostic.location.kind);
     EXPECT_EQ(plain.diagnostic.location.begin, checked.diagnostic.location.begin);
-    EXPECT_EQ(plain.diagnostic.path.length, checked.diagnostic.path.length);
-    EXPECT_EQ(plain.detail.schema.kind, checked.detail.schema.kind);
-    EXPECT_TRUE(tlv_tag_equal(plain.detail.schema.tag, checked.detail.schema.tag));
-    EXPECT_EQ(plain.detail.schema.field, checked.detail.schema.field);
-    EXPECT_EQ(plain.detail.schema.occurs, checked.detail.schema.occurs);
-    EXPECT_EQ(plain.detail.schema.actual_length, checked.detail.schema.actual_length);
+    EXPECT_EQ(plain.diagnostic.location.end, checked.diagnostic.location.end);
+    ASSERT_EQ(plain.diagnostic.has_path, checked.diagnostic.has_path);
+    if (plain.diagnostic.has_path) {
+        ASSERT_EQ(plain.diagnostic.path.length, checked.diagnostic.path.length);
+        EXPECT_EQ(plain.diagnostic.path.omitted, checked.diagnostic.path.omitted);
+        for (size_t i = 0; i < plain.diagnostic.path.length; ++i)
+            EXPECT_TRUE(
+                tlv_tag_equal(plain.diagnostic.path.tags[i], checked.diagnostic.path.tags[i]));
+    }
+    ASSERT_EQ(plain.cause, checked.cause);
+    switch (plain.cause) {
+        case TLV_SCHEMA_CAUSE_SCHEMA:
+            EXPECT_EQ(plain.detail.schema.kind, checked.detail.schema.kind);
+            EXPECT_TRUE(tlv_tag_equal(plain.detail.schema.tag, checked.detail.schema.tag));
+            EXPECT_EQ(plain.detail.schema.field, checked.detail.schema.field);
+            EXPECT_EQ(plain.detail.schema.occurs, checked.detail.schema.occurs);
+            EXPECT_EQ(plain.detail.schema.actual_length, checked.detail.schema.actual_length);
+            break;
+        case TLV_SCHEMA_CAUSE_READER: {
+            const auto& a = plain.detail.reader;
+            const auto& b = checked.detail.reader;
+            EXPECT_EQ(a.operation, b.operation);
+            ASSERT_EQ(a.has_tag, b.has_tag);
+            if (a.has_tag) EXPECT_TRUE(tlv_tag_equal(a.tag, b.tag));
+            ASSERT_EQ(a.has_tag_offset, b.has_tag_offset);
+            if (a.has_tag_offset) EXPECT_EQ(a.tag_offset, b.tag_offset);
+            ASSERT_EQ(a.has_length_offset, b.has_length_offset);
+            if (a.has_length_offset) EXPECT_EQ(a.length_offset, b.length_offset);
+            ASSERT_EQ(a.has_value_offset, b.has_value_offset);
+            if (a.has_value_offset) EXPECT_EQ(a.value_offset, b.value_offset);
+            ASSERT_EQ(a.has_declared_length, b.has_declared_length);
+            if (a.has_declared_length) EXPECT_EQ(a.declared_length, b.declared_length);
+            ASSERT_EQ(a.has_raw_length, b.has_raw_length);
+            if (a.has_raw_length) {
+                ASSERT_EQ(a.raw_length.size, b.raw_length.size);
+                for (size_t i = 0; i < a.raw_length.size; ++i)
+                    EXPECT_EQ(a.raw_length.data[i], b.raw_length.data[i]);
+            }
+            ASSERT_EQ(a.has_available, b.has_available);
+            if (a.has_available) EXPECT_EQ(a.available, b.available);
+            ASSERT_EQ(a.has_enclosing_end, b.has_enclosing_end);
+            if (a.has_enclosing_end) EXPECT_EQ(a.enclosing_end, b.enclosing_end);
+            ASSERT_EQ(a.has_required, b.has_required);
+            if (a.has_required) EXPECT_EQ(a.required, b.required);
+            break;
+        }
+        default:
+            FAIL() << "Unexpected cause for these structural validation fixtures: " << plain.cause;
+    }
 }
 } // namespace
 
@@ -83,7 +130,12 @@ TEST(Integration_Tlv_SchemaChecked, ValidateMatchesPlainValidation) {
         tlv_schema_diagnostic_t plain, prepared;
         const tlv_result_t expected = tlv_schema_validate(wire.data(), wire.size(), &tlv_format_ber,
                                                           &rootSchema, 8, 100, &plain);
-        EXPECT_EQ(expected, tlv_schema_validate_checked(&checked, wire.data(), wire.size(),
+        ASSERT_EQ(results[i], expected);
+        if (expected != TLV_OK)
+            ASSERT_EQ(expected == TLV_ERR_SCHEMA ? TLV_SCHEMA_CAUSE_SCHEMA
+                                                 : TLV_SCHEMA_CAUSE_READER,
+                      plain.cause);
+        ASSERT_EQ(expected, tlv_schema_validate_checked(&checked, wire.data(), wire.size(),
                                                         &tlv_format_ber, 8, 100, &prepared));
         if (expected != TLV_OK) expectSame(plain, prepared);
     }
@@ -102,7 +154,9 @@ TEST(Integration_Tlv_SchemaChecked, ReportMatchesPlainReport) {
         const tlv_result_t             expected =
             tlv_schema_validate_all_diag(wire.data(), wire.size(), &tlv_format_ber, &rootSchema, 8,
                                          100, TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &plain, &plainFailure);
-        EXPECT_EQ(expected, tlv_schema_validate_all_checked(
+        ASSERT_EQ(results[i], expected);
+        if (expected == TLV_ERR_TRUNCATED) ASSERT_EQ(TLV_SCHEMA_CAUSE_READER, plainFailure.cause);
+        ASSERT_EQ(expected, tlv_schema_validate_all_checked(
                                 &checked, wire.data(), wire.size(), &tlv_format_ber, 8, 100,
                                 TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &prepared, &preparedFailure));
         ASSERT_EQ(plain.count, prepared.count);

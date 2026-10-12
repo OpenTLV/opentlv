@@ -79,8 +79,8 @@ TEST(Unit_Tlvpp_Diagnostic, PushPathReturnsAnErrorWhenFull) {
 
 TEST(Unit_Tlvpp_Diagnostic, PopPathRemovesTheLastTag) {
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
-    tlv::push_path(path, tlv::tag_bytes<0x6F>());
-    tlv::push_path(path, tlv::tag_bytes<0xA5>());
+    ASSERT_TRUE(tlv::push_path(path, tlv::tag_bytes<0x6F>()).has_value());
+    ASSERT_TRUE(tlv::push_path(path, tlv::tag_bytes<0xA5>()).has_value());
 
     tlv::pop_path(path);
 
@@ -91,7 +91,7 @@ TEST(Unit_Tlvpp_Diagnostic, PopPathRemovesTheLastTag) {
 TEST(Unit_Tlvpp_Diagnostic, SetPathAttachesThePathToTheDiagnostic) {
     tlv::diagnostic      diagnostic = tlv::make_diagnostic(tlv::errc::end, tlv::severity::error);
     tlv::diagnostic_path path = tlv::make_diagnostic_path();
-    tlv::push_path(path, tlv::tag_bytes<0x6F>());
+    ASSERT_TRUE(tlv::push_path(path, tlv::tag_bytes<0x6F>()).has_value());
 
     tlv::set_path(diagnostic, path);
 

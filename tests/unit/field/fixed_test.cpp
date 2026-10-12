@@ -14,7 +14,8 @@ TEST(Unit_Tlv_FixedField, IdentifierWidthsPreserveExactBytesAndBorrowInput) {
         SCOPED_TRACE(width);
         const tlv_fixed_identifier_t config{width};
         std::vector<uint8_t>         input(width + 2, 0xCC);
-        for (size_t i = 0; i < width; ++i) input[i + 1] = static_cast<uint8_t>(i * 53 + 0x9F);
+        uint8_t* const               identifier = input.data() + 1;
+        for (size_t i = 0; i < width; ++i) identifier[i] = static_cast<uint8_t>(i * 53 + 0x9F);
         tlv_tag_t tag{};
         size_t    consumed = 99;
         ASSERT_EQ(TLV_OK,

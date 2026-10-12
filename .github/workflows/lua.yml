@@ -9,6 +9,7 @@ name: Lua Bindings
 # sharing one lua_State, which crashes (see bindings/lua/README.md's Build
 # section).
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     tags: ['[0-9]*.[0-9]*.[0-9]*']
@@ -38,13 +39,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Windows and macOS run on release tags only.
-        os: ${{ fromJSON(startsWith(github.ref, 'refs/tags/') && '["ubuntu-24.04", "windows-latest", "macos-latest"]' || '["ubuntu-24.04"]') }}
+        # Exercise Windows setup on PRs too; manual and release runs include macOS.
+        os: ${{ fromJSON((startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch') && '["ubuntu-24.04", "windows-latest", "macos-latest"]' || '["ubuntu-24.04", "windows-latest"]') }}
         lua_version: ['5.1', '5.3', '5.4']
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      # gh-actions-lua builds Lua with cl on Windows, which needs the MSVC
+      # environment.
+      - name: Initialize MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
 
       - name: Set up Lua
         uses: leafo/gh-actions-lua@v10

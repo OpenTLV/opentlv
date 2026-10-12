@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Honor the required workspace alignment in Query diagnostic tests on Win32. (#597)
+- Restore GCC Release builds with warnings treated as errors for fixed-field tests and the C++ codec registry. (#599)
+- Check diagnostic path insertion results in C++ tests so MSVC C++23 builds accept them with warnings treated as errors. (#600)
+- Compare Schema validation diagnostics through their active cause, avoiding invalid union access in Win32 parity tests. (#601)
+- Initialize the MSVC environment before building Lua on Windows. GCC/MSVC validation and Windows Lua jobs now run on relevant pull requests, and their workflows support manual validation before release. (#599, #600, #601, #602)
+
 ## [0.7.0] - 2026-10-12
 
 ### Fixed
