@@ -23,14 +23,14 @@ tlv_der_schema_component_t Required(const tlv_der_schema_type_t& type) {
 }
 
 tlv_result_t Read(const std::vector<uint8_t>& data, const tlv_der_schema_type_t& root,
-                  size_t* consumed = nullptr, size_t* error_offset = nullptr,
+                  size_t* consumed = nullptr, size_t* location_begin = nullptr,
                   const tlv_der_schema_limits_t* limits = nullptr) {
     tlv_element_t           element{};
     size_t                  local_consumed = 0;
     tlv_schema_diagnostic_t diagnostic{};
     tlv_result_t rc = tlv_der_schema_read(data.data(), data.size(), &root, limits, &element,
                                           consumed ? consumed : &local_consumed, &diagnostic);
-    if (error_offset) *error_offset = diagnostic.diagnostic.location.begin;
+    if (location_begin) *location_begin = diagnostic.diagnostic.location.begin;
     return rc;
 }
 
@@ -598,7 +598,7 @@ tlv_result_t ScriptEncode(const void* context, const tlv_der_schema_component_t*
 }
 
 tlv_result_t Write(const tlv_der_schema_type_t& root, const std::vector<ScriptEntry>& script,
-                   std::vector<uint8_t>* output, size_t* error_offset = nullptr) {
+                   std::vector<uint8_t>* output, size_t* location_begin = nullptr) {
     std::vector<uint8_t>                 arena(4096);
     std::vector<tlv_der_schema_record_t> records(64);
     output->assign(256, 0);
@@ -607,8 +607,8 @@ tlv_result_t Write(const tlv_der_schema_type_t& root, const std::vector<ScriptEn
     tlv_result_t            rc =
         tlv_der_schema_write(output->data(), output->size(), &root, ScriptEncode, &script, nullptr,
                              arena.data(), arena.size(), records.data(), records.size(), &written,
-                             error_offset ? &diagnostic : nullptr);
-    if (error_offset) *error_offset = diagnostic.diagnostic.location.begin;
+                             location_begin ? &diagnostic : nullptr);
+    if (location_begin) *location_begin = diagnostic.diagnostic.location.begin;
     output->resize(rc == TLV_OK ? written : 0);
     return rc;
 }

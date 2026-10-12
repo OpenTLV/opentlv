@@ -2,7 +2,7 @@
 
 Audit date: 2026-10-06. Scope: the original 44 work packages in the supplied
 `OpenTLV_Query_1.0_GitHub_Issues.md`, compared with current source and
-[epic #518](https://github.com/marekcingel/OpenTLV/issues/518). The epic explicitly
+[epic #518](https://github.com/OpenTLV/opentlv/issues/518). The epic explicitly
 replaces those children with delivery issues #519-#523; original F0 is included
 in F1. The original planning document is evidence of intended scope, not an
 instruction to create another set of GitHub issues.
@@ -11,11 +11,11 @@ instruction to create another set of GitHub issues.
 
 | Delivery phase | Implementation assessment |
 | --- | --- |
-| [F1 / #519](https://github.com/marekcingel/OpenTLV/issues/519) | Implemented, including checked preparation/commit that rejects equal-size resolver drift before publishing a program. |
-| [F2 / #520](https://github.com/marekcingel/OpenTLV/issues/520) | Typed VM, variables, functions, generic hooks, names, tags, sets and optimizer are implemented in C with positive/negative coverage. |
-| [F3 / #521](https://github.com/marekcingel/OpenTLV/issues/521) | Bounded S1/S2, ordering, all Document axes and cross-backend/reference checks are implemented. |
-| [F4 / #522](https://github.com/marekcingel/OpenTLV/issues/522) | Implemented Query integrations and owning facades, including Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Formats, source events, ordinals and V1 compatibility. |
-| [F5 / #523](https://github.com/marekcingel/OpenTLV/issues/523) | Hardening and candidate gates implemented; local checks below pass. Closing the delivery issue still requires passing CI and complete evidence for the final candidate commit. |
+| [F1 / #519](https://github.com/OpenTLV/opentlv/issues/519) | Implemented, including checked preparation/commit that rejects equal-size resolver drift before publishing a program. |
+| [F2 / #520](https://github.com/OpenTLV/opentlv/issues/520) | Typed VM, variables, functions, generic hooks, names, tags, sets and optimizer are implemented in C with positive/negative coverage. |
+| [F3 / #521](https://github.com/OpenTLV/opentlv/issues/521) | Bounded S1/S2, ordering, all Document axes and cross-backend/reference checks are implemented. |
+| [F4 / #522](https://github.com/OpenTLV/opentlv/issues/522) | Implemented Query integrations and owning facades, including Tag adapters, scoped dynamic/Definition/EMV resolvers, configured Formats, source events, ordinals and V1 compatibility. |
+| [F5 / #523](https://github.com/OpenTLV/opentlv/issues/523) | Hardening and candidate gates implemented; local checks below pass. Closing the delivery issue still requires passing CI and complete evidence for the final candidate commit. |
 | [F6 / #536](query-adversarial.md) | Deterministic native lifecycle/storage/callback and plan-source verification implemented; local sanitizer, frontend-free and allocation/recursion evidence passes. Hosted candidate evidence remains required. |
 
 [F6 / #536](query-adversarial.md) adds native API sequence, storage, callback and

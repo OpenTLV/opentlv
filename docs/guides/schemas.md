@@ -269,7 +269,7 @@ requiredness is expressed by the group; its `max_occurs` still bounds how many
 times that one alternative may repeat.
 
 This is enough to express the ASN.1 example from
-[issue #308](https://github.com/marekcingel/OpenTLV/issues/308):
+[issue #308](https://github.com/OpenTLV/opentlv/issues/308):
 
 ```asn1
 Person ::= SEQUENCE {

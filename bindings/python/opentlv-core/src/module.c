@@ -1103,12 +1103,12 @@ static PyObject* _opentlv_document_parse(PyObject* module, PyObject* args) {
     }
     options.retain_source_locations = retain_source_locations;
     tlv_document_t*         document = NULL;
-    tlv_reader_diagnostic_t error_offset = {0};
+    tlv_reader_diagnostic_t diagnostic = {0};
     tlv_result_t code = tlv_document_parse((const uint8_t*)buffer.buf, (size_t)buffer.len, &options,
-                                           &document, &error_offset);
+                                           &document, &diagnostic);
     PyBuffer_Release(&buffer);
     if (code != TLV_OK) {
-        raise_reader_error(code, &error_offset);
+        raise_reader_error(code, &diagnostic);
         Py_DECREF(owner);
         return NULL;
     }

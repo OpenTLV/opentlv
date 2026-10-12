@@ -1,6 +1,6 @@
 # Query adversarial verification
 
-[F6 / #536](https://github.com/marekcingel/OpenTLV/issues/536) verifies native API
+[F6 / #536](https://github.com/OpenTLV/opentlv/issues/536) verifies native API
 sequences, storage relationships, callback lifetime and plan production after
 F1–F5. It does not add Query syntax. The public headers remain the contract.
 

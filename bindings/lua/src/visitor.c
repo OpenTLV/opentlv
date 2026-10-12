@@ -141,7 +141,7 @@ static int visit(lua_State* L, int tree) {
     }
 
     tlv_result_t            code;
-    tlv_reader_diagnostic_t error_offset = {0};
+    tlv_reader_diagnostic_t tree_diagnostic = {0};
     tlv_reader_diagnostic_t diagnostic;
     tlv_reader_diagnostic_init(&diagnostic);
     if (!tree) {
@@ -156,9 +156,9 @@ static int visit(lua_State* L, int tree) {
         tlv_der_limits_t limits = tlv_der_default_limits;
         limits.max_depth = max_depth;
         limits.max_elements = max_elements;
-        code =
-            tlv_der_visit((const uint8_t*)data, data_len, &limits,
-                          has_callback ? visitor_trampoline : NULL, &ctx, &error_offset.diagnostic);
+        code = tlv_der_visit((const uint8_t*)data, data_len, &limits,
+                             has_callback ? visitor_trampoline : NULL, &ctx,
+                             &tree_diagnostic.diagnostic);
     }
 #endif
     else {
@@ -166,7 +166,7 @@ static int visit(lua_State* L, int tree) {
         size_t            capacity = max_depth < data_len ? max_depth : data_len;
         tlv_tree_frame_t* frames = NULL;
         if (capacity > SIZE_MAX / sizeof(*frames)) {
-            code = TLV_ERR_OUT_OF_MEMORY;
+            code = TLV_ERR_OVERFLOW;
         } else {
             if (capacity) frames = (tlv_tree_frame_t*)malloc(capacity * sizeof(*frames));
             code = capacity && !frames ? TLV_ERR_OUT_OF_MEMORY
@@ -175,7 +175,7 @@ static int visit(lua_State* L, int tree) {
                                                               capacity, max_depth, max_elements);
             if (code == TLV_OK)
                 code = tlv_tree_reader_visit(&reader, has_callback ? visitor_trampoline : NULL,
-                                             &ctx, &error_offset);
+                                             &ctx, &tree_diagnostic);
             free(frames);
         }
     }
@@ -187,7 +187,7 @@ static int visit(lua_State* L, int tree) {
     }
     if (code != TLV_OK) {
         if (!tree) return opentlv_lua_raise_reader_error(L, code, &diagnostic);
-        return opentlv_lua_raise_reader_error(L, code, &error_offset);
+        return opentlv_lua_raise_reader_error(L, code, &tree_diagnostic);
     }
     lua_pushinteger(L, (lua_Integer)ctx.visited);
     lua_pushboolean(L, ctx.stopped);

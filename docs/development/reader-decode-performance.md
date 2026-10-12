@@ -1,7 +1,7 @@
 # Reader decode measurements
 
 This records the bounded optimization in
-[#538](https://github.com/marekcingel/OpenTLV/issues/538). Reader, Tree Reader and
+[#538](https://github.com/OpenTLV/opentlv/issues/538). Reader, Tree Reader and
 Document use the same canonical Format decoder. No public declaration, ABI,
 allocation policy, borrowed lifetime or wire behavior changes.
 

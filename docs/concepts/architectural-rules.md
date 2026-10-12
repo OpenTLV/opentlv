@@ -734,7 +734,7 @@ Useful diagnostic information includes:
 Fast paths that do not request diagnostics should not be forced to pay the
 full diagnostics cost.
 
-The [failure model](error-model.md) decides the target Result / Detail / Location /
+The [failure model](error-model.md) defines the Result / Detail / Location /
 Propagation contract (#551). Results classify generic conditions; protocol and
 operation specifics belong in typed detail. Invalid schema definitions are
 distinct from input violations, and location shape does not determine a result
@@ -742,10 +742,9 @@ class. Higher layers preserve delegated results and cause detail. Common
 diagnostics may be embedded in specialized value types; text contexts do not
 replace machine-readable detail.
 
-The design permits breaking enum, signature and layout replacement, including
-a shared result domain for Codec. These are implementation requirements, not
-claims about the current ABI. The [error reference](../reference/errors.md)
-documents the implemented behavior until that migration is complete.
+The model is implemented, including a shared result domain for Codec; before
+1.0, changing it may replace enums, signatures and layouts without aliases. The
+[error reference](../reference/errors.md) names the public values.
 
 ---
 
