@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-10-12
+
 ### Fixed
 
 - Honor the required workspace alignment in Query diagnostic tests on Win32, including visitor failures and incremental status handling. (#597)
