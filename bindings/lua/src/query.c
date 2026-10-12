@@ -272,7 +272,7 @@ static int query_evaluate(lua_State* L) {
     size_t            elements = opentlv_lua_query_limit(L, 4, "max_elements", 65536);
     size_t            capacity = depth < length ? depth : length;
     if (capacity > SIZE_MAX / sizeof(tlv_tree_frame_t))
-        return opentlv_lua_raise(L, TLV_ERR_LIMIT, 0, 0);
+        return opentlv_lua_raise(L, TLV_ERR_OVERFLOW, 0, 0);
     tlv_tree_frame_t*   frames = (tlv_tree_frame_t*)lua_newuserdata(L, capacity * sizeof(*frames));
     tlv_tree_reader_t   reader;
     tlv_query_matcher_t matcher;

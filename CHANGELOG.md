@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- The Lua tree visitor reports frame storage whose size cannot be represented as `OVERFLOW` instead of `OUT_OF_MEMORY`, like the Go binding and Document allocation, so `OUT_OF_MEMORY` means only a failed allocation. (#591)
+- Bindings report storage whose size cannot be represented as `OVERFLOW`, like Go, JS/WASM and Document allocation, so `OUT_OF_MEMORY` means only a failed allocation: the Lua tree visitor instead of `OUT_OF_MEMORY`, Lua path Query instead of `LIMIT`, and Python Structure Codec, Definition, Schema, Query definition scope and Schema Query rule tables as `ValueOverflowError` instead of `MemoryError`. A caller-supplied capacity that cannot be addressed remains an argument error. (#591)
 - The error reference names the typed Go Schema Query kind `QuerySchemaDetail.Kind` instead of `QuerySchemaError.Kind`, which no longer exists, and lists binding allocations under `OUT_OF_MEMORY`. (#591)
 - A binding Query error for a V1 path over its step or tag-byte limit names the exhausted bound, `path-steps` (65) or `path-bytes` (512), with its `configured` value like other Query limits, instead of no limit name. (#590)
 - Binding Schema Query errors omit the `schema` part when the failure is not a failed assertion, instead of reporting kind zero and an empty Tag: Python `None`, JS/WASM `null`, and Go `QuerySchemaError.Schema`, now a `*QuerySchemaDetail`, is nil. (#590)
