@@ -235,18 +235,27 @@ call reads at most 65,536 elements and 64 levels of nesting.
 ## Documentation playground
 
 The [TLV playground](../playground/index.md) in the documentation site is built
-on this module: `docs/playground/playground.js` calls `parse` once and renders
+on this module: the portal's `docs/playground/playground.js` calls `parse` once and renders
 the result as tree, hex and JSON views, with no parsing logic of its own; the
-JSON view serializes the parse result itself. Core's WebAssembly workflow owns
-module build and validation. The standalone portal embeds supplied artifacts
-under `playground/wasm/`; it does not compile the module. To preview it, build
-the module as above, set `OPENTLV_WASM_DIR` to the absolute path of
-`build-wasm/bindings/wasm/dist`, then run the portal's local preview command.
-Without the module the site still builds and reports that the playground is
-unavailable. Automated artifact integration belongs to
-[portal #6](https://github.com/OpenTLV/opentlv-docs/issues/6). Keep the existing
-Core playground sources until that migration preserves the working application;
-the historical site remains available during this transition.
+JSON view serializes the parse result itself. Core owns the CMake WASM target
+and smoke tests. The portal invokes them against its selected Core checkout,
+verifies source provenance and all four distribution files, then embeds them
+under `playground/wasm/`. In the portal, run `python tools/docs/wasm.py` before
+previewing, or supply an already verified distribution with `OPENTLV_WASM_DIR`.
+Bare CMake output lacks the portal's `wasm-source.json` provenance manifest.
+Local previews may omit WASM; publication requires it and a browser smoke test.
+
+After a successful WebAssembly push workflow on `main` or a stable release tag,
+`.github/workflows/docs-notify.yml` notifies the portal. Configure
+`OPENTLV_DOCS_DISPATCH_TOKEN` with access to dispatch events in
+`OpenTLV/opentlv-docs`; the ordinary Core `GITHUB_TOKEN` is repository-scoped.
+Main notifications open a portal PR that pins the Core SHA in `docs-sources.json`;
+publication follows successful validation after that PR is merged. Stable tag
+notifications request the corresponding immutable documentation release.
+The notification job executes no checked-out code and runs separately after the
+producer succeeds, so notification failure does not change the Core build result.
+Portal configuration, recovery and component notification contracts are documented
+in its README.
 
 ## Testing
 
