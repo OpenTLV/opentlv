@@ -183,7 +183,7 @@ API generation inputs and portal code.
 | Source / artifact | Owner and disposition |
 | --- | --- |
 | `docs/assets/opentlv.svg` and `docs/assets/README.md` | Retain the Core README logo and attribution; shared visual design, favicon, header mark and variants are maintained in the portal |
-| `docs/playground/playground.js`, `docs/playground/playground.css` | Portal: browser UI and styling; WebAssembly implementation remains component-owned |
+| `docs/playground/playground.js`, `docs/playground/playground.css` in `opentlv-docs` | Portal: browser UI and styling, transferred by portal #6; Core retains a Markdown entry-point link |
 | `mkdocs.yml`, `requirements-docs.txt`, `tools/docs/hooks.py`, `tools/docs/overrides/main.html` in the portal repository | Portal: configuration, dependencies, source-link rewriting, generated artifact integration and version banner; removed from Core by #608 |
 | `.github/workflows/docs-validation.yml` | Core: read-only Markdown, example/inventory and Doxygen validation with API artifacts; replaces the removed `docs.yml` publisher |
 | `tools/docs/Doxyfile.in`, `Doxyfile.cxx.in`, `Doxyfile.common.in`, `c-api.dox`, `cxx-api.dox` (all under `tools/docs/`) | Core: independent C/C++ extraction configuration, groups and landing pages; preserve C/C++ cross-links and `@docs` links when portal URLs change |
@@ -301,15 +301,14 @@ targets, native examples, and existing binding/CLI documentation. Only migrated
 site configuration, Python site dependencies, hooks, theme and unused site asset
 variants are removed. The README logo remains usable offline.
 
-The playground page, JavaScript and stylesheet remain in Core as a documented
-transitional exception. Portal [#6](https://github.com/OpenTLV/opentlv-docs/issues/6)
-owns verified WASM artifact integration and eventual UI source transfer; Core's
-WebAssembly workflow remains its producer. The portal currently accepts an
-explicit `OPENTLV_WASM_DIR`, but its publication workflow does not supply one.
-Until integration is delivered, the historical site retains the working
-playground, linked from the current playground page with its version limitation.
-This preserves access without claiming that the new portal supplies a WASM
-module matching its selected Core revision.
+Portal [#6](https://github.com/OpenTLV/opentlv-docs/issues/6) transfers the
+playground UI to `opentlv-docs`. Core retains a Markdown entry point and the
+component-owned WebAssembly implementation, CMake target and tests. The portal
+builds that target for its selected Core commit, verifies provenance and runs
+the browser smoke test before publication. Its exact-path overlays support
+older Core revisions that still contain the UI.
+Merge and validate the portal integration before merging the Core UI removal.
+The historical playground and its version history remain unchanged.
 
 ## Documenting new Core functionality
 
