@@ -249,8 +249,13 @@ After a successful WebAssembly push workflow on `main` or a stable release tag,
 `.github/workflows/docs-notify.yml` notifies the portal. Configure
 `OPENTLV_DOCS_DISPATCH_TOKEN` with access to dispatch events in
 `OpenTLV/opentlv-docs`; the ordinary Core `GITHUB_TOKEN` is repository-scoped.
-The notification job executes no checked-out code. Portal configuration,
-recovery and component notification contracts are documented in its README.
+Main notifications open a portal PR that pins the Core SHA in `docs-sources.json`;
+publication follows successful validation after that PR is merged. Stable tag
+notifications request the corresponding immutable documentation release.
+The notification job executes no checked-out code and runs separately after the
+producer succeeds, so notification failure does not change the Core build result.
+Portal configuration, recovery and component notification contracts are documented
+in its README.
 
 ## Testing
 

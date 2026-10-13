@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Document reviewed portal source-pin updates for Core development notifications and independent release publication. (OpenTLV/opentlv-docs#6)
 - Notify the documentation portal after successful main and stable-tag WASM builds; transfer playground UI sources to the portal while retaining Core's WASM implementation, build target, tests and playground entry-point link. (OpenTLV/opentlv-docs#6)
 - Move documentation publication to the standalone portal while retaining independent Core Markdown checks and C/C++ API generation; update repository and documentation links and document the cutover and historical URL policy. (#608)
 
