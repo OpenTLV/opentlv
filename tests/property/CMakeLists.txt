@@ -11,16 +11,19 @@ if(OPENTLV_PROPERTY_COMMIT STREQUAL "")
     endif()
 endif()
 
+add_executable(property-generate generate.cpp)
 add_executable(property-roundtrip roundtrip.cpp)
-target_link_libraries(property-roundtrip PRIVATE tlv)
-target_compile_features(property-roundtrip PRIVATE cxx_std_11)
-opentlv_configure_compiler(property-roundtrip)
-opentlv_copy_shared_runtime(property-roundtrip)
+foreach(target IN ITEMS property-generate property-roundtrip)
+    target_link_libraries(${target} PRIVATE OpenTLV::tlv)
+    target_compile_features(${target} PRIVATE cxx_std_11)
+    opentlv_configure_compiler(${target})
+    opentlv_copy_shared_runtime(${target})
+endforeach()
 
 function(property_configuration name format)
     add_test(NAME Property_${name} COMMAND "${Python3_EXECUTABLE}"
         "${CMAKE_CURRENT_SOURCE_DIR}/corpus.py"
-        --cli "$<TARGET_FILE:otlv>" --checker "$<TARGET_FILE:property-roundtrip>"
+        --generator "$<TARGET_FILE:property-generate>" --checker "$<TARGET_FILE:property-roundtrip>"
         --root "${OpenTLV_BINARY_DIR}/property-data/$<CONFIG>/${name}"
         --failures "${OpenTLV_BINARY_DIR}/property-failures/$<CONFIG>/${name}"
         --format "${format}" --count "${OPENTLV_PROPERTY_COUNT}"
@@ -55,6 +58,10 @@ endif()
 add_test(NAME Property_infrastructure COMMAND "${Python3_EXECUTABLE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/corpus_test.py")
 set_tests_properties(Property_infrastructure PROPERTIES LABELS "property;infrastructure")
+
+add_test(NAME Property_generator COMMAND "${Python3_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/generator_test.py" "$<TARGET_FILE:property-generate>")
+set_tests_properties(Property_generator PROPERTIES LABELS "property;infrastructure")
 
 if(TARGET test-query-conformance)
     add_test(NAME Property_query_infrastructure COMMAND "${Python3_EXECUTABLE}"

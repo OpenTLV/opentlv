@@ -53,6 +53,10 @@ See [C++ and CLI examples](../guides/cxx-examples.md#equivalent-cli-operations)
 for matching parsing, nested writing and Query operations with executable
 acceptance checks.
 
+The [CLI migration regression baseline](../../tools/cli/baseline/README.md)
+records the originating source revision, commands, test/fixture ownership and
+the exact-output comparison procedure for standalone CLI extraction.
+
 ## Commands
 
 ```sh

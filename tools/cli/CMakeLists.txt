@@ -130,6 +130,21 @@ if(OPENTLV_BUILD_CLI_TESTS)
     endif()
     # Registered here because tests/ is configured before the otlv target exists.
     find_package(Python3 COMPONENTS Interpreter QUIET)
+    if(Python3_Interpreter_FOUND AND Python3_VERSION VERSION_GREATER_EQUAL 3.8)
+        add_test(NAME Integration_cli_baseline_runner
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/baseline/test_runner.py)
+        set_tests_properties(Integration_cli_baseline_runner PROPERTIES LABELS "integration;cli")
+        # The frozen snapshot describes the originating full-feature build.
+        # Reduced builds retain the capability-aware tests above.
+        if(OPENTLV_FORMAT_BER AND OPENTLV_FORMAT_DER AND OPENTLV_EMV AND
+           OPENTLV_BLUETOOTH AND OPENTLV_NFC AND OPENTLV_QUERY_FRONTEND AND OPENTLV_DOCUMENT)
+            add_test(NAME Integration_cli_baseline
+                COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/baseline/run.py compare
+                    --cli $<TARGET_FILE:otlv>
+                    --report ${CMAKE_CURRENT_BINARY_DIR}/baseline-report-$<CONFIG>.json)
+            set_tests_properties(Integration_cli_baseline PROPERTIES LABELS "integration;cli" TIMEOUT 300)
+        endif()
+    endif()
     if(Python3_Interpreter_FOUND AND OPENTLV_QUERY_FRONTEND AND OPENTLV_FORMAT_BER
        AND OPENTLV_DOCUMENT)
         add_test(NAME query-cli-conformance
