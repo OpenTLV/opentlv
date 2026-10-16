@@ -1,13 +1,14 @@
 # OpenTLV Git tags use Semantic Versioning without a prefix, for example
 # 1.0.0 or 1.0.0-rc.1.
 set(_OPENTLV_VERSION_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+get_filename_component(_OPENTLV_VERSION_SOURCE_DIR "${_OPENTLV_VERSION_MODULE_DIR}/.." ABSOLUTE)
 
 # Remove the legacy manually configured value; pre-release now comes from Git.
 unset(OPENTLV_VERSION_PRERELEASE CACHE)
 
 execute_process(
     COMMAND git describe --tags --abbrev=0 --match "[0-9]*" HEAD
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    WORKING_DIRECTORY "${_OPENTLV_VERSION_SOURCE_DIR}"
     RESULT_VARIABLE _opentlv_git_tag_result
     OUTPUT_VARIABLE _opentlv_described_tag
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -17,7 +18,7 @@ execute_process(
 if(_opentlv_git_tag_result EQUAL 0)
     execute_process(
         COMMAND git rev-list -n 1 "${_opentlv_described_tag}"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${_OPENTLV_VERSION_SOURCE_DIR}"
         RESULT_VARIABLE _opentlv_tag_commit_result
         OUTPUT_VARIABLE _opentlv_tag_commit
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -31,7 +32,7 @@ if(_opentlv_git_tag_result EQUAL 0)
     execute_process(
         COMMAND git tag --points-at "${_opentlv_tag_commit}"
             --list "[0-9]*" --sort=-version:refname
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${_OPENTLV_VERSION_SOURCE_DIR}"
         RESULT_VARIABLE _opentlv_tags_at_commit_result
         OUTPUT_VARIABLE _opentlv_tags_at_commit
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -96,7 +97,7 @@ if(_opentlv_git_tag_result EQUAL 0)
 
     execute_process(
         COMMAND git rev-list --count "${OPENTLV_GIT_TAG}..HEAD"
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+        WORKING_DIRECTORY "${_OPENTLV_VERSION_SOURCE_DIR}"
         RESULT_VARIABLE _opentlv_git_revision_result
         OUTPUT_VARIABLE OPENTLV_VERSION_REVISION
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -127,7 +128,7 @@ endif()
 
 execute_process(
     COMMAND git rev-parse --short HEAD
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    WORKING_DIRECTORY "${_OPENTLV_VERSION_SOURCE_DIR}"
     RESULT_VARIABLE _opentlv_git_hash_result
     OUTPUT_VARIABLE OPENTLV_GIT_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -139,7 +140,7 @@ endif()
 
 execute_process(
     COMMAND git rev-parse --abbrev-ref HEAD
-    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    WORKING_DIRECTORY "${_OPENTLV_VERSION_SOURCE_DIR}"
     RESULT_VARIABLE _opentlv_git_branch_result
     OUTPUT_VARIABLE OPENTLV_GIT_BRANCH
     OUTPUT_STRIP_TRAILING_WHITESPACE

@@ -6,6 +6,12 @@ project(OpenTLV VERSION ${OPENTLV_VERSION} LANGUAGES C)
 
 opentlv_generate_version_files()
 
+# Keep standalone defaults while embedding only the libraries in a consumer.
+set(_OPENTLV_TOP_LEVEL OFF)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(_OPENTLV_TOP_LEVEL ON)
+endif()
+
 # Build and language bindings
 option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of static" ON)
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
@@ -37,12 +43,12 @@ option(OPENTLV_DHCP "Include DHCPv4 option framing, definitions and value codecs
 option(OPENTLV_LLDP "Include LLDP framing, definitions, structural validation and value codecs" ON)
 
 # Tools and documentation
-option(OPENTLV_BUILD_CLI "Build the otlv command-line tool" ON)
-option(OPENTLV_BUILD_EXAMPLES "Build examples" ON)
+option(OPENTLV_BUILD_CLI "Build the otlv command-line tool" ${_OPENTLV_TOP_LEVEL})
+option(OPENTLV_BUILD_EXAMPLES "Build examples" ${_OPENTLV_TOP_LEVEL})
 option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" OFF)
 
 # Tests and quality checks
-option(OPENTLV_BUILD_TESTS "Build tests" ON)
+option(OPENTLV_BUILD_TESTS "Build tests" ${_OPENTLV_TOP_LEVEL})
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_QUERY_TESTS "Build independent C Query conformance tests (no C++ or GoogleTest required)" ON)
@@ -100,13 +106,15 @@ include(cmake/compiler.cmake)
 include(cmake/memcheck.cmake)
 include(GNUInstallDirs)
 
-include(cmake/clang_format.cmake)
-opentlv_add_clang_format_targets()
-
-include(cmake/cppcheck.cmake)
-opentlv_add_cppcheck_targets()
+if(_OPENTLV_TOP_LEVEL)
+    include(cmake/clang_format.cmake)
+    opentlv_add_clang_format_targets()
+    include(cmake/cppcheck.cmake)
+    opentlv_add_cppcheck_targets()
+endif()
 
 add_subdirectory(tlv)
+add_library(OpenTLV::tlv ALIAS tlv)
 
 if(OPENTLV_BUILD_WASM)
     # ctest reads the top-level test file, so testing is enabled here, not in bindings/wasm.
@@ -134,10 +142,13 @@ endif()
 
 if(OPENTLV_BUILD_CXX)
     add_subdirectory(tlv++)
+    add_library(OpenTLV::tlv++ ALIAS tlv++)
 endif()
 
-include(cmake/clang_tidy.cmake)
-opentlv_add_clang_tidy_targets()
+if(_OPENTLV_TOP_LEVEL)
+    include(cmake/clang_tidy.cmake)
+    opentlv_add_clang_tidy_targets()
+endif()
 
 if(OPENTLV_BUILD_TESTS)
     enable_testing()
@@ -162,6 +173,6 @@ if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_BER)
 endif()
 
 include(cmake/install.cmake)
-if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+if(_OPENTLV_TOP_LEVEL)
     include(cmake/packaging.cmake)
 endif()
