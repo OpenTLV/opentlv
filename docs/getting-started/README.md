@@ -121,7 +121,7 @@ set(OPENTLV_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/OpenTLV)
 
 add_executable(tlv_demo main.c)
-target_link_libraries(tlv_demo PRIVATE tlv)
+target_link_libraries(tlv_demo PRIVATE OpenTLV::tlv)
 ```
 
 Configure and build with the CMake commands from
@@ -136,7 +136,7 @@ zero indicates a successful round trip.
 Save the example as `main.cpp`. It is
 [examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
 Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
-`project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `tlv++` instead of `tlv`;
+`project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `OpenTLV::tlv++` instead of `OpenTLV::tlv`;
 this target propagates the C library and include paths. `tlv::fixed_format`
 selects the same Fixed configuration at compile time. The range visits one level
 and borrows input; malformed
@@ -202,7 +202,7 @@ set(OPENTLV_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/OpenTLV)
 
 add_executable(tlv_demo main.cpp)
-target_link_libraries(tlv_demo PRIVATE tlv++)
+target_link_libraries(tlv_demo PRIVATE OpenTLV::tlv++)
 ```
 
 Configure and build with the CMake commands from
@@ -424,6 +424,91 @@ the further [Rust examples](../guides/rust.md) (reading, writing, and the
 [Python examples](../guides/python.md) (reading, writing, validating, codecs
 and documents) are further runnable examples.
 
+## Consume Core from another CMake project
+
+Use the same public targets with `add_subdirectory()`, `FetchContent`, or an
+installed CMake package:
+
+| Target | Public interface | Transitive requirements |
+| --- | --- | --- |
+| `OpenTLV::tlv` | C headers under `tlv/`, including generated configuration, version and export headers | C99; no third-party libraries |
+| `OpenTLV::tlv++` | C++ headers under `tlv++/` | C++11 and `OpenTLV::tlv` |
+
+Link only the target for your language. Its usage requirements provide the
+public include directories and language features; do not add Core source paths,
+private headers or library filenames to your application. `OpenTLV::tlv++` is
+available only when Core was built with `OPENTLV_BUILD_CXX=ON`.
+The installed C++ target was previously named `OpenTLV::tlvpp`; migrate existing
+consumers to `OpenTLV::tlv++`. No compatibility alias is provided.
+
+### Source dependency
+
+For a local checkout, CMake 3.16+ is sufficient:
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(my_app LANGUAGES CXX)
+include(FetchContent)
+FetchContent_Declare(opentlv_core SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/opentlv")
+FetchContent_MakeAvailable(opentlv_core)
+add_executable(my_app main.cpp)
+target_link_libraries(my_app PRIVATE OpenTLV::tlv++)
+```
+
+Alternatively, declare `GIT_REPOSITORY https://github.com/OpenTLV/opentlv.git`
+and `GIT_TAG` with a verified Core commit containing these public targets.
+Override the declared source explicitly for local or offline development:
+
+```sh
+cmake -S . -B build -DFETCHCONTENT_SOURCE_DIR_OPENTLV_CORE=/path/to/opentlv
+```
+
+When embedded, Core defaults `OPENTLV_BUILD_TESTS`, `OPENTLV_BUILD_EXAMPLES`
+and `OPENTLV_BUILD_CLI` to `OFF`. These options remain explicitly configurable;
+standalone Core builds retain their `ON` defaults. Core's convenience targets
+(`format`, `format-check`, `cppcheck`, `clang-tidy`) are added only in standalone
+builds. The C++ facade remains enabled by default; a C-only application can set
+`OPENTLV_BUILD_CXX=OFF` before adding Core. Core version metadata always comes
+from Core's own checkout, independently of the application's Git tags.
+
+### Installed dependency
+
+After `cmake --install`, provide the installation prefix through
+`CMAKE_PREFIX_PATH` and use:
+
+```cmake
+find_package(OpenTLV CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE OpenTLV::tlv++)
+```
+
+The package name is **`OpenTLV`**, even if the FetchContent dependency is named
+`opentlv_core`. On CMake 3.24+, a consumer combining package discovery with
+FetchContent can use `FIND_PACKAGE_ARGS CONFIG NAMES OpenTLV` in its declaration.
+An explicit `FETCHCONTENT_SOURCE_DIR_OPENTLV_CORE` override takes precedence
+over package discovery and avoids downloading Core. See the
+[CMake FetchContent documentation](https://cmake.org/cmake/help/latest/module/FetchContent.html#integrating-with-find-package)
+for this resolution mechanism.
+
+The existing package version policy is exact numeric version matching: use
+`find_package(OpenTLV <major.minor.patch> EXACT CONFIG REQUIRED)` when requesting
+a particular version. An unversioned request imposes no version constraint.
+The package does not promise compatibility with arbitrary newer Core releases.
+For shared builds, the application must also arrange runtime library discovery;
+on Windows, for example, place the Core DLL beside the executable or add its
+directory to `PATH`. This requirement applies to both source and installed modes.
+
+The integration check builds and runs external C and optional C++ applications
+against a source override and a relocated installation, and also exercises
+FetchContent package discovery on CMake 3.24+:
+
+```sh
+python scripts/check_cmake_integration.py --shared ON --cxx ON
+```
+
+Use `--shared OFF` for static libraries and `--cxx OFF` for C-only Core.
+The check requires Git, Python 3 and a native CMake toolchain; it downloads no
+dependencies. CI covers all four combinations on Linux and Windows.
+
 ## Install and generate distribution archives
 
 ```sh
@@ -455,7 +540,7 @@ After extracting, point `CMAKE_PREFIX_PATH` at that enclosing directory:
 ```cmake
 find_package(OpenTLV CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE OpenTLV::tlv)
-# For C++ applications, use OpenTLV::tlvpp instead.
+# For C++ applications, use OpenTLV::tlv++ instead.
 ```
 
 ```sh
@@ -466,7 +551,7 @@ cmake --build my-app/build --config Release
 The source checkout is unnecessary. Use a compatible compiler, architecture
 and runtime for the binary library. For shared builds, make the installed
 runtime library discoverable by the platform loader (for example, Windows `PATH`).
-`OPENTLV_BUILD_CXX=OFF` omits C++ headers and the `OpenTLV::tlvpp` target.
+`OPENTLV_BUILD_CXX=OFF` omits C++ headers and the `OpenTLV::tlv++` target.
 CPack only packages `install()` output; it requires neither Conan nor vcpkg.
 On version-tag pushes (for example `0.1.0` or `0.2.0-rc.1`), the standard
 GCC, Clang and MSVC Release jobs each package their tested builds. GCC and Clang

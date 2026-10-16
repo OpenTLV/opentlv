@@ -13,7 +13,6 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tlv)
 
 if(OPENTLV_BUILD_CXX)
-    set_target_properties(tlv++ PROPERTIES EXPORT_NAME tlvpp)
     install(TARGETS tlv++ EXPORT OpenTLVTargets)
     install(DIRECTORY tlv++/include/tlv++ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
         FILES_MATCHING PATTERN "*.hpp")

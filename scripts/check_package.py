@@ -145,14 +145,14 @@ add_test(NAME consumer COMMAND consumer)
 '''.replace("@LANGUAGES@", " ".join(languages))
         if args.cxx == "ON":
             (consumer / "main.cpp").write_text(
-                '#include <tlv++/tlv.hpp>\n#include <tlv/version.h>\n'
-                'int main() { return tlv_version_string() == nullptr; }\n', encoding="utf-8")
+                '#include <tlv++/tlv.hpp>\n'
+                'int main() { return tlv::version() == nullptr; }\n', encoding="utf-8")
             cmake += '''add_executable(consumer_cpp main.cpp)
-target_link_libraries(consumer_cpp PRIVATE OpenTLV::tlvpp)
+target_link_libraries(consumer_cpp PRIVATE OpenTLV::tlv++)
 add_test(NAME consumer_cpp COMMAND consumer_cpp)
 '''
         else:
-            cmake += 'if(TARGET OpenTLV::tlvpp)\nmessage(FATAL_ERROR "Unexpected C++ target")\nendif()\n'
+            cmake += 'if(TARGET OpenTLV::tlv++)\nmessage(FATAL_ERROR "Unexpected C++ target")\nendif()\n'
         (consumer / "CMakeLists.txt").write_text(cmake, encoding="utf-8")
         configure = ["cmake", "-S", str(consumer), "-B", str(consumer / "build"),
                      "-G", cache["CMAKE_GENERATOR"], f"-DEXPECTED_PACKAGE_DIR={package_dir.as_posix()}",

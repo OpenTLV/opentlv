@@ -1,0 +1,78 @@
+cmake_minimum_required(VERSION 3.16)
+project(consumer VERSION 91.92.93 LANGUAGES C)
+
+if(CONSUMER_CXX)
+    enable_language(CXX)
+endif()
+
+# These generic names belong to the application, not its dependencies.
+foreach(tool IN ITEMS format format-check cppcheck clang-tidy)
+    add_custom_target(${tool})
+endforeach()
+
+if(CONSUMER_MODE STREQUAL "package")
+    find_package(OpenTLV ${EXPECTED_VERSION} EXACT CONFIG REQUIRED)
+else()
+    include(FetchContent)
+    set(package_args)
+    if(NOT CMAKE_VERSION VERSION_LESS 3.24)
+        set(package_args FIND_PACKAGE_ARGS ${EXPECTED_VERSION} EXACT CONFIG NAMES OpenTLV)
+    elseif(CONSUMER_MODE STREQUAL "fetch-package")
+        message(FATAL_ERROR "FIND_PACKAGE_ARGS requires CMake 3.24")
+    endif()
+    # Neither source override nor installed discovery may attempt this download.
+    FetchContent_Declare(opentlv_core
+        GIT_REPOSITORY "${CMAKE_CURRENT_SOURCE_DIR}/nonexistent-repository"
+        GIT_TAG unused
+        ${package_args})
+    FetchContent_MakeAvailable(opentlv_core)
+endif()
+
+if(NOT PROJECT_NAME STREQUAL "consumer" OR NOT PROJECT_VERSION STREQUAL "91.92.93")
+    message(FATAL_ERROR "Core changed the consumer's project identity")
+endif()
+if(NOT TARGET OpenTLV::tlv OR TARGET OpenTLV::tlvpp)
+    message(FATAL_ERROR "Incorrect public CMake targets")
+endif()
+if(CONSUMER_CXX)
+    if(NOT TARGET OpenTLV::tlv++)
+        message(FATAL_ERROR "Missing C++ facade")
+    endif()
+elseif(TARGET OpenTLV::tlv++)
+    message(FATAL_ERROR "Unexpected C++ facade in C-only build")
+endif()
+get_target_property(core_imported OpenTLV::tlv IMPORTED)
+if(CONSUMER_MODE STREQUAL "fetch")
+    if(core_imported OR OPENTLV_BUILD_TESTS OR OPENTLV_BUILD_EXAMPLES OR OPENTLV_BUILD_CLI)
+        message(FATAL_ERROR "Source override must embed only the Core libraries by default")
+    endif()
+elseif(NOT core_imported)
+    message(FATAL_ERROR "Package discovery did not select the installed library")
+else()
+    get_target_property(core_location OpenTLV::tlv IMPORTED_LOCATION_RELEASE)
+    file(RELATIVE_PATH relative_location "${EXPECTED_PREFIX}" "${core_location}")
+    if(IS_ABSOLUTE "${relative_location}" OR relative_location MATCHES "^\\.\\.")
+        message(FATAL_ERROR "Core was not loaded from the relocated installation: ${core_location}")
+    endif()
+endif()
+
+enable_testing()
+add_executable(consumer_c main.c)
+target_link_libraries(consumer_c PRIVATE OpenTLV::tlv)
+set(consumers consumer_c)
+if(CONSUMER_CXX)
+    add_executable(consumer_cpp main.cpp)
+    # No explicit link to C, include directories, or language standard.
+    target_link_libraries(consumer_cpp PRIVATE OpenTLV::tlv++)
+    list(APPEND consumers consumer_cpp)
+endif()
+get_target_property(core_type OpenTLV::tlv TYPE)
+foreach(consumer IN LISTS consumers)
+    if(WIN32 AND core_type STREQUAL "SHARED_LIBRARY")
+        add_custom_command(TARGET ${consumer} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "$<TARGET_FILE:OpenTLV::tlv>" "$<TARGET_FILE_DIR:${consumer}>"
+            VERBATIM)
+    endif()
+    add_test(NAME ${consumer} COMMAND ${consumer} "${EXPECTED_RUNTIME_VERSION}")
+endforeach()

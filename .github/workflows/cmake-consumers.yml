@@ -1,0 +1,39 @@
+name: Public CMake consumers
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'tlv/**'
+      - 'tlv\+\+/**'
+      - 'tests/cmake-consumer/**'
+      - 'scripts/check_cmake_integration.py'
+      - '.github/workflows/cmake-consumers.yml'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  consumers:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-2022]
+        shared: ['ON', 'OFF']
+        cxx: ['ON', 'OFF']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Build and run external consumers
+        run: >-
+          python scripts/check_cmake_integration.py
+          --shared ${{ matrix.shared }} --cxx ${{ matrix.cxx }}
