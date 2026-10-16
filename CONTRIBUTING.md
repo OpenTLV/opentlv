@@ -145,8 +145,8 @@ parameter), build the C headers with Clang's `-Wdocumentation`.
 ## Deterministic property tests
 
 Enable `OPENTLV_BUILD_PROPERTY_TESTS=ON` and select the suite with
-`ctest --test-dir build -L property --output-on-failure`. It uses the CLI
-generator and public Tree Reader/Writer contracts to verify complete generated
+`ctest --test-dir build -L property --output-on-failure`. It uses the public Core
+Generator and Tree Reader/Writer contracts, without requiring the CLI, to verify complete generated
 streams, separately from unit, integration and fuzz testing. See the
 [property suite guide](tests/property/README.md) for corpus identity, commit
 seeds, optional-format coverage and failure reproduction.

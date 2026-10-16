@@ -62,7 +62,7 @@ def run(args):
                 "seed_mapping": "explicit-uint64" if args.seed else
                                 "sha256-lowercase-ascii-first-8-bytes-big-endian-v1",
                 "generator": {"algorithm": "SplitMix64", "version": int(version[1]),
-                              "domain": "otlv-generate-v1"}, "options": options}
+                              "domain": "opentlv-property-wire-v1"}, "options": options}
     metadata["transform"] = "nfc-null-prefix-terminator-suffix-v1" if args.nfc_controls else "none"
     metadata["verification_limits"] = {"max_depth": depth, "max_elements": args.max_elements,
                                        "max_case_size": args.max_case_size}
@@ -74,13 +74,9 @@ def run(args):
             raise ValueError("NFC control framing requires at least three elements")
         options["max_case_size"] -= 2
         options["max_elements"] -= 2
-    command = [args.cli, "generate", "--format", args.format, "--seed", str(seed),
-               "--count", str(args.count), "--output-dir", str(args.root),
-               "--max-depth", str(depth), "--max-elements", str(options["max_elements"]),
-               "--max-value-size", str(args.max_value_size), "--max-case-size", str(options["max_case_size"])]
-    if configuration:
-        command += ["--fixed-tag-size", str(args.tag_size), "--fixed-length-size", str(args.length_size),
-                    "--fixed-byte-order", args.byte_order]
+    command = [args.generator, args.format, str(args.root), str(seed), str(args.count),
+               str(depth), str(options["max_elements"]), str(args.max_value_size),
+               str(options["max_case_size"]), str(args.tag_size), str(args.length_size), args.byte_order]
     metadata["generation_command"] = command
     # Only files owned by this contract are replaced; each configuration has its own directory.
     args.root.mkdir(parents=True, exist_ok=True)
@@ -132,7 +128,7 @@ def run(args):
 
 def parser():
     result = argparse.ArgumentParser(description=__doc__)
-    for name in ("cli", "checker", "format", "commit"):
+    for name in ("generator", "checker", "format", "commit"):
         result.add_argument("--" + name, required=True)
     for name in ("root", "failures", "generator-header"):
         result.add_argument("--" + name, type=Path, required=True)

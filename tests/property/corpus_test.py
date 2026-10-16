@@ -20,12 +20,13 @@ class CorpusContract(unittest.TestCase):
             header = root / "generator.h"
             header.write_text("#define TLV_GENERATOR_VERSION 7\n")
             args = parser().parse_args([
-                "--cli", "generator", "--checker", "checker", "--format", "fixed",
+                "--generator", "generator", "--checker", "checker", "--format", "fixed",
                 "--commit", "abc", "--seed", "0", "--count", "1",
                 "--root", str(root / "data"), "--failures", str(root / "failures"),
                 "--generator-header", str(header)])
 
             def generator(command, **kwargs):
+                self.assertEqual(command[:5], ["generator", "fixed", str(args.root), "0", "1"])
                 (args.root / "000000.bin").write_bytes(b"\x01\x00")
                 return subprocess.CompletedProcess(command, 0, "", "")
 
@@ -39,6 +40,7 @@ class CorpusContract(unittest.TestCase):
             evidence = json.loads((args.failures / "000000" / "metadata.json").read_text())
             self.assertEqual(evidence["seed"], "0")
             self.assertEqual(evidence["generator"]["version"], 7)
+            self.assertEqual(evidence["generator"]["domain"], "opentlv-property-wire-v1")
             self.assertIn("injected mismatch", evidence["failure"])
 
             def passing_checker(command, **kwargs):

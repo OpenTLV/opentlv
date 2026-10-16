@@ -52,7 +52,7 @@ option(OPENTLV_BUILD_TESTS "Build tests" ${_OPENTLV_TOP_LEVEL})
 option(OPENTLV_BUILD_UNIT_TESTS "Build component contract tests" ON)
 option(OPENTLV_BUILD_INTEGRATION_TESTS "Build format and layer integration tests" ON)
 option(OPENTLV_BUILD_QUERY_TESTS "Build independent C Query conformance tests (no C++ or GoogleTest required)" ON)
-option(OPENTLV_BUILD_PROPERTY_TESTS "Build deterministic generated-corpus property tests (requires CLI and Python)" OFF)
+option(OPENTLV_BUILD_PROPERTY_TESTS "Build deterministic generated-corpus property tests (requires C++11 and Python)" OFF)
 option(OPENTLV_BUILD_CLI_TESTS "Build dependency-free CLI integration tests" ${OPENTLV_BUILD_TESTS})
 option(OPENTLV_BUILD_BENCHMARKS "Build Google Benchmark performance suites" OFF)
 option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and UBSan" OFF)
@@ -69,15 +69,13 @@ if(OPENTLV_BUILD_CLI AND NOT OPENTLV_BUILD_CXX)
     set(OPENTLV_BUILD_CLI OFF)
     message(STATUS "OPENTLV_BUILD_CLI requires OPENTLV_BUILD_CXX=ON (tlv++); disabling the CLI for this C-only build.")
 endif()
-if(OPENTLV_BUILD_TESTS AND OPENTLV_BUILD_PROPERTY_TESTS AND NOT OPENTLV_BUILD_CLI)
-    message(FATAL_ERROR "OPENTLV_BUILD_PROPERTY_TESTS requires OPENTLV_BUILD_CLI and OPENTLV_BUILD_CXX.")
-endif()
 # Enable CXX at the top level (rather than relying solely on tlv++'s own
 # project(LANGUAGES CXX)) so multi-config generators such as Visual Studio
 # know about the CXX compiler before generating every subdirectory's project
 # files; without this, target_compile_features() in tools/cli fails to find
 # CXX compile features under that generator.
-if(OPENTLV_BUILD_CXX)
+# Property adapters also need a C++11 compiler, independently of the facade.
+if(OPENTLV_BUILD_CXX OR (OPENTLV_BUILD_TESTS AND OPENTLV_BUILD_PROPERTY_TESTS))
     enable_language(CXX)
 endif()
 
