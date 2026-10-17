@@ -19,7 +19,6 @@ on:
       - 'tlv/include/**'
       - 'tlv\+\+/include/**'
       - 'bindings/**'
-      - 'tools/cli/**'
       - 'README.md'
       - 'ROADMAP.md'
       - 'CONTRIBUTING.md'
@@ -64,7 +63,6 @@ jobs:
           cmake -S . -B build/docs -G Ninja
           -DOPENTLV_BUILD_DOCS=ON
           -DOPENTLV_BUILD_CXX=OFF
-          -DOPENTLV_BUILD_CLI=OFF
           -DOPENTLV_BUILD_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF
 

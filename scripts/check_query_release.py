@@ -20,20 +20,20 @@ UNIT_RULES = {
     "Q-VALIDATE-01": "Unit_Tlv_QueryProgram.PruningAndExistsExposePartialCoverage",
     "Q-IMAGE-01": "Unit_Tlv_QueryProgram.LoaderAuthenticatesEveryInstructionField",
 }
-FACADES = ["C", "CLI", "C++", "Rust", "Python", "Go", "Lua", "JS/WASM"]
+FACADES = ["C", "C++", "Rust", "Python", "Go", "Lua", "JS/WASM"]
 CHECKS = ["conformance", "properties", "fuzz-ASan-UBSan", "MSan-or-exclusion",
           "allocation-recursion", "work-budgets-32-64", "ABI-32-64", "adversarial-lifecycle-storage", "plan-equivalence-frontend-free"]
 ADVISORY_CHECKS = ["benchmarks"]
 
 
-def evidence_errors(evidence, directory, commit, symbols, features):
+def evidence_errors(evidence, directory, commit, symbols):
     """Validate candidate provenance and contained artifacts; fail closed on malformed records."""
     errors = []
     if not isinstance(evidence, dict) or evidence.get("commit") != commit:
         return ["release evidence missing or belongs to a different candidate commit"]
     directory = directory.resolve()
     requirements = [("phases", f"F{phase}", ()) for phase in range(1, 7)]
-    requirements += [("facades", name, features if name == "CLI" else symbols) for name in FACADES]
+    requirements += [("facades", name, symbols) for name in FACADES]
     requirements += [("checks", name, ()) for name in CHECKS]
     for category, name, capabilities in requirements:
         group = evidence.get(category, {})
@@ -59,7 +59,7 @@ def evidence_errors(evidence, directory, commit, symbols, features):
                 any(not isinstance(value, str) for value in provided) or
                 set(capabilities) - set(provided)):
             errors.append(f"incomplete capabilities: {label}")
-        if (category == "facades" and name not in ("C", "CLI") and
+        if (category == "facades" and name != "C" and
                 record.get("surface") != "idiomatic"):
             errors.append(f"raw FFI is insufficient: {name}")
         if category == "checks" and name in ("work-budgets-32-64", "ABI-32-64"):
@@ -114,7 +114,7 @@ def main():
         except (OSError, UnicodeError, json.JSONDecodeError) as error:
             input_errors.append(f"invalid release evidence: {error}")
     blockers = inventory_errors + input_errors + evidence_errors(
-        evidence, args.evidence.parent if args.evidence else root, commit, symbols, corpus["f3_rules"])
+        evidence, args.evidence.parent if args.evidence else root, commit, symbols)
     if args.release and subprocess.check_output(["git", "status", "--porcelain"], cwd=root):
         blockers.append("release candidate worktree has uncommitted changes")
     report = {"version": 1, "commit": commit, "ready": not blockers,

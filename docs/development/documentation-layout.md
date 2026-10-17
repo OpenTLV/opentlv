@@ -18,7 +18,7 @@ assign consumer or portal content permanently to Core.
 | `guides/` | Task-oriented how-tos for one job | [Memory ownership](../guides/memory.md) |
 | `formats/` | Wire formats and their reading, writing and byte examples | [Formats](../formats/README.md) |
 | `standards/` | Standards or industry semantics layered on a format | [DER](../standards/der/README.md) |
-| `cli/` | Command-line tools, one page per tool | [otlv](../cli/README.md) |
+| `opentlv-cli/docs/` (external) | Command-line tool documentation | [otlv](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md) |
 | `reference/` | Lookup material: API manuals, option tables, support matrices | [C API](../reference/c-api.md), [Compilers](../reference/compilers.md) |
 | `development/` | Contributor material: tooling, fuzzing, docs conventions | [Fuzzing](fuzzing.md) |
 
@@ -203,14 +203,14 @@ Conventions:
 
 - **OTLV**: the planned complete model language's syntax and specification belong
   in `reference/otlv/`, its model in `concepts/`, task-oriented usage in
-  `guides/`, and tool commands in `cli/`. A definition language is distinct
-  from the wire formats it describes; those remain in `formats/`.
+  `guides/`, and tool commands in the owning tool repository. A definition language
+  is distinct from the wire formats it describes; those remain in `formats/`.
 - **Language bindings**: in the owning binding repository, one directory per
   binding under `reference/bindings/`,
   for example `reference/bindings/<language>/`, with task-oriented usage in
   `guides/`.
-- **Additional tooling**: in the owning tool repository, a page or directory per
-  tool in `cli/`; contributor tooling in `development/`.
+- **Additional tooling**: a page or directory in the owning tool repository;
+  Core contributor tooling in `development/`.
 - **New formats and standard-specific capabilities**: a directory under `formats/` or `standards/`
   with a `README.md`, as the existing ones do.
 
@@ -250,8 +250,8 @@ Run `python scripts/check_doc_inventory.py` and
 `python scripts/test_doc_inventory.py` alongside the existing example check,
 Markdown lint and generated API references. Core CI runs these checks without
 MkDocs or the portal. The portal checks navigation against assembled Markdown
-and runs the strict MkDocs build. Both retain binding/CLI checks while those
-sources remain here.
+and runs the strict MkDocs build. Core retains binding checks while those
+sources remain here. CLI checks belong to `opentlv-cli`.
 
 The inventory check derives these small facts directly from repository sources:
 
@@ -260,7 +260,6 @@ The inventory check derives these small facts directly from repository sources:
 | Public config macros and root CMake options | Build-configuration rows in the architecture overview |
 | Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
 | C++ built-in directories | C++ family links in the implemented inventory |
-| CLI registered `names.push_back` identifiers | Inventory CLI column and CLI guide identifiers |
 | Official binding directories | User guide exists (WASM uses its tooling guide); navigation is checked by the portal |
 | C/C++/Rust/Python/Lua/Go/WASM example sources | Marked source inventory in the examples guide |
 | Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
@@ -299,7 +298,7 @@ and `standards/` retain their paths unless listed here.
 | `reader.md` | [guides/reader.md](../guides/reader.md) |
 | `format-examples.md` | [formats/format-examples.md](../formats/format-examples.md) |
 | `format-roadmap.md` | [formats/format-roadmap.md](../formats/format-roadmap.md) |
-| `cli.md` | [cli/README.md](../cli/README.md) |
+| `cli.md` | [cli/README.md](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md) |
 | `compilers.md` | [reference/compilers.md](../reference/compilers.md) |
 | `fuzzing.md` | [development/fuzzing.md](fuzzing.md) |
 

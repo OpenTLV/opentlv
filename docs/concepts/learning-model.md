@@ -1,7 +1,7 @@
 # From bytes to useful data
 
 Prerequisite: complete a [first program](../getting-started/README.md#quick-start)
-or inspect bytes with the [CLI](../cli/README.md#first-inspection).
+or inspect bytes with the [CLI](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection).
 
 ## Element: the data you read
 

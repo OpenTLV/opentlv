@@ -14,8 +14,7 @@ compiles it, placed directly under a bindings/rust/*/examples/ directory that
 Cargo auto-discovers and CI builds with `cargo build --all-targets`, or placed
 directly under bindings/python/opentlv/examples/, which CI runs against the
 installed package, a Lua example run by the Lua CI example loop, a Go main
-package explicitly run by Go CI, or a CLI CMake acceptance script registered
-in tools/cli.
+package explicitly run by Go CI.
 Editing either side without the other fails the check, so
 documented code cannot drift from code that builds and runs against the
 current API.
@@ -45,8 +44,6 @@ def is_built(source):
     """True if the source is registered with its package's build."""
     rel = source.relative_to(ROOT)
     parts = rel.parts
-    if parts[:2] == ("tools", "cli") and source.suffix == ".cmake":
-        return source.name in (ROOT / "tools/cli/CMakeLists.txt").read_text(encoding="utf-8")
     if parts[0] == "examples" and len(parts) > 2:
         directory = ROOT / parts[0] / parts[1]
         return any(

@@ -41,7 +41,6 @@ def main():
                    "-DOPENTLV_BUILD_CXX=OFF", "-DOPENTLV_BUILD_TESTS=ON",
                    "-DOPENTLV_BUILD_UNIT_TESTS=OFF", "-DOPENTLV_BUILD_INTEGRATION_TESTS=OFF",
                    "-DOPENTLV_BUILD_QUERY_TESTS=OFF", "-DOPENTLV_BUILD_EXAMPLES=OFF",
-                   "-DOPENTLV_BUILD_CLI=OFF",
                    "-DOPENTLV_BUILD_SHARED_LIBS=" + ("OFF" if args.static else "ON")]
         if args.generator:
             command += ["-G", args.generator]

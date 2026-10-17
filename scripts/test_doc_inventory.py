@@ -22,9 +22,7 @@ class InventoryTests(unittest.TestCase):
             "docs/concepts/architecture.md": "| `OPENTLV_FORMAT_BER` | BER |\n",
             "tlv/include/tlv/builtins/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
             "tlv++/include/tlv++/builtins/asn1/ber.hpp": "// fixture\n",
-            "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) | `ber` |\n",
-            "tools/cli/src/commands/formats_command.cpp": 'names.push_back("ber");\n',
-            "docs/cli/README.md": "Available: `ber`\n",
+            "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |\n",
             "bindings/go/examples/quick_start/main.go": "package main\n",
             "bindings/common/query_schema.h": "/* shared native ownership helper */\n",
             "docs/guides/go.md": "# Go\n",
@@ -65,12 +63,6 @@ class InventoryTests(unittest.TestCase):
     def test_added_cxx_family(self):
         self.write("tlv++/include/tlv++/builtins/new/format.hpp", "// fixture\n")
         self.assert_drift("C++ built-in families: document new")
-
-    def test_cli_identifier_changes_and_user_documentation(self):
-        self.write("tools/cli/src/commands/formats_command.cpp", 'names.push_back("new");\n')
-        self.assert_drift("CLI format identifiers: document new")
-        self.assert_drift("CLI format identifiers: remove or correct stale ber")
-        self.assert_drift("CLI new: add the registered identifier")
 
     def test_binding_addition_requires_guide(self):
         self.write("bindings/new/README.md", "# New\n")

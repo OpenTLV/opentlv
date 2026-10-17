@@ -79,21 +79,6 @@ def check(root):
     documented_cxx = set(re.findall(r"tlv\+\+/include/tlv\+\+/builtins/([^/]+)/", support))
     compare(errors, "C++ built-in families", cxx, documented_cxx, "docs/formats/support.md")
 
-    cli_source = read("tools/cli/src/commands/formats_command.cpp")
-    cli = set(re.findall(r'names\.push_back\("([a-z0-9-]+)"\)', cli_source))
-    if not cli:
-        errors.append("formats_command.cpp: no CLI formats found; update inventory derivation")
-    documented_cli = set()
-    for line in support.splitlines():
-        cells = [cell.strip() for cell in line.split("|")[1:-1]]
-        if len(cells) == 5 and "tlv_" in cells[1]:
-            documented_cli.update(re.findall(r"`([a-z0-9-]+)`", cells[-1]))
-    compare(errors, "CLI format identifiers", cli, documented_cli, "docs/formats/support.md")
-    cli_doc = read("docs/cli/README.md")
-    for name in sorted(cli):
-        if f"`{name}`" not in cli_doc:
-            errors.append(f"CLI {name}: add the registered identifier to docs/cli/README.md")
-
     bindings_root = root / "bindings"
     # Shared native ownership helpers are not a separately supported language.
     bindings = {directory.name for directory in bindings_root.iterdir()
@@ -149,7 +134,7 @@ def main():
         print(f"documentation drift: {error}", file=sys.stderr)
     if errors:
         return 1
-    print("Documentation inventories match components, Formats, C++ families, CLI, bindings, examples and API inputs")
+    print("Documentation inventories match components, Formats, C++ families, bindings, examples and API inputs")
     return 0
 
 

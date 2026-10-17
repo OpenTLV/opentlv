@@ -83,7 +83,7 @@ For Linux or macOS, from the repository root:
 ```sh
 cmake -S . -B build/go -DOPENTLV_BUILD_SHARED_LIBS=OFF \
   -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
-  -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF
+  -DOPENTLV_BUILD_CXX=OFF
 cmake --build build/go --target tlv
 export CGO_ENABLED=1
 export CGO_CPPFLAGS="-I$(pwd)/tlv/include -I$(pwd)/build/go/generated/include -DTLV_STATIC_DEFINE"
@@ -102,7 +102,7 @@ For Windows PowerShell, use a GCC/MinGW toolchain compatible with Go cgo
 ```powershell
 cmake -S . -B build/go -G "MinGW Makefiles" -DOPENTLV_BUILD_SHARED_LIBS=OFF `
   -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF `
-  -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF
+  -DOPENTLV_BUILD_CXX=OFF
 cmake --build build/go --target tlv
 $goRepo = (Get-Location).Path.Replace('\', '/')
 $env:CGO_ENABLED = '1'

@@ -75,7 +75,7 @@ def load_baseline(path):
 
 
 def consumers(root):
-    for folder in ("examples/tlv++", "tools/cli", "tests"):
+    for folder in ("examples/tlv++", "tests"):
         for path in sorted((root / folder).rglob("*")):
             if path.suffix not in SOURCE_SUFFIXES or not path.is_file():
                 continue

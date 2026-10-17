@@ -79,7 +79,6 @@ fn build_from_source() {
             "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
             "-DOPENTLV_BUILD_SHARED_LIBS=OFF",
             "-DOPENTLV_BUILD_CXX=OFF",
-            "-DOPENTLV_BUILD_CLI=OFF",
             "-DOPENTLV_BUILD_TESTS=OFF",
             "-DOPENTLV_BUILD_EXAMPLES=OFF",
             "-DOPENTLV_WARNINGS_AS_ERRORS=OFF",

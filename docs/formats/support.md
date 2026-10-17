@@ -11,23 +11,22 @@ than add protocol branches to the generic core. See the
 ## Native and tool inventory
 
 Optional entries require their named CMake component and its parents. Fixed,
-Variable and Packed are always-built generic formats. The CLI column records registered
-`--format` identifiers; a native preset without an entry is not available in
-the CLI today. EMV's dictionary/validation is separately selected by `--module emv`.
+Variable and Packed are always-built generic formats. CLI format selection and
+semantic modules are documented by [opentlv-cli](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md).
 
-| Format / scope | C descriptor or initializer | Component | C++ framing header | CLI identifier |
-| --- | --- | --- | --- | --- |
-| [Fixed](fixed/configurable.md) | `tlv_fixed_format_init` | Always built | [fixed_format.hpp](../../tlv++/include/tlv++/formats/fixed_format.hpp) | `fixed` |
-| [Variable with optional field policies](variable.md) | `tlv_variable_format_init` | Always built | Native interop/custom Format | Unavailable |
-| [Packed](packed.md) | `tlv_packed_layout_t` with `tlv_packed_decode` / `tlv_packed_measure` / `tlv_packed_encode` | Always built | Native interop/custom Format | Unavailable |
-| [BER](asn1/ber.md) | `tlv_format_ber`, `tlv_format_ber_indefinite` | `OPENTLV_FORMAT_BER` | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) | `ber` |
-| [DER](../standards/der/README.md) | `tlv_format_der` | `OPENTLV_FORMAT_DER` | [der.hpp](../../tlv++/include/tlv++/builtins/asn1/der.hpp) | `der` |
-| [CER](../standards/cer/README.md) | `tlv_format_cer` | `OPENTLV_FORMAT_CER` | [cer.hpp](../../tlv++/include/tlv++/builtins/asn1/cer.hpp) | Unavailable |
-| [EMV](../standards/emv/README.md) | `tlv_format_emv` | `OPENTLV_EMV` | [format.hpp](../../tlv++/include/tlv++/builtins/emv/format.hpp) | `emv` |
-| [Bluetooth](bluetooth/README.md) | `tlv_format_bluetooth_ltv` | `OPENTLV_BLUETOOTH` | [ltv.hpp](../../tlv++/include/tlv++/builtins/bluetooth/ltv.hpp) | `bluetooth-ltv` |
-| [LLDP](lldp/README.md) | `tlv_format_lldp` | `OPENTLV_LLDP` | [lldp.hpp](../../tlv++/include/tlv++/builtins/lldp/lldp.hpp) | Unavailable |
-| [DHCPv4](dhcp/README.md) | `tlv_format_dhcpv4` | `OPENTLV_DHCP` | [dhcpv4.hpp](../../tlv++/include/tlv++/builtins/dhcp/dhcpv4.hpp) | Unavailable |
-| [NFC Type 2](nfc/README.md) | `tlv_format_nfc_type2` | `OPENTLV_NFC` | [type2.hpp](../../tlv++/include/tlv++/builtins/nfc/type2.hpp) | `nfc-type2` |
+| Format / scope | C descriptor or initializer | Component | C++ framing header |
+| --- | --- | --- | --- |
+| [Fixed](fixed/configurable.md) | `tlv_fixed_format_init` | Always built | [fixed_format.hpp](../../tlv++/include/tlv++/formats/fixed_format.hpp) |
+| [Variable with optional field policies](variable.md) | `tlv_variable_format_init` | Always built | Native interop/custom Format |
+| [Packed](packed.md) | `tlv_packed_layout_t` with `tlv_packed_decode` / `tlv_packed_measure` / `tlv_packed_encode` | Always built | Native interop/custom Format |
+| [BER](asn1/ber.md) | `tlv_format_ber`, `tlv_format_ber_indefinite` | `OPENTLV_FORMAT_BER` | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |
+| [DER](../standards/der/README.md) | `tlv_format_der` | `OPENTLV_FORMAT_DER` | [der.hpp](../../tlv++/include/tlv++/builtins/asn1/der.hpp) |
+| [CER](../standards/cer/README.md) | `tlv_format_cer` | `OPENTLV_FORMAT_CER` | [cer.hpp](../../tlv++/include/tlv++/builtins/asn1/cer.hpp) |
+| [EMV](../standards/emv/README.md) | `tlv_format_emv` | `OPENTLV_EMV` | [format.hpp](../../tlv++/include/tlv++/builtins/emv/format.hpp) |
+| [Bluetooth](bluetooth/README.md) | `tlv_format_bluetooth_ltv` | `OPENTLV_BLUETOOTH` | [ltv.hpp](../../tlv++/include/tlv++/builtins/bluetooth/ltv.hpp) |
+| [LLDP](lldp/README.md) | `tlv_format_lldp` | `OPENTLV_LLDP` | [lldp.hpp](../../tlv++/include/tlv++/builtins/lldp/lldp.hpp) |
+| [DHCPv4](dhcp/README.md) | `tlv_format_dhcpv4` | `OPENTLV_DHCP` | [dhcpv4.hpp](../../tlv++/include/tlv++/builtins/dhcp/dhcpv4.hpp) |
+| [NFC Type 2](nfc/README.md) | `tlv_format_nfc_type2` | `OPENTLV_NFC` | [type2.hpp](../../tlv++/include/tlv++/builtins/nfc/type2.hpp) |
 
 ASN.1 Value codecs and shared construction/tag rules are selected by
 `OPENTLV_FORMAT_ASN1`; BER depends on ASN1, and DER/CER/EMV depend on BER.
@@ -76,5 +75,5 @@ WebAssembly is a parse-to-JSON consumer, with its own supported options in the
 language facade. CLI/WASM support is narrower than native Format availability.
 
 The [documentation drift check](../development/documentation-layout.md#documentation-inventory-checks)
-compares native descriptors, C++ built-in directories and CLI identifiers with
+compares native descriptors and C++ built-in directories with
 this inventory. Prose limitations and semantic parity still require review.

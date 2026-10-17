@@ -40,7 +40,7 @@ CPP_FLAGS = ["-std=c++11", "-O2", "-DNDEBUG", "-Wall", "-Wextra", "-Wpedantic", 
 CMAKE_FLAGS = ["-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release",
                "-DCMAKE_C_FLAGS_RELEASE=-O2 -DNDEBUG", "-DOPENTLV_BUILD_CXX=OFF",
                "-DOPENTLV_BUILD_SHARED_LIBS=OFF", "-DOPENTLV_BUILD_TESTS=OFF",
-               "-DOPENTLV_BUILD_EXAMPLES=OFF", "-DOPENTLV_BUILD_CLI=OFF",
+               "-DOPENTLV_BUILD_EXAMPLES=OFF",
                "-DOPENTLV_BUILD_DOCS=OFF", "-DOPENTLV_BUILD_BENCHMARKS=OFF"]
 
 

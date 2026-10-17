@@ -46,8 +46,11 @@ def main():
     # A standalone build supplies the reference metadata and installed package.
     core_build = work / "core"
     configure(root, core_build, *core_options, "-DOPENTLV_BUILD_TESTS=OFF",
-              "-DOPENTLV_BUILD_EXAMPLES=OFF", "-DOPENTLV_BUILD_CLI=OFF",
+              "-DOPENTLV_BUILD_EXAMPLES=OFF",
               "-DCMAKE_INSTALL_LIBDIR=lib", "-DCMAKE_INSTALL_INCLUDEDIR=include")
+    cache = (core_build / "CMakeCache.txt").read_text(encoding="utf-8")
+    if re.search(r"^(OPENTLV_BUILD_CLI(?:_TESTS)?|nlohmann_json_[^:]*):", cache, re.M):
+        raise RuntimeError("Core still configures CLI options or its JSON dependency")
     run("cmake", "--build", core_build, "--config", "Release", "--parallel", "1")
     reference = (core_build / "generated/include/tlv/version.h").read_bytes()
     version = re.search(rb'#define OPENTLV_VERSION_STRING "([^"]+)"', reference)[1].decode()

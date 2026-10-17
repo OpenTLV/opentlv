@@ -37,8 +37,7 @@ cmake -S . -B build/valgrind -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ \
   -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_MEMCHECK=ON \
-  -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF \
-  -DOPENTLV_BUILD_CLI_TESTS=OFF
+  -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build/valgrind --parallel 4
 ctest --test-dir build/valgrind --output-on-failure --no-tests=error --parallel 4
 ctest --test-dir build/valgrind -T memcheck -LE no-memcheck --output-on-failure --no-tests=error --parallel 4
@@ -63,8 +62,8 @@ The Memcheck build registers each GoogleTest suite as a whole binary, executing
 all its cases in one Valgrind process. Builds without this option retain
 individual GoogleTest registrations. Other CTest commands and arguments stay
 unchanged. This matters for Query conformance drivers, which require corpus arguments supplied by their
-Python harness. The launcher wraps native executable arguments (`--native`,
-`--cli`, and `--checker`) with Valgrind and runs the Python harness normally.
+Python harness. The launcher wraps native executable arguments (`--native`
+and `--checker`) with Valgrind and runs the Python harness normally.
 This keeps Python runtime allocations outside the C/C++ check. Other Python
 harnesses need an explicit adapter or an exclusion. Each instrumented process
 has a separate log, and every report is checked before returning to CTest.
@@ -98,8 +97,8 @@ The `valgrind.yml` workflow uses four build/test workers. Relevant PR changes
 run the shorter selection, retaining every case in the four C/C++ unit and
 integration GoogleTest binaries and the remaining native checks. The C and C++
 Query conformance matrices carry the `memcheck-full` label and run only in the
-full selection, as do optional CLI Query and generated-property matrices when
-registered. The CI build disables the CLI and property tests. Ordinary CTest
+full selection, as do generated-property matrices when registered. The CI build
+disables property tests. Standalone CLI validation belongs to `opentlv-cli`. Ordinary CTest
 still runs every registered test before Memcheck.
 
 | Trigger | Memcheck selection | Failure handling |

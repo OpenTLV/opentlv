@@ -15,7 +15,7 @@ Pull/resumable Tree Reader and Document Builder remain unbound; see the
 
 ```sh
 cmake -S . -B build-lua -DOPENTLV_BUILD_LUA=ON -DCMAKE_BUILD_TYPE=Release \
-    -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_TESTS=OFF \
+    -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF \
     -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build-lua --target opentlv_lua
 ```

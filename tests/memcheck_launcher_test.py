@@ -104,11 +104,11 @@ class MemcheckLauncherTest(unittest.TestCase):
             reports = Path(directory)
             native = "/native binaries/it'works $(literal)"
             command = [sys.executable, "harness.py", "--native", native,
-                       "--cli", "/cli tool", "--checker", "/checker tool"]
+                       "--checker", "/checker tool"]
             valgrind = ["/valgrind tool", "--trace-children=yes", "--log-file=/reports/%p.log"]
             actual = MEMCHECK.test_command(command, valgrind, reports)
             self.assertEqual(actual[:2], command[:2])
-            for index in (3, 5, 7):
+            for index in (3, 5):
                 wrapper = Path(actual[index])
                 lines = wrapper.read_text().splitlines()
                 self.assertEqual(lines[0], "#!/bin/sh")

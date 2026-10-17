@@ -11,7 +11,8 @@ messages or edit an owned document. Optional Query, Schema and Codec operations
 help you select elements, validate structure and interpret values.
 
 Use C99, the idiomatic C++11+ API, or the official Rust, Python, Lua and Go
-bindings (experimental). The `otlv` CLI and WebAssembly tools use the same C execution engine.
+bindings (experimental). The standalone [`otlv` CLI](https://github.com/OpenTLV/opentlv-cli)
+and WebAssembly tools use the same C execution engine.
 
 ## Why OpenTLV?
 
@@ -42,7 +43,7 @@ See the [basic mental model](docs/concepts/learning-model.md).
 
 ## Quick start
 
-With `otlv` installed, inspect a tag `01` containing the UTF-8 bytes of `Hi`:
+With [`otlv` installed separately](https://github.com/OpenTLV/opentlv-cli#standalone-build), inspect a tag `01` containing the UTF-8 bytes of `Hi`:
 
 ```sh
 otlv dump --format fixed --hex "01 02 48 69"
@@ -68,8 +69,9 @@ cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release --parallel
 ```
 
-Requires CMake 3.16+ and a supported compiler; the default CLI also needs C++11+.
-The C engine has no third-party dependencies; the CLI fetches its JSON dependency.
+Requires CMake 3.16+ and a C99 compiler; the default C++ facade needs C++11+.
+The C engine and C++ facade have no third-party dependencies. Core does not
+build or install `otlv`; build it from [opentlv-cli](https://github.com/OpenTLV/opentlv-cli).
 See [integration and installation](docs/getting-started/README.md) for CMake
 consumer targets, runtime libraries and binding-specific setup.
 

@@ -21,7 +21,6 @@ jobs:
           -DCMAKE_BUILD_TYPE=Debug -DOPENTLV_BUILD_SHARED_LIBS=OFF
           -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=OFF
-          -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CLI_TESTS=OFF
           -DOPENTLV_BUILD_PROPERTY_TESTS=OFF
           -DCMAKE_C_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
           -DCMAKE_CXX_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'
@@ -70,7 +69,7 @@ jobs:
           -DCMAKE_EXE_LINKER_FLAGS=-m32 -DOPENTLV_BUILD_SHARED_LIBS=OFF
           -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
-          -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CLI_TESTS=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF
       - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr test-query-adversarial test-query-equivalence --parallel 2
       - name: Run exact and one-short capacities, operation budgets and x86 corpus
         run: |
@@ -95,7 +94,7 @@ jobs:
             -DCMAKE_C_FLAGS='-fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE' \
             -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=memory -pie' \
             -DOPENTLV_BUILD_SHARED_LIBS=OFF -DOPENTLV_BUILD_CXX=OFF \
-            -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+            -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
           cmake --build build/msan --target tlv --parallel 2
       - name: Compile and run the persistent shared Query corpus
         env:
@@ -136,7 +135,7 @@ jobs:
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
           -DOPENTLV_BUILD_CXX=${{ matrix.cxx }} -DOPENTLV_BUILD_SHARED_LIBS=OFF
           -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
-          -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CLI=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF
           -DOPENTLV_DOCUMENT=OFF
           -DOPENTLV_QUERY_FRONTEND=${{ matrix.frontend }}
           -DOPENTLV_QUERY_SET_OPERATIONS=${{ matrix.sets }}

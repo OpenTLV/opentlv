@@ -79,7 +79,8 @@ documents the bytes, expected Elements, and synthetic provenance. Integration
 tests read the checked-in files and independently verify decoding, encoding
 from expected Elements, and Reader -> Element -> Writer byte equality.
 
-With `OPENTLV_BUILD_CLI=ON` and `OPENTLV_NFC=ON`, run from the repository root:
+With [standalone otlv](https://github.com/OpenTLV/opentlv-cli) built against a Core
+with `OPENTLV_NFC=ON`, run from the Core repository root:
 
 ```sh
 otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin

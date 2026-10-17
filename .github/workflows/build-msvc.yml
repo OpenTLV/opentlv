@@ -9,7 +9,6 @@ on:
       - 'tlv\+\+/**'
       - 'tests/**'
       - 'examples/**'
-      - 'tools/cli/**'
       - 'cmake/**'
       - '**/CMakeLists.txt'
       - '.github/workflows/build-msvc.yml'

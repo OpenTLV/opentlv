@@ -15,15 +15,20 @@ native resource/lifetime tests. Inventory success checks mappings; the report's
 
 For a release candidate add `--release --evidence PATH`. Strict mode rejects dirty
 candidates, wrong-commit evidence, missing capabilities and changed artifact
-hashes. Evidence JSON contains `commit`, `phases` (F1–F5), `facades` (C, CLI, C++,
+hashes. Evidence JSON contains `commit`, `phases` (F1–F6), `facades` (C, C++,
 Rust, Python, Go, Lua, JS/WASM) and `checks`. Each record requires
 `status: "passed"`, relative `artifact` and its `sha256`. Facade records list all
-passed public C `capabilities`; CLI lists common corpus feature IDs. Language
+passed public C `capabilities`. Language
 facades need `surface: "idiomatic"`; raw FFI is insufficient. Required checks are
 listed in the generated report: conformance, properties, ASan/UBSan fuzzing, MSan
 or justified exclusion, allocation/recursion, 32/64-bit work/storage boundaries,
 ABI snapshots, adversarial lifecycle/storage and frontend-free plan equivalence. Java/C# become additional gates when supported;
 this repository does not claim those implementations.
+
+The standalone CLI owns its regression and release evidence in
+[opentlv-cli](https://github.com/OpenTLV/opentlv-cli). CLI evidence is not a
+Core release prerequisite; the shared Query corpus and native runners remain
+Core-owned.
 
 Benchmarks are temporarily advisory while Query functionality is completed.
 Missing measurements, regressions, noisy timings and unaccepted baselines do
@@ -90,7 +95,7 @@ loading. All harnesses have finite resource bounds. Linux Clang ASan/UBSan is
 supported by the fuzz workflow. MSVC lacks libFuzzer/UBSan. MSan requires compatible
 instrumented runtime/dependencies; ASan/UBSan success is not MSan evidence.
 For native sanitizer runs without external C++ dependencies, enable
-`OPENTLV_BUILD_QUERY_TESTS=ON`, disable unit/integration/property tests, CLI and
+`OPENTLV_BUILD_QUERY_TESTS=ON`, disable unit/integration/property tests and
 C++, and build `test-query-conformance`. This independent C runner remains
 available without GoogleTest or the CLI. `OPENTLV_BUILD_TESTS` must remain enabled.
 
@@ -115,11 +120,12 @@ without making measurement or comparison failures required checks.
 
 ## Public-facade evidence and candidate requirements
 
-The common compiled-language corpus has public-facade runners for C++, CLI,
-Rust, Python, Go, Lua and JS/WASM. These exercise optimized and unoptimized
+The common compiled-language corpus has Core-hosted public-facade runners for
+C++, Rust, Python, Go, Lua and JS/WASM. These exercise optimized and unoptimized
 programs, stream/retained/Document backends where exposed, prefix continuation,
-scalar results and diagnostics. CLI name-resolution cases using a fixture-owned
-provider remain explicit exclusions; the CLI has its own EMV resolver. V1-only
+scalar results and diagnostics. The [standalone CLI runner](https://github.com/OpenTLV/opentlv-cli/tree/main/tests/query)
+uses a pinned copy of the corpus; fixture-owned name-resolution providers remain
+explicit CLI exclusions, since the CLI has its own EMV resolver. V1-only
 success cannot satisfy the compiled-language gate.
 
 JS/WASM has an owning Query/Document facade over the C engine, including custom
