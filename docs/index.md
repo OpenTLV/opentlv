@@ -13,7 +13,7 @@ small task before learning the deeper contracts.
 | Python | [Python setup and usage](guides/python.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Lua | [Lua setup and usage](guides/lua.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Go | [Go setup and usage](guides/go.md) | [Shared quick start](getting-started/README.md#quick-start) |
-| Terminal | [Inspect a small input](cli/README.md#first-inspection) | [CLI commands](cli/README.md#commands) |
+| Terminal | [Inspect a small input](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection) | [CLI commands](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#commands) |
 | Browser | [TLV playground](playground/index.md) | [WebAssembly integration](development/webassembly.md) |
 
 Binding guides explain their public language APIs; native C interoperability is

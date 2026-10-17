@@ -9,7 +9,7 @@ to its root cause, rather than becoming a permanent property corpus.
 ## Build and run
 
 ```sh
-cmake -S . -B build -DOPENTLV_BUILD_PROPERTY_TESTS=ON -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+cmake -S . -B build -DOPENTLV_BUILD_PROPERTY_TESTS=ON -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build
 ctest --test-dir build -L property --output-on-failure --no-tests=error
 ```
@@ -111,7 +111,7 @@ configuration and traversal limits (restore the two reserved elements for the
 NFC control variant). Defaults for non-Fixed widths/order are `1 1 big`.
 
 The separate `property.yml` workflow runs default and minimal builds for
-pushes, pull requests and manual dispatch, with both CLI and C++ facade disabled.
+pushes, pull requests and manual dispatch, with the C++ facade disabled.
 It generates 1000 cases per
 configuration, derives seeds from the checked-out SHA, uploads only failure
 evidence and the CTest log on failure, and discards successful corpora.

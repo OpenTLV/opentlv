@@ -54,7 +54,7 @@ every example is runtime-tested. Python and Lua CI run their example programs.
 Go CI runs applicable examples in default/minimal builds, excluding Document
 and Query where Document is disabled. WASM's Node example is runnable after an
 Emscripten build; a WASM build alone does not prove that example was run.
-The CLI's [acceptance script](../../tools/cli/examples.cmake) exercises the
+The CLI's [acceptance script](https://github.com/OpenTLV/opentlv-cli/blob/main/tests/examples.cmake) exercises the
 shared Fixed round trip and nested BER decode/encode/query workflows.
 
 Embedded complete programs use `<!-- example: PATH -->`; run

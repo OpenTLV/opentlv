@@ -8,7 +8,7 @@ endif()
 # explicit rather than producing unresolved symbols in reduced builds.
 if(NOT OPENTLV_READER OR NOT OPENTLV_WRITER OR NOT OPENTLV_QUERY OR
    NOT OPENTLV_SCHEMA OR NOT OPENTLV_CODEC)
-    foreach(component IN ITEMS CLI EXAMPLES BENCHMARKS FUZZING WASM PYTHON LUA)
+    foreach(component IN ITEMS EXAMPLES BENCHMARKS FUZZING WASM PYTHON LUA)
         if(OPENTLV_BUILD_${component})
             message(STATUS "Reduced capability build: skipping ${component} (requires Reader, Writer, Query, Schema and Codec)")
             set(OPENTLV_BUILD_${component} OFF)

@@ -119,8 +119,9 @@ def main():
                 "No library artifact in archive")
         require((f"{includedir}/tlv++/tlv.hpp" in files) == (args.cxx == "ON"),
                 f"C++ headers do not match --cxx {args.cxx}")
-        unwanted = sorted(p for p in files if "gtest" in p or "benchmark" in p)
-        require(not unwanted, "Unexpected test/benchmark files: " + ", ".join(unwanted))
+        unwanted = sorted(p for p in files if "gtest" in p or "benchmark" in p
+                          or "nlohmann" in p or Path(p).name in ("otlv", "otlv.exe"))
+        require(not unwanted, "Unexpected test/benchmark/CLI files: " + ", ".join(unwanted))
         for path in root.rglob("*.cmake"):
             text = path.read_text(encoding="utf-8").replace("\\", "/")
             for original in (cache["CMAKE_HOME_DIRECTORY"], build.as_posix()):

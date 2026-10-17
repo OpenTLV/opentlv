@@ -18,7 +18,7 @@ Install and activate an Emscripten SDK (CI pins the version set in
 
 ```sh
 emcmake cmake -S . -B build-wasm -G Ninja -DCMAKE_BUILD_TYPE=Release \
-  -DOPENTLV_BUILD_WASM=ON -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF \
+  -DOPENTLV_BUILD_WASM=ON -DOPENTLV_BUILD_CXX=OFF \
   -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build-wasm --target opentlv-wasm
 ```

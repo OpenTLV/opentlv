@@ -30,9 +30,10 @@ class ReleaseGate(unittest.TestCase):
             self.evidence[category] = {name: copy.deepcopy(record) for name in names}
 
     def errors(self):
-        return evidence_errors(self.evidence, self.root, "candidate", {"tlv_query_compile"}, ["child"])
+        return evidence_errors(self.evidence, self.root, "candidate", {"tlv_query_compile"})
 
     def test_complete_candidate(self):
+        self.assertNotIn("CLI", self.evidence["facades"])
         self.assertEqual(self.errors(), [])
 
     def test_f6_and_both_adversarial_artifacts_are_required(self):

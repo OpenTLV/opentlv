@@ -10,7 +10,8 @@ OpenTLV; these vectors do not assert physical tag or NDEF conformance.
 
 ## Decode and encode the sample
 
-Build with `OPENTLV_BUILD_CLI=ON` and `OPENTLV_NFC=ON` and put `otlv` on PATH.
+Build [standalone otlv](https://github.com/OpenTLV/opentlv-cli) against a Core
+with `OPENTLV_NFC=ON` and put `otlv` on PATH.
 From the repository root:
 
 ```sh
@@ -89,8 +90,9 @@ is expected.
 Enable `OPENTLV_BUILD_TESTS` and `OPENTLV_BUILD_INTEGRATION_TESTS`, build, then:
 
 ```sh
-ctest --test-dir build -C Debug -R "NfcType2|Integration_cli|Integration_example_tlv_nfc_type2" --output-on-failure
+ctest --test-dir build -C Debug -R "NfcType2|Integration_example_tlv_nfc_type2" --output-on-failure
 ```
 
-Use the configuration and build directory of your own build. CLI tests require
-`OPENTLV_BUILD_CLI_TESTS`; the C example requires `OPENTLV_BUILD_EXAMPLES`.
+Use the configuration and build directory of your own build. The C example
+requires `OPENTLV_BUILD_EXAMPLES`. CLI regression tests and pinned copies of
+these fixtures belong to [opentlv-cli](https://github.com/OpenTLV/opentlv-cli).

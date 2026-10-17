@@ -39,7 +39,7 @@ build = {
    -- any of them here is a silent no-op, warned as "unmatched variable"
    -- and substituted as empty), so this does not attempt to pass one.
    build_command = "cmake -S ../.. -B build -DCMAKE_BUILD_TYPE=Release -DOPENTLV_BUILD_LUA=ON " ..
-      "-DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_CLI=OFF -DOPENTLV_BUILD_TESTS=OFF " ..
+      "-DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF " ..
       "-DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_LUA_TESTS=OFF " ..
       "-DLUA_INCLUDE_DIR=$(LUA_INCDIR) && " ..
       "cmake --build build --target opentlv_lua --config Release",

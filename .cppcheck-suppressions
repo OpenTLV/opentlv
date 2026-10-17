@@ -18,6 +18,6 @@ noExplicitConstructor:*/tlv++/compat.hpp
 # tlv++ is header-only and this target analyzes its headers directly,
 # without a translation unit that instantiates and uses every template and
 # struct; cppcheck's single-pass, no-instantiation analysis then reports
-# members that are actually used by tlv++ consumers (tools/cli, tests,
+# members that are actually used by tlv++ consumers (tests,
 # examples) as unused.
 unusedStructMember:*/tlv++/*.hpp

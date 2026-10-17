@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Extract `otlv` into [opentlv-cli](https://github.com/OpenTLV/opentlv-cli); remove the Core CLI implementation, build options, JSON dependency, migrated tests and CLI manuals while retaining shared native tests and fixtures. Build and install the CLI separately through public Core CMake targets. (#622)
 - Generate property-test corpora directly through the public Core Generator API, allowing the suite to run without the CLI or C++ facade while preserving its deterministic wire domains and seeds. (#621)
 - Expose consistent public CMake targets `OpenTLV::tlv` and `OpenTLV::tlv++` for source and installed consumers; replace the installed `OpenTLV::tlvpp` target with `OpenTLV::tlv++`. Embedded builds default to libraries only and derive version metadata from Core's own checkout. (#620)
 - Document reviewed portal source-pin updates for Core development notifications and independent release publication. (OpenTLV/opentlv-docs#6)

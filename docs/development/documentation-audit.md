@@ -60,8 +60,8 @@ reference or release notes.
 | [opentlv (experimental)](../../bindings/python/opentlv/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
 | [Documentation](../../docs/README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [OpenTLV logo](../../docs/assets/README.md) | User | None or selected API setup | Use task entry and recommended next step |
-| [Command-line tool](../../docs/cli/README.md) | User | None or selected API setup | Use task entry and recommended next step |
-| [TLV JSON document](../../docs/cli/json-schema.md) | User | None or selected API setup | Use task entry and recommended next step |
+| [Command-line tool](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md) | User | None or selected API setup | Use task entry and recommended next step |
+| [TLV JSON document](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/json-schema.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Core architectural rules](../../docs/concepts/architectural-rules.md) | User / extension author | Basic model | Add learning context; preserve detailed contracts |
 | [Layered OpenTLV architecture (#65, #279, #280, #281, #327)](../../docs/concepts/architecture.md) | User / extension author | Basic model | Add learning context; preserve detailed contracts |
 | [Common conceptual model for language bindings](../../docs/concepts/bindings.md) | User / extension author | Basic model | Add learning context; preserve detailed contracts |

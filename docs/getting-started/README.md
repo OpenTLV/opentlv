@@ -7,7 +7,7 @@ program and expected output. C/C++ users can build the checkout below; binding
 users should follow setup in the [Rust](../guides/rust.md),
 [Python](../guides/python.md), [Lua](../guides/lua.md) or [Go](../guides/go.md)
 guide before running their example. For terminal inspection, use
-[the CLI first task](../cli/README.md#first-inspection).
+[the CLI first task](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection).
 
 After the first program, continue with [the basic mental model](../concepts/learning-model.md).
 Detailed compiler, loader and packaging information below is integration reference.
@@ -463,13 +463,17 @@ Override the declared source explicitly for local or offline development:
 cmake -S . -B build -DFETCHCONTENT_SOURCE_DIR_OPENTLV_CORE=/path/to/opentlv
 ```
 
-When embedded, Core defaults `OPENTLV_BUILD_TESTS`, `OPENTLV_BUILD_EXAMPLES`
-and `OPENTLV_BUILD_CLI` to `OFF`. These options remain explicitly configurable;
+When embedded, Core defaults `OPENTLV_BUILD_TESTS` and `OPENTLV_BUILD_EXAMPLES`
+to `OFF`. These options remain explicitly configurable;
 standalone Core builds retain their `ON` defaults. Core's convenience targets
 (`format`, `format-check`, `cppcheck`, `clang-tidy`) are added only in standalone
 builds. The C++ facade remains enabled by default; a C-only application can set
 `OPENTLV_BUILD_CXX=OFF` before adding Core. Core version metadata always comes
 from Core's own checkout, independently of the application's Git tags.
+
+The `otlv` executable is built and installed separately from
+[opentlv-cli](https://github.com/OpenTLV/opentlv-cli). Core no longer provides
+CLI targets or build options; remove the old CLI options from build commands.
 
 ### Installed dependency
 

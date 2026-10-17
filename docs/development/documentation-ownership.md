@@ -6,9 +6,10 @@ and [documentation layout](documentation-layout.md) first.
 
 It records the source boundaries for [#605](https://github.com/OpenTLV/opentlv/issues/605)
 under [the documentation extraction epic](https://github.com/OpenTLV/opentlv/issues/603).
-Ownership below is the target responsibility; all inventoried paths currently
-live in `OpenTLV/opentlv`. No page, example or publishing job moves in this step.
-The standalone portal is not yet the replacement for the existing pipeline.
+The inventory records both retained Core sources and component destinations.
+The standalone portal owns publication; CLI sources, tests and manuals now
+belong to `OpenTLV/opentlv-cli` (#622). Remaining transitional exceptions
+are identified below.
 
 ## Ownership rules
 
@@ -21,10 +22,10 @@ The standalone portal is not yet the replacement for the existing pipeline.
 
 C++ remains part of Core. Rust, Python and Lua documentation will move with
 their implementations to `OpenTLV/opentlv-rust`, `OpenTLV/opentlv-python` and
-`OpenTLV/opentlv-lua`; CLI documentation will move to `OpenTLV/opentlv-cli`.
+`OpenTLV/opentlv-lua`; CLI documentation is maintained in `OpenTLV/opentlv-cli`.
 Go and WebAssembly follow the same component ownership rule; their destination
 repository names must be recorded when their extraction is scheduled. These
-destinations are ownership assignments, not claims that a migration is complete.
+binding destinations are ownership assignments, not claims that their migrations are complete.
 
 Each fact has one canonical source. A portal build may assemble content from an
 owning repository into disposable build output; it must not maintain an edited
@@ -35,6 +36,22 @@ separate facts supplied by the component, not inferred from Core support.
 Core changes update Core documentation in the same change. They do not require
 unrelated binding changes, a checkout of the portal, or successful portal
 publication. Binding and tool releases remain independent of Core releases.
+
+## CLI extraction and portal source update
+
+Core no longer supplies `docs/cli/`, `tools/cli/` or the CLI Query runner.
+The standalone CLI owns its command manual, JSON schema, acceptance suites and
+frozen migration baseline. Core retains the shared Query corpus, native
+conformance runners, property tests and NFC protocol examples.
+
+Before the portal adopts a Core revision containing #622, update its source
+manifest to consume `OpenTLV/opentlv-cli` documentation from `docs/`, mounted
+at `cli/`, with a reviewed immutable CLI commit. Update the Core pin and CLI
+source together: an older Core still supplies the same paths and would collide
+with that mount. Preserve `cli/README.md` and `cli/json-schema.md` in assembled
+navigation, refresh the source lock, and validate the assembled site. The
+existing portal stays on its current immutable Core pin until that coordinated
+update is ready; local preview is not publication evidence.
 
 ## Transitional exceptions
 
@@ -89,8 +106,8 @@ structure; this table records ownership rather than replacing that audit.
 | [README.md](../README.md) | Core | Keep: repository documentation entry point |
 | [index.md](../index.md) | Portal | Portal: unified user landing page; retain a Core entry point when moved |
 | [assets/README.md](../assets/README.md) | Core / Portal | Retained Core README logo; shared site variants are maintained in the portal |
-| [cli/README.md](../cli/README.md) | CLI | Component |
-| [cli/json-schema.md](../cli/json-schema.md) | CLI | Component: CLI JSON representation |
+| [cli/README.md](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md) | CLI | External: `opentlv-cli/docs/README.md` |
+| [cli/json-schema.md](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/json-schema.md) | CLI | External: `opentlv-cli/docs/json-schema.md` |
 | [concepts/architecture.md](../concepts/architecture.md) | Core | Mixed: repository map includes consumers |
 | [concepts/architectural-rules.md](../concepts/architectural-rules.md) | Core | Keep |
 | [concepts/bindings.md](../concepts/bindings.md) | Core / bindings / Portal | Mixed: adaptation contracts, feature evidence and combined matrix |
@@ -115,7 +132,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/documentation-audit.md](documentation-audit.md) | Core / Portal | Mixed: historical source audit and presentation decisions |
 | [development/documentation-layout.md](documentation-layout.md) | Core / Portal | Mixed: source conventions and portal rendering/publishing rules |
 | [development/documentation-ownership.md](documentation-ownership.md) | Core | Keep: source boundaries and transition inventory |
-| [development/fuzzing.md](fuzzing.md) | Core | Mixed: native fuzzing and CLI/consumer harnesses |
+| [development/fuzzing.md](fuzzing.md) | Core | Keep: native fuzzing and consumer harnesses |
 | [development/go.md](go.md) | Go | Component |
 | [development/indefinite-boundary-reuse.md](indefinite-boundary-reuse.md) | Core | Keep |
 | [development/lua.md](lua.md) | Lua | Component |
@@ -125,7 +142,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/query-release.md](query-release.md) | Core | Mixed: native release checks and consumer compatibility evidence |
 | [development/reader-decode-performance.md](reader-decode-performance.md) | Core | Keep |
 | [development/rust.md](rust.md) | Rust | Component |
-| [development/valgrind.md](valgrind.md) | Core | Mixed: native checks and CLI/consumer harness selection |
+| [development/valgrind.md](valgrind.md) | Core | Keep: native checks and harness selection |
 | [development/webassembly.md](webassembly.md) | WebAssembly / Portal | Component: embedding/build API; portal owns playground integration |
 | [development/workflow.md](workflow.md) | Core / components / Portal | Mixed: checks and release/publication responsibilities |
 | [formats/README.md](../formats/README.md) | Core | Keep |
@@ -191,9 +208,9 @@ API generation inputs and portal code.
 | `tlv/include/`, `tlv++/include/` | Core: canonical public API declarations and Doxygen comments |
 | `examples/tlv/`, `examples/tlv++/`, their README files and tests | Core: executable native examples and their verification |
 | `bindings/*/` documentation, examples and tests | Respective binding: Component exception; shared native helpers follow their actual implementation owner |
-| `tools/cli/` documentation, acceptance examples and tests | CLI: Component exception |
+| `opentlv-cli/docs/`, `src/` and `tests/` (external) | CLI: implementation, manuals, acceptance tests and frozen migration baseline; removed from Core by #622 |
 | `scripts/check_doc_examples.py` | Mixed: owners check snippets against their own tested sources; portal integration checks assembled examples against the selected component revisions |
-| `scripts/check_doc_inventory.py`, `scripts/test_doc_inventory.py` | Native capability/Doxygen and existing component checks stay with Core; CLI/binding inventories follow components when extracted; assembled navigation is checked only in Portal |
+| `scripts/check_doc_inventory.py`, `scripts/test_doc_inventory.py` | Native capability/Doxygen and remaining binding checks stay with Core; CLI inventory integration was removed with #622; assembled navigation is checked only in Portal |
 | `.pre-commit-config.yaml`, `.markdownlint.json`, source/license checks | Each repository retains checks for its own maintained sources; portal extraction does not remove Core Markdown linting |
 | `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `ROADMAP.md`, `AGENTS.md`, repository policies | Core: retain repository entry points, contribution rules, history and contracts; extract only portal/consumer-specific instructions where present |
 | `tests/`, `benchmarks/` and native component README files | Implementation owner: Core for native tests/benchmarks; consumer-specific harnesses move with that consumer |
@@ -208,7 +225,7 @@ single-repository base URL.
 | Current source / link family | Target and migration responsibility |
 | --- | --- |
 | Core guides and `getting-started/README.md`: language tabs, `<!-- example: PATH -->` markers and runnable-example links | `bindings/*/examples/` and language guides: binding owns source/tests; Portal integrates selected examples without requiring binding updates for a Core-only documentation change |
-| `concepts/bindings.md`, `formats/support.md`, `guides/examples.md` | Binding sources/tests, CLI registrations and examples: retain Core facts locally; move component facts with their sources and preserve portal navigation |
+| `concepts/bindings.md`, `formats/support.md`, `guides/examples.md` | Retain Core facts and current binding inventories locally; CLI registrations and acceptance tests belong to opentlv-cli; preserve portal navigation during source-pin updates |
 | `reference/c-api.md`, `reference/cxx-api.md`, format guides and native examples | `tlv/include/`, `tlv++/include/`, `examples/`: keep Core-relative source links in canonical Markdown; assembled links must target the selected Core revision |
 | `docs/README.md`, root/component README files and `CONTRIBUTING.md` | Core pages and the unified landing page: preserve a Core entry point, update portal destinations and keep existing anchors where practical |
 | Doxygen `@docs` links, `OPENTLV_DOCS_URL` in `cmake/doxygen.cmake`, C++ tag-file references and reference entry pages | Hand-written guides and sibling C/C++ HTML trees: preserve both directions when generation and publication are separated |
@@ -296,10 +313,11 @@ standalone development API artifacts link to its `latest/` guides. The portal
 adapts those links to its actual version prefix when embedding the references.
 Do not delete or rewrite historical release content to create redirects.
 
-Core keeps all technical Markdown, public API comments, Doxygen inputs and
-targets, native examples, and existing binding/CLI documentation. Only migrated
-site configuration, Python site dependencies, hooks, theme and unused site asset
-variants are removed. The README logo remains usable offline.
+Core keeps its technical Markdown, public API comments, Doxygen inputs and
+targets, native examples, and documentation for bindings still hosted here.
+The portal extraction removed migrated site configuration, Python site
+dependencies, hooks, theme and unused site asset variants. CLI documentation
+subsequently moved to `opentlv-cli` with #622. The README logo remains usable offline.
 
 Portal [#6](https://github.com/OpenTLV/opentlv-docs/issues/6) transfers the
 playground UI to `opentlv-docs`. Core retains a Markdown entry point and the

@@ -59,7 +59,7 @@ def build(source, build_dir):
         "cmake", "-S", str(source), "-B", str(build_dir),
         "-DCMAKE_BUILD_TYPE=Debug", "-DOPENTLV_BUILD_SHARED_LIBS=ON",
         "-DOPENTLV_BUILD_CXX=OFF", "-DOPENTLV_BUILD_TESTS=OFF",
-        "-DOPENTLV_BUILD_EXAMPLES=OFF", "-DOPENTLV_BUILD_CLI=OFF",
+        "-DOPENTLV_BUILD_EXAMPLES=OFF",
         "-DOPENTLV_BUILD_BENCHMARKS=OFF", "-DOPENTLV_WARNINGS_AS_ERRORS=OFF",
         stdout=subprocess.DEVNULL,
     )

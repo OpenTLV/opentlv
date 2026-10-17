@@ -31,7 +31,7 @@ def test_command(arguments, valgrind, reports):
     command = list(arguments)
     wrapped = 0
     for index, argument in enumerate(arguments[:-1]):
-        if argument in ("--native", "--cli", "--checker"):
+        if argument in ("--native", "--checker"):
             wrapper = reports / f"native-{wrapped}"
             wrapper.write_text(
                 "#!/bin/sh\n"
@@ -43,7 +43,7 @@ def test_command(arguments, valgrind, reports):
             command[index + 1] = str(wrapper)
             wrapped += 1
     if not wrapped:
-        raise ValueError("Python Memcheck harness has no supported --native, --cli or --checker executable")
+        raise ValueError("Python Memcheck harness has no supported --native or --checker executable")
     return command
 
 

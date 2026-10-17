@@ -109,7 +109,7 @@ class BaselineTests(unittest.TestCase):
 
     def test_additional_cpp_extensions_are_scanned_in_all_consumer_roots(self):
         paths = []
-        for folder in ("examples/tlv++", "tools/cli", "tests"):
+        for folder in ("examples/tlv++", "tests"):
             for extension in (".cc", ".cxx", ".inl"):
                 relative = f"{folder}/consumer{extension}"
                 self.source('#include <tlv++/tlv.hpp>\ntlv_reader_t reader;', relative)
