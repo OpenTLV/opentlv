@@ -1,16 +1,17 @@
 # Lua bindings (experimental)
 
-The Lua bindings live in `bindings/lua/`, split the same way the [Python
+The Lua bindings live in the standalone
+[opentlv-lua repository](https://github.com/OpenTLV/opentlv-lua), split the same way the [Python
 bindings](python.md) and [Rust bindings](rust.md) are: `opentlv._core`
-(`bindings/lua/src/`), a native extension module written directly against
-the Lua C API, and `opentlv` (`bindings/lua/lua/opentlv/init.lua`), a
+(`src/`), a native extension module written directly against
+the Lua C API, and `opentlv` (`lua/opentlv/init.lua`), a
 one-line pure-Lua entry point that `require("opentlv")` resolves to and that
 returns `opentlv._core` unchanged. Unlike Python's and Rust's pure layers,
 `opentlv` adds no ergonomics of its own beyond the name callers request:
 Lua's C API is close enough to the concepts this binding exposes (Reader,
 Writer, Tree Writer, Element, Tag) that there is nothing a Lua-side wrapper would usefully add
 today, so the split exists for naming/packaging consistency across bindings
-rather than for a richer pure-Lua layer. `bindings/lua/src/common.h`
+rather than for a richer pure-Lua layer. `src/common.h`
 documents the ownership, registration and error-handling conventions every
 native-side component (including Reader, Writer and Schema)
 follows, and states the rule for what belongs in this binding versus in
@@ -22,70 +23,35 @@ model](../concepts/bindings.md).
 
 It targets Lua 5.1 through 5.4 and LuaJIT (which implements the Lua 5.1 C
 API), using only the portable subset of the Lua C API common to all of them;
-see `bindings/lua/src/compat.h`. It covers Reader, Writer, Tree Writer, Element and Tag, and
+see `src/compat.h`. It covers Reader, Writer, Tree Writer, Element and Tag, and
 preorder tree traversal (`opentlv.visit_tree`, built on `tlv_tree_reader_visit()`/
 `tlv_der_visit()`), structural Schema validation with detailed diagnostic reports,
 Value codecs with builtin and custom callback support, compiled path Query,
 and mutable Document (when `OPENTLV_DOCUMENT=ON`).
 
+All Lua source paths on this page are relative to `opentlv-lua`.
+
 ## Build
 
-Requirements: CMake 3.16 or newer, a C99 compiler, and Lua 5.1, 5.2, 5.3, 5.4
-or LuaJIT headers and library.
-
-```sh
-cmake -S . -B build-lua -DOPENTLV_BUILD_LUA=ON -DCMAKE_BUILD_TYPE=Release \
-    -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF \
-    -DOPENTLV_BUILD_EXAMPLES=OFF
-cmake --build build-lua --target opentlv_lua
-```
-
-or, from `bindings/lua`, `luarocks make`, which drives the same CMake build
-and also installs `lua/opentlv/init.lua` (see
-`bindings/lua/opentlv-scm-1.rockspec`). Either way this produces
-`opentlv/_core.so` (`opentlv/_core.dll` on Windows); put it on
-`LUA_CPATH` and `bindings/lua/lua/` on `LUA_PATH` (`luarocks make` does the
-equivalent by installing into LuaRocks' own tree) so `require("opentlv")`
-resolves through `init.lua` to it.
-
-**On Windows**, the module must link against the same shared `lua5x.dll` the
-embedding Lua interpreter uses, not a statically linked Lua: two
-independently linked copies of the Lua runtime sharing one `lua_State`
-corrupt memory under this module's calls back into Lua (`opentlv.visit_tree`'s
-callback) and crash. This is generally not a concern on Linux and macOS,
-where system Lua packages already ship a shared library. See
-`bindings/lua/README.md`.
-
-`OPENTLV_BUILD_LUA=ON` forces `OPENTLV_BUILD_SHARED_LIBS=OFF`, the same as
-`OPENTLV_BUILD_WASM` and `OPENTLV_BUILD_PYTHON`: the module links the OpenTLV
-C core statically, so `require("opentlv")` carries no separate shared `tlv`
-library to locate at load time.
+Core no longer configures or builds the Lua module. Use the standalone
+[development guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/development.md)
+for CMake, external Core selection, module paths and the shared Lua runtime
+requirement on Windows. For installation with LuaRocks, follow the
+[package instructions](https://github.com/OpenTLV/opentlv-lua#luarocks).
 
 ## Versioning
 
-The rockspec's own version (`bindings/lua/opentlv-scm-1.rockspec`) is
-independent of the OpenTLV C library's version. `opentlv.version()` (and the
-equivalent `opentlv._VERSION` field) calls `tlv_version_string()` and reports
-the version of the *linked C library*, not the rockspec's own version,
-mirroring the distinction `opentlv.__version__` makes in
-[Python bindings](python.md#versioning).
+Lua binding releases are versioned independently of Core. The existing
+`opentlv.version()` and `opentlv._VERSION` report the linked Core version.
+See [Lua versioning](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/versioning.md).
 
 ## Continuous integration
 
-The [Lua Bindings
-workflow](https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/lua.yml)
-runs on every push and pull request to `main`: it builds the module with
-`luarocks make` and runs `busted tests` and every script under `examples/`,
-across Lua 5.1, 5.3 and 5.4 on Linux and Windows, and additionally on macOS
-for release tags and manual runs. Windows jobs initialize the MSVC x64
-environment before installing Lua. They install the native LuaRocks 3.11.1
-executable with an isolated rock tree and explicit MSVC configuration;
-the Unix LuaRocks setup action is used only on Linux and macOS.
-Windows test dependencies are installed from PowerShell to preserve MSVC tool
-precedence in `PATH`; Git Bash otherwise shadows the MSVC linker with its own
-`link.exe`.
-The Windows interpreter and native modules use the same shared Lua runtime,
-and rock builds use the Ninja CMake generator.
+Lua builds, tests, examples, allocator checks, Query facade conformance and
+LuaRocks installation run in the standalone
+[Lua workflow](https://github.com/OpenTLV/opentlv-lua/actions/workflows/lua.yml).
+Core retains the shared Query corpus, reference implementation and native tests.
+See [Lua test ownership and commands](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/testing.md).
 
 ## Codec implementation
 

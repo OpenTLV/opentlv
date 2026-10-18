@@ -65,8 +65,9 @@ update their examples and documentation together.
 ## Source inventory
 
 The [documentation inventory check](../development/documentation-layout.md#documentation-inventory-checks)
-compares every source below with the example directories, detecting additions,
-removals and stale links. This is an inventory, not evidence of a CI runtime pass.
+compares repository-local sources below with the example directories, detecting
+additions, removals and stale links. Lua examples are maintained and tested in
+the linked standalone repository. This is an inventory, not evidence of a CI runtime pass.
 
 <!-- example-inventory:start -->
 
@@ -123,10 +124,10 @@ removals and stale links. This is an inventory, not evidence of a CI runtime pas
 | Python | [validate.py](../../bindings/python/opentlv/examples/validate.py) | Schema / validation |
 | Python | [write.py](../../bindings/python/opentlv/examples/write.py) | Nested construction |
 | Python | [writer.py](../../bindings/python/opentlv/examples/writer.py) | Sequential Writer |
-| Lua | [codec.lua](../../bindings/lua/examples/codec.lua) | Typed Value codecs |
-| Lua | [parse.lua](../../bindings/lua/examples/parse.lua) | Nested parsing / traversal |
-| Lua | [quick_start.lua](../../bindings/lua/examples/quick_start.lua) | Quick start / round trip |
-| Lua | [schema.lua](../../bindings/lua/examples/schema.lua) | Structural Schema |
+| Lua | [codec.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/codec.lua) | Typed Value codecs |
+| Lua | [parse.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/parse.lua) | Nested parsing / traversal |
+| Lua | [quick_start.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/quick_start.lua) | Quick start / round trip |
+| Lua | [schema.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/schema.lua) | Structural Schema |
 | Go | [codec/main.go](../../bindings/go/examples/codec/main.go) | Typed Value codecs |
 | Go | [document/main.go](../../bindings/go/examples/document/main.go) | Owned Document / traversal |
 | Go | [errors/main.go](../../bindings/go/examples/errors/main.go) | Owned diagnostics / error matching |

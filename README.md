@@ -10,7 +10,7 @@ binary inspection tools. Choose the wire format, then read elements, write
 messages or edit an owned document. Optional Query, Schema and Codec operations
 help you select elements, validate structure and interpret values.
 
-Use C99, the idiomatic C++11+ API, or the official Rust, Python, Lua and Go
+Use C99, the idiomatic C++11+ API, or the official Rust, Python, [Lua](https://github.com/OpenTLV/opentlv-lua) and Go
 bindings (experimental). The standalone [`otlv` CLI](https://github.com/OpenTLV/opentlv-cli)
 and WebAssembly tools use the same C execution engine.
 
@@ -72,6 +72,7 @@ cmake --build build --config Release --parallel
 Requires CMake 3.16+ and a C99 compiler; the default C++ facade needs C++11+.
 The C engine and C++ facade have no third-party dependencies. Core does not
 build or install `otlv`; build it from [opentlv-cli](https://github.com/OpenTLV/opentlv-cli).
+Build and install Lua separately from [opentlv-lua](https://github.com/OpenTLV/opentlv-lua).
 See [integration and installation](docs/getting-started/README.md) for CMake
 consumer targets, runtime libraries and binding-specific setup.
 

@@ -162,7 +162,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | C++ | [headers](../../tlv++/include/tlv++/) | [reader](../../tests/unit/reader/), [writer](../../tests/unit/writer/), [document](../../tests/unit/document/), [codecs](../../tests/unit/codec/) | [C++ examples](../guides/cxx-examples.md) |
 | Rust | [opentlv/src](../../bindings/rust/opentlv/src/) | [opentlv/tests](../../bindings/rust/opentlv/tests/) | [Rust](../guides/rust.md) |
 | Python | [opentlv facade](../../bindings/python/opentlv/src/opentlv/) | [facade tests](../../bindings/python/opentlv/tests/) | [Python](../guides/python.md) |
-| Lua | [facade adapters](../../bindings/lua/src/) | [consumer tests](../../bindings/lua/tests/) | [Lua](../guides/lua.md) |
+| Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](../guides/lua.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
 WASM includes both the parse-to-JSON tooling embedding and an owning compiled

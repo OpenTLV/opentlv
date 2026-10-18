@@ -15,7 +15,7 @@ option(OPENTLV_CALLGRIND_INSTRUMENTATION "Enable explicit Callgrind measurement 
 # The same driver from the candidate checkout is built against both libraries.
 # Keep dependencies, capabilities, linkage and instrumentation identical.
 foreach(feature IN ITEMS TESTS UNIT_TESTS INTEGRATION_TESTS QUERY_TESTS PROPERTY_TESTS
-        CLI_TESTS EXAMPLES CLI BENCHMARKS FUZZING MEMCHECK DOCS CXX WASM PYTHON LUA SHARED_LIBS)
+        CLI_TESTS EXAMPLES CLI BENCHMARKS FUZZING MEMCHECK DOCS CXX WASM PYTHON SHARED_LIBS)
     set(OPENTLV_BUILD_${feature} OFF CACHE BOOL "" FORCE)
 endforeach()
 foreach(feature IN ITEMS READER WRITER DOCUMENT QUERY QUERY_FRONTEND QUERY_SET_OPERATIONS

@@ -19,7 +19,6 @@ EXAMPLE_ROOTS = (
     ("examples/tlv++/src", ".cpp"),
     ("bindings/rust/opentlv/examples", ".rs"),
     ("bindings/python/opentlv/examples", ".py"),
-    ("bindings/lua/examples", ".lua"),
     ("bindings/go/examples", ".go"),
     ("bindings/wasm/examples", ".mjs"),
 )

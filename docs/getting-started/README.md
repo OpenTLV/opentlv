@@ -325,32 +325,12 @@ Exit code zero indicates a successful round trip.
 
 /// tab | Lua
 
-This is [bindings/lua/examples/quick_start.lua](../../bindings/lua/examples/quick_start.lua).
-Build the native module as described in [Using OpenTLV from Lua](../guides/lua.md).
-Lua strings carry binary Tag and Value bytes; failed native operations raise errors.
-The Writer uses its default bounded capacity, and Reader works directly in a
-generic `for` loop.
-
-<!-- example: bindings/lua/examples/quick_start.lua -->
-```lua
--- SPDX-License-Identifier: MIT
--- Copyright (c) 2026 Marek Cingel
-
--- Write one Fixed-format element, then read it back through the public API.
--- Run with `lua examples/quick_start.lua` from bindings/lua.
-local opentlv = require("opentlv")
-
-local format = opentlv.formats.fixed(1, 1, "big")
-local writer = opentlv.writer(format)
-writer:write(string.char(0x01), "Hello, world!")
-
-for element in opentlv.reader(writer:bytes(), format) do
-    print(element.value)
-end
-```
-
-Run `lua examples/quick_start.lua` from `bindings/lua` with the built module on
-`LUA_PATH`/`LUA_CPATH`.
+The runnable [Lua quick start](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/quick_start.lua)
+is maintained and tested in `opentlv-lua`. It writes and reads the same
+Fixed-format `Hello, world!` element through the public Lua API.
+Follow the standalone [build and module-path instructions](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/development.md),
+then run `lua examples/quick_start.lua` from that repository root.
+See [Using OpenTLV from Lua](../guides/lua.md) for the API guide.
 
 ///
 

@@ -8,8 +8,10 @@ It records the source boundaries for [#605](https://github.com/OpenTLV/opentlv/i
 under [the documentation extraction epic](https://github.com/OpenTLV/opentlv/issues/603).
 The inventory records both retained Core sources and component destinations.
 The standalone portal owns publication; CLI sources, tests and manuals now
-belong to `OpenTLV/opentlv-cli` (#622). Remaining transitional exceptions
-are identified below.
+belong to `OpenTLV/opentlv-cli` (#622). Lua sources, tests and CI belong to `OpenTLV/opentlv-lua` (#633).
+The Lua API guide and implementation notes remain here until the portal
+documentation migration (OpenTLV/opentlv-docs#27); setup links already point to
+the standalone repository. Remaining transitional exceptions are identified below.
 
 ## Ownership rules
 
@@ -20,9 +22,11 @@ are identified below.
 | Tool | Its commands, options, input/output conventions, installation, tests and executable examples |
 | Portal (`OpenTLV/opentlv-docs`) | Global navigation, presentation, shared assets, MkDocs configuration, assembly, version selection, integration of generated references and examples, site validation and publication |
 
-C++ remains part of Core. Rust, Python and Lua documentation will move with
-their implementations to `OpenTLV/opentlv-rust`, `OpenTLV/opentlv-python` and
-`OpenTLV/opentlv-lua`; CLI documentation is maintained in `OpenTLV/opentlv-cli`.
+C++ remains part of Core. Rust and Python documentation will move with
+their implementations to `OpenTLV/opentlv-rust` and `OpenTLV/opentlv-python`.
+Lua's standalone build and test documentation is maintained in `OpenTLV/opentlv-lua`;
+its API guide remains a transitional Core source as described above.
+CLI documentation is maintained in `OpenTLV/opentlv-cli`.
 Go and WebAssembly follow the same component ownership rule; their destination
 repository names must be recorded when their extraction is scheduled. These
 binding destinations are ownership assignments, not claims that their migrations are complete.
