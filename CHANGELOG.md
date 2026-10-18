@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Move the Lua API guide and implementation notes to [opentlv-lua](https://github.com/OpenTLV/opentlv-lua), updating Core documentation links and ownership inventories. (OpenTLV/opentlv-docs#27)
 - Remove the Lua binding, build options, CI and migrated facade runner from Core after migration from `d87dcf96b2707e817dd51163a9f9efa36651e929` to [opentlv-lua](https://github.com/OpenTLV/opentlv-lua); build and install Lua separately, with shared Query fixtures and native tests retained in Core. (#633)
 - Extract `otlv` into [opentlv-cli](https://github.com/OpenTLV/opentlv-cli); remove the Core CLI implementation, build options, JSON dependency, migrated tests and CLI manuals while retaining shared native tests and fixtures. Build and install the CLI separately through public Core CMake targets. (#622)
 - Generate property-test corpora directly through the public Core Generator API, allowing the suite to run without the CLI or C++ facade while preserving its deterministic wire domains and seeds. (#621)

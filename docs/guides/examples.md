@@ -44,7 +44,7 @@ See the [binding matrix](../concepts/bindings.md) for actual capability coverage
 
 The [quick start](../getting-started/README.md#quick-start) supplies setup and
 run commands. Use the [C++ guide](cxx-examples.md) and the language guides for
-[Rust](rust.md), [Python](python.md), [Lua](lua.md) and [Go](go.md).
+[Rust](rust.md), [Python](python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](go.md).
 C/C++ sources are registered by their example CMake files and run as CTest
 examples when their components are enabled. Component prerequisites can omit
 individual programs; compiling a minimal build does not exercise disabled formats.

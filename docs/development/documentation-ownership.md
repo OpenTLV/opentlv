@@ -9,9 +9,8 @@ under [the documentation extraction epic](https://github.com/OpenTLV/opentlv/iss
 The inventory records both retained Core sources and component destinations.
 The standalone portal owns publication; CLI sources, tests and manuals now
 belong to `OpenTLV/opentlv-cli` (#622). Lua sources, tests and CI belong to `OpenTLV/opentlv-lua` (#633).
-The Lua API guide and implementation notes remain here until the portal
-documentation migration (OpenTLV/opentlv-docs#27); setup links already point to
-the standalone repository. Remaining transitional exceptions are identified below.
+Lua API, implementation, setup and test documentation now belong to that
+standalone repository (OpenTLV/opentlv-docs#27). Remaining transitional exceptions are identified below.
 
 ## Ownership rules
 
@@ -24,8 +23,8 @@ the standalone repository. Remaining transitional exceptions are identified belo
 
 C++ remains part of Core. Rust and Python documentation will move with
 their implementations to `OpenTLV/opentlv-rust` and `OpenTLV/opentlv-python`.
-Lua's standalone build and test documentation is maintained in `OpenTLV/opentlv-lua`;
-its API guide remains a transitional Core source as described above.
+Lua's API, implementation, build and test documentation is maintained in
+`OpenTLV/opentlv-lua`.
 CLI documentation is maintained in `OpenTLV/opentlv-cli`.
 Go and WebAssembly follow the same component ownership rule; their destination
 repository names must be recorded when their extraction is scheduled. These
@@ -139,7 +138,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/fuzzing.md](fuzzing.md) | Core | Keep: native fuzzing and consumer harnesses |
 | [development/go.md](go.md) | Go | Component |
 | [development/indefinite-boundary-reuse.md](indefinite-boundary-reuse.md) | Core | Keep |
-| [development/lua.md](lua.md) | Lua | Component |
+| [Lua implementation notes](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Lua | Moved to opentlv-lua/docs/implementation.md |
 | [development/python.md](python.md) | Python | Component |
 | [development/query-adversarial.md](query-adversarial.md) | Core | Mixed: native verification and facade evidence |
 | [development/query-phase-audit.md](query-phase-audit.md) | Core | Mixed: native implementation audit and facade evidence |
@@ -175,7 +174,7 @@ structure; this table records ownership rather than replacing that audit.
 | [guides/document.md](../guides/document.md) | Core / bindings | Mixed: shared semantics and language examples |
 | [guides/examples.md](../guides/examples.md) | Core / components / Portal | Mixed: source inventories and combined index |
 | [guides/go.md](../guides/go.md) | Go | Component |
-| [guides/lua.md](../guides/lua.md) | Lua | Component |
+| [Lua API guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | Lua | Moved to opentlv-lua/docs/api.md |
 | [guides/memory.md](../guides/memory.md) | Core / bindings | Mixed: native ownership and facade lifetime rules |
 | [guides/processing.md](../guides/processing.md) | Core | Keep |
 | [guides/python.md](../guides/python.md) | Python | Component |
