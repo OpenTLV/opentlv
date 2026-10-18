@@ -13,16 +13,12 @@ Pull/resumable Tree Reader and Document Builder remain unbound; see the
 
 ## Setup
 
-```sh
-cmake -S . -B build-lua -DOPENTLV_BUILD_LUA=ON -DCMAKE_BUILD_TYPE=Release \
-    -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF \
-    -DOPENTLV_BUILD_EXAMPLES=OFF
-cmake --build build-lua --target opentlv_lua
-```
-
-This requires CMake 3.16 or newer, a C99 compiler, and Lua 5.1 through 5.4 or
-LuaJIT headers and library; see [Build](../development/lua.md#build) for the
-`luarocks make` alternative and a Windows-specific linking note.
+The binding is built and installed from the standalone
+[opentlv-lua repository](https://github.com/OpenTLV/opentlv-lua). Follow its
+[development instructions](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/development.md)
+for CMake, external Core selection, Lua runtime requirements and Windows linking,
+or its [LuaRocks instructions](https://github.com/OpenTLV/opentlv-lua#luarocks).
+Core no longer builds or installs the Lua module.
 
 ```lua
 local opentlv = require("opentlv")
@@ -31,8 +27,8 @@ print(opentlv.version())
 ```
 
 Runnable version:
-[quick_start.lua](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/quick_start.lua)
-(`lua examples/quick_start.lua` from `bindings/lua`).
+[quick_start.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/quick_start.lua)
+(`lua examples/quick_start.lua` from the `opentlv-lua` repository root).
 
 ## Reading
 
@@ -67,7 +63,7 @@ format it was constructed with.
 
 Runnable version, parsing a nested BER document and handling truncated
 input:
-[parse.lua](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/parse.lua)
+[parse.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/parse.lua)
 (`lua examples/parse.lua`).
 
 ## Visitor and tree traversal
@@ -338,7 +334,7 @@ parent-element offset when nested and have no offset at root level. Fatal
 diagnostics carry only code/message/severity and the offset if C provided one;
 the binding does not reparse the input to reconstruct tag or path information.
 
-See the runnable [schema example](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/schema.lua).
+See the runnable [schema example](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/schema.lua).
 
 ## Value codecs
 
@@ -482,7 +478,7 @@ including cycles that capture the codec itself.
 
 This API binds Value codecs. The separate `tlv_structure_codec_t` contract
 for complete objects remains unbound. See the runnable
-[codec example](https://github.com/marekcingel/OpenTLV/blob/main/bindings/lua/examples/codec.lua).
+[codec example](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/codec.lua).
 
 ## Query and Document
 
@@ -609,7 +605,7 @@ and field offsets retain their presence, and lengths beyond Lua's exact numeric
 range use decimal strings. Codec detail adds `operation_name`, `cause_name` and
 `violation_name` beside raw numeric values. See the
 [binding diagnostic reference](../reference/errors.md#binding-diagnostics) and
-[consumer tests](../../bindings/lua/tests/program_spec.lua).
+[consumer tests](https://github.com/OpenTLV/opentlv-lua/blob/main/tests/program_spec.lua).
 
 Compile options accept `providers = {num = {id = ..., decode = ...}, ...}` for
 `num`, `bcd`, `text` and `date`. Callbacks receive a Value string and optional

@@ -1,5 +1,11 @@
 # Query conformance
 
+Core owns the shared `corpus.json`, `reference.py`, native tests and generic
+conformance infrastructure. The Lua facade runner and its CI are maintained in
+[opentlv-lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/testing.md),
+which reads the shared inputs from the same Core checkout used to build Lua.
+Cross-language release evidence still includes Lua results from that repository.
+
 F5 adds `--commit`, `--seed` and `--evidence` to the runner. The commit seed
 mapping comes from the wire property infrastructure. Evidence separates trees,
 queries and typed bindings from independently computed expected identities/scalars;

@@ -17,7 +17,6 @@ option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of stati
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
 option(OPENTLV_BUILD_WASM "Build the experimental WebAssembly module (requires Emscripten)" OFF)
 option(OPENTLV_BUILD_PYTHON "Build the experimental Python native extension" OFF)
-option(OPENTLV_BUILD_LUA "Build the experimental Lua native extension" OFF)
 
 # Core capabilities
 option(OPENTLV_READER "Include wire readers and traversal" ON)
@@ -84,12 +83,6 @@ if(OPENTLV_BUILD_PYTHON)
     set(OPENTLV_BUILD_SHARED_LIBS OFF)
 endif()
 
-if(OPENTLV_BUILD_LUA)
-    # The extension module links the core statically, so require("opentlv")
-    # carries no separate shared tlv library to locate at load time.
-    set(OPENTLV_BUILD_SHARED_LIBS OFF)
-endif()
-
 
 include(cmake/compiler.cmake)
 include(cmake/memcheck.cmake)
@@ -113,12 +106,6 @@ endif()
 
 if(OPENTLV_BUILD_PYTHON)
     add_subdirectory(bindings/python/opentlv-core)
-endif()
-
-if(OPENTLV_BUILD_LUA)
-    # ctest reads the top-level test file, so testing is enabled here, not in bindings/lua.
-    enable_testing()
-    add_subdirectory(bindings/lua)
 endif()
 
 if(OPENTLV_BUILD_DOCS)

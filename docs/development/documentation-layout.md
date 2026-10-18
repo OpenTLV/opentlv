@@ -251,7 +251,8 @@ Run `python scripts/check_doc_inventory.py` and
 Markdown lint and generated API references. Core CI runs these checks without
 MkDocs or the portal. The portal checks navigation against assembled Markdown
 and runs the strict MkDocs build. Core retains binding checks while those
-sources remain here. CLI checks belong to `opentlv-cli`.
+sources remain here. CLI checks belong to `opentlv-cli`; Lua example and test
+execution belongs to `opentlv-lua`.
 
 The inventory check derives these small facts directly from repository sources:
 
@@ -261,7 +262,7 @@ The inventory check derives these small facts directly from repository sources:
 | Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
 | C++ built-in directories | C++ family links in the implemented inventory |
 | Official binding directories | User guide exists (WASM uses its tooling guide); navigation is checked by the portal |
-| C/C++/Rust/Python/Lua/Go/WASM example sources | Marked source inventory in the examples guide |
+| Core-local C/C++/Rust/Python/Go/WASM example sources | Marked source inventory in the examples guide; standalone Lua sources are external links |
 | Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
 
 Adding or removing a public capability must update the corresponding inventory,
