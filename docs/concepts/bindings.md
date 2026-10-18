@@ -162,7 +162,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | C++ | [headers](../../tlv++/include/tlv++/) | [reader](../../tests/unit/reader/), [writer](../../tests/unit/writer/), [document](../../tests/unit/document/), [codecs](../../tests/unit/codec/) | [C++ examples](../guides/cxx-examples.md) |
 | Rust | [opentlv/src](../../bindings/rust/opentlv/src/) | [opentlv/tests](../../bindings/rust/opentlv/tests/) | [Rust](../guides/rust.md) |
 | Python | [opentlv facade](../../bindings/python/opentlv/src/opentlv/) | [facade tests](../../bindings/python/opentlv/tests/) | [Python](../guides/python.md) |
-| Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](../guides/lua.md) |
+| Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
 WASM includes both the parse-to-JSON tooling embedding and an owning compiled
@@ -285,7 +285,7 @@ validator. It snapshots rule/group descriptions, retains child schemas and
 returns owned diagnostic tables. Schema violations return bounded reports;
 fatal wire/configuration errors return a single basic diagnostic, including
 only the location/context available from C. See the
-[Lua Schema guide](../guides/lua.md#structural-schemas).
+[Lua Schema guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md#structural-schemas).
 
 Rust `StructureSchema::with_constraints` and Python `StructureSchema` accept
 `SchemaOrder` and `StructureGroup` descriptions. Each rule may select a group
@@ -421,7 +421,7 @@ entry points are:
 | C++ | Header-only C++11 facade shipped with OpenTLV; links the C engine | [C++ examples](../guides/cxx-examples.md) | [Public/native contract](cxx-native-boundary.md) |
 | Rust | Experimental `opentlv` facade plus `opentlv-sys` FFI crate | [Rust guide](../guides/rust.md) | [Rust development](../development/rust.md) |
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](../guides/python.md) | [Python development](../development/python.md) |
-| Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](../guides/lua.md) | [Lua development](../development/lua.md) |
+| Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Lua development](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
 | WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
 

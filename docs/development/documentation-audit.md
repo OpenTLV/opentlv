@@ -80,7 +80,7 @@ reference or release notes.
 | [Where documentation belongs](../../docs/development/documentation-layout.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Fuzzing the C API](../../docs/development/fuzzing.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Go binding development](../../docs/development/go.md) | Contributor | Build workflow | Keep separate from user onboarding |
-| [Lua bindings (experimental)](../../docs/development/lua.md) | Contributor | Build workflow | Keep separate from user onboarding |
+| [Lua bindings (experimental)](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Python bindings (experimental)](../../docs/development/python.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Rust bindings (experimental)](../../docs/development/rust.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [WebAssembly build (experimental)](../../docs/development/webassembly.md) | Contributor | Build workflow | Keep separate from user onboarding |
@@ -110,7 +110,7 @@ reference or release notes.
 | [Mutable documents](../../docs/guides/document.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Executable examples and workflow coverage](../../docs/guides/examples.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Using OpenTLV from Go](../../docs/guides/go.md) | User | None or selected API setup | Use task entry and recommended next step |
-| [Using OpenTLV from Lua](../../docs/guides/lua.md) | User | None or selected API setup | Use task entry and recommended next step |
+| [Using OpenTLV from Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Memory ownership and lifetime](../../docs/guides/memory.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Choose a processing API](../../docs/guides/processing.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Using OpenTLV from Python](../../docs/guides/python.md) | User | None or selected API setup | Use task entry and recommended next step |

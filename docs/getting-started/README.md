@@ -5,7 +5,7 @@
 Choose your language in [Quick start](#quick-start) for a complete first
 program and expected output. C/C++ users can build the checkout below; binding
 users should follow setup in the [Rust](../guides/rust.md),
-[Python](../guides/python.md), [Lua](../guides/lua.md) or [Go](../guides/go.md)
+[Python](../guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) or [Go](../guides/go.md)
 guide before running their example. For terminal inspection, use
 [the CLI first task](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection).
 
@@ -330,7 +330,7 @@ is maintained and tested in `opentlv-lua`. It writes and reads the same
 Fixed-format `Hello, world!` element through the public Lua API.
 Follow the standalone [build and module-path instructions](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/development.md),
 then run `lua examples/quick_start.lua` from that repository root.
-See [Using OpenTLV from Lua](../guides/lua.md) for the API guide.
+See [Using OpenTLV from Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) for the API guide.
 
 ///
 
