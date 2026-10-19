@@ -120,10 +120,10 @@ static const tlv_node_t* subtree_next(const tlv_node_t* node, const tlv_node_t* 
     return node == root ? NULL : node->next;
 }
 
-static size_t subtree_size(const tlv_node_t* node) {
+static size_t subtree_size(const tlv_node_t* root) {
     size_t total = 0;
     const tlv_node_t* current;
-    for (current = node; current; current = subtree_next(current, node)) ++total;
+    for (current = root; current; current = subtree_next(current, root)) ++total;
     return total;
 }
 

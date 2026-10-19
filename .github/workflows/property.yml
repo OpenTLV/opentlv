@@ -1,10 +1,21 @@
 name: Deterministic Property Tests
 
 on:
-  push:
-    branches: ['**']
-  pull_request:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -18,6 +29,14 @@ jobs:
         configuration: [default, minimal]
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - name: Configure property suite
         shell: bash
         run: |
@@ -42,7 +61,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: property-failures-${{ matrix.configuration }}-${{ github.sha }}
+          name: property-failures-${{ matrix.configuration }}-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             build/property-failures/
             build/Testing/Temporary/LastTest.log

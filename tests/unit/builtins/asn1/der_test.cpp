@@ -58,6 +58,23 @@ TEST(Unit_Tlv_Der, EmptyArgumentsAndVisitorControl) {
     EXPECT_NE(TLV_OK, tlv_der_visit(data, sizeof(data), nullptr, nullptr, nullptr, nullptr));
 }
 
+TEST(Unit_Tlv_Der, EmptyIdentifierReportsTruncationWithoutPublishingTag) {
+    const auto*   fields = static_cast<const tlv_field_composition_t*>(tlv_format_der.context);
+    const uint8_t sentinel[] = {0x04};
+    for (const uint8_t* data : {static_cast<const uint8_t*>(nullptr), sentinel}) {
+        tlv_tag_t tag = tlv_tag(sentinel, sizeof(sentinel));
+        size_t    consumed = 99;
+        EXPECT_EQ(TLV_ERR_TRUNCATED, fields->read_tag(nullptr, data, 0, &tag, &consumed));
+        EXPECT_EQ(0u, consumed);
+        EXPECT_EQ(sentinel, tag.data);
+        EXPECT_EQ(sizeof(sentinel), tag.size);
+    }
+    tlv_tag_t tag = tlv_tag(sentinel, sizeof(sentinel));
+    size_t    consumed = 99;
+    EXPECT_EQ(TLV_ERR_NULL_ARG, fields->read_tag(nullptr, nullptr, 1, &tag, &consumed));
+    EXPECT_EQ(99u, consumed);
+}
+
 TEST(Unit_Tlv_Der, TagSizeErrorsPreserveOutputs) {
     tlv_tag_t tag{};
     uint64_t  number = 42;

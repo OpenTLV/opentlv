@@ -1,20 +1,29 @@
 name: Clang Build
 
 on:
-  push:
-    branches: [main]
-    tags: ['[0-9]*.[0-9]*.[0-9]*']
-  pull_request:
-    branches: [main]
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
-# Pull requests get the fast path: one Debug build with unit and integration
-# tests. Pushes to main add coverage, the examples and a C-only Debug build.
-# Release tags also build Release. Benchmarks have their own workflow.
+# Fast runs Debug unit/integration tests. Full adds coverage, examples,
+# Release and C-only configurations. Benchmarks remain advisory.
 concurrency:
-  group: clang-${{ github.ref }}
+  group: clang-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -26,19 +35,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build_type: ${{ fromJSON(startsWith(github.ref, 'refs/tags/') && '["Debug", "Release"]' || '["Debug"]') }}
+        build_type: ${{ fromJSON(inputs.full && '["Debug", "Release"]' || '["Debug"]') }}
         cxx_standard: [23]
     env:
       CC: clang-18
       CXX: clang++-18
       # Coverage and examples stay off the pull request path.
-      COVERAGE: ${{ github.event_name != 'pull_request' && matrix.build_type == 'Debug' }}
-      EXAMPLES: ${{ github.event_name != 'pull_request' }}
+      COVERAGE: ${{ inputs.full && matrix.build_type == 'Debug' }}
+      EXAMPLES: ${{ inputs.full }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Install Clang
         run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
@@ -107,7 +122,7 @@ jobs:
         if: env.COVERAGE == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-clang-debug-unit-integration
+          name: coverage-clang-debug-unit-integration-${{ github.run_attempt }}
           path: coverage/
           if-no-files-found: error
 
@@ -129,17 +144,23 @@ jobs:
     permissions:
       contents: read
     name: Clang 18 / C-only / ${{ matrix.build_type }}
-    if: github.event_name != 'pull_request'
+    if: inputs.full
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        build_type: ${{ fromJSON(startsWith(github.ref, 'refs/tags/') && '["Debug", "Release"]' || '["Debug"]') }}
+        build_type: ${{ fromJSON(inputs.full && '["Debug", "Release"]' || '["Debug"]') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Install Clang
         run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build

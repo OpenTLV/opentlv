@@ -57,7 +57,8 @@ static tlv_result_t date_decode(const void* context, const tlv_tree_event_t* eve
         365 * INT64_C(1970) + (1970 + 3) / 4 - (1970 + 99) / 100 + (1970 + 399) / 400;
     tlv_query_result_t out = {0};
     out.kind = TLV_QUERY_RESULT_INTEGER;
-    out.integer = (total - epoch) * 86400 + t.hour * 3600 + t.minute * 60 + t.second;
+    out.integer =
+        (total - epoch) * 86400 + t.hour * INT64_C(3600) + t.minute * INT64_C(60) + t.second;
     *result = out;
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }

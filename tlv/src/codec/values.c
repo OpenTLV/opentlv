@@ -141,14 +141,14 @@ static tlv_result_t encode_bytes(const void* context, const void* value, size_t 
                                  tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     tlv_value_t input;
-    size_t length;
+    size_t length = 0;
     (void)context;
     if (size != sizeof(input))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_OBJECT);
     memcpy(&input, value, sizeof(input));
     if (!input.data && input.size) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
-    if (tlv_size_to_native(input.size, &length) != TLV_OK)
+    if (input.size && tlv_size_to_native(input.size, &length) != TLV_OK)
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_OBJECT);
     if (data) {

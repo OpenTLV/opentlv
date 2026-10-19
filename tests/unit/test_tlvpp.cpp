@@ -28,10 +28,10 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
     const tlv::element_view leaf = {tlv::tag_bytes<1>(), tlv::value_view{}};
     ASSERT_TRUE(writer.begin(tlv::tag_bytes<0xE1>()).has_value());
     ASSERT_TRUE(writer.write(leaf).has_value());
-    EXPECT_EQ(0u, writer.size());
+    EXPECT_EQ(0U, writer.size());
     EXPECT_FALSE(writer.finish().has_value());
     ASSERT_TRUE(writer.end().has_value());
-    EXPECT_EQ(4u, writer.size());
+    EXPECT_EQ(4U, writer.size());
     EXPECT_TRUE(writer.finish().has_value());
     EXPECT_EQ(tlv::byte{0xE1}, output[0]);
     EXPECT_EQ(tlv::byte{2}, output[1]);
@@ -42,7 +42,7 @@ TEST(Unit_Tlvpp, TreeWriterBorrowsStorageAndReportsInitializationErrors) {
     EXPECT_FALSE(bad.write(leaf).has_value());
     EXPECT_FALSE(bad.end().has_value());
     EXPECT_FALSE(bad.finish().has_value());
-    EXPECT_EQ(0u, bad.size());
+    EXPECT_EQ(0U, bad.size());
 }
 
 TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
@@ -55,19 +55,19 @@ TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     auto       required =
         tlv::encoded_size(decoded.element, tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(required.has_value());
-    EXPECT_EQ(3u, *required);
+    EXPECT_EQ(3U, *required);
     std::array<tlv::byte, 9> output{};
     tlv::writer<>            writer(output.data(), output.size(),
                                     tlv::native::borrow_format(controlled::format));
     ASSERT_TRUE(writer.write(decoded.element).has_value());
     ASSERT_TRUE(writer.preserve(decoded.source, decoded.element).has_value());
     ASSERT_TRUE(writer.copy_encoded(tlv::bytes(output.data(), 3)).has_value());
-    EXPECT_EQ(0u, writer.remaining());
+    EXPECT_EQ(0U, writer.remaining());
     tlv::writer_diagnostic diagnostic{};
     EXPECT_FALSE(writer.write(decoded.element, &diagnostic).has_value());
-    EXPECT_EQ(9u, writer.size());
-    EXPECT_EQ(3u, diagnostic.required);
-    EXPECT_EQ(9u, diagnostic.diagnostic.location.begin);
+    EXPECT_EQ(9U, writer.size());
+    EXPECT_EQ(3U, diagnostic.required);
+    EXPECT_EQ(9U, diagnostic.diagnostic.location.begin);
 }
 
 #if OPENTLV_LLDP
@@ -78,7 +78,7 @@ TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
     auto result = tlv::decode(tlv::lldp::format{}, tlv::bytes(wire.data(), wire.size()));
     ASSERT_TRUE(result.has_value());
     EXPECT_TRUE((tlv::tag_bytes<3>() == result->element.tag()));
-    EXPECT_EQ(2u, result->element.value().size());
+    EXPECT_EQ(2U, result->element.value().size());
 }
 #endif
 
@@ -139,13 +139,13 @@ TEST(Unit_Tlvpp, ReaderReportsEnd) {
 
     auto e1 = reader.next();
     ASSERT_TRUE(e1.has_value());
-    EXPECT_TRUE(e1->value().size() == 0);
+    EXPECT_TRUE(e1->value().empty());
     auto decoded = tlv::decode(tlv::native::borrow_format(controlled::format),
                                tlv::bytes(buf.data(), buf.size()));
     ASSERT_TRUE(decoded);
-    EXPECT_EQ(1u, decoded->source.length.offset);
-    EXPECT_EQ(1u, decoded->source.length.size);
-    EXPECT_EQ(0u, decoded->source.data[decoded->source.length.offset]);
+    EXPECT_EQ(1U, decoded->source.length.offset);
+    EXPECT_EQ(1U, decoded->source.length.size);
+    EXPECT_EQ(0U, decoded->source.data[decoded->source.length.offset]);
 
     EXPECT_TRUE(reader.at_end());
     auto e2 = reader.next();
@@ -164,9 +164,9 @@ TEST(Unit_Tlvpp, WriterWriteDiagReportsRequiredExceedingAvailableCapacity) {
     EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_WRITER_OP_VALUE, diagnostic.operation);
     ASSERT_TRUE(diagnostic.has_required);
-    EXPECT_EQ(4u, diagnostic.required);
+    EXPECT_EQ(4U, diagnostic.required);
     ASSERT_TRUE(diagnostic.has_available);
-    EXPECT_EQ(1u, diagnostic.available);
+    EXPECT_EQ(1U, diagnostic.available);
 }
 
 TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
@@ -181,9 +181,9 @@ TEST(Unit_Tlvpp, ReaderNextDiagReportsValueExceedingAvailableBytes) {
     EXPECT_EQ(TLV_ERR_TRUNCATED, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_READER_OP_VALUE, diagnostic.detail.operation);
     ASSERT_TRUE(diagnostic.detail.has_declared_length);
-    EXPECT_EQ(6u, diagnostic.detail.declared_length);
+    EXPECT_EQ(6U, diagnostic.detail.declared_length);
     ASSERT_TRUE(diagnostic.detail.has_available);
-    EXPECT_EQ(0u, diagnostic.detail.available);
+    EXPECT_EQ(0U, diagnostic.detail.available);
 }
 
 TEST(Unit_Tlvpp, RegistryComparesValidTagBytesAndSize) {

@@ -153,8 +153,8 @@ tlv_result_t tlv_query_exec_init(const tlv_query_program_t* p, void* storage, si
     if (rc != TLV_OK) return rc;
     if ((uintptr_t)storage % alignment || !max_elements || !max_work) return TLV_ERR_INVALID_ARG;
     if (query_overlap(p, p->reserved, storage, capacity) ||
-        query_overlap(p, p->reserved, result, sizeof *result) ||
-        query_overlap(storage, capacity, result, sizeof *result))
+        query_overlap(p, p->reserved, (const void*)result, sizeof(tlv_query_exec_t*)) ||
+        query_overlap(storage, capacity, (const void*)result, sizeof(tlv_query_exec_t*)))
         return TLV_ERR_INVALID_ARG;
     if (capacity < bytes) return TLV_ERR_BUFFER_TOO_SHORT;
     memset(storage, 0, bytes);

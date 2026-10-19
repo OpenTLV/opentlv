@@ -524,6 +524,35 @@ TEST(Unit_Tlv_DerSchema, ElementCountLimitAppliesAcrossNesting) {
                                   nullptr, &limits));
 }
 
+TEST(Unit_Tlv_DerSchema, CheckedReadLimitPreservesOutputsWithOptionalDiagnostic) {
+    tlv_der_schema_component_t  component = Required(kInteger);
+    const tlv_der_schema_type_t seq = {
+        TLV_DER_SCHEMA_SEQUENCE, 0, &component, 1, nullptr, 0, 0, nullptr, 0};
+    tlv_der_schema_checked_t checked{};
+    ASSERT_EQ(TLV_OK, tlv_der_schema_prepare(&checked, &seq, nullptr));
+    tlv_der_schema_limits_t limits = tlv_der_schema_default_limits;
+    limits.base.max_elements = 1;
+    const uint8_t           data[] = {0x30, 0x03, 0x02, 0x01, 0x05};
+    tlv_schema_diagnostic_t diagnostic{};
+    for (auto* detail : {static_cast<tlv_schema_diagnostic_t*>(nullptr), &diagnostic}) {
+        tlv_element_t element{};
+        element.tag = tlv_tag(data, 1);
+        element.value = {data + 2, 3};
+        size_t consumed = 99;
+        EXPECT_EQ(TLV_ERR_LIMIT, tlv_der_schema_read_checked(&checked, data, sizeof(data), &limits,
+                                                             &element, &consumed, detail));
+        EXPECT_EQ(data, element.tag.data);
+        EXPECT_EQ(1u, element.tag.size);
+        EXPECT_EQ(data + 2, element.value.data);
+        EXPECT_EQ(3u, element.value.size);
+        EXPECT_EQ(99u, consumed);
+        if (detail) {
+            EXPECT_EQ(TLV_ERR_LIMIT, detail->diagnostic.code);
+            EXPECT_EQ(2u, detail->diagnostic.location.begin);
+        }
+    }
+}
+
 TEST(Unit_Tlv_DerSchema, SchemaCheckCatchesAuthoringErrors) {
     tlv_der_schema_component_t  duplicate[2] = {Required(kInteger), Required(kInteger)};
     const tlv_der_schema_type_t bad_set = {

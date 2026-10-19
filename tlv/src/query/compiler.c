@@ -1176,11 +1176,13 @@ tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
     if (info->struct_size < offsetof(tlv_query_program_info_t, expression_values) ||
         image_overlap(workspace, capacity, text, size) ||
         image_overlap(workspace, capacity, options, options ? sizeof *options : 0) ||
-        image_overlap(workspace, capacity, prepared, sizeof *prepared) ||
+        image_overlap(workspace, capacity, (const void*)prepared,
+                      sizeof(const tlv_query_program_t*)) ||
         image_overlap(workspace, capacity, info, sizeof *info) ||
         image_overlap(workspace, capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
-        image_overlap(prepared, sizeof *prepared, info, sizeof *info) ||
-        image_overlap(prepared, sizeof *prepared, diagnostic,
+        image_overlap((const void*)prepared, sizeof(const tlv_query_program_t*), info,
+                      sizeof *info) ||
+        image_overlap((const void*)prepared, sizeof(const tlv_query_program_t*), diagnostic,
                       diagnostic ? sizeof *diagnostic : 0) ||
         image_overlap(info, sizeof *info, diagnostic, diagnostic ? sizeof *diagnostic : 0))
         return TLV_ERR_INVALID_ARG;
@@ -1255,9 +1257,12 @@ static tlv_result_t image_header(const void* image, size_t size, tlv_query_progr
     if (!image)
         return query_error_unlocated(diagnostic, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required compiler arguments");
-    if (size < sizeof *header)
-        return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
-                                     "complete image header");
+    if (size < sizeof *header) {
+        (void)query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
+                                    "complete image header");
+        /* diagnostic-return: query_error_unlocated set the image error above. */
+        return TLV_ERR_INVALID_VALUE;
+    }
     memcpy(header, image, sizeof *header);
     if (header->magic != QUERY_MAGIC)
         return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
@@ -1312,15 +1317,17 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
                                     tlv_query_diagnostic_t* diagnostic) {
     if (!scratch || !program) return TLV_ERR_NULL_ARG;
     if (image_overlap(image, size, scratch, capacity) ||
-        image_overlap(image, size, program, sizeof *program) ||
+        image_overlap(image, size, (const void*)program, sizeof(const tlv_query_program_t*)) ||
         image_overlap(image, size, output_info, output_info ? sizeof *output_info : 0) ||
-        image_overlap(scratch, capacity, program, sizeof *program) ||
+        image_overlap(scratch, capacity, (const void*)program,
+                      sizeof(const tlv_query_program_t*)) ||
         image_overlap(scratch, capacity, output_info, output_info ? sizeof *output_info : 0) ||
         image_overlap(scratch, capacity, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
         image_overlap(scratch, capacity, options, options ? sizeof *options : 0) ||
-        image_overlap(program, sizeof *program, output_info,
+        image_overlap((const void*)program, sizeof(const tlv_query_program_t*), output_info,
                       output_info ? sizeof *output_info : 0) ||
-        image_overlap(program, sizeof *program, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
+        image_overlap((const void*)program, sizeof(const tlv_query_program_t*), diagnostic,
+                      diagnostic ? sizeof *diagnostic : 0) ||
         image_overlap(output_info, output_info ? sizeof *output_info : 0, diagnostic,
                       diagnostic ? sizeof *diagnostic : 0))
         return TLV_ERR_INVALID_ARG;
@@ -1337,17 +1344,17 @@ tlv_result_t tlv_query_program_load(const void* image, size_t size,
     if (capacity < needed)
         return query_error_unlocated(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_QUERY_ERROR_STORAGE,
                                      "sufficient compiler storage capacity");
-    size_t offset = needed - size;
+    size_t scratch_size = needed - size;
     tlv_query_program_t header;
     memcpy(&header, image, sizeof header);
     tlv_query_program_info_t info;
     memset(&info, 0, sizeof info);
     info.struct_size = sizeof info;
-    void* reconstructed = (uint8_t*)scratch + offset;
+    void* reconstructed = (uint8_t*)scratch + scratch_size;
     rc = tlv_query_compile((const char*)image + header.text_offset, header.text_size, options,
-                           scratch, offset, reconstructed, size, &info, diagnostic);
+                           scratch, scratch_size, reconstructed, size, &info, diagnostic);
     if (rc != TLV_OK) return rc;
-    if (info.program_size != size || memcmp(image, reconstructed, size))
+    if (info.program_size != size || memcmp(image, reconstructed, size) != 0)
         return query_error_unlocated(diagnostic, TLV_ERR_INVALID_VALUE, TLV_QUERY_ERROR_IMAGE,
                                      "canonical validated Query image and matching capabilities");
     *program = (const tlv_query_program_t*)image;

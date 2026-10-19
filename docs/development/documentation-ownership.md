@@ -148,6 +148,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/valgrind.md](valgrind.md) | Core | Keep: native checks and harness selection |
 | [development/webassembly.md](webassembly.md) | WebAssembly / Portal | Component: embedding/build API; portal owns playground integration |
 | [development/workflow.md](workflow.md) | Core / components / Portal | Mixed: checks and release/publication responsibilities |
+| [development/quality-gates.md](quality-gates.md) | Core | Core CI inventory, release artifacts, provenance and timing evidence |
 | [formats/README.md](../formats/README.md) | Core | Keep |
 | [formats/asn1/ber.md](../formats/asn1/ber.md) | Core | Keep |
 | [formats/asn1/cer.md](../formats/asn1/cer.md) | Core | Keep |

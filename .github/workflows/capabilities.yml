@@ -1,9 +1,21 @@
 name: Capability profiles
 on:
-  push:
-    branches: [main, develop]
-  pull_request:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
+
 jobs:
   capabilities:
     permissions:
@@ -14,6 +26,14 @@ jobs:
         linkage: [shared, static]
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - name: Configure, link and run capability contracts
         run: |
           if [ "${{ matrix.linkage }}" = static ]; then

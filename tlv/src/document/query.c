@@ -60,7 +60,7 @@ tlv_result_t tlv_document_find_path(const tlv_document_t* document, const tlv_qu
     tlv_node_t* result = NULL;
     tlv_result_t rc;
     if (!node) return TLV_ERR_NULL_ARG;
-    rc = tlv_document_query_visit(document, query, first_path_match, &result, NULL);
+    rc = tlv_document_query_visit(document, query, first_path_match, (void*)&result, NULL);
     if (rc != TLV_OK) return rc;
     *node = result;
     return TLV_OK;

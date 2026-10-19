@@ -104,12 +104,12 @@ static tlv_result_t stream(generator_t* g, uint8_t* out, size_t capacity, size_t
         if (decoded.source.size != n || !tlv_tag_equal(c->tag, decoded.element.tag) ||
             ((c->tag.data == NULL) != (decoded.element.tag.data == NULL)) ||
             decoded.element.value.size != length ||
-            (length && memcmp(decoded.element.value.data, value, length)))
+            (length && memcmp(decoded.element.value.data, value, length) != 0))
             return TLV_ERR_CALLBACK;
         rc = tlv_write_element(value, g->options->max_case_size, g->format, &decoded.element,
                                &check);
         if (rc == TLV_ERR_CALLBACK) return rc;
-        if (rc != TLV_OK || check != n || memcmp(value, out + pos, n)) goto rejected;
+        if (rc != TLV_OK || check != n || memcmp(value, out + pos, n) != 0) goto rejected;
         pos += n;
         ++accepted;
         continue;

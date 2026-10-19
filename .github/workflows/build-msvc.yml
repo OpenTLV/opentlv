@@ -1,31 +1,30 @@
 name: MSVC Build
 
 on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'tlv/**'
-      - 'tlv\+\+/**'
-      - 'tests/**'
-      - 'examples/**'
-      - 'cmake/**'
-      - '**/CMakeLists.txt'
-      - '.github/workflows/build-msvc.yml'
-  push:
-    tags: ['[0-9]*.[0-9]*.[0-9]*']
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 jobs:
   msvc-x86:
+    if: inputs.full
     name: MSVC / x86 / ${{ matrix.build_type }} / C++${{ matrix.cxx_standard }}
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - build_type: Debug
-            cxx_standard: 11
-          - build_type: Release
-            cxx_standard: 23
+        include: ${{ fromJSON(inputs.full && '[{"build_type":"Debug","cxx_standard":11},{"build_type":"Release","cxx_standard":23}]' || '[{"build_type":"Debug","cxx_standard":11}]') }}
     permissions:
       contents: read
     runs-on: windows-2022
@@ -35,6 +34,12 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Configure CMake
         run: >-
@@ -58,11 +63,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - build_type: Debug
-            cxx_standard: 11
-          - build_type: Release
-            cxx_standard: 23
+        include: ${{ fromJSON(inputs.full && '[{"build_type":"Debug","cxx_standard":11},{"build_type":"Release","cxx_standard":23}]' || '[{"build_type":"Debug","cxx_standard":11}]') }}
 
     runs-on: windows-latest
 
@@ -71,6 +72,12 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Initialize MSVC x64 environment
         uses: ilammy/msvc-dev-cmd@v1

@@ -481,8 +481,12 @@ typedef struct der_schema_frame {
 static tlv_result_t read_one(der_schema_ctx_t* ctx, size_t offset, size_t size, size_t depth,
                              tlv_element_t* element, size_t* used) {
     tlv_result_t rc;
-    if (depth > ctx->limits->base.max_depth || ctx->element_count == ctx->limits->base.max_elements)
-        return fail(TLV_ERR_LIMIT, offset, ctx->location);
+    if (depth > ctx->limits->base.max_depth ||
+        ctx->element_count == ctx->limits->base.max_elements) {
+        /* Keep the limit error explicit for interprocedural static analysis. */
+        (void)fail(TLV_ERR_LIMIT, offset, ctx->location);
+        return TLV_ERR_LIMIT;
+    }
     rc = tlv_der_read_element(ctx->data + offset, size, offset, &ctx->limits->base, element, used,
                               ctx->location);
     if (rc != TLV_OK) return rc;

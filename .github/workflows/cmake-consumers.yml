@@ -1,18 +1,21 @@
 name: Public CMake consumers
 
 on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
-  pull_request:
-    paths:
-      - 'CMakeLists.txt'
-      - 'cmake/**'
-      - 'tlv/**'
-      - 'tlv\+\+/**'
-      - 'tests/cmake-consumer/**'
-      - 'scripts/check_cmake_integration.py'
-      - '.github/workflows/cmake-consumers.yml'
-  push:
-    branches: [main]
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -22,14 +25,20 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2022]
-        shared: ['ON', 'OFF']
-        cxx: ['ON', 'OFF']
+        os: ${{ fromJSON(inputs.full && '["ubuntu-latest", "windows-2022"]' || '["ubuntu-latest"]') }}
+        shared: ${{ fromJSON(inputs.full && '["ON", "OFF"]' || '["ON"]') }}
+        cxx: ${{ fromJSON(inputs.full && '["ON", "OFF"]' || '["ON"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'

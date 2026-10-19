@@ -1,18 +1,23 @@
 name: CodeQL
 
-# Required for pull requests by the repository rules, so it has no path filter:
-# a skipped run would leave the required check pending. It runs in parallel with
-# the Clang build, so it only lengthens pull request feedback if it is slower.
+# Required by the repository's code-scanning rules. Both tiers call this worker
+# without path filters and preserve the existing analysis category.
 on:
-  push:
-    branches: [main]
-    tags: ['[0-9]*.[0-9]*.[0-9]*']
-  pull_request:
-    branches: [main]
-  schedule:
-    # Re-runs the security-extended query suite against unchanged code every
-    # Monday, so newly published queries still get applied between pushes.
-    - cron: '0 3 * * 1'
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -31,6 +36,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Install Clang and Ninja
         run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
@@ -39,9 +52,8 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: cpp
-          # Pull requests leave this empty (the default suite) to stay fast; main, tags and the
-          # weekly run use the broader security-extended suite.
-          queries: ${{ github.event_name != 'pull_request' && 'security-extended' || '' }}
+          # Fast uses the default suite; Full uses security-extended.
+          queries: ${{ inputs.full && 'security-extended' || '' }}
 
       # A real build is required so CodeQL can trace the exact compiler
       # invocations; unlike the cppcheck/clang-tidy jobs in static-analysis.yml
@@ -57,7 +69,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=23 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_WARNINGS_AS_ERRORS=ON
           -DOPENTLV_BUILD_TESTS=ON
-          -DOPENTLV_BUILD_EXAMPLES=${{ github.event_name == 'pull_request' && 'OFF' || 'ON' }}
+          -DOPENTLV_BUILD_EXAMPLES=${{ inputs.full && 'ON' || 'OFF' }}
 
       - name: Build
         run: cmake --build build --parallel

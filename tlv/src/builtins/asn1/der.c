@@ -13,6 +13,10 @@ static tlv_result_t der_read_tag(const void* context, const uint8_t* data, size_
     unsigned number;
     tlv_result_t rc;
     if ((!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
+    if (!size) {
+        *consumed = 0;
+        return TLV_ERR_TRUNCATED;
+    }
     rc = tlv_asn1_read_identifier(context, data, size, &parsed, &count);
     if (rc != TLV_OK) {
         if (rc == TLV_ERR_TRUNCATED) *consumed = count;

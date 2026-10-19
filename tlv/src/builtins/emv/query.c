@@ -5,7 +5,7 @@
 tlv_result_t tlv_emv_query_resolve(const void* context, const char* ns, size_t ns_size,
                                    const char* name, size_t size, tlv_tag_t* tag) {
     if (!name || !tag || (!ns && ns_size)) return TLV_ERR_NULL_ARG;
-    if (ns_size && (ns_size != 3 || memcmp(ns, "emv", 3))) return TLV_ERR_INVALID_TAG;
+    if (ns_size && (ns_size != 3 || memcmp(ns, "emv", 3) != 0)) return TLV_ERR_INVALID_TAG;
     const tlv_emv_dictionary_t* dictionary =
         context ? context : tlv_emv_dictionary_for(TLV_EMV_CONTEXT_BASE);
     if (!dictionary || (dictionary->count && !dictionary->entries)) return TLV_ERR_INVALID_ARG;

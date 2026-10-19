@@ -42,7 +42,9 @@ static tlv_result_t document_next(void* context, tlv_tree_event_t* event) {
     source->closing = 0;
     if (!source->depth && source->single) {
         source->next = NULL;
-    } else if (node->next) {
+        return TLV_OK;
+    }
+    if (node->next) {
         source->next = node->next;
     } else if (source->depth) {
         source->next = node->parent;
