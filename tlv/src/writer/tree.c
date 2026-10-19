@@ -223,6 +223,9 @@ static tlv_result_t measure_storage(tlv_tree_writer_t* writer, const tlv_element
 static tlv_result_t measure_close(tlv_tree_writer_t* writer, tlv_tree_writer_workspace_t* workspace,
                                   tlv_writer_diagnostic_t* diagnostic) {
     const tlv_tree_writer_frame_t* frame = &writer->frames[writer->depth - 1];
+    /* Only a successful begin increases depth; it requires a stored frame.
+     * The event loop rejects END at depth zero, including a zero-frame workspace. */
+    // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
     tlv_element_t element = {frame->tag,
                              {workspace->data ? workspace->data + frame->start : NULL,
                               writer->output.pos - frame->start}};

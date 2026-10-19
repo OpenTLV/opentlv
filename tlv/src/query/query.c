@@ -131,8 +131,8 @@ tlv_result_t tlv_query_matcher_rebind(tlv_query_matcher_t* matcher, const tlv_qu
     if (!state.query) return TLV_ERR_INVALID_STATE;
     query_v1_data_t old = query_v1_load(state.query), replacement = query_v1_load(query);
     if (!valid_query(&old) || !valid_query(&replacement) || old.count != replacement.count ||
-        memcmp(old.ends, replacement.ends, old.count * sizeof old.ends[0]) ||
-        memcmp(old.bytes, replacement.bytes, old.ends[old.count - 1]))
+        memcmp(old.ends, replacement.ends, old.count * sizeof old.ends[0]) != 0 ||
+        memcmp(old.bytes, replacement.bytes, old.ends[old.count - 1]) != 0)
         return TLV_ERR_INVALID_ARG;
     state.query = query;
     memcpy(matcher, &state, sizeof state);

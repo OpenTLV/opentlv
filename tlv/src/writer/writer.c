@@ -9,7 +9,10 @@
 tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
                              const tlv_format_t* format) {
     if (!writer || (!buf && capacity) || !tlv_format_can_write(format)) return TLV_ERR_NULL_ARG;
-    *writer = (tlv_writer_t){format, buf, capacity, 0};
+    writer->format = format;
+    writer->buf = buf;
+    writer->capacity = capacity;
+    writer->pos = 0;
     return TLV_OK;
 }
 
@@ -120,10 +123,12 @@ static tlv_result_t writer_destination(tlv_writer_t* writer, uint8_t** data, siz
     *available = 0;
     if (!writer)
         rc = TLV_ERR_NULL_ARG;
-    else if (writer->pos > writer->capacity)
-        rc = TLV_ERR_BUFFER_TOO_SHORT;
-    else if (!writer->buf && writer->capacity)
-        rc = TLV_ERR_NULL_ARG;
+    else {
+        if (writer->pos > writer->capacity)
+            rc = TLV_ERR_BUFFER_TOO_SHORT;
+        else if (!writer->buf && writer->capacity)
+            rc = TLV_ERR_NULL_ARG;
+    }
     if (rc != TLV_OK) {
         wdiag(diagnostic, rc, TLV_WRITER_OP_VALUE, element, writer ? writer->pos : 0, available,
               NULL);

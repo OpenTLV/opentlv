@@ -55,7 +55,7 @@ tlv_result_t tlv_text_encode(const void* context, const void* value, size_t size
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     const tlv_text_codec_config_t* config = (const tlv_text_codec_config_t*)context;
     tlv_value_t text;
-    size_t bytes, length;
+    size_t bytes, length = 0;
     if (!written) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     *written = 0;
     if (!config || !value || (!data && capacity))
@@ -66,7 +66,7 @@ tlv_result_t tlv_text_encode(const void* context, const void* value, size_t size
                                            TLV_CODEC_REASON_OBJECT);
     memcpy(&text, value, sizeof(text));
     if (!text.data && text.size) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
-    if (tlv_size_to_native(text.size, &length) != TLV_OK)
+    if (text.size && tlv_size_to_native(text.size, &length) != TLV_OK)
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_OBJECT);
     bytes = length;

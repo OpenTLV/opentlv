@@ -210,12 +210,12 @@ static tlv_result_t document_pull_failure(tlv_query_diagnostic_t* d, tlv_result_
 }
 tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node,
                                      tlv_query_diagnostic_t* d) {
-    size_t node_size = node ? sizeof *node : 0, diagnostic_size = d ? sizeof *d : 0;
+    size_t node_size = node ? sizeof(tlv_node_t*) : 0, diagnostic_size = d ? sizeof *d : 0;
     /* Reentrancy and failed-execution guards preserve the original failure. */
     if (e && (e->busy || e->invalid)) return TLV_ERR_INVALID_STATE;
-    if ((e && (query_output_overlap_live(e, node, node_size) ||
+    if ((e && (query_output_overlap_live(e, (const void*)node, node_size) ||
                query_output_overlap_live(e, d, diagnostic_size))) ||
-        query_overlap(node, node_size, d, diagnostic_size))
+        query_overlap((const void*)node, node_size, d, diagnostic_size))
         return TLV_ERR_INVALID_ARG;
     if (!e || !node)
         return document_pull_failure(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
@@ -281,17 +281,18 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
     /* Reentrancy and failed-execution guards preserve the original failure. */
     if ((e && (e->busy || e->invalid)) || (document && document->query_callbacks))
         return TLV_ERR_INVALID_STATE;
-    if (capacity > SIZE_MAX / sizeof *targets) return TLV_ERR_INVALID_ARG;
-    size_t targets_size = targets ? capacity * sizeof *targets : 0;
+    if (capacity > SIZE_MAX / sizeof(tlv_node_t*)) return TLV_ERR_INVALID_ARG;
+    size_t targets_size = targets ? capacity * sizeof(tlv_node_t*) : 0;
     if ((e && (query_output_overlap(e, applied, applied_size) ||
-               query_output_overlap(e, targets, targets_size) ||
+               query_output_overlap(e, (const void*)targets, targets_size) ||
                query_output_overlap(e, d, diagnostic_size))) ||
-        query_overlap(targets, targets_size, applied, applied_size) ||
-        query_overlap(d, diagnostic_size, targets, targets_size) ||
+        query_overlap((const void*)targets, targets_size, applied, applied_size) ||
+        query_overlap(d, diagnostic_size, (const void*)targets, targets_size) ||
         query_overlap(d, diagnostic_size, applied, applied_size) ||
-        (kind != TLV_DOCUMENT_QUERY_REMOVE && (query_overlap(value, size, targets, targets_size) ||
-                                               query_overlap(value, size, applied, applied_size) ||
-                                               query_overlap(value, size, d, diagnostic_size))))
+        (kind != TLV_DOCUMENT_QUERY_REMOVE &&
+         (query_overlap(value, size, (const void*)targets, targets_size) ||
+          query_overlap(value, size, applied, applied_size) ||
+          query_overlap(value, size, d, diagnostic_size))))
         return TLV_ERR_INVALID_ARG;
     query_diag_init(d);
     if (!document || !e || !applied || (!targets && capacity))

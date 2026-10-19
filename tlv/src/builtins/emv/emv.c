@@ -62,7 +62,7 @@ const char* tlv_emv_display_label(const char* name) {
     const tlv_emv_dictionary_t* dictionary;
     if (!name) return NULL;
     for (i = 0; i < EMV_COUNT(emv_curated_symbols); ++i) {
-        if (strcmp(name, emv_curated_symbols[i])) continue;
+        if (strcmp(name, emv_curated_symbols[i]) != 0) continue;
         dictionary = tlv_emv_dictionary_for(TLV_EMV_CONTEXT_BASE);
         for (j = 0; j < dictionary->count; ++j) {
             const tlv_emv_definition_t* entry = &dictionary->entries[j];

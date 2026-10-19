@@ -18,6 +18,10 @@ tlv_result_t tlv_bluetooth_ad_data_validate(const uint8_t* data, size_t size,
         /* diagnostic-return: the initialized base code is set above. */
         return TLV_ERR_NULL_ARG;
     }
+    if (!size) {
+        *significant_size = 0;
+        return TLV_OK;
+    }
     rc = tlv_reader_init(&reader, data, size, &tlv_format_bluetooth_ltv);
     if (rc != TLV_OK) {
         if (diagnostic) {

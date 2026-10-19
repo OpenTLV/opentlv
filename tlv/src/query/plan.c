@@ -65,9 +65,10 @@ static int plan_types(const tlv_query_program_t* p) {
                     other->path_guard != n->path_guard || other->path_kind != n->path_kind ||
                     other->resolved != n->resolved || other->data_size != n->data_size ||
                     memcmp(query_payload(p) + other->data_offset, query_payload(p) + n->data_offset,
-                           n->data_size) ||
-                    (n->resolved == 2 && memcmp(query_payload(p) + other->mask_offset,
-                                                query_payload(p) + n->mask_offset, n->data_size)))
+                           n->data_size) != 0 ||
+                    (n->resolved == 2 &&
+                     memcmp(query_payload(p) + other->mask_offset,
+                            query_payload(p) + n->mask_offset, n->data_size) != 0))
                     return 0;
             }
         }
@@ -133,10 +134,11 @@ static int plan_types(const tlv_query_program_t* p) {
 tlv_result_t tlv_query_plan_open(const void* image, size_t size,
                                  const tlv_query_program_t** program,
                                  tlv_query_diagnostic_t* diagnostic) {
-    if (query_overlap(image, size, program, program ? sizeof *program : 0) ||
+    if (query_overlap(image, size, (const void*)program,
+                      program ? sizeof(const tlv_query_program_t*) : 0) ||
         query_overlap(image, size, diagnostic, diagnostic ? sizeof *diagnostic : 0) ||
-        query_overlap(program, program ? sizeof *program : 0, diagnostic,
-                      diagnostic ? sizeof *diagnostic : 0))
+        query_overlap((const void*)program, program ? sizeof(const tlv_query_program_t*) : 0,
+                      diagnostic, diagnostic ? sizeof *diagnostic : 0))
         return TLV_ERR_INVALID_ARG;
     query_diag_init(diagnostic);
     if (!image || !program)

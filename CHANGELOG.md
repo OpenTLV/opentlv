@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Resolve Clang 18 diagnostics exposed by strict CI failure propagation, preserving empty-buffer and diagnostic contracts while making pointer sizes, workspace alignment and schema-report lifetimes explicit. (#637)
+
 ### Changed
 
 - Separate Linux-only Core Fast CI from Full CI, retaining CodeQL in both; publish verified source and native binaries through a manual release gate with one `v`-prefixed tag input, a closed matching changelog, exact-commit verification, checksums and attestations, preserving version metadata in source archives. (#637)

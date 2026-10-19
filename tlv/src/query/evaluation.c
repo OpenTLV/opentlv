@@ -85,6 +85,9 @@ typedef struct eval_frame {
 static size_t align16(size_t n) {
     return (n + 15) & ~(size_t)15;
 }
+static uint8_t* align_pointer16(uint8_t* p) {
+    return p + (16 - (uintptr_t)p % 16) % 16;
+}
 static query_value_t* eval_values(tlv_query_exec_t* e) {
     return (query_value_t*)(e + 1);
 }
@@ -98,20 +101,23 @@ static uint8_t* eval_base(tlv_query_exec_t* e) {
     return (uint8_t*)(eval_indexes(e) + e->depth_capacity + e->pattern_capacity);
 }
 static retained_node_t* eval_nodes(tlv_query_exec_t* e) {
-    return (retained_node_t*)(((uintptr_t)(eval_base(e) +
-                                           align16(e->depth_capacity *
-                                                   (e->program->count + sizeof(size_t)))) +
-                               15) &
-                              ~(uintptr_t)15);
+    return (retained_node_t*)align_pointer16(
+        eval_base(e) + align16(e->depth_capacity * (e->program->count + sizeof(size_t))));
+}
+/* The envelope stores addresses only. Compare them directly without creating
+   a pointer spanning otherwise unrelated borrowed objects. */
+static int borrowed_envelope_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
+    if (!p || !size || !e->borrowed_high) return 0;
+    uintptr_t first = (uintptr_t)p;
+    return e->borrowed_low <= first ? first - e->borrowed_low < e->borrowed_high - e->borrowed_low
+                                    : e->borrowed_low - first < size;
 }
 int query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
     if (!p || !size) return 0;
     if (query_overlap(e->result.data, e->result.size, p, size)) return 1;
     /* This envelope is only a fast rejection; gaps between live spans are legal.
      * Never scan the retained candidate set on this per-call path. */
-    if (!e->borrowed_high ||
-        !query_overlap((const void*)e->borrowed_low, e->borrowed_high - e->borrowed_low, p, size))
-        return 0;
+    if (!borrowed_envelope_overlap(e, p, size)) return 0;
     const query_value_t* bindings = (const query_value_t*)(e + 1) + e->program->count;
     for (size_t i = 0; i < e->program->variable_count; ++i)
         if (query_overlap(bindings[i].data, bindings[i].size, p, size)) return 1;
@@ -122,9 +128,7 @@ int query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
             query_overlap(e->delayed.source.data, e->delayed.source.size, p, size));
 }
 int query_retained_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
-    if (!e->retained || !e->borrowed_high ||
-        !query_overlap((const void*)e->borrowed_low, e->borrowed_high - e->borrowed_low, p, size))
-        return 0;
+    if (!e->retained || !borrowed_envelope_overlap(e, p, size)) return 0;
     const retained_node_t* nodes = eval_nodes((tlv_query_exec_t*)e);
     for (size_t i = 0; i < e->elements; ++i) {
         const tlv_tree_event_t* event = &nodes[i].event;
@@ -145,8 +149,8 @@ static uint8_t* frame_set(tlv_query_exec_t* e, size_t frame, int saved) {
     return eval_sets(e) + (2 * frame + (unsigned)saved) * (e->node_capacity + 1);
 }
 static uint8_t* eval_codec_scratch(tlv_query_exec_t* e) {
-    uint8_t* p = eval_sets(e) + 2 * (e->program->count + 1) * (e->node_capacity + 1);
-    return (uint8_t*)(((uintptr_t)p + 15) & ~(uintptr_t)15);
+    uint8_t* p = eval_sets(e) + 2 * ((size_t)e->program->count + 1) * (e->node_capacity + 1);
+    return align_pointer16(p);
 }
 static tlv_result_t add_size(size_t* size, size_t count, size_t width) {
     if (width && count > (SIZE_MAX - *size) / width) return TLV_ERR_OVERFLOW;
@@ -228,17 +232,19 @@ tlv_result_t tlv_query_eval_init(const tlv_query_program_t* p, const tlv_query_e
     if ((uintptr_t)storage % alignment || !work) return TLV_ERR_INVALID_ARG;
     if (env && env->hook_count > SIZE_MAX / sizeof *env->hooks) return TLV_ERR_INVALID_ARG;
     if (query_overlap(p, p->reserved, storage, capacity) ||
-        query_overlap(p, p->reserved, result, sizeof *result) ||
-        query_overlap(storage, capacity, result, sizeof *result) ||
+        query_overlap(p, p->reserved, (const void*)result, sizeof(tlv_query_exec_t*)) ||
+        query_overlap(storage, capacity, (const void*)result, sizeof(tlv_query_exec_t*)) ||
         query_overlap(storage, capacity, env, env ? sizeof *env : 0) ||
-        query_overlap(result, sizeof *result, env, env ? sizeof *env : 0) ||
+        query_overlap((const void*)result, sizeof(tlv_query_exec_t*), env, env ? sizeof *env : 0) ||
         (env &&
          (query_overlap(storage, capacity, env->hooks, env->hook_count * sizeof *env->hooks) ||
           query_overlap(storage, capacity, env->tags, env->tags ? sizeof *env->tags : 0) ||
           query_overlap(storage, capacity, env->format, env->format ? sizeof *env->format : 0) ||
-          query_overlap(result, sizeof *result, env->hooks, env->hook_count * sizeof *env->hooks) ||
-          query_overlap(result, sizeof *result, env->tags, env->tags ? sizeof *env->tags : 0) ||
-          query_overlap(result, sizeof *result, env->format,
+          query_overlap((const void*)result, sizeof(tlv_query_exec_t*), env->hooks,
+                        env->hook_count * sizeof *env->hooks) ||
+          query_overlap((const void*)result, sizeof(tlv_query_exec_t*), env->tags,
+                        env->tags ? sizeof *env->tags : 0) ||
+          query_overlap((const void*)result, sizeof(tlv_query_exec_t*), env->format,
                         env->format ? sizeof *env->format : 0))))
         return TLV_ERR_INVALID_ARG;
     if (capacity < bytes) return TLV_ERR_BUFFER_TOO_SHORT;
@@ -377,7 +383,10 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         tlv_codec_diagnostic_t cause;
         tlv_codec_diagnostic_t* cd = d ? &cause : NULL;
         tlv_codec_diagnostic_init(cd, TLV_CODEC_OP_DECODE);
+        /* compatible() checked this hook and its decoder at eval_init. The
+           borrowed program and environment remain immutable during execution. */
         tlv_result_t rc =
+            // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
             hook->decode(hook->context, event, f->a.data, f->a.size,
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
                          hook->scratch_size, &result, cd);
@@ -521,6 +530,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                             candidate = f->context < e->elements && i < f->context &&
                                         nodes[i].end <= f->context;
                             break;
+                        default: break;
                     }
                     int match = query_plan_tag(e->program, n, nodes[i].event.element.tag);
                     out[i] = (uint8_t)(candidate && match);
@@ -700,12 +710,13 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
                     out[i] = (uint8_t)(n->op == Q_UNION       ? saved[i] || child_set[i]
                                        : n->op == Q_INTERSECT ? saved[i] && child_set[i]
                                                               : saved[i] && !child_set[i]);
-            } else
+                goto complete;
+            }
 #endif
-                if (n->op == Q_AND || n->op == Q_OR)
+            if (n->op == Q_AND || n->op == Q_OR) {
                 f->value.number = n->op == Q_AND ? value_truth(f->a) && value_truth(f->b)
                                                  : value_truth(f->a) || value_truth(f->b);
-            else {
+            } else {
                 int order;
                 if (f->a.kind == V_NUMBER) {
                     int64_t a = signed_integer(f->a), b = signed_integer(f->b);

@@ -158,7 +158,7 @@ int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t position)
     size_t byte_index = position / 8;
     uint8_t mask;
     if (byte_index >= bits->length) return 0;
-    mask = (uint8_t)(0x80u >> (position % 8));
+    mask = (uint8_t)(0x80U >> (position % 8));
     return (bits->data[byte_index] & mask) != 0;
 }
 
@@ -224,6 +224,8 @@ static tlv_result_t decode_null(const void* context, const uint8_t* data, size_t
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
+/* The codec callback signature requires a writable output, even for empty NULL values. */
+// NOLINTNEXTLINE(readability-non-const-parameter)
 static tlv_result_t encode_null(const void* context, const void* value, size_t size, uint8_t* data,
                                 size_t capacity, size_t* written,
                                 tlv_codec_diagnostic_t* diagnostic) {

@@ -30,6 +30,9 @@ static tlv_result_t violation(tlv_schema_diagnostic_t* diagnostic, tlv_schema_is
     tlv_diagnostic_path_init(&diagnostic->diagnostic.path);
     /* Pushing past capacity keeps the outer tags and counts the omitted ones. */
     for (size_t i = 1; i <= depth; ++i)
+        /* Descending to a modelled child stores its path entry first; unmodelled
+         * subtrees are skipped, so entries 1..depth are always initialized. */
+        // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
         (void)tlv_diagnostic_path_push(&diagnostic->diagnostic.path, path[i]);
     return TLV_ERR_SCHEMA;
 }

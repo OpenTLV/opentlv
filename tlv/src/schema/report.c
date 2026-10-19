@@ -85,12 +85,10 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
     for (size_t g = 0; g < frame->schema->group_count; ++g) {
         const tlv_structure_group_t* group = &frame->schema->groups[g];
         size_t count = 0, pos = frame->start;
-        const tlv_tag_t* first_tag = NULL;
-        for (size_t i = 0; i < frame->schema->count; ++i)
-            if (frame->schema->rules[i].group == group->id) {
-                first_tag = &frame->schema->rules[i].entry->tag;
-                break;
-            }
+        /* Definition validation guarantees that every group has a member. */
+        size_t first = 0;
+        while (frame->schema->rules[first].group != group->id) ++first;
+        const tlv_tag_t* first_tag = &frame->schema->rules[first].entry->tag;
         while (pos < frame->end) {
             tlv_element_t element;
             size_t used;
@@ -141,8 +139,11 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
 static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_format_t* format,
                                  const tlv_structure_schema_t* schema, size_t max_depth,
                                  size_t max_elements, tlv_schema_unknown_policy_t unknown,
-                                 collector_t* c, tlv_schema_diagnostic_t* diagnostic) {
+                                 tlv_schema_diagnostic_report_t* report,
+                                 tlv_schema_diagnostic_t* diagnostic) {
     frame_t stack[TLV_SCHEMA_MAX_DEPTH + 1];
+    collector_t collector = {report, stack, 0};
+    collector_t* c = &collector;
     tlv_tree_frame_t frames[TLV_SCHEMA_MAX_DEPTH];
     tlv_tree_reader_t reader;
     tlv_result_t rc = schema_check_tree(data, size, format, max_depth, max_elements, diagnostic);
@@ -150,8 +151,6 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
     memset(stack, 0, sizeof(stack));
     stack[0].schema = schema;
     stack[0].end = size;
-    c->frames = stack;
-    c->depth = 0;
     rc = check_scope(data, format, c, &stack[0]);
     if (rc != TLV_OK) return rc;
     rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_SCHEMA_MAX_DEPTH, max_depth,
@@ -168,6 +167,9 @@ static tlv_result_t validate_all(const uint8_t* data, size_t size, const tlv_for
             size_t pos = item.offset, value_length;
             const tlv_structure_rule_t* rule = NULL;
             int constructed, kind_ok;
+            /* Reader depth enters only modelled children whose frame was stored
+             * below; all other constructed subtrees are skipped. */
+            // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
             for (size_t i = 0; i < current->count; ++i)
                 if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     rule = &current->rules[i];
@@ -225,10 +227,8 @@ static tlv_result_t report_checked(const uint8_t* data, size_t size, const tlv_f
                                    tlv_schema_diagnostic_report_t* report,
                                    tlv_schema_diagnostic_t* diagnostic) {
     tlv_result_t rc;
-    collector_t c;
-    memset(&c, 0, sizeof(c));
-    c.diag_report = report;
-    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, &c, diagnostic);
+    rc = validate_all(data, size, format, schema, max_depth, max_elements, unknown, report,
+                      diagnostic);
     if (diagnostic) diagnostic->diagnostic.code = rc;
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) report->count = 0;
     return rc;

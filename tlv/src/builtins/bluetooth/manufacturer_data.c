@@ -26,14 +26,15 @@ static tlv_result_t encode(const void* context, const void* value, size_t size, 
                            size_t capacity, size_t* written, tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     tlv_bluetooth_manufacturer_data_t input;
-    size_t length;
+    size_t length = 0;
     (void)context;
     if (size != sizeof(input))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     memcpy(&input, value, sizeof(input));
     if (!input.payload.data && input.payload.size)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
-    if (tlv_size_to_native(input.payload.size, &length) != TLV_OK || length > SIZE_MAX - 2)
+    if ((input.payload.size && tlv_size_to_native(input.payload.size, &length) != TLV_OK) ||
+        length > SIZE_MAX - 2)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
         if (capacity < 2 + length)

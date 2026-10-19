@@ -27,7 +27,7 @@ tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t 
     if (!config || !value || (!data && size))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
-    if (!size || size > (config->encoding == TLV_NUMBER_BCD ? 9u : 8u) ||
+    if (!size || size > (config->encoding == TLV_NUMBER_BCD ? 9U : 8U) ||
         (config->width && size != config->width))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_LENGTH);
@@ -38,7 +38,7 @@ tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t 
                 return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
                                                       TLV_CODEC_REASON_DIGIT, TLV_LOCATION_POINT, i,
                                                       i);
-            number = number * 100 + high * 10 + low;
+            number = number * 100 + (uint64_t)high * 10 + low;
         }
         if (number > decimal_limit(config->digits))
             return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
