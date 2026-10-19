@@ -30,14 +30,13 @@ static tlv_result_t encode_uuid128(const void* context, const void* value, size_
                                    tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     tlv_bluetooth_uuid128_t input;
-    size_t i;
     (void)context;
     if (size != sizeof(input))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
     if (data) {
         if (capacity < 16) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         memcpy(&input, value, sizeof(input));
-        for (i = 0; i < 16; ++i) data[i] = input.bytes[15 - i];
+        for (size_t i = 0; i < 16; ++i) data[i] = input.bytes[15 - i];
     }
     *written = 16;
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);

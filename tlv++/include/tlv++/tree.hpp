@@ -55,7 +55,7 @@ struct tree_event {
 /// @cond INTERNAL
 namespace detail {
 struct tree_access {
-    static tree_event borrow(tlv_tree_event_t raw) noexcept {
+    static tree_event borrow(const tlv_tree_event_t& raw) noexcept {
         return {raw.kind,   semantic_access::borrow(raw.element),
                 raw.source, raw.depth,
                 raw.offset, raw.skipped != 0};

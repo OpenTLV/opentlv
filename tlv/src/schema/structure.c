@@ -60,7 +60,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             }
             if (same_tag(&rule->entry->tag, &element.tag)) {
                 if (count == rule->max_occurs) {
-                    if (diagnostic) schema_issue_occurs(diagnostic, rule, NULL, count + 1);
+                    if (diagnostic) schema_issue_rule_occurs(diagnostic, rule, count + 1);
                     return violation(diagnostic, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, pos,
                                      path, depth);
                 }
@@ -69,7 +69,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             pos += used;
         }
         if (count < rule->min_occurs) {
-            if (diagnostic) schema_issue_occurs(diagnostic, rule, NULL, count);
+            if (diagnostic) schema_issue_rule_occurs(diagnostic, rule, count);
             return violation(diagnostic, TLV_SCHEMA_ISSUE_MISSING, &rule->entry->tag, end, path,
                              depth);
         }
@@ -89,7 +89,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 if (current->rules[i].group == group->id &&
                     same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (count == group->max_occurs) {
-                        if (diagnostic) schema_issue_occurs(diagnostic, NULL, group, count + 1);
+                        if (diagnostic) schema_issue_group_occurs(diagnostic, group, count + 1);
                         return violation(diagnostic, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, pos,
                                          path, depth);
                     }
@@ -101,7 +101,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         if (count < group->min_occurs) {
             size_t first = 0;
             while (current->rules[first].group != group->id) ++first;
-            if (diagnostic) schema_issue_occurs(diagnostic, NULL, group, count);
+            if (diagnostic) schema_issue_group_occurs(diagnostic, group, count);
             return violation(diagnostic, TLV_SCHEMA_ISSUE_MISSING,
                              &current->rules[first].entry->tag, end, path, depth);
         }
@@ -154,7 +154,8 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
     }
     rc = schema_check_tree(data, size, format, max_depth, max_elements, diagnostic);
     if (rc != TLV_OK) return rc;
-    rc = check_scope(data, format, schema, 0, size, path, 0, location, diagnostic);
+    /* The root scope has no enclosing tags. */
+    rc = check_scope(data, format, schema, 0, size, NULL, 0, location, diagnostic);
     if (rc != TLV_OK) return rc;
     rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_SCHEMA_MAX_DEPTH, max_depth,
                               max_elements);

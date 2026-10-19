@@ -97,6 +97,21 @@ def check_results(results, full):
                 f'{name}: expected {expected}, got {result.get("result")}')
 
 
+def check_static_results(results, full):
+    require(isinstance(results, dict) and set(results) == {'pre-commit', 'cppcheck', 'clang-tidy'},
+            'Missing or unexpected static analysis jobs')
+    for name, result in results.items():
+        expected = 'skipped' if full and name != 'pre-commit' else 'success'
+        actual = result.get('result') if isinstance(result, dict) else None
+        require(actual == expected, f'{name}: expected {expected}, got {actual}')
+
+
+def static_gate():
+    tier = os.environ['FULL']
+    require(tier in ('true', 'false'), 'FULL must be true or false')
+    check_static_results(json.loads(os.environ['CHECK_RESULTS']), tier == 'true')
+
+
 def gate(output):
     full = os.environ['FULL'] == 'true'
     results = json.loads(os.environ['CHECK_RESULTS'])
@@ -276,6 +291,7 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     for name in ('gate', 'preflight'):
         sub.add_parser(name).add_argument('--output', type=Path, required=True)
+    sub.add_parser('static-gate')
     sub.add_parser('prepare').add_argument('--tag', default=os.environ.get('RELEASE_TAG'), required=False)
     for name in ('source', 'binary', 'manifest'):
         command = sub.add_parser(name)
@@ -290,6 +306,8 @@ def main():
     args = parser.parse_args()
     if args.command == 'gate':
         gate(args.output)
+    elif args.command == 'static-gate':
+        static_gate()
     elif args.command == 'preflight':
         preflight(args.output)
     elif args.command == 'prepare':

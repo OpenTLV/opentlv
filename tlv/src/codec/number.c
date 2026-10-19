@@ -23,7 +23,6 @@ tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t 
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const tlv_number_codec_config_t* config = (const tlv_number_codec_config_t*)context;
     uint64_t number = 0;
-    size_t i;
     if (!config || !value || (!data && size))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
@@ -32,7 +31,7 @@ tlv_result_t tlv_number_decode(const void* context, const uint8_t* data, size_t 
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_LENGTH);
     if (config->encoding == TLV_NUMBER_BCD) {
-        for (i = 0; i < size; ++i) {
+        for (size_t i = 0; i < size; ++i) {
             unsigned high = data[i] >> 4, low = data[i] & 15;
             if (high > 9 || low > 9)
                 return tlv_codec_diagnostic_reason_at(diagnostic, TLV_ERR_INVALID_VALUE,
@@ -64,7 +63,7 @@ tlv_result_t tlv_number_encode(const void* context, const void* value, size_t si
     const tlv_number_codec_config_t* config = (const tlv_number_codec_config_t*)context;
     uint64_t number, remaining;
     uint8_t bytes[9] = {0};
-    size_t width = 1, i;
+    size_t width = 1;
     unsigned radix;
     if (!written) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
     *written = 0;
@@ -93,7 +92,7 @@ tlv_result_t tlv_number_encode(const void* context, const void* value, size_t si
     if (data && capacity < width)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
     if (config->encoding == TLV_NUMBER_BCD) {
-        for (i = width; i > 0; --i) {
+        for (size_t i = width; i > 0; --i) {
             unsigned pair = (unsigned)(number % 100);
             bytes[i - 1] = (uint8_t)(((pair / 10) << 4) | (pair % 10));
             number /= 100;

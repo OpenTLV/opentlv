@@ -73,13 +73,13 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             if (rc != TLV_OK) return rc;
             if (same_tag(&rule->entry->tag, &element.tag) && ++count > rule->max_occurs) {
                 issue = add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos);
-                if (issue) schema_issue_occurs(issue, rule, NULL, count);
+                if (issue) schema_issue_rule_occurs(issue, rule, count);
             }
             pos += used;
         }
         if (count < rule->min_occurs) {
             issue = add_issue(c, TLV_SCHEMA_ISSUE_MISSING, &rule->entry->tag, &frame->end);
-            if (issue) schema_issue_occurs(issue, rule, NULL, count);
+            if (issue) schema_issue_rule_occurs(issue, rule, count);
         }
     }
     for (size_t g = 0; g < frame->schema->group_count; ++g) {
@@ -99,7 +99,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                     same_tag(&frame->schema->rules[i].entry->tag, &element.tag)) {
                     if (++count > group->max_occurs) {
                         issue = add_issue(c, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, &pos);
-                        if (issue) schema_issue_occurs(issue, NULL, group, count);
+                        if (issue) schema_issue_group_occurs(issue, group, count);
                     }
                     break;
                 }
@@ -107,7 +107,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
         }
         if (count < group->min_occurs) {
             issue = add_issue(c, TLV_SCHEMA_ISSUE_MISSING, first_tag, &frame->end);
-            if (issue) schema_issue_occurs(issue, NULL, group, count);
+            if (issue) schema_issue_group_occurs(issue, group, count);
         }
     }
     if (frame->schema->order == TLV_SCHEMA_ORDER_SEQUENCE) {

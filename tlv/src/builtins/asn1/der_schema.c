@@ -259,7 +259,6 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type,
         *location = (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_TYPE, type, 0};
     size_t count = 0;
     const tlv_der_schema_component_t* components = NULL;
-    tlv_result_t rc;
     switch (type->kind) {
         case TLV_DER_SCHEMA_UNIVERSAL:
             if (type->constraint) {
@@ -296,7 +295,7 @@ static tlv_result_t check_type(const tlv_der_schema_type_t* type,
         if (location)
             *location =
                 (tlv_schema_definition_location_t){TLV_SCHEMA_DEFINITION_COMPONENT, type, i};
-        rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE);
+        tlv_result_t rc = check_component(c, type->kind == TLV_DER_SCHEMA_CHOICE);
         if (rc != TLV_OK) return rc;
         if ((type->kind == TLV_DER_SCHEMA_SET || type->kind == TLV_DER_SCHEMA_CHOICE) &&
             c->tagging == TLV_DER_TAG_NONE && c->type->kind == TLV_DER_SCHEMA_ANY)
@@ -1020,7 +1019,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
                                            size_t* out_len) {
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
     size_t present = 0, i, total = 0, base, pos;
-    int missing = 0;
+    int required_missing = 0;
     size_t missing_offset = 0;
     for (i = 0; i < count; ++i) {
         int component_absent = 0;
@@ -1031,7 +1030,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
         if (component_absent) {
             if (components[i].presence == TLV_DER_REQUIRED) {
                 if (wctx->failure == TLV_OK) {
-                    missing = 1;
+                    required_missing = 1;
                     missing_offset = total;
                 }
                 rc = defer_missing(wctx, SIZE_MAX, TLV_LOCATION_INSERTION);
@@ -1052,7 +1051,7 @@ static tlv_result_t encode_children_concat(der_schema_write_ctx_t* wctx,
         relocate_failure(wctx, offs[i], base, pos - base);
         pos += lens[i];
     }
-    if (missing) {
+    if (required_missing) {
         wctx->failure_owner = base;
         wctx->failure_offset = missing_offset;
     }
@@ -1069,7 +1068,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
     size_t offs[TLV_DER_SCHEMA_MAX_COMPONENTS], lens[TLV_DER_SCHEMA_MAX_COMPONENTS];
     owned_tag_t tags[TLV_DER_SCHEMA_MAX_COMPONENTS];
     size_t present = 0, i, total = 0, base, pos;
-    int missing = 0;
+    int required_missing = 0;
     for (i = 0; i < type->component_count; ++i) {
         int component_absent = 0;
         size_t off, len;
@@ -1079,7 +1078,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
         if (rc != TLV_OK) return rc;
         if (component_absent) {
             if (type->components[i].presence == TLV_DER_REQUIRED) {
-                if (wctx->failure == TLV_OK) missing = 1;
+                if (wctx->failure == TLV_OK) required_missing = 1;
                 rc = defer_missing(wctx, SIZE_MAX, TLV_LOCATION_SCOPE_END);
                 if (rc != TLV_OK) return rc;
             }
@@ -1123,7 +1122,7 @@ static tlv_result_t encode_set_content(der_schema_write_ctx_t* wctx,
         relocate_failure(wctx, offs[i], base, pos - base);
         pos += lens[i];
     }
-    if (missing) {
+    if (required_missing) {
         wctx->failure_owner = base;
         wctx->failure_offset = total;
     }

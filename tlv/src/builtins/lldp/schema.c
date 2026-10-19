@@ -57,7 +57,7 @@ tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size, size_t max_elem
                                tlv_schema_diagnostic_t* diagnostic) {
     tlv_reader_t reader;
     tlv_element_t element;
-    size_t offset = 0, index = 0;
+    size_t index = 0;
     tlv_result_t rc;
     if (diagnostic) memset(diagnostic, 0, sizeof(*diagnostic));
     if (!data && size) return failure(diagnostic, TLV_ERR_NULL_ARG, 0, "non-NULL TLV region");
@@ -67,7 +67,7 @@ tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size, size_t max_elem
     rc = tlv_reader_init(&reader, data, size, &tlv_format_lldp);
     if (rc != TLV_OK) return failure(diagnostic, rc, 0, "readable LLDP region");
     while (!tlv_reader_at_end(&reader)) {
-        offset = reader.pos;
+        size_t offset = reader.pos;
         rc = tlv_reader_next(&reader, &element);
         if (rc != TLV_OK) return failure(diagnostic, rc, offset, "complete LLDP TLV");
         if (index < 3 && element.tag.data[0] != index + 1) {

@@ -39,6 +39,8 @@ const tlv_query_program_t* handle(query_program&&) = delete;
 /** @brief Reject borrowing a native program from a const temporary owner. */
 const tlv_query_program_t* handle(const query_program&&) = delete;
 /** @brief Borrow a mutable continuation; its owner and borrowed inputs must outlive use. */
+// A mutable borrowed continuation requires a non-const lvalue owner, never a temporary.
+// cppcheck-suppress constParameterReference
 inline tlv_query_exec_t* handle(query_execution& value) noexcept {
     return detail::query_program_access::get(value);
 }
@@ -70,8 +72,8 @@ using codec_adapter = detail::codec_adapter<T, Descriptor>;
 /** @brief Borrow an immutable C Codec and context for explicit runtime interoperability.
  * @warning Descriptor and context must outlive all uses; representation types must match.
  */
-inline dynamic_codec borrow_codec(const tlv_codec_t& descriptor) noexcept {
-    return detail::codec_access::borrow(&descriptor);
+inline dynamic_codec borrow_codec(const tlv_codec_t& raw_descriptor) noexcept {
+    return detail::codec_access::borrow(&raw_descriptor);
 }
 /** @brief Reject a dangling view into a temporary C Codec. */
 dynamic_codec borrow_codec(tlv_codec_t&&) = delete;
@@ -86,8 +88,8 @@ inline const tlv_codec_t* descriptor(dynamic_codec view) noexcept {
 /** @brief Borrow a C structural Schema for explicit interoperability without allocation.
  * @warning All tables, identifier bytes and names must outlive uses of the returned view.
  */
-inline schema borrow_schema(const tlv_structure_schema_t& descriptor) noexcept {
-    return detail::schema_access::borrow(&descriptor);
+inline schema borrow_schema(const tlv_structure_schema_t& raw_descriptor) noexcept {
+    return detail::schema_access::borrow(&raw_descriptor);
 }
 /** @brief Reject borrowing a temporary Schema descriptor. */
 schema borrow_schema(tlv_structure_schema_t&&) = delete;
@@ -121,13 +123,13 @@ inline const tlv_node_t* handle(const const_node& value) {
 
 /**
  * @brief Borrow an existing immutable C Format without copying or allocation.
- * @param descriptor Caller-owned descriptor; invalid callbacks are reported by operations.
+ * @param raw_descriptor Caller-owned descriptor; invalid callbacks are reported by operations.
  * @return A C++ view of exactly this descriptor, including its original context.
  * @warning Descriptor and context must remain alive and unchanged for every
  * dependent Reader, Writer and retained source view. Temporary descriptors are rejected.
  */
-inline tlv::format borrow_format(const tlv_format_t& descriptor) noexcept {
-    return detail::format_access::borrow(descriptor);
+inline tlv::format borrow_format(const tlv_format_t& raw_descriptor) noexcept {
+    return detail::format_access::borrow(raw_descriptor);
 }
 
 /** @brief Reject borrowing a temporary descriptor whose lifetime would end immediately. */
@@ -174,6 +176,8 @@ TLV_NODISCARD inline expected<value_view, error> borrow_value(tlv_value_t raw) {
  * @param raw Descriptor whose immutable Tag and Value storage outlives every view.
  * @return Element view or the original Tag/Value representation error.
  */
+// Preserve the public value parameter for the shallow native Element descriptor.
+// cppcheck-suppress passedByValue
 TLV_NODISCARD inline expected<element_view, error> borrow_element(tlv_element_t raw) {
     auto identifier = borrow_tag(raw.tag);
     if (!identifier) return unexpected<error>(identifier.error());
@@ -191,6 +195,8 @@ inline tlv_value_t descriptor(value_view view) noexcept {
     return detail::semantic_access::get(view);
 }
 /** @brief Export a shallow C Element descriptor; neither descriptor nor bytes are retained. */
+// Preserve the public value parameter for the shallow semantic Element view.
+// cppcheck-suppress passedByValue
 inline tlv_element_t descriptor(element_view view) noexcept {
     return detail::semantic_access::get(view);
 }

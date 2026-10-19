@@ -209,25 +209,25 @@ template <typename Tag, typename T, typename Codec = codec<T>> struct field {
 namespace detail {
 template <typename Field>
 expected<void, typed_error> writer_base::write(const typename Field::value_type& value) {
-    auto size = Field::codec_type::encode(value, nullptr, 0);
-    if (!size) return unexpected<typed_error>(typed_error(size.error()));
+    auto required = Field::codec_type::encode(value, nullptr, 0);
+    if (!required) return unexpected<typed_error>(typed_error(required.error()));
     // A bounded stack buffer handles common scalar and short text encodings.
     // Larger owning convenience operations retain their explicit heap behavior.
     byte local[64];
-    if (*size <= sizeof local) return write<Field>(value, span<byte>(local, sizeof local));
-    std::vector<byte> scratch(*size);
+    if (*required <= sizeof local) return write<Field>(value, span<byte>(local, sizeof local));
+    std::vector<byte> scratch(*required);
     return write<Field>(value, span<byte>(scratch.data(), scratch.size()));
 }
 template <typename Field>
 expected<void, typed_error> writer_base::write(const typename Field::value_type& value,
                                                span<byte>                        scratch) {
-    auto size = Field::codec_type::encode(value, nullptr, 0);
-    if (!size) return unexpected<typed_error>(typed_error(size.error()));
-    if (*size > scratch.size())
+    auto required = Field::codec_type::encode(value, nullptr, 0);
+    if (!required) return unexpected<typed_error>(typed_error(required.error()));
+    if (*required > scratch.size())
         return unexpected<typed_error>(typed_error(codec_failure(errc::buffer_too_short)));
     auto written = Field::codec_type::encode(value, scratch.data(), scratch.size());
     if (!written) return unexpected<typed_error>(typed_error(written.error()));
-    if (*written != *size || *written > scratch.size())
+    if (*written != *required || *written > scratch.size())
         return unexpected<typed_error>(typed_error(codec_failure(errc::callback)));
     auto result = write(Field::tag(), bytes(scratch.data(), *written));
     if (!result)

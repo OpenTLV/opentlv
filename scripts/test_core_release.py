@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -37,6 +38,88 @@ def quality():
     return {'schema': 1, 'tier': 'full', 'commit': SHA, 'repository': 'OpenTLV/opentlv',
             'run_id': '123', 'run_attempt': '1',
             'checks': {key: 'success' for key in release.FULL}}
+
+
+def static_results(full=False):
+    analyzer_result = 'skipped' if full else 'success'
+    return {'pre-commit': {'result': 'success'}, 'cppcheck': {'result': analyzer_result},
+            'clang-tidy': {'result': analyzer_result}}
+
+
+class StaticGateTests(unittest.TestCase):
+    def test_fast_and_full_accept_their_expected_checks(self):
+        release.check_static_results(static_results(), False)
+        release.check_static_results(static_results(True), True)
+
+    def test_missing_or_extra_static_jobs_are_rejected(self):
+        for full in (False, True):
+            for name in ('pre-commit', 'cppcheck', 'clang-tidy'):
+                with self.subTest(full=full, missing=name):
+                    value = static_results(full)
+                    del value[name]
+                    with self.assertRaises(ValueError):
+                        release.check_static_results(value, full)
+            value = static_results(full)
+            value['unexpected'] = {'result': 'success'}
+            with self.subTest(full=full, extra=True), self.assertRaises(ValueError):
+                release.check_static_results(value, full)
+
+    def test_every_fast_check_must_succeed(self):
+        for name in ('pre-commit', 'cppcheck', 'clang-tidy'):
+            for state in ('failure', 'cancelled', 'skipped', 'neutral', 'timed_out', None):
+                with self.subTest(name=name, state=state):
+                    value = static_results()
+                    value[name]['result'] = state
+                    with self.assertRaises(ValueError):
+                        release.check_static_results(value, False)
+
+    def test_full_pre_commit_must_succeed(self):
+        for state in ('failure', 'cancelled', 'skipped', 'neutral', 'timed_out', None):
+            with self.subTest(state=state):
+                value = static_results(True)
+                value['pre-commit']['result'] = state
+                with self.assertRaises(ValueError):
+                    release.check_static_results(value, True)
+
+    def test_full_analyzers_must_be_skipped(self):
+        for name in ('cppcheck', 'clang-tidy'):
+            for state in ('success', 'failure', 'cancelled', 'neutral', 'timed_out', None):
+                with self.subTest(name=name, state=state):
+                    value = static_results(True)
+                    value[name]['result'] = state
+                    with self.assertRaises(ValueError):
+                        release.check_static_results(value, True)
+
+    def test_malformed_static_results_are_rejected(self):
+        for full in (False, True):
+            for value in (None, [], 'success'):
+                with self.subTest(full=full, results=value), self.assertRaises(ValueError):
+                    release.check_static_results(value, full)
+            for name in ('pre-commit', 'cppcheck', 'clang-tidy'):
+                for result in ({}, {'conclusion': 'success'}, None, 'success'):
+                    with self.subTest(full=full, name=name, result=result):
+                        value = static_results(full)
+                        value[name] = result
+                        with self.assertRaises(ValueError):
+                            release.check_static_results(value, full)
+
+    def test_static_gate_cli_uses_tier_and_needs_results(self):
+        cases = (
+            ('false', json.dumps(static_results()), True),
+            ('true', json.dumps(static_results(True)), True),
+            ('false', json.dumps(static_results(True)), False),
+            ('true', json.dumps(static_results()), False),
+            ('true', '{}', False),
+            ('true', 'invalid-json', False),
+            ('unknown', json.dumps(static_results()), False),
+        )
+        for tier, checks, succeeds in cases:
+            with self.subTest(tier=tier, checks=checks):
+                result = subprocess.run(
+                    [sys.executable, '-B', str(ROOT / 'scripts/core_release.py'), 'static-gate'],
+                    env=dict(os.environ, FULL=tier, CHECK_RESULTS=checks),
+                    capture_output=True, text=True)
+                self.assertEqual(result.returncode == 0, succeeds, result.stdout + result.stderr)
 
 
 class CoreGateTests(unittest.TestCase):

@@ -166,13 +166,14 @@ inline void translate_location(location& value, size_t origin) noexcept {
 /**
  * @brief Place Value-local evidence in the coordinate space that contains the Value.
  * @param value Location; only a known location_domain::value location changes.
- * @param origin Offset of the Value's first byte in `domain`.
- * @param domain Enclosing coordinate space, such as location_domain::input.
+ * @param origin Offset of the Value's first byte in `enclosing_domain`.
+ * @param enclosing_domain Enclosing coordinate space, such as location_domain::input.
  * @note An invalid domain leaves the location unchanged; overflow clears only the
  *       optional location.
  */
-inline void resolve_location(location& value, size_t origin, location_domain domain) noexcept {
-    tlv_location_resolve(&value, origin, static_cast<tlv_location_domain_t>(domain));
+inline void resolve_location(location& value, size_t origin,
+                             location_domain enclosing_domain) noexcept {
+    tlv_location_resolve(&value, origin, static_cast<tlv_location_domain_t>(enclosing_domain));
 }
 /**
  * @brief Allocation-free operation error with an optional primary location.
@@ -220,10 +221,14 @@ struct error {
     /** @brief Complete primary evidence location, including its domain and range.
      * @return Unknown kind when no evidence is available; otherwise `begin` and `end`
      *         are coordinates in the location's domain, not necessarily input offsets. */
+    // Return an independent snapshot, including when called on a temporary error.
+    // cppcheck-suppress returnByReference
     tlv_location_t location() const noexcept {
         return location_;
     }
     /** @brief Native definition coordinate; owner borrows the supplied schema/type. */
+    // Return an independent snapshot, including when called on a temporary error.
+    // cppcheck-suppress returnByReference
     tlv_schema_definition_location_t definition() const noexcept {
         return definition_;
     }
@@ -260,20 +265,20 @@ struct error {
         return actual_;
     }
     /** @brief Return a copy annotated with a subsystem, without inventing a location. */
-    error during(operation stage) const noexcept {
+    error during(operation current_stage) const noexcept {
         auto copy = *this;
-        copy.stage_ = stage;
+        copy.stage_ = current_stage;
         return copy;
     }
     /** @brief Return an enriched copy without modifying the original or allocating. */
-    error at(std::size_t offset, operation stage) const noexcept {
+    error at(std::size_t offset, operation current_stage) const noexcept {
         error copy = *this;
         tlv_location_set(&copy.location_,
-                         stage == operation::writer  ? TLV_LOCATION_OUTPUT
-                         : stage == operation::query ? TLV_LOCATION_EXPRESSION
-                                                     : TLV_LOCATION_INPUT,
+                         current_stage == operation::writer  ? TLV_LOCATION_OUTPUT
+                         : current_stage == operation::query ? TLV_LOCATION_EXPRESSION
+                                                             : TLV_LOCATION_INPUT,
                          TLV_LOCATION_POINT, offset, offset);
-        copy.stage_ = stage;
+        copy.stage_ = current_stage;
         return copy;
     }
 

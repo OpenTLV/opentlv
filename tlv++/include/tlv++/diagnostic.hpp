@@ -53,15 +53,15 @@ inline diagnostic make_diagnostic(errc code, severity level = severity::error) n
 }
 /** @brief Attach evidence in an explicit coordinate domain to a common diagnostic.
  * @param value Diagnostic to update without changing its result or other detail.
- * @param domain Coordinate space of the evidence.
- * @param kind Point, half-open span, scope end or insertion boundary.
+ * @param coordinate_domain Coordinate space of the evidence.
+ * @param anchor_kind Point, half-open span, scope end or insertion boundary.
  * @param begin Inclusive start, or the boundary position.
  * @param end Exclusive end; must equal begin for points and boundaries.
  * @note Invalid coordinates clear the optional location. */
-inline void set_location(diagnostic& value, location_domain domain, location_kind kind,
-                         size_t begin, size_t end) noexcept {
-    tlv_diagnostic_set_location(&value, static_cast<tlv_location_domain_t>(domain),
-                                static_cast<tlv_location_kind_t>(kind), begin, end);
+inline void set_location(diagnostic& value, location_domain coordinate_domain,
+                         location_kind anchor_kind, size_t begin, size_t end) noexcept {
+    tlv_diagnostic_set_location(&value, static_cast<tlv_location_domain_t>(coordinate_domain),
+                                static_cast<tlv_location_kind_t>(anchor_kind), begin, end);
 }
 /** @brief Format a hierarchical identifier path into caller-owned character storage.
  * @param path Borrowed enclosing identifiers.

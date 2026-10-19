@@ -8,20 +8,21 @@ on:
         type: string
         default: ''
       full:
+        description: Use Full tier checks (pre-commit only; analyzers run in Fast)
         type: boolean
-        default: true
+        default: false
   workflow_dispatch:
     inputs:
       full:
-        description: Run the complete configuration matrix
+        description: Use Full tier checks (pre-commit only; analyzers run in Fast)
         type: boolean
-        default: true
+        default: false
 
 permissions:
   contents: read
 
-# Fast runs pre-commit and clang-tidy for native/build changes. Full also runs cppcheck
-# and never filters out native static analysis.
+# Fast requires pre-commit, cppcheck and clang-tidy on every run before merge.
+# Full and release retain pre-commit without repeating the two analyzers.
 concurrency:
   group: static-analysis-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -69,7 +70,7 @@ jobs:
     permissions:
       contents: read
     name: cppcheck
-    if: inputs.full
+    if: ${{ !inputs.full }}
     runs-on: ubuntu-24.04
     # ubuntu-24.04's apt package (2.13.0) predates this pin; built from
     # source since upstream only publishes a Windows installer, not a Linux
@@ -129,48 +130,11 @@ jobs:
         run: |
           python3 scripts/summarize_static_analysis.py cppcheck "$RUNNER_TEMP/cppcheck.log"
 
-  changes:
-    permissions:
-      contents: read
-      pull-requests: read
-    name: detect changed components
-    runs-on: ubuntu-24.04
-    outputs:
-      native: ${{ inputs.full || github.event_name != 'pull_request' || steps.filter.outputs.native }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Apply proposed release version locally
-        if: inputs.release_tag != ''
-        env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
-        run: python -B scripts/core_release.py prepare
-
-      - uses: dorny/paths-filter@v3
-        id: filter
-        if: github.event_name == 'pull_request' && !inputs.full
-        with:
-          filters: |
-            native:
-              - 'tlv/**'
-              - 'tlv++/**'
-              - 'tests/**'
-              - 'examples/**'
-              - 'cmake/**'
-              - '**/CMakeLists.txt'
-              - '.clang-tidy'
-              - '.github/workflows/**'
-              - 'scripts/**'
-
   clang-tidy:
     permissions:
       contents: read
     name: clang-tidy
-    needs: changes
-    if: needs.changes.outputs.native == 'true'
+    if: ${{ !inputs.full }}
     runs-on: ubuntu-24.04
     env:
       CC: clang-18
@@ -213,3 +177,18 @@ jobs:
         if: always()
         run: |
           python3 scripts/summarize_static_analysis.py clang-tidy "$RUNNER_TEMP/clang-tidy.log"
+
+  gate:
+    name: Static analysis gate
+    if: always()
+    needs: [pre-commit, cppcheck, clang-tidy]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require every selected static check
+        env:
+          CHECK_RESULTS: ${{ toJSON(needs) }}
+          FULL: ${{ inputs.full }}
+        run: python -B scripts/core_release.py static-gate

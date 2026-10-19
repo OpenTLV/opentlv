@@ -246,11 +246,10 @@ typedef struct preorder_source {
 
 static tlv_result_t preorder_event(void* context, tlv_tree_event_t* event) {
     preorder_source_t* source = context;
-    tlv_result_t rc;
     if (!source->available && !source->done) {
         int constructed = 0;
-        rc = source->next(source->context, &source->pending.element, &source->pending.depth,
-                          &constructed);
+        tlv_result_t rc = source->next(source->context, &source->pending.element,
+                                       &source->pending.depth, &constructed);
         rc = tlv_callback_result(rc, 1);
         if (rc == TLV_END) {
             source->done = 1;

@@ -139,6 +139,8 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         rc = tree_writer_measure_events_observed(format, document_event, &source, &output,
                                                  e->depth_capacity - 1, e->max_elements, &encoded,
                                                  NULL, document_charge, &budget);
+        /* Format callbacks can invalidate caller-owned execution storage. */
+        // cppcheck-suppress knownConditionTrueFalse
         if (!e->busy) rc = TLV_ERR_INVALID_STATE;
         e->busy = 0;
         staging->required_data = output.required_data;
@@ -168,6 +170,8 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
                 size_t consumed;
                 e->busy = 1;
                 rc = tlv_read(cursor, (size_t)(wire_end - cursor), format, &element, &consumed);
+                /* Decode callbacks can invalidate caller-owned execution storage. */
+                // cppcheck-suppress knownConditionTrueFalse
                 if (!e->busy) rc = TLV_ERR_INVALID_STATE;
                 e->busy = 0;
                 if (rc != TLV_OK) goto failed;

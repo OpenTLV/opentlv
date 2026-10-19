@@ -119,8 +119,8 @@ public:
     /** @brief Reject borrowing settings from a temporary owner. */
     query_settings view() const&& = delete;
     /** @brief Declare a borrowed NUL-terminated variable name and required value type. */
-    void declare(const char* name, query_type type) {
-        variables_.push_back({name, static_cast<tlv_query_result_kind_t>(type)});
+    void declare(const char* variable_name, query_type type) {
+        variables_.push_back({variable_name, static_cast<tlv_query_result_kind_t>(type)});
         raw_.variables = variables_.data();
         raw_.variable_count = variables_.size();
     }

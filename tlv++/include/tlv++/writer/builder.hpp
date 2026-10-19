@@ -67,6 +67,8 @@ struct writer_workspace {
 template <size_t ScratchCapacity, size_t Depth = TLV_TREE_DEFAULT_DEPTH> class writer_storage {
 public:
     /** @brief Reserve fixed storage without initializing unused frames or scratch bytes. */
+    // Frames and scratch are caller-owned raw storage, written by the C Writer before use.
+    // cppcheck-suppress uninitMemberVar
     writer_storage() = default;
     /** @brief Prohibit copying storage and active construction frames. */
     writer_storage(const writer_storage&) = delete;
@@ -112,6 +114,8 @@ public:
      * @param diagnostic Optional C operation failure detail, unchanged on success.
      * Initialization errors are retained; they and fail() do not populate diagnostics.
      */
+    // Keep the public value parameter for this shallow, borrowed workspace descriptor.
+    // cppcheck-suppress passedByValue
     writer_builder(span<byte> output, tlv::format format, writer_workspace workspace,
                    writer_diagnostic* diagnostic = nullptr) noexcept
         : code_(tlv_tree_writer_init(
@@ -244,6 +248,8 @@ private:
  */
 template <typename Output, typename Callback>
 TLV_NODISCARD expected<size_t, writer_failure>
+// Keep the public value parameter for this shallow, borrowed workspace descriptor.
+// cppcheck-suppress passedByValue
 encode(Output&& output, tlv::format format, writer_workspace workspace, Callback&& callback,
        writer_diagnostic* diagnostic = nullptr) {
     writer_builder builder(detail::writer_output(output), format, workspace, diagnostic);
@@ -261,6 +267,8 @@ encode(Output&& output, tlv::format format, writer_workspace workspace, Callback
  * @return Exact byte count or allocation-free first failure.
  */
 template <typename F, typename Output, typename Callback>
+// Keep the public value parameter for this shallow, borrowed workspace descriptor.
+// cppcheck-suppress passedByValue
 TLV_NODISCARD expected<size_t, writer_failure> encode(Output&& output, writer_workspace workspace,
                                                       Callback&& callback, F format = F{},
                                                       writer_diagnostic* diagnostic = nullptr) {

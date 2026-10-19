@@ -9,16 +9,18 @@ does not replace their coverage or the Query 1.0 acceptance contract.
 
 | Entry point | Trigger | Required checks |
 | --- | --- | --- |
-| `core-fast.yml` | PR to `main`; development branch push without an open PR to `main` | Linux only: Clang Debug unit/integration tests, formatting/contract checks, clang-tidy when native/build sources change, one shared C/C++ public consumer configuration, CodeQL |
-| `core-full.yml` | Push to `main`, Sunday 02:17 UTC, manual dispatch | All Fast checks plus the complete matrix below |
+| `core-fast.yml` | PR to `main`; development branch push without an open PR to `main` | Linux only: Clang Debug unit/integration tests, formatting/contract checks, clang-tidy and cppcheck on every run, one shared C/C++ public consumer configuration, CodeQL |
+| `core-full.yml` | Push to `main`, Sunday 02:17 UTC, manual dispatch | The complete Full matrix below; clang-tidy and cppcheck run only in Fast |
 | `core-release.yml` | Manual dispatch from `main`, one `tag` input such as `v0.1.0` | Closed changelog, candidate identity, Full CI in the same run, verified source and binary assembly, checksums, producer attestations, publication |
 
 Fast branch-push runs check for an existing PR before starting builds, avoiding
-the previous property-suite push/PR duplication. Main uses Full CI, which already
-contains Fast checks, instead of running both orchestrators. Opening a PR just
+the previous property-suite push/PR duplication. Main uses Full CI. The clang-tidy
+and cppcheck analyzers run in Fast before merge and are not repeated in Full or
+release runs. Opening a PR just
 after a branch push can still produce two runs; concurrency cancels superseded
 runs for the same ref. Reusable workers support manual diagnosis, but a standalone
-worker pass does not produce Full CI evidence.
+worker pass does not produce Full CI evidence. Manual **Static Analysis** runs
+default to Fast checks; selecting `full` runs only its pre-commit checks.
 
 Fast CI uses Linux runners exclusively. Windows verification belongs to Full CI;
 macOS is not part of the Core Fast matrix. Independent binding workflows retain
@@ -26,15 +28,19 @@ their existing platform policies and are outside this issue's scope.
 
 `core-checks.yml` owns the job inventory. Its always-running `Core quality gate`
 rejects failures, cancellations, missing jobs and unexpected skips. Only explicit
-Full-only jobs may be skipped in Fast CI. Its artifact identifies the checkout
-SHA, repository, workflow run and attempt. Full runs ignore path filters and
-enable every required configuration, including on manually selected refs.
+Full-only top-level jobs may be skipped in Fast CI. Its artifact identifies the
+checkout SHA, repository, workflow run and attempt. The nested `Static analysis
+gate` requires pre-commit, clang-tidy and cppcheck to succeed in Fast, without path
+filters. In Full it requires pre-commit to succeed and both analyzers to be
+skipped. Full and release evidence therefore excludes these two analyzers; it
+does not import an earlier Fast result. Every selected Full configuration runs,
+including on manually selected refs.
 
 | Full verification | Configuration |
 | --- | --- |
 | Native builds | Clang Debug/Release and C-only examples; GCC C++11 Debug/C++23 Release; MSVC x64/x86 C++11 Debug/C++23 Release |
 | Coverage | Clang Debug unit and integration tests |
-| Static analysis | All Fast checks, clang-tidy and cppcheck; security-extended CodeQL |
+| Source checks | Formatting/contract checks and security-extended CodeQL; clang-tidy and cppcheck run only in Fast before merge |
 | Public consumers | Linux/Windows, shared/static, C-only/C++ through FetchContent and relocated installations |
 | Capability contracts | Shared and static profiles |
 | Properties | Default and minimal capabilities, 1,000 deterministic cases |
@@ -133,7 +139,7 @@ The live ruleset inspected on 2026-10-19 requires CodeQL scanning on `main`, wit
 bypass actors. CodeQL remains in Fast and Full CI with the existing analysis
 category. No repository settings were changed by this implementation. If requiring
 CI status checks for merges, select the new always-running Core quality gate after
-its first hosted PR run; do not require Full-only or path-filtered worker checks.
+its first hosted PR run; do not require Full-only worker checks.
 
 Documentation publication remains owned by the standalone portal. Binding CI,
 documentation validation and Core-to-Docs notifications remain independent.

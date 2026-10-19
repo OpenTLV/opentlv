@@ -84,7 +84,6 @@ static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_n
                                      tlv_tree_writer_workspace_t* workspace, size_t* size) {
     document_source_t source = {first, 0, single, 0};
     tlv_tree_event_t event;
-    tlv_result_t rc;
     if (!tlv_format_can_write(format)) return TLV_ERR_NULL_ARG;
     /* Size only the structural stack here, never wire representations. */
     while (document_next(&source, &event) == TLV_OK) {
@@ -101,8 +100,8 @@ static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_n
     }
     for (;;) {
         source = (document_source_t){first, 0, single, 0};
-        rc = tlv_tree_writer_measure_events(format, document_next, &source, workspace, SIZE_MAX,
-                                            SIZE_MAX, size, NULL);
+        tlv_result_t rc = tlv_tree_writer_measure_events(format, document_next, &source, workspace,
+                                                         SIZE_MAX, SIZE_MAX, size, NULL);
         if (rc != TLV_ERR_BUFFER_TOO_SHORT ||
             (!workspace->required_data && !workspace->required_scratch))
             return rc;

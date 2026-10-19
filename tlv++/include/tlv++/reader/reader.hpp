@@ -412,6 +412,8 @@ private:
 inline reader_base::iterator reader_base::begin() {
     return iterator(*this);
 }
+// Keep the public const member signature used by range and member-function callers.
+// cppcheck-suppress functionStatic
 inline reader_base::iterator reader_base::end() const noexcept {
     return iterator();
 }

@@ -68,6 +68,8 @@ tlv_result_t tlv_query_exec_size(const tlv_query_program_t* p, size_t depth, siz
         query_overlap(p, p->reserved, alignment, sizeof *alignment) ||
         query_overlap(bytes, sizeof *bytes, alignment, sizeof *alignment))
         return TLV_ERR_INVALID_ARG;
+    /* query_plan_supported folds to true in builds with all capabilities enabled. */
+    // cppcheck-suppress knownConditionTrueFalse
     if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED;
     if (p->level > TLV_QUERY_S1) return TLV_ERR_UNSUPPORTED;
     size_t count = (size_t)p->count + p->variable_count;
@@ -259,8 +261,8 @@ static int can_prune(tlv_query_exec_t* e, size_t depth) {
     return 1;
 }
 
-static int root_prefix(tlv_query_exec_t* e, const query_node_t* root, const tlv_tree_event_t* event,
-                       unsigned kind) {
+static int root_prefix(const tlv_query_exec_t* e, const query_node_t* root,
+                       const tlv_tree_event_t* event, unsigned kind) {
     if (!root->anchor || !e->has_context) return kind == Q_DESC || !event->depth;
     return e->context_active && (kind == Q_DESC ? event->depth > e->context_depth
                                                 : event->depth == e->context_depth + 1);
@@ -271,7 +273,7 @@ tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                                  tlv_query_diagnostic_t* d) {
     const tlv_query_program_t* p = e->program;
     const query_node_t* nodes = query_nodes(p);
-    query_value_t* values = execution_values(e);
+    const query_value_t* values = execution_values(e);
     uint32_t args[3];
     size_t count = 0;
     uint32_t index = n->left;
@@ -919,6 +921,8 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
         if (d) reader_diag.diagnostic.code = TLV_OK;
         e->busy = 1;
         tlv_result_t rc = tlv_tree_reader_next_event_diag(reader, &event, d ? &reader_diag : NULL);
+        /* Format callbacks can invalidate caller-owned execution storage. */
+        // cppcheck-suppress knownConditionTrueFalse
         if (!e->busy) {
             e->invalid = 1;
             return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
@@ -969,6 +973,8 @@ tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t
             tlv_tree_event_t selected = e->program->level == TLV_QUERY_S1 ? e->delayed : event;
             e->busy = 1;
             tlv_visit_result_t result = visitor(&selected, context);
+            /* The visitor can invalidate caller-owned execution storage. */
+            // cppcheck-suppress knownConditionTrueFalse
             if (!e->busy) {
                 e->invalid = 1;
                 return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
@@ -995,6 +1001,8 @@ retained_results:
         e->any_match = 1;
         e->busy = 1;
         tlv_visit_result_t action = visitor(&event, context);
+        /* The visitor can invalidate caller-owned execution storage. */
+        // cppcheck-suppress knownConditionTrueFalse
         if (!e->busy) {
             e->invalid = 1;
             return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
@@ -1011,6 +1019,8 @@ retained_results:
     }
 }
 
+/* The callback signature must match tlv_query_event_visitor_t's mutable context. */
+// cppcheck-suppress constParameterCallback
 static tlv_visit_result_t existence_match(const tlv_tree_event_t* event, void* context) {
     (void)event;
     return *(const int*)context ? TLV_VISIT_STOP : TLV_VISIT_CONTINUE;

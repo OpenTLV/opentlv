@@ -65,6 +65,8 @@ inline tlv::format detail::format_access::borrow(const tlv_format_t& descriptor)
     return tlv::format(descriptor);
 }
 inline const tlv_format_t& detail::format_access::get(tlv::format view) noexcept {
+    // The copied view borrows an external descriptor; the descriptor outlives every view.
+    // cppcheck-suppress returnReference
     return *view.descriptor_;
 }
 /// @endcond
@@ -103,13 +105,14 @@ using encoding = tlv_encoding_t;
  */
 TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes data) {
     tlv_decoded_t      result{};
-    tlv_format_error_t diagnostic{};
+    tlv_format_error_t failure_detail{};
     auto rc = tlv_format_decode(&detail::format_access::get(format),
                                 reinterpret_cast<const uint8_t*>(data.data()), data.size(), &result,
-                                &diagnostic);
+                                &failure_detail);
     if (rc != TLV_OK) {
         auto failure = error::from_c(rc).during(operation::format);
-        if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::format);
+        if (failure_detail.has_offset)
+            failure = failure.at(failure_detail.offset, operation::format);
         return unexpected<error>(failure);
     }
     return decoded{detail::semantic_access::borrow(result.element), result.source};
@@ -126,12 +129,14 @@ TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes d
 TLV_NODISCARD inline expected<encoding, error> measure(tlv::format         format,
                                                        const element_view& value) {
     encoding           result{};
-    tlv_format_error_t diagnostic{};
+    tlv_format_error_t failure_detail{};
     const auto         raw = detail::semantic_access::get(value);
-    auto rc = tlv_format_measure(&detail::format_access::get(format), &raw, &result, &diagnostic);
+    auto               rc =
+        tlv_format_measure(&detail::format_access::get(format), &raw, &result, &failure_detail);
     if (rc != TLV_OK) {
         auto failure = error::from_c(rc).during(operation::format);
-        if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::format);
+        if (failure_detail.has_offset)
+            failure = failure.at(failure_detail.offset, operation::format);
         return unexpected<error>(failure);
     }
     return result;
@@ -150,13 +155,15 @@ TLV_NODISCARD inline expected<encoding, error> measure(tlv::format         forma
 TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const element_view& value,
                                                     byte* data, size_t capacity) {
     size_t             written = 0;
-    tlv_format_error_t diagnostic{};
+    tlv_format_error_t failure_detail{};
     const auto         raw = detail::semantic_access::get(value);
-    auto rc = tlv_format_encode(&detail::format_access::get(format), &raw,
-                                reinterpret_cast<uint8_t*>(data), capacity, &written, &diagnostic);
+    auto               rc =
+        tlv_format_encode(&detail::format_access::get(format), &raw,
+                          reinterpret_cast<uint8_t*>(data), capacity, &written, &failure_detail);
     if (rc != TLV_OK) {
         auto failure = error::from_c(rc).during(operation::format);
-        if (diagnostic.has_offset) failure = failure.at(diagnostic.offset, operation::format);
+        if (failure_detail.has_offset)
+            failure = failure.at(failure_detail.offset, operation::format);
         return unexpected<error>(failure);
     }
     return written;

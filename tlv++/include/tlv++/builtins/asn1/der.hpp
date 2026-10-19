@@ -36,6 +36,8 @@ struct limits {
  * @note Does not allocate. Returned element views borrow input and Format storage.
  */
 template <typename Visitor>
+// Preserve the public value parameter for the resource-limit snapshot.
+// cppcheck-suppress passedByValue
 expected<void, error> visit(bytes data, limits resources, Visitor&& visitor) {
     const tlv_der_limits_t        raw{resources.depth, resources.input, resources.value,
                                       resources.elements};

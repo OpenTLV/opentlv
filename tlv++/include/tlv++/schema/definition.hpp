@@ -34,6 +34,8 @@ struct bounds {
     size_t minimum; /**< Inclusive minimum. */
     size_t maximum; /**< Inclusive maximum; SIZE_MAX means unbounded. */
     /** @brief Specify an inclusive interval. */
+    // Keep implicit and copy-list construction of public bound values.
+    // cppcheck-suppress noExplicitConstructor
     bounds(size_t minimum = 0, size_t maximum = SIZE_MAX) noexcept
         : minimum(minimum), maximum(maximum) {}
     /** @brief Require exactly count bytes or occurrences. */
@@ -89,6 +91,8 @@ struct schema_rule {
      * @param children Child Schema for constructed values, borrowed through validation.
      * @param name Optional borrowed NUL-terminated diagnostic name.
      */
+    // Schema initializer lists rely on implicit construction from field descriptions.
+    // cppcheck-suppress noExplicitConstructor
     schema_rule(tlv::tag identifier, bounds length = {}, bounds occurrences = bounds(0, 1),
                 schema_kind kind = schema_kind::any, schema children = {},
                 const char* name = nullptr) noexcept

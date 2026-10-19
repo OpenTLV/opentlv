@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Resolve cppcheck 2.21 diagnostics exposed by Full CI with explicit schema occurrence handling, narrower variable scopes and const-correct internal reads; retain Query callback cancellation checks and analyze C++ with its required exception support. (#637)
 - Resolve Clang 18 diagnostics exposed by strict CI failure propagation, preserving empty-buffer and diagnostic contracts while making pointer sizes, workspace alignment and schema-report lifetimes explicit. (#637)
 
 ### Changed
 
+- Require clang-tidy and cppcheck on every Linux Fast CI run before merge, rejecting failed or unexpectedly skipped checks; Full and release runs retain formatting/contract checks and CodeQL without repeating these two analyzers. (#637)
 - Separate Linux-only Core Fast CI from Full CI, retaining CodeQL in both; publish verified source and native binaries through a manual release gate with one `v`-prefixed tag input, a closed matching changelog, exact-commit verification, checksums and attestations, preserving version metadata in source archives. (#637)
 - Move the Lua API guide and implementation notes to [opentlv-lua](https://github.com/OpenTLV/opentlv-lua), updating Core documentation links and ownership inventories. (OpenTLV/opentlv-docs#27)
 - Remove the Lua binding, build options, CI and migrated facade runner from Core after migration from `d87dcf96b2707e817dd51163a9f9efa36651e929` to [opentlv-lua](https://github.com/OpenTLV/opentlv-lua); build and install Lua separately, with shared Query fixtures and native tests retained in Core. (#633)

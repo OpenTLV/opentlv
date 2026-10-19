@@ -33,6 +33,8 @@ struct format_failure {
      * @param code Canonical error code.
      * @param detail Optional wire information.
      */
+    // Preserve the public value parameter that snapshots native failure detail.
+    // cppcheck-suppress passedByValue
     explicit format_failure(tlv_result_t code, tlv_format_error_t detail = {}) noexcept
         : code(code), detail(detail) {}
     /** @brief Report a canonical C++ status without exposing native enum values. */
