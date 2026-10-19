@@ -44,7 +44,7 @@ Adding a new exported function is compatible.
 ## CI behavior
 
 - The reusable job runs in [Core Full CI](quality-gates.md) and release
-  verification without path filters, or by manual dispatch. Fast CI omits it.
+  verification without path filters, or by manual dispatch. PR and Main CI omit it.
 - The log shows a summary and the affected symbols and types. The full report
   is stored as the `abi-report-<attempt>` artifact.
 - Before 1.0.0 an incompatible change is reported as a warning and does not

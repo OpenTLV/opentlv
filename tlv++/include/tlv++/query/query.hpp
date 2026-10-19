@@ -27,6 +27,8 @@ struct query_access;
 class query_error : public std::runtime_error {
 public:
     /** @brief Retain the original failure code and optional evidence location. */
+    // Preserve the public value-taking constructor and its owned diagnostic snapshot.
+    // cppcheck-suppress passedByValue
     query_error(tlv_result_t code, tlv_diagnostic_t diagnostic)
         : std::runtime_error(tlv_result_string(code)), code_(code), diagnostic_(diagnostic) {
         diagnostic_.code = code;
@@ -66,10 +68,10 @@ public:
      * @return Self-contained compiled Query.
      */
     static query compile(const char* text) {
-        tlv_diagnostic_t diagnostic{};
-        auto             result = parse(text, &diagnostic);
+        tlv_diagnostic_t failure_detail{};
+        auto             result = parse(text, &failure_detail);
         if (!result)
-            throw query_error(static_cast<tlv_result_t>(result.error().status()), diagnostic);
+            throw query_error(static_cast<tlv_result_t>(result.error().status()), failure_detail);
         return *result;
     }
 
@@ -156,7 +158,7 @@ public:
      *                 returning #tlv_visit_result_t, as for tree_reader::visit().
      *
      * @param data          Encoded input; borrowed.
-     * @param format        Reader format. A `nullptr` `format.is_constructed`
+     * @param wire_format   Reader format. A `nullptr` `wire_format.is_constructed`
      *                      treats every value as opaque, in which case only
      *                      one-tag queries can match.
      * @param max_depth     Runtime depth limit; the convenience API owns TLV_QUERY_MAX_STEPS
@@ -173,14 +175,14 @@ public:
      */
     template <typename Visitor>
     TLV_NODISCARD expected<void, error>
-    visit_buffer(bytes data, tlv::format format, size_t max_depth, size_t max_elements,
+    visit_buffer(bytes data, tlv::format wire_format, size_t max_depth, size_t max_elements,
                  Visitor&& visitor, tlv_reader_diagnostic_t* diagnostic = nullptr) const {
         tlv_reader_diagnostic_t local{};
         if (!diagnostic) diagnostic = &local;
         detail::tree_visitor<Visitor> state{&visitor};
         tlv_result_t                  rc = tlv_query_visit_buffer(
             reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-            &detail::format_access::get(format), &query_, max_depth, max_elements,
+            &detail::format_access::get(wire_format), &query_, max_depth, max_elements,
             &detail::tree_visitor<Visitor>::call, &state, diagnostic);
         if (rc != TLV_OK) {
             diagnostic->diagnostic.code = rc;
@@ -318,6 +320,8 @@ public:
         return iterator(*this);
     }
     /** @brief Return end without consuming input. */
+    // Preserve the public member endpoint alongside begin() for range consumers.
+    // cppcheck-suppress functionStatic
     iterator end() const noexcept {
         return iterator();
     }

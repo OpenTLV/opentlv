@@ -132,10 +132,9 @@ tlv_result_t tlv_tree_reader_next_event(tlv_tree_reader_t* reader, tlv_tree_even
 tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tree_item_t* item,
                                        tlv_reader_diagnostic_t* diagnostic) {
     tlv_tree_event_t event;
-    tlv_result_t rc;
     if (!reader || !item) return TLV_ERR_NULL_ARG;
     do {
-        rc = tlv_tree_reader_next_event_diag(reader, &event, diagnostic);
+        tlv_result_t rc = tlv_tree_reader_next_event_diag(reader, &event, diagnostic);
         if (rc != TLV_OK) return rc;
     } while (event.kind == TLV_TREE_END);
     *item = (tlv_tree_item_t){event.element, event.source, event.depth, event.offset,

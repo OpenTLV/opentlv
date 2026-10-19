@@ -15,10 +15,12 @@ class definition {
 public:
     /** @brief Associate a borrowed identifier with an optional borrowed name.
      * @param identifier Bytes that outlive this entry and all its copies.
-     * @param name Optional null-terminated name with the same borrowed lifetime.
+     * @param label Optional null-terminated name with the same borrowed lifetime.
      */
-    definition(tlv::tag identifier, const char* name = nullptr) noexcept
-        : tag_(identifier), name_(name) {}
+    // Definition tables support copy-list construction of borrowed identifiers and names.
+    // cppcheck-suppress noExplicitConstructor
+    definition(tlv::tag identifier, const char* label = nullptr) noexcept
+        : tag_(identifier), name_(label) {}
     /** @brief Identifier view borrowing the original immutable storage. */
     tlv::tag tag() const noexcept {
         return tag_;

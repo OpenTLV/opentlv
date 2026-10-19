@@ -56,6 +56,10 @@ function(opentlv_add_cppcheck_targets)
         COMMAND ${OPENTLV_CPPCHECK_EXECUTABLE}
             ${_opentlv_cppcheck_common_args}
             --std=c++11 --language=c++
+            # Standalone analysis does not define compiler feature macros.
+            # tlv++ requires exceptions, as enforced by compat.hpp and the
+            # C++ contract checks, so analyze that supported configuration.
+            -D__cpp_exceptions=199711L
             -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv++/include"
             -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv/include"
             -I "${OpenTLV_BINARY_DIR}/generated/include"

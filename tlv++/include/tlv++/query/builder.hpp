@@ -66,12 +66,13 @@ inline query_integer integer(int64_t value) {
 }
 /** @brief Compose a typed variable reference; the C compiler validates its bounded name.
  * @tparam Kind Integer, bytes or string type matching the supplied compiler declaration.
- * @param name Variable name without a dollar prefix. */
-template <query_type Kind> inline query_expression<Kind> variable(const std::string& name) {
+ * @param variable_name Variable name without a dollar prefix. */
+template <query_type Kind>
+inline query_expression<Kind> variable(const std::string& variable_name) {
     static_assert(Kind == query_type::integer || Kind == query_type::bytes ||
                       Kind == query_type::string,
                   "Query variables support integer, bytes and string only");
-    return query_expression<Kind>("$" + name);
+    return query_expression<Kind>("$" + variable_name);
 }
 /** @brief Compose typed scalar equality. */
 template <query_type Kind>

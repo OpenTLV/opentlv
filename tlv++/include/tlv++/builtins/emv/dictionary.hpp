@@ -50,8 +50,8 @@ enum class value_kind {
     unknown = TLV_EMV_VALUE_UNKNOWN          /**< No built-in presentation contract. */
 };
 /** @brief Program-lifetime description of a built-in representation category. */
-inline const char* description(value_kind kind) noexcept {
-    return tlv_emv_value_kind_description(static_cast<tlv_emv_value_kind_t>(kind));
+inline const char* description(value_kind representation) noexcept {
+    return tlv_emv_value_kind_description(static_cast<tlv_emv_value_kind_t>(representation));
 }
 /** @brief Determine an identifier's child context, or context::unchanged. */
 inline context child_context(context parent, tlv::tag identifier) noexcept {

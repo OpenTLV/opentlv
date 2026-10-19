@@ -1,0 +1,55 @@
+name: Core Main CI
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-main-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    uses: ./.github/workflows/cmake-consumers.yml
+    with:
+      full: false
+
+  gate:
+    name: Core quality gate
+    if: always()
+    needs: [smoke]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require the Linux integration smoke check and record exact revision
+        env:
+          CHECK_RESULTS: ${{ toJSON(needs) }}
+        run: python -B scripts/core_release.py main-gate --output build/core-quality.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-quality-main-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/core-quality.json
+          if-no-files-found: error
+
+  timings:
+    name: Core Main CI timings
+    needs: gate
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Measure this attempt after the smoke check finishes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -B scripts/ci_timings.py --scope run --output build/ci-timings.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-main-timings-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/ci-timings.json
+          if-no-files-found: error

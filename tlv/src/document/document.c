@@ -583,7 +583,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
 #ifndef NDEBUG
     /* Private input comes directly from the unique preorder Query cursor. */
     size_t ordered = 0;
-    for (tlv_node_t* node = document->first; node;) {
+    for (const tlv_node_t* node = document->first; node;) {
         if (ordered < count && node == targets[ordered]) ++ordered;
         if (node->first)
             node = node->first;
@@ -596,10 +596,10 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
 #endif
     /* Resolve overlap against the initial topology before freeing a single node. */
     if (kind != TLV_DOCUMENT_QUERY_INSERT_AFTER) {
-        tlv_node_t* covering = NULL;
+        const tlv_node_t* covering = NULL;
         for (size_t i = 0; i < count; ++i) {
             int covered = 0;
-            for (tlv_node_t* parent = targets[i]->parent; parent; parent = parent->parent) {
+            for (const tlv_node_t* parent = targets[i]->parent; parent; parent = parent->parent) {
                 if (parent == covering) {
                     covered = 1;
                     break;
@@ -641,7 +641,7 @@ tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** target
     }
     size_t projected = document->count;
     for (size_t i = 0; i < count; ++i) {
-        tlv_node_t* target = targets[i];
+        const tlv_node_t* target = targets[i];
         if (!target) continue;
         if (kind == TLV_DOCUMENT_QUERY_REMOVE) continue;
         if (kind == TLV_DOCUMENT_QUERY_REPLACE && !target->constructed) continue;

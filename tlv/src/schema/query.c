@@ -88,13 +88,13 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                      * prefix in reverse as parent links walk inward to outward. */
                     tlv_diagnostic_path_t* path = &diagnostic->query.diagnostic.path;
                     size_t parents = 0;
-                    for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
+                    for (const tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
                          p = tlv_node_parent(p))
                         ++parents;
                     path->length =
                         parents < TLV_DIAGNOSTIC_PATH_MAX ? parents : TLV_DIAGNOSTIC_PATH_MAX;
                     path->omitted = parents - path->length;
-                    for (tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
+                    for (const tlv_node_t* p = tlv_node_parent(w->contexts[j].node); p;
                          p = tlv_node_parent(p)) {
                         if (--parents < path->length) path->tags[parents] = tlv_node_tag(p);
                     }

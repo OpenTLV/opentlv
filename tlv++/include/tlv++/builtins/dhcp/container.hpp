@@ -48,6 +48,8 @@ struct options_rules {
     bool        require_end; /**< Require an End option. */
     tail_policy tail;        /**< Tail policy after End. */
     /** @brief Default to mandatory End and zero-only padding. */
+    // Keep existing implicit and copy-list construction of public option values.
+    // cppcheck-suppress noExplicitConstructor
     options_rules(bool require_end = true, tail_policy tail = tail_policy::padding) noexcept
         : require_end(require_end), tail(tail) {}
 };

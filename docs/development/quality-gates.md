@@ -9,32 +9,40 @@ does not replace their coverage or the Query 1.0 acceptance contract.
 
 | Entry point | Trigger | Required checks |
 | --- | --- | --- |
-| `core-fast.yml` | PR to `main`; development branch push without an open PR to `main` | Linux only: Clang Debug unit/integration tests, formatting/contract checks, clang-tidy when native/build sources change, one shared C/C++ public consumer configuration, CodeQL |
-| `core-full.yml` | Push to `main`, Sunday 02:17 UTC, manual dispatch | All Fast checks plus the complete matrix below |
-| `core-release.yml` | Manual dispatch from `main`, one `tag` input such as `v0.1.0` | Closed changelog, candidate identity, Full CI in the same run, verified source and binary assembly, checksums, producer attestations, publication |
+| `core-pr.yml` | PR to `main` | Linux only: Clang Debug unit/integration tests, formatting/contract checks, clang-tidy, cppcheck, one shared C/C++ public consumer configuration, CodeQL |
+| `core-main.yml` | Push to `main` | One Linux shared C/C++ build and external consumer integration smoke configuration |
+| `core-full.yml` | Manual dispatch or reusable call from Release Gate | The complete Full matrix below, including all required static checks |
+| `core-release.yml` | Manual dispatch from `main`, one `tag` input such as `v0.1.0` | Closed changelog, locked candidate and stable baseline, Full CI and performance comparison in the same run, verified artifacts, checksums, attestations and publication |
 
-Fast branch-push runs check for an existing PR before starting builds, avoiding
-the previous property-suite push/PR duplication. Main uses Full CI, which already
-contains Fast checks, instead of running both orchestrators. Opening a PR just
-after a branch push can still produce two runs; concurrency cancels superseded
-runs for the same ref. Reusable workers support manual diagnosis, but a standalone
-worker pass does not produce Full CI evidence.
+Core Pull Request CI replaces Core Fast CI. It has no branch-push trigger, so an
+open PR has one Core validation run per update. Main CI checks integration health
+after merge without repeating static analysis, unit suites or platform matrices.
+Full CI has no push or scheduled trigger. Reusable workers still support manual
+diagnosis, but a standalone worker pass does not produce Full CI evidence.
+Manual **Static Analysis** runs all three source checks.
 
-Fast CI uses Linux runners exclusively. Windows verification belongs to Full CI;
-macOS is not part of the Core Fast matrix. Independent binding workflows retain
+PR and Main CI use Linux runners exclusively. Windows verification belongs to Full CI;
+macOS is not part of the Core PR matrix. Independent binding workflows retain
 their existing platform policies and are outside this issue's scope.
 
 `core-checks.yml` owns the job inventory. Its always-running `Core quality gate`
 rejects failures, cancellations, missing jobs and unexpected skips. Only explicit
-Full-only jobs may be skipped in Fast CI. Its artifact identifies the checkout
-SHA, repository, workflow run and attempt. Full runs ignore path filters and
-enable every required configuration, including on manually selected refs.
+Full-only top-level jobs may be skipped in PR CI. Its artifact identifies the
+checkout SHA, repository, workflow run and attempt. It retains the exact worker
+workflow definitions, their hashes, resolved tier/release-tag inputs and hashes
+of configuration helpers. These describe the declared tested configurations;
+binary package records additionally capture actual compiler and build metadata.
+The nested `Static analysis gate` requires pre-commit, clang-tidy and cppcheck
+to succeed in both PR and Full CI, without path filters. Main has its own
+always-running gate requiring its exact smoke job to succeed. Release reruns
+every Full configuration for its exact candidate; historical PR results cannot
+substitute for this evidence.
 
 | Full verification | Configuration |
 | --- | --- |
 | Native builds | Clang Debug/Release and C-only examples; GCC C++11 Debug/C++23 Release; MSVC x64/x86 C++11 Debug/C++23 Release |
 | Coverage | Clang Debug unit and integration tests |
-| Static analysis | All Fast checks, clang-tidy and cppcheck; security-extended CodeQL |
+| Source checks | Formatting/contract checks, clang-tidy 18, cppcheck 2.21.0 and security-extended CodeQL |
 | Public consumers | Linux/Windows, shared/static, C-only/C++ through FetchContent and relocated installations |
 | Capability contracts | Shared and static profiles |
 | Properties | Default and minimal capabilities, 1,000 deterministic cases |
@@ -46,8 +54,8 @@ enable every required configuration, including on manually selected refs.
 ABI incompatibility remains advisory before 1.0 under the existing
 [ABI policy](abi-compatibility.md). ABI checker mutation self-tests are not a
 general Core source mutation campaign; no such campaign is claimed by this gate.
-Benchmarks and Callgrind remain independent advisory workflows. Noisy timing
-thresholds do not become release blockers.
+Benchmarks and Callgrind run automatically only through Release Gate. Performance
+changes are advisory; missing, failed or incomparable measurements block release.
 
 ## Release artifacts
 
@@ -65,11 +73,14 @@ thresholds do not become release blockers.
    example `v0.1.0` or `v0.1.0-rc.1`. Unprefixed values are rejected. Do not create
    the tag beforehand: existing tags are rejected, even at the same commit.
    The workflow uses the exact SHA selected at dispatch, even if main advances.
-4. Core Release runs Full CI for that commit with a private local candidate tag
-   in each build checkout. It then builds, tests and packages approved libraries,
-   validates a source extraction and creates attestations.
-5. Publication revalidates identity, the exact Full CI run/attempt, artifact
-   completeness and hashes, and verifies each producer attestation. Only then
+4. Preflight locks the candidate and the previous published stable release's tag,
+   release ID and exact commit. Core Release calls Full CI for the candidate with
+   a private local candidate tag in each build checkout. It then compares
+   performance, builds/tests/packages approved libraries, validates a source
+   extraction and creates attestations.
+5. Publication revalidates the original candidate and baseline lock, the exact
+   Full CI run/attempt, performance evidence, artifact completeness and hashes,
+   and verifies each producer attestation. Only then
    does it push the new `v`-prefixed tag and create a GitHub release; prerelease
    tags create prereleases. Library version numbers and asset names omit `v`.
 
@@ -100,7 +111,12 @@ Each release contains:
 - Four `OpenTLV-<version>-<os>-x64-<linkage>` ZIP/TGZ packages and their JSON
   configuration records. Packaged libraries are tested before packaging; canonical
   install contents and relocated C/C++ consumers are verified afterward.
-- `release-manifest.json`: source/binary digests and the same-run Full CI evidence.
+- `performance.json` and `performance.md`: exact candidate/baseline identity,
+  measured comparisons, configuration and toolchain metadata.
+- `performance-data.tar.gz`: raw benchmark samples, Callgrind profiles, immutable
+  workload sources, source manifests, compilation metadata and logs.
+- `release-manifest.json`: source/binary/performance digests and the same-run
+  Full CI and performance evidence.
 - `SHA256SUMS`: digests for archives, configuration records and manifest.
 
 Use the named `-source.tar.gz` release asset for Verified Source consumption.
@@ -130,10 +146,10 @@ publisher access in repository settings when enabling production publication.
 Do not claim administrator-proof enforcement from the workflow alone.
 
 The live ruleset inspected on 2026-10-19 requires CodeQL scanning on `main`, with no
-bypass actors. CodeQL remains in Fast and Full CI with the existing analysis
+bypass actors. CodeQL runs in PR and Full CI with the existing analysis
 category. No repository settings were changed by this implementation. If requiring
 CI status checks for merges, select the new always-running Core quality gate after
-its first hosted PR run; do not require Full-only or path-filtered worker checks.
+its first hosted PR run; do not require Full-only worker checks.
 
 Documentation publication remains owned by the standalone portal. Binding CI,
 documentation validation and Core-to-Docs notifications remain independent.
@@ -142,27 +158,61 @@ Any separate binding or portal release must follow that component's own process.
 A Core library gate pass is not a claim that every independent binding or the
 documentation portal has passed.
 
-## Performance evidence
+## Release performance verification
+
+The previous approved stable release means the highest published, non-draft,
+non-prerelease SemVer release below the candidate's base version. Historical
+unprefixed tags are accepted. Preflight resolves its tag to a commit, verifies
+remote identity and candidate ancestry, and freezes the selection for this run.
+Publication rechecks that same release ID and tag; a newer release published
+meanwhile does not silently replace it. A missing stable baseline or incompatible
+workload API fails verification rather than falling back to `main` or the candidate.
+
+Both revisions are extracted from exact Git commits and measured on one runner
+using the stable release's identical workload sources, a pinned Google Benchmark
+revision and identical Clang 18 Release C99/C++11 static configurations. Seven
+complete benchmark passes alternate baseline/candidate order. Median CPU times
+and observed ranges distinguish improvements, regressions and overlapping-range
+noise; these descriptive ranges are not statistical confidence intervals.
+All 16 Callgrind workloads compare instruction counts for identical inputs and
+2,000 iterations, with output/checksum and capability parity checks.
+
+No percentage threshold blocks an initial release. Measurement/build failures,
+missing samples, changed workload inventories, invalid values or mismatched
+identity do block publication. Strict budgets and approved exceptions remain
+future policy work. Neither PR, Main, standalone Full nor branch/tag pushes run
+performance measurements. Local benchmark and Callgrind tools remain available.
+
+Every release publishes checksummed, attested raw and summarized results. Keep
+these version-associated assets unchanged. Legacy stable releases without such
+assets are remeasured from their frozen source revision and explicitly identified
+as the baseline of the new report; no historical measurement is invented. Future
+comparisons also remeasure the previous stable source alongside the candidate to
+avoid treating timing data from different machines as equivalent.
+
+## CI execution timings
 
 The [baseline snapshot](ci-baseline.json) contains actual GitHub job timestamps and
 run URLs for the pre-change main commit
 `1ed4e0f63360755472bdebee1fa1e1609b190e98`. That commit changed documentation and
 does not represent the full native-change matrix. Do not compare it directly to
-a native PR or to the new comprehensive Full CI and claim an improvement.
+a native PR or to the comprehensive Full CI and claim an improvement.
 
 ```sh
 python -B scripts/ci_timings.py --baseline docs/development/ci-baseline.json \
   --output build/ci-baseline-summary.json
 ```
 
-Each orchestrated run uploads `core-timings-<sha>-<attempt>` after its checks,
-including failed runs. It records job duration totals and the execution span from
+PR and Full upload `core-timings-<sha>-<attempt>` for their Core checks. Main and
+Release additionally collect their complete attempts as
+`core-main-timings-<sha>-<attempt>` and `core-release-timings-<sha>-<attempt>`.
+Collectors run after success or failure. They record job duration totals and the execution span from
 the first job start to the last check completion, including intervening scheduling
 gaps but excluding initial queue time. These are runner-time observations, not
 billed-minute estimates. Collection cannot turn failed checks into success.
 
 Compare multiple runs with the same event, changed-component cohort, toolchain,
-cache state and runner class. Report Fast feedback latency separately from Full
+cache state and runner class. Report PR feedback latency separately from Main/Full
 verification cost. Post-change hosted timings and a measured before/after comparison
 remain required before closing the performance acceptance criterion.
 
@@ -170,11 +220,13 @@ remain required before closing the performance acceptance criterion.
 
 ```sh
 python -B scripts/test_core_release.py
+python -B scripts/test_core_performance.py
+python -B scripts/test_ci_workflows.py
 actionlint
 pre-commit run --all-files
 ```
 
 Regression tests reject incomplete, stale and modified evidence and verify source
 archive round trips and CMake metadata validation. Local checks cannot exercise
-GitHub OIDC signing, hosted permissions or publication. Validate Fast/Full runs and
+GitHub OIDC signing, hosted permissions or publication. Validate PR/Main/Full runs and
 a controlled prerelease on GitHub before declaring the release gate operational.

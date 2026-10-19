@@ -911,7 +911,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
         }
         if (o->optimize && n->op == Q_TEST) {
             for (size_t j = 0; j < i; ++j) {
-                query_node_t* a = &nodes[j];
+                const query_node_t* a = &nodes[j];
                 if (a->op == Q_TEST && a->axis == n->axis && a->anchor == n->anchor &&
                     a->scalar == n->scalar && a->predicate_guard == n->predicate_guard &&
                     a->path_guard == n->path_guard && a->path_kind == n->path_kind &&
@@ -994,7 +994,7 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     rc = parse(text, tokens, count, nodes, ops, values, &o, &used, &root, d);
     if (rc != TLV_OK) return rc;
     for (size_t i = 0; i < used; ++i) {
-        query_node_t* n = &nodes[i];
+        const query_node_t* n = &nodes[i];
         if (n->op == Q_FILTER) {
             for (size_t j = nodes[n->right].low; j <= n->right; ++j)
                 nodes[j].predicate_guard = n->left;

@@ -8,14 +8,23 @@
 /* Violation detail shared by tlv_schema_validate() and the report API, so both
  * describe one violation identically. Each helper fills only its kind's fields. */
 
-static void schema_issue_occurs(tlv_schema_diagnostic_t* diagnostic,
-                                const tlv_structure_rule_t* rule,
-                                const tlv_structure_group_t* group, size_t occurs) {
-    diagnostic->detail.schema.field = group ? group->name : rule->entry->name;
-    diagnostic->detail.schema.is_group = group != NULL;
+static void schema_issue_rule_occurs(tlv_schema_diagnostic_t* diagnostic,
+                                     const tlv_structure_rule_t* rule, size_t occurs) {
+    diagnostic->detail.schema.field = rule->entry->name;
+    diagnostic->detail.schema.is_group = 0;
     diagnostic->detail.schema.has_occurs = 1;
-    diagnostic->detail.schema.min_occurs = group ? group->min_occurs : rule->min_occurs;
-    diagnostic->detail.schema.max_occurs = group ? group->max_occurs : rule->max_occurs;
+    diagnostic->detail.schema.min_occurs = rule->min_occurs;
+    diagnostic->detail.schema.max_occurs = rule->max_occurs;
+    diagnostic->detail.schema.occurs = occurs;
+}
+
+static void schema_issue_group_occurs(tlv_schema_diagnostic_t* diagnostic,
+                                      const tlv_structure_group_t* group, size_t occurs) {
+    diagnostic->detail.schema.field = group->name;
+    diagnostic->detail.schema.is_group = 1;
+    diagnostic->detail.schema.has_occurs = 1;
+    diagnostic->detail.schema.min_occurs = group->min_occurs;
+    diagnostic->detail.schema.max_occurs = group->max_occurs;
     diagnostic->detail.schema.occurs = occurs;
 }
 

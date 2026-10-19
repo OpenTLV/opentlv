@@ -69,6 +69,8 @@ size_t query_candidate_size(void) {
 }
 size_t query_candidate_alignment(void) {
     struct alignment_probe {
+        /* Force padding before node so offsetof reports its C99 alignment. */
+        // cppcheck-suppress unusedStructMember
         char prefix;
         retained_node_t node;
     };
@@ -167,6 +169,8 @@ tlv_result_t tlv_query_eval_size(const tlv_query_program_t* p, size_t depth, siz
         query_overlap(p, p->reserved, alignment, sizeof *alignment) ||
         query_overlap(bytes, sizeof *bytes, alignment, sizeof *alignment))
         return TLV_ERR_INVALID_ARG;
+    /* query_plan_supported folds to true in builds with all capabilities enabled. */
+    // cppcheck-suppress knownConditionTrueFalse
     if (!query_plan_supported(p)) return TLV_ERR_UNSUPPORTED;
     if (depth == SIZE_MAX || nodes == SIZE_MAX) return TLV_ERR_OVERFLOW;
     size_t size = sizeof(tlv_query_exec_t), count = (size_t)p->count + p->variable_count;
@@ -300,7 +304,7 @@ tlv_result_t query_retained_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
     if (event->kind == TLV_TREE_BEGIN) ((size_t*)eval_base(e))[event->depth] = e->elements;
     return TLV_OK;
 }
-static size_t set_count(tlv_query_exec_t* e, const uint8_t* set) {
+static size_t set_count(const tlv_query_exec_t* e, const uint8_t* set) {
     size_t count = 0;
     for (size_t i = 0; i <= e->node_capacity; ++i)
         if (set[i]) ++count;
@@ -385,11 +389,13 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         tlv_codec_diagnostic_init(cd, TLV_CODEC_OP_DECODE);
         /* compatible() checked this hook and its decoder at eval_init. The
            borrowed program and environment remain immutable during execution. */
+        // cppcheck-suppress-begin nullPointer
         tlv_result_t rc =
             // NOLINTNEXTLINE(clang-analyzer-core.NullDereference)
             hook->decode(hook->context, event, f->a.data, f->a.size,
                          eval_codec_scratch(e) + instruction * e->program->codec_stride,
                          hook->scratch_size, &result, cd);
+        // cppcheck-suppress-end nullPointer
         if (!e->busy) return TLV_ERR_INVALID_STATE;
         rc = tlv_codec_callback_result(cd, rc, TLV_CODEC_OP_DECODE);
         if (rc != TLV_OK) {
@@ -619,7 +625,7 @@ tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
         }
         /* A completed child lives in frame top+1 until the next push. */
         eval_frame_t* child = &eval_frames(e)[top + 1];
-        uint8_t* child_set = frame_set(e, top + 1, 0);
+        const uint8_t* child_set = frame_set(e, top + 1, 0);
         if (f->stage >= 10) {
             size_t arg = f->stage - 10;
             query_value_t v = child->value;

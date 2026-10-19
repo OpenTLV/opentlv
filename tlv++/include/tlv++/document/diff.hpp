@@ -17,7 +17,9 @@ enum class diff_kind {
 };
 /** @brief Checked original input handles and stable correspondence description. */
 struct diff_entry {
-    diff_kind   kind;  /**< Added, removed or changed direct node content. */
+    diff_kind kind; /**< Added, removed or changed direct node content. */
+    // Public diff consumers read this stored correspondence path.
+    // cppcheck-suppress unusedStructMember
     std::string path;  /**< Raw tag plus same-tag sibling occurrence at every ancestor. */
     const_node  left;  /**< Original left context, empty for additions. */
     const_node  right; /**< Original right context, empty for removals. */
@@ -48,9 +50,9 @@ inline diff_index index_document(const document& doc) {
         auto current = frame.next;
         frame.next = current.next();
         std::string tag;
-        auto        tag_bytes = current.tag().as_bytes();
-        for (size_t i = 0; i < tag_bytes.size(); ++i) {
-            auto value = static_cast<unsigned char>(tag_bytes[i]);
+        auto        identifier_bytes = current.tag().as_bytes();
+        for (size_t i = 0; i < identifier_bytes.size(); ++i) {
+            auto value = static_cast<unsigned char>(identifier_bytes[i]);
             tag.push_back(hex[value >> 4]);
             tag.push_back(hex[value & 15]);
         }

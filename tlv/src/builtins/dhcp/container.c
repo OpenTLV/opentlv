@@ -63,11 +63,10 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
         if (rc != TLV_OK) return rc;
         ++count;
         if (element.tag.data[0] == 255) {
-            size_t i;
             if (rules->tail == TLV_DHCPV4_OPTIONS_TAIL_EMPTY && reader.pos != size)
                 return failure(diagnostic, TLV_ERR_SCHEMA, reader.pos, "no bytes after End");
             if (rules->tail == TLV_DHCPV4_OPTIONS_TAIL_PAD) {
-                for (i = reader.pos; i < size; ++i) {
+                for (size_t i = reader.pos; i < size; ++i) {
                     if (data[i] != 0)
                         return failure(diagnostic, TLV_ERR_SCHEMA, i, "zero padding after End");
                 }

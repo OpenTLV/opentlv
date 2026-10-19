@@ -268,7 +268,11 @@ found, so their absence never breaks a regular build.
 
 [static-analysis.yml](.github/workflows/static-analysis.yml) also runs
 [cppcheck](https://cppcheck.sourceforge.io/) over `tlv` (C) and `tlv++`
-(C++) with `--enable=warning,style,performance,portability`. Reproduce it
+(C++) with `--enable=warning,style,performance,portability`. Both cppcheck and
+clang-tidy are required on every **Core Pull Request CI** run before merge and
+every **Core Full CI** run, including Release Gate. Main CI runs only lightweight
+build/integration smoke checks. Manual **Static Analysis** also runs both
+analyzers and pre-commit. Reproduce cppcheck
 locally by installing cppcheck, configuring a build directory, and building
 the opt-in `cppcheck` target:
 
@@ -288,7 +292,7 @@ each one; prefer fixing a finding over suppressing it.
 
 [static-analysis.yml](.github/workflows/static-analysis.yml) also runs
 [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) 18 over `tlv` (C) and
-`tlv++` (C++). Check selection lives in [.clang-tidy](.clang-tidy) at the
+`tlv++` (C++) in PR and Full CI. Check selection lives in [.clang-tidy](.clang-tidy) at the
 repository root (the shared baseline for both languages) plus
 [tlv/.clang-tidy](tlv/.clang-tidy) and [tlv++/.clang-tidy](tlv++/.clang-tidy),
 which layer C- and C++-specific checks on top of it; clang-tidy resolves the

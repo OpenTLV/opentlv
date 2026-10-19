@@ -19,14 +19,13 @@ static tlv_result_t visitor_error(tlv_reader_diagnostic_t* diagnostic, tlv_resul
 
 tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
                                    void* context, tlv_reader_diagnostic_t* diagnostic) {
-    tlv_result_t rc;
     if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
     if (!reader) return visitor_error(diagnostic, TLV_ERR_NULL_ARG, 0, 0);
     /* Node projection drains structural ENDs before callbacks, preserving STOP
      * and Query frontier semantics even when the last match closes its parents. */
     while (!tlv_tree_reader_at_end(reader)) {
         tlv_tree_item_t item;
-        rc = tlv_tree_reader_next_diag(reader, &item, diagnostic);
+        tlv_result_t rc = tlv_tree_reader_next_diag(reader, &item, diagnostic);
         if (rc != TLV_OK) {
             /* Tree preflight failures leave their diagnostic untouched. */
             if (diagnostic && diagnostic->diagnostic.code != rc)
@@ -47,13 +46,12 @@ tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t
 
 tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t visitor, void* context,
                                    tlv_reader_diagnostic_t* diagnostic) {
-    tlv_result_t rc;
     if (diagnostic) tlv_reader_diagnostic_init(diagnostic);
     if (!reader || !visitor) return visitor_error(diagnostic, TLV_ERR_NULL_ARG, 0, 0);
     while (!tlv_reader_at_end(reader)) {
         tlv_element_t element;
         size_t offset = diagnostic ? tlv_reader_offset(reader) : 0;
-        rc = tlv_reader_next_diag(reader, &element, diagnostic);
+        tlv_result_t rc = tlv_reader_next_diag(reader, &element, diagnostic);
         if (rc != TLV_OK) return rc;
         switch (visitor(&element, context)) {
             case TLV_VISIT_CONTINUE: break;

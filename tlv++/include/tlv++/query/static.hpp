@@ -107,10 +107,11 @@ constexpr tlv_query_instruction_t relocate(const tlv_query_instruction_t& n, siz
 constexpr bool letter(char c) {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
-constexpr bool name_tail(const char* name, size_t size, size_t i) {
-    return i == size || ((letter(name[i]) || (name[i] >= '0' && name[i] <= '9') || name[i] == '_' ||
-                          name[i] == '-') &&
-                         name_tail(name, size, i + 1));
+constexpr bool name_tail(const char* variable_name, size_t size, size_t i) {
+    return i == size ||
+           ((letter(variable_name[i]) || (variable_name[i] >= '0' && variable_name[i] <= '9') ||
+             variable_name[i] == '_' || variable_name[i] == '-') &&
+            name_tail(variable_name, size, i + 1));
 }
 } // namespace detail
 /** @endcond */
@@ -291,9 +292,9 @@ constexpr expression<N + M + 1, P + Q, K> combine(const expression<N, P, L>& a,
                           typename sequence<P + Q>::type{});
 }
 template <tlv_query_plan_type_t K, size_t N, size_t... I>
-constexpr expression<1, N - 1, K> parameter(const char (&name)[N], indices<I...>) {
+constexpr expression<1, N - 1, K> parameter(const char (&variable_name)[N], indices<I...>) {
     return {{{node(TLV_QUERY_OP_VARIABLE, K, none, none, N - 1)}},
-            {{static_cast<uint8_t>(name[I])...}}};
+            {{static_cast<uint8_t>(variable_name[I])...}}};
 }
 } // namespace detail
 /** @endcond */
@@ -345,15 +346,16 @@ constexpr expression<1, 0, TLV_QUERY_PLAN_BYTES> value() {
 }
 /** @brief Named runtime parameter; repeated names share one slot in first-reference order.
  * @tparam Kind Integer, bytes or string native plan category.
- * @param name ASCII variable identifier without a dollar prefix.
+ * @param variable_name ASCII variable identifier without a dollar prefix.
  * @return Typed parameter reference; invalid names reject constant evaluation. */
 template <tlv_query_plan_type_t Kind = TLV_QUERY_PLAN_INTEGER, size_t N>
-constexpr expression<1, N - 1, Kind> parameter(const char (&name)[N]) {
+constexpr expression<1, N - 1, Kind> parameter(const char (&variable_name)[N]) {
     static_assert(Kind == TLV_QUERY_PLAN_INTEGER || Kind == TLV_QUERY_PLAN_BYTES ||
                       Kind == TLV_QUERY_PLAN_STRING,
                   "supported parameter type");
-    return N > 1 && name[N - 1] == 0 && detail::letter(name[0]) && detail::name_tail(name, N - 1, 1)
-               ? detail::parameter<Kind>(name, typename detail::sequence<N - 1>::type{})
+    return N > 1 && variable_name[N - 1] == 0 && detail::letter(variable_name[0]) &&
+                   detail::name_tail(variable_name, N - 1, 1)
+               ? detail::parameter<Kind>(variable_name, typename detail::sequence<N - 1>::type{})
                : throw std::invalid_argument("invalid constexpr Query parameter name");
 }
 /** @brief Filter node selection by a Boolean predicate, using native eager semantics. */

@@ -75,21 +75,29 @@ struct query_failure {
         return tlv::message(status());
     }
     /** @brief Category identifying the relevant subsystem detail. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     query_issue kind() const noexcept {
         return static_cast<query_issue>(diagnostic.kind);
     }
     /** @brief Layer whose detail is active in `diagnostic.detail`. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     query_cause cause() const noexcept {
         return static_cast<query_cause>(diagnostic.cause);
     }
     /** @brief Primary evidence: input or Value location of the failing node or lower
      *         layer, otherwise the expression span, or unknown for admission and
      *         lifecycle failures. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     tlv_location_t location() const noexcept {
         return diagnostic.diagnostic.location;
     }
     /** @brief Related expression span when another known location is primary;
      *         otherwise unknown, so the span is never reported twice. */
+    // Copy the instance's location so the result survives destruction of this failure.
+    // cppcheck-suppress [functionStatic,returnByReference]
     tlv_location_t expression() const noexcept {
         return diagnostic.expression;
     }
@@ -265,9 +273,10 @@ public:
      * the same C representation and version/capability checks. */
     static expected<query_program, query_failure> from_plan(const void* image, size_t size) {
         query_program          result;
-        tlv_query_diagnostic_t diagnostic{};
-        auto                   rc = tlv_query_plan_open(image, size, &result.program_, &diagnostic);
-        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, diagnostic));
+        tlv_query_diagnostic_t failure_detail{};
+        auto rc = tlv_query_plan_open(image, size, &result.program_, &failure_detail);
+        if (rc != TLV_OK)
+            return unexpected<query_failure>(detail::query_failed(rc, failure_detail));
         result.info_.struct_size = sizeof result.info_;
         rc = tlv_query_plan_info(result.program_, &result.info_);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc));
@@ -317,13 +326,13 @@ private:
 
 private:
     query_program() = default;
-    std::string render(bool explain) const {
+    std::string render(bool show_plan) const {
         size_t size = 0;
         auto   fn = tlv_query_program_explain;
 #if OPENTLV_QUERY_FRONTEND
-        if (!explain) fn = tlv_query_program_format;
+        if (!show_plan) fn = tlv_query_program_format;
 #else
-        if (!explain) throw std::runtime_error(tlv_result_string(TLV_ERR_UNSUPPORTED));
+        if (!show_plan) throw std::runtime_error(tlv_result_string(TLV_ERR_UNSUPPORTED));
 #endif
         auto rc = fn(program_, nullptr, 0, &size);
         if (rc != TLV_OK) throw std::runtime_error(tlv_result_string(rc));
@@ -437,13 +446,14 @@ public:
         return result;
     }
     /** @brief Bind a declared integer variable before execution. */
-    expected<void, query_failure> bind(const char* name, int64_t value) {
-        return bind_span(name, TLV_QUERY_RESULT_INTEGER, value, nullptr, 0);
+    expected<void, query_failure> bind(const char* variable_name, int64_t value) {
+        return bind_span(variable_name, TLV_QUERY_RESULT_INTEGER, value, nullptr, 0);
     }
     /** @brief Bind borrowed bytes or UTF-8 string before execution; no interpolation/copy. */
-    expected<void, query_failure> bind(const char* name, bytes value, bool string = false) {
-        return bind_span(name, string ? TLV_QUERY_RESULT_STRING : TLV_QUERY_RESULT_BYTES, 0,
-                         reinterpret_cast<const uint8_t*>(value.data()), value.size());
+    expected<void, query_failure> bind(const char* variable_name, bytes value,
+                                       bool string = false) {
+        return bind_span(variable_name, string ? TLV_QUERY_RESULT_STRING : TLV_QUERY_RESULT_BYTES,
+                         0, reinterpret_cast<const uint8_t*>(value.data()), value.size());
     }
     /** @brief Select a relative preorder context before consuming events.
      * @param ordinal Traversal-scoped zero-based identity, not a Document node identity.
@@ -572,12 +582,12 @@ public:
             return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
         tree_event selected{};
         bool       found = false;
-        auto       status = visit(reader, [&](const tree_event& event) {
+        auto       visited = visit(reader, [&](const tree_event& event) {
             selected = event;
             found = true;
             return TLV_VISIT_STOP;
         });
-        if (!status) return unexpected<query_failure>(status.error());
+        if (!visited) return unexpected<query_failure>(visited.error());
         if (!found) return unexpected<query_failure>(detail::query_failed(TLV_END));
         return selected;
     }
@@ -591,10 +601,10 @@ private:
 
 private:
     explicit query_execution(const query_program& p) : program_(p) {}
-    expected<void, query_failure> bind_span(const char* name, tlv_query_result_kind_t type,
+    expected<void, query_failure> bind_span(const char* variable_name, tlv_query_result_kind_t type,
                                             int64_t number, const uint8_t* data, size_t size) {
         tlv_query_diagnostic_t d{};
-        auto                   rc = tlv_query_exec_bind(exec_, name, type, number, data, size, &d);
+        auto rc = tlv_query_exec_bind(exec_, variable_name, type, number, data, size, &d);
         if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
         return {};
     }
@@ -611,7 +621,7 @@ struct query_program_access {
     static const tlv_query_program_t* get(const query_program& value) {
         return value.c_program();
     }
-    static tlv_query_exec_t* get(query_execution& value) {
+    static tlv_query_exec_t* get(const query_execution& value) {
         return value.c_exec();
     }
 };

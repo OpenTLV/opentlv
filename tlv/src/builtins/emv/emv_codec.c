@@ -256,11 +256,11 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
             EMV_STORE(afl);
         }
         case EMV_REP_CVM_RESULT: {
-            tlv_emv_cvm_result_t result;
-            result.method = data[0];
-            result.condition = data[1];
-            result.result = data[2];
-            EMV_STORE(result);
+            tlv_emv_cvm_result_t cvm_result;
+            cvm_result.method = data[0];
+            cvm_result.condition = data[1];
+            cvm_result.result = data[2];
+            EMV_STORE(cvm_result);
         }
         case EMV_REP_TRACK2: {
             tlv_emv_track2_t track2;

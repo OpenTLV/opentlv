@@ -19,8 +19,14 @@ import urllib.parse
 import urllib.request
 
 
-FAST = frozenset(('clang', 'static', 'consumers', 'codeql'))
-FULL = FAST | frozenset(('msvc', 'gcc', 'properties', 'query', 'fuzz', 'capabilities', 'abi', 'memcheck'))
+PR = frozenset(('clang', 'static', 'consumers', 'codeql'))
+FULL = PR | frozenset(('msvc', 'gcc', 'properties', 'query', 'fuzz', 'capabilities', 'abi', 'memcheck'))
+WORKERS = {'clang': 'build-clang.yml', 'msvc': 'build-msvc.yml',
+           'static': 'static-analysis.yml', 'consumers': 'cmake-consumers.yml',
+           'codeql': 'codeql.yml', 'gcc': 'build-gcc.yml', 'properties': 'property.yml',
+           'query': 'query-hardening.yml', 'fuzz': 'fuzz.yml',
+           'capabilities': 'capabilities.yml', 'abi': 'abi.yml', 'memcheck': 'valgrind.yml'}
+PERFORMANCE_FILES = frozenset(('performance.json', 'performance.md', 'performance-data.tar.gz'))
 VERSION = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?')
 BINARY_IDS = frozenset(('linux-x64-static', 'linux-x64-shared',
                         'windows-x64-static', 'windows-x64-shared'))
@@ -89,25 +95,75 @@ def write_json(path, data):
 
 
 def check_results(results, full):
-    require(set(results) == FULL, 'Missing or unexpected CI jobs')
-    selected = FULL if full else FAST
+    require(isinstance(results, dict) and set(results) == FULL, 'Missing or unexpected CI jobs')
+    selected = FULL if full else PR
     for name, result in results.items():
         expected = 'success' if name in selected else 'skipped'
-        require(result.get('result') == expected,
-                f'{name}: expected {expected}, got {result.get("result")}')
+        actual = result.get('result') if isinstance(result, dict) else None
+        require(actual == expected, f'{name}: expected {expected}, got {actual}')
 
 
-def gate(output):
-    full = os.environ['FULL'] == 'true'
-    results = json.loads(os.environ['CHECK_RESULTS'])
-    check_results(results, full)
+def check_static_results(results):
+    require(isinstance(results, dict) and set(results) == {'pre-commit', 'cppcheck', 'clang-tidy'},
+            'Missing or unexpected static analysis jobs')
+    for name, result in results.items():
+        actual = result.get('result') if isinstance(result, dict) else None
+        require(actual == 'success', f'{name}: expected success, got {actual}')
+
+
+def static_gate():
+    check_static_results(json.loads(os.environ['CHECK_RESULTS']))
+
+
+def configuration(tier):
+    selected = FULL if tier == 'full' else PR if tier == 'pr' else {'consumers'}
+    paths = {WORKERS[name] for name in selected}
+    paths.add('core-' + tier + '.yml')
+    if tier != 'main':
+        paths.add('core-checks.yml')
+    if tier == 'full' and os.environ.get('RELEASE_TAG'):
+        paths.add('core-release.yml')
+    source = Path(__file__).resolve().parents[1]
+    root = source / '.github/workflows'
+    # Retain the exact matrix expressions, compiler options and steps as tested,
+    # rather than a second hand-maintained description that can drift from YAML.
+    inputs = {'full': tier == 'full'}
+    if tier != 'main':
+        inputs['release_tag'] = os.environ.get('RELEASE_TAG', '')
+    helpers = ('CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/capability_options.cmake',
+               'cmake/format_options.cmake', 'scripts/check_cmake_integration.py',
+               'scripts/check_capabilities.py', 'scripts/abi/check.py')
+    return {'inputs': inputs, 'configuration_sources': {name: digest(source / name) for name in helpers},
+            'workflows': {
+        name: {'sha256': digest(root / name), 'definition': (root / name).read_text(encoding='utf-8')}
+        for name in sorted(paths)}}
+
+
+def record_gate(output, tier, results):
     commit = revision(os.environ['GITHUB_SHA'])
     require(git('rev-parse', 'HEAD') == commit, 'Checkout differs from CI revision')
-    write_json(output, {'schema': 1, 'tier': 'full' if full else 'fast',
+    write_json(output, {'schema': 2, 'tier': tier,
                         'commit': commit, 'repository': os.environ['GITHUB_REPOSITORY'],
                         'run_id': os.environ['GITHUB_RUN_ID'],
                         'run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+                        'configuration': configuration(tier),
                         'checks': {name: item['result'] for name, item in results.items()}})
+
+
+def main_gate(output):
+    results = json.loads(os.environ['CHECK_RESULTS'])
+    require(isinstance(results, dict) and set(results) == {'smoke'}, 'Missing or unexpected Main CI jobs')
+    require(isinstance(results['smoke'], dict) and results['smoke'].get('result') == 'success',
+            'Main integration smoke tests must succeed')
+    record_gate(output, 'main', results)
+
+
+def gate(output):
+    require(os.environ['FULL'] in ('true', 'false'), 'FULL must be true or false')
+    full = os.environ['FULL'] == 'true'
+    results = json.loads(os.environ['CHECK_RESULTS'])
+    check_results(results, full)
+    record_gate(output, 'full' if full else 'pr', results)
 
 
 def api(path):
@@ -129,7 +185,61 @@ def query_evidence_run(runs, commit):
     return latest['id']
 
 
-def preflight(output):
+def stable_version(tag):
+    number = tag.removeprefix('v') if isinstance(tag, str) else ''
+    match = VERSION.fullmatch(number)
+    return tuple(int(match[i]) for i in (1, 2, 3)) if match and match[4] is None else None
+
+
+def select_baseline(releases, candidate_version):
+    candidate = tuple(int(part) for part in candidate_version.split('-')[0].split('.'))
+    eligible = [item for item in releases
+                if item.get('draft') is False and item.get('prerelease') is False
+                and item.get('published_at') and stable_version(item.get('tag_name')) is not None
+                and stable_version(item['tag_name']) < candidate]
+    require(eligible, 'No previous published stable release is available for performance verification')
+    return max(eligible, key=lambda item: (stable_version(item['tag_name']), item['id']))
+
+
+def baseline_record(published, candidate_commit):
+    tag = published['tag_name']
+    require(stable_version(tag) is not None and published.get('draft') is False
+            and published.get('prerelease') is False and published.get('published_at'),
+            'Performance baseline must be a published stable release')
+    require(type(published.get('id')) is int and published['id'] > 0, 'Invalid baseline release ID')
+    commit = revision(git('rev-parse', f'refs/tags/{tag}^{{commit}}'))
+    remote = git('ls-remote', '--tags', 'origin', f'refs/tags/{tag}', f'refs/tags/{tag}^{{}}')
+    refs = dict(line.split()[::-1] for line in remote.splitlines())
+    require(refs.get(f'refs/tags/{tag}^{{}}', refs.get(f'refs/tags/{tag}')) == commit,
+            'Baseline tag changed or is missing from the remote')
+    require(commit != candidate_commit, 'Performance baseline cannot be the candidate itself')
+    subprocess.run(['git', 'merge-base', '--is-ancestor', commit, candidate_commit], check=True)
+    return {'release_id': published['id'], 'tag': tag, 'version': tag.removeprefix('v'),
+            'commit': commit, 'url': published['html_url'], 'published_at': published['published_at']}
+
+
+def release_baseline(number, commit, locked=None):
+    repo = os.environ['GITHUB_REPOSITORY']
+    if locked is not None:
+        require(type(locked.get('release_id')) is int and locked['release_id'] > 0,
+                'Missing locked baseline release ID')
+        published = api(f'repos/{repo}/releases/{locked["release_id"]}')
+        record = baseline_record(published, commit)
+        require(record == locked, 'Locked performance baseline has changed')
+        return record
+    releases = []
+    page = 1
+    while True:
+        items = api(f'repos/{repo}/releases?per_page=100&page={page}')
+        require(isinstance(items, list), 'Invalid releases response')
+        releases.extend(items)
+        if len(items) < 100:
+            break
+        page += 1
+    return baseline_record(select_baseline(releases, number), commit)
+
+
+def preflight(output, locked_path=None):
     require(os.environ['GITHUB_EVENT_NAME'] == 'workflow_dispatch', 'Publication requires manual dispatch')
     require(os.environ['GITHUB_REF'] == 'refs/heads/main', 'Dispatch Core Release from main')
     tag = os.environ['RELEASE_TAG']
@@ -147,7 +257,16 @@ def preflight(output):
         query = urllib.parse.urlencode({'head_sha': commit, 'per_page': 100})
         runs = api(f'repos/{repo}/actions/workflows/query-release.yml/runs?{query}')
         evidence = query_evidence_run(runs['workflow_runs'], commit)
-    write_json(output, {'tag': tag, 'version': number, 'commit': commit, 'query_evidence_run_id': evidence})
+    locked = json.loads(locked_path.read_text(encoding='utf-8')) if locked_path else None
+    identity = {'tag': tag, 'version': number, 'commit': commit,
+                'repository': os.environ['GITHUB_REPOSITORY'],
+                'run_id': os.environ['GITHUB_RUN_ID'], 'run_attempt': os.environ['GITHUB_RUN_ATTEMPT']}
+    if locked is not None:
+        require(all(locked.get(key) == value for key, value in identity.items()),
+                'Locked candidate identity differs from this run and attempt')
+        require(isinstance(locked.get('baseline'), dict), 'Locked performance baseline is missing')
+    baseline = release_baseline(number, commit, locked['baseline'] if locked is not None else None)
+    write_json(output, {**identity, 'query_evidence_run_id': evidence, 'baseline': baseline})
 
 
 def source_archive(output, tag, commit):
@@ -174,12 +293,14 @@ def source_archive(output, tag, commit):
 
 
 def check_quality(quality, commit, run_id, attempt, repository):
-    require(quality.get('schema') == 1 and quality.get('tier') == 'full', 'Full CI evidence required')
+    require(quality.get('schema') == 2 and quality.get('tier') == 'full', 'Full CI evidence required')
     require(quality.get('commit') == commit and quality.get('repository') == repository,
             'Wrong source identity in Full CI evidence')
     require(quality.get('run_id') == run_id and quality.get('run_attempt') == attempt,
             'Full CI evidence must come from this release run and attempt')
     check_results({name: {'result': result} for name, result in quality.get('checks', {}).items()}, True)
+    require(quality.get('configuration') == configuration('full'),
+            'Full CI configuration evidence is missing or differs from the release checkout')
 
 
 def binary_record(build, output, identifier, tag, commit):
@@ -233,6 +354,7 @@ def binary_record(build, output, identifier, tag, commit):
 
 
 def manifest(directory, quality_path, tag, commit):
+    from core_performance import validate_report
     version(tag)
     revision(commit)
     quality = json.loads(quality_path.read_text())
@@ -242,6 +364,9 @@ def manifest(directory, quality_path, tag, commit):
     require(candidate.get('version') == tag and candidate.get('commit') == commit,
             'Release candidate identity mismatch')
     require(candidate.get('tag') == 'v' + tag, 'Release candidate tag mismatch')
+    require(all(candidate.get(key) == os.environ['GITHUB_' + env] for key, env in
+                (('repository', 'REPOSITORY'), ('run_id', 'RUN_ID'), ('run_attempt', 'RUN_ATTEMPT'))),
+            'Release candidate must come from this repository, run and attempt')
     if int(tag.split('.')[0]) >= 1:
         query_run = candidate.get('query_evidence_run_id')
         require(type(query_run) is int and query_run > 0, 'Query candidate evidence reference is missing')
@@ -263,10 +388,16 @@ def manifest(directory, quality_path, tag, commit):
                 'Source archive identity mismatch')
     records.append({'kind': 'source', 'filename': source.name, 'sha256': digest(source),
                     'version': tag, 'commit': commit})
+    performance = validate_report(directory, commit, 'v' + tag, os.environ['GITHUB_REPOSITORY'],
+                                  os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT'],
+                                  candidate['baseline'])
+    records.extend({'kind': 'performance', 'filename': name, 'sha256': digest(directory / name),
+                    'version': tag, 'commit': commit} for name in sorted(PERFORMANCE_FILES))
     expected = {r['filename'] for r in records} | {name + '.json' for name in BINARY_IDS}
     require({p.name for p in directory.iterdir()} == expected, 'Unexpected or missing release files')
-    write_json(directory / 'release-manifest.json', {'schema': 1, 'version': tag, 'commit': commit,
-                                                    'candidate': candidate, 'quality': quality, 'artifacts': records})
+    write_json(directory / 'release-manifest.json', {'schema': 2, 'version': tag, 'commit': commit,
+                                                    'candidate': candidate, 'quality': quality,
+                                                    'performance': performance, 'artifacts': records})
     files = sorted(p for p in directory.iterdir() if p.is_file())
     (directory / 'SHA256SUMS').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in files), encoding='utf-8')
 
@@ -274,8 +405,12 @@ def manifest(directory, quality_path, tag, commit):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
-    for name in ('gate', 'preflight'):
+    for name in ('gate', 'main-gate'):
         sub.add_parser(name).add_argument('--output', type=Path, required=True)
+    preflight_parser = sub.add_parser('preflight')
+    preflight_parser.add_argument('--output', type=Path, required=True)
+    preflight_parser.add_argument('--locked-candidate', type=Path)
+    sub.add_parser('static-gate')
     sub.add_parser('prepare').add_argument('--tag', default=os.environ.get('RELEASE_TAG'), required=False)
     for name in ('source', 'binary', 'manifest'):
         command = sub.add_parser(name)
@@ -290,8 +425,12 @@ def main():
     args = parser.parse_args()
     if args.command == 'gate':
         gate(args.output)
+    elif args.command == 'main-gate':
+        main_gate(args.output)
+    elif args.command == 'static-gate':
+        static_gate()
     elif args.command == 'preflight':
-        preflight(args.output)
+        preflight(args.output, args.locked_candidate)
     elif args.command == 'prepare':
         prepare(args.tag)
     elif args.command == 'source':

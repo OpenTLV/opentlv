@@ -32,6 +32,7 @@ def summarize(jobs):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--baseline', type=Path)
+    parser.add_argument('--scope', choices=('core', 'run'), default='core')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.baseline:
@@ -50,13 +51,17 @@ def main():
             if len(data['jobs']) < 100:
                 break
             page += 1
-        gates = [job for job in jobs if job['name'].endswith(' / Core quality gate')]
-        require(len(gates) == 1, 'Expected one Core gate in this run')
-        prefix = gates[0]['name'].removesuffix(' / Core quality gate') + ' / '
+        selected = jobs
+        if args.scope == 'core':
+            gates = [job for job in jobs if job['name'].endswith(' / Core quality gate')]
+            require(len(gates) == 1, 'Expected one Core gate in this run')
+            prefix = gates[0]['name'].removesuffix(' / Core quality gate') + ' / '
+            selected = [job for job in jobs if job['name'].startswith(prefix)]
         report = {'schema': 1, 'repository': repo, 'commit': os.environ['GITHUB_SHA'],
                   'event': os.environ['GITHUB_EVENT_NAME'], 'run_id': run, 'run_attempt': attempt,
+                  'scope': args.scope,
                   'note': 'Execution span includes scheduling gaps between first start and last finish; excludes initial queue time.',
-                  **summarize([job for job in jobs if job['name'].startswith(prefix)])}
+                  **summarize(selected)}
     write_json(args.output, report)
     print(json.dumps(report, indent=2))
 

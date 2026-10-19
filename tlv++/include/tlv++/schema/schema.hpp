@@ -29,12 +29,12 @@ namespace tlv {
 inline expected<void, error> validate(bytes data, tlv::format format, schema definition,
                                       size_t max_depth = TLV_SCHEMA_MAX_DEPTH,
                                       size_t max_elements = SIZE_MAX) {
-    tlv_schema_diagnostic_t diagnostic{};
+    tlv_schema_diagnostic_t failure_detail{};
     const auto rc = tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                         &detail::format_access::get(format),
                                         detail::schema_access::get(definition), max_depth,
-                                        max_elements, &diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(diagnostic));
+                                        max_elements, &failure_detail);
+    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(failure_detail));
     return {};
 }
 
@@ -51,11 +51,11 @@ inline expected<void, error> validate(bytes data, tlv::format format,
                                       const checked_schema& definition,
                                       size_t                max_depth = TLV_SCHEMA_MAX_DEPTH,
                                       size_t                max_elements = SIZE_MAX) {
-    tlv_schema_diagnostic_t diagnostic{};
+    tlv_schema_diagnostic_t failure_detail{};
     const auto              rc = tlv_schema_validate_checked(
         &definition.native(), reinterpret_cast<const uint8_t*>(data.data()), data.size(),
-        &detail::format_access::get(format), max_depth, max_elements, &diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(diagnostic));
+        &detail::format_access::get(format), max_depth, max_elements, &failure_detail);
+    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(failure_detail));
     return {};
 }
 

@@ -102,15 +102,14 @@ instrumentation.
 
 | Trigger | Memcheck selection | Failure handling |
 | --- | --- | --- |
-| Fast CI / pull request | Not selected | Request Full CI manually when needed before merging. |
-| Main push or weekly Full CI, Sunday at 02:17 UTC | Full suite | Failure blocks Full CI. |
-| Unprefixed release tag | Full suite at the tag | Failure blocks publication. |
+| Pull Request CI or Main CI | Not selected | Request Full CI manually when needed before merging. |
+| Release Gate | Full suite at the exact candidate commit | Failure blocks publication before tag creation. |
 | Manual Full CI | Full suite at the selected revision | Failure blocks Full CI. |
 | Manual worker dispatch | Full suite at the selected revision | Diagnostic run; does not independently authorize release. |
 
 The `memcheck-full` PR label no longer controls CI selection. A manual Full CI
-run can validate a feature branch before merging. The scheduled orchestrator
-must exist on the default branch to run. Local shorter selections remain useful
+run can validate a feature branch before merging. Full CI has no automatic push
+or scheduled trigger. Local shorter selections remain useful
 for diagnosis but do not replace complete release verification.
 
 ## Read a report
@@ -278,26 +277,25 @@ reproducible.
 
 ## CI comparison baseline and artifacts
 
-The `callgrind.yml` workflow runs on pull requests and pushes to `main` that
-change native sources, benchmarks, Callgrind tools, CMake, or the workflow
-itself. It also supports manual dispatch. It uses these revisions:
+Automatic Callgrind and benchmark comparisons belong exclusively to
+[Core Release Gate](quality-gates.md#release-performance-verification). The old
+standalone performance workflows have been removed. PR, Main and standalone Full
+CI do not run performance measurements; the local commands above remain available.
 
-| Trigger | Baseline | Candidate |
-| --- | --- | --- |
-| Pull request | PR base SHA | PR head SHA |
-| Push to `main` | SHA before the push | Pushed SHA |
-| Manual dispatch | `baseline_ref` input, default `main` | Selected workflow revision |
+Preflight freezes the previous published stable release's exact tag and SHA. Both
+libraries use that stable revision's same workload sources, build configuration
+and Ubuntu runner. All 16 Callgrind workloads run 2,000 iterations per revision,
+checking identical inputs and output checksums before comparing instruction counts.
+Seven alternating complete Google Benchmark runs record timing variation. The
+local helper's configurable 5% thresholds are not release policy: release changes
+are advisory, while missing or invalid measurements block publication.
 
-Both checkouts run on the same Ubuntu 24.04 worker. CI uses 2,000 Callgrind
-iterations and five native samples of 20,000 iterations per workload. Manual
-dispatch exposes the instruction percentage, absolute instruction and native
-timing thresholds; the command-line options above also configure iteration
-counts. The job publishes the Markdown report to the Actions summary and uploads
-JSON, metadata, raw profiles, native samples, logs and compilation settings even
-when the comparison fails. A failed or skipped comparison is explicitly marked
-in the summary and is not interpreted as a clean result.
+The release publishes `performance.json`, `performance.md` and
+`performance-data.tar.gz`, including raw profiles, benchmark samples, workload
+sources, logs and compilation metadata. Reports are bound to the candidate,
+baseline, repository, run and attempt, checksummed and attested. Previous release
+evidence remains unchanged; stable sources are remeasured beside each candidate
+so results from different runners are not treated as directly comparable.
 
-The independent `valgrind.yml` workflow uses the [Memcheck CI scope](#memcheck-ci-scope)
-described above. Its PR path filters cover native sources, tests, CMake and
-Memcheck tooling. Changes limited to Callgrind tooling or benchmarks do not
-trigger PR Memcheck.
+Memcheck remains separate from performance measurement and follows the
+[Memcheck CI scope](#memcheck-ci-scope) above.

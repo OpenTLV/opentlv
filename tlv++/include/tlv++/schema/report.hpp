@@ -12,8 +12,8 @@
  */
 namespace tlv {
 /** @brief Program-lifetime name of a Schema violation category. */
-inline const char* message(schema_issue kind) noexcept {
-    return tlv_schema_issue_kind_string(static_cast<tlv_schema_issue_kind_t>(kind));
+inline const char* message(schema_issue issue) noexcept {
+    return tlv_schema_issue_kind_string(static_cast<tlv_schema_issue_kind_t>(issue));
 }
 /**
  * @brief Copyable violation detail; identifiers and field names retain their borrowed lifetime.
@@ -110,7 +110,7 @@ public:
     }
 
 private:
-    explicit validation_issue(tlv_schema_diagnostic_t raw) noexcept : raw_(raw) {}
+    explicit validation_issue(const tlv_schema_diagnostic_t& raw) noexcept : raw_(raw) {}
     tlv_schema_diagnostic_t raw_;
     template <size_t> friend class validation_report;
 };
@@ -132,10 +132,10 @@ public:
      */
     static expected<checked_schema, error> prepare(schema definition) {
         checked_schema          result;
-        tlv_schema_diagnostic_t diagnostic{};
-        if (tlv_schema_prepare(&result.raw_, detail::schema_access::get(definition), &diagnostic) !=
-            TLV_OK)
-            return unexpected<error>(detail::error_access::schema(diagnostic));
+        tlv_schema_diagnostic_t failure_detail{};
+        if (tlv_schema_prepare(&result.raw_, detail::schema_access::get(definition),
+                               &failure_detail) != TLV_OK)
+            return unexpected<error>(detail::error_access::schema(failure_detail));
         return result;
     }
     /** @brief The checked borrowed Schema. */

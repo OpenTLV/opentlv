@@ -68,6 +68,8 @@ struct codec_failure {
     tlv_result_t           code;         /**< Original common result. */
     tlv_codec_diagnostic_t diagnostic{}; /**< Conversion operation, location and delegated cause. */
     /** @brief Construct a result-only conversion failure. */
+    // Intentional conversion keeps shared errc values usable as codec failures.
+    // cppcheck-suppress noExplicitConstructor
     codec_failure(errc value) noexcept : codec_failure(static_cast<tlv_result_t>(value)) {}
     /** @brief Preserve a native result with unknown cause/location. */
     explicit codec_failure(tlv_result_t value) noexcept : code(value) {
@@ -81,18 +83,26 @@ struct codec_failure {
         diagnostic.diagnostic.code = value;
     }
     /** @brief Operation attempted by this conversion. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     codec_phase phase() const noexcept {
         return static_cast<codec_phase>(diagnostic.codec.operation);
     }
     /** @brief Delegated diagnostic category. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     codec_cause cause() const noexcept {
         return static_cast<codec_cause>(diagnostic.codec.cause);
     }
     /** @brief Callback contract violation, if detected. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     codec_violation violation() const noexcept {
         return static_cast<codec_violation>(diagnostic.codec.violation);
     }
     /** @brief Why the conversion rejected its Value or object, if known. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     codec_reason reason() const noexcept {
         return static_cast<codec_reason>(diagnostic.codec.reason);
     }
@@ -105,6 +115,8 @@ struct codec_failure {
         return tlv_result_string(code);
     }
     /** @brief Project common metadata while this object retains complete typed evidence. */
+    // Reads this instance's native diagnostic, even in standalone header analysis.
+    // cppcheck-suppress functionStatic
     error failure() const noexcept {
         return detail::error_access::diagnostic(diagnostic.diagnostic, operation::codec);
     }
@@ -159,8 +171,8 @@ public:
      */
     template <typename T> expected<T, codec_failure> decode(bytes input) const {
         T    result{};
-        auto status = decode_into(input, span<T>(&result, 1));
-        if (!status) return unexpected<codec_failure>(status.error());
+        auto decoded = decode_into(input, span<T>(&result, 1));
+        if (!decoded) return unexpected<codec_failure>(decoded.error());
         return result;
     }
     /**

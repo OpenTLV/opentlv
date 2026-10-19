@@ -317,13 +317,14 @@ static tlv_result_t decode_relative_oid(const void* context, const uint8_t* data
 /* Writes one arc's minimal base-128 encoding; out may be NULL to only size it. */
 static size_t encode_oid_arc(uint64_t arc, uint8_t* out) {
     uint8_t groups[ASN1_OID_ARC_MAX_ENCODED_BYTES];
-    size_t n = 0, i;
+    size_t n = 0;
     do {
         groups[n++] = (uint8_t)(arc & 0x7F);
         arc >>= 7;
     } while (arc);
     if (out)
-        for (i = 0; i < n; ++i) out[i] = (uint8_t)(groups[n - 1 - i] | (i + 1 < n ? 0x80 : 0x00));
+        for (size_t i = 0; i < n; ++i)
+            out[i] = (uint8_t)(groups[n - 1 - i] | (i + 1 < n ? 0x80 : 0x00));
     return n;
 }
 

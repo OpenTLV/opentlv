@@ -245,10 +245,14 @@ public:
         return value_;
     }
     /** @brief Compare Tag and Value contents; source framing and location are excluded. */
+    // Preserve the public comparison signature for shallow borrowed semantic views.
+    // cppcheck-suppress passedByValue
     friend bool operator==(element_view lhs, element_view rhs) noexcept {
         return lhs.tag_ == rhs.tag_ && lhs.value_ == rhs.value_;
     }
     /** @brief Compare semantic contents for inequality. */
+    // Preserve the public comparison signature for shallow borrowed semantic views.
+    // cppcheck-suppress passedByValue
     friend bool operator!=(element_view lhs, element_view rhs) noexcept {
         return !(lhs == rhs);
     }
@@ -267,7 +271,7 @@ struct semantic_access {
     static value_view borrow(tlv_value_t raw) noexcept {
         return value_view(raw);
     }
-    static element_view borrow(tlv_element_t raw) noexcept {
+    static element_view borrow(const tlv_element_t& raw) noexcept {
         return {borrow(raw.tag), borrow(raw.value)};
     }
     static tlv_tag_t get(tlv::tag view) noexcept {
@@ -276,7 +280,7 @@ struct semantic_access {
     static tlv_value_t get(value_view view) noexcept {
         return view.raw_;
     }
-    static tlv_element_t get(element_view view) noexcept {
+    static tlv_element_t get(const element_view& view) noexcept {
         return {get(view.tag()), view.value().raw_};
     }
 };

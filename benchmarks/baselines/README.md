@@ -1,5 +1,12 @@
 # Benchmark baselines
 
+Release baselines are stored with each GitHub Release as the attested
+`performance.json`, `performance.md` and `performance-data.tar.gz` assets. Keep
+those version-associated records unchanged. Release Gate freezes a previous
+published stable tag/SHA and remeasures it beside the candidate with identical
+workloads and configuration; these local development baselines are not a substitute.
+See [release performance verification](../../docs/development/quality-gates.md#release-performance-verification).
+
 This directory contains deliberately selected benchmark results that serve as
 versioned reference data. Local and intermediate runs belong in
 `benchmarks/results/` and are not committed.

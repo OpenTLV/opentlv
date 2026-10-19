@@ -34,7 +34,6 @@ jobs:
   static:
     uses: ./.github/workflows/static-analysis.yml
     with:
-      full: ${{ inputs.full }}
       release_tag: ${{ inputs.release_tag }}
 
   consumers:
@@ -44,7 +43,7 @@ jobs:
       release_tag: ${{ inputs.release_tag }}
 
   codeql:
-    # Required by the main branch code-scanning rule in both tiers.
+    # Required before merging to main; also retained in the complete Full tier.
     uses: ./.github/workflows/codeql.yml
     with:
       full: ${{ inputs.full }}
@@ -112,10 +111,11 @@ jobs:
         env:
           CHECK_RESULTS: ${{ toJSON(needs) }}
           FULL: ${{ inputs.full }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: python -B scripts/core_release.py gate --output build/core-quality.json
       - uses: actions/upload-artifact@v4
         with:
-          name: core-quality-${{ inputs.full && 'full' || 'fast' }}-${{ github.sha }}-${{ github.run_attempt }}
+          name: core-quality-${{ inputs.full && 'full' || 'pr' }}-${{ github.sha }}-${{ github.run_attempt }}
           path: build/core-quality.json
           if-no-files-found: error
 

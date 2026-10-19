@@ -164,6 +164,8 @@ tlv_result_t tlv_query_plan_open(const void* image, size_t size,
         p->payload_size != size - offset - p->text_size - 1)
         goto invalid;
     if (!query_program_valid(p) || !plan_types(p)) goto invalid;
+    /* query_plan_supported folds to true in builds with all capabilities enabled. */
+    // cppcheck-suppress knownConditionTrueFalse
     if (!query_plan_supported(p))
         return query_error_unlocated(diagnostic, TLV_ERR_UNSUPPORTED, TLV_QUERY_ERROR_CAPABILITY,
                                      "available plan operation families");
