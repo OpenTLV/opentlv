@@ -52,7 +52,7 @@ jobs:
         uses: github/codeql-action/init@v3
         with:
           languages: cpp
-          # Fast uses the default suite; Full uses security-extended.
+          # PR CI uses the default suite; Full uses security-extended.
           queries: ${{ inputs.full && 'security-extended' || '' }}
 
       # A real build is required so CodeQL can trace the exact compiler

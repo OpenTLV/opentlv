@@ -20,7 +20,7 @@ on:
 permissions:
   contents: read
 
-# Fast runs Debug unit/integration tests. Full adds coverage, examples,
+# PR CI runs Debug unit/integration tests. Full adds coverage, examples,
 # Release and C-only configurations. Benchmarks remain advisory.
 concurrency:
   group: clang-${{ github.workflow }}-${{ github.ref }}

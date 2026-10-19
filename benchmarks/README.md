@@ -1,5 +1,13 @@
 # Local benchmarks
 
+Automatic benchmarks and Callgrind comparisons run only through
+[Core Release Gate](../docs/development/quality-gates.md#release-performance-verification).
+PR, Main and standalone Full CI do not measure performance. Release Gate compares
+the candidate with a frozen previous stable release on one runner, using identical
+workloads and configurations, and publishes checksummed, attested measurements.
+The local commands and deliberately selected development baselines below remain
+available independently.
+
 The `reader_decode/`, `tree_decode/`, and `document_decode/` families isolate the
 shared decode path from traversal and owned-tree allocation (#538). Their input
 bytes, Format configuration, and traversal/arena storage are prepared before the

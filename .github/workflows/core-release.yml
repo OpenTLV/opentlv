@@ -45,10 +45,50 @@ jobs:
       actions: read
       pull-requests: read
       security-events: write
-    uses: ./.github/workflows/core-checks.yml
+    uses: ./.github/workflows/core-full.yml
     with:
-      full: true
       release_tag: ${{ inputs.tag }}
+
+  performance:
+    needs: [candidate, full]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_attempt }}
+          path: build/candidate
+      - name: Install release performance tools
+        run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tools-18 ninja-build valgrind
+      - name: Compare identical workloads against the locked stable release
+        run: >-
+          python -B scripts/core_performance.py run
+          --candidate-record build/candidate/release-candidate.json
+          --output build/release-performance --cc clang-18 --cxx clang++-18 --jobs 2
+      - name: Publish advisory performance comparison
+        run: cat build/release-performance/performance.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/attest@v4
+        with:
+          subject-path: |
+            build/release-performance/performance.json
+            build/release-performance/performance.md
+            build/release-performance/performance-data.tar.gz
+          create-storage-record: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-performance-${{ github.run_attempt }}
+          path: |
+            build/release-performance/performance.json
+            build/release-performance/performance.md
+            build/release-performance/performance-data.tar.gz
+          if-no-files-found: error
 
   source:
     needs: full
@@ -150,7 +190,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    needs: [candidate, full, source, binaries]
+    needs: [candidate, full, performance, source, binaries]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -178,11 +218,15 @@ jobs:
           for id in linux-x64-static linux-x64-shared windows-x64-static windows-x64-shared; do
             cp "build/downloads/release-$id-$ATTEMPT/"* build/publish/
           done
-      - name: Recheck candidate and bind artifacts to Full CI
+          cp "build/downloads/release-performance-$ATTEMPT/"* build/publish/
+      - name: Recheck locked candidate and bind artifacts to Full CI and performance evidence
         env:
           GH_TOKEN: ${{ github.token }}
+          ATTEMPT: ${{ github.run_attempt }}
         run: |
-          python -B scripts/core_release.py preflight --output build/quality/release-candidate.json
+          python -B scripts/core_release.py preflight \
+            --locked-candidate "build/downloads/release-candidate-$ATTEMPT/release-candidate.json" \
+            --output build/quality/release-candidate.json
           python -B scripts/core_release.py manifest --output build/publish --quality build/quality/core-quality.json
       - name: Attest release manifest and checksums
         uses: actions/attest@v4
@@ -210,3 +254,23 @@ jobs:
           if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
           gh release create "$RELEASE_TAG" build/publish/* --verify-tag \
             --title "OpenTLV $RELEASE_TAG" --generate-notes "${flags[@]}"
+
+  timings:
+    name: Release CI timings
+    if: always()
+    needs: [candidate, full, performance, source, binaries, publish]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Measure the complete release attempt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -B scripts/ci_timings.py --scope run --output build/ci-timings.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-release-timings-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/ci-timings.json
+          if-no-files-found: error

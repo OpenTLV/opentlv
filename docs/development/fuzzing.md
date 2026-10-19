@@ -186,10 +186,9 @@ With `-runs=0`, libFuzzer replays the seed corpus without a mutation campaign.
 ## Reproduce and minimize a finding
 
 The reusable [C API Fuzzing](../../.github/workflows/fuzz.yml) workflow runs in
-[Core Full CI](quality-gates.md): main pushes, Sunday 02:17 UTC, manual Full CI
-and release verification. It also supports standalone manual diagnosis. Scheduled
-runs use the latest default-branch commit; the orchestrator must be merged first.
-Fuzzing stays outside Fast CI. It builds the C fuzz targets
+[Core Full CI](quality-gates.md): manual Full CI and release verification.
+It also supports standalone manual diagnosis. Fuzzing stays outside PR and Main
+CI. It builds the C fuzz targets
 in Debug mode, runs each configured CI target for approximately 60 seconds, fails on any
 target failure, and uploads per-target logs and reproducing inputs even when
 the run fails. A 20-minute step timeout bounds fuzz execution. This short

@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Separate Core Pull Request validation from lightweight Main integration checks and manual Full verification; require complete static analysis for PRs and release candidates, and run benchmarks/Callgrind only through Release Gate against a locked previous stable release with checksummed, attested performance evidence. (#637)
 - Require clang-tidy and cppcheck on every Linux Fast CI run before merge, rejecting failed or unexpectedly skipped checks; Full and release runs retain formatting/contract checks and CodeQL without repeating these two analyzers. (#637)
 - Separate Linux-only Core Fast CI from Full CI, retaining CodeQL in both; publish verified source and native binaries through a manual release gate with one `v`-prefixed tag input, a closed matching changelog, exact-commit verification, checksums and attestations, preserving version metadata in source archives. (#637)
 - Move the Lua API guide and implementation notes to [opentlv-lua](https://github.com/OpenTLV/opentlv-lua), updating Core documentation links and ownership inventories. (OpenTLV/opentlv-docs#27)
