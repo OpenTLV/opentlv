@@ -93,33 +93,25 @@ job when assessing CI duration.
 
 ## Memcheck CI scope
 
-The `valgrind.yml` workflow uses four build/test workers. Relevant PR changes
-run the shorter selection, retaining every case in the four C/C++ unit and
-integration GoogleTest binaries and the remaining native checks. The C and C++
-Query conformance matrices carry the `memcheck-full` label and run only in the
-full selection, as do generated-property matrices when registered. The CI build
-disables property tests. Standalone CLI validation belongs to `opentlv-cli`. Ordinary CTest
-still runs every registered test before Memcheck.
+The reusable `valgrind.yml` workflow uses four build/test workers and runs the
+complete native selection in [Core Full CI](quality-gates.md). Query conformance
+matrices labelled `memcheck-full` are included. The CI build disables property
+tests; standalone CLI validation belongs to `opentlv-cli`. Ordinary CTest runs
+every registered test before Memcheck. Only `no-memcheck` tests are excluded from
+instrumentation.
 
 | Trigger | Memcheck selection | Failure handling |
 | --- | --- | --- |
-| Relevant pull request | Shorter selection | Job fails on errors; check is not required for merging. |
-| Relevant PR with the `memcheck-full` label | Full suite | Job fails on errors; check is not required for merging. |
-| Weekly schedule, Sunday at 02:17 UTC | Full suite on the default branch (`main`) | Job fails on errors. |
-| Tag matching `v*` or `[0-9]*.[0-9]*.[0-9]*` | Full suite at the tag | Job fails on errors. |
-| Manual dispatch | Full suite at the selected revision | Job fails on errors. |
+| Fast CI / pull request | Not selected | Request Full CI manually when needed before merging. |
+| Main push or weekly Full CI, Sunday at 02:17 UTC | Full suite | Failure blocks Full CI. |
+| Unprefixed release tag | Full suite at the tag | Failure blocks publication. |
+| Manual Full CI | Full suite at the selected revision | Failure blocks Full CI. |
+| Manual worker dispatch | Full suite at the selected revision | Diagnostic run; does not independently authorize release. |
 
-Adding or removing the `memcheck-full` PR label reevaluates the selection.
-New runs cancel superseded runs for the same PR. Regular pushes to `main` do
-not start Memcheck; the weekly schedule checks the latest default-branch state.
-The scheduled workflow must exist on the default branch to run.
-
-Moving the conformance matrices to full runs leaves a detection delay for memory
-errors specific to those paths. Without a labeled PR, manual run or release tag,
-detection waits for the next weekly run, potentially a week plus scheduling
-delays. Use the PR label or a manual full run before merging changes that need
-that coverage. The shorter selection is not a substitute for full conformance
-coverage, and its duration must be measured independently.
+The `memcheck-full` PR label no longer controls CI selection. A manual Full CI
+run can validate a feature branch before merging. The scheduled orchestrator
+must exist on the default branch to run. Local shorter selections remain useful
+for diagnosis but do not replace complete release verification.
 
 ## Read a report
 

@@ -1,19 +1,21 @@
 name: C API Fuzzing
 
 on:
-  pull_request:
-    paths:
-      - 'tlv/**'
-      - 'tests/fuzz/query/**'
-      - 'tests/fuzz/CMakeLists.txt'
-      - '.github/workflows/fuzz.yml'
-  push:
-    branches: [main]
-    tags: ['[0-9]*.[0-9]*.[0-9]*']
-  schedule:
-    # Every Monday at 03:17 UTC, even without changes to main.
-    - cron: '17 3 * * 1'
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -25,6 +27,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Install Clang and sanitizer runtimes
         run: sudo apt-get update && sudo apt-get install -y clang-18 libclang-rt-18-dev llvm-18 ninja-build

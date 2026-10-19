@@ -1,11 +1,21 @@
 name: Query hardening
 on:
-  pull_request:
-    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/query-hardening.yml']
-  push:
-    branches: [main]
-    paths: ['tlv/**', 'tlv\+\+/**', 'tests/query/**', 'tests/unit/query/**', 'tests/fuzz/query/**', 'scripts/*query*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/query-hardening.yml']
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
+
 permissions:
   contents: read
 jobs:
@@ -13,6 +23,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
       - name: Configure full C and C++ contracts
         run: >-
@@ -34,21 +52,21 @@ jobs:
           python3 tests/query/generate_adversarial_plans.py --check
           python3 scripts/check_query_contracts.py --clang clang-18 --generated build/generated/include --output build/query-contracts.json
           python3 scripts/check_query_release.py --output build/query-release.json
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr test-query-adversarial test-query-equivalence --parallel 2
+      - run: cmake --build build --parallel 2
       - name: Audit production archive symbols and emitted call dependencies
         run: python3 scripts/check_query_objects.py --archive build/tlv/libtlv.a --output build/query-object-contracts.json
-      - name: Sanitized conformance, work limits and corruption regressions
+      - name: Sanitized Core suites, conformance and corruption regressions
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: |
-          ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
+          ctest --test-dir build --output-on-failure --no-tests=error --parallel 2
           python3 tests/query/adversarial_campaign.py --native build/tests/query/test-query-adversarial --equivalence build/tests/query/test-query-equivalence --commit '${{ github.sha }}' --output build/query-adversarial
           python3 tests/query/run.py --native build/tests/query/test-query-conformance --commit '${{ github.sha }}' --property-cases 32 --evidence build/query-evidence
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: query-hardening-${{ github.sha }}
+          name: query-hardening-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             build/query-contracts.json
             build/query-object-contracts.json
@@ -60,6 +78,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - run: sudo apt-get update && sudo apt-get install -y clang-18 g++-multilib ninja-build
       - name: Configure native x86 resource and ABI contracts
         run: >-
@@ -78,7 +104,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: query-boundaries-x86-${{ github.sha }}
+          name: query-boundaries-x86-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             build/query-abi32.json
             build/Testing/Temporary/LastTest.log
@@ -86,6 +112,14 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
       - name: Build the complete C core with MemorySanitizer
         run: |
@@ -112,7 +146,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: query-memory-${{ github.sha }}
+          name: query-memory-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             build/query-memory-driver.c
             build/query-memory-evidence/
@@ -127,6 +161,14 @@ jobs:
         cxx: ['ON', 'OFF']
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
       - name: Configure C-only plans
         run: >-

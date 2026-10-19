@@ -1,0 +1,140 @@
+name: Core checks
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+  security-events: write
+
+jobs:
+  clang:
+    uses: ./.github/workflows/build-clang.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  msvc:
+    if: inputs.full
+    uses: ./.github/workflows/build-msvc.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  static:
+    uses: ./.github/workflows/static-analysis.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  consumers:
+    uses: ./.github/workflows/cmake-consumers.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  codeql:
+    # Required by the main branch code-scanning rule in both tiers.
+    uses: ./.github/workflows/codeql.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  gcc:
+    if: inputs.full
+    uses: ./.github/workflows/build-gcc.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  properties:
+    if: inputs.full
+    uses: ./.github/workflows/property.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  query:
+    if: inputs.full
+    uses: ./.github/workflows/query-hardening.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  fuzz:
+    if: inputs.full
+    uses: ./.github/workflows/fuzz.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  capabilities:
+    if: inputs.full
+    uses: ./.github/workflows/capabilities.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  abi:
+    if: inputs.full
+    uses: ./.github/workflows/abi.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  memcheck:
+    if: inputs.full
+    uses: ./.github/workflows/valgrind.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
+  gate:
+    name: Core quality gate
+    if: always()
+    needs: [clang, msvc, static, consumers, codeql, gcc, properties, query, fuzz, capabilities, abi, memcheck]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Require every selected check and record exact revision
+        env:
+          CHECK_RESULTS: ${{ toJSON(needs) }}
+          FULL: ${{ inputs.full }}
+        run: python -B scripts/core_release.py gate --output build/core-quality.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-quality-${{ inputs.full && 'full' || 'fast' }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/core-quality.json
+          if-no-files-found: error
+
+  timings:
+    name: Core CI timings
+    needs: gate
+    if: always()
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: Measure this attempt after checks finish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -B scripts/ci_timings.py --output build/ci-timings.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: core-timings-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/ci-timings.json
+          if-no-files-found: error

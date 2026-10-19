@@ -1,0 +1,212 @@
+name: Core Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (v0.1.0 or v0.1.0-rc.1); changelog must be closed
+        required: true
+        type: string
+
+env:
+  RELEASE_TAG: ${{ inputs.tag }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: core-release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Validate version, closed changelog, main ancestry and Query prerequisites
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python -B scripts/core_release.py preflight --output build/release-candidate.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-candidate-${{ github.run_attempt }}
+          path: build/release-candidate.json
+          if-no-files-found: error
+
+  full:
+    needs: candidate
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+      security-events: write
+    uses: ./.github/workflows/core-checks.yml
+    with:
+      full: true
+      release_tag: ${{ inputs.tag }}
+
+  source:
+    needs: full
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Assemble exact source revision
+        run: |
+          python -B scripts/core_release.py prepare
+          python -B scripts/core_release.py source --output build/release-source
+      - name: Build extracted source without Git metadata
+        run: |
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          mkdir -p "$RUNNER_TEMP/core-source"
+          tar -xzf build/release-source/*.tar.gz -C "$RUNNER_TEMP/core-source"
+          source_dir="$RUNNER_TEMP/core-source/OpenTLV-$RELEASE_VERSION"
+          cmake -S "$source_dir" -B "$RUNNER_TEMP/source-build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release -DOPENTLV_BUILD_TESTS=OFF \
+            -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_EXAMPLES=ON
+          cmake --build "$RUNNER_TEMP/source-build" --parallel 2
+          "$RUNNER_TEMP/source-build/examples/tlv/example-tlv-quick-start"
+      - uses: actions/attest@v4
+        with:
+          subject-path: build/release-source/*
+          create-storage-record: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-source-${{ github.run_attempt }}
+          path: build/release-source/*
+          if-no-files-found: error
+
+  binaries:
+    needs: full
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            id: linux-x64-static
+            shared: 'OFF'
+          - os: ubuntu-24.04
+            id: linux-x64-shared
+            shared: 'ON'
+          - os: windows-2022
+            id: windows-x64-static
+            shared: 'OFF'
+          - os: windows-2022
+            id: windows-x64-shared
+            shared: 'ON'
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Apply proposed release version locally
+        run: python -B scripts/core_release.py prepare
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: x64
+      - name: Configure approved Release binary
+        run: >-
+          cmake -S . -B build/release -G Ninja
+          -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=11
+          -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
+          -DOPENTLV_BUILD_SHARED_LIBS=${{ matrix.shared }}
+          -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
+          -DOPENTLV_BUILD_PROPERTY_TESTS=OFF -DOPENTLV_BUILD_BENCHMARKS=OFF
+      - run: cmake --build build/release --parallel 2
+      - name: Test the libraries that will be packaged
+        run: ctest --test-dir build/release --output-on-failure --no-tests=error --parallel 2
+      - name: Verify installation, archive contents and relocated consumers
+        run: python -B scripts/check_package.py build/release
+      - name: Record binary configuration and checksum
+        run: >-
+          python -B scripts/core_release.py binary --build build/release
+          --id ${{ matrix.id }} --output build/release-binary
+      - uses: actions/attest@v4
+        with:
+          subject-path: build/release-binary/*
+          create-storage-record: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.id }}-${{ github.run_attempt }}
+          path: build/release-binary/*
+          if-no-files-found: error
+
+  publish:
+    needs: [candidate, full, source, binaries]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*-${{ github.run_attempt }}
+          path: build/downloads
+      - uses: actions/download-artifact@v4
+        with:
+          name: core-quality-full-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/quality
+      - name: Collect only the approved artifact set
+        env:
+          ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          mkdir -p build/publish
+          cp "build/downloads/release-source-$ATTEMPT/"* build/publish/
+          for id in linux-x64-static linux-x64-shared windows-x64-static windows-x64-shared; do
+            cp "build/downloads/release-$id-$ATTEMPT/"* build/publish/
+          done
+      - name: Recheck candidate and bind artifacts to Full CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python -B scripts/core_release.py preflight --output build/quality/release-candidate.json
+          python -B scripts/core_release.py manifest --output build/publish --quality build/quality/core-quality.json
+      - name: Attest release manifest and checksums
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            build/publish/release-manifest.json
+            build/publish/SHA256SUMS
+          create-storage-record: false
+      - name: Verify producer attestations before publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        run: |
+          for artifact in build/publish/*; do
+            gh attestation verify "$artifact" --repo "$GITHUB_REPOSITORY" \
+              --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/core-release.yml" \
+              --source-digest "$RELEASE_SHA"
+          done
+      - name: Publish once, without replacing existing release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git push origin "$GITHUB_SHA:refs/tags/$RELEASE_TAG"
+          flags=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$RELEASE_TAG" build/publish/* --verify-tag \
+            --title "OpenTLV $RELEASE_TAG" --generate-notes "${flags[@]}"

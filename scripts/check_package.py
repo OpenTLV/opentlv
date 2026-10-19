@@ -154,6 +154,20 @@ add_test(NAME consumer_cpp COMMAND consumer_cpp)
 '''
         else:
             cmake += 'if(TARGET OpenTLV::tlv++)\nmessage(FATAL_ERROR "Unexpected C++ target")\nendif()\n'
+        # Windows does not search the relocated package's bin directory when
+        # starting a consumer. Copy the imported DLL beside each test executable.
+        cmake += '''get_target_property(core_type OpenTLV::tlv TYPE)
+if(WIN32 AND core_type STREQUAL "SHARED_LIBRARY")
+    foreach(consumer_target consumer consumer_cpp)
+        if(TARGET ${consumer_target})
+            add_custom_command(TARGET ${consumer_target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE:OpenTLV::tlv>" "$<TARGET_FILE_DIR:${consumer_target}>"
+                VERBATIM)
+        endif()
+    endforeach()
+endif()
+'''
         (consumer / "CMakeLists.txt").write_text(cmake, encoding="utf-8")
         configure = ["cmake", "-S", str(consumer), "-B", str(consumer / "build"),
                      "-G", cache["CMAKE_GENERATOR"], f"-DEXPECTED_PACKAGE_DIR={package_dir.as_posix()}",

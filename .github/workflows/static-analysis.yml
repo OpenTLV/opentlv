@@ -1,19 +1,29 @@
 name: Static Analysis
 
 on:
-  push:
-    branches: [main]
-    tags: ['[0-9]*.[0-9]*.[0-9]*']
-  pull_request:
-    branches: [main]
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
-# Pull requests run pre-commit and clang-tidy (the latter only when C or C++
-# sources or the build change). cppcheck runs on pushes to main and on tags.
+# Fast runs pre-commit and clang-tidy for native/build changes. Full also runs cppcheck
+# and never filters out native static analysis.
 concurrency:
-  group: static-analysis-${{ github.ref }}
+  group: static-analysis-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -25,6 +35,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       # Runs the same hooks, at the same pinned versions, as
       # .pre-commit-config.yaml: clang-format plus the whitespace/YAML/
@@ -43,13 +61,15 @@ jobs:
           python scripts/test_diagnostic_returns.py
           python scripts/check_diagnostic_returns.py
           python scripts/generate_diagnostic_vocabulary.py --check
+      - name: Test CI and release contracts
+        run: python -B scripts/test_core_release.py
       - uses: pre-commit/action@v3.0.1
 
   cppcheck:
     permissions:
       contents: read
     name: cppcheck
-    if: github.event_name != 'pull_request'
+    if: inputs.full
     runs-on: ubuntu-24.04
     # ubuntu-24.04's apt package (2.13.0) predates this pin; built from
     # source since upstream only publishes a Windows installer, not a Linux
@@ -59,6 +79,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Install Ninja
         run: sudo apt-get update && sudo apt-get install -y ninja-build
@@ -89,9 +117,12 @@ jobs:
           cmake -S . -B build -G Ninja
           -DCMAKE_BUILD_TYPE=Debug
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
+          -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
 
       - name: Run cppcheck
-        run: cmake --build build --target cppcheck 2>&1 | tee "$RUNNER_TEMP/cppcheck.log"
+        run: |
+          set -o pipefail
+          cmake --build build --target cppcheck 2>&1 | tee "$RUNNER_TEMP/cppcheck.log"
 
       - name: Summarize cppcheck findings
         if: always()
@@ -105,13 +136,22 @@ jobs:
     name: detect changed components
     runs-on: ubuntu-24.04
     outputs:
-      native: ${{ github.event_name != 'pull_request' || steps.filter.outputs.native }}
+      native: ${{ inputs.full || github.event_name != 'pull_request' || steps.filter.outputs.native }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - uses: dorny/paths-filter@v3
         id: filter
+        if: github.event_name == 'pull_request' && !inputs.full
         with:
           filters: |
             native:
@@ -122,7 +162,8 @@ jobs:
               - 'cmake/**'
               - '**/CMakeLists.txt'
               - '.clang-tidy'
-              - '.github/workflows/static-analysis.yml'
+              - '.github/workflows/**'
+              - 'scripts/**'
 
   clang-tidy:
     permissions:
@@ -137,6 +178,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
 
       - name: Install Clang and Ninja
         run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tidy-18 ninja-build
@@ -152,9 +201,13 @@ jobs:
           -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
           -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF
           -DCMAKE_CXX_STANDARD=23 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+          -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
+          -DOPENTLV_BUILD_QUERY_TESTS=OFF -DOPENTLV_BUILD_PROPERTY_TESTS=OFF
 
       - name: Run clang-tidy
-        run: cmake --build build --target clang-tidy 2>&1 | tee "$RUNNER_TEMP/clang-tidy.log"
+        run: |
+          set -o pipefail
+          cmake --build build --target clang-tidy 2>&1 | tee "$RUNNER_TEMP/clang-tidy.log"
 
       - name: Summarize clang-tidy findings
         if: always()

@@ -1,38 +1,42 @@
 name: Valgrind Memcheck
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
-    paths: ['tlv/**', 'tlv\+\+/**', 'tests/**', 'scripts/*memcheck*', 'CMakeLists.txt', 'cmake/**', '.github/workflows/valgrind.yml']
-  push:
-    # Include both the requested v* tags and the repository's X.Y.Z releases.
-    tags: ['v*', '[0-9]*.[0-9]*.[0-9]*']
-  schedule:
-    # Every Sunday at 02:17 UTC on the default branch (main).
-    - cron: '17 2 * * 0'
+  workflow_call:
+    inputs:
+      release_tag:
+        description: Private candidate tag supplied only by the release orchestrator
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      full:
+        description: Run the complete configuration matrix
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 jobs:
   memcheck:
-    # Other label changes must neither start tests nor cancel an active check.
-    if: >-
-      (github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
-      github.event.label.name == 'memcheck-full'
-    name: Memcheck (${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'memcheck-full')) && 'full' || 'quick' }})
+    name: Memcheck (full)
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'memcheck-full')) && 90 || 20 }}
-    # Job-level concurrency keeps skipped, unrelated label events out of the group.
-    concurrency:
-      group: memcheck-${{ github.ref }}
-      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-    # Keep failures visible, but do not require this optional check in branch rules.
+    timeout-minutes: 90
     env:
-      MEMCHECK_EXCLUDE_LABELS: ${{ (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'memcheck-full')) && 'no-memcheck' || 'no-memcheck|memcheck-full' }}
+      MEMCHECK_EXCLUDE_LABELS: no-memcheck
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+
       - name: Install tools
         run: sudo apt-get update && sudo apt-get install -y gcc g++ cmake ninja-build valgrind python3
       - name: Configure plain GCC Debug build
@@ -54,6 +58,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: valgrind-${{ github.sha }}
+          name: valgrind-${{ github.sha }}-${{ github.run_attempt }}
           path: build/valgrind/Testing/
           if-no-files-found: warn

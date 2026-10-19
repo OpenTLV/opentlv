@@ -43,10 +43,10 @@ Adding a new exported function is compatible.
 
 ## CI behavior
 
-- The job runs for pull requests that touch `tlv/`, `cmake/`, a
-  `CMakeLists.txt` or the ABI scripts. Documentation-only changes skip it.
+- The reusable job runs in [Core Full CI](quality-gates.md) and release
+  verification without path filters, or by manual dispatch. Fast CI omits it.
 - The log shows a summary and the affected symbols and types. The full report
-  is stored as the `abi-report` artifact.
+  is stored as the `abi-report-<attempt>` artifact.
 - Before 1.0.0 an incompatible change is reported as a warning and does not
   fail the job, because the API is still allowed to change. From 1.0.0 it
   fails the job.

@@ -41,12 +41,13 @@ class CheckError(Exception):
 def current_major():
     """Major version of the newest stable tag reachable from HEAD (0 if none)."""
     result = subprocess.run(
-        ["git", "-C", str(REPO_ROOT), "tag", "--list", "[0-9]*", "--merged", "HEAD",
+        ["git", "-C", str(REPO_ROOT), "tag", "--list", "v[0-9]*", "[0-9]*", "--merged", "HEAD",
          "--sort=-version:refname"],
         capture_output=True, text=True, check=False,
     )
-    tags = [tag for tag in result.stdout.split() if "-" not in tag]
-    return int(tags[0].split(".")[0]) if tags else 0
+    versions = [tuple(map(int, tag.removeprefix("v").split(".")))
+                for tag in result.stdout.split() if re.fullmatch(r"v?[0-9]+\.[0-9]+\.[0-9]+", tag)]
+    return max(versions)[0] if versions else 0
 
 
 def run(*args, **kwargs):

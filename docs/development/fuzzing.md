@@ -185,14 +185,14 @@ With `-runs=0`, libFuzzer replays the seed corpus without a mutation campaign.
 
 ## Reproduce and minimize a finding
 
-The [C API Fuzzing](../../.github/workflows/fuzz.yml) workflow runs on pushes to
-`main` (including merged pull requests), every Monday at 03:17 UTC even without
-new commits, and manually through `workflow_dispatch`. Scheduled runs use the
-latest commit on the default branch; the workflow must be merged there first.
-Fuzzing runs separately from pull-request builds. It builds the C fuzz targets
+The reusable [C API Fuzzing](../../.github/workflows/fuzz.yml) workflow runs in
+[Core Full CI](quality-gates.md): main pushes, Sunday 02:17 UTC, manual Full CI
+and release verification. It also supports standalone manual diagnosis. Scheduled
+runs use the latest default-branch commit; the orchestrator must be merged first.
+Fuzzing stays outside Fast CI. It builds the C fuzz targets
 in Debug mode, runs each configured CI target for approximately 60 seconds, fails on any
 target failure, and uploads per-target logs and reproducing inputs even when
-the run fails. A 15-minute step timeout bounds fuzz execution. This short
+the run fails. A 20-minute step timeout bounds fuzz execution. This short
 campaign is a smoke check, not exhaustive validation. CI caches `build/fuzz/corpus`
 across runs (`actions/cache`, restored before the fuzz build and saved after
 it), so each run's 60 seconds builds on inputs the previous run discovered

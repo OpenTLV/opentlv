@@ -23,7 +23,7 @@ TEST(Unit_Tlv_Version, ExposesBuildSystemVersion) {
     EXPECT_EQ(expected, OPENTLV_VERSION_STRING);
     EXPECT_FALSE(std::string(OPENTLV_GIT_COMMIT_HASH).empty());
     EXPECT_FALSE(std::string(OPENTLV_GIT_BRANCH).empty());
-    EXPECT_EQ(core_version + "-" + OPENTLV_TEST_STRINGIFY(OPENTLV_VERSION_REVISION) + "-" +
+    EXPECT_EQ(expected + "-" + OPENTLV_TEST_STRINGIFY(OPENTLV_VERSION_REVISION) + "-" +
                   OPENTLV_GIT_COMMIT_HASH,
               OPENTLV_GIT_REPO_VERSION);
 }
