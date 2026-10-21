@@ -111,7 +111,7 @@ OpenTLV
 ├── Generic core formats and extension mechanisms
 │   ├── [x] Configurable fixed-width (C and C++)
 │   ├── [x] Application-defined callbacks
-│   └── [ ] Variable format (planned generic core format)
+│   └── [x] Configurable variable-width format
 │
 ├── Implemented built-in standards
 │   ├── [x] Bluetooth (LTV, containers, definitions, schemas, codecs)
