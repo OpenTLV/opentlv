@@ -25,7 +25,8 @@ Lua API, implementation, setup and test documentation belong to
 C++ remains part of Core. Rust documentation will move with its implementation
 to `OpenTLV/opentlv-rust`. Canonical Python documentation lives in
 `OpenTLV/opentlv-python`; the Core Python guide and developer landing page
-remain transitional until the portal source cutover.
+remain retained migration context after the portal source cutover. Current
+Python instructions belong to the standalone source selected by the portal.
 Lua's API, implementation, build and test documentation is maintained in
 `OpenTLV/opentlv-lua`.
 CLI documentation is maintained in `OpenTLV/opentlv-cli`.
@@ -44,6 +45,11 @@ unrelated binding changes, a checkout of the portal, or successful portal
 publication. Binding and tool releases remain independent of Core releases.
 
 ## CLI extraction and portal source update
+
+The CLI source cutover is complete. The portal now selects Core and CLI
+independently in `docs-sources.json`; its navigation routes their assembled
+source paths. The procedure below records the original coordinated cutover,
+not a pending prerequisite for current Core work.
 
 Core no longer supplies `docs/cli/`, `tools/cli/` or the CLI Query runner.
 The standalone CLI owns its command manual, JSON schema, acceptance suites and
@@ -85,9 +91,9 @@ For a mixed page, ownership applies to sections and examples as well as files:
 - `guides/examples.md` retains native example coverage in Core. Binding example
   inventories follow their components; the combined index belongs to the portal.
 - Core guides and Getting Started retain shared explanations and C/C++ usage.
-  Existing binding tabs stay synchronized with the current binding sources until
-  component extraction. Later portal assembly integrates tested examples from
-  their owners; implementing that mechanism is outside #605.
+  In-tree binding examples remain synchronized with their local sources.
+  Standalone binding owners maintain their examples; portal example slots
+  integrate selected source-backed examples without editing the Core checkout.
 - `development/workflow.md` and the Query verification pages retain Core checks
   and evidence. Binding/CLI checks follow their owners; future ecosystem
   compatibility orchestration must not become a Core release prerequisite.
@@ -95,10 +101,10 @@ For a mixed page, ownership applies to sections and examples as well as files:
   historical audit record. Site presentation, global navigation, mike deployment
   instructions and cross-component conventions follow the portal.
 
-Temporary co-location does not transfer ownership. Existing monorepository
-checks still run during the transition. They must be separated by responsibility
-as the affected components move; do not silently skip missing sources or retain
-mandatory consumer checkouts in Core CI.
+Temporary co-location does not transfer ownership. Core checks cover native
+and remaining in-tree sources; standalone components run their own checks.
+Do not silently skip missing sources or require standalone consumer checkouts
+in Core CI.
 
 ## Page inventory
 
@@ -110,7 +116,7 @@ structure; this table records ownership rather than replacing that audit.
 | Source page | Owner | Disposition / boundary |
 | --- | --- | --- |
 | [README.md](../README.md) | Core | Keep: repository documentation entry point |
-| [index.md](../index.md) | Portal | Portal: unified user landing page; retain a Core entry point when moved |
+| [index.md](../index.md) | Core | Keep: Core source index; the portal owns its separate website homepage |
 | [assets/README.md](../assets/README.md) | Core / Portal | Retained Core README logo; shared site variants are maintained in the portal |
 | [cli/README.md](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md) | CLI | External: `opentlv-cli/docs/README.md` |
 | [cli/json-schema.md](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/json-schema.md) | CLI | External: `opentlv-cli/docs/json-schema.md` |
@@ -225,9 +231,9 @@ API generation inputs and portal code.
 
 ## Links crossing future repository boundaries
 
-These links are mostly repository-relative today. They become cross-repository
-links as owners migrate; preserve the relationship and fragment, not an assumed
-single-repository base URL.
+CLI, Lua and Python links now cross repository boundaries. Further binding
+extractions follow the same rule: preserve the relationship and fragment, not
+an assumed single-repository base URL.
 
 | Current source / link family | Target and migration responsibility |
 | --- | --- |
@@ -240,9 +246,11 @@ single-repository base URL.
 | Portal `mkdocs.yml`, source hooks and theme links | The portal selects the owning repository and revision for each source; Core has no site configuration |
 | `development/workflow.md`, documentation layout, `CONTRIBUTING.md` and `.github/workflows/docs-validation.yml` | Core validation and API artifacts remain independent; portal build/publication commands live in the portal README |
 
-Keep published page paths and heading anchors where practical. Before moving a
-source, find inbound links in docs, headers, component READMEs and contributor
-files. Record changed paths and redirects where needed; do not remove content
+Preserve source links and heading anchors where practical. Portal output routes
+are owned by the portal; moved URLs in the seven-section transition have no
+redirects. Before moving a source, find inbound links in docs, headers, component READMEs and contributor
+files. Record changed paths and apply the portal
+[URL policy](https://github.com/OpenTLV/opentlv-docs/blob/main/DOCUMENTATION-MIGRATION.md); do not remove content
 because the current portal does not yet consume it. A successful site build does
 not prove remote links or their release-specific fragments exist.
 
@@ -255,20 +263,29 @@ sources without modifying the Core checkout or requiring optional consumers for
 Core-only documentation. Local multi-root development may use the sibling Core
 checkout, but must distinguish local changes from a reproducible release build.
 
-Preserve relative page paths and anchors in assembled Core content. Resolve
-source and edit links against that page's owning repository and selected
+Preserve Core source identities and anchors when assembling content. The portal
+may route those sources to different output paths without changing their owner.
+Resolve source and edit links against that page's owning repository and selected
 revision, including links outside `docs/`. Keep generated C and C++ references
 from the same Core revision and preserve their sibling layout and cross-links.
 Use the existing MkDocs Material rendering conventions for current pages.
 
 The current tree still contains the explicit Component, Portal and Mixed
 exceptions above; it is not a finished Core-only export. Their inventory tells
-the extraction work which sources to retain, separate or move. This issue does
-not define an assembly engine, component version manifest, compatibility service
-or new publication workflow. Those belong to subsequent epic work. Remove the
-old portal infrastructure only after its replacement has been validated.
+the extraction work which sources to retain, separate or move. Core does not own
+the assembly engine, component version manifest, compatibility service or
+publication workflow. Their current implementation and operating
+instructions belong to the portal.
 
 ## Cutover for issue #608
+
+The following procedure and URL table are historical evidence of the initial
+portal extraction, including its later playground handoff. Core no longer owns
+site publication or browser UI sources. The current
+[portal instructions](https://github.com/OpenTLV/opentlv-docs)
+and [presentation conventions](https://github.com/OpenTLV/opentlv-docs/blob/main/docs/development/documentation.md)
+supersede these deployment steps and output-URL assumptions. Retain existing
+release snapshots unchanged.
 
 The cleanup is prepared across Core and
 [`OpenTLV/opentlv-docs`](https://github.com/OpenTLV/opentlv-docs). Do not merge the
@@ -347,10 +364,10 @@ The historical playground and its version history remain unchanged.
 4. Update native support/build/example inventories when applicable. A Core-only
    change does not imply binding parity and must not fabricate binding examples
    or require unrelated binding implementation changes.
-5. Run the relevant source/example inventory checks and Markdown lint. During
-   this transition also follow the existing strict-site validation instructions;
-   when the portal moves, site assembly/publication checks belong to its CI,
-   while Core retains checks of its own sources and API generation.
+5. Run the relevant Core source/example inventory checks and Markdown lint.
+   Portal assembly/publication checks belong to its CI; Core retains independent
+   checks of its own sources and API generation. Validate affected portal links
+   using its local preview when presentation destinations change.
 
 Continue with the [contribution workflow](../../CONTRIBUTING.md) for commands and
 the [extraction epic](https://github.com/OpenTLV/opentlv/issues/603) for migration

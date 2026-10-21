@@ -14,11 +14,12 @@ For documentation changes, first follow the
 [ownership rules](docs/development/documentation-ownership.md) and then the
 [progressive learning conventions](docs/development/documentation-layout.md#progressive-learning-conventions).
 Document new Core functionality alongside its implementation, public API comments
-and native examples. Bindings and tools own their documentation; their current
-co-location in Core is an explicit transitional exception. Portal assembly and
-publication belong to `opentlv-docs`; the existing pipeline stays in place until
-its replacement is validated. Core-only changes do not require unrelated binding
-updates.
+and native examples. CLI, Lua and Python maintain their documentation in
+`opentlv-cli`, `opentlv-lua` and `opentlv-python`. Rust, Go and WebAssembly
+remain in Core while their implementations are hosted here. Portal assembly,
+navigation and publication belong to `opentlv-docs`; follow its
+[portal conventions](https://github.com/OpenTLV/opentlv-docs/blob/main/docs/development/documentation.md).
+Core-only changes do not require unrelated binding updates.
 User onboarding starts at the [documentation homepage](docs/index.md); developer
 onboarding continues with [the development workflow](docs/development/workflow.md).
 
@@ -213,7 +214,7 @@ siblings so links to C declarations work after extraction. Keep that layout
 when copying the references.
 
 The [standalone portal](https://github.com/OpenTLV/opentlv-docs) generates and
-embeds both trees under `reference/api/`. Its README describes local previews
+embeds both trees under `api/reference/`. Its README describes local previews
 and verified external API artifacts. Core generation works without MkDocs or a
 portal checkout. Link to API pages through the [C](docs/reference/c-api.md) and
 [C++](docs/reference/cxx-api.md) entry pages, which also work on GitHub.
@@ -363,13 +364,14 @@ the selected Core revision. This validation does not require binding builds.
 
 ### Publishing
 
-The [portal workflow](https://github.com/OpenTLV/opentlv-docs/actions/workflows/docs.yml)
-publishes to <https://opentlv.github.io/opentlv-docs/>. A portal push updates
-`latest` from its pinned Core revision. Release publication is requested in the
-portal using a Core release tag; it retains full `X.Y.Z` versions and selects
-the newest release as `stable`. Core tags and releases do not trigger or wait
-for portal publication.
+The portal owns publishing to <https://opentlv.github.io/opentlv-docs/> and
+its version-selection policy. Its [publication and source-update instructions](https://github.com/OpenTLV/opentlv-docs#automated-ecosystem-updates)
+are the current authority for reviewed source pins and release publication.
+Core [notifies the portal](.github/workflows/docs-notify.yml) after successful
+`main` or stable-tag WebAssembly push builds. A main notification requests a
+reviewed source update; a stable-tag notification starts portal release validation. Neither proves deployment or
+makes Core release success depend on the portal.
 
 The [cutover procedure](docs/development/documentation-ownership.md#cutover-for-issue-608)
-records deployment prerequisites, historical URL preservation, remaining
-playground integration and the order of changes across both repositories.
+is retained as the historical initial migration record, including archival URL
+preservation. Use the portal instructions for current publication work.

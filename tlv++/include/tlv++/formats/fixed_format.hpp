@@ -61,7 +61,7 @@ namespace tlv {
  *
  * @note Uses the always-available canonical C Fixed format implementation.
  * @see runtime_fixed_format for widths and policies selected at runtime.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see @docs{api/guides/memory,format context ownership and lifetime}
  */
 template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order = byte_order::big_endian>
 class fixed_format : public tlv::format {

@@ -112,7 +112,7 @@ TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_f
  * Returned elements and sources do not borrow the cursor itself. Advancing or
  * reinitializing it does not invalidate them; their input and format-supplied
  * identifier storage must remain alive and unchanged while results are used.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see @docs{api/guides/memory,format context ownership and lifetime}
  */
 typedef struct tlv_reader {
     /** Borrowed reader format. */

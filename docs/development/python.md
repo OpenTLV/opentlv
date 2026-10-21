@@ -56,5 +56,7 @@ The [frozen migration inventory](https://github.com/OpenTLV/opentlv-python/blob/
 records Core commit `5e0aae9c77e9c22d07c7f03d6110243e9ecad85f`, including all
 71 original Python subtree files and the migrated Query facade runner.
 The workspace supplies `opentlv-python` as a sibling checkout. Canonical Python
-guides now live there; this landing page and the transitional Core user guide
-preserve links until the documentation portal switches its Python source.
+guides now live there, and the portal consumes that standalone source. This
+Core landing page records native integration and the retained migration context.
+The transitional Core user guide remains available for existing source links;
+use the standalone guide for maintained Python instructions.

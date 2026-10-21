@@ -611,7 +611,7 @@ inline const_node_range const_node::children() const {
 
 /**
  * @brief Format and runtime resource limits of a #tlv::document.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see @docs{api/guides/memory,format context ownership and lifetime}
  */
 struct document_format {
     /**
@@ -664,7 +664,7 @@ public:
  * even const Node access may update a handle's validity cache after a mutation.
  * @warning The format callbacks' contexts are borrowed and must outlive the document.
  * Documents returned by document_builder also borrow the reader's Format descriptor.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see @docs{api/guides/memory,format context ownership and lifetime}
  */
 class document {
 public:

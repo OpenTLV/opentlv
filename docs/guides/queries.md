@@ -477,7 +477,7 @@ if label is not None:
     value = bytes(label.value)  # owned snapshot
 ```
 
-No match is `None`; malformed query text raises `opentlv.InvalidSyntaxError`. [Runnable query example](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/query.py).
+No match is `None`; malformed query text raises `opentlv.InvalidSyntaxError`. [Runnable query example](https://github.com/OpenTLV/opentlv-python/blob/main/examples/query.py).
 
 ///
 

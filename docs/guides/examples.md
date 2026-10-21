@@ -44,7 +44,7 @@ See the [binding matrix](../concepts/bindings.md) for actual capability coverage
 
 The [quick start](../getting-started/README.md#quick-start) supplies setup and
 run commands. Use the [C++ guide](cxx-examples.md) and the language guides for
-[Rust](rust.md), [Python](python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](go.md).
+[Rust](rust.md), [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](go.md).
 C/C++ sources are registered by their example CMake files and run as CTest
 examples when their components are enabled. Component prerequisites can omit
 individual programs; compiling a minimal build does not exercise disabled formats.
@@ -116,14 +116,14 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | Rust | [validate.rs](../../bindings/rust/opentlv/examples/validate.rs) | Schema / validation |
 | Rust | [write.rs](../../bindings/rust/opentlv/examples/write.rs) | Nested construction |
 | Rust | [writer.rs](../../bindings/rust/opentlv/examples/writer.rs) | Sequential Writer |
-| Python | [codec.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/codec.py) | Typed Value codecs |
-| Python | [document.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/document.py) | Owned Document / traversal |
-| Python | [parse.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/parse.py) | Nested parsing / traversal |
-| Python | [query.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/query.py) | Path Query |
-| Python | [quick_start.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/quick_start.py) | Quick start / round trip |
-| Python | [validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/validate.py) | Schema / validation |
-| Python | [write.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/write.py) | Nested construction |
-| Python | [writer.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/writer.py) | Sequential Writer |
+| Python | [codec.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/codec.py) | Typed Value codecs |
+| Python | [document.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/document.py) | Owned Document / traversal |
+| Python | [parse.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/parse.py) | Nested parsing / traversal |
+| Python | [query.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/query.py) | Path Query |
+| Python | [quick_start.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/quick_start.py) | Quick start / round trip |
+| Python | [validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/validate.py) | Schema / validation |
+| Python | [write.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/write.py) | Nested construction |
+| Python | [writer.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/writer.py) | Sequential Writer |
 | Lua | [codec.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/codec.lua) | Typed Value codecs |
 | Lua | [parse.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/parse.lua) | Nested parsing / traversal |
 | Lua | [quick_start.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/quick_start.lua) | Quick start / round trip |
