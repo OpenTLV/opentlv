@@ -56,8 +56,8 @@ reference or release notes.
 | [Benchmark baselines](../../benchmarks/baselines/README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Go binding (experimental)](../../bindings/go/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
 | [opentlv (Lua, experimental)](https://github.com/OpenTLV/opentlv-lua/blob/main/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
-| [opentlv-core (experimental)](../../bindings/python/opentlv-core/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
-| [opentlv (experimental)](../../bindings/python/opentlv/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
+| [opentlv-core (experimental)](https://github.com/OpenTLV/opentlv-python/blob/main/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
+| [opentlv (experimental)](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
 | [Documentation](../../docs/README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [OpenTLV logo](../../docs/assets/README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Command-line tool](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md) | User | None or selected API setup | Use task entry and recommended next step |

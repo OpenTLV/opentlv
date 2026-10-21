@@ -50,7 +50,7 @@ examples when their components are enabled. Component prerequisites can omit
 individual programs; compiling a minimal build does not exercise disabled formats.
 
 Rust CI builds all targets and runs the quick start; that is not a claim that
-every example is runtime-tested. Python and Lua CI run their example programs.
+every example is runtime-tested. Standalone Python and Lua CI run their example programs.
 Go CI runs applicable examples in default/minimal builds, excluding Document
 and Query where Document is disabled. WASM's Node example is runnable after an
 Emscripten build; a WASM build alone does not prove that example was run.
@@ -66,7 +66,7 @@ update their examples and documentation together.
 
 The [documentation inventory check](../development/documentation-layout.md#documentation-inventory-checks)
 compares repository-local sources below with the example directories, detecting
-additions, removals and stale links. Lua examples are maintained and tested in
+additions, removals and stale links. Python and Lua examples are maintained and tested in
 the linked standalone repository. This is an inventory, not evidence of a CI runtime pass.
 
 <!-- example-inventory:start -->
@@ -116,14 +116,14 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | Rust | [validate.rs](../../bindings/rust/opentlv/examples/validate.rs) | Schema / validation |
 | Rust | [write.rs](../../bindings/rust/opentlv/examples/write.rs) | Nested construction |
 | Rust | [writer.rs](../../bindings/rust/opentlv/examples/writer.rs) | Sequential Writer |
-| Python | [codec.py](../../bindings/python/opentlv/examples/codec.py) | Typed Value codecs |
-| Python | [document.py](../../bindings/python/opentlv/examples/document.py) | Owned Document / traversal |
-| Python | [parse.py](../../bindings/python/opentlv/examples/parse.py) | Nested parsing / traversal |
-| Python | [query.py](../../bindings/python/opentlv/examples/query.py) | Path Query |
-| Python | [quick_start.py](../../bindings/python/opentlv/examples/quick_start.py) | Quick start / round trip |
-| Python | [validate.py](../../bindings/python/opentlv/examples/validate.py) | Schema / validation |
-| Python | [write.py](../../bindings/python/opentlv/examples/write.py) | Nested construction |
-| Python | [writer.py](../../bindings/python/opentlv/examples/writer.py) | Sequential Writer |
+| Python | [codec.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/codec.py) | Typed Value codecs |
+| Python | [document.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/document.py) | Owned Document / traversal |
+| Python | [parse.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/parse.py) | Nested parsing / traversal |
+| Python | [query.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/query.py) | Path Query |
+| Python | [quick_start.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/quick_start.py) | Quick start / round trip |
+| Python | [validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/validate.py) | Schema / validation |
+| Python | [write.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/write.py) | Nested construction |
+| Python | [writer.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/writer.py) | Sequential Writer |
 | Lua | [codec.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/codec.lua) | Typed Value codecs |
 | Lua | [parse.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/parse.lua) | Nested parsing / traversal |
 | Lua | [quick_start.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/quick_start.lua) | Quick start / round trip |

@@ -16,7 +16,6 @@ endif()
 option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of static" ON)
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
 option(OPENTLV_BUILD_WASM "Build the experimental WebAssembly module (requires Emscripten)" OFF)
-option(OPENTLV_BUILD_PYTHON "Build the experimental Python native extension" OFF)
 
 # Core capabilities
 option(OPENTLV_READER "Include wire readers and traversal" ON)
@@ -77,13 +76,6 @@ if(OPENTLV_BUILD_WASM)
     set(OPENTLV_BUILD_SHARED_LIBS OFF)
 endif()
 
-if(OPENTLV_BUILD_PYTHON)
-    # The extension module links the core statically, so the wheel carries no
-    # separate shared tlv library to locate at import time.
-    set(OPENTLV_BUILD_SHARED_LIBS OFF)
-endif()
-
-
 include(cmake/compiler.cmake)
 include(cmake/memcheck.cmake)
 include(GNUInstallDirs)
@@ -102,10 +94,6 @@ if(OPENTLV_BUILD_WASM)
     # ctest reads the top-level test file, so testing is enabled here, not in bindings/wasm.
     enable_testing()
     add_subdirectory(bindings/wasm)
-endif()
-
-if(OPENTLV_BUILD_PYTHON)
-    add_subdirectory(bindings/python/opentlv-core)
 endif()
 
 if(OPENTLV_BUILD_DOCS)

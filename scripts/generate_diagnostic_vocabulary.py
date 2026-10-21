@@ -4,9 +4,10 @@
 """Generate binding diagnostic vocabularies from the public C enums.
 
 Values come from the C headers and expected spellings from the C name tables.
-Rust, Go and Python receive typed categories plus tests that compare every
-member with the linked C name function. Run with --check in CI to reject
-stale generated files.
+Rust and Go receive typed categories plus tests that compare every member with
+the linked C name function. Run with --check in Core CI to reject stale files.
+Use --python-output-root to explicitly generate or check the corresponding
+outputs in a standalone opentlv-python checkout against these Core headers.
 """
 import argparse
 from pathlib import Path
@@ -246,29 +247,40 @@ OUTPUTS = (
     ("bindings/rust/opentlv/tests/diagnostic_vocabulary.rs", rust_test),
     ("bindings/go/diagnostic_kind.go", go),
     ("bindings/go/tests/diagnostic_vocabulary_test.go", go_test),
+)
+PYTHON_OUTPUTS = (
     ("bindings/python/opentlv/src/opentlv/diagnostic.py", python),
     ("bindings/python/opentlv/tests/test_diagnostic_vocabulary.py", python_test),
 )
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true",
                         help="fail when a generated file differs instead of writing it")
-    args = parser.parse_args()
+    parser.add_argument("--python-output-root", type=Path,
+                        help="also generate/check Python outputs in this standalone checkout")
+    args = parser.parse_args(argv)
+    outputs = [(ROOT / path, render) for path, render in OUTPUTS]
+    if args.python_output_root is not None:
+        destination = args.python_output_root.resolve()
+        if destination == ROOT.resolve() or ROOT.resolve() in destination.parents:
+            parser.error("Python outputs must be outside the Core source tree")
+        if not all((destination / path).parent.is_dir() for path, _ in PYTHON_OUTPUTS):
+            parser.error("Python output root must contain the standalone facade source and test directories")
+        outputs.extend((destination / path, render) for path, render in PYTHON_OUTPUTS)
     families = load()
     stale = []
-    for path, render in OUTPUTS:
-        target = ROOT / path
+    for target, render in outputs:
         text = render(families)
         current = target.read_text(encoding="utf-8").replace("\r\n", "\n") if target.exists() else None
         if current == text:
             continue
         if args.check:
-            stale.append(path)
+            stale.append(str(target))
         else:
             target.write_bytes(text.encode("utf-8"))
-            print(f"updated {path}")
+            print(f"updated {target}")
     if stale:
         print("stale generated diagnostic vocabulary; run "
               "scripts/generate_diagnostic_vocabulary.py:\n  " + "\n  ".join(stale), file=sys.stderr)

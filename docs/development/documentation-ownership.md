@@ -9,8 +9,9 @@ under [the documentation extraction epic](https://github.com/OpenTLV/opentlv/iss
 The inventory records both retained Core sources and component destinations.
 The standalone portal owns publication; CLI sources, tests and manuals now
 belong to `OpenTLV/opentlv-cli` (#622). Lua sources, tests and CI belong to `OpenTLV/opentlv-lua` (#633).
-Lua API, implementation, setup and test documentation now belong to that
-standalone repository (OpenTLV/opentlv-docs#27). Remaining transitional exceptions are identified below.
+Python sources, packaging, tests and CI belong to `OpenTLV/opentlv-python` (#662).
+Lua API, implementation, setup and test documentation belong to
+`opentlv-lua` (OpenTLV/opentlv-docs#27). Remaining transitional exceptions are identified below.
 
 ## Ownership rules
 
@@ -21,8 +22,10 @@ standalone repository (OpenTLV/opentlv-docs#27). Remaining transitional exceptio
 | Tool | Its commands, options, input/output conventions, installation, tests and executable examples |
 | Portal (`OpenTLV/opentlv-docs`) | Global navigation, presentation, shared assets, MkDocs configuration, assembly, version selection, integration of generated references and examples, site validation and publication |
 
-C++ remains part of Core. Rust and Python documentation will move with
-their implementations to `OpenTLV/opentlv-rust` and `OpenTLV/opentlv-python`.
+C++ remains part of Core. Rust documentation will move with its implementation
+to `OpenTLV/opentlv-rust`. Canonical Python documentation lives in
+`OpenTLV/opentlv-python`; the Core Python guide and developer landing page
+remain transitional until the portal source cutover.
 Lua's API, implementation, build and test documentation is maintained in
 `OpenTLV/opentlv-lua`.
 CLI documentation is maintained in `OpenTLV/opentlv-cli`.
@@ -139,7 +142,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/go.md](go.md) | Go | Component |
 | [development/indefinite-boundary-reuse.md](indefinite-boundary-reuse.md) | Core | Keep |
 | [Lua implementation notes](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Lua | Moved to opentlv-lua/docs/implementation.md |
-| [development/python.md](python.md) | Python | Component |
+| [development/python.md](python.md) | Python / Core | Transitional landing page and Core integration notes |
 | [development/query-adversarial.md](query-adversarial.md) | Core | Mixed: native verification and facade evidence |
 | [development/query-phase-audit.md](query-phase-audit.md) | Core | Mixed: native implementation audit and facade evidence |
 | [development/query-release.md](query-release.md) | Core | Mixed: native release checks and consumer compatibility evidence |
@@ -178,7 +181,7 @@ structure; this table records ownership rather than replacing that audit.
 | [Lua API guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | Lua | Moved to opentlv-lua/docs/api.md |
 | [guides/memory.md](../guides/memory.md) | Core / bindings | Mixed: native ownership and facade lifetime rules |
 | [guides/processing.md](../guides/processing.md) | Core | Keep |
-| [guides/python.md](../guides/python.md) | Python | Component |
+| [guides/python.md](../guides/python.md) | Python | Transitional copy; canonical guide in opentlv-python |
 | [guides/queries.md](../guides/queries.md) | Core / bindings | Mixed: shared Query semantics and language examples |
 | [guides/reader.md](../guides/reader.md) | Core / bindings | Mixed: shared Reader semantics and language examples |
 | [guides/rust.md](../guides/rust.md) | Rust | Component |

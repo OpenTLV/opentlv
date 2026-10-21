@@ -49,8 +49,8 @@ def main():
               "-DOPENTLV_BUILD_EXAMPLES=OFF",
               "-DCMAKE_INSTALL_LIBDIR=lib", "-DCMAKE_INSTALL_INCLUDEDIR=include")
     cache = (core_build / "CMakeCache.txt").read_text(encoding="utf-8")
-    if re.search(r"^(OPENTLV_BUILD_CLI(?:_TESTS)?|nlohmann_json_[^:]*):", cache, re.M):
-        raise RuntimeError("Core still configures CLI options or its JSON dependency")
+    if re.search(r"^(OPENTLV_BUILD_(?:CLI(?:_TESTS)?|PYTHON)|nlohmann_json_[^:]*):", cache, re.M):
+        raise RuntimeError("Core still configures migrated consumer options or dependencies")
     run("cmake", "--build", core_build, "--config", "Release", "--parallel", "1")
     reference = (core_build / "generated/include/tlv/version.h").read_bytes()
     version = re.search(rb'#define OPENTLV_VERSION_STRING "([^"]+)"', reference)[1].decode()
