@@ -10,60 +10,60 @@
  * describe the CMake build used to generate this reference.
  *
  * This reference is part of the OpenTLV documentation site. Read the
- * @docs{getting-started,getting started guide}, the
- * @docs{concepts/architecture,architecture overview} and the
- * @docs{guides/memory,memory ownership guide} alongside it, and see the
- * @docs{reference/c-api,C API overview} for each area's matching guides.
- * The C++ wrappers are documented in the @docs{reference/cxx-api,C++ API reference}.
+ * @docs{tutorials/first-program,getting started guide}, the
+ * @docs{development/architecture/architecture,architecture overview} and the
+ * @docs{api/guides/memory,memory ownership guide} alongside it, and see the
+ * @docs{api/reference/c,C API overview} for each area's matching guides.
+ * The C++ wrappers are documented in the @docs{api/reference/cpp,C++ API reference}.
  */
 
 /** @defgroup core Core types and utilities
  * Tags, lengths, values, views, byte order, errors and build metadata.
- * Guides: @docs{concepts/core-types,C core types}, @docs{concepts/value,borrowed values} and @docs{guides/memory,memory ownership}.
+ * Guides: @docs{api/concepts/core-types,C core types}, @docs{api/concepts/value,borrowed values} and @docs{api/guides/memory,memory ownership}.
  */
 /** @defgroup diagnostics Diagnostics
  * Structured diagnostic model shared across OpenTLV layers: a stable code, severity, location and
  * nested context, independent of any wire format or protocol.
- * Guides: @docs{guides/diagnostics,diagnostics}.
+ * Guides: @docs{api/guides/diagnostics,diagnostics}.
  */
 /** @defgroup reader Reader
  * Canonical pull-based cursor and single-element decoding over borrowed input.
- * Guides: @docs{guides/reader,pull-based reading}, @docs{formats,formats}.
+ * Guides: @docs{api/guides/reader,pull-based reading}, @docs{api/formats/guide,formats}.
  */
 /** @defgroup writer Writer
  * Encoding and stateful output into caller-owned buffers.
- * Guides: @docs{formats,formats}, @docs{guides/writer,bounded Tree Writer}.
+ * Guides: @docs{api/formats/guide,formats}, @docs{api/guides/writer,bounded Tree Writer}.
  */
 /** @defgroup traversal Traversal
  * Traversing adjacent or nested elements through the canonical Reader cursor.
- * Guides: @docs{guides/reader,pull-based reading}.
+ * Guides: @docs{api/guides/reader,pull-based reading}.
  */
 /** @defgroup schemas Schemas
  * Structural validation and schema-driven encoding.
- * Guides: @docs{guides/schemas,schemas and length validation}.
+ * Guides: @docs{api/guides/schemas,schemas and length validation}.
  */
 /** @defgroup codecs Codecs
  * Value conversion and structured codecs, including EMV values.
- * Guides: @docs{guides/codecs,value codecs}.
+ * Guides: @docs{api/guides/codecs,value codecs}.
  */
 /** @defgroup field_encoding Field Encoding
  * Reusable callbacks and fixed-width, packed, variable-width and escaped wire-field primitives.
  * These primitives encode individual fields; Format composition defines complete element framing.
- * Guides: @docs{formats,formats}.
+ * Guides: @docs{api/formats/guide,formats}.
  */
 /** @defgroup formats Formats
  * Format callbacks, composition and default, fixed, BER, DER and CER wire formats.
- * Guides: @docs{formats,formats}.
+ * Guides: @docs{api/formats/guide,formats}.
  */
 /** @defgroup builtins Builtins
  * DER and CER validation, EMV dictionaries and DOL utilities.
- * Guides: @docs{standards/emv,EMV}, @docs{standards/der,DER} and @docs{standards/cer,CER}.
+ * Guides: @docs{standards/emv,EMV}, @docs{standards/asn1/der,DER} and @docs{standards/asn1/cer,CER}.
  */
 /** @defgroup copy Copy utilities
  * Copying views and encoded bytes into caller-owned storage.
- * Guides: @docs{guides/copy,copy helpers}.
+ * Guides: @docs{api/guides/copy,copy helpers}.
  */
 /** @defgroup document Mutable document
  * Optional owned tree of elements that can be searched, changed and encoded again; the only allocating component.
- * Guides: @docs{guides/document,mutable documents}.
+ * Guides: @docs{api/guides/document,mutable documents}.
  */

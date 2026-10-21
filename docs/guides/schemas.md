@@ -197,7 +197,7 @@ schema.validate(data, format=opentlv.Format.BER)
 `InvalidSchemaError` for malformed definitions or `SchemaError` for input violations instead of
 returning a result code; see [Using OpenTLV from Python](python.md#validating).
 Runnable version, with a two-level nested schema:
-[validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/validate.py)
+[validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/validate.py)
 (`python examples/validate.py`).
 
 ///

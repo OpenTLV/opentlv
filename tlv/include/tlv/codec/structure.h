@@ -35,7 +35,7 @@ enum { TLV_STRUCTURE_MAX_DEPTH = 64 };
  * and its `schema` are all borrowed and must outlive every use of the
  * descriptor; `format`'s own context is a separate, unrelated value with the
  * same "borrowed, must outlive" rule, see
- * @docs{guides/memory,format context ownership and lifetime}. The `decode`
+ * @docs{api/guides/memory,format context ownership and lifetime}. The `decode`
  * and `encode` callbacks follow the alignment,
  * ownership, capacity, overlap and error contracts of #tlv_codec_t. They must
  * be stable across sizing and writing and must consume or produce the

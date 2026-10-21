@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Correct current documentation ownership, standalone Python entry points and portal handoff guidance after component extraction; update generated API guide links to the seven-section portal while preserving historical migration records. (#667)
 - Resolve cppcheck 2.21 diagnostics exposed by Full CI with explicit schema occurrence handling, narrower variable scopes and const-correct internal reads; retain Query callback cancellation checks and analyze C++ with its required exception support. (#637)
 - Resolve Clang 18 diagnostics exposed by strict CI failure propagation, preserving empty-buffer and diagnostic contracts while making pointer sizes, workspace alignment and schema-report lifetimes explicit. (#637)
 

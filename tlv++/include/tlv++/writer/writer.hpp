@@ -145,7 +145,7 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, 
  *
  * @warning The caller must keep the buffer, format, and format context
  *          alive for the lifetime of the writer.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see @docs{api/guides/memory,format context ownership and lifetime}
  */
 namespace detail {
 class writer_base {

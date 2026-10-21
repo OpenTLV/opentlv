@@ -5,7 +5,12 @@ OpenTLV ships a canonical C execution engine, the header-only idiomatic
 All use the public C API as their interoperability boundary. WebAssembly is a
 narrow tooling embedding over the same engine. The
 [architecture overview](architecture.md#conceptual-model) defines the concepts;
-this page is the canonical cross-language capability reference.
+this page owns the shared adaptation contract and retains comparative evidence.
+Current standalone language API, feature, compatibility and test details belong
+to the [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md)
+and [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) manuals.
+The portal owns their combined presentation; a Core revision alone does not
+establish compatibility with independently selected component versions.
 
 This page is the design contract every official binding follows: the primary
 concepts below stay recognizable in every binding's public API, even where
@@ -161,7 +166,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | --- | --- | --- | --- |
 | C++ | [headers](../../tlv++/include/tlv++/) | [reader](../../tests/unit/reader/), [writer](../../tests/unit/writer/), [document](../../tests/unit/document/), [codecs](../../tests/unit/codec/) | [C++ examples](../guides/cxx-examples.md) |
 | Rust | [opentlv/src](../../bindings/rust/opentlv/src/) | [opentlv/tests](../../bindings/rust/opentlv/tests/) | [Rust](../guides/rust.md) |
-| Python | [opentlv facade](https://github.com/OpenTLV/opentlv-python/tree/main/bindings/python/opentlv/src/opentlv/) | [facade tests](https://github.com/OpenTLV/opentlv-python/tree/main/bindings/python/opentlv/tests/) | [Python](../guides/python.md) |
+| Python | [opentlv facade](https://github.com/OpenTLV/opentlv-python/tree/main/src/opentlv/) | [facade tests](https://github.com/OpenTLV/opentlv-python/tree/main/tests/python/) | [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) |
 | Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
@@ -237,7 +242,7 @@ across STOP and input replacement; do not interleave unmatched pulls. Python
 complete input. No language implements its own query grammar or matching rules.
 
 Parity scenarios are exercised in `bindings/rust/opentlv/tests/tree_reader.rs`
-and the standalone [Python Tree Reader tests](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/tests/test_tree_reader.py). Writer and Document
+and the standalone [Python Tree Reader tests](https://github.com/OpenTLV/opentlv-python/blob/main/tests/python/test_tree_reader.py). Writer and Document
 coverage gaps remain tracked separately in the matrix above.
 
 ## Rust and Python Tree Writer facades
@@ -258,7 +263,7 @@ open roots. `finish` rejects unclosed parents without sealing the cursor.
 Failures preserve the C operation's state/output guarantees. Rust exposes owned
 `WriterDiagnostic` detail and Python uses structured exceptions. Tests in
 `bindings/rust/opentlv/tests/tree_writer.rs` and
-the standalone [Python Tree Writer tests](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/tests/test_tree_writer.py) cover open-tag ownership,
+the standalone [Python Tree Writer tests](https://github.com/OpenTLV/opentlv-python/blob/main/tests/python/test_tree_writer.py) cover open-tag ownership,
 BER/CER output, item limits and scratch exhaustion.
 
 C++ `measure_tree`, Rust `TreeWriter::measure` and Python `TreeWriter.measure`
@@ -420,7 +425,7 @@ entry points are:
 | --- | --- | --- | --- |
 | C++ | Header-only C++11 facade shipped with OpenTLV; links the C engine | [C++ examples](../guides/cxx-examples.md) | [Public/native contract](cxx-native-boundary.md) |
 | Rust | Experimental `opentlv` facade plus `opentlv-sys` FFI crate | [Rust guide](../guides/rust.md) | [Rust development](../development/rust.md) |
-| Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](../guides/python.md) | [Python development](../development/python.md) |
+| Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Python development](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Lua development](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
 | WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |

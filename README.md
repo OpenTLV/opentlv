@@ -79,8 +79,9 @@ consumer targets, runtime libraries and binding-specific setup.
 ## Documentation
 
 Read the [documentation portal](https://opentlv.github.io/opentlv-docs/) for
-versioned guides and generated C/C++ API references. Technical Markdown remains
-in this repository; the links below also work when browsing the sources.
+versioned guides and generated C/C++ API references. Core technical Markdown
+remains in this repository; CLI, Lua and Python maintain their own manuals.
+The links below also work when browsing the sources.
 
 - [Start here](docs/index.md): choose a language or tool and follow the learning path.
 - [Read, write or edit](docs/guides/processing.md): choose an API for your task.

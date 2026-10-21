@@ -1,8 +1,9 @@
 # Using OpenTLV from Python
 
 The implementation, tests, packaging and canonical [Python guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md)
-are maintained in `OpenTLV/opentlv-python`. This transitional Core page retains
-existing links until the documentation portal completes its Python source cutover.
+are maintained in `OpenTLV/opentlv-python`, and the portal consumes that
+standalone source. This retained Core copy preserves migration context and
+existing source links; use the canonical guide for current Python instructions.
 
 Start with setup below, then run the [Python quick start](../getting-started/README.md#quick-start)
 for input, expected output and the public API. You can use this guide without
@@ -12,7 +13,7 @@ The `opentlv` package is an experimental Python binding for OpenTLV. It binds
 `Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`, `Format`,
 `LengthSchema`/`StructureSchema` and the `OpenTLVError` exception hierarchy,
 plus a narrow `codec` submodule (see [Codec](#codec)). For layout and build
-details, see [Python bindings](../development/python.md).
+details, see [Python bindings](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md).
 
 ## Setup
 
@@ -21,7 +22,7 @@ not from the Core repository. Both packages are installed together so the
 public facade resolves its exact native dependency locally:
 
 ```sh
-python -m pip install . ./bindings/python/opentlv
+python -m pip install . ./src
 ```
 
 This requires Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler.
@@ -39,8 +40,8 @@ print(opentlv.__version__)
 ```
 
 Runnable round-trip version:
-[quick_start.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/quick_start.py)
-(`python examples/quick_start.py` from `bindings/python/opentlv`).
+[quick_start.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/quick_start.py)
+(`python examples/quick_start.py` from the standalone repository root).
 
 ## Reading
 
@@ -71,7 +72,7 @@ runtime-configurable fixed-width tag and length (equivalent to the C
 
 Runnable version, parsing a nested BER document and handling truncated
 input:
-[parse.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/parse.py)
+[parse.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/parse.py)
 (`python examples/parse.py`).
 
 ## Writing
@@ -96,9 +97,9 @@ one produced by a `Reader`, so reading and re-writing round-trips. Like
 encoded size without writing it.
 
 Runnable versions:
-[write.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/write.py)
+[write.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/write.py)
 builds a nested BER document bottom-up (`python examples/write.py`);
-[writer.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/writer.py)
+[writer.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/writer.py)
 shows the growable buffer handling a value far larger than its initial
 capacity, and a genuine format error (`python examples/writer.py`).
 
@@ -144,7 +145,7 @@ invalid definition has no input offset.
 
 Runnable version, validating the document `parse.py` reads, and rejecting an
 incomplete one:
-[validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/validate.py)
+[validate.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/validate.py)
 (`python examples/validate.py`).
 
 ## Generic Definition registries
@@ -180,7 +181,7 @@ retains operation, original provider result, contract violation and delegated
 cause when supplied by C. Its `schema` entry is an owned `SchemaDiagnostic`.
 
 Runnable version, decoding and encoding an EMV "Amount, Authorised" element:
-[codec.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/codec.py)
+[codec.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/codec.py)
 (`python examples/codec.py`).
 
 ## Documents
@@ -225,10 +226,10 @@ Replacing a node's own Value leaves that node usable; its old children become
 invalid only after successful replacement. Unrelated handles remain valid.
 
 Runnable versions:
-[document.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/document.py)
+[document.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/document.py)
 replaces a value and appends an element in an existing message
 (`python examples/document.py`);
-[query.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/query.py)
+[query.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/query.py)
 addresses a deeply nested element by path instead of navigating node by node,
 including a malformed query and a query with no match
 (`python examples/query.py`).
@@ -349,7 +350,7 @@ diagnostics, limits and continuation delegate to C. Match snapshots own their
 bytes. Reset separates input/binding lifetimes; callback exceptions require
 reset before reuse. Programs and executions retain their native owners until
 the Python objects are collected.
-The [consumer tests](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/tests/test_program.py) and
+The [consumer tests](https://github.com/OpenTLV/opentlv-python/blob/main/tests/python/test_program.py) and
 [common corpus runner](https://github.com/OpenTLV/opentlv-python/blob/main/tests/query/python_facade.py) exercise these APIs.
 
 `providers={"num": QueryProvider(id, decode), ...}` replaces the closed `num`,

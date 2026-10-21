@@ -39,8 +39,9 @@ narrow screens. Show one relationship at a time. Label descriptions, runtime
 objects and operations accurately; optional consumers are not a mandatory
 pipeline. Label future models explicitly and link to the roadmap.
 
-The [homepage](../index.md) is the canonical user index. Component README files
-link to their language guide before implementation details. Link to canonical
+The [Core index](../index.md) is the source entry point. The portal owns its
+website homepage and [current presentation conventions](https://github.com/OpenTLV/opentlv-docs/blob/main/docs/development/documentation.md).
+Component README files link to their language guide before implementation details. Link to canonical
 support, memory, build, architecture and roadmap pages instead of copying
 inventories. Keep established paths and anchors, or record migration links.
 
@@ -52,15 +53,18 @@ review rendered diagrams and first tasks at a narrow viewport.
 
 ## Section boundaries
 
-The navigation starts with installation and the basic model, then practical Guides and a
-dedicated Language APIs section covering C++, Rust, Python, Lua, Go and the
-WebAssembly tooling embedding. Architecture and Concepts explain the shared
-model; technical contracts, audits and planned runtime-model design are grouped
-under Development. Source paths need not move when navigation changes.
+The portal owns its seven-section navigation: Home, Tutorials, API, Standards,
+Languages, Tools and Development. These sections are presentation destinations;
+the source directories above retain their existing identities and ownership.
+Shared API contracts and generic format configuration belong to API; protocol
+material belongs to Standards. The portal
+[conventions](https://github.com/OpenTLV/opentlv-docs/blob/main/docs/development/documentation.md)
+and migration map record current output routes. Source paths need not move when
+navigation changes.
 The [architecture overview](../concepts/architecture.md) is the canonical model,
-the [binding reference](../concepts/bindings.md) owns cross-language capability
-status, and the [implemented inventory](../formats/support.md) owns native/tool
-availability. Task guides link to these inventories rather than redefine them.
+the [binding contract](../concepts/bindings.md) retains shared adaptation rules
+and comparative evidence, and the [implemented inventory](../formats/support.md)
+owns native availability. Current component capabilities belong to their owners. Task guides link to these inventories rather than redefine them.
 
 `concepts/` explains a model or design decision; `guides/` shows how to complete
 a task; `reference/` provides exact contracts, syntax, options and limits for
@@ -79,7 +83,7 @@ their contracts or implying complete protocol support.
 ## Generated API reference
 
 The C and C++ API references are generated with Doxygen and embedded in the
-site under `reference/api/` at build time; they are never committed. The
+site under `api/reference/` at build time; they are never committed. The
 hand-written pages [c-api.md](../reference/c-api.md) and
 [cxx-api.md](../reference/cxx-api.md) are their entry points in the navigation.
 Guides and concepts link to those pages (and to their per-area sections) rather
@@ -123,7 +127,7 @@ A paired `<!-- opentlv-examples: fixed.roundtrip -->` and
 Keep that fallback useful when reading Core without the portal. Assembly replaces
 the slot with source-backed language tabs without editing the original page.
 Binding repositories own their own catalogs and examples; do not add their
-future sources to Core's native catalog. Existing `<!-- example: PATH -->`
+sources to Core's native catalog. Existing `<!-- example: PATH -->`
 blocks and their synchronization checks remain supported.
 
 The portal documents the catalog format, unavailable states and verification
@@ -240,10 +244,9 @@ does not require placeholder pages or new OTLV, binding or tool documentation.
 
 ## Documentation inventory checks
 
-These checks currently span the monorepository. Their
+These checks cover Core and the binding sources still hosted here. Their
 [ownership boundaries](documentation-ownership.md#infrastructure-and-sources-outside-the-page-inventory)
-identify which checks stay with Core and which follow a component or the portal
-when extracted. A Core documentation change does not require unrelated binding
+separate native source validation from standalone component and portal checks. A Core documentation change does not require unrelated binding
 updates, and inventory success is not evidence of binding feature support.
 
 Run `python scripts/check_doc_inventory.py` and
@@ -251,8 +254,8 @@ Run `python scripts/check_doc_inventory.py` and
 Markdown lint and generated API references. Core CI runs these checks without
 MkDocs or the portal. The portal checks navigation against assembled Markdown
 and runs the strict MkDocs build. Core retains binding checks while those
-sources remain here. CLI checks belong to `opentlv-cli`; Lua example and test
-execution belongs to `opentlv-lua`.
+sources remain here. CLI checks belong to `opentlv-cli`; Lua and Python example
+and test execution belong to `opentlv-lua` and `opentlv-python`.
 
 The inventory check derives these small facts directly from repository sources:
 
@@ -262,7 +265,7 @@ The inventory check derives these small facts directly from repository sources:
 | Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
 | C++ built-in directories | C++ family links in the implemented inventory |
 | Official binding directories | User guide exists (WASM uses its tooling guide); navigation is checked by the portal |
-| Core-local C/C++/Rust/Python/Go/WASM example sources | Marked source inventory in the examples guide; standalone Lua sources are external links |
+| Core-local C/C++/Rust/Go/WASM example sources | Marked source inventory in the examples guide; standalone Python and Lua sources are external links |
 | Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
 
 Adding or removing a public capability must update the corresponding inventory,
@@ -280,6 +283,11 @@ machine-derived checks only when there is a clear source of truth; do not mark
 an FFI declaration as a public capability.
 
 ## Migration for issue #186
+
+This historical table records the source-layout migration at #186. Its site URL
+examples describe that configuration, not the current portal routes. See the
+[portal migration map](https://github.com/OpenTLV/opentlv-docs/blob/main/DOCUMENTATION-MIGRATION.md)
+for the seven-section output layout.
 
 The following paths are relative to `docs/`. Existing pages under `formats/`
 and `standards/` retain their paths unless listed here.

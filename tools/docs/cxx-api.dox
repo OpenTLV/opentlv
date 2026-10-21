@@ -6,9 +6,9 @@
  * C declarations are linked to the accompanying C reference and are excluded
  * from the C++ indexes. Using the wrappers still requires linking the C library.
  * This reference is part of the OpenTLV documentation site; see the
- * @docs{concepts/architecture,architecture overview},
- * @docs{guides/memory,memory ownership guide} and
- * @docs{reference/cxx-api,C++ API overview} for the surrounding guides.
+ * @docs{development/architecture/architecture,architecture overview},
+ * @docs{api/guides/memory,memory ownership guide} and
+ * @docs{api/reference/cpp,C++ API overview} for the surrounding guides.
  *
  * @section compatibility Language compatibility
  * This reference shows the C++11 fallback interfaces of tlv::any, tlv::span,
@@ -32,7 +32,7 @@
  * tlv::writer_builder and tlv::encode use bounded caller-owned or fixed local
  * workspace and return allocation-free tlv::writer_failure results. Typed
  * byte/text writes and scoped construction are described in the
- * @docs{guides/writer,Writer guide}.
+ * @docs{api/guides/writer,Writer guide}.
  */
 
 /**

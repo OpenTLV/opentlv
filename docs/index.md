@@ -1,5 +1,9 @@
 # OpenTLV documentation
 
+This is the Core repository index. The [documentation portal](https://opentlv.github.io/opentlv-docs/)
+owns the shared website navigation. Core owns native/shared API contracts,
+standards and native examples; component owners maintain their own manuals.
+
 Read, write and inspect binary TLV data with C, C++, Rust, Python, Lua, Go,
 the `otlv` CLI or WebAssembly tools. Choose your entry point and complete a
 small task before learning the deeper contracts.
@@ -10,7 +14,7 @@ small task before learning the deeper contracts.
 | --- | --- | --- |
 | C or C++ | [Build and run the first program](getting-started/README.md) | [C++ examples](guides/cxx-examples.md), [Reader](guides/reader.md) |
 | Rust | [Rust setup and usage](guides/rust.md) | [Shared quick start](getting-started/README.md#quick-start) |
-| Python | [Python setup and usage](guides/python.md) | [Shared quick start](getting-started/README.md#quick-start) |
+| Python | [Python setup and usage](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Lua | [Lua setup and usage](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Go | [Go setup and usage](guides/go.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Terminal | [Inspect a small input](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection) | [CLI commands](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#commands) |
@@ -40,7 +44,8 @@ For complete runnable programs see [executable examples](guides/examples.md).
 
 [API reference](reference/README.md) owns exact declarations and behavior.
 [Format support](formats/support.md) owns implemented native/tool capabilities;
-[binding status](concepts/bindings.md) records language coverage.
+[binding contracts](concepts/bindings.md) retain the shared adaptation model
+and comparative evidence; current language coverage belongs to each owner manual.
 [Compiler requirements](reference/compilers.md) and
 [component selection](guides/select-components.md) cover integration constraints.
 The [roadmap](../ROADMAP.md) owns future plans.

@@ -5,7 +5,7 @@
 Choose your language in [Quick start](#quick-start) for a complete first
 program and expected output. C/C++ users can build the checkout below; binding
 users should follow setup in the [Rust](../guides/rust.md),
-[Python](../guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) or [Go](../guides/go.md)
+[Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) or [Go](../guides/go.md)
 guide before running their example. For terminal inspection, use
 [the CLI first task](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection).
 
@@ -19,8 +19,8 @@ Use CMake 3.20+ for C++23. On Windows, use a Visual Studio developer shell
 when selecting Ninja with MSVC. See [compiler support](../reference/compilers.md).
 
 ```sh
-git clone https://github.com/marekcingel/OpenTLV.git
-cd OpenTLV
+git clone https://github.com/OpenTLV/opentlv.git
+cd opentlv
 cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF
 cmake --build build --config Release --parallel
 ```
@@ -269,11 +269,11 @@ saved under its `examples/`. Exit code zero indicates a successful round trip.
 
 /// tab | Python
 
-The runnable [Python quick start](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/quick_start.py)
+The runnable [Python quick start](https://github.com/OpenTLV/opentlv-python/blob/main/examples/quick_start.py)
 is maintained and tested in `opentlv-python`. It writes and reads the same
 Fixed-format `Hello, world!` element through the public Python API.
 Follow the standalone [installation instructions](https://github.com/OpenTLV/opentlv-python#install-from-source),
-then run `python bindings/python/opentlv/examples/quick_start.py` from that
+then run `python examples/quick_start.py` from that
 repository root. A successful run prints `Hello, world!` and exits with code zero.
 
 ///
@@ -356,7 +356,7 @@ CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
 with BER, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
 the further [Rust examples](../guides/rust.md) (reading, writing, and the
 `parse`, `write` and `validate` use cases), and the further
-[Python examples](../guides/python.md) (reading, writing, validating, codecs
+[Python examples](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) (reading, writing, validating, codecs
 and documents) are further runnable examples.
 
 ## Consume Core from another CMake project

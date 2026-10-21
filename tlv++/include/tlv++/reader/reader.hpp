@@ -164,7 +164,7 @@ TLV_NODISCARD inline expected<decoded, error> read(bytes data, tlv::format forma
  *
  * @warning The caller must keep the buffer, format, and format context
  *          alive for the lifetime of the reader and of any element it returns.
- * @see @docs{guides/memory,format context ownership and lifetime}
+ * @see @docs{api/guides/memory,format context ownership and lifetime}
  */
 namespace detail {
 class reader_iterator;
