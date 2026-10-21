@@ -269,57 +269,12 @@ saved under its `examples/`. Exit code zero indicates a successful round trip.
 
 /// tab | Python
 
-Save the example as `quick_start.py` in a checkout with both Python packages
-installed. It is
-[bindings/python/opentlv/examples/quick_start.py](../../bindings/python/opentlv/examples/quick_start.py).
-The `opentlv` package is not published to PyPI yet; install it, and the
-`opentlv-core` extension it depends on, by path from a checkout of the
-repository. See [Using OpenTLV from Python](../guides/python.md) for the full
-setup.
-Writer accepts Tag bytes directly and grows its owned output as needed. Reader
-iteration and UTF-8 decoding use normal Python exceptions.
-
-<!-- example: bindings/python/opentlv/examples/quick_start.py -->
-```python
-# SPDX-License-Identifier: MIT
-# Copyright (c) 2026 Marek Cingel
-
-"""The simplest possible round trip: write one element with the
-configurable fixed-width format, then read it back. See parse.py and
-write.py for a nested BER document, and the C `quick_start.c`, C++
-`quick_start.cpp` and Rust `quick_start.rs` examples for the same round
-trip in those languages.
-
-Run with `python examples/quick_start.py` from `bindings/python/opentlv`,
-after installing both packages (see ../../../README.md or
-docs/development/python.md).
-"""
-
-import opentlv
-
-
-def main() -> None:
-    # One tag byte and one length byte.
-    format = opentlv.FixedFormat(1, 1)
-    writer = opentlv.Writer(format)
-    writer.write(b"\x01", b"Hello, world!")
-
-    for element in opentlv.Reader(writer.bytes(), format):
-        print(element.value.tobytes().decode("utf-8"))
-
-
-if __name__ == "__main__":
-    main()
-```
-
-Then use:
-
-```sh
-pip install ./bindings/python/opentlv-core ./bindings/python/opentlv
-python bindings/python/opentlv/examples/quick_start.py
-```
-
-Exit code zero indicates a successful round trip.
+The runnable [Python quick start](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/quick_start.py)
+is maintained and tested in `opentlv-python`. It writes and reads the same
+Fixed-format `Hello, world!` element through the public Python API.
+Follow the standalone [installation instructions](https://github.com/OpenTLV/opentlv-python#install-from-source),
+then run `python bindings/python/opentlv/examples/quick_start.py` from that
+repository root. A successful run prints `Hello, world!` and exits with code zero.
 
 ///
 
@@ -392,7 +347,7 @@ Both C and C++ programs are built by the `example-tlv-quick-start` and
 (the default) and run in CI; the Rust program is built by `cargo build
 --workspace --all-targets` and run by `cargo run -p opentlv --example quick_start`
 in the Rust bindings CI workflow, and the Python
-program is run directly in the Python bindings CI workflow. Lua CI runs the
+program is run against installed packages in the standalone Python CI workflow. Lua CI runs the
 Lua quick start, and Go CI runs its quick start in both default and minimal
 configurations. The
 [C examples](../../examples/tlv/src/), one topic per file (sequential I/O,

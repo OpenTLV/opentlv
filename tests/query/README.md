@@ -5,6 +5,11 @@ conformance infrastructure. The Lua facade runner and its CI are maintained in
 [opentlv-lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/testing.md),
 which reads the shared inputs from the same Core checkout used to build Lua.
 Cross-language release evidence still includes Lua results from that repository.
+The Python facade runner is maintained in
+[opentlv-python](https://github.com/OpenTLV/opentlv-python/blob/main/tests/query/python_facade.py)
+and uses the shared inputs from its selected Core dependency. Python tests and
+CI run there; Core retains the native conformance and property suites, and
+cross-language release evidence still requires Python results.
 
 F5 adds `--commit`, `--seed` and `--evidence` to the runner. The commit seed
 mapping comes from the wire property infrastructure. Evidence separates trees,

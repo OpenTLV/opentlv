@@ -362,7 +362,7 @@ Navigate with `document.first`/`for node in document`, `node.first_child`/
 deterministically with `close()` or a `with` block, since it is the only part
 of OpenTLV that allocates beyond a Python object's own memory. Runnable
 version, replacing a value and appending an element in an existing message:
-[document.py](https://github.com/marekcingel/OpenTLV/blob/main/bindings/python/opentlv/examples/document.py)
+[document.py](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/examples/document.py)
 (`python examples/document.py`). See [Using OpenTLV from
 Python](python.md#documents) for the full API, including error handling.
 

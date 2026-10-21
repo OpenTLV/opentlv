@@ -1,78 +1,60 @@
-# Python bindings (experimental)
+# Python binding development
 
-The Python bindings live in `bindings/python/`, two separately packaged
-distributions:
-
-| Package | Purpose |
-| --- | --- |
-| `opentlv-core` | Native extension, written directly against the CPython C API; registers the OpenTLV C API as Python callables |
-| `opentlv` | Pure-Python package built on `opentlv-core` |
-
-This mirrors the Rust bindings' `opentlv-sys`/`opentlv` split (see [Rust
-bindings](rust.md)): all CPython C API interaction is isolated in
-`opentlv-core`; `opentlv` is plain Python and imports
-the private `_opentlv` module directly (`import _opentlv` resolves to the compiled
-extension). For setup and usage, see [Using OpenTLV from
-Python](../guides/python.md). For the naming and shape this binding follows
-and adapts, see the [language bindings conceptual model](../concepts/bindings.md).
-
-`opentlv-core` exposes the linked library's version, stateless
-element-parsing and -encoding calls (`read`, `write`, `encoded_size`)
-parameterized by wire format, their `*_fixed` counterparts
-(`read_fixed`, `write_fixed`, `encoded_size_fixed`) for the configurable
-fixed-width format (`tlv_fixed_format_t`), `structure_validate` (a serialized
-rule tree in, a pass/fail with diagnostic detail out), `emv_decode_amount`/
-`emv_encode_amount` (the one concrete `tlv_codec_t` the public C API
-exports), and a `document_*`/`node_*` family wrapping `tlv_document_t`
-(as a `PyCapsule`) and `tlv_node_t` (as a plain integer; see
-[relationship to the C API](../guides/python.md#relationship-to-the-c-api)).
-`opentlv` builds `Reader`, `Writer`, `Document`/`Node`, `Element`, `Tag`,
-`Format`, `FixedFormat`, `LengthSchema`/`StructureSchema`, the `OpenTLVError`
-exception hierarchy and the narrow `codec` submodule on top of it; see [Using
-OpenTLV from Python](../guides/python.md).
+The Python extension, facade, tests, examples, packaging and CI are maintained
+in [OpenTLV/opentlv-python](https://github.com/OpenTLV/opentlv-python).
+Core no longer provides `OPENTLV_BUILD_PYTHON` or builds Python packages.
 
 ## Build
 
-Requirements: Python 3.11 or newer, CMake 3.26 or newer and a C99 compiler.
+Follow the standalone [build and dependency guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md).
+For local Core development, build the native distribution from that repository
+with `OPENTLV_PYTHON_CORE_SOURCE` set to the absolute Core checkout path, then
+install its public facade. The extension consumes the public `OpenTLV::tlv`
+target and validates its required features; it owns its static-linking policy.
 
-```sh
-pip install ./bindings/python/opentlv-core ./bindings/python/opentlv
-pip install pytest
-pytest bindings/python/opentlv/tests
-```
-
-[scikit-build-core](https://scikit-build-core.readthedocs.io/) drives the
-`opentlv-core` build: it configures and builds the OpenTLV C library with
-CMake from the repository root
-(`bindings/python/opentlv-core/pyproject.toml` points
-`tool.scikit-build.cmake.source-dir` at it), as a static library, and links
-it into the extension. The C++ layer, CLI, tests and examples are not built.
-The extension is compiled against the CPython Limited API
-(`Py_LIMITED_API=0x030B0000`) as an `abi3` module, so one wheel per platform
-works on every Python 3.11 and newer. `opentlv` is a plain
-[hatchling](https://hatch.pypa.io/latest/plugins/builder/wheel/)-built wheel
-with no compiled component; it declares `opentlv-core` as a dependency.
-Neither package is published anywhere yet, so install both together from a
-checkout, as above; when installed in the same `pip install` invocation, pip
-resolves `opentlv`'s `opentlv-core` dependency against the local wheel it
-just built instead of looking on PyPI.
+Core still uses the Python interpreter for native Query/property tests,
+documentation checks and build/release tooling. Removing the binding does not
+remove those tools or the shared `tests/query/corpus.json` and `reference.py`.
+Shared native adapters under `bindings/common/` remain available to the other
+in-tree bindings. Python maintains its migrated copies in its own repository.
 
 ## Versioning
 
-Each package's own version, declared in its `pyproject.toml`, is independent
-of the OpenTLV C library's version and is not derived from the repository's
-Git tags; it follows its own release cadence, the same way the Rust crates'
-`Cargo.toml` version does (see [Rust bindings](rust.md#versioning)).
-`opentlv.__version__` is a separate thing: it calls `tlv_version_string()` at
-import time (through `opentlv-core`) and reports the version of the
-*linked C library*, not either package's own version. The two can differ,
-for example packages at `0.1.0` built against OpenTLV C library `0.7.1`.
+Python package and runtime versions follow the independent binding policy.
+Core identity is recorded separately in the dependency lock and installed
+metadata. See the standalone [versioning policy](https://github.com/OpenTLV/opentlv-python/blob/main/docs/versioning.md).
+
+## Diagnostic vocabulary
+
+Core owns `scripts/generate_diagnostic_vocabulary.py` because the canonical
+enums and their names come from its public headers and C name tables. Its
+default invocation and `--check` cover only the in-tree Rust and Go outputs.
+To refresh or check the Python outputs against this Core checkout, explicitly
+select the standalone checkout from the Core repository root:
+
+```sh
+python -B scripts/generate_diagnostic_vocabulary.py --python-output-root ../opentlv-python
+python -B scripts/generate_diagnostic_vocabulary.py --check --python-output-root ../opentlv-python
+```
+
+The destination must already contain the standalone facade source and test
+directories and must be outside the Core source tree. Generation does not
+select a new Core dependency for Python. Review any vocabulary change together
+with that repository's dependency update and run its installed-package tests.
 
 ## Continuous integration
 
-The [Python Bindings
-workflow](https://github.com/marekcingel/OpenTLV/blob/main/.github/workflows/python.yml)
-runs on every push and pull request to `main`: it installs both packages with
-`pip install ./bindings/python/opentlv-core ./bindings/python/opentlv` and
-runs `pytest bindings/python/opentlv/tests` on Linux, and additionally on
-Windows and macOS for release tags.
+The standalone [quality gates](https://github.com/OpenTLV/opentlv-python/blob/main/docs/quality-gates.md)
+own Python PR/Main/Full validation. Core PR/Full workflows continue to own
+native validation and shared fixtures; they do not require an installed Python
+binding. Cross-language Query release evidence still requires Python results
+from its owning repository.
+
+## Migration and documentation cutover
+
+The [frozen migration inventory](https://github.com/OpenTLV/opentlv-python/blob/main/docs/migration.md)
+records Core commit `5e0aae9c77e9c22d07c7f03d6110243e9ecad85f`, including all
+71 original Python subtree files and the migrated Query facade runner.
+The workspace supplies `opentlv-python` as a sibling checkout. Canonical Python
+guides now live there; this landing page and the transitional Core user guide
+preserve links until the documentation portal switches its Python source.

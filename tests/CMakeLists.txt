@@ -10,11 +10,14 @@ endif()
 
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(Python3_Interpreter_FOUND)
-    # Generated Rust, Go and Python vocabularies must match the C enums.
+    add_test(NAME diagnostic-vocabulary-generator
+        COMMAND "${Python3_EXECUTABLE}" -B
+                "${OpenTLV_SOURCE_DIR}/scripts/test_diagnostic_vocabulary.py")
+    # Generated in-tree Rust and Go vocabularies must match the C enums.
     add_test(NAME diagnostic-vocabulary-generated
         COMMAND "${Python3_EXECUTABLE}"
             "${OpenTLV_SOURCE_DIR}/scripts/generate_diagnostic_vocabulary.py" --check)
-    set_tests_properties(diagnostic-vocabulary-generated PROPERTIES
+    set_tests_properties(diagnostic-vocabulary-generated diagnostic-vocabulary-generator PROPERTIES
         LABELS "infrastructure;bindings;no-memcheck")
 endif()
 

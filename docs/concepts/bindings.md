@@ -161,7 +161,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | --- | --- | --- | --- |
 | C++ | [headers](../../tlv++/include/tlv++/) | [reader](../../tests/unit/reader/), [writer](../../tests/unit/writer/), [document](../../tests/unit/document/), [codecs](../../tests/unit/codec/) | [C++ examples](../guides/cxx-examples.md) |
 | Rust | [opentlv/src](../../bindings/rust/opentlv/src/) | [opentlv/tests](../../bindings/rust/opentlv/tests/) | [Rust](../guides/rust.md) |
-| Python | [opentlv facade](../../bindings/python/opentlv/src/opentlv/) | [facade tests](../../bindings/python/opentlv/tests/) | [Python](../guides/python.md) |
+| Python | [opentlv facade](https://github.com/OpenTLV/opentlv-python/tree/main/bindings/python/opentlv/src/opentlv/) | [facade tests](https://github.com/OpenTLV/opentlv-python/tree/main/bindings/python/opentlv/tests/) | [Python](../guides/python.md) |
 | Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
 
@@ -237,7 +237,7 @@ across STOP and input replacement; do not interleave unmatched pulls. Python
 complete input. No language implements its own query grammar or matching rules.
 
 Parity scenarios are exercised in `bindings/rust/opentlv/tests/tree_reader.rs`
-and `bindings/python/opentlv/tests/test_tree_reader.py`. Writer and Document
+and the standalone [Python Tree Reader tests](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/tests/test_tree_reader.py). Writer and Document
 coverage gaps remain tracked separately in the matrix above.
 
 ## Rust and Python Tree Writer facades
@@ -258,7 +258,7 @@ open roots. `finish` rejects unclosed parents without sealing the cursor.
 Failures preserve the C operation's state/output guarantees. Rust exposes owned
 `WriterDiagnostic` detail and Python uses structured exceptions. Tests in
 `bindings/rust/opentlv/tests/tree_writer.rs` and
-`bindings/python/opentlv/tests/test_tree_writer.py` cover open-tag ownership,
+the standalone [Python Tree Writer tests](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/tests/test_tree_writer.py) cover open-tag ownership,
 BER/CER output, item limits and scratch exhaustion.
 
 C++ `measure_tree`, Rust `TreeWriter::measure` and Python `TreeWriter.measure`
@@ -441,7 +441,8 @@ the public `opentlv` facade in each language.
 
 For existing checkouts, update Rust dependencies from `opentlv-native` to
 `opentlv-sys` and raw imports from `opentlv_native` to `opentlv_sys`. Python
-install commands now use `bindings/python/opentlv-core`; code directly using
+installation now uses the standalone [opentlv-python](https://github.com/OpenTLV/opentlv-python)
+repository; code directly using
 the implementation extension imports `_opentlv`. Lua installation places the
 compiled module under `opentlv/_core`, and direct implementation imports use
 `require("opentlv._core")`. Public facade imports remain `opentlv`.

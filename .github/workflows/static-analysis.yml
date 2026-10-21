@@ -52,6 +52,7 @@ jobs:
           python scripts/test_diagnostic_returns.py
           python scripts/check_diagnostic_returns.py
           python scripts/generate_diagnostic_vocabulary.py --check
+          python -B scripts/test_diagnostic_vocabulary.py
       - name: Test CI and release contracts
         run: |
           python -B scripts/test_core_release.py

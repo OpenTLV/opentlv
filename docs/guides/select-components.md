@@ -59,12 +59,16 @@ The C dependency graph is authoritative. Binding conveniences may require more:
 | C++ Schema facade | Schema and Reader |
 | C++ Query facade | Query and Reader |
 | C++ Document facade | Document, Reader, Writer, Query and Codec |
-| Python, WASM, CLI, examples, benchmarks and fuzz suites | Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds |
+| WASM, examples, benchmarks and fuzz suites | Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds |
 | Rust | Native build explicitly enables Reader, Writer, Query, Schema and Codec; Document remains a Cargo feature |
 | Go | Prebuilt library must enable Reader, Writer, Query, Schema and Codec; the bridge checks generated configuration |
 
 The standalone [Lua build](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/development.md)
 checks its required Core capabilities in its own repository.
+The standalone [Python build](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md)
+requires its complete Core feature contract and rejects reduced Core builds.
+The standalone CLI also owns its dependency checks; Core does not configure
+these external consumers.
 
 Broad unit/integration suites are skipped in reduced builds. The dependency-free
 `capability-contract` test remains available with `OPENTLV_BUILD_TESTS=ON`.
