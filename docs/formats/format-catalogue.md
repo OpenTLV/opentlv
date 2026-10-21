@@ -82,7 +82,7 @@ RADIUS, PEAP and NDN are [existing entries](format-roadmap.md#previously-catalog
 
 | Candidate | Specification | Subset | Components | Reuse and limits | Check |
 | --- | --- | --- | --- | --- | --- |
-| Diameter AVP (`[?]`) | [RFC 6733](https://www.rfc-editor.org/rfc/rfc6733.html), section 4.1 | AVP framing: 4-byte code, flag byte, 24-bit length that includes the header, optional 4-byte vendor ID (V flag), data padded to a 32-bit boundary with the padding not counted in the length. Grouped AVPs nest. | format adapter (`decode`, `encode`), nesting predicate (grouped types), dictionary | Length includes the header; the trailing padding fits the reader's `trailer_size`, but the writer has no trailer hook (see [framing requirements](format-roadmap.md#framing-requirements)). Command dictionaries and applications are separate scopes. No peer state machine. | Verified: RFC 6733 section 4.1 and the padding rules. |
+| Diameter AVP (`[?]`) | [RFC 6733](https://www.rfc-editor.org/rfc/rfc6733.html), section 4.1 | AVP framing: 4-byte code, flag byte, 24-bit length that includes the header, optional 4-byte vendor ID (V flag), data padded to a 32-bit boundary with the padding not counted in the length. Grouped AVPs nest. | format adapter (`decode`, `measure`, `encode`), nesting predicate (grouped types), dictionary | Length includes the header; padding maps to the decoded Trailer and the complete Format `measure`/`encode` operations (see [framing requirements](format-roadmap.md#framing-requirements)). The Diameter adapter remains unimplemented. Command dictionaries and applications are separate scopes. No peer state machine. | Verified: RFC 6733 section 4.1 and the padding rules. |
 
 ## Networking, link and routing
 
@@ -227,7 +227,10 @@ element, and the tag can carry the type and the type extension.
 the padding. The data is padded to a 32-bit boundary. Grouped AVPs hold further AVPs in
 their data, each with its own padding. Adapter view: tag is the code (plus the vendor ID),
 header size 8 or 12, value size `AVP Length` minus the header, trailer size the padding.
-The writer has no trailer hook (see
+The canonical Format `measure` and `encode` callbacks cover the complete Header,
+Value and Trailer; a Diameter adapter would measure and write this padding as
+Trailer. A separate Writer trailer hook is not required. The adapter remains a
+candidate, not an implementation (see
 [framing requirements](format-roadmap.md#framing-requirements)).
 
 ### PFCP information element (TS 29.244 v17.9.0, clause 8.1.1)
