@@ -5,6 +5,10 @@ ownership and errors. The [binding README](../../bindings/go/README.md)
 describes native build integration, the `internal/capi` boundary and extraction
 of the nested Go module.
 
+The [Go migration baseline](go-migration/README.md) pins the pre-extraction
+sources, ownership inventory, supported configurations and local validation
+evidence for the standalone repository handoff (#685).
+
 After configuring cgo against matching native headers and library, run from
 `bindings/go`:
 

@@ -1,0 +1,602 @@
+{
+  "schema": 1,
+  "repository": "https://github.com/OpenTLV/opentlv",
+  "commit": "cb3caed5b09706ce11ecfae839397fd4f99d0025",
+  "module": "github.com/marekcingel/OpenTLV/bindings/go",
+  "go_directive": "1.22",
+  "binding_release_version": null,
+  "files": [
+    {
+      "path": ".gitattributes",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "fbf98b2cd0e704179177b1416a8068bb36bfbd5a",
+      "sha256": "f442fbd1d7fe3a16eb83d31bbbd3a5faf3431c5ca10c946df86e13489410190a",
+      "bytes": 293
+    },
+    {
+      "path": ".github/workflows/go.yml",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "db164bb7572718701875fa3fac56f6adac2346b3",
+      "sha256": "88d5455a29ff45ba58c8398eb23dc352b6d44e5674e36023e64e5dcd70722b35",
+      "bytes": 2303
+    },
+    {
+      "path": "LICENSE",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "26dc548c2c3989fc227b960f97b91d76e41a9223",
+      "sha256": "9d1139c42bde151af259ca7196c9da2f19d85fbd3b8771a3d3f0e1e5f6490c9c",
+      "bytes": 1069
+    },
+    {
+      "path": "bindings/go/README.md",
+      "owner": "Go",
+      "kind": "documentation",
+      "git_blob": "0cd98fcbc4345a797b637e0264b53e4f71a9f35d",
+      "sha256": "97fa2fd09724002289e8f6661b4200977a65bf2ba1d17585c57c64e7bbb8f092",
+      "bytes": 22530
+    },
+    {
+      "path": "bindings/go/codec.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "aaebc6b12e4178ef7000c7a9d762ca847e1832a2",
+      "sha256": "890ed82d287df434107945fbb9897f0f27c7396105e85bc0f6b30a83d111bfb8",
+      "bytes": 8925
+    },
+    {
+      "path": "bindings/go/diagnostic_kind.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "15c56d352f7882c580f22d941d4676158d3de646",
+      "sha256": "42bcfb8d290ffa1b4eddc616cb7a92bdf734fbfeef26b01d8545860505daa046",
+      "bytes": 6369
+    },
+    {
+      "path": "bindings/go/document.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "8e0e2105ab7cb8fc16f556681ff29d6e78e2b3f2",
+      "sha256": "489ebdc7a2c4eaaee29c9ec2c06e5772dace94e09675eef524f320f9345e648f",
+      "bytes": 9119
+    },
+    {
+      "path": "bindings/go/element.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "9dc9b2f0571251644684dc77815bc474972474e0",
+      "sha256": "9a2942495f1e8ba601224490a7d601ea5873a79cd5875a364423105898d39c20",
+      "bytes": 2926
+    },
+    {
+      "path": "bindings/go/element_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "8fa4467b798cda9b8876d1f7ea0901583e33d59c",
+      "sha256": "5686e3044782931acb1cc549548ce617d8a02b4b2ec41632992d1bcc56429e3b",
+      "bytes": 1235
+    },
+    {
+      "path": "bindings/go/errors.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "42a8ad3fc923950af5bfa485508a5538a6afc483",
+      "sha256": "894eb103fe24d6422522d2a60266934cb8b5c61e34e5befa586f4a0a85400997",
+      "bytes": 8586
+    },
+    {
+      "path": "bindings/go/examples/codec/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "787271a88d91e70a1aaa01a0029d3f7dfa8048bc",
+      "sha256": "c7aea4753143a97d4d51ec15187053607eb26e0907a6dde075dd75b6fd5ceadc",
+      "bytes": 468
+    },
+    {
+      "path": "bindings/go/examples/document/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "1522ed6eb5a974f7a933b00bbb4fe10c966db9f2",
+      "sha256": "2ae469972b649639abbaf448cf73fac3c9c8277f83bfc86917bc678c286aae4a",
+      "bytes": 789
+    },
+    {
+      "path": "bindings/go/examples/errors/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "2942b7671810725743ae590fcb00553ddacf2bd7",
+      "sha256": "32f4b7c56ee2e8208b413238267be178f9bad564f6ac72eea829d92e82d4925a",
+      "bytes": 752
+    },
+    {
+      "path": "bindings/go/examples/query/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "4eb53e8859f5f117dd17a87249ff8959c3a5120b",
+      "sha256": "edf0cf80ab1984336b4d320ffae12290a19bb2a475c2c15a4506b83366b9d981",
+      "bytes": 677
+    },
+    {
+      "path": "bindings/go/examples/query_conformance/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "2da77ca5f91febe76c6c382207e84f95c57ca13d",
+      "sha256": "d9d596a343fb35b00a1188f6a7d29d0df8e3961d3a5607bb3ac1167c7ba86f0f",
+      "bytes": 5102
+    },
+    {
+      "path": "bindings/go/examples/quick_start/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "1cc2b14e469933f0d8e8214e665cf3c8e166c3dc",
+      "sha256": "77f8d78b79a845eaa392d5dca70f2836df4c0148c8336de088d701a15937eefe",
+      "bytes": 760
+    },
+    {
+      "path": "bindings/go/examples/reader/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "e462f81c51baf252a9fcc0e77e6e78bd045553cc",
+      "sha256": "0fb1464a184ae2884b6b4c97b7d78ca5614554b01249e588718b2e960a538e1c",
+      "bytes": 577
+    },
+    {
+      "path": "bindings/go/examples/version/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "24e7d74315ebc1be219112204f85d1d93c7e0b2d",
+      "sha256": "d1199f12d50772adfbf89ba018c8daf02da1cffcfc58580f53f01417dd462d11",
+      "bytes": 196
+    },
+    {
+      "path": "bindings/go/examples/writer/main.go",
+      "owner": "Go",
+      "kind": "example",
+      "git_blob": "5752ef7e8b8bcd9826307cff0689469b3b096001",
+      "sha256": "c5da4403268a9ea34c5201923fe6c7c077da9e1b9ef06e7a79f21cf9a927ba7c",
+      "bytes": 546
+    },
+    {
+      "path": "bindings/go/format.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "62ddbe194bea52d26599258eb1919a605f591231",
+      "sha256": "65fa48d9e9179d05fb751e1901f4be03950951484ace0e014c48fd2cc0b7f7f3",
+      "bytes": 3886
+    },
+    {
+      "path": "bindings/go/go.mod",
+      "owner": "Go",
+      "kind": "module",
+      "git_blob": "8d0d43d9fee7a74cab4412d13d317a17fcb8d1ff",
+      "sha256": "20ab2e5a3154aac4865f38be0a082a639aeaede92c8743ad7553f72e47bc5bc4",
+      "bytes": 59
+    },
+    {
+      "path": "bindings/go/internal/capi/bridge.c",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "b5546fde51fac78d8fde7fdffacd257e983913e9",
+      "sha256": "f76387f491945973cb944591b1b3e7c2dc81e97211891bac29f9b66ba979c532",
+      "bytes": 39176
+    },
+    {
+      "path": "bindings/go/internal/capi/bridge.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "abd4ef3dc9b8d1fd9fa8cf46f5b20864c102d486",
+      "sha256": "58a3e2c1c4707a6bddbf1c42af670872466be832bfd346cec1b3e93e5dc8f1ff",
+      "bytes": 11585
+    },
+    {
+      "path": "bindings/go/internal/capi/bridge.h",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "a09b1cc500c47f1ca236e94ea29690674a75e080",
+      "sha256": "6f04c436ccbdb1fcde184fa05d81908b34fabb1cb016d7c42f2c3154341ba101",
+      "bytes": 7106
+    },
+    {
+      "path": "bindings/go/internal/capi/bridge_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "7cba217bda29ba35cad9bbc62f9cc9b1810b6166",
+      "sha256": "d42c5a282cec1ffb0eb10d360b57f68b5fa107a89a8ec6f46866c1261592ad4b",
+      "bytes": 7036
+    },
+    {
+      "path": "bindings/go/internal/capi/capi.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "4f4ddfb9a6dfe699dab4124a2941e11be498e03c",
+      "sha256": "51b88efc0d7afcebfcd9f95aa8f612292441e0c00de1c12b0fac702642331a16",
+      "bytes": 745
+    },
+    {
+      "path": "bindings/go/internal/capi/codec.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "5b81596c02bbc9029104dc4ad9b7095afc75d5f9",
+      "sha256": "68497be9d5288bcc338c85e329c3d2bd137aea9119eacde4fa472bff91e7981e",
+      "bytes": 5912
+    },
+    {
+      "path": "bindings/go/internal/capi/codec_diagnostic.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "4cd1a2b67713d37bd0cd6cf8a5413ec3c1d1cd99",
+      "sha256": "bbb1734343283f9cc829b9b4a4061577dd06b3f84650a09283fbd7c640395848",
+      "bytes": 2771
+    },
+    {
+      "path": "bindings/go/internal/capi/diagnostic_strings.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "c15ac1bb09a192e003855c567961da42f0658d02",
+      "sha256": "49966157e3f7ac4baaa4d928f88c07f8f3c64526ac3374c8b8c1c2d4af367560",
+      "bytes": 1882
+    },
+    {
+      "path": "bindings/go/internal/capi/document.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "2dc7d933b5a3d00a597ff6e5b99317b493e9d39e",
+      "sha256": "668d713afe9663a10fac7d3ee18a709ce66f2af1beba748150d2afb071be99ca",
+      "bytes": 3254
+    },
+    {
+      "path": "bindings/go/internal/capi/program.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "0f70353d61371e8e32a820a198eb97a9d18f5324",
+      "sha256": "959f0e56a0dbc87f2fcfb03631a33c3a8ee1caf20ab77b405af3e2b7a6f3f124",
+      "bytes": 25792
+    },
+    {
+      "path": "bindings/go/internal/capi/query.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "bb657186a9d15a8a048e3312427f70ac9fff586b",
+      "sha256": "1650c4e2016cf0d789609b94a7427786d2b22592c9b61b3f23c836edd43e3155",
+      "bytes": 1128
+    },
+    {
+      "path": "bindings/go/internal/capi/query_extensions.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "86949a8c48f2845c16904d45d1e04d82c62b9b74",
+      "sha256": "21c2da8bfac6d277f92875692ad5a1718ab1caf3bbb1b20987f4a94648d7cdf1",
+      "bytes": 5209
+    },
+    {
+      "path": "bindings/go/internal/capi/query_v1.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "9f391b849f7b6a2869c08ff59b33af6ca9619732",
+      "sha256": "51a245f9808d8fe0ba20a30095a7c7cf7786a8d126b21af970001eeb9de98e43",
+      "bytes": 3981
+    },
+    {
+      "path": "bindings/go/internal/capi/tree.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "0e5f389d0554b2980c48fa23e555f41deae565a2",
+      "sha256": "6e922c194d5206250faea424cfb5aaccb97f00e3117daa5bb86d54798d1775b0",
+      "bytes": 1154
+    },
+    {
+      "path": "bindings/go/opentlv.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "9bae59785721b6cb6889ccb9102ab1292146d499",
+      "sha256": "3bd80a66dad05c064865cd417f7c19abdace4f1d08b715c1db8283c134af2e23",
+      "bytes": 872
+    },
+    {
+      "path": "bindings/go/program.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "4d38b444f5ad03db18ca7022841df6a1b6549fd7",
+      "sha256": "a73bb6d42d194b30b4c2d29c260bdddbb42021e64a0917bf6f912328ebd4f203",
+      "bytes": 26062
+    },
+    {
+      "path": "bindings/go/query.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "d8f248ebb9839c0e953a4f663b29bde5650a631c",
+      "sha256": "f4dae347dc4de832093160ea4e6fdc69884d629b6178f61cf34f1ce09f4d1fde",
+      "bytes": 1395
+    },
+    {
+      "path": "bindings/go/query_extensions.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "c338b5f3c2fc449b6157bc430034bfdf549d1a53",
+      "sha256": "66e446d629eba60c5a713c4aa8d585fda09c28c02a6d9d9f0ba16c2a0fc477ac",
+      "bytes": 2683
+    },
+    {
+      "path": "bindings/go/query_v1.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "6137aa8c00901480b1e19eac90f4c7a948eb49e5",
+      "sha256": "7129011683ef8241b69441897e3debde8259e67736739b33b1e3896d847f38f9",
+      "bytes": 3319
+    },
+    {
+      "path": "bindings/go/reader.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "b23c5419d109561d004032a0b68a53a590af0bff",
+      "sha256": "2e4beae14d478f54046ad1b11b11b9311a9657be10704e6ade50706882e3774c",
+      "bytes": 3828
+    },
+    {
+      "path": "bindings/go/tests/architecture_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "4da38d7537ab2eb84464be44c076320baebc0872",
+      "sha256": "9d471c86c740c46dbedd27e81fc2404e7010ad2388030e1a5761f3f1d9ea22d3",
+      "bytes": 1284
+    },
+    {
+      "path": "bindings/go/tests/diagnostic_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "a04d7ddd297b55790316c0da784ae8cf06336fa7",
+      "sha256": "5d9c9b83d752d6655263cabce59276076880139b0fa0e4c06f09e4f1d68c40bf",
+      "bytes": 1893
+    },
+    {
+      "path": "bindings/go/tests/diagnostic_vocabulary_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "31659a082736c843f08df19a9638ffdd922232d7",
+      "sha256": "fc96a19c062d558f5dd9a7b5e0d57e33ef725137e520aa5101bbb398c126f8c3",
+      "bytes": 3993
+    },
+    {
+      "path": "bindings/go/tests/document_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "67af636577c387e8bfb05e48a9364ea641380e89",
+      "sha256": "298e710161b0861fc308102e177606d5f2784ce5b3a66a3b1d79d23d5d351734",
+      "bytes": 4514
+    },
+    {
+      "path": "bindings/go/tests/errors_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "ad6ac459794bbb5237e1a7a23ad9d725141ca1c8",
+      "sha256": "8563b1969f2d1a6bf44da00a9bdf5c694bc9bf1cb47a9bcfc5ed1cf91428a5fc",
+      "bytes": 5550
+    },
+    {
+      "path": "bindings/go/tests/model_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "4cfad3bc9f91ecb36fd72d7e01b632fc9166ebfd",
+      "sha256": "d9b93f142799c344926ad7e5d1e1377f1c657dbc2d76918c88120a5526bd1c0c",
+      "bytes": 1762
+    },
+    {
+      "path": "bindings/go/tests/program_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "eab9549f73e06532e6602e8729c2c9a890fe1550",
+      "sha256": "b9c9d4df4e032bf2efaa365a4958cb8371ad7f5aeaca8a9d8644a035d424036b",
+      "bytes": 18416
+    },
+    {
+      "path": "bindings/go/tests/quality_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "b72f5f37a7df30458a16ba7053d3488ee2d7e464",
+      "sha256": "d0ddeea136ecf3a034d039666552ee57605ac8dca4e1fdbd6df172b5a7e37369",
+      "bytes": 3267
+    },
+    {
+      "path": "bindings/go/tests/query_codec_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "4aabec43a34373679c5e21e5c5eff5db79f817d9",
+      "sha256": "2222c604b8585ee43714ae26c2f169f9f88e6f90eeeb37e636019077256f433c",
+      "bytes": 4989
+    },
+    {
+      "path": "bindings/go/tests/query_extensions_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "66294c1160acf44b7b18e77fd375f3ca9d4a8137",
+      "sha256": "73c38f00977f4eadf574e4f9ac8dd9168665fd2ecddc06ef086d00caacf0d359",
+      "bytes": 8067
+    },
+    {
+      "path": "bindings/go/tests/query_v1_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "4dad109eb172a7c145ec4fb366f8e7da5b93fdd4",
+      "sha256": "3611c9490f5252e809fd7eac39304965777e9f4bd1d356b2fb8bf038247af5af",
+      "bytes": 2952
+    },
+    {
+      "path": "bindings/go/tests/reader_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "4dbeaa35730c51e791619d70190917e5d3b0b460",
+      "sha256": "57c374e50c6aef1d49a3e37c42c3c25015e9cfd4729bec374f3a10e4a50f58dc",
+      "bytes": 4788
+    },
+    {
+      "path": "bindings/go/tests/smoke_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "61a4a521683c9da450bffa37fbc7d6b3c9bb07f4",
+      "sha256": "5ffd92eaa35739a92f0e769a37aa19d6e6ec81b3ae37ecd524da3f7c2772832e",
+      "bytes": 497
+    },
+    {
+      "path": "bindings/go/tests/writer_test.go",
+      "owner": "Go",
+      "kind": "test",
+      "git_blob": "a36c287e9800aeee256648f4629f8b92571ad006",
+      "sha256": "c897c96dcf614639fc79393ddb2e786eef752077032090481b1d168053d72944",
+      "bytes": 6693
+    },
+    {
+      "path": "bindings/go/writer.go",
+      "owner": "Go",
+      "kind": "implementation",
+      "git_blob": "c7712ff1574fcc537a3691e70b55f3faadf4c5a8",
+      "sha256": "6c46cf6e3a86b81465558eca80dc527924161e37503be04d3b1304162f39afdf",
+      "bytes": 6499
+    },
+    {
+      "path": "docs/concepts/bindings.md",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "33e843fdb2992ad280118b6dba46f213074573ad",
+      "sha256": "ca35f35685c4ff3bb314d64304f61251c525d91f0f86f5bce785a76b4f0bbc2d",
+      "bytes": 34202
+    },
+    {
+      "path": "docs/development/documentation-audit.md",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "94715e95b2b74f5ab041c5b6b36a530a3c714043",
+      "sha256": "801543890049febfec488e8d578c46686f5342f1ec98df70cc38895ab86ef095",
+      "bytes": 16926
+    },
+    {
+      "path": "docs/development/go.md",
+      "owner": "Go",
+      "kind": "documentation",
+      "git_blob": "ffac637ac2033a347d299ac5aceed1a70118927a",
+      "sha256": "c203d6366b1ea02a6428d2bac7dbb93261268353884f14569793c9ee258d73ce",
+      "bytes": 1498
+    },
+    {
+      "path": "docs/getting-started/README.md",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "dc6fe34d81f569e9196e267a9df68d52e4072d32",
+      "sha256": "68604e1189fe52ada554191895892bc4c1c1b3fbce7ca015a1563884c51703aa",
+      "bytes": 23979
+    },
+    {
+      "path": "docs/guides/document.md",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "cc251296e9e5387ab172807622d52edd20708c3a",
+      "sha256": "17ab31d3e986c90eda079f0d963a42e4d4e59d5f542fca30cba7b0f8be4c84bc",
+      "bytes": 21245
+    },
+    {
+      "path": "docs/guides/examples.md",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "e0cac358c8edb4f31f473d514736da7e9772323f",
+      "sha256": "5bc60bb1c7f9903f5b6fac1f048af59b6b0e620dcfa2c80ceaeca0512532ddbd",
+      "bytes": 11313
+    },
+    {
+      "path": "docs/guides/go.md",
+      "owner": "Go",
+      "kind": "documentation",
+      "git_blob": "a6f74f0fba3fdd13aca6de12b09e2365b4cb412f",
+      "sha256": "9a9c879db14757924104127e819e7013188bca9c0c2c9c2ced0b87eaaf2847de",
+      "bytes": 12313
+    },
+    {
+      "path": "docs/guides/queries.md",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "e93d0668b4a9dcb37c36bc2a935fc0d1ca02a9b8",
+      "sha256": "ebb3502fe1c4cd732dbeb200192dd4cb80e21b0fc70cdc2d7b733fa7dd1b77b9",
+      "bytes": 27955
+    },
+    {
+      "path": "scripts/check_doc_inventory.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "9343e1586d0cba773cde9d55dd86422313946136",
+      "sha256": "d0838bcdd25e4862fa8aaa7bfedfe0411f3033b884a1d8755615b8e0fe948549",
+      "bytes": 6356
+    },
+    {
+      "path": "scripts/generate_diagnostic_vocabulary.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "78605eeef0300e6de76a1f3fe31162c27f950fef",
+      "sha256": "6673fbb03199ad9ee9cf8de0dde6cf12f79f8ad187520ff8258705ba3ac4c89d",
+      "bytes": 15504
+    },
+    {
+      "path": "scripts/test_diagnostic_vocabulary.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "71abfeed8c5b66ee9c66059a6a2a22474d730eef",
+      "sha256": "8ebdb4859730c583e81758b4faa933928198ce11ac63033e2d57bd9329e32177",
+      "bytes": 3692
+    },
+    {
+      "path": "scripts/test_doc_inventory.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "98011061e198a3f3224a9dd6e5aacfa43028febd",
+      "sha256": "8d34bb52738509585738ec1fd33c95e97f9f00312ec555ee6ef62be2dcda89cd",
+      "bytes": 4677
+    },
+    {
+      "path": "tests/property/corpus.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "db2ba865e886b4909efb8b51bb71d5a5d85dc2c6",
+      "sha256": "39307f16371b34410a5682edb1588f934c2eaa298eea6afa82e9b1b9964ee5eb",
+      "bytes": 7544
+    },
+    {
+      "path": "tests/query/corpus.json",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "2988471c9ad60d84093367759fcbaa49fc8e9958",
+      "sha256": "5e9d24f37a31562246959bfaeab23029337d539f5b5e1b6b3ad955040ad23612",
+      "bytes": 44773
+    },
+    {
+      "path": "tests/query/facade_fixtures.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "36b47c490e48790aa1ee7378e2cd3e518de995e8",
+      "sha256": "0aac0c974366dec10416ace5114fd7e58f17289c0531da1d747382131314de61",
+      "bytes": 811
+    },
+    {
+      "path": "tests/query/minimize.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "109f88f4e487dd4afe54ffdc81fba51be2e59328",
+      "sha256": "e5e455aacd4fc508e5e64977fa97e36562d86074b1ab9b7f582fd6cca7c164c5",
+      "bytes": 3074
+    },
+    {
+      "path": "tests/query/reference.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "3456dd1f8f4732df9a2dc4f53daa6fb9680a95e1",
+      "sha256": "70f8c7db87a715b63f8865fa3e48c566fb195ade159d49649bcd53ce9b99cc3d",
+      "bytes": 15185
+    },
+    {
+      "path": "tests/query/run.py",
+      "owner": "Core",
+      "kind": "shared input or integration reference",
+      "git_blob": "424bf0b7a3c8ed25319382c76dc734e258636007",
+      "sha256": "a9489b8b30ec17959253c1d82e856f7d9463c9824fad1ede57744f6f5b32d8b0",
+      "bytes": 11123
+    }
+  ]
+}

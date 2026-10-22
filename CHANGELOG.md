@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Record the Go extraction baseline with pinned source hashes, ownership and linking contracts, reproducible local test evidence and standalone repository provenance. (#685)
 - Freeze the CLI migration regression baseline with source provenance, command/test/fixture ownership inventories and portable exit-code, stdout, stderr and file comparisons integrated into CTest. (#621)
 - Expose native C/C++ Fixed round-trip examples through a source-owned feature catalog and a documentation slot for portal language tabs. (OpenTLV/opentlv-docs#5)
 - Documentation ownership rules and a source inventory defining Core, binding, tool and portal responsibilities, transitional exceptions, and link preservation requirements for the independent documentation portal. (#605)

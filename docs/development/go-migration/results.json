@@ -1,0 +1,999 @@
+{
+  "schema": 1,
+  "core_commit": "cb3caed5b09706ce11ecfae839397fd4f99d0025",
+  "module": "github.com/marekcingel/OpenTLV/bindings/go",
+  "inventory_sha256": "dd6e1d10a0a8e782210834da7c160805cf199306e65f16282fa922041d075d52",
+  "started_utc": "2026-10-22T20:00:46.900546+00:00",
+  "platform": "Linux-5.15.153.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "checks": [
+    {
+      "name": "go-version",
+      "command": [
+        "go",
+        "version"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "go-version.log",
+      "log_sha256": "65593ce58a2f4d22e9222d43a2c8330d6e6d2f6257da2f06b80949958c14a4ec",
+      "output": "go version go1.22.2 linux/amd64\n"
+    },
+    {
+      "name": "go-env",
+      "command": [
+        "go",
+        "env",
+        "-json",
+        "GOOS",
+        "GOARCH",
+        "CGO_ENABLED",
+        "CC"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "go-env.log",
+      "log_sha256": "d0aed09280e2fad045e0b6267a7b85d39790baa84fa920ad89a5ce55db384323",
+      "output": "{\n\t\"CC\": \"gcc\",\n\t\"CGO_ENABLED\": \"1\",\n\t\"GOARCH\": \"amd64\",\n\t\"GOOS\": \"linux\"\n}\n"
+    },
+    {
+      "name": "gcc-version",
+      "command": [
+        "gcc",
+        "--version"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "gcc-version.log",
+      "log_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "output": "gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n"
+    },
+    {
+      "name": "cmake-version",
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "cmake-version.log",
+      "log_sha256": "d3d5b682f3f5ef5b24a79ed8cf4b8c5868fc950dad48cab1be0e3c060a77f8ee",
+      "output": "cmake version 3.28.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake).\n"
+    },
+    {
+      "name": "os-release",
+      "command": [
+        "cat",
+        "/etc/os-release"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "os-release.log",
+      "log_sha256": "bb2b5ec7a2c36a131b8b7cde2f7983f0a4d3ea24b24d3e775b4c8ad5a673d74c",
+      "output": "PRETTY_NAME=\"Ubuntu 24.04.1 LTS\"\nNAME=\"Ubuntu\"\nVERSION_ID=\"24.04\"\nVERSION=\"24.04.1 LTS (Noble Numbat)\"\nVERSION_CODENAME=noble\nID=ubuntu\nID_LIKE=debian\nHOME_URL=\"https://www.ubuntu.com/\"\nSUPPORT_URL=\"https://help.ubuntu.com/\"\nBUG_REPORT_URL=\"https://bugs.launchpad.net/ubuntu/\"\nPRIVACY_POLICY_URL=\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\"\nUBUNTU_CODENAME=noble\nLOGO=ubuntu-logo\n"
+    },
+    {
+      "name": "clone",
+      "command": [
+        "git",
+        "clone",
+        "--shared",
+        "--no-checkout",
+        "/mnt/d/Projects/marekcingel/OpenTLV/opentlv",
+        "/var/tmp/opentlv-go-685-baseline/source"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "clone.log",
+      "log_sha256": "2ac767a158d9bb60b494b5c050113b0ddd5b09814f06c7cbd2eb385495da5316"
+    },
+    {
+      "name": "checkout",
+      "command": [
+        "git",
+        "checkout",
+        "--detach",
+        "cb3caed5b09706ce11ecfae839397fd4f99d0025"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source",
+      "exit_code": 0,
+      "log": "checkout.log",
+      "log_sha256": "b81f4375abed0839f00121473e28a38270ee3d38aa9ec0fabb77dda22e346bd2"
+    },
+    {
+      "name": "source-identity",
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source",
+      "exit_code": 0,
+      "log": "source-identity.log",
+      "log_sha256": "4b0aae2180a5760c415e281ea95aa877ab287a41194105340a1862a37af8df56",
+      "output": "cb3caed5b09706ce11ecfae839397fd4f99d0025\n"
+    },
+    {
+      "name": "module-tags",
+      "command": [
+        "git",
+        "tag",
+        "--merged",
+        "cb3caed5b09706ce11ecfae839397fd4f99d0025",
+        "-l",
+        "bindings/go/*"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source",
+      "exit_code": 0,
+      "log": "module-tags.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output": ""
+    },
+    {
+      "name": "default-static-configure",
+      "command": [
+        "cmake",
+        "-S",
+        "/var/tmp/opentlv-go-685-baseline/source",
+        "-B",
+        "/var/tmp/opentlv-go-685-baseline/default-static",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_C_COMPILER=gcc",
+        "-DOPENTLV_BUILD_SHARED_LIBS=OFF",
+        "-DOPENTLV_BUILD_TESTS=OFF",
+        "-DOPENTLV_BUILD_EXAMPLES=OFF",
+        "-DOPENTLV_BUILD_CXX=OFF"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "default-static-configure.log",
+      "log_sha256": "be132b4890b5e95e6583bdf8599253c0f09a3c745feb1237b99a6b1fdb635ee5"
+    },
+    {
+      "name": "default-static-build",
+      "command": [
+        "cmake",
+        "--build",
+        "/var/tmp/opentlv-go-685-baseline/default-static",
+        "--target",
+        "tlv",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "default-static-build.log",
+      "log_sha256": "8515a6a041f3ef98977fa8a5307e7afb05fb9d4e2410fba45170532565ebca83"
+    },
+    {
+      "name": "default-static-gofmt",
+      "command": [
+        "gofmt",
+        "-l",
+        "."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-gofmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "default-static-vet",
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-vet.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "default-static-test",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-test.log",
+      "log_sha256": "a4c39320f456addd7090e796da21b5b0f9eb04e54e05ca77af9bc7b9e15e519b",
+      "test_events": {
+        "pass": 66
+      },
+      "skipped": [],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "default-static-race",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "-race",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-race.log",
+      "log_sha256": "68de617ed61109a8aeada6848a813159adbc678b3927d6c949bea375fe04e34b",
+      "test_events": {
+        "pass": 66
+      },
+      "skipped": [],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "default-static-cgocheck2",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-cgocheck2.log",
+      "log_sha256": "924fc2d8dc972b3f7cd525988cdb0d7df33ac11c918a8186e5ab8cb76a53d137",
+      "test_events": {
+        "pass": 66
+      },
+      "skipped": [],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "default-static-version",
+      "command": [
+        "go",
+        "run",
+        "./examples/version"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-version.log",
+      "log_sha256": "902311c7bb38fa1658ff403def6158ee7378fe9d6e2e284fa1c38735c31bd30b",
+      "output": "0.7.1\n"
+    },
+    {
+      "name": "default-static-quick_start",
+      "command": [
+        "go",
+        "run",
+        "./examples/quick_start"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-quick_start.log",
+      "log_sha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5",
+      "output": "Hello, world!\n"
+    },
+    {
+      "name": "default-static-reader",
+      "command": [
+        "go",
+        "run",
+        "./examples/reader"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-reader.log",
+      "log_sha256": "4e6cd0f5476d04fd229ef5770d4a6148f6a7c31539e0f79aa39e2eedce0dc56e",
+      "output": "01 @ 0: AA\n02 @ 3: \n"
+    },
+    {
+      "name": "default-static-writer",
+      "command": [
+        "go",
+        "run",
+        "./examples/writer"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-writer.log",
+      "log_sha256": "9adb88f9708bd06614f0d6abc1f026a9ac8f6f7946da5ec501b8053fd5f87a0c",
+      "output": "01 01 2A\n"
+    },
+    {
+      "name": "default-static-errors",
+      "command": [
+        "go",
+        "run",
+        "./examples/errors"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-errors.log",
+      "log_sha256": "70b0b74869f9864bb9a044ab4eceb42e03c501835e30bcebbbd97d9de95b720e",
+      "output": "incomplete final input\nparse error at offset 2, tag 01, declared 2, available 1\n"
+    },
+    {
+      "name": "default-static-codec",
+      "command": [
+        "go",
+        "run",
+        "./examples/codec"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-codec.log",
+      "log_sha256": "acbd25c9d368cdda23ee7ea8e868f19ba51609eb7b47ec9bf82a56c6da2be6a3",
+      "output": "001234 = 1234\n"
+    },
+    {
+      "name": "default-static-document",
+      "command": [
+        "go",
+        "run",
+        "./examples/document"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-document.log",
+      "log_sha256": "3030db1b97b4cdd7ba4db700de9615a90943eb1739bf23ddf474ada6bc92f71e",
+      "output": "01 = 2A\n01012B\n"
+    },
+    {
+      "name": "default-static-query",
+      "command": [
+        "go",
+        "run",
+        "./examples/query"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-query.log",
+      "log_sha256": "cb7dbbb6d97c9a78850c97c9649a849b1a4a08225eab9ded7260c2d48c91c51b",
+      "output": "42\n7\n"
+    },
+    {
+      "name": "default-static-query-build",
+      "command": [
+        "go",
+        "build",
+        "-o",
+        "/var/tmp/opentlv-go-685-baseline/default-static/go-query-conformance",
+        "./examples/query_conformance"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-query-build.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "default-static-query-corpus",
+      "command": [
+        "python3",
+        "/var/tmp/opentlv-go-685-baseline/source/tests/query/run.py",
+        "--native",
+        "/var/tmp/opentlv-go-685-baseline/default-static/go-query-conformance",
+        "--property-cases",
+        "0"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-static-query-corpus.log",
+      "log_sha256": "654e210c372652a34f3614db267c49a72b7325f45e4b03d108fe88e09466ff49",
+      "output": "171 Query fixtures and 0 generated comparisons passed (2133 native executions, 0 unavailable-provider fixtures)\n"
+    },
+    {
+      "name": "minimal-static-configure",
+      "command": [
+        "cmake",
+        "-S",
+        "/var/tmp/opentlv-go-685-baseline/source",
+        "-B",
+        "/var/tmp/opentlv-go-685-baseline/minimal-static",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_C_COMPILER=gcc",
+        "-DOPENTLV_BUILD_SHARED_LIBS=OFF",
+        "-DOPENTLV_BUILD_TESTS=OFF",
+        "-DOPENTLV_BUILD_EXAMPLES=OFF",
+        "-DOPENTLV_BUILD_CXX=OFF",
+        "-DOPENTLV_FORMAT_ASN1=OFF",
+        "-DOPENTLV_BLUETOOTH=OFF",
+        "-DOPENTLV_LLDP=OFF",
+        "-DOPENTLV_DHCP=OFF",
+        "-DOPENTLV_NFC=OFF",
+        "-DOPENTLV_DOCUMENT=OFF"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "minimal-static-configure.log",
+      "log_sha256": "450782cb866058dc53d1c2bd313e1b7e081c48f46254597a7f5996de88616a51"
+    },
+    {
+      "name": "minimal-static-build",
+      "command": [
+        "cmake",
+        "--build",
+        "/var/tmp/opentlv-go-685-baseline/minimal-static",
+        "--target",
+        "tlv",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "minimal-static-build.log",
+      "log_sha256": "e1f9617b7ce6221f4fdc01fd18eea7fd77da677ae7dd0d917547d4607fae21c2"
+    },
+    {
+      "name": "minimal-static-gofmt",
+      "command": [
+        "gofmt",
+        "-l",
+        "."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-gofmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "minimal-static-vet",
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-vet.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "minimal-static-test",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-test.log",
+      "log_sha256": "9b806c90a06447daeab54c0c2f9ec42734aeb32007c045fe585930ddfdc2191c",
+      "test_events": {
+        "pass": 40,
+        "skip": 26
+      },
+      "skipped": [
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCategoryAndCommonEvidenceWithoutReader",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentOwnershipMutationAndCleanup",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentNestedNativeSemantics",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentLimitsForeignNodesAndConversion",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestNestedDocumentFailureAndLimits",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentParseDiagnostics",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaOwnedDiagnosticsAndBounds",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaProviderLifetimeAndDocumentGuards",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCustomProvidersLifetimeImageAndErrors",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryProviderPanicAndReentryDoNotCrossC",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryRawFeedsImmediateRetainedAndMalformed",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCompletedDocumentEditRetryAndOverlap",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryDocumentEditKeepsReaderCauseOfConstructedValue",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledProgramTypedBindingsAndImage",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledStreamingContinuationOwnershipAndReentry",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledCallbackPanicAndPartialCoverage",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledDocumentRevisionAndClose",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaDiagnosticPathTruncation",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestReaderMalformedBER",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryDocumentEditsAndErrors",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryNestedDuplicateBranches",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentSourceLocationsSupportGlobalAxes",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryNativeEMVResolver",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterNestedStagingAndOwnership",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterEndCapacityRetry",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterBERLongAndEmptyParent"
+      ],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "minimal-static-race",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "-race",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-race.log",
+      "log_sha256": "97ccf93bc498b374874c5f4bceccc6bd86abe0a0aea8a9d37cbce7422eb1b194",
+      "test_events": {
+        "pass": 40,
+        "skip": 26
+      },
+      "skipped": [
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCategoryAndCommonEvidenceWithoutReader",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentOwnershipMutationAndCleanup",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentNestedNativeSemantics",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentLimitsForeignNodesAndConversion",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestNestedDocumentFailureAndLimits",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentParseDiagnostics",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaOwnedDiagnosticsAndBounds",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaProviderLifetimeAndDocumentGuards",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCustomProvidersLifetimeImageAndErrors",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryProviderPanicAndReentryDoNotCrossC",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryRawFeedsImmediateRetainedAndMalformed",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCompletedDocumentEditRetryAndOverlap",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryDocumentEditKeepsReaderCauseOfConstructedValue",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledProgramTypedBindingsAndImage",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledStreamingContinuationOwnershipAndReentry",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledCallbackPanicAndPartialCoverage",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledDocumentRevisionAndClose",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaDiagnosticPathTruncation",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestReaderMalformedBER",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryDocumentEditsAndErrors",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryNestedDuplicateBranches",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentSourceLocationsSupportGlobalAxes",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryNativeEMVResolver",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterNestedStagingAndOwnership",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterEndCapacityRetry",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterBERLongAndEmptyParent"
+      ],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "minimal-static-cgocheck2",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-cgocheck2.log",
+      "log_sha256": "46cd5d014eeb4efb9c81c2282beaad7334ee2338fa35eea19354de8505ec2e6e",
+      "test_events": {
+        "pass": 40,
+        "skip": 26
+      },
+      "skipped": [
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCategoryAndCommonEvidenceWithoutReader",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentOwnershipMutationAndCleanup",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentNestedNativeSemantics",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentLimitsForeignNodesAndConversion",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestNestedDocumentFailureAndLimits",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentParseDiagnostics",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaOwnedDiagnosticsAndBounds",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaProviderLifetimeAndDocumentGuards",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCustomProvidersLifetimeImageAndErrors",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryProviderPanicAndReentryDoNotCrossC",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryRawFeedsImmediateRetainedAndMalformed",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryCompletedDocumentEditRetryAndOverlap",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryDocumentEditKeepsReaderCauseOfConstructedValue",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledProgramTypedBindingsAndImage",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledStreamingContinuationOwnershipAndReentry",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledCallbackPanicAndPartialCoverage",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestCompiledDocumentRevisionAndClose",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQuerySchemaDiagnosticPathTruncation",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestReaderMalformedBER",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryDocumentEditsAndErrors",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryNestedDuplicateBranches",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestDocumentSourceLocationsSupportGlobalAxes",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestQueryNativeEMVResolver",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterNestedStagingAndOwnership",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterEndCapacityRetry",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests/TestWriterBERLongAndEmptyParent"
+      ],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "minimal-static-version",
+      "command": [
+        "go",
+        "run",
+        "./examples/version"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-version.log",
+      "log_sha256": "902311c7bb38fa1658ff403def6158ee7378fe9d6e2e284fa1c38735c31bd30b",
+      "output": "0.7.1\n"
+    },
+    {
+      "name": "minimal-static-quick_start",
+      "command": [
+        "go",
+        "run",
+        "./examples/quick_start"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-quick_start.log",
+      "log_sha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5",
+      "output": "Hello, world!\n"
+    },
+    {
+      "name": "minimal-static-reader",
+      "command": [
+        "go",
+        "run",
+        "./examples/reader"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-reader.log",
+      "log_sha256": "4e6cd0f5476d04fd229ef5770d4a6148f6a7c31539e0f79aa39e2eedce0dc56e",
+      "output": "01 @ 0: AA\n02 @ 3: \n"
+    },
+    {
+      "name": "minimal-static-writer",
+      "command": [
+        "go",
+        "run",
+        "./examples/writer"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-writer.log",
+      "log_sha256": "9adb88f9708bd06614f0d6abc1f026a9ac8f6f7946da5ec501b8053fd5f87a0c",
+      "output": "01 01 2A\n"
+    },
+    {
+      "name": "minimal-static-errors",
+      "command": [
+        "go",
+        "run",
+        "./examples/errors"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-errors.log",
+      "log_sha256": "70b0b74869f9864bb9a044ab4eceb42e03c501835e30bcebbbd97d9de95b720e",
+      "output": "incomplete final input\nparse error at offset 2, tag 01, declared 2, available 1\n"
+    },
+    {
+      "name": "minimal-static-codec",
+      "command": [
+        "go",
+        "run",
+        "./examples/codec"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "minimal-static-codec.log",
+      "log_sha256": "acbd25c9d368cdda23ee7ea8e868f19ba51609eb7b47ec9bf82a56c6da2be6a3",
+      "output": "001234 = 1234\n"
+    },
+    {
+      "name": "default-shared-configure",
+      "command": [
+        "cmake",
+        "-S",
+        "/var/tmp/opentlv-go-685-baseline/source",
+        "-B",
+        "/var/tmp/opentlv-go-685-baseline/default-shared",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DCMAKE_C_COMPILER=gcc",
+        "-DOPENTLV_BUILD_SHARED_LIBS=ON",
+        "-DOPENTLV_BUILD_TESTS=OFF",
+        "-DOPENTLV_BUILD_EXAMPLES=OFF",
+        "-DOPENTLV_BUILD_CXX=OFF"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "default-shared-configure.log",
+      "log_sha256": "9ebb33fb9b6068c3558c75e63e00f321c20d4d27f43a30b9c731335140bfbdc8"
+    },
+    {
+      "name": "default-shared-build",
+      "command": [
+        "cmake",
+        "--build",
+        "/var/tmp/opentlv-go-685-baseline/default-shared",
+        "--target",
+        "tlv",
+        "--parallel",
+        "2"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline",
+      "exit_code": 0,
+      "log": "default-shared-build.log",
+      "log_sha256": "bdb809e51465038612112ed29c15db81c0e52a62a35775b5532631e933c7b67b"
+    },
+    {
+      "name": "default-shared-gofmt",
+      "command": [
+        "gofmt",
+        "-l",
+        "."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-gofmt.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "default-shared-vet",
+      "command": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-vet.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "default-shared-test",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-test.log",
+      "log_sha256": "02ee4edb7df787d50700ae806df4720f622ba5f0241359a144eebde49d354f0f",
+      "test_events": {
+        "pass": 66
+      },
+      "skipped": [],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "default-shared-race",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "-race",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-race.log",
+      "log_sha256": "81c87dd51fdcc1565add5817bc4c44d58e3a9edc8959c630ba05b499afb76122",
+      "test_events": {
+        "pass": 66
+      },
+      "skipped": [],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "default-shared-cgocheck2",
+      "command": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./..."
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-cgocheck2.log",
+      "log_sha256": "ba503db4bb54417536ef1a6bc38dab6cfee549e4a42afdefaabdd6ae79e002cf",
+      "test_events": {
+        "pass": 66
+      },
+      "skipped": [],
+      "packages_passed": [
+        "github.com/marekcingel/OpenTLV/bindings/go",
+        "github.com/marekcingel/OpenTLV/bindings/go/internal/capi",
+        "github.com/marekcingel/OpenTLV/bindings/go/tests"
+      ]
+    },
+    {
+      "name": "default-shared-version",
+      "command": [
+        "go",
+        "run",
+        "./examples/version"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-version.log",
+      "log_sha256": "902311c7bb38fa1658ff403def6158ee7378fe9d6e2e284fa1c38735c31bd30b",
+      "output": "0.7.1\n"
+    },
+    {
+      "name": "default-shared-quick_start",
+      "command": [
+        "go",
+        "run",
+        "./examples/quick_start"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-quick_start.log",
+      "log_sha256": "d9014c4624844aa5bac314773d6b689ad467fa4e1d1a50a1b8a99d5a95f72ff5",
+      "output": "Hello, world!\n"
+    },
+    {
+      "name": "default-shared-reader",
+      "command": [
+        "go",
+        "run",
+        "./examples/reader"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-reader.log",
+      "log_sha256": "4e6cd0f5476d04fd229ef5770d4a6148f6a7c31539e0f79aa39e2eedce0dc56e",
+      "output": "01 @ 0: AA\n02 @ 3: \n"
+    },
+    {
+      "name": "default-shared-writer",
+      "command": [
+        "go",
+        "run",
+        "./examples/writer"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-writer.log",
+      "log_sha256": "9adb88f9708bd06614f0d6abc1f026a9ac8f6f7946da5ec501b8053fd5f87a0c",
+      "output": "01 01 2A\n"
+    },
+    {
+      "name": "default-shared-errors",
+      "command": [
+        "go",
+        "run",
+        "./examples/errors"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-errors.log",
+      "log_sha256": "70b0b74869f9864bb9a044ab4eceb42e03c501835e30bcebbbd97d9de95b720e",
+      "output": "incomplete final input\nparse error at offset 2, tag 01, declared 2, available 1\n"
+    },
+    {
+      "name": "default-shared-codec",
+      "command": [
+        "go",
+        "run",
+        "./examples/codec"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-codec.log",
+      "log_sha256": "acbd25c9d368cdda23ee7ea8e868f19ba51609eb7b47ec9bf82a56c6da2be6a3",
+      "output": "001234 = 1234\n"
+    },
+    {
+      "name": "default-shared-document",
+      "command": [
+        "go",
+        "run",
+        "./examples/document"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-document.log",
+      "log_sha256": "3030db1b97b4cdd7ba4db700de9615a90943eb1739bf23ddf474ada6bc92f71e",
+      "output": "01 = 2A\n01012B\n"
+    },
+    {
+      "name": "default-shared-query",
+      "command": [
+        "go",
+        "run",
+        "./examples/query"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-query.log",
+      "log_sha256": "cb7dbbb6d97c9a78850c97c9649a849b1a4a08225eab9ded7260c2d48c91c51b",
+      "output": "42\n7\n"
+    },
+    {
+      "name": "default-shared-query-build",
+      "command": [
+        "go",
+        "build",
+        "-o",
+        "/var/tmp/opentlv-go-685-baseline/default-shared/go-query-conformance",
+        "./examples/query_conformance"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-query-build.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "default-shared-query-corpus",
+      "command": [
+        "python3",
+        "/var/tmp/opentlv-go-685-baseline/source/tests/query/run.py",
+        "--native",
+        "/var/tmp/opentlv-go-685-baseline/default-shared/go-query-conformance",
+        "--property-cases",
+        "0"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source/bindings/go",
+      "exit_code": 0,
+      "log": "default-shared-query-corpus.log",
+      "log_sha256": "654e210c372652a34f3614db267c49a72b7325f45e4b03d108fe88e09466ff49",
+      "output": "171 Query fixtures and 0 generated comparisons passed (2133 native executions, 0 unavailable-provider fixtures)\n"
+    },
+    {
+      "name": "source-unchanged",
+      "command": [
+        "git",
+        "diff",
+        "--exit-code",
+        "cb3caed5b09706ce11ecfae839397fd4f99d0025"
+      ],
+      "cwd": "/var/tmp/opentlv-go-685-baseline/source",
+      "exit_code": 0,
+      "log": "source-unchanged.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "status": "passed",
+  "configurations": {
+    "default-static": {
+      "CGO_CPPFLAGS": "-I/var/tmp/opentlv-go-685-baseline/source/tlv/include -I/var/tmp/opentlv-go-685-baseline/default-static/generated/include -DTLV_STATIC_DEFINE",
+      "CGO_LDFLAGS": "-L/var/tmp/opentlv-go-685-baseline/default-static/tlv",
+      "LD_LIBRARY_PATH": "/var/tmp/opentlv-go-685-baseline/default-static/tlv",
+      "GOCACHE": "/var/tmp/opentlv-go-685-baseline/default-static-go-cache"
+    },
+    "minimal-static": {
+      "CGO_CPPFLAGS": "-I/var/tmp/opentlv-go-685-baseline/source/tlv/include -I/var/tmp/opentlv-go-685-baseline/minimal-static/generated/include -DTLV_STATIC_DEFINE",
+      "CGO_LDFLAGS": "-L/var/tmp/opentlv-go-685-baseline/minimal-static/tlv",
+      "LD_LIBRARY_PATH": "/var/tmp/opentlv-go-685-baseline/minimal-static/tlv",
+      "GOCACHE": "/var/tmp/opentlv-go-685-baseline/minimal-static-go-cache"
+    },
+    "default-shared": {
+      "CGO_CPPFLAGS": "-I/var/tmp/opentlv-go-685-baseline/source/tlv/include -I/var/tmp/opentlv-go-685-baseline/default-shared/generated/include",
+      "CGO_LDFLAGS": "-L/var/tmp/opentlv-go-685-baseline/default-shared/tlv",
+      "LD_LIBRARY_PATH": "/var/tmp/opentlv-go-685-baseline/default-shared/tlv",
+      "GOCACHE": "/var/tmp/opentlv-go-685-baseline/default-shared-go-cache"
+    }
+  },
+  "finished_utc": "2026-10-22T20:04:31.223362+00:00"
+}
