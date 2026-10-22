@@ -2,7 +2,7 @@
 
 The `opentlv-sys` and `opentlv` crates, their tests, examples, packaging and CI
 are maintained in [OpenTLV/opentlv-rust](https://github.com/OpenTLV/opentlv-rust).
-Core no longer contains the `bindings/rust/` Cargo workspace or a Rust workflow.
+Core does not build or test the Rust crates.
 
 ## Build
 
@@ -55,7 +55,6 @@ owning repository.
 ## Migration
 
 The [migration record](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/migration.md)
-freezes Core commit `476f1fbecde6b056419e43c9a6cea4d1ca8df1cf`, including all
-66 original `bindings/rust/` files, the Rust workflow and both Rust guides.
-Their history remains in Core. The workspace supplies `opentlv-rust` as a
+freezes Core commit `476f1fbecde6b056419e43c9a6cea4d1ca8df1cf` as the source
+of the migrated crates, workflow and guides. The workspace supplies `opentlv-rust` as a
 sibling checkout, and the portal consumes the standalone Rust guides.

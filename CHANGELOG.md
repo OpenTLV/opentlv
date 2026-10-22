@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Delete the remaining Rust binding sources, Rust CI workflow and Core Rust user guide from the tree, and drop leftover references to the former in-tree Rust workspace from Core documentation and tests. (#679)
 - Correct the format planning catalog to mark configurable variable-width framing as implemented and describe existing Format trailer encoding, while retaining Diameter as an unimplemented candidate. (OpenTLV/opentlv-docs#61)
 - Correct current documentation ownership, standalone Python entry points and portal handoff guidance after component extraction; update generated API guide links to the seven-section portal while preserving historical migration records. (#667)
 - Resolve cppcheck 2.21 diagnostics exposed by Full CI with explicit schema occurrence handling, narrower variable scopes and const-correct internal reads; retain Query callback cancellation checks and analyze C++ with its required exception support. (#637)

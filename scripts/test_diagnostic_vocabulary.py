@@ -36,8 +36,8 @@ class VocabularyTests(unittest.TestCase):
     def test_default_generation_and_check_need_no_standalone_checkout(self):
         self.assertEqual(self.run_generator(), 0)
         self.assertEqual(self.run_generator("--check"), 0)
-        self.assertFalse((self.root / "bindings/rust").exists())
-        self.assertFalse((self.root / "bindings/python").exists())
+        for option, *_ in generator.STANDALONE:
+            self.assertFalse((self.root / "bindings" / option).exists())
         output = self.root / generator.OUTPUTS[0][0]
         output.write_text("stale", encoding="utf-8")
         self.assertEqual(self.run_generator("--check"), 1)

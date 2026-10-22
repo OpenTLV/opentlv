@@ -447,7 +447,7 @@ the public `opentlv` facade in each language.
 For existing checkouts, update Rust dependencies from `opentlv-native` to
 `opentlv-sys` and raw imports from `opentlv_native` to `opentlv_sys`; both
 crates now build from the standalone [opentlv-rust](https://github.com/OpenTLV/opentlv-rust)
-repository instead of Core's former `bindings/rust/` workspace. Python
+repository. Python
 installation now uses the standalone [opentlv-python](https://github.com/OpenTLV/opentlv-python)
 repository; code directly using
 the implementation extension imports `_opentlv`. Lua installation places the
