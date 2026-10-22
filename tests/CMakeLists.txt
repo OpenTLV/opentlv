@@ -13,7 +13,7 @@ if(Python3_Interpreter_FOUND)
     add_test(NAME diagnostic-vocabulary-generator
         COMMAND "${Python3_EXECUTABLE}" -B
                 "${OpenTLV_SOURCE_DIR}/scripts/test_diagnostic_vocabulary.py")
-    # Generated in-tree Rust and Go vocabularies must match the C enums.
+    # Generated in-tree Go vocabularies must match the C enums.
     add_test(NAME diagnostic-vocabulary-generated
         COMMAND "${Python3_EXECUTABLE}"
             "${OpenTLV_SOURCE_DIR}/scripts/generate_diagnostic_vocabulary.py" --check)

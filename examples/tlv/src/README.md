@@ -6,7 +6,7 @@
 ## Use cases
 
 The same document is parsed, built, addressed and checked here as in
-[`examples/tlv++`](../../tlv++/src/), [`bindings/rust/opentlv/examples`](../../../bindings/rust/opentlv/examples/)
+[`examples/tlv++`](../../tlv++/src/), [`opentlv-rust/opentlv/examples`](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/examples/)
 and [`bindings/wasm/examples`](../../../bindings/wasm/examples/), so the same
 operation can be compared across languages.
 

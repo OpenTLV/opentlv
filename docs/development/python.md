@@ -28,7 +28,7 @@ metadata. See the standalone [versioning policy](https://github.com/OpenTLV/open
 
 Core owns `scripts/generate_diagnostic_vocabulary.py` because the canonical
 enums and their names come from its public headers and C name tables. Its
-default invocation and `--check` cover only the in-tree Rust and Go outputs.
+default invocation and `--check` cover only the in-tree Go outputs.
 To refresh or check the Python outputs against this Core checkout, explicitly
 select the standalone checkout from the Core repository root:
 

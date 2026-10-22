@@ -86,8 +86,8 @@ add_test(NAME Integration_example_tlv++_formats_fixed_format_runtime
 set_tests_properties(Integration_example_tlv++_formats_fixed_format_runtime PROPERTIES LABELS "integration;examples")
 
 # Use-case examples shared across languages: the same document is parsed,
-# written, queried and validated in examples/tlv, examples/tlv++ and
-# bindings/rust/opentlv/examples.
+# written, queried and validated in examples/tlv, examples/tlv++ and the
+# opentlv-rust examples.
 if(OPENTLV_FORMAT_BER)
     # Explicit source registration also backs the synchronized Writer guide example.
     add_executable(example-tlv++-write src/write.cpp)

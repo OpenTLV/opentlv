@@ -10,6 +10,7 @@ The inventory records both retained Core sources and component destinations.
 The standalone portal owns publication; CLI sources, tests and manuals now
 belong to `OpenTLV/opentlv-cli` (#622). Lua sources, tests and CI belong to `OpenTLV/opentlv-lua` (#633).
 Python sources, packaging, tests and CI belong to `OpenTLV/opentlv-python` (#662).
+Rust sources, packaging, tests, CI and guides belong to `OpenTLV/opentlv-rust` (#679).
 Lua API, implementation, setup and test documentation belong to
 `opentlv-lua` (OpenTLV/opentlv-docs#27). Remaining transitional exceptions are identified below.
 
@@ -22,8 +23,9 @@ Lua API, implementation, setup and test documentation belong to
 | Tool | Its commands, options, input/output conventions, installation, tests and executable examples |
 | Portal (`OpenTLV/opentlv-docs`) | Global navigation, presentation, shared assets, MkDocs configuration, assembly, version selection, integration of generated references and examples, site validation and publication |
 
-C++ remains part of Core. Rust documentation will move with its implementation
-to `OpenTLV/opentlv-rust`. Canonical Python documentation lives in
+C++ remains part of Core. Rust user and development guides are maintained in
+`OpenTLV/opentlv-rust`; the Core Rust developer page records only Core
+integration and migration context. Canonical Python documentation lives in
 `OpenTLV/opentlv-python`; the Core Python guide and developer landing page
 remain retained migration context after the portal source cutover. Current
 Python instructions belong to the standalone source selected by the portal.
@@ -153,7 +155,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/query-phase-audit.md](query-phase-audit.md) | Core | Mixed: native implementation audit and facade evidence |
 | [development/query-release.md](query-release.md) | Core | Mixed: native release checks and consumer compatibility evidence |
 | [development/reader-decode-performance.md](reader-decode-performance.md) | Core | Keep |
-| [development/rust.md](rust.md) | Rust | Component |
+| [development/rust.md](rust.md) | Rust / Core | Landing page and Core integration notes; canonical guide in opentlv-rust |
 | [development/valgrind.md](valgrind.md) | Core | Keep: native checks and harness selection |
 | [development/webassembly.md](webassembly.md) | WebAssembly / Portal | Component: embedding/build API; portal owns playground integration |
 | [development/workflow.md](workflow.md) | Core / components / Portal | Mixed: checks and release/publication responsibilities |
@@ -190,7 +192,7 @@ structure; this table records ownership rather than replacing that audit.
 | [guides/python.md](../guides/python.md) | Python | Transitional copy; canonical guide in opentlv-python |
 | [guides/queries.md](../guides/queries.md) | Core / bindings | Mixed: shared Query semantics and language examples |
 | [guides/reader.md](../guides/reader.md) | Core / bindings | Mixed: shared Reader semantics and language examples |
-| [guides/rust.md](../guides/rust.md) | Rust | Component |
+| [Rust user guide](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) | Rust | Moved to opentlv-rust/docs/guides/rust.md |
 | [guides/schemas.md](../guides/schemas.md) | Core / bindings | Mixed: native validation and facade examples |
 | [guides/select-components.md](../guides/select-components.md) | Core | Mixed: Core configuration and consumer build recipes |
 | [guides/writer.md](../guides/writer.md) | Core / bindings | Mixed: shared Writer semantics and language examples |

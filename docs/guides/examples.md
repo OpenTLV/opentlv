@@ -44,13 +44,12 @@ See the [binding matrix](../concepts/bindings.md) for actual capability coverage
 
 The [quick start](../getting-started/README.md#quick-start) supplies setup and
 run commands. Use the [C++ guide](cxx-examples.md) and the language guides for
-[Rust](rust.md), [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](go.md).
+[Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md), [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](go.md).
 C/C++ sources are registered by their example CMake files and run as CTest
 examples when their components are enabled. Component prerequisites can omit
 individual programs; compiling a minimal build does not exercise disabled formats.
 
-Rust CI builds all targets and runs the quick start; that is not a claim that
-every example is runtime-tested. Standalone Python and Lua CI run their example programs.
+Standalone Rust, Python and Lua CI run their example programs.
 Go CI runs applicable examples in default/minimal builds, excluding Document
 and Query where Document is disabled. WASM's Node example is runnable after an
 Emscripten build; a WASM build alone does not prove that example was run.
@@ -66,7 +65,7 @@ update their examples and documentation together.
 
 The [documentation inventory check](../development/documentation-layout.md#documentation-inventory-checks)
 compares repository-local sources below with the example directories, detecting
-additions, removals and stale links. Python and Lua examples are maintained and tested in
+additions, removals and stale links. Rust, Python and Lua examples are maintained and tested in
 the linked standalone repository. This is an inventory, not evidence of a CI runtime pass.
 
 <!-- example-inventory:start -->
@@ -109,13 +108,13 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | C++ | [typed_fields.cpp](../../examples/tlv++/src/typed_fields.cpp) | Typed fields / Values |
 | C++ | [validate.cpp](../../examples/tlv++/src/validate.cpp) | Schema / validation |
 | C++ | [write.cpp](../../examples/tlv++/src/write.cpp) | Nested construction |
-| Rust | [parse.rs](../../bindings/rust/opentlv/examples/parse.rs) | Nested parsing / traversal |
-| Rust | [query_conformance.rs](../../bindings/rust/opentlv/examples/query_conformance.rs) | Common compiled Query corpus runner |
-| Rust | [quick_start.rs](../../bindings/rust/opentlv/examples/quick_start.rs) | Quick start / round trip |
-| Rust | [reader.rs](../../bindings/rust/opentlv/examples/reader.rs) | Sequential Reader and input control |
-| Rust | [validate.rs](../../bindings/rust/opentlv/examples/validate.rs) | Schema / validation |
-| Rust | [write.rs](../../bindings/rust/opentlv/examples/write.rs) | Nested construction |
-| Rust | [writer.rs](../../bindings/rust/opentlv/examples/writer.rs) | Sequential Writer |
+| Rust | [parse.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/parse.rs) | Nested parsing / traversal |
+| Rust | [query_conformance.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/query_conformance.rs) | Common compiled Query corpus runner |
+| Rust | [quick_start.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/quick_start.rs) | Quick start / round trip |
+| Rust | [reader.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/reader.rs) | Sequential Reader and input control |
+| Rust | [validate.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/validate.rs) | Schema / validation |
+| Rust | [write.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/write.rs) | Nested construction |
+| Rust | [writer.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/writer.rs) | Sequential Writer |
 | Python | [codec.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/codec.py) | Typed Value codecs |
 | Python | [document.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/document.py) | Owned Document / traversal |
 | Python | [parse.py](https://github.com/OpenTLV/opentlv-python/blob/main/examples/parse.py) | Nested parsing / traversal |

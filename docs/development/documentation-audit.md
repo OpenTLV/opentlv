@@ -116,7 +116,7 @@ reference or release notes.
 | [Using OpenTLV from Python](../../docs/guides/python.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Path queries](../../docs/guides/queries.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Pull-based Reader](../../docs/guides/reader.md) | User | None or selected API setup | Use task entry and recommended next step |
-| [Using OpenTLV from Rust](../../docs/guides/rust.md) | User | None or selected API setup | Use task entry and recommended next step |
+| [Using OpenTLV from Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Optional C schemas](../../docs/guides/schemas.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Build only the components you need](../../docs/guides/select-components.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Writer and scoped construction](../../docs/guides/writer.md) | User | None or selected API setup | Use task entry and recommended next step |

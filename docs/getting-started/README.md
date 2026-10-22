@@ -4,7 +4,7 @@
 
 Choose your language in [Quick start](#quick-start) for a complete first
 program and expected output. C/C++ users can build the checkout below; binding
-users should follow setup in the [Rust](../guides/rust.md),
+users should follow setup in the [Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md),
 [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) or [Go](../guides/go.md)
 guide before running their example. For terminal inspection, use
 [the CLI first task](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection).
@@ -213,57 +213,12 @@ Configure and build with the CMake commands from
 
 /// tab | Rust
 
-Save the example as `examples/quick_start.rs` in a crate that depends on
-`opentlv`. It is
-[bindings/rust/opentlv/examples/quick_start.rs](../../bindings/rust/opentlv/examples/quick_start.rs).
-The crate is not published to crates.io yet; depend on it by path from a
-checkout of the repository. See [Using OpenTLV from Rust](../guides/rust.md)
-for the full setup, including how to link a prebuilt library.
-Reader implements `Iterator`; `?` propagates both native failures and UTF-8
-conversion errors from this example's `main` result.
-
-<!-- example: bindings/rust/opentlv/examples/quick_start.rs -->
-```rust
-// SPDX-License-Identifier: MIT
-// Copyright (c) 2026 Marek Cingel
-
-//! The simplest possible round trip: write one element with the
-//! configurable fixed-width format, then read it back. See parse.rs and
-//! write.rs for a nested BER document, and the C `quick_start.c` and C++
-//! `quick_start.cpp` examples for the same round trip in those languages.
-//!
-//! Run with `cargo run --example quick_start` from `bindings/rust`.
-
-use opentlv::{ByteOrder, FixedFormat, FixedFormatConfig, Reader, Tag, Writer};
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // One tag byte and one length byte; config must outlive format, and format
-    // must outlive its readers and writers.
-    let config = FixedFormatConfig::new(1, 1, ByteOrder::Big);
-    let format = FixedFormat::new(&config)?;
-
-    let mut buf = [0u8; 64];
-    let mut writer = Writer::with_fixed_format(&mut buf, &format);
-    writer.write(&Tag::from_bytes(&[0x01]), b"Hello, world!")?;
-
-    for element in Reader::with_fixed_format(writer.written(), &format) {
-        println!("{}", std::str::from_utf8(element?.value())?);
-    }
-    Ok(())
-}
-```
-
-Then use:
-
-```toml
-[dependencies]
-opentlv = { path = "OpenTLV/bindings/rust/opentlv" }
-```
-
-Run `cargo run --example quick_start` from `bindings/rust` in this
-repository's own checkout, or `cargo run --example quick_start` from your
-application once its `Cargo.toml` depends on `opentlv` and the file above is
-saved under its `examples/`. Exit code zero indicates a successful round trip.
+The runnable [Rust quick start](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/quick_start.rs)
+is maintained and tested in `opentlv-rust`. It writes and reads the same
+Fixed-format `Hello, world!` element through the safe `opentlv` crate.
+Follow the standalone [Cargo setup](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md#cargo-setup),
+then run `cargo run -p opentlv --example quick_start` from that repository
+root. A successful run prints `Hello, world!` and exits with code zero.
 
 ///
 
@@ -344,9 +299,8 @@ Run `go run ./examples/quick_start` from `bindings/go` after setting the cgo fla
 
 Both C and C++ programs are built by the `example-tlv-quick-start` and
 `example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
-(the default) and run in CI; the Rust program is built by `cargo build
---workspace --all-targets` and run by `cargo run -p opentlv --example quick_start`
-in the Rust bindings CI workflow, and the Python
+(the default) and run in CI; the Rust program is built and run by the
+standalone Rust CI workflow, and the Python
 program is run against installed packages in the standalone Python CI workflow. Lua CI runs the
 Lua quick start, and Go CI runs its quick start in both default and minimal
 configurations. The
@@ -354,7 +308,7 @@ configurations. The
 explicit copies, schema validation, codecs, a custom format, and the BER and
 CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
 with BER, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
-the further [Rust examples](../guides/rust.md) (reading, writing, and the
+the further [Rust examples](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) (reading, writing, and the
 `parse`, `write` and `validate` use cases), and the further
 [Python examples](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) (reading, writing, validating, codecs
 and documents) are further runnable examples.

@@ -14,9 +14,9 @@ For documentation changes, first follow the
 [ownership rules](docs/development/documentation-ownership.md) and then the
 [progressive learning conventions](docs/development/documentation-layout.md#progressive-learning-conventions).
 Document new Core functionality alongside its implementation, public API comments
-and native examples. CLI, Lua and Python maintain their documentation in
-`opentlv-cli`, `opentlv-lua` and `opentlv-python`. Rust, Go and WebAssembly
-remain in Core while their implementations are hosted here. Portal assembly,
+and native examples. CLI, Lua, Python and Rust maintain their documentation in
+`opentlv-cli`, `opentlv-lua`, `opentlv-python` and `opentlv-rust`. Go and
+WebAssembly remain in Core while their implementations are hosted here. Portal assembly,
 navigation and publication belong to `opentlv-docs`; follow its
 [portal conventions](https://github.com/OpenTLV/opentlv-docs/blob/main/docs/development/documentation.md).
 Core-only changes do not require unrelated binding updates.

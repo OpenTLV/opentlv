@@ -400,7 +400,7 @@ component only when the matching C component is enabled, so a binding build can 
 limited to what it needs. Rust maps its default `lldp` Cargo feature to
 `OPENTLV_LLDP`; Reader, Writer, Query, Schema and Codec are explicitly enabled by its native build. Mapping the
 remaining component options to Cargo features is future work; see
-[Rust bindings](../development/rust.md#build). Ready-made CMake recipes are in
+[Rust Cargo features](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/development/rust.md#cargo-features). Ready-made CMake recipes are in
 [building only the components you need](../guides/select-components.md).
 
 ## Build configuration

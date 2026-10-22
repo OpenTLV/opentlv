@@ -13,7 +13,7 @@ small task before learning the deeper contracts.
 | Your entry point | First task | Continue with |
 | --- | --- | --- |
 | C or C++ | [Build and run the first program](getting-started/README.md) | [C++ examples](guides/cxx-examples.md), [Reader](guides/reader.md) |
-| Rust | [Rust setup and usage](guides/rust.md) | [Shared quick start](getting-started/README.md#quick-start) |
+| Rust | [Rust setup and usage](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Python | [Python setup and usage](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Lua | [Lua setup and usage](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Go | [Go setup and usage](guides/go.md) | [Shared quick start](getting-started/README.md#quick-start) |

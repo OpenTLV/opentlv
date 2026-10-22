@@ -250,7 +250,7 @@ equivalent. Python's `opentlv.codec` binds only the EMV amount codec (see
 [Using OpenTLV from Python: Codec](python.md#codec)); Rust's `Codec`/`Value`
 cover the full EMV dictionary but reimplement its decoding logic rather than
 wrapping the C callbacks (see [Rust bindings: Codecs and the EMV
-dictionary](../development/rust.md#codecs-and-the-emv-dictionary)). See the
+dictionary](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/development/rust.md#codecs-and-the-emv-dictionary)). See the
 [language bindings conceptual model](../concepts/bindings.md) for why the two
 diverge from the C/C++ shape described above.
 
