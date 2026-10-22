@@ -67,8 +67,8 @@ set_tests_properties(Integration_example_tlv_quick_start PROPERTIES
 
 if(OPENTLV_FORMAT_BER)
     # Use-case examples shared across languages: the same document is parsed,
-    # written, queried and validated in examples/tlv, examples/tlv++ and
-    # bindings/rust/opentlv/examples.
+    # written, queried and validated in examples/tlv, examples/tlv++ and the
+    # opentlv-rust examples.
     foreach(use_case parse write query validate)
         add_executable(example-tlv-${use_case} src/${use_case}.c)
         target_link_libraries(example-tlv-${use_case} PRIVATE tlv)

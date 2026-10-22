@@ -174,11 +174,11 @@ schema.validate(&data, Format::Ber, &ValidationLimits::default())?;
 ```
 
 `StructureSchema::validate` returns `Result<(), SchemaError>` instead of a
-result code and offset; see [Rust bindings: Schemas](../development/rust.md#schemas)
+result code and offset; see [Rust bindings: Schemas](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/development/rust.md#schemas)
 for `LengthSchema`, builder methods and the EMV built-in schemas. Runnable
 version, with a two-level nested schema:
-[validate.rs](https://github.com/marekcingel/OpenTLV/blob/main/bindings/rust/opentlv/examples/validate.rs)
-(`cargo run --example validate`).
+[validate.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/validate.rs)
+(`cargo run -p opentlv --example validate` from the `opentlv-rust` root).
 
 ///
 

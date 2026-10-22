@@ -4,10 +4,11 @@
 """Generate binding diagnostic vocabularies from the public C enums.
 
 Values come from the C headers and expected spellings from the C name tables.
-Rust and Go receive typed categories plus tests that compare every member with
-the linked C name function. Run with --check in Core CI to reject stale files.
-Use --python-output-root to explicitly generate or check the corresponding
-outputs in a standalone opentlv-python checkout against these Core headers.
+Go, Rust and Python receive typed categories plus tests that compare every
+member with the linked C name function. Run with --check in Core CI to reject
+stale in-tree Go files. Use --rust-output-root or --python-output-root to
+explicitly generate or check the corresponding outputs in a standalone
+opentlv-rust or opentlv-python checkout against these Core headers.
 """
 import argparse
 from pathlib import Path
@@ -243,14 +244,21 @@ def python_test(families):
 
 
 OUTPUTS = (
-    ("bindings/rust/opentlv/src/diagnostic_kind.rs", rust),
-    ("bindings/rust/opentlv/tests/diagnostic_vocabulary.rs", rust_test),
     ("bindings/go/diagnostic_kind.go", go),
     ("bindings/go/tests/diagnostic_vocabulary_test.go", go_test),
+)
+RUST_OUTPUTS = (
+    ("opentlv/src/diagnostic_kind.rs", rust),
+    ("opentlv/tests/diagnostic_vocabulary.rs", rust_test),
 )
 PYTHON_OUTPUTS = (
     ("bindings/python/opentlv/src/opentlv/diagnostic.py", python),
     ("bindings/python/opentlv/tests/test_diagnostic_vocabulary.py", python_test),
+)
+# (option prefix, language, outputs, directories the checkout must already contain)
+STANDALONE = (
+    ("rust", "Rust", RUST_OUTPUTS, "the standalone crate source and test directories"),
+    ("python", "Python", PYTHON_OUTPUTS, "the standalone facade source and test directories"),
 )
 
 
@@ -258,17 +266,21 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true",
                         help="fail when a generated file differs instead of writing it")
-    parser.add_argument("--python-output-root", type=Path,
-                        help="also generate/check Python outputs in this standalone checkout")
+    for option, language, _, _ in STANDALONE:
+        parser.add_argument(f"--{option}-output-root", type=Path,
+                            help=f"also generate/check {language} outputs in this standalone checkout")
     args = parser.parse_args(argv)
     outputs = [(ROOT / path, render) for path, render in OUTPUTS]
-    if args.python_output_root is not None:
-        destination = args.python_output_root.resolve()
+    for option, language, standalone, layout in STANDALONE:
+        destination = getattr(args, f"{option}_output_root")
+        if destination is None:
+            continue
+        destination = destination.resolve()
         if destination == ROOT.resolve() or ROOT.resolve() in destination.parents:
-            parser.error("Python outputs must be outside the Core source tree")
-        if not all((destination / path).parent.is_dir() for path, _ in PYTHON_OUTPUTS):
-            parser.error("Python output root must contain the standalone facade source and test directories")
-        outputs.extend((destination / path, render) for path, render in PYTHON_OUTPUTS)
+            parser.error(f"{language} outputs must be outside the Core source tree")
+        if not all((destination / path).parent.is_dir() for path, _ in standalone):
+            parser.error(f"{language} output root must contain {layout}")
+        outputs.extend((destination / path, render) for path, render in standalone)
     families = load()
     stale = []
     for target, render in outputs:

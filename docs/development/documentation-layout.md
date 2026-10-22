@@ -201,7 +201,7 @@ Conventions:
   [Getting started](../getting-started/README.md#quick-start). Small
   illustrative fragments (a guide traversing through one call, not a complete
   program) may instead stay inline per tab, with a "Runnable version" link to
-  the full example file, as `guides/python.md` and `guides/rust.md` do.
+  the full example file, as `guides/python.md` does.
 
 ## Adding new topics
 
@@ -265,7 +265,7 @@ The inventory check derives these small facts directly from repository sources:
 | Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
 | C++ built-in directories | C++ family links in the implemented inventory |
 | Official binding directories | User guide exists (WASM uses its tooling guide); navigation is checked by the portal |
-| Core-local C/C++/Rust/Go/WASM example sources | Marked source inventory in the examples guide; standalone Python and Lua sources are external links |
+| Core-local C/C++/Go/WASM example sources | Marked source inventory in the examples guide; standalone Rust, Python and Lua sources are external links |
 | Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
 
 Adding or removing a public capability must update the corresponding inventory,

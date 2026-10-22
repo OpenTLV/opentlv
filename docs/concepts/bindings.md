@@ -48,7 +48,7 @@ built and shipped independently of the others. `tlv++` differs only in build
 shape, not in boundary: its facade is header-only, compiles against the public C
 headers and links the C library, without a separately compiled C++ facade library.
 It still wraps only the public C API. See [relationship to the C
-API](../guides/rust.md#relationship-to-the-c-api) for how the Rust crate holds
+API](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md#relationship-to-the-c-api) for how the Rust crate holds
 to this in practice.
 
 Deterministic wire generation (#503, #504) is currently available in native C and
@@ -165,7 +165,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | Language | Public implementation | Consumer/parity tests | User guide |
 | --- | --- | --- | --- |
 | C++ | [headers](../../tlv++/include/tlv++/) | [reader](../../tests/unit/reader/), [writer](../../tests/unit/writer/), [document](../../tests/unit/document/), [codecs](../../tests/unit/codec/) | [C++ examples](../guides/cxx-examples.md) |
-| Rust | [opentlv/src](../../bindings/rust/opentlv/src/) | [opentlv/tests](../../bindings/rust/opentlv/tests/) | [Rust](../guides/rust.md) |
+| Rust | [opentlv/src](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/src/) | [opentlv/tests](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/tests/) | [Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) |
 | Python | [opentlv facade](https://github.com/OpenTLV/opentlv-python/tree/main/src/opentlv/) | [facade tests](https://github.com/OpenTLV/opentlv-python/tree/main/tests/python/) | [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) |
 | Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) |
 | Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
@@ -241,7 +241,7 @@ across STOP and input replacement; do not interleave unmatched pulls. Python
 `Query.visit_buffer` composes the same C Tree Reader and Query matcher for
 complete input. No language implements its own query grammar or matching rules.
 
-Parity scenarios are exercised in `bindings/rust/opentlv/tests/tree_reader.rs`
+Parity scenarios are exercised in the standalone [Rust Tree Reader tests](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/tests/tree_reader.rs)
 and the standalone [Python Tree Reader tests](https://github.com/OpenTLV/opentlv-python/blob/main/tests/python/test_tree_reader.py). Writer and Document
 coverage gaps remain tracked separately in the matrix above.
 
@@ -261,8 +261,8 @@ implements header patching, encoding or a second tree construction engine.
 Rust `written` and Python `bytes()` expose only the finalized prefix, excluding
 open roots. `finish` rejects unclosed parents without sealing the cursor.
 Failures preserve the C operation's state/output guarantees. Rust exposes owned
-`WriterDiagnostic` detail and Python uses structured exceptions. Tests in
-`bindings/rust/opentlv/tests/tree_writer.rs` and
+`WriterDiagnostic` detail and Python uses structured exceptions. The standalone
+[Rust Tree Writer tests](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/tests/tree_writer.rs) and
 the standalone [Python Tree Writer tests](https://github.com/OpenTLV/opentlv-python/blob/main/tests/python/test_tree_writer.py) cover open-tag ownership,
 BER/CER output, item limits and scratch exhaustion.
 
@@ -424,7 +424,7 @@ entry points are:
 | Language / consumer | Packaging and maturity | Usage | Development |
 | --- | --- | --- | --- |
 | C++ | Header-only C++11 facade shipped with OpenTLV; links the C engine | [C++ examples](../guides/cxx-examples.md) | [Public/native contract](cxx-native-boundary.md) |
-| Rust | Experimental `opentlv` facade plus `opentlv-sys` FFI crate | [Rust guide](../guides/rust.md) | [Rust development](../development/rust.md) |
+| Rust | Experimental `opentlv` facade plus `opentlv-sys` FFI crate | [Rust guide](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) | [Rust development](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/development/rust.md) |
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Python development](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Lua development](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
@@ -445,7 +445,9 @@ boundary, while `capi` describes the package responsibility. Applications use
 the public `opentlv` facade in each language.
 
 For existing checkouts, update Rust dependencies from `opentlv-native` to
-`opentlv-sys` and raw imports from `opentlv_native` to `opentlv_sys`. Python
+`opentlv-sys` and raw imports from `opentlv_native` to `opentlv_sys`; both
+crates now build from the standalone [opentlv-rust](https://github.com/OpenTLV/opentlv-rust)
+repository instead of Core's former `bindings/rust/` workspace. Python
 installation now uses the standalone [opentlv-python](https://github.com/OpenTLV/opentlv-python)
 repository; code directly using
 the implementation extension imports `_opentlv`. Lua installation places the
@@ -458,7 +460,7 @@ compiled module under `opentlv/_core`, and direct implementation imports use
   organized inside the C library and `tlv++` itself.
 - [C API reference](../reference/c-api.md) and [C++ API
   reference](../reference/cxx-api.md).
-- [Using OpenTLV from Rust](../guides/rust.md) for a worked example of a
+- [Using OpenTLV from Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) for a worked example of a
   binding that follows this contract.
 
 Compiled full-language Query execution (`tlv_query_program_*`, S0/S1/S2 and the

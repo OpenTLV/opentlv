@@ -300,7 +300,7 @@ handling](python.md#error-handling)). Rust returns a `Result<T, Error>` with
 one `Error` variant per code, plus separate `SchemaError`, `ValidationError` and
 `CodecError` types for layers that add context, rather than a single chained
 diagnostic (see [Using OpenTLV from Rust: Error
-handling](rust.md#error-handling)). Schema reports own copied paths in both bindings; Rust Reader detail also copies
+handling](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md#error-handling)). Schema reports own copied paths in both bindings; Rust Reader detail also copies
 tracked common paths. Location domain, kind and bounds are available directly.
 
 Reader diagnostics preserve `declared_length` as a 64-bit `tlv_size_t`, even

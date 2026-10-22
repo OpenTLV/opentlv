@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Remove the migrated Rust binding, its Cargo workspace, Rust CI workflow and duplicated Rust user guide; build, test and package `opentlv-sys` and `opentlv` from [opentlv-rust](https://github.com/OpenTLV/opentlv-rust), and point remaining Core documentation there. Keep the shared Query corpus, fuzz seed corpora and native tests in Core, and refresh Rust diagnostic vocabularies through an explicit `--rust-output-root` standalone output path. (#679)
 - Remove the migrated Python binding, Core build option and binding CI; build and install Python separately from [opentlv-python](https://github.com/OpenTLV/opentlv-python). Keep shared Query fixtures and native tests in Core, and refresh Python diagnostic vocabularies through an explicit standalone output path. (#662)
 - Separate Core Pull Request validation from lightweight Main integration checks and manual Full verification; require complete static analysis for PRs and release candidates, and run benchmarks/Callgrind only through Release Gate against a locked previous stable release with checksummed, attested performance evidence. (#637)
 - Require clang-tidy and cppcheck on every Linux Fast CI run before merge, rejecting failed or unexpectedly skipped checks; Full and release runs retain formatting/contract checks and CodeQL without repeating these two analyzers. (#637)
