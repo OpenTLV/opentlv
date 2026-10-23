@@ -23,11 +23,11 @@ class InventoryTests(unittest.TestCase):
             "tlv/include/tlv/builtins/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
             "tlv++/include/tlv++/builtins/asn1/ber.hpp": "// fixture\n",
             "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |\n",
-            "bindings/go/examples/quick_start/main.go": "package main\n",
+            "bindings/wasm/examples/parse.mjs": "// example\n",
             "bindings/common/query_schema.h": "/* shared native ownership helper */\n",
-            "docs/guides/go.md": "# Go\n",
+            "docs/development/webassembly.md": "# WebAssembly\n",
             "docs/guides/cxx-examples.md": "# C++ examples\n",
-            "docs/guides/examples.md": "<!-- example-inventory:start -->\n[Go](../../bindings/go/examples/quick_start/main.go)\n<!-- example-inventory:end -->\n",
+            "docs/guides/examples.md": "<!-- example-inventory:start -->\n[WebAssembly](../../bindings/wasm/examples/parse.mjs)\n<!-- example-inventory:end -->\n",
             "tools/docs/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv/include/tlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
             "tools/docs/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
         }
@@ -73,10 +73,10 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("C++: add docs/guides/cxx-examples.md")
 
     def test_example_addition_and_removal(self):
-        (self.root / "bindings/go/examples/quick_start/main.go").unlink()
-        self.write("bindings/go/examples/new/main.go", "package main\n")
-        self.assert_drift("document bindings/go/examples/new/main.go")
-        self.assert_drift("stale bindings/go/examples/quick_start/main.go")
+        (self.root / "bindings/wasm/examples/parse.mjs").unlink()
+        self.write("bindings/wasm/examples/new.mjs", "// example\n")
+        self.assert_drift("document bindings/wasm/examples/new.mjs")
+        self.assert_drift("stale bindings/wasm/examples/parse.mjs")
 
     def test_missing_example_markers(self):
         self.write("docs/guides/examples.md", "# Examples\n")

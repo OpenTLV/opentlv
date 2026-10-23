@@ -5,7 +5,7 @@
 Choose your language in [Quick start](#quick-start) for a complete first
 program and expected output. C/C++ users can build the checkout below; binding
 users should follow setup in the [Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md),
-[Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) or [Go](../guides/go.md)
+[Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) or [Go](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md)
 guide before running their example. For terminal inspection, use
 [the CLI first task](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection).
 
@@ -246,54 +246,13 @@ See [Using OpenTLV from Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/do
 
 /// tab | Go
 
-This is [bindings/go/examples/quick_start/main.go](../../bindings/go/examples/quick_start/main.go).
-Build the C library and configure cgo as described in the
-[Go user guide](../guides/go.md#install-and-integrate). Import the public
-`opentlv` package; no cgo or native package is needed in application code.
-Operations return errors; check `Reader.Err()` after iteration.
-
-<!-- example: bindings/go/examples/quick_start/main.go -->
-```go
-// SPDX-License-Identifier: MIT
-// Copyright (c) 2026 Marek Cingel
-
-package main
-
-import (
-	"fmt"
-	"log"
-
-	opentlv "github.com/marekcingel/OpenTLV/bindings/go"
-)
-
-func run() error {
-	format, err := opentlv.NewFixed(opentlv.FixedConfig{
-		TagSize: 1, LengthSize: 1, ByteOrder: opentlv.BigEndian,
-	})
-	if err != nil {
-		return err
-	}
-	writer := opentlv.NewWriter(format)
-	if err := writer.WriteElement([]byte{0x01}, []byte("Hello, world!")); err != nil {
-		return err
-	}
-
-	// Elements borrow the Writer's output; keep it unchanged while reading.
-	reader := opentlv.NewReader(writer.Bytes(), format)
-	for reader.Next() {
-		fmt.Println(string(reader.Element().Value()))
-	}
-	return reader.Err()
-}
-
-func main() {
-	if err := run(); err != nil {
-		log.Fatal(err)
-	}
-}
-```
-
-Run `go run ./examples/quick_start` from `bindings/go` after setting the cgo flags.
+The runnable [Go quick start](https://github.com/OpenTLV/opentlv-go/blob/main/examples/quick_start/main.go)
+is maintained and tested in `opentlv-go`. It writes and reads the same
+Fixed-format `Hello, world!` element through the public Go API.
+Follow the standalone [build instructions](https://github.com/OpenTLV/opentlv-go#build-and-run),
+then run `python3 scripts/go.py -- run ./examples/quick_start` from that
+repository root (`python` on Windows). Applications import
+`github.com/OpenTLV/opentlv-go`; cgo remains private to the binding.
 
 ///
 
@@ -302,7 +261,7 @@ Both C and C++ programs are built by the `example-tlv-quick-start` and
 (the default) and run in CI; the Rust program is built and run by the
 standalone Rust CI workflow, and the Python
 program is run against installed packages in the standalone Python CI workflow. Lua CI runs the
-Lua quick start, and Go CI runs its quick start in both default and minimal
+Lua quick start, and standalone Go CI runs its quick start in both default and minimal
 configurations. The
 [C examples](../../examples/tlv/src/), one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and

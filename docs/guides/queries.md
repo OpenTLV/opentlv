@@ -496,19 +496,9 @@ No match is `nil`; malformed query text raises an error. `document:query()` retu
 
 /// tab | Go
 
-```go
-matches, err := document.Query("6F/A5/50")
-if err != nil {
- return err
-}
-if len(matches) > 0 {
- value := matches[0].Value() // owned snapshot
- fmt.Printf("%X\n", value)
-}
-
-```
-
-`Query` returns all matches in document order, or an empty slice. Malformed text returns `*opentlv.QueryError` with its native text offset. [Runnable query example](../../bindings/go/examples/query/main.go).
+Document Query and its error handling are documented and tested in the
+[standalone Go guide](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md).
+See its [runnable example](https://github.com/OpenTLV/opentlv-go/blob/main/examples/query/main.go).
 
 ///
 

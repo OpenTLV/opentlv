@@ -54,7 +54,7 @@ reference or release notes.
 | [Security Policy](../../SECURITY.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Local benchmarks](../../benchmarks/README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Benchmark baselines](../../benchmarks/baselines/README.md) | User | None or selected API setup | Use task entry and recommended next step |
-| [Go binding (experimental)](../../bindings/go/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
+| [Go binding (experimental)](https://github.com/OpenTLV/opentlv-go/blob/main/docs/implementation.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
 | [opentlv (Lua, experimental)](https://github.com/OpenTLV/opentlv-lua/blob/main/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
 | [opentlv-core (experimental)](https://github.com/OpenTLV/opentlv-python/blob/main/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
 | [opentlv (experimental)](https://github.com/OpenTLV/opentlv-python/blob/main/bindings/python/opentlv/README.md) | Binding user / contributor | Language toolchain | Link public user guide before native/build details |
@@ -79,7 +79,7 @@ reference or release notes.
 | [C ABI compatibility](../../docs/development/abi-compatibility.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Where documentation belongs](../../docs/development/documentation-layout.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Fuzzing the C API](../../docs/development/fuzzing.md) | Contributor | Build workflow | Keep separate from user onboarding |
-| [Go binding development](../../docs/development/go.md) | Contributor | Build workflow | Keep separate from user onboarding |
+| [Go binding development](https://github.com/OpenTLV/opentlv-go/blob/main/docs/development/go.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Lua bindings (experimental)](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Python bindings (experimental)](../../docs/development/python.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Rust bindings (experimental)](../../docs/development/rust.md) | Contributor | Build workflow | Keep separate from user onboarding |
@@ -109,7 +109,7 @@ reference or release notes.
 | [Diagnostics](../../docs/guides/diagnostics.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Mutable documents](../../docs/guides/document.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Executable examples and workflow coverage](../../docs/guides/examples.md) | User | None or selected API setup | Use task entry and recommended next step |
-| [Using OpenTLV from Go](../../docs/guides/go.md) | User | None or selected API setup | Use task entry and recommended next step |
+| [Using OpenTLV from Go](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Using OpenTLV from Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Memory ownership and lifetime](../../docs/guides/memory.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Choose a processing API](../../docs/guides/processing.md) | User | None or selected API setup | Use task entry and recommended next step |

@@ -168,7 +168,7 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | Rust | [opentlv/src](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/src/) | [opentlv/tests](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/tests/) | [Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) |
 | Python | [opentlv facade](https://github.com/OpenTLV/opentlv-python/tree/main/src/opentlv/) | [facade tests](https://github.com/OpenTLV/opentlv-python/tree/main/tests/python/) | [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) |
 | Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) |
-| Go | [public package](../../bindings/go/) | [public tests](../../bindings/go/tests/reader_test.go), [boundary tests](../../bindings/go/internal/capi/) | [Go](../guides/go.md) |
+| Go | [public package](https://github.com/OpenTLV/opentlv-go) | [public tests](https://github.com/OpenTLV/opentlv-go/blob/main/reader_test.go), [boundary tests](https://github.com/OpenTLV/opentlv-go/tree/main/internal/capi) | [Go](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) |
 
 WASM includes both the parse-to-JSON tooling embedding and an owning compiled
 Query/Document facade. Its Query facade provides configured/custom Formats,
@@ -427,7 +427,7 @@ entry points are:
 | Rust | Experimental `opentlv` facade plus `opentlv-sys` FFI crate | [Rust guide](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) | [Rust development](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/development/rust.md) |
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Python development](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Lua development](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) |
-| Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](../guides/go.md) | [Go development](../development/go.md) |
+| Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) | [Go development](https://github.com/OpenTLV/opentlv-go/blob/main/docs/development/go.md) |
 | WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
 
 Language-specific copying, cleanup, errors and current limitations are documented

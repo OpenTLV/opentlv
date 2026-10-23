@@ -26,8 +26,6 @@ class VocabularyTests(unittest.TestCase):
         self.patch_load = patch.object(generator, "load", return_value=self.families)
         self.patch_load.start()
         self.addCleanup(self.patch_load.stop)
-        for path, _ in generator.OUTPUTS:
-            (self.root / path).parent.mkdir(parents=True, exist_ok=True)
 
     def run_generator(self, *args):
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
@@ -38,10 +36,7 @@ class VocabularyTests(unittest.TestCase):
         self.assertEqual(self.run_generator("--check"), 0)
         for option, *_ in generator.STANDALONE:
             self.assertFalse((self.root / "bindings" / option).exists())
-        output = self.root / generator.OUTPUTS[0][0]
-        output.write_text("stale", encoding="utf-8")
-        self.assertEqual(self.run_generator("--check"), 1)
-        self.assertEqual(output.read_text(encoding="utf-8"), "stale")
+        self.assertEqual(list(self.root.iterdir()), [])
 
     def test_explicit_external_output_and_read_only_drift_check(self):
         for option, _, outputs, _ in generator.STANDALONE:
@@ -71,8 +66,7 @@ class VocabularyTests(unittest.TestCase):
                         self.assertRaises(SystemExit) as error:
                     self.run_generator(f"--{option}-output-root", str(destination))
                 self.assertEqual(error.exception.code, 2)
-        for path, _ in generator.OUTPUTS:
-            self.assertFalse((self.root / path).exists())
+        self.assertEqual(list(self.root.iterdir()), [])
 
 
 if __name__ == "__main__":

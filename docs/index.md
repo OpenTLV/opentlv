@@ -16,7 +16,7 @@ small task before learning the deeper contracts.
 | Rust | [Rust setup and usage](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Python | [Python setup and usage](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Lua | [Lua setup and usage](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Shared quick start](getting-started/README.md#quick-start) |
-| Go | [Go setup and usage](guides/go.md) | [Shared quick start](getting-started/README.md#quick-start) |
+| Go | [Go setup and usage](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) | [Shared quick start](getting-started/README.md#quick-start) |
 | Terminal | [Inspect a small input](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#first-inspection) | [CLI commands](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#commands) |
 | Browser | [TLV playground](playground/index.md) | [WebAssembly integration](development/webassembly.md) |
 
