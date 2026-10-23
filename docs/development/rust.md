@@ -30,7 +30,8 @@ standalone [versioning section](https://github.com/OpenTLV/opentlv-rust/blob/mai
 
 Core owns `scripts/generate_diagnostic_vocabulary.py` because the canonical
 enums and their names come from its public headers and C name tables. Its
-default invocation and `--check` cover only the in-tree Go outputs. To refresh
+default invocation and `--check` validate the Core vocabulary without writing
+binding files. To refresh
 or check the Rust outputs against this Core checkout, explicitly select the
 standalone checkout from the Core repository root:
 

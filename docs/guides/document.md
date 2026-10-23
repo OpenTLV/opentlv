@@ -384,34 +384,9 @@ Native failures raise errors. Document and its Node handles retain native storag
 
 /// tab | Go
 
-```go
-format, err := opentlv.Builtin(opentlv.BER)
-if err != nil {
- return err
-}
-document, err := opentlv.Parse([]byte{0x50, 1, 'A'}, format)
-if err != nil {
- return err
-}
-defer document.Close()
-matches, err := document.Query("50")
-if err != nil {
- return err
-}
-if len(matches) == 0 {
- return fmt.Errorf("tag 50 is missing")
-}
-if err := matches[0].SetValue([]byte("NEW")); err != nil {
- return err
-}
-encoded, err := document.Encode()
-if err != nil {
- return err
-}
-
-```
-
-Import the public `opentlv` package and use a function returning `error`. `Close` provides deterministic cleanup. A successful edit invalidates existing Node handles; `Value()` and encoded bytes are owned Go snapshots. See the [Go binding README](../../bindings/go/README.md#document).
+Document ownership, editing and traversal are documented and tested in the
+[standalone Go guide](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md).
+See its [runnable example](https://github.com/OpenTLV/opentlv-go/blob/main/examples/document/main.go).
 
 ///
 

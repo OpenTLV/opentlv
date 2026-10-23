@@ -44,13 +44,13 @@ See the [binding matrix](../concepts/bindings.md) for actual capability coverage
 
 The [quick start](../getting-started/README.md#quick-start) supplies setup and
 run commands. Use the [C++ guide](cxx-examples.md) and the language guides for
-[Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md), [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](go.md).
+[Rust](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md), [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md), [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and [Go](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md).
 C/C++ sources are registered by their example CMake files and run as CTest
 examples when their components are enabled. Component prerequisites can omit
 individual programs; compiling a minimal build does not exercise disabled formats.
 
 Standalone Rust, Python and Lua CI run their example programs.
-Go CI runs applicable examples in default/minimal builds, excluding Document
+Standalone Go CI runs applicable examples in default/minimal builds, excluding Document
 and Query where Document is disabled. WASM's Node example is runnable after an
 Emscripten build; a WASM build alone does not prove that example was run.
 The CLI's [acceptance script](https://github.com/OpenTLV/opentlv-cli/blob/main/tests/examples.cmake) exercises the
@@ -127,15 +127,15 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | Lua | [parse.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/parse.lua) | Nested parsing / traversal |
 | Lua | [quick_start.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/quick_start.lua) | Quick start / round trip |
 | Lua | [schema.lua](https://github.com/OpenTLV/opentlv-lua/blob/main/examples/schema.lua) | Structural Schema |
-| Go | [codec/main.go](../../bindings/go/examples/codec/main.go) | Typed Value codecs |
-| Go | [document/main.go](../../bindings/go/examples/document/main.go) | Owned Document / traversal |
-| Go | [errors/main.go](../../bindings/go/examples/errors/main.go) | Owned diagnostics / error matching |
-| Go | [query/main.go](../../bindings/go/examples/query/main.go) | Path Query |
-| Go | [query_conformance/main.go](../../bindings/go/examples/query_conformance/main.go) | Common compiled Query corpus runner |
-| Go | [quick_start/main.go](../../bindings/go/examples/quick_start/main.go) | Quick start / round trip |
-| Go | [reader/main.go](../../bindings/go/examples/reader/main.go) | Sequential Reader and input control |
-| Go | [version/main.go](../../bindings/go/examples/version/main.go) | Version / native integration |
-| Go | [writer/main.go](../../bindings/go/examples/writer/main.go) | Sequential Writer |
+| Go | [codec/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/codec/main.go) | Typed Value codecs |
+| Go | [document/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/document/main.go) | Owned Document / traversal |
+| Go | [errors/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/errors/main.go) | Owned diagnostics / error matching |
+| Go | [query/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/query/main.go) | Path Query |
+| Go | [query_conformance/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/query_conformance/main.go) | Common compiled Query corpus runner |
+| Go | [quick_start/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/quick_start/main.go) | Quick start / round trip |
+| Go | [reader/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/reader/main.go) | Sequential Reader and input control |
+| Go | [version/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/version/main.go) | Version / native integration |
+| Go | [writer/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/writer/main.go) | Sequential Writer |
 | WebAssembly | [parse.mjs](../../bindings/wasm/examples/parse.mjs) | Nested parsing / traversal |
 
 <!-- example-inventory:end -->

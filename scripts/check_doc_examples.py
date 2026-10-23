@@ -10,8 +10,8 @@ A Markdown code block preceded by a marker comment
 
 must contain exactly the contents of that file, and the file must be registered
 with its package's build: listed in a CMakeLists.txt under examples/ so CI
-compiles it, or a Go main package explicitly run by Go CI. Standalone Rust,
-Python and Lua examples are maintained and tested in their own repositories.
+compiles it. Standalone Go, Rust, Python and Lua examples are maintained and
+tested in their own repositories.
 Editing either side without the other fails the check, so
 documented code cannot drift from code that builds and runs against the
 current API.
@@ -46,13 +46,6 @@ def is_built(source):
         return any(
             source.relative_to(directory).as_posix() in cmake.read_text(encoding="utf-8")
             for cmake in directory.glob("CMakeLists.txt")
-        )
-    if (parts[:3] == ("bindings", "go", "examples") and len(parts) == 5
-            and source.name == "main.go"):
-        command = f"go run ./examples/{parts[3]}"
-        return any(
-            line.strip() == command
-            for line in (ROOT / ".github/workflows/go.yml").read_text(encoding="utf-8").splitlines()
         )
     return False
 

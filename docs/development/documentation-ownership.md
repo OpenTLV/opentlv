@@ -11,6 +11,7 @@ The standalone portal owns publication; CLI sources, tests and manuals now
 belong to `OpenTLV/opentlv-cli` (#622). Lua sources, tests and CI belong to `OpenTLV/opentlv-lua` (#633).
 Python sources, packaging, tests and CI belong to `OpenTLV/opentlv-python` (#662).
 Rust sources, packaging, tests, CI and guides belong to `OpenTLV/opentlv-rust` (#679).
+Go sources, tests, examples, CI and current guides belong to `OpenTLV/opentlv-go` (#686).
 Lua API, implementation, setup and test documentation belong to
 `opentlv-lua` (OpenTLV/opentlv-docs#27). Remaining transitional exceptions are identified below.
 
@@ -32,9 +33,11 @@ Python instructions belong to the standalone source selected by the portal.
 Lua's API, implementation, build and test documentation is maintained in
 `OpenTLV/opentlv-lua`.
 CLI documentation is maintained in `OpenTLV/opentlv-cli`.
-Go and WebAssembly follow the same component ownership rule; their destination
-repository names must be recorded when their extraction is scheduled. These
-binding destinations are ownership assignments, not claims that their migrations are complete.
+Go documentation and diagnostic snapshot generation are maintained in
+`OpenTLV/opentlv-go`. Its former Core manuals and migration records remain
+available in Git history; Core no longer carries copies.
+WebAssembly follows the same component ownership rule; record its destination
+repository when its extraction is scheduled.
 
 Each fact has one canonical source. A portal build may assemble content from an
 owning repository into disposable build output; it must not maintain an edited
@@ -147,7 +150,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/documentation-layout.md](documentation-layout.md) | Core / Portal | Mixed: source conventions and portal rendering/publishing rules |
 | [development/documentation-ownership.md](documentation-ownership.md) | Core | Keep: source boundaries and transition inventory |
 | [development/fuzzing.md](fuzzing.md) | Core | Keep: native fuzzing and consumer harnesses |
-| [development/go.md](go.md) | Go | Component |
+| [Go development](https://github.com/OpenTLV/opentlv-go/blob/main/docs/development/go.md) | Go | Moved to opentlv-go |
 | [development/indefinite-boundary-reuse.md](indefinite-boundary-reuse.md) | Core | Keep |
 | [Lua implementation notes](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Lua | Moved to opentlv-lua/docs/implementation.md |
 | [development/python.md](python.md) | Python / Core | Transitional landing page and Core integration notes |
@@ -185,7 +188,7 @@ structure; this table records ownership rather than replacing that audit.
 | [guides/diagnostics.md](../guides/diagnostics.md) | Core / bindings | Mixed: shared error semantics and facade examples |
 | [guides/document.md](../guides/document.md) | Core / bindings | Mixed: shared semantics and language examples |
 | [guides/examples.md](../guides/examples.md) | Core / components / Portal | Mixed: source inventories and combined index |
-| [guides/go.md](../guides/go.md) | Go | Component |
+| [Go usage](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) | Go | Moved to opentlv-go |
 | [Lua API guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | Lua | Moved to opentlv-lua/docs/api.md |
 | [guides/memory.md](../guides/memory.md) | Core / bindings | Mixed: native ownership and facade lifetime rules |
 | [guides/processing.md](../guides/processing.md) | Core | Keep |

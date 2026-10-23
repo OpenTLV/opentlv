@@ -4,11 +4,11 @@
 """Generate binding diagnostic vocabularies from the public C enums.
 
 Values come from the C headers and expected spellings from the C name tables.
-Go, Rust and Python receive typed categories plus tests that compare every
-member with the linked C name function. Run with --check in Core CI to reject
-stale in-tree Go files. Use --rust-output-root or --python-output-root to
-explicitly generate or check the corresponding outputs in a standalone
-opentlv-rust or opentlv-python checkout against these Core headers.
+Rust and Python receive typed categories plus tests that compare every
+member with the linked C name function. The default invocation validates the
+Core vocabulary without writing binding files. Use --rust-output-root
+or --python-output-root to explicitly generate or check
+outputs in a standalone checkout against these Core headers.
 """
 import argparse
 from pathlib import Path
@@ -155,37 +155,6 @@ def rust_test(families):
     return "".join(out)
 
 
-def go(families):
-    out = [HEADER, "\n", f"// {NOTICE}\n\n", "package opentlv\n\n",
-           'import "github.com/marekcingel/OpenTLV/bindings/go/internal/capi"\n']
-    for binding, _, _, _, members in families:
-        out.append(f"\n// {binding} identifies a canonical C diagnostic category.\n")
-        out.append(f"type {binding} int\n\nconst (\n")
-        width = max(len(binding + camel(suffix)) for suffix, _, _ in members)
-        for suffix, value, _ in members:
-            out.append(f"\t{(binding + camel(suffix)).ljust(width)} {binding} = {value}\n")
-        out.append(")\n\n// String returns the canonical C spelling, or \"unknown\".\n")
-        out.append(f"func (v {binding}) String() string {{ return capi.{binding}Name(int(v)) }}\n")
-    return "".join(out)
-
-
-def go_test(families):
-    out = [HEADER, f"// {NOTICE}\n\n", "package tests\n\n", "import (\n\t\"fmt\"\n\t\"testing\"\n\n",
-           '\ttlv "github.com/marekcingel/OpenTLV/bindings/go"\n)\n\n',
-           "func TestDiagnosticVocabularyMatchesNative(t *testing.T) {\n",
-           "\tcases := []struct {\n\t\tvalue fmt.Stringer\n\t\tname  string\n\t}{\n"]
-    for binding, _, _, _, members in families:
-        for suffix, _, name in members:
-            out.append(f"\t\t{{tlv.{binding}{camel(suffix)}, \"{name}\"}},\n")
-        beyond = max(value for _, value, _ in members) + 1
-        out.append(f"\t\t{{tlv.{binding}({beyond}), \"unknown\"}},\n")
-    out.append("\t}\n\tfor _, c := range cases {\n")
-    out.append("\t\tif got := c.value.String(); got != c.name {\n")
-    out.append("\t\t\tt.Errorf(\"%T(%v): got %q, want %q\", c.value, c.value, got, c.name)\n")
-    out.append("\t\t}\n\t}\n}\n")
-    return "".join(out)
-
-
 PYTHON_CATEGORY = '''class _Category(IntEnum):
     @classmethod
     def _missing_(cls, value):
@@ -243,10 +212,6 @@ def python_test(families):
     return "".join(out)
 
 
-OUTPUTS = (
-    ("bindings/go/diagnostic_kind.go", go),
-    ("bindings/go/tests/diagnostic_vocabulary_test.go", go_test),
-)
 RUST_OUTPUTS = (
     ("opentlv/src/diagnostic_kind.rs", rust),
     ("opentlv/tests/diagnostic_vocabulary.rs", rust_test),
@@ -270,7 +235,7 @@ def main(argv=None):
         parser.add_argument(f"--{option}-output-root", type=Path,
                             help=f"also generate/check {language} outputs in this standalone checkout")
     args = parser.parse_args(argv)
-    outputs = [(ROOT / path, render) for path, render in OUTPUTS]
+    outputs = []
     for option, language, standalone, layout in STANDALONE:
         destination = getattr(args, f"{option}_output_root")
         if destination is None:

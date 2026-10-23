@@ -10,7 +10,7 @@ binary inspection tools. Choose the wire format, then read elements, write
 messages or edit an owned document. Optional Query, Schema and Codec operations
 help you select elements, validate structure and interpret values.
 
-Use C99, the idiomatic C++11+ API, or the official [Rust](https://github.com/OpenTLV/opentlv-rust), [Python](https://github.com/OpenTLV/opentlv-python), [Lua](https://github.com/OpenTLV/opentlv-lua) and Go
+Use C99, the idiomatic C++11+ API, or the official [Rust](https://github.com/OpenTLV/opentlv-rust), [Python](https://github.com/OpenTLV/opentlv-python), [Lua](https://github.com/OpenTLV/opentlv-lua) and [Go](https://github.com/OpenTLV/opentlv-go)
 bindings (experimental). The standalone [`otlv` CLI](https://github.com/OpenTLV/opentlv-cli)
 and WebAssembly tools use the same C execution engine.
 
