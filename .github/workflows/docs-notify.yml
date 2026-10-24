@@ -2,7 +2,7 @@ name: Notify documentation portal
 
 on:
   workflow_run:
-    workflows: [WebAssembly Build]
+    workflows: [Core Main CI]
     types: [completed]
 
 permissions:
@@ -24,8 +24,8 @@ jobs:
           github-token: ${{ secrets.OPENTLV_DOCS_DISPATCH_TOKEN }}
           script: |
             const run = context.payload.workflow_run;
-            if (run.head_branch !== 'main' && !/^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(run.head_branch)) {
-              core.info('Only main and stable release tags update the portal.');
+            if (run.head_branch !== 'main') {
+              core.info('Only successful Core Main CI updates development documentation.');
               return;
             }
             await github.rest.repos.createDispatchEvent({

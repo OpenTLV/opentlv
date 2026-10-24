@@ -56,8 +56,7 @@ Coordinates refer to the **original input**, not a later serialization:
 
 The parse option is also exposed as Python `Document(...,
 retain_source_locations=True)`, Lua Document options `retain_source_locations`,
-Go `DocumentOptions.RetainSourceLocations`, and JavaScript Document options
-`retain_source_locations`. Rust offers `Document::parse_with_source_locations`
+and Go `DocumentOptions.RetainSourceLocations`. Rust offers `Document::parse_with_source_locations`
 and `Document::parse_fixed_with_source_locations`. These delegate to the same C
 contract; other binding builder entry points retain their default behavior.
 Unretained or invalidated properties produce Query SOURCE diagnostics.

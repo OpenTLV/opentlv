@@ -99,7 +99,6 @@ include `nfc-type2` when enabled. See the corpus README for binary re-encoding.
 | Python | `Format.NFC_TYPE2` | Present when native `HAS_NFC` is true |
 | Rust | `Format::NfcType2` / `"nfc-type2"` | Default-enabled Cargo feature `nfc` |
 | Lua | `opentlv.formats.nfc_type2` | Present when `OPENTLV_NFC` is enabled |
-| WASM/JavaScript | `"nfc-type2"` | Listed in instance `formats` when compiled in |
 
 All use the C format through their existing operations. None interprets NDEF
 or automatically stops traversal at Terminator.

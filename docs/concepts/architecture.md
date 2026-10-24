@@ -602,8 +602,7 @@ optional implementations that work without the future `.otlv` interpreter.
 | `tlv/builtins/asn1/der_profile.h` | `tlv/builtins/asn1/der_validation.h` |
 | `tlv/builtins/asn1/cer_profile.h` | `tlv/builtins/asn1/cer_validation.h` |
 | CLI `--profile emv` | `--module emv` |
-| CLI/WASM JSON `profile` | `module` |
-| WASM `PROFILES`, `api.profiles`, parse option `profile` | `MODULES`, `api.modules`, `module` |
+| CLI JSON `profile` | `module` |
 | Rust `Profile::Der`, `Profile::Cer` | `Format::Der`, `Format::Cer` |
 | Rust `ProfileError` | `ValidationError` |
 
@@ -614,9 +613,9 @@ formats other than DER/CER with `InvalidArg` and unknown location. Reader/Writer
 using their selected Format directly. Standard guides now live in `standards/`.
 
 CLI `--module emv` selects the existing native EMV definitions, schemas and
-codecs for the relevant command; `--format` selects framing independently. WASM
-uses the selected module's definitions to annotate parsed elements. Neither
-selector loads `.otlv` files or requires a runtime interpreter.
+codecs for the relevant command; `--format` selects framing independently. This
+selector does not load `.otlv` files or require a runtime interpreter. Binding
+migration details belong to the standalone component manuals.
 
 ## Next step
 

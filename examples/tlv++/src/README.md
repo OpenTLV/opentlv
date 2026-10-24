@@ -24,7 +24,7 @@ workspace limits, API ceremony comparisons and equivalent CLI commands.
 
 The nested BER examples use the same wire data as the
 [C](../../tlv/src/), [Rust](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/examples/) and
-[WASM](../../../bindings/wasm/examples/) examples. The CLI acceptance script is
+[WASM](https://github.com/OpenTLV/opentlv-js/tree/main/examples/) examples. The CLI acceptance script is
 [`opentlv-cli/tests/examples.cmake`](https://github.com/OpenTLV/opentlv-cli/blob/main/tests/examples.cmake).
 
 ## Advanced control

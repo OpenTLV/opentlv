@@ -1,14 +1,14 @@
 # Common conceptual model for language bindings
 
 OpenTLV ships a canonical C execution engine, the header-only idiomatic
-`tlv++` C++ API, and official experimental Rust, Python, Lua and Go bindings.
-All use the public C API as their interoperability boundary. WebAssembly is a
-narrow tooling embedding over the same engine. The
+`tlv++` C++ API, and official experimental standalone language bindings.
+All use the public C API as their interoperability boundary. The
 [architecture overview](architecture.md#conceptual-model) defines the concepts;
 this page owns the shared adaptation contract and retains comparative evidence.
 Current standalone language API, feature, compatibility and test details belong
-to the [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md)
-and [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) manuals.
+to the [Python](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md),
+[Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) and
+[JS/WASM](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md) manuals.
 The portal owns their combined presentation; a Core revision alone does not
 establish compatibility with independently selected component versions.
 
@@ -170,11 +170,9 @@ Audit evidence is the public facade and consumer tests, rather than raw FFI:
 | Lua | [facade adapters](https://github.com/OpenTLV/opentlv-lua/tree/main/src/) | [consumer tests](https://github.com/OpenTLV/opentlv-lua/tree/main/tests/) | [Lua](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) |
 | Go | [public package](https://github.com/OpenTLV/opentlv-go) | [public tests](https://github.com/OpenTLV/opentlv-go/blob/main/reader_test.go), [boundary tests](https://github.com/OpenTLV/opentlv-go/tree/main/internal/capi) | [Go](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) |
 
-WASM includes both the parse-to-JSON tooling embedding and an owning compiled
-Query/Document facade. Its Query facade provides configured/custom Formats,
-Tag adapters, scoped/Definition/EMV resolvers, Schema, edits, source events,
-ordinals and bounded V1 path queries. General Reader/Writer parity remains a
-separate concern. Java remains future work. Exact signatures
+Current JS/WASM capabilities and limitations are maintained in the
+[standalone manual](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md).
+Java remains future work. Exact signatures
 belong in generated references and binding source documentation; this matrix
 records supported workflows and their limits. Do not treat an experimental
 label or raw FFI declaration as proof of parity.
@@ -410,8 +408,6 @@ it. For example:
   borrowed view, and `Reader.Err()` after iteration. Fallible constructors,
   writes and Document operations return errors through Go's normal conventions;
   `errors.Is` and `errors.As` retain native status and diagnostic context.
-- A future JavaScript binding could expose a reader as a JS iterable and
-  surface failures as native exceptions.
 
 The syntax changes; the concepts (a read-only, one-pass `Reader` yielding
 `Element` values) do not.
@@ -428,7 +424,7 @@ entry points are:
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Python development](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Lua development](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) | [Go development](https://github.com/OpenTLV/opentlv-go/blob/main/docs/development/go.md) |
-| WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
+| JS / WebAssembly | Experimental standalone `opentlv-js` component | [WASM tooling](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md) | [WASM sources](https://github.com/OpenTLV/opentlv-js/) |
 
 Language-specific copying, cleanup, errors and current limitations are documented
 in those guides; an experimental label neither implies full parity nor excuses

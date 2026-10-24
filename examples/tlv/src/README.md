@@ -7,7 +7,7 @@
 
 The same document is parsed, built, addressed and checked here as in
 [`examples/tlv++`](../../tlv++/src/), [`opentlv-rust/opentlv/examples`](https://github.com/OpenTLV/opentlv-rust/tree/main/opentlv/examples/)
-and [`bindings/wasm/examples`](../../../bindings/wasm/examples/), so the same
+and [standalone JS/WASM examples](https://github.com/OpenTLV/opentlv-js/tree/main/examples/), so the same
 operation can be compared across languages.
 
 - [`parse.c`](parse.c) -- read a nested BER-TLV document.

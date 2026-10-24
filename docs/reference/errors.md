@@ -434,7 +434,7 @@ results remain inspectable.
 | Python | Typed result exceptions; Query `query["query_kind"]`, Schema report fields and Codec detail fields use `IntEnum` categories exported by `opentlv`. Their `label` property calls C; the native module's `result_string()` returns the result text. Reader/Writer `operation` remains a canonical string. |
 | Go | `errors.Is` classifies results and `errors.As` retrieves owned details. `ProgramError.Kind`, `QuerySchemaDetail.Kind` and Codec categories are typed; `String()` calls C. Reader/Writer errors expose typed `Phase()` methods; `Diagnostic.ReaderPhase()` and `WriterPhase()` type Query Reader causes too. |
 | Lua | Error tables preserve result `code`, `location`, optional path and contexts. `query.kind_name` and Codec `operation_name`, `cause_name`, `violation_name` come from C alongside numeric values. |
-| JS/WASM | `QueryError` carries the C message, structured `location` and owned Query evidence. `query.kind_name`, Reader `operation_name` and Codec names accompany numeric categories. Common evidence appears once in `query.diagnostic`. |
+| JS/WASM | See the [standalone error contract](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md#native-adapters-and-capabilities). |
 
 For example, Rust consumers match `failure.kind == QueryErrorKind::Syntax`;
 Python consumers compare `error.query["query_kind"] is QueryErrorKind.SYNTAX`.

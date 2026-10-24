@@ -4,8 +4,9 @@ Examples are part of the public documentation surface: they demonstrate the
 same concepts through each language's intended API. Native C interoperability
 is explicit in the C++ runtime Fixed, advanced-control and Schema examples;
 it is not the default application path. Go examples import only the public
-package. Rust uses `opentlv`, Python uses `opentlv`, Lua uses `require("opentlv")`
-and WebAssembly uses the supported JavaScript loader.
+package. Rust uses `opentlv`, Python uses `opentlv`, Lua uses `require("opentlv")`.
+JS/WASM examples and their execution requirements are maintained in the
+[standalone manual](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md#binding-contracts-and-examples).
 
 ## Fixed round trip by language
 
@@ -27,18 +28,18 @@ Links below name existing programs, not promised parity. A dash means there is
 no dedicated example for that workflow; the binding may still implement it.
 See the [binding matrix](../concepts/bindings.md) for actual capability coverage.
 
-| Workflow | C | C++ | Rust | Python | Lua | Go | WASM |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| Quick start | quick_start.c | quick_start.cpp | quick_start.rs | quick_start.py | quick_start.lua | quick_start/main.go | — |
-| Reader | sequential_io.c, incremental_reader.c | quick_start.cpp, advanced_control.cpp | reader.rs | parse.py | quick_start.lua | reader/main.go | parse.mjs |
-| Writer | sequential_io.c | quick_start.cpp | writer.rs | writer.py | quick_start.lua | writer/main.go | — |
-| Nested/tree traversal | tree_reader.c, visitor.c, parse.c | parse.cpp | parse.rs | parse.py | parse.lua | — | parse.mjs |
-| Nested construction | tree_writer.c, write.c | write.cpp | write.rs | write.py | — | writer/main.go | — |
-| Owned Document | — | document.cpp, document_edit.cpp | — | document.py | — | document/main.go | — |
-| Query | query.c | query.cpp | — | query.py | — | query/main.go | — |
-| Schema / validation | schema_visitor.c, validate.c | validate.cpp | validate.rs | validate.py | schema.lua | — | — |
-| Codec / typed Values | codecs_and_endian.c | typed_fields.cpp | — | codec.py | codec.lua | codec/main.go | — |
-| Built-in standards | BER, CER, EMV, DHCP, LLDP, NFC programs | BER use cases, lldp.cpp | BER use cases | BER use cases | BER use cases / EMV codec | optional BER nested writing | BER parsing |
+| Workflow | C | C++ | Rust | Python | Lua | Go |
+| --- | --- | --- | --- | --- | --- | --- |
+| Quick start | quick_start.c | quick_start.cpp | quick_start.rs | quick_start.py | quick_start.lua | quick_start/main.go |
+| Reader | sequential_io.c, incremental_reader.c | quick_start.cpp, advanced_control.cpp | reader.rs | parse.py | quick_start.lua | reader/main.go |
+| Writer | sequential_io.c | quick_start.cpp | writer.rs | writer.py | quick_start.lua | writer/main.go |
+| Nested/tree traversal | tree_reader.c, visitor.c, parse.c | parse.cpp | parse.rs | parse.py | parse.lua | — |
+| Nested construction | tree_writer.c, write.c | write.cpp | write.rs | write.py | — | writer/main.go |
+| Owned Document | — | document.cpp, document_edit.cpp | — | document.py | — | document/main.go |
+| Query | query.c | query.cpp | — | query.py | — | query/main.go |
+| Schema / validation | schema_visitor.c, validate.c | validate.cpp | validate.rs | validate.py | schema.lua | — |
+| Codec / typed Values | codecs_and_endian.c | typed_fields.cpp | — | codec.py | codec.lua | codec/main.go |
+| Built-in standards | BER, CER, EMV, DHCP, LLDP, NFC programs | BER use cases, lldp.cpp | BER use cases | BER use cases | BER use cases / EMV codec | optional BER nested writing |
 
 ## Running and CI coverage
 
@@ -51,8 +52,7 @@ individual programs; compiling a minimal build does not exercise disabled format
 
 Standalone Rust, Python and Lua CI run their example programs.
 Standalone Go CI runs applicable examples in default/minimal builds, excluding Document
-and Query where Document is disabled. WASM's Node example is runnable after an
-Emscripten build; a WASM build alone does not prove that example was run.
+and Query where Document is disabled.
 The CLI's [acceptance script](https://github.com/OpenTLV/opentlv-cli/blob/main/tests/examples.cmake) exercises the
 shared Fixed round trip and nested BER decode/encode/query workflows.
 
@@ -136,6 +136,5 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | Go | [reader/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/reader/main.go) | Sequential Reader and input control |
 | Go | [version/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/version/main.go) | Version / native integration |
 | Go | [writer/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/writer/main.go) | Sequential Writer |
-| WebAssembly | [parse.mjs](../../bindings/wasm/examples/parse.mjs) | Nested parsing / traversal |
 
 <!-- example-inventory:end -->

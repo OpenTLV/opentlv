@@ -120,18 +120,16 @@ without making measurement or comparison failures required checks.
 
 ## Public-facade evidence and candidate requirements
 
-The common compiled-language corpus has Core-hosted public-facade runners for
-C++, Rust, Python, Go, Lua and JS/WASM. These exercise optimized and unoptimized
+The common compiled-language corpus is owned by Core; standalone bindings own
+their public-facade runners. These exercise optimized and unoptimized
 programs, stream/retained/Document backends where exposed, prefix continuation,
 scalar results and diagnostics. The [standalone CLI runner](https://github.com/OpenTLV/opentlv-cli/tree/main/tests/query)
 uses a pinned copy of the corpus; fixture-owned name-resolution providers remain
 explicit CLI exclusions, since the CLI has its own EMV resolver. V1-only
 success cannot satisfy the compiled-language gate.
 
-JS/WASM has an owning Query/Document facade over the C engine, including custom
-NUM/BCD/TEXT/DATE conversion callbacks, canonical event feeding, completed
-selection edits and contextual Query Schema validation. Rust, Python, Go and Lua
-expose the same integration capabilities through their ownership models.
+Current language-specific Query/Document capabilities and ownership models are
+documented by the standalone binding repositories.
 Dedicated regressions also cover semantic Tag adapters, scoped dynamic,
 Definition and EMV resolvers, configured Fixed Formats, source-bearing events,
 ordinals, V1 compatibility and checked two-pass compilation. The

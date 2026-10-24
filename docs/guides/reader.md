@@ -357,7 +357,6 @@ or greater traversal capacity. The query path itself still has its documented
 inline capacity. Schema validators and structure codecs have their own bounded
 storage (`TLV_SCHEMA_MAX_DEPTH` and `TLV_STRUCTURE_MAX_DEPTH`); exhaustion is a
 resource error at actual descent, not rejection of a larger requested limit.
-The WASM presentation adapter retains its own 64-level output capacity.
 
 Callback convenience APIs use Visitor naming consistently:
 

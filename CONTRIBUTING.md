@@ -14,10 +14,9 @@ For documentation changes, first follow the
 [ownership rules](docs/development/documentation-ownership.md) and then the
 [progressive learning conventions](docs/development/documentation-layout.md#progressive-learning-conventions).
 Document new Core functionality alongside its implementation, public API comments
-and native examples. CLI, Lua, Python, Rust and Go maintain their documentation in
-`opentlv-cli`, `opentlv-lua`, `opentlv-python`, `opentlv-rust` and `opentlv-go`.
-WebAssembly remains in Core while its implementation is hosted here. Portal assembly,
-navigation and publication belong to `opentlv-docs`; follow its
+and native examples. CLI, Lua, Python, Rust, Go and JS/WASM maintain their documentation in
+`opentlv-cli`, `opentlv-lua`, `opentlv-python`, `opentlv-rust`, `opentlv-go` and `opentlv-js`.
+Portal assembly, navigation and publication belong to `opentlv-docs`; follow its
 [portal conventions](https://github.com/OpenTLV/opentlv-docs/blob/main/docs/development/documentation.md).
 Core-only changes do not require unrelated binding updates.
 User onboarding starts at the [documentation homepage](docs/index.md); developer
@@ -51,8 +50,7 @@ Start project C/C++ sources and headers with:
 // Copyright (c) 2026 Marek Cingel
 ```
 
-Rust, JavaScript, TypeScript, Java and Go use the same comment syntax; Python
-uses `#` and Lua uses `--`. Keep shebangs and Python encoding declarations
+Python uses `#`. Keep shebangs and Python encoding declarations
 before the notice. C/C++ `.in` source templates also carry the notice so their
 generated outputs inherit it. The complete MIT text remains in [LICENSE](LICENSE).
 
@@ -368,9 +366,8 @@ The portal owns publishing to <https://opentlv.github.io/opentlv-docs/> and
 its version-selection policy. Its [publication and source-update instructions](https://github.com/OpenTLV/opentlv-docs#automated-ecosystem-updates)
 are the current authority for reviewed source pins and release publication.
 Core [notifies the portal](.github/workflows/docs-notify.yml) after successful
-`main` or stable-tag WebAssembly push builds. A main notification requests a
-reviewed source update; a stable-tag notification starts portal release validation. Neither proves deployment or
-makes Core release success depend on the portal.
+Core Main CI runs on `main`. A notification requests a reviewed source update;
+it does not prove deployment or make Core release success depend on the portal.
 
 The [cutover procedure](docs/development/documentation-ownership.md#cutover-for-issue-608)
 is retained as the historical initial migration record, including archival URL

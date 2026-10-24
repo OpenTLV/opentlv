@@ -359,7 +359,7 @@ def harness_cmake():
 project(opentlv-release-performance LANGUAGES C CXX)
 include(FetchContent)
 foreach(feature IN ITEMS TESTS UNIT_TESTS INTEGRATION_TESTS QUERY_TESTS PROPERTY_TESTS
-        CLI_TESTS EXAMPLES CLI BENCHMARKS FUZZING MEMCHECK DOCS WASM PYTHON LUA SHARED_LIBS)
+        CLI_TESTS EXAMPLES CLI BENCHMARKS FUZZING MEMCHECK DOCS PYTHON LUA SHARED_LIBS)
     # Migrated consumer switches also disable bindings in historical baselines.
     set(OPENTLV_BUILD_${feature} OFF CACHE BOOL "" FORCE)
 endforeach()

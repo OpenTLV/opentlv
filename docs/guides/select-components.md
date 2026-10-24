@@ -59,7 +59,7 @@ The C dependency graph is authoritative. Binding conveniences may require more:
 | C++ Schema facade | Schema and Reader |
 | C++ Query facade | Query and Reader |
 | C++ Document facade | Document, Reader, Writer, Query and Codec |
-| WASM, examples, benchmarks and fuzz suites | Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds |
+| Examples, benchmarks and fuzz suites | Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds |
 | Rust | Native build explicitly enables Reader, Writer, Query, Schema and Codec; Document remains a Cargo feature |
 | Go | Prebuilt library must enable Reader, Writer, Query, Schema and Codec; the bridge checks generated configuration |
 

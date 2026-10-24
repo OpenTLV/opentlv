@@ -12,10 +12,9 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(_OPENTLV_TOP_LEVEL ON)
 endif()
 
-# Build and language bindings
+# Native libraries
 option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of static" ON)
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
-option(OPENTLV_BUILD_WASM "Build the experimental WebAssembly module (requires Emscripten)" OFF)
 
 # Core capabilities
 option(OPENTLV_READER "Include wire readers and traversal" ON)
@@ -68,14 +67,6 @@ if(OPENTLV_BUILD_CXX OR (OPENTLV_BUILD_TESTS AND OPENTLV_BUILD_PROPERTY_TESTS))
     enable_language(CXX)
 endif()
 
-if(OPENTLV_BUILD_WASM)
-    if(NOT EMSCRIPTEN)
-        message(FATAL_ERROR "OPENTLV_BUILD_WASM requires Emscripten; configure with emcmake cmake.")
-    endif()
-    # The module links the core statically; Emscripten shared libraries are not supported.
-    set(OPENTLV_BUILD_SHARED_LIBS OFF)
-endif()
-
 include(cmake/compiler.cmake)
 include(cmake/memcheck.cmake)
 include(GNUInstallDirs)
@@ -89,12 +80,6 @@ endif()
 
 add_subdirectory(tlv)
 add_library(OpenTLV::tlv ALIAS tlv)
-
-if(OPENTLV_BUILD_WASM)
-    # ctest reads the top-level test file, so testing is enabled here, not in bindings/wasm.
-    enable_testing()
-    add_subdirectory(bindings/wasm)
-endif()
 
 if(OPENTLV_BUILD_DOCS)
     include(cmake/doxygen.cmake)
