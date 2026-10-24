@@ -75,9 +75,8 @@ def check(root):
     compare(errors, "C++ built-in families", cxx, documented_cxx, "docs/formats/support.md")
 
     bindings_root = root / "bindings"
-    # Shared native ownership helpers are not a separately supported language.
     bindings = {directory.name for directory in bindings_root.iterdir()
-                if directory.is_dir() and directory.name != "common"} \
+                if directory.is_dir()} \
         if bindings_root.is_dir() else set()
     for language in sorted(bindings):
         page = f"guides/{language}.md"

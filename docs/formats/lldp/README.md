@@ -171,13 +171,12 @@ All presets select the shared C descriptor; bindings do not reimplement packing.
 | Rust | `Format::Lldp`, name `lldp` | Cargo feature `lldp`, enabled by default |
 | Python | `Format.LLDP` | Member exists only when `_opentlv.HAS_LLDP` is true |
 | Lua | `opentlv.formats.lldp` | Field exists only when LLDP is built |
-| JavaScript/WASM | `{ format: "lldp" }` | Listed in the loaded module's `opentlv.formats` only when built |
 
 Rust's `--no-default-features` removes the LLDP preset and disables its C
 package when building from source. For a prebuilt library selected through
 `OPENTLV_LIB_DIR`, match the Cargo `lldp` feature to `OPENTLV_LLDP` in that library.
 The Python native extension and its Python package must be rebuilt/updated
-together. Lua and WASM currently expose parsing, so their presets do not add a
+together. Lua currently exposes parsing, so its preset does not add a
 new writing API.
 
 ### C
@@ -277,10 +276,5 @@ for element in opentlv.reader(string.char(6, 2, 0, 120), opentlv.formats.lldp) d
 end
 ```
 
-### JavaScript/WASM
-
-```javascript
-// After loadOpenTLV() resolves to opentlv:
-const result = opentlv.parse(new Uint8Array([6, 2, 0, 120]), { format: "lldp" });
-console.assert(result.elements[0].tag === "03");
-```
+The [standalone JS/WASM manual](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md#binding-contracts-and-examples)
+owns its LLDP example and availability rules.

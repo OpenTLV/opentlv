@@ -24,7 +24,6 @@ class InventoryTests(unittest.TestCase):
             "tlv++/include/tlv++/builtins/asn1/ber.hpp": "// fixture\n",
             "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |\n",
             "examples/tlv/src/parse.c": "// example\n",
-            "bindings/common/query_schema.h": "/* shared native ownership helper */\n",
             "docs/guides/cxx-examples.md": "# C++ examples\n",
             "docs/guides/examples.md": "<!-- example-inventory:start -->\n[C](../../examples/tlv/src/parse.c)\n<!-- example-inventory:end -->\n",
             "tools/docs/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv/include/tlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',

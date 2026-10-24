@@ -15,8 +15,8 @@ target and validates its required features; it owns its static-linking policy.
 Core still uses the Python interpreter for native Query/property tests,
 documentation checks and build/release tooling. Removing the binding does not
 remove those tools or the shared `tests/query/corpus.json` and `reference.py`.
-Shared native adapters under `bindings/common/` remain available to the other
-in-tree bindings. Python maintains its migrated copies in its own repository.
+Native binding adapters are maintained by their standalone repositories.
+Python owns its migrated copies alongside its extension.
 
 ## Versioning
 

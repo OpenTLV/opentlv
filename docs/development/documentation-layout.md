@@ -186,9 +186,7 @@ Conventions:
   in tests or advanced examples. Preserve each binding's supported baseline,
   including C++11.
 - Use tabs only for equivalent functionality. If a binding has no counterpart
-  for a group (for example Go has no public Schema facade, and
-  the WebAssembly build is not a Reader/Writer-shaped binding at all — see
-  [WebAssembly](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md)), leave it out of that group's tabs rather
+  for a group, leave it out of that group's tabs rather
   than adding an empty one; a shape difference that is still worth flagging
   (a narrower codec, a differently-shaped error type) belongs in prose or a
   cross-link to that binding's own guide, not a tab.

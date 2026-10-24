@@ -97,7 +97,7 @@ format. Source preservation retains accepted nonminimal length bytes; ordinary
 writing regenerates canonical field widths.
 
 The preset is available as Rust `Format::Emv`, Python `Format.EMV`, Lua
-`opentlv.formats.emv`, and `emv` in CLI/WASM. Select `--format emv --module emv`
+`opentlv.formats.emv`, and `emv` in the CLI. Select `--format emv --module emv`
 in the CLI for definite framing with dictionary annotations. Selecting `ber`
 with the EMV module still annotates BER input and does not enforce EMV framing.
 

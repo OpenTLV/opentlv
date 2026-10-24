@@ -70,9 +70,8 @@ require their Cargo features. `Missing` means no public preset.
 | DHCPv4 | Yes | Missing | Missing | Missing | Yes |
 | NFC Type 2 | Yes | Yes | Yes | Yes | Yes |
 
-WebAssembly is a parse-to-JSON consumer, with its own supported options in the
-[WebAssembly guide](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md), rather than a complete
-language facade. CLI/WASM support is narrower than native Format availability.
+JS/WASM format availability and public API limitations are maintained in the
+[standalone guide](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md).
 
 The [documentation drift check](../development/documentation-layout.md#documentation-inventory-checks)
 compares native descriptors and C++ built-in directories with
