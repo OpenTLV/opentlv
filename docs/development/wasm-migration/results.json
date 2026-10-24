@@ -1,0 +1,902 @@
+{
+  "schema": 1,
+  "commit": "a9a6f9470c2b285744738b40196bef9d0341fead",
+  "environment": "local Linux/WSL",
+  "node": "v22.16.0",
+  "emscripten": "emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 4.0.10 (b7dc6e5747465580df5984e723b9d1f10d8e804b)",
+  "cmake_flags": [
+    "-G",
+    "Ninja",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DOPENTLV_BUILD_WASM=ON",
+    "-DOPENTLV_BUILD_CXX=OFF",
+    "-DOPENTLV_BUILD_TESTS=OFF",
+    "-DOPENTLV_BUILD_EXAMPLES=OFF",
+    "-DOPENTLV_WARNINGS_AS_ERRORS=ON"
+  ],
+  "steps": [
+    {
+      "name": "emscripten-version",
+      "command": [
+        "emcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "emscripten-version.log",
+      "sha256": "213df36e3597ae21529432b056190e6497f1f4d0f0aeee0cfc48b55c85a241d5"
+    },
+    {
+      "name": "node-version",
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "node-version.log",
+      "sha256": "256a8e08ee35cb8ad36ae16385257192c3dbe7d80cfdeff9eaa886531b2f83bc"
+    },
+    {
+      "name": "cmake-version",
+      "command": [
+        "cmake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "cmake-version.log",
+      "sha256": "d3d5b682f3f5ef5b24a79ed8cf4b8c5868fc950dad48cab1be0e3c060a77f8ee"
+    },
+    {
+      "name": "ninja-version",
+      "command": [
+        "ninja",
+        "--version"
+      ],
+      "exit_code": 0,
+      "log": "ninja-version.log",
+      "sha256": "4f9416d650bd28343244b868dfebdb11e70d7b32423536cb87b8c31fde62f993"
+    },
+    {
+      "name": "clone",
+      "command": [
+        "git",
+        "clone",
+        "--no-hardlinks",
+        "/mnt/d/Projects/marekcingel/OpenTLV/opentlv",
+        "/var/tmp/opentlv-wasm-697-baseline-3/source"
+      ],
+      "exit_code": 0,
+      "log": "clone.log",
+      "sha256": "bc02ceac26af2d7c27a29c34afcc5c99e6ab9f5a290e367712792fb95513521c"
+    },
+    {
+      "name": "checkout",
+      "command": [
+        "git",
+        "checkout",
+        "--detach",
+        "a9a6f9470c2b285744738b40196bef9d0341fead"
+      ],
+      "exit_code": 0,
+      "log": "checkout.log",
+      "sha256": "cad0231b85f081005438d8f511240b3111804ec45adec6b1f3fec3c9778311c9"
+    },
+    {
+      "name": "build-wasm-configure",
+      "command": [
+        "emcmake",
+        "cmake",
+        "-S",
+        "/var/tmp/opentlv-wasm-697-baseline-3/source",
+        "-B",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DOPENTLV_BUILD_WASM=ON",
+        "-DOPENTLV_BUILD_CXX=OFF",
+        "-DOPENTLV_BUILD_TESTS=OFF",
+        "-DOPENTLV_BUILD_EXAMPLES=OFF",
+        "-DOPENTLV_WARNINGS_AS_ERRORS=ON"
+      ],
+      "exit_code": 0,
+      "log": "build-wasm-configure.log",
+      "sha256": "0f86782552b2d279c9432cf7827cf55df9137c4a65213bdeddb1bff3bdadb50f"
+    },
+    {
+      "name": "build-wasm-build",
+      "command": [
+        "cmake",
+        "--build",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm",
+        "--target",
+        "opentlv-wasm",
+        "--parallel"
+      ],
+      "exit_code": 0,
+      "log": "build-wasm-build.log",
+      "sha256": "87039b732480ce97b228af776921a1a6d29ad72dde20a8e0626b17ed7983b411"
+    },
+    {
+      "name": "build-wasm-repeat-configure",
+      "command": [
+        "emcmake",
+        "cmake",
+        "-S",
+        "/var/tmp/opentlv-wasm-697-baseline-3/source",
+        "-B",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm-repeat",
+        "-G",
+        "Ninja",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DOPENTLV_BUILD_WASM=ON",
+        "-DOPENTLV_BUILD_CXX=OFF",
+        "-DOPENTLV_BUILD_TESTS=OFF",
+        "-DOPENTLV_BUILD_EXAMPLES=OFF",
+        "-DOPENTLV_WARNINGS_AS_ERRORS=ON"
+      ],
+      "exit_code": 0,
+      "log": "build-wasm-repeat-configure.log",
+      "sha256": "8bbbf57fa73899afd464ab0735e34275aab8d80b14df7906bbb0f50e23db3641"
+    },
+    {
+      "name": "build-wasm-repeat-build",
+      "command": [
+        "cmake",
+        "--build",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm-repeat",
+        "--target",
+        "opentlv-wasm",
+        "--parallel"
+      ],
+      "exit_code": 0,
+      "log": "build-wasm-repeat-build.log",
+      "sha256": "f402f43dbe7d9826e54ac83f146cce833012626ce731bfaec2f616e1b41714e4"
+    },
+    {
+      "name": "smoke-and-example",
+      "command": [
+        "ctest",
+        "--test-dir",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm",
+        "-L",
+        "wasm",
+        "--output-on-failure",
+        "--no-tests=error"
+      ],
+      "exit_code": 0,
+      "log": "smoke-and-example.log",
+      "sha256": "a043cd776bd42bed5bb1c49be9e40fcc0e4484355320826f316be5640f5d62ee"
+    },
+    {
+      "name": "query-fixtures",
+      "command": [
+        "python3",
+        "tests/query/facade_fixtures.py",
+        "--output",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/query-fixtures.json"
+      ],
+      "exit_code": 0,
+      "log": "query-fixtures.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "query-facade",
+      "command": [
+        "node",
+        "tests/query/wasm_facade.mjs",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/bindings/wasm/dist",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/query-fixtures.json"
+      ],
+      "exit_code": 0,
+      "log": "query-facade.log",
+      "sha256": "2adcb7a88a2e92e7bc89d43a252bbaf9e0a91210370c99a62e65f4c8fc2dfb0e"
+    },
+    {
+      "name": "abi-build",
+      "command": [
+        "emcc",
+        "-std=c99",
+        "-DTLV_STATIC_DEFINE",
+        "-I",
+        "tlv/include",
+        "-I",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/generated/include",
+        "tests/query/abi.c",
+        "-o",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/query-abi.js"
+      ],
+      "exit_code": 0,
+      "log": "abi-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "abi-observed",
+      "command": [
+        "node",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/query-abi.js"
+      ],
+      "exit_code": 0,
+      "log": "abi-observed.log",
+      "sha256": "0865405f8d46819a0e63451454a54dca2422157eda429cdf7145b0479d82128c"
+    },
+    {
+      "name": "abi-check",
+      "command": [
+        "python3",
+        "tests/query/check_abi.py",
+        "--input",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/query-abi.json"
+      ],
+      "exit_code": 0,
+      "log": "abi-check.log",
+      "sha256": "07e103842a0f57b03cc96416ebd25b95e65ff82d7b4b1380c030b3e4c920e374"
+    },
+    {
+      "name": "exports",
+      "command": [
+        "node",
+        "/mnt/d/Projects/marekcingel/OpenTLV/opentlv/docs/development/wasm-migration/exports.mjs",
+        "/var/tmp/opentlv-wasm-697-baseline-3/build-wasm/bindings/wasm/dist"
+      ],
+      "exit_code": 0,
+      "log": "exports.log",
+      "sha256": "4caf97f91062a80b72928dd8a57c9b6070a6026f4540de1b7037460fb0857810"
+    },
+    {
+      "name": "source-status",
+      "command": [
+        "git",
+        "status",
+        "--porcelain",
+        "--untracked-files=no"
+      ],
+      "exit_code": 0,
+      "log": "source-status.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "runner_sha256": "ca015cd382196cd66911d2d350030fb4ec2ce647330405b18d483ba29560ec3d",
+  "export_capture_sha256": "829708683d180d05dd3b27ac06b7d6bc2d9803a01ccab1d898f30371e7562b6c",
+  "artifacts": {
+    "opentlv-core.js": "600e1fac532c89aa92b4b72877268cb14d1f824c5e27eb747e6a27dc90a8ab5c",
+    "opentlv-core.wasm": "9e50172279416c7b55431528f137cf254918da4100c6dd548eba34dbe0bf24a9",
+    "opentlv.mjs": "73be28ae8af25e78829671218dbb62e6392b786a18664c51aaa70a2a85f0b1a7",
+    "query.mjs": "4a966ea90a314c1d3e017713d4e842831ba593a21915ab5eafa7ceafb9d6a5de"
+  },
+  "independent_builds_identical": true,
+  "query_abi": {
+    "version": 1,
+    "pointer_bits": 32,
+    "types": {
+      "tlv_location_t": {
+        "size": 16,
+        "alignment": 4,
+        "domain": 0,
+        "kind": 4,
+        "begin": 8,
+        "end": 12
+      },
+      "tlv_diagnostic_t": {
+        "size": 304,
+        "alignment": 4,
+        "code": 0,
+        "severity": 4,
+        "location": 8,
+        "expected": 24,
+        "actual": 28,
+        "contexts": 32,
+        "has_path": 36,
+        "path": 40
+      },
+      "tlv_reader_detail_t": {
+        "size": 96,
+        "alignment": 8,
+        "operation": 0,
+        "has_tag": 4,
+        "tag": 8,
+        "has_tag_offset": 16,
+        "tag_offset": 20,
+        "has_length_offset": 24,
+        "length_offset": 28,
+        "has_value_offset": 32,
+        "value_offset": 36,
+        "has_declared_length": 40,
+        "declared_length": 48,
+        "has_raw_length": 56,
+        "raw_length": 60,
+        "has_available": 68,
+        "available": 72,
+        "has_enclosing_end": 76,
+        "enclosing_end": 80,
+        "has_required": 84,
+        "required": 88
+      },
+      "tlv_reader_diagnostic_t": {
+        "size": 400,
+        "alignment": 8,
+        "diagnostic": 0,
+        "detail": 304
+      },
+      "tlv_schema_definition_location_t": {
+        "size": 12,
+        "alignment": 4,
+        "kind": 0,
+        "owner": 4,
+        "index": 8
+      },
+      "tlv_query_t": {
+        "size": 648,
+        "alignment": 8
+      },
+      "tlv_query_matcher_t": {
+        "size": 16,
+        "alignment": 4
+      },
+      "tlv_query_program_info_t": {
+        "size": 88,
+        "alignment": 4,
+        "struct_size": 0,
+        "program_size": 4,
+        "program_alignment": 8,
+        "scratch_size": 12,
+        "scratch_alignment": 16,
+        "states": 20,
+        "language_version": 24,
+        "level": 28,
+        "result_kind": 32,
+        "expression_values": 36,
+        "instructions": 40,
+        "variable_slots": 44,
+        "codec_scratch": 48,
+        "pattern_bytes": 52,
+        "optimized_states": 56,
+        "expression_stack": 60,
+        "candidate_size": 64,
+        "candidate_alignment": 68,
+        "frame_states": 72,
+        "decision_timing": 76,
+        "stable_input_required": 80,
+        "constructed_values_required": 84
+      },
+      "tlv_query_exec_info_t": {
+        "size": 28,
+        "alignment": 4,
+        "struct_size": 0,
+        "elements": 4,
+        "work": 8,
+        "skipped_subtrees": 12,
+        "finished": 16,
+        "full_validation": 20,
+        "invalid": 24
+      },
+      "tlv_query_diagnostic_t": {
+        "size": 456,
+        "alignment": 8,
+        "diagnostic": 0,
+        "kind": 304,
+        "expression": 308,
+        "limit": 324,
+        "configured": 328,
+        "cause": 332,
+        "detail": 336
+      },
+      "tlv_query_result_t": {
+        "size": 24,
+        "alignment": 8,
+        "kind": 0,
+        "boolean": 4,
+        "integer": 8,
+        "data": 16,
+        "size_offset": 20
+      },
+      "tlv_query_compile_options_t": {
+        "size": 56,
+        "alignment": 4,
+        "struct_size": 0,
+        "environment": 40,
+        "optimize": 52
+      },
+      "tlv_query_environment_t": {
+        "size": 16,
+        "alignment": 4
+      },
+      "tlv_query_hook_t": {
+        "size": 24,
+        "alignment": 4
+      },
+      "tlv_query_variable_t": {
+        "size": 8,
+        "alignment": 4
+      },
+      "tlv_query_variable_info_t": {
+        "size": 12,
+        "alignment": 4
+      }
+    }
+  },
+  "exports": {
+    "entryPoints": [
+      "FORMATS",
+      "MODULES",
+      "hexToBytes",
+      "loadOpenTLV"
+    ],
+    "api": [
+      "Document",
+      "Format",
+      "Node",
+      "QueryError",
+      "QueryExecution",
+      "QueryProgram",
+      "QuerySchema",
+      "V1Query",
+      "compileQuery",
+      "definitionResolver",
+      "document",
+      "formats",
+      "loadQuery",
+      "modules",
+      "nameResolver",
+      "parse",
+      "querySchema",
+      "version"
+    ],
+    "classes": {
+      "QueryProgram": {
+        "prototype": [
+          "_check",
+          "_native",
+          "_release",
+          "close",
+          "constructor",
+          "evaluate",
+          "execution",
+          "explain",
+          "format",
+          "image"
+        ],
+        "static": [
+          "load"
+        ]
+      },
+      "QueryExecution": {
+        "prototype": [
+          "_check",
+          "_match",
+          "_native",
+          "_operation",
+          "bind",
+          "close",
+          "constructor",
+          "context",
+          "editDocument",
+          "evaluateDocument",
+          "exists",
+          "feed",
+          "finish",
+          "info",
+          "next",
+          "nextOrdinal",
+          "pruning",
+          "reset",
+          "result",
+          "setInput",
+          "visit"
+        ],
+        "static": []
+      },
+      "QuerySchema": {
+        "prototype": [
+          "_validate",
+          "close",
+          "constructor",
+          "validateBuffer",
+          "validateDocument"
+        ],
+        "static": []
+      },
+      "QueryError": {
+        "prototype": [
+          "constructor"
+        ],
+        "static": []
+      },
+      "Document": {
+        "prototype": [
+          "_check",
+          "_node",
+          "close",
+          "constructor",
+          "encode",
+          "first"
+        ],
+        "static": []
+      },
+      "Node": {
+        "prototype": [
+          "_get",
+          "_navigate",
+          "constructed",
+          "constructor",
+          "erase",
+          "firstChild",
+          "next",
+          "parent",
+          "setValue",
+          "tag",
+          "value"
+        ],
+        "static": []
+      },
+      "Format": {
+        "prototype": [
+          "_native",
+          "_release",
+          "_retain",
+          "_throw",
+          "close",
+          "constructor"
+        ],
+        "static": [
+          "custom",
+          "fixed"
+        ]
+      },
+      "V1Query": {
+        "prototype": [
+          "_operation",
+          "close",
+          "constructor",
+          "evaluate",
+          "feed",
+          "format",
+          "matcher",
+          "reset",
+          "steps"
+        ],
+        "static": []
+      },
+      "nameResolver": {
+        "prototype": [
+          "constructor"
+        ],
+        "static": []
+      },
+      "definitionResolver": {
+        "prototype": [
+          "constructor"
+        ],
+        "static": []
+      }
+    },
+    "version": "0.7.1",
+    "formats": [
+      "fixed",
+      "bluetooth-ltv",
+      "bluetooth-ad",
+      "ber",
+      "der",
+      "cer",
+      "lldp",
+      "emv",
+      "nfc-type2"
+    ],
+    "modules": [
+      "none",
+      "emv"
+    ],
+    "bridgeExports": [
+      "_opentlv_wasm_alloc",
+      "_opentlv_wasm_constants",
+      "_opentlv_wasm_document_encode",
+      "_opentlv_wasm_document_free",
+      "_opentlv_wasm_document_new",
+      "_opentlv_wasm_document_node",
+      "_opentlv_wasm_element_field",
+      "_opentlv_wasm_encoding_write",
+      "_opentlv_wasm_execution_bind",
+      "_opentlv_wasm_execution_document",
+      "_opentlv_wasm_execution_edit",
+      "_opentlv_wasm_execution_feed",
+      "_opentlv_wasm_execution_feed_source",
+      "_opentlv_wasm_execution_free",
+      "_opentlv_wasm_execution_input",
+      "_opentlv_wasm_execution_new",
+      "_opentlv_wasm_execution_operation",
+      "_opentlv_wasm_format_callbacks",
+      "_opentlv_wasm_format_decoded",
+      "_opentlv_wasm_format_free",
+      "_opentlv_wasm_format_new",
+      "_opentlv_wasm_free",
+      "_opentlv_wasm_integer_write",
+      "_opentlv_wasm_parse",
+      "_opentlv_wasm_program_compile",
+      "_opentlv_wasm_program_emv_resolver",
+      "_opentlv_wasm_program_free",
+      "_opentlv_wasm_program_image",
+      "_opentlv_wasm_program_image_size",
+      "_opentlv_wasm_program_name",
+      "_opentlv_wasm_program_new",
+      "_opentlv_wasm_program_option",
+      "_opentlv_wasm_program_provider",
+      "_opentlv_wasm_program_render",
+      "_opentlv_wasm_program_resolver",
+      "_opentlv_wasm_program_retain",
+      "_opentlv_wasm_program_tags",
+      "_opentlv_wasm_program_variable",
+      "_opentlv_wasm_program_with_format",
+      "_opentlv_wasm_provider_event",
+      "_opentlv_wasm_provider_integer",
+      "_opentlv_wasm_provider_text",
+      "_opentlv_wasm_query_error_kind_string",
+      "_opentlv_wasm_resolved_tag",
+      "_opentlv_wasm_result_code",
+      "_opentlv_wasm_result_free",
+      "_opentlv_wasm_result_json",
+      "_opentlv_wasm_result_json_size",
+      "_opentlv_wasm_result_location",
+      "_opentlv_wasm_schema_validate",
+      "_opentlv_wasm_size_write",
+      "_opentlv_wasm_strerror",
+      "_opentlv_wasm_tag_field",
+      "_opentlv_wasm_v1_free",
+      "_opentlv_wasm_v1_new",
+      "_opentlv_wasm_v1_operation",
+      "_opentlv_wasm_version"
+    ],
+    "wasmExports": [
+      {
+        "name": "b",
+        "kind": "memory"
+      },
+      {
+        "name": "c",
+        "kind": "function"
+      },
+      {
+        "name": "d",
+        "kind": "function"
+      },
+      {
+        "name": "e",
+        "kind": "table"
+      },
+      {
+        "name": "f",
+        "kind": "function"
+      },
+      {
+        "name": "g",
+        "kind": "function"
+      },
+      {
+        "name": "h",
+        "kind": "function"
+      },
+      {
+        "name": "i",
+        "kind": "function"
+      },
+      {
+        "name": "j",
+        "kind": "function"
+      },
+      {
+        "name": "k",
+        "kind": "function"
+      },
+      {
+        "name": "l",
+        "kind": "function"
+      },
+      {
+        "name": "m",
+        "kind": "function"
+      },
+      {
+        "name": "n",
+        "kind": "function"
+      },
+      {
+        "name": "o",
+        "kind": "function"
+      },
+      {
+        "name": "p",
+        "kind": "function"
+      },
+      {
+        "name": "q",
+        "kind": "function"
+      },
+      {
+        "name": "r",
+        "kind": "function"
+      },
+      {
+        "name": "s",
+        "kind": "function"
+      },
+      {
+        "name": "t",
+        "kind": "function"
+      },
+      {
+        "name": "u",
+        "kind": "function"
+      },
+      {
+        "name": "v",
+        "kind": "function"
+      },
+      {
+        "name": "w",
+        "kind": "function"
+      },
+      {
+        "name": "x",
+        "kind": "function"
+      },
+      {
+        "name": "y",
+        "kind": "function"
+      },
+      {
+        "name": "z",
+        "kind": "function"
+      },
+      {
+        "name": "A",
+        "kind": "function"
+      },
+      {
+        "name": "B",
+        "kind": "function"
+      },
+      {
+        "name": "C",
+        "kind": "function"
+      },
+      {
+        "name": "D",
+        "kind": "function"
+      },
+      {
+        "name": "E",
+        "kind": "function"
+      },
+      {
+        "name": "F",
+        "kind": "function"
+      },
+      {
+        "name": "G",
+        "kind": "function"
+      },
+      {
+        "name": "H",
+        "kind": "function"
+      },
+      {
+        "name": "I",
+        "kind": "function"
+      },
+      {
+        "name": "J",
+        "kind": "function"
+      },
+      {
+        "name": "K",
+        "kind": "function"
+      },
+      {
+        "name": "L",
+        "kind": "function"
+      },
+      {
+        "name": "M",
+        "kind": "function"
+      },
+      {
+        "name": "N",
+        "kind": "function"
+      },
+      {
+        "name": "O",
+        "kind": "function"
+      },
+      {
+        "name": "P",
+        "kind": "function"
+      },
+      {
+        "name": "Q",
+        "kind": "function"
+      },
+      {
+        "name": "R",
+        "kind": "function"
+      },
+      {
+        "name": "S",
+        "kind": "function"
+      },
+      {
+        "name": "T",
+        "kind": "function"
+      },
+      {
+        "name": "U",
+        "kind": "function"
+      },
+      {
+        "name": "V",
+        "kind": "function"
+      },
+      {
+        "name": "W",
+        "kind": "function"
+      },
+      {
+        "name": "X",
+        "kind": "function"
+      },
+      {
+        "name": "Y",
+        "kind": "function"
+      },
+      {
+        "name": "Z",
+        "kind": "function"
+      },
+      {
+        "name": "_",
+        "kind": "function"
+      },
+      {
+        "name": "$",
+        "kind": "function"
+      },
+      {
+        "name": "aa",
+        "kind": "function"
+      },
+      {
+        "name": "ba",
+        "kind": "function"
+      },
+      {
+        "name": "ca",
+        "kind": "function"
+      },
+      {
+        "name": "da",
+        "kind": "function"
+      },
+      {
+        "name": "ea",
+        "kind": "function"
+      },
+      {
+        "name": "fa",
+        "kind": "function"
+      },
+      {
+        "name": "ga",
+        "kind": "function"
+      }
+    ],
+    "wasmImports": [
+      {
+        "module": "a",
+        "name": "a",
+        "kind": "function"
+      }
+    ]
+  },
+  "limitations": [
+    "Not hosted CI or a tag-triggered run",
+    "Browser and Web Worker runtime not executed",
+    "Not standalone build, packaging, publication or release evidence"
+  ]
+}
