@@ -188,7 +188,7 @@ Conventions:
 - Use tabs only for equivalent functionality. If a binding has no counterpart
   for a group (for example Go has no public Schema facade, and
   the WebAssembly build is not a Reader/Writer-shaped binding at all — see
-  [WebAssembly](webassembly.md)), leave it out of that group's tabs rather
+  [WebAssembly](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md)), leave it out of that group's tabs rather
   than adding an empty one; a shape difference that is still worth flagging
   (a narrower codec, a differently-shaped error type) belongs in prose or a
   cross-link to that binding's own guide, not a tab.
@@ -264,8 +264,8 @@ The inventory check derives these small facts directly from repository sources:
 | Public config macros and root CMake options | Build-configuration rows in the architecture overview |
 | Public built-in `tlv_format_t` descriptors | Implemented Format inventory |
 | C++ built-in directories | C++ family links in the implemented inventory |
-| Official binding directories | User guide exists (WASM uses its tooling guide); navigation is checked by the portal |
-| Core-local C/C++/WASM example sources | Marked source inventory in the examples guide; standalone Go, Rust, Python and Lua sources are external links |
+| Any Core-local binding directories | User guide exists; standalone bindings own their guides and portal navigation |
+| Core-local C/C++ example sources | Marked source inventory in the examples guide; standalone JS/WASM, Go, Rust, Python and Lua sources are external links |
 | Doxygen public roots, recursion and file patterns | Recursive discovery of C and C++ public headers |
 
 Adding or removing a public capability must update the corresponding inventory,

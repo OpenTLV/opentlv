@@ -36,8 +36,9 @@ CLI documentation is maintained in `OpenTLV/opentlv-cli`.
 Go documentation and diagnostic snapshot generation are maintained in
 `OpenTLV/opentlv-go`. Its former Core manuals and migration records remain
 available in Git history; Core no longer carries copies.
-WebAssembly follows the same component ownership rule; record its destination
-repository when its extraction is scheduled.
+JS/WASM implementation, build, tests, examples and embedding documentation
+belong to `OpenTLV/opentlv-js` (#698). Former Core manuals and migration records
+remain available in Git history; Core retains the shared Query fixtures and ABI tests.
 
 Each fact has one canonical source. A portal build may assemble content from an
 owning repository into disposable build output; it must not maintain an edited
@@ -160,7 +161,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/reader-decode-performance.md](reader-decode-performance.md) | Core | Keep |
 | [development/rust.md](rust.md) | Rust / Core | Landing page and Core integration notes; canonical guide in opentlv-rust |
 | [development/valgrind.md](valgrind.md) | Core | Keep: native checks and harness selection |
-| [development/webassembly.md](webassembly.md) | WebAssembly / Portal | Component: embedding/build API; portal owns playground integration |
+| [Standalone JS/WASM manual](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md) | WebAssembly / Portal | Component: embedding/build API; portal owns playground integration |
 | [development/workflow.md](workflow.md) | Core / components / Portal | Mixed: checks and release/publication responsibilities |
 | [development/quality-gates.md](quality-gates.md) | Core | Core CI inventory, release artifacts, provenance and timing evidence |
 | [formats/README.md](../formats/README.md) | Core | Keep |
@@ -247,7 +248,7 @@ an assumed single-repository base URL.
 | `reference/c-api.md`, `reference/cxx-api.md`, format guides and native examples | `tlv/include/`, `tlv++/include/`, `examples/`: keep Core-relative source links in canonical Markdown; assembled links must target the selected Core revision |
 | `docs/README.md`, root/component README files and `CONTRIBUTING.md` | Core pages and the unified landing page: preserve a Core entry point, update portal destinations and keep existing anchors where practical |
 | Doxygen `@docs` links, `OPENTLV_DOCS_URL` in `cmake/doxygen.cmake`, C++ tag-file references and reference entry pages | Hand-written guides and sibling C/C++ HTML trees: preserve both directions when generation and publication are separated |
-| `playground/index.md`, its JavaScript and `development/webassembly.md` | WebAssembly distribution/API and browser assets: component produces the module; Portal owns its selected-version integration |
+| Portal playground assets and the standalone JS/WASM manual | WebAssembly distribution/API and browser assets: component produces the module; Portal owns its selected-version integration |
 | Portal `mkdocs.yml`, source hooks and theme links | The portal selects the owning repository and revision for each source; Core has no site configuration |
 | `development/workflow.md`, documentation layout, `CONTRIBUTING.md` and `.github/workflows/docs-validation.yml` | Core validation and API artifacts remain independent; portal build/publication commands live in the portal README |
 
@@ -349,9 +350,9 @@ dependencies, hooks, theme and unused site asset variants. CLI documentation
 subsequently moved to `opentlv-cli` with #622. The README logo remains usable offline.
 
 Portal [#6](https://github.com/OpenTLV/opentlv-docs/issues/6) transfers the
-playground UI to `opentlv-docs`. Core retains a Markdown entry point and the
-component-owned WebAssembly implementation, CMake target and tests. The portal
-builds that target for its selected Core commit, verifies provenance and runs
+playground UI to `opentlv-docs`. Core retains a Markdown entry point;
+`opentlv-js` owns the WebAssembly implementation, CMake target and tests (#698).
+The portal builds selected JS against its selected Core, verifies both sources and runs
 the browser smoke test before publication. Its exact-path overlays support
 older Core revisions that still contain the UI.
 Merge and validate the portal integration before merging the Core UI removal.

@@ -428,7 +428,7 @@ entry points are:
 | Python | Experimental `opentlv` facade plus `opentlv-core` extension | [Python guide](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) | [Python development](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md) |
 | Lua | Experimental `opentlv` module with native `opentlv._core` implementation | [Lua guide](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/api.md) | [Lua development](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) |
 | Go | Experimental public `opentlv` package with private `internal/capi` bridge | [Go guide](https://github.com/OpenTLV/opentlv-go/blob/main/docs/guides/go.md) | [Go development](https://github.com/OpenTLV/opentlv-go/blob/main/docs/development/go.md) |
-| WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](../development/webassembly.md) | [WASM sources](../../bindings/wasm/) |
+| WebAssembly | Parse tooling plus owning compiled Query and checked Document facade; advanced extension parity remains incomplete | [WASM tooling](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md) | [WASM sources](https://github.com/OpenTLV/opentlv-js/) |
 
 Language-specific copying, cleanup, errors and current limitations are documented
 in those guides; an experimental label neither implies full parity nor excuses

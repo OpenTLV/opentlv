@@ -58,7 +58,7 @@ function(opentlv_generate_config_files)
 endfunction()
 
 if(NOT OPENTLV_QUERY_FRONTEND)
-    foreach(component IN ITEMS EXAMPLES BENCHMARKS FUZZING WASM)
+    foreach(component IN ITEMS EXAMPLES BENCHMARKS FUZZING)
         if(OPENTLV_BUILD_${component})
             message(STATUS "Query frontend disabled: skipping ${component}, which requires text compilation")
             set(OPENTLV_BUILD_${component} OFF)

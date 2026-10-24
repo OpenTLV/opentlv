@@ -71,7 +71,7 @@ require their Cargo features. `Missing` means no public preset.
 | NFC Type 2 | Yes | Yes | Yes | Yes | Yes |
 
 WebAssembly is a parse-to-JSON consumer, with its own supported options in the
-[WebAssembly guide](../development/webassembly.md), rather than a complete
+[WebAssembly guide](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md), rather than a complete
 language facade. CLI/WASM support is narrower than native Format availability.
 
 The [documentation drift check](../development/documentation-layout.md#documentation-inventory-checks)

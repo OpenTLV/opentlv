@@ -17,7 +17,6 @@ ROOT = Path(__file__).resolve().parent.parent
 EXAMPLE_ROOTS = (
     ("examples/tlv/src", ".c"),
     ("examples/tlv++/src", ".cpp"),
-    ("bindings/wasm/examples", ".mjs"),
 )
 
 
@@ -80,10 +79,8 @@ def check(root):
     bindings = {directory.name for directory in bindings_root.iterdir()
                 if directory.is_dir() and directory.name != "common"} \
         if bindings_root.is_dir() else set()
-    if not bindings:
-        errors.append("bindings/: no official bindings found")
     for language in sorted(bindings):
-        page = "development/webassembly.md" if language == "wasm" else f"guides/{language}.md"
+        page = f"guides/{language}.md"
         if not (root / "docs" / page).is_file():
             errors.append(f"binding {language}: add docs/{page}")
     if not (root / "docs/guides/cxx-examples.md").is_file():

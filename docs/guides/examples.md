@@ -136,6 +136,6 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | Go | [reader/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/reader/main.go) | Sequential Reader and input control |
 | Go | [version/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/version/main.go) | Version / native integration |
 | Go | [writer/main.go](https://github.com/OpenTLV/opentlv-go/blob/main/examples/writer/main.go) | Sequential Writer |
-| WebAssembly | [parse.mjs](../../bindings/wasm/examples/parse.mjs) | Nested parsing / traversal |
+| WebAssembly | [parse.mjs](https://github.com/OpenTLV/opentlv-js/blob/main/examples/parse.mjs) | Nested parsing / traversal |
 
 <!-- example-inventory:end -->

@@ -83,7 +83,7 @@ reference or release notes.
 | [Lua bindings (experimental)](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Python bindings (experimental)](../../docs/development/python.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Rust bindings (experimental)](../../docs/development/rust.md) | Contributor | Build workflow | Keep separate from user onboarding |
-| [WebAssembly build (experimental)](../../docs/development/webassembly.md) | Contributor | Build workflow | Keep separate from user onboarding |
+| [WebAssembly build (experimental)](https://github.com/OpenTLV/opentlv-js/blob/main/docs/webassembly.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Development workflow](../../docs/development/workflow.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [C library formats](../../docs/formats/README.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [BER-TLV](../../docs/formats/asn1/ber.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
