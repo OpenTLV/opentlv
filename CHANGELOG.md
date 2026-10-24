@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Record the WASM/JavaScript extraction baseline with immutable source hashes, ownership, exported ABI, build/test contracts and standalone repository provenance. (#697)
 - Record the Go extraction baseline with pinned source hashes, ownership and linking contracts, reproducible local test evidence and standalone repository provenance. (#685)
 - Freeze the CLI migration regression baseline with source provenance, command/test/fixture ownership inventories and portable exit-code, stdout, stderr and file comparisons integrated into CTest. (#621)
 - Expose native C/C++ Fixed round-trip examples through a source-owned feature catalog and a documentation slot for portal language tabs. (OpenTLV/opentlv-docs#5)

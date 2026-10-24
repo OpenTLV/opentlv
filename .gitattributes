@@ -2,3 +2,7 @@
 tests/fuzz/**/corpus/** binary
 examples/nfc/type2/*.bin binary
 examples/nfc/type2/invalid/*.bin binary
+
+# Migration evidence and its capture tools have byte-level provenance hashes.
+docs/development/wasm-migration/** text eol=lf
+scripts/wasm_migration_baseline.py text eol=lf

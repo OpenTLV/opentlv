@@ -1,5 +1,8 @@
 # WebAssembly build (experimental)
 
+The [WASM migration baseline](wasm-migration/README.md) records the immutable
+Core source, ABI, build and test contracts for extraction into `opentlv-js`.
+
 The optional `OPENTLV_BUILD_WASM` build compiles the OpenTLV C core to
 WebAssembly with [Emscripten](https://emscripten.org/), so browser tooling runs
 the same parser as native applications. It defaults to `OFF` and adds nothing
