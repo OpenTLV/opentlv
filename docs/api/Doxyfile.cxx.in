@@ -3,7 +3,7 @@ PROJECT_NAME           = "OpenTLV C++ API"
 PROJECT_NUMBER         = "@OPENTLV_VERSION_STRING@"
 OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/cxx-api"
 INPUT                  = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++" \
-                         "@PROJECT_SOURCE_DIR@/tools/docs/cxx-api.dox"
+                         "@PROJECT_SOURCE_DIR@/docs/api/cxx-api.dox"
 FILE_PATTERNS          = *.hpp *.dox
 RECURSIVE              = YES
 STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/tlv++/include"

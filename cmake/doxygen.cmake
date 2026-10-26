@@ -5,7 +5,7 @@ find_package(Doxygen 1.9.1 REQUIRED COMPONENTS doxygen)
 set(OPENTLV_DOCS_URL "https://opentlv.github.io/opentlv-docs/latest/")
 
 configure_file(
-    "${PROJECT_SOURCE_DIR}/tools/docs/Doxyfile.in"
+    "${PROJECT_SOURCE_DIR}/docs/api/Doxyfile.in"
     "${PROJECT_BINARY_DIR}/Doxyfile"
     @ONLY
 )
@@ -19,11 +19,11 @@ add_custom_target(c-api-docs
 )
 
 configure_file(
-    "${PROJECT_SOURCE_DIR}/tools/docs/Doxyfile.common.in"
+    "${PROJECT_SOURCE_DIR}/docs/api/Doxyfile.common.in"
     "${PROJECT_BINARY_DIR}/Doxyfile.common" @ONLY
 )
 configure_file(
-    "${PROJECT_SOURCE_DIR}/tools/docs/Doxyfile.cxx.in"
+    "${PROJECT_SOURCE_DIR}/docs/api/Doxyfile.cxx.in"
     "${PROJECT_BINARY_DIR}/Doxyfile.cxx" @ONLY
 )
 

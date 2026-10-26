@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Relocate Core Doxygen configuration and API documentation sources to `docs/api/`, preserving the C/C++ documentation targets, generated references and portal integration. (#681)
 - Run the Full CodeQL configuration in Core Main CI after every push to `main` and require it in the Main quality gate, so code-scanning alerts close automatically once their merged fix is analyzed. (#707)
 - Complete the WASM extraction by moving the remaining private binding adapters and binding-specific examples/contracts to `opentlv-js`; remove the last `bindings/` directory and obsolete build references. (#698)
 - Remove the migrated WASM implementation, JavaScript facade, binding tests, examples, build options and CI from Core; use [opentlv-js](https://github.com/OpenTLV/opentlv-js) for standalone builds. Remove the duplicated manual and migration tooling/records from the current tree, retaining their Git history and Core-owned Query fixtures and ABI tests. Notify the documentation portal after Core Main CI. (#698)

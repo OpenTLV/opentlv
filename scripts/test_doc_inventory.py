@@ -26,8 +26,8 @@ class InventoryTests(unittest.TestCase):
             "examples/tlv/src/parse.c": "// example\n",
             "docs/guides/cxx-examples.md": "# C++ examples\n",
             "docs/guides/examples.md": "<!-- example-inventory:start -->\n[C](../../examples/tlv/src/parse.c)\n<!-- example-inventory:end -->\n",
-            "tools/docs/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv/include/tlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
-            "tools/docs/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
+            "docs/api/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv/include/tlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
+            "docs/api/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
         }
         for path, text in files.items():
             self.write(path, text)
@@ -81,7 +81,7 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("missing example-inventory markers")
 
     def test_api_input_must_be_recursive_and_include_header_extension(self):
-        self.write("tools/docs/Doxyfile.cxx.in", 'INPUT = "other"\nSTRIP_FROM_PATH = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = NO\nFILE_PATTERNS = *.dox\n')
+        self.write("docs/api/Doxyfile.cxx.in", 'INPUT = "other"\nSTRIP_FROM_PATH = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = NO\nFILE_PATTERNS = *.dox\n')
         self.assert_drift("INPUT must include tlv++/include/tlv++")
         self.assert_drift("enable recursive public-header discovery")
         self.assert_drift("FILE_PATTERNS must include *.hpp")
