@@ -57,6 +57,38 @@ general Core source mutation campaign; no such campaign is claimed by this gate.
 Benchmarks and Callgrind run automatically only through Release Gate. Performance
 changes are advisory; missing, failed or incomparable measurements block release.
 
+## CodeQL analysis scope
+
+CodeQL analyzes the C/C++ translation units its tracer sees during the build:
+OpenTLV production sources, first-party tests and, in Full CI, examples.
+GoogleTest is fetched third-party test infrastructure and is excluded by
+compiling its `gtest`, `gtest_main`, `gmock` and `gmock_main` targets before
+CodeQL initialization. The traced build then reuses those objects and fails if it
+compiles any fetched source under `build/_deps/`. GoogleTest headers included by
+first-party tests are still extracted with those tests.
+
+The exclusion is a build boundary, not a result filter. Query suites, rules and
+first-party findings are not suppressed: PR CI keeps the default suite, Full CI
+keeps `security-extended`, and `paths-ignore` is not used because it does not
+control C/C++ extraction. GoogleTest sources are not modified. Findings reported
+in remaining third-party headers are triaged individually.
+
+Disabling `OPENTLV_BUILD_TESTS` for CodeQL was rejected. Measured on the CodeQL
+configurations, it would remove every first-party test, including all C++
+translation units in PR CI, the only ones that analyze the header-only `tlv++`
+layer there:
+
+| Configuration | Production | First-party tests | Examples | GoogleTest |
+| --- | --- | --- | --- | --- |
+| PR, before | 89 | 150 | 0 | 4 |
+| PR, tests disabled | 89 | 0 | 0 | 0 |
+| PR, current | 89 | 150 | 0 | 0 |
+| Full, before | 89 | 150 | 36 | 4 |
+| Full, tests disabled | 89 | 0 | 36 | 0 |
+| Full, current | 89 | 150 | 36 | 0 |
+
+Counts are unique compiled source files. First-party test coverage is unchanged.
+
 ## Release artifacts
 
 1. Close `CHANGELOG.md` for the intended tag and merge it to `main`. Its first

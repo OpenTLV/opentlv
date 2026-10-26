@@ -48,13 +48,6 @@ jobs:
       - name: Install Clang and Ninja
         run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: cpp
-          # PR CI uses the default suite; Full uses security-extended.
-          queries: ${{ inputs.full && 'security-extended' || '' }}
-
       # A real build is required so CodeQL can trace the exact compiler
       # invocations; unlike the cppcheck/clang-tidy jobs in static-analysis.yml
       # this can't stop at `cmake` configure. Mirrors build-clang.yml's
@@ -71,8 +64,28 @@ jobs:
           -DOPENTLV_BUILD_TESTS=ON
           -DOPENTLV_BUILD_EXAMPLES=${{ inputs.full && 'ON' || 'OFF' }}
 
+      # Fetched GoogleTest is third-party code: compile it before CodeQL starts
+      # tracing so its sources stay out of the database. First-party tests stay
+      # traced, because they are the only C++ translation units in PR CI that
+      # analyze the header-only tlv++ layer. See docs/development/quality-gates.md.
+      - name: Build third-party test dependencies outside CodeQL
+        run: cmake --build build --parallel --target gtest gtest_main gmock gmock_main
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: cpp
+          # PR CI uses the default suite; Full uses security-extended.
+          queries: ${{ inputs.full && 'security-extended' || '' }}
+
       - name: Build
-        run: cmake --build build --parallel
+        run: |
+          set -o pipefail
+          cmake --build build --parallel --verbose | tee build/codeql-build.log
+          if grep -E -- ' -c [^ ]*/_deps/' build/codeql-build.log; then
+            echo '::error::CodeQL traced a fetched third-party source'
+            exit 1
+          fi
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Exclude fetched GoogleTest sources from CodeQL by building them before tracing starts, failing the scan if any fetched dependency source is traced; production sources and first-party tests remain analyzed in PR and Full CI with unchanged query suites. Document the [CodeQL analysis scope](docs/development/quality-gates.md#codeql-analysis-scope) and measured coverage. (#705)
 - Stop listing Rust, Python and Lua binding workflows among Core's error-model conformance workflows; name the Go and WebAssembly workflows that still run the shared Query corpus in Core and the standalone Rust and Python CI that run it against their selected Core. (OpenTLV/opentlv-rust#7)
 - Delete the remaining Rust binding sources, Rust CI workflow and Core Rust user guide from the tree, and drop leftover references to the former in-tree Rust workspace from Core documentation and tests. (#679)
 - Correct the format planning catalog to mark configurable variable-width framing as implemented and describe existing Format trailer encoding, while retaining Diameter as an unimplemented candidate. (OpenTLV/opentlv-docs#61)
