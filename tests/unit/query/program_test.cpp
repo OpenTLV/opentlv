@@ -817,6 +817,64 @@ TEST(Unit_Tlv_QueryProgram, MetadataBytesAndAncestorPredicates) {
     ASSERT_EQ(TLV_OK, p.compile("//5A[substr(value(), 0, 1) = x'12']"));
     EXPECT_EQ((std::vector<size_t>{0}), run(p, {0x5A, 2, 0x12, 0x34}));
 }
+TEST(Unit_Tlv_QueryProgram, WorkspaceBindingsFollowValuesAndGuardBorrowedOutputs) {
+    static_assert(QUERY_EXEC_VALUES_OFFSET % alignof(query_value_t) == 0,
+                  "executor values must stay aligned after the header");
+    tlv_query_variable_t        variable = {"aid", TLV_QUERY_RESULT_BYTES};
+    tlv_query_compile_options_t options;
+    tlv_query_compile_options_init(&options);
+    options.variables = &variable;
+    options.variable_count = 1;
+    Program p;
+    ASSERT_EQ(TLV_OK, p.compile("//84[value() = $aid]", &options));
+    for (bool retained : {false, true}) {
+        SCOPED_TRACE(retained);
+        size_t bytes, alignment;
+        ASSERT_EQ(TLV_OK, retained ? tlv_query_eval_size(p.get(), 2, 10, &bytes, &alignment)
+                                   : tlv_query_exec_size(p.get(), 2, &bytes, &alignment));
+        EXPECT_EQ(0u, alignment % alignof(query_value_t));
+        std::vector<uint8_t> storage(bytes + alignment - 1);
+        auto*                workspace = reinterpret_cast<uint8_t*>(
+            (reinterpret_cast<uintptr_t>(storage.data()) + alignment - 1) & ~(alignment - 1));
+        tlv_query_exec_t* exec = nullptr;
+        ASSERT_EQ(TLV_OK,
+                  retained
+                      ? tlv_query_eval_init(p.get(), nullptr, workspace, bytes, 2, 10, 10000, &exec)
+                      : tlv_query_exec_init(p.get(), workspace, bytes, 2, 10, 10000, &exec));
+        ASSERT_EQ(workspace, reinterpret_cast<uint8_t*>(exec));
+        const auto* values = reinterpret_cast<const uint8_t*>(query_exec_const_values(exec));
+        const auto* bindings = reinterpret_cast<const uint8_t*>(query_exec_bindings(exec));
+        EXPECT_EQ(workspace + sizeof(tlv_query_exec_t), values);
+        EXPECT_EQ(reinterpret_cast<const uint8_t*>(query_exec_values(exec)), values);
+        EXPECT_EQ(0u, reinterpret_cast<uintptr_t>(values) % alignof(query_value_t));
+        EXPECT_EQ(values + p.get()->count * sizeof(query_value_t), bindings);
+        EXPECT_LE(bindings + p.get()->variable_count * sizeof(query_value_t), workspace + bytes);
+
+        // Outputs may not alias bytes borrowed by a binding.
+        alignas(tlv_query_diagnostic_t) uint8_t bound[sizeof(tlv_query_diagnostic_t)] = {};
+        ASSERT_EQ(TLV_OK,
+                  tlv_query_exec_bind(exec, "aid", TLV_QUERY_RESULT_BYTES, 0, bound, 4, nullptr));
+        EXPECT_EQ(bound, query_exec_bindings(exec)[0].data);
+        const uint8_t    tag = 0x84, value[] = {1, 2, 3, 4};
+        tlv_tree_event_t event{};
+        event.kind = TLV_TREE_ELEMENT;
+        event.element.tag = tlv_tag(&tag, 1);
+        event.element.value.data = value;
+        event.element.value.size = sizeof value;
+        uint8_t saved[sizeof bound];
+        std::memcpy(saved, bound, sizeof bound);
+        int matched = 87;
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                  tlv_query_exec_feed(exec, &event, &matched,
+                                      reinterpret_cast<tlv_query_diagnostic_t*>(bound)));
+        EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                  tlv_query_exec_feed(exec, &event, reinterpret_cast<int*>(bound), nullptr));
+        EXPECT_EQ(87, matched);
+        EXPECT_EQ(0, std::memcmp(saved, bound, sizeof bound));
+        tlv_query_diagnostic_t separate;
+        EXPECT_EQ(TLV_OK, tlv_query_exec_feed(exec, &event, &matched, &separate));
+    }
+}
 TEST(Unit_Tlv_QueryProgram, BindingsValidateUtf8TypesAndEmptyInput) {
     tlv_query_variable_t        variables[] = {{"a", TLV_QUERY_RESULT_STRING},
                                                {"b", TLV_QUERY_RESULT_STRING}};

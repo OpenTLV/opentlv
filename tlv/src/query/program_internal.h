@@ -135,6 +135,20 @@ struct tlv_query_exec {
     const tlv_query_environment_t* environment;
     tlv_query_result_t result;
 };
+/* Both executors store program->count values, then variable_count bindings,
+   directly after the executor header; later regions are backend-specific.
+   The header has uint64_t, pointer and size_t members, so its size keeps the
+   values aligned in a workspace aligned for the executor. */
+#define QUERY_EXEC_VALUES_OFFSET sizeof(tlv_query_exec_t)
+static inline query_value_t* query_exec_values(tlv_query_exec_t* e) {
+    return (query_value_t*)(void*)((uint8_t*)e + QUERY_EXEC_VALUES_OFFSET);
+}
+static inline const query_value_t* query_exec_const_values(const tlv_query_exec_t* e) {
+    return (const query_value_t*)(const void*)((const uint8_t*)e + QUERY_EXEC_VALUES_OFFSET);
+}
+static inline const query_value_t* query_exec_bindings(const tlv_query_exec_t* e) {
+    return query_exec_const_values(e) + e->program->count;
+}
 /* Subtraction avoids wrapping either caller-supplied interval endpoint. */
 static inline int query_overlap(const void* a, size_t an, const void* b, size_t bn) {
     uintptr_t x = (uintptr_t)a, y = (uintptr_t)b;

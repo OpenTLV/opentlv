@@ -91,7 +91,7 @@ static uint8_t* align_pointer16(uint8_t* p) {
     return p + (16 - (uintptr_t)p % 16) % 16;
 }
 static query_value_t* eval_values(tlv_query_exec_t* e) {
-    return (query_value_t*)(e + 1);
+    return query_exec_values(e);
 }
 static query_value_t* eval_bindings(tlv_query_exec_t* e) {
     return eval_values(e) + e->program->count;
@@ -120,7 +120,7 @@ int query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
     /* This envelope is only a fast rejection; gaps between live spans are legal.
      * Never scan the retained candidate set on this per-call path. */
     if (!borrowed_envelope_overlap(e, p, size)) return 0;
-    const query_value_t* bindings = (const query_value_t*)(e + 1) + e->program->count;
+    const query_value_t* bindings = query_exec_bindings(e);
     for (size_t i = 0; i < e->program->variable_count; ++i)
         if (query_overlap(bindings[i].data, bindings[i].size, p, size)) return 1;
     return !e->retained && e->program->level == TLV_QUERY_S1 &&
