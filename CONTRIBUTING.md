@@ -169,9 +169,9 @@ The reference covers `tlv/include/tlv` and the generated public configuration
 and version headers. It includes all shipped C formats and standard-specific capabilities, even
 when disabled in the configured library; configuration/version values describe
 that build. Implementation sources and C++ headers are outside the input set.
-The configuration is in [tools/docs/Doxyfile.in](tools/docs/Doxyfile.in).
+The configuration is in [docs/api/Doxyfile.in](docs/api/Doxyfile.in).
 
-API groups are defined in [tools/docs/c-api.dox](tools/docs/c-api.dox).
+API groups are defined in [docs/api/c-api.dox](docs/api/c-api.dox).
 When adding a public header, use `@file` without a filename (some headers share
 a basename), assign its file documentation with `@ingroup`, and surround its
 declarations with `@addtogroup <group>` / `@{` / `@}` as in existing headers.
@@ -201,9 +201,9 @@ the C++11 fallback interfaces; its landing
 page explains the standard-library aliases selected by newer language modes.
 Ownership, lifetime and error contracts come from the public header comments.
 
-[tools/docs/Doxyfile.cxx.in](tools/docs/Doxyfile.cxx.in) configures C++ extraction;
-[tools/docs/Doxyfile.common.in](tools/docs/Doxyfile.common.in) shares HTML and
-warning settings with C. The [landing page](tools/docs/cxx-api.dox) provides
+[docs/api/Doxyfile.cxx.in](docs/api/Doxyfile.cxx.in) configures C++ extraction;
+[docs/api/Doxyfile.common.in](docs/api/Doxyfile.common.in) shares HTML and
+warning settings with C. The [landing page](docs/api/cxx-api.dox) provides
 reference navigation and compatibility notes, complementing conceptual docs.
 
 The Documentation validation workflow generates both references with warnings as errors.
@@ -356,7 +356,7 @@ It has read-only repository permissions and never publishes a site.
 See [where documentation belongs](docs/development/documentation-layout.md)
 before adding a page. Keep the ownership inventory, GitHub index and source
 links current. Add navigation entries in the portal and validate the assembled
-site there with `python tools/docs/ci.py check` and `python -m mkdocs build --strict`.
+site there using the [portal validation instructions](https://github.com/OpenTLV/opentlv-docs/blob/main/README.md).
 The portal checks source-file links, page paths, anchors and navigation against
 the selected Core revision. This validation does not require binding builds.
 

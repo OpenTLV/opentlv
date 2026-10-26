@@ -212,17 +212,17 @@ structure; this table records ownership rather than replacing that audit.
 
 ## Infrastructure and sources outside the page inventory
 
-Paths in this table are relative to the repository root. A directory name alone
-does not determine ownership: in particular, `tools/docs/` contains both native
-API generation inputs and portal code.
+Paths in this table are relative to the repository root unless stated otherwise.
+Core API generation inputs live in `docs/api/`; portal tooling lives in the
+standalone portal repository.
 
 | Source / artifact | Owner and disposition |
 | --- | --- |
 | `docs/assets/opentlv.svg` and `docs/assets/README.md` | Retain the Core README logo and attribution; shared visual design, favicon, header mark and variants are maintained in the portal |
 | `docs/playground/playground.js`, `docs/playground/playground.css` in `opentlv-docs` | Portal: browser UI and styling, transferred by portal #6; Core retains a Markdown entry-point link |
-| `mkdocs.yml`, `requirements-docs.txt`, `tools/docs/hooks.py`, `tools/docs/overrides/main.html` in the portal repository | Portal: configuration, dependencies, source-link rewriting, generated artifact integration and version banner; removed from Core by #608 |
+| `mkdocs.yml`, `requirements-docs.txt`, the documentation hook and HTML override in the portal repository | Portal: configuration, dependencies, source-link rewriting, generated artifact integration and version banner; removed from Core by #608 |
 | `.github/workflows/docs-validation.yml` | Core: read-only Markdown, example/inventory and Doxygen validation with API artifacts; replaces the removed `docs.yml` publisher |
-| `tools/docs/Doxyfile.in`, `Doxyfile.cxx.in`, `Doxyfile.common.in`, `c-api.dox`, `cxx-api.dox` (all under `tools/docs/`) | Core: independent C/C++ extraction configuration, groups and landing pages; preserve C/C++ cross-links and `@docs` links when portal URLs change |
+| `docs/api/Doxyfile.in`, `Doxyfile.cxx.in`, `Doxyfile.common.in`, `c-api.dox`, `cxx-api.dox` (all under `docs/api/`) | Core: independent C/C++ extraction configuration, groups and landing pages; preserve C/C++ cross-links and `@docs` links when portal URLs change |
 | `CMakeLists.txt`, `cmake/doxygen.cmake` | Core: retain `OPENTLV_BUILD_DOCS`, `c-api-docs` and `cxx-api-docs` generation without a portal checkout; normal builds do not require Doxygen |
 | `tlv/include/`, `tlv++/include/` | Core: canonical public API declarations and Doxygen comments |
 | `examples/tlv/`, `examples/tlv++/`, their README files and tests | Core: executable native examples and their verification |

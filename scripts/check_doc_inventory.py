@@ -100,8 +100,8 @@ def check(root):
     compare(errors, "executable examples", examples, documented_examples, "docs/guides/examples.md")
 
     for template, public_root, extension in (
-        ("tools/docs/Doxyfile.in", "tlv/include/tlv", "h"),
-        ("tools/docs/Doxyfile.cxx.in", "tlv++/include/tlv++", "hpp"),
+        ("docs/api/Doxyfile.in", "tlv/include/tlv", "h"),
+        ("docs/api/Doxyfile.cxx.in", "tlv++/include/tlv++", "hpp"),
     ):
         config = read(template)
         # Require the root in INPUT, not just in STRIP_FROM_PATH or a comment.
