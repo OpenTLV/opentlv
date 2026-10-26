@@ -111,7 +111,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         uint32_t* fields = (uint32_t*)copy;
         fields[size % (sizeof *mutated / sizeof(uint32_t))] ^= UINT32_C(0x100000);
     } else {
-        query_node_t* nodes = (query_node_t*)(mutated + 1);
+        query_node_t* nodes = (query_node_t*)(void*)((uint8_t*)copy + QUERY_NODE_OFFSET);
         query_node_t* node = &nodes[size % mutated->count];
         switch (size % 6) {
             case 0: node->left = mutated->count; break;

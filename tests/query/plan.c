@@ -142,8 +142,9 @@ static int run_contains(const tlv_query_program_t* p, int retained, size_t patte
 static int pattern_bounds(void) {
     uint32_t image[1024];
     memcpy(image, &contains_plan, contains_plan.header.reserved);
-    tlv_query_plan_t*          header = (tlv_query_plan_t*)image;
-    tlv_query_instruction_t*   nodes = (tlv_query_instruction_t*)(header + 1);
+    tlv_query_plan_t*        header = (tlv_query_plan_t*)image;
+    tlv_query_instruction_t* nodes =
+        (tlv_query_instruction_t*)(void*)((uint8_t*)image + sizeof(tlv_query_plan_t));
     const tlv_query_program_t* p = NULL;
     tlv_query_diagnostic_t     diagnostic;
     CHECK(tlv_query_plan_open(image, header->reserved, &p, NULL) == TLV_OK);
@@ -257,7 +258,8 @@ int main(void) {
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
           TLV_ERR_UNSUPPORTED);
     header->version--;
-    tlv_query_instruction_t* nodes = (tlv_query_instruction_t*)(header + 1);
+    tlv_query_instruction_t* nodes =
+        (tlv_query_instruction_t*)(void*)((uint8_t*)damaged + sizeof(tlv_query_plan_t));
     nodes[4].left = 4;
     CHECK(tlv_query_plan_open(damaged, static_plan.header.reserved, &p, NULL) ==
           TLV_ERR_INVALID_VALUE);

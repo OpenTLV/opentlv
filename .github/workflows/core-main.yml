@@ -17,14 +17,25 @@ jobs:
     with:
       full: false
 
+  codeql:
+    # Repeats Full's CodeQL configuration on every push, so default-branch
+    # alerts close automatically once the merged fix is analyzed.
+    uses: ./.github/workflows/codeql.yml
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    with:
+      full: true
+
   gate:
     name: Core quality gate
     if: always()
-    needs: [smoke]
+    needs: [smoke, codeql]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
-      - name: Require the Linux integration smoke check and record exact revision
+      - name: Require the Linux integration smoke and CodeQL checks and record exact revision
         env:
           CHECK_RESULTS: ${{ toJSON(needs) }}
         run: python -B scripts/core_release.py main-gate --output build/core-quality.json
@@ -44,7 +55,7 @@ jobs:
       actions: read
     steps:
       - uses: actions/checkout@v5
-      - name: Measure this attempt after the smoke check finishes
+      - name: Measure this attempt after the Main checks finish
         env:
           GH_TOKEN: ${{ github.token }}
         run: python -B scripts/ci_timings.py --scope run --output build/ci-timings.json

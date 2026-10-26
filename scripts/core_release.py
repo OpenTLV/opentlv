@@ -116,7 +116,7 @@ def static_gate():
 
 
 def configuration(tier):
-    selected = FULL if tier == 'full' else PR if tier == 'pr' else {'consumers'}
+    selected = FULL if tier == 'full' else PR if tier == 'pr' else {'consumers', 'codeql'}
     paths = {WORKERS[name] for name in selected}
     paths.add('core-' + tier + '.yml')
     if tier != 'main':
@@ -127,9 +127,11 @@ def configuration(tier):
     root = source / '.github/workflows'
     # Retain the exact matrix expressions, compiler options and steps as tested,
     # rather than a second hand-maintained description that can drift from YAML.
-    inputs = {'full': tier == 'full'}
-    if tier != 'main':
-        inputs['release_tag'] = os.environ.get('RELEASE_TAG', '')
+    if tier == 'main':
+        # Main CodeQL repeats Full's analysis so default-branch alerts track it.
+        inputs = {'smoke': {'full': False}, 'codeql': {'full': True}}
+    else:
+        inputs = {'full': tier == 'full', 'release_tag': os.environ.get('RELEASE_TAG', '')}
     helpers = ('CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/capability_options.cmake',
                'cmake/format_options.cmake', 'scripts/check_cmake_integration.py',
                'scripts/check_capabilities.py', 'scripts/abi/check.py')
@@ -152,9 +154,11 @@ def record_gate(output, tier, results):
 
 def main_gate(output):
     results = json.loads(os.environ['CHECK_RESULTS'])
-    require(isinstance(results, dict) and set(results) == {'smoke'}, 'Missing or unexpected Main CI jobs')
-    require(isinstance(results['smoke'], dict) and results['smoke'].get('result') == 'success',
-            'Main integration smoke tests must succeed')
+    require(isinstance(results, dict) and set(results) == {'smoke', 'codeql'},
+            'Missing or unexpected Main CI jobs')
+    for name in ('smoke', 'codeql'):
+        require(isinstance(results[name], dict) and results[name].get('result') == 'success',
+                'Main integration smoke tests and CodeQL must succeed')
     record_gate(output, 'main', results)
 
 

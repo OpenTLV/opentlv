@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Locate Query program instructions through an explicit byte offset after the fixed header instead of scaled header-pointer arithmetic, resolving CodeQL `cpp/suspicious-pointer-scaling`; compile-time checks pin the version 7 header and instruction sizes, and the corruption, fuzz and static-plan tests use the same explicit layout. The Query program image format, public API and ABI are unchanged. (#707)
 - Exclude fetched GoogleTest sources from CodeQL by building them before tracing starts, failing the scan if any fetched dependency source is traced; production sources and first-party tests remain analyzed in PR and Full CI with unchanged query suites. Document the [CodeQL analysis scope](docs/development/quality-gates.md#codeql-analysis-scope) and measured coverage. (#705)
 - Stop listing Rust, Python and Lua binding workflows among Core's error-model conformance workflows; name the Go and WebAssembly workflows that still run the shared Query corpus in Core and the standalone Rust and Python CI that run it against their selected Core. (OpenTLV/opentlv-rust#7)
 - Delete the remaining Rust binding sources, Rust CI workflow and Core Rust user guide from the tree, and drop leftover references to the former in-tree Rust workspace from Core documentation and tests. (#679)
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Run the Full CodeQL configuration in Core Main CI after every push to `main` and require it in the Main quality gate, so code-scanning alerts close automatically once their merged fix is analyzed. (#707)
 - Complete the WASM extraction by moving the remaining private binding adapters and binding-specific examples/contracts to `opentlv-js`; remove the last `bindings/` directory and obsolete build references. (#698)
 - Remove the migrated WASM implementation, JavaScript facade, binding tests, examples, build options and CI from Core; use [opentlv-js](https://github.com/OpenTLV/opentlv-js) for standalone builds. Remove the duplicated manual and migration tooling/records from the current tree, retaining their Git history and Core-owned Query fixtures and ABI tests. Notify the documentation portal after Core Main CI. (#698)
 - Remove the migrated Go sources, tests, examples and binding CI from Core; build and test the independent module in [opentlv-go](https://github.com/OpenTLV/opentlv-go). Remove the former Go manuals, baseline files and reproduction script from the current tree; their immutable history remains available in Git. Go owns its diagnostic generator, while Core retains shared native facilities and cross-repository contracts. (#686)

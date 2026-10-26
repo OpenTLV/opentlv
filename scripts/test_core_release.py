@@ -114,9 +114,11 @@ class StaticGateTests(unittest.TestCase):
 
 class CoreGateTests(unittest.TestCase):
     @patch.dict(os.environ, ENV)
-    def test_main_gate_requires_exact_successful_smoke_result(self):
-        invalid = [{}, [], {'smoke': None}, {'smoke': {'result': 'success'}, 'extra': {}}]
-        invalid.extend({'smoke': {'result': state}} for state in
+    def test_main_gate_requires_exact_successful_smoke_and_codeql_results(self):
+        passed = {'smoke': {'result': 'success'}, 'codeql': {'result': 'success'}}
+        invalid = [{}, [], {'smoke': None}, {'smoke': {'result': 'success'}},
+                   {'codeql': {'result': 'success'}}, dict(passed, extra={})]
+        invalid.extend(dict(passed, **{name: {'result': state}}) for name in passed for state in
                        ('failure', 'skipped', 'cancelled', 'neutral', None))
         with tempfile.TemporaryDirectory() as temp, patch('core_release.git', return_value=SHA):
             output = Path(temp) / 'main.json'
@@ -126,11 +128,16 @@ class CoreGateTests(unittest.TestCase):
                     with self.assertRaises(ValueError):
                         release.main_gate(output)
                     self.assertFalse(output.exists())
-            with patch.dict(os.environ, {'CHECK_RESULTS': json.dumps({'smoke': {'result': 'success'}})}):
+            with patch.dict(os.environ, {'CHECK_RESULTS': json.dumps(passed)}):
                 release.main_gate(output)
             evidence = json.loads(output.read_text())
             self.assertEqual(evidence['tier'], 'main')
-            self.assertEqual(evidence['checks'], {'smoke': 'success'})
+            self.assertEqual(evidence['checks'], {'smoke': 'success', 'codeql': 'success'})
+            configuration = evidence['configuration']
+            self.assertEqual(configuration['inputs'],
+                             {'smoke': {'full': False}, 'codeql': {'full': True}})
+            self.assertEqual(set(configuration['workflows']),
+                             {'core-main.yml', 'cmake-consumers.yml', 'codeql.yml'})
             with self.assertRaisesRegex(ValueError, 'Full CI evidence'):
                 release.check_quality(evidence, SHA, '123', '1', ENV['GITHUB_REPOSITORY'])
 
