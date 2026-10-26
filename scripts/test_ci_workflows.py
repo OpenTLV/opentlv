@@ -329,6 +329,28 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(set(codeql), {'analyze'})
         self.assert_unconditional(codeql['analyze'].mapping())
 
+    def test_codeql_traces_first_party_tests_but_not_fetched_googletest(self):
+        steps = workflow('codeql.yml')['jobs'].mapping()['analyze'].mapping()['steps'].steps()
+        names = [step['name'].text() for step in steps]
+        order = ['Configure CMake', 'Build third-party test dependencies outside CodeQL',
+                 'Initialize CodeQL', 'Build', 'Perform CodeQL analysis']
+        self.assertEqual([name for name in names if name in order], order)
+        step = dict(zip(names, steps))
+        for name in order:
+            self.assert_unconditional(step[name])
+        self.assertIn('-DOPENTLV_BUILD_TESTS=ON', step['Configure CMake']['run'].text())
+        self.assertEqual(step['Build third-party test dependencies outside CodeQL']['run'].text(),
+                         'cmake --build build --parallel --target gtest gtest_main gmock gmock_main')
+        init = step['Initialize CodeQL']['with'].mapping()
+        self.assertEqual(set(init), {'languages', 'queries'}, 'No CodeQL query filters')
+        self.assertEqual(init['queries'].text(), "${{ inputs.full && 'security-extended' || '' }}")
+        build = step['Build']['run'].text()
+        self.assertTrue(build.startswith('set -o pipefail\n'))
+        self.assertIn("grep -E -- ' -c [^ ]*/_deps/' build/codeql-build.log", build)
+        self.assertIn('exit 1', build)
+        self.assertEqual(step['Perform CodeQL analysis']['with'].mapping()['category'].text(),
+                         '/language:cpp')
+
     def test_static_checks_have_no_tier_or_path_filter(self):
         data = workflow('static-analysis.yml')
         events = data['on'].mapping()
