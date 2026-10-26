@@ -24,7 +24,7 @@ static int tag_test(const tlv_query_program_t* p, const query_node_t* n, tlv_tag
     return query_plan_tag(p, n, tag);
 }
 static query_value_t* execution_values(tlv_query_exec_t* e) {
-    return (query_value_t*)(e + 1);
+    return query_exec_values(e);
 }
 static query_value_t* execution_bindings(tlv_query_exec_t* e) {
     return execution_values(e) + e->program->count;
