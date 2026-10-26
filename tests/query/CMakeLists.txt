@@ -46,6 +46,10 @@ add_executable(test-query-abi abi.c)
 target_link_libraries(test-query-abi PRIVATE tlv)
 opentlv_configure_compiler(test-query-abi)
 target_link_libraries(test-query-conformance PRIVATE tlv)
+if(WIN32)
+    # Owner-only security descriptor for image output.
+    target_link_libraries(test-query-conformance PRIVATE advapi32)
+endif()
 opentlv_configure_compiler(test-query-conformance)
 if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
     add_custom_command(TARGET test-query-conformance POST_BUILD
@@ -82,6 +86,10 @@ if(Python3_Interpreter_FOUND)
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run.py
             --native $<TARGET_FILE:test-query-conformance>)
     set_tests_properties(query-s0-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
+    add_test(NAME query-image-output
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_image_output.py
+            --native $<TARGET_FILE:test-query-conformance>)
+    set_tests_properties(query-image-output PROPERTIES LABELS "query;conformance")
     # The default generated matrix starts more than 9,000 native processes.
     opentlv_memcheck_timeout(query-s0-conformance 5400)
 endif()

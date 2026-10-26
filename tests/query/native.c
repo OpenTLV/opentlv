@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
+#define _POSIX_C_SOURCE 200809L /* open() and fdopen() for image output in strict C99 */
+#endif
 #include "tlv/query/adapters.h"
 #include "../../tlv/src/query/frontend_internal.h"
 #include "tlv/formats/fixed.h"
@@ -12,6 +15,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <sddl.h>
+#include <fcntl.h>
+#include <io.h>
+#else
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 
 static int constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
@@ -124,6 +138,74 @@ static tlv_result_t fixture_resolve(const void* context, const char* ns, size_t 
     else
         return TLV_ERR_INVALID_TAG;
     return TLV_OK;
+}
+/* Image output is a new file in the current directory with a plain basename of
+   at most 63 bytes from [A-Za-z0-9._-], not starting with '.', ending in ".bin".
+   Each name byte is copied from the allowlist, never from the argument. */
+static int image_name(const char* argument, char name[64]) {
+    static const char allowed[] =
+        "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz._-";
+    size_t size = 0;
+    for (; argument[size]; ++size) {
+        size_t c = 0;
+        while (allowed[c] && allowed[c] != argument[size]) ++c;
+        if (!allowed[c] || size == 63) return 0;
+        name[size] = allowed[c];
+    }
+    name[size] = 0;
+    return size > 4 && name[0] != '.' && !memcmp(name + size - 4, ".bin", 4);
+}
+/* Exclusive owner-only creation: an existing file or link at the name is never
+   followed, truncated or replaced, and a partially written image is removed. */
+static tlv_result_t write_image(const char* argument, const void* image, size_t size) {
+    char name[64];
+    if (!image_name(argument, name)) return TLV_ERR_INVALID_ARG;
+#ifdef _WIN32
+    /* Protected DACL granting the file owner full access and inheriting nothing. */
+    PSECURITY_DESCRIPTOR descriptor = NULL;
+    if (!ConvertStringSecurityDescriptorToSecurityDescriptorA("D:P(A;;FA;;;OW)", SDDL_REVISION_1,
+                                                              &descriptor, NULL))
+        return TLV_ERR_INVALID_ARG;
+    SECURITY_ATTRIBUTES attributes;
+    attributes.nLength = (DWORD)sizeof attributes;
+    attributes.lpSecurityDescriptor = descriptor;
+    attributes.bInheritHandle = FALSE;
+    HANDLE handle = CreateFileA(name, GENERIC_WRITE, 0, &attributes, CREATE_NEW,
+                                FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+    LocalFree(descriptor);
+    if (handle == INVALID_HANDLE_VALUE) return TLV_ERR_INVALID_ARG;
+    /* Reserved device names such as CON.bin open a device, not a new file. */
+    if (GetFileType(handle) != FILE_TYPE_DISK) {
+        CloseHandle(handle);
+        return TLV_ERR_INVALID_ARG;
+    }
+    int fd = _open_osfhandle((intptr_t)handle, _O_WRONLY | _O_BINARY);
+    if (fd < 0) {
+        CloseHandle(handle);
+        remove(name);
+        return TLV_ERR_INVALID_ARG;
+    }
+    FILE* output = _fdopen(fd, "wb");
+    if (!output) {
+        _close(fd);
+        remove(name);
+        return TLV_ERR_INVALID_ARG;
+    }
+#else
+    int fd = open(name, O_WRONLY | O_CREAT | O_EXCL, S_IRUSR | S_IWUSR);
+    if (fd < 0) return TLV_ERR_INVALID_ARG;
+    FILE* output = fdopen(fd, "wb");
+    if (!output) {
+        close(fd);
+        remove(name);
+        return TLV_ERR_INVALID_ARG;
+    }
+#endif
+    size_t written = fwrite(image, 1, size, output);
+    int    closed = fclose(output);
+    if (written == size && !closed) return TLV_OK;
+    remove(name);
+    return TLV_ERR_INVALID_ARG;
 }
 int main(int argc, char** argv) {
     if (argc == 2 && !strcmp(argv[1], "--language-features")) {
@@ -257,14 +339,7 @@ int main(int argc, char** argv) {
     rc = tlv_query_plan_open(program, info.program_size, &checked_plan, &diagnostic);
     if (rc != TLV_OK) goto done;
     if (argc == 5 && !strcmp(argv[3], "image")) {
-        FILE* output = fopen(argv[4], "wb");
-        if (!output) {
-            rc = TLV_ERR_INVALID_ARG;
-            goto done;
-        }
-        size_t written = fwrite(program, 1, info.program_size, output);
-        int    closed = fclose(output);
-        if (written != info.program_size || closed) rc = TLV_ERR_INVALID_ARG;
+        rc = write_image(argv[4], program, info.program_size);
         goto done;
     }
     /* Every conformance case executes without usable source spelling, including

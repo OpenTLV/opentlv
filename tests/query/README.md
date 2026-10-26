@@ -36,6 +36,24 @@ are project-generated MIT data: descendant `//5A`, deferred
 `//70[exists(5A)]`, and scalar `count(//5A)`. Regenerate when the private image
 version changes; no cross-release serialization compatibility is promised.
 
+Image output is restricted to a new file in the current working directory, so
+run the tool from `tests/fuzz/query/corpus/image` to regenerate seeds there:
+
+- The argument is a plain file name of at most 63 bytes, using only ASCII
+  letters, digits, `.`, `_` and `-`, not starting with `.` and ending in `.bin`.
+  Directories, separators, drive prefixes and absolute paths are rejected.
+- Creation is exclusive: an existing file, directory or symbolic link at that
+  name is never followed, truncated or replaced. Delete an old seed first to
+  regenerate it under the same name.
+- The new file is owner-only: mode `0600` on POSIX regardless of `umask`, and
+  on Windows a protected DACL granting full access to the file owner only. A
+  name that opens a Windows device instead of a new file is rejected.
+- If writing fails, the partially written file is removed. Any rejection or
+  failure exits with status 1 and leaves no output.
+
+`tests/query/test_image_output.py` (CTest `query-image-output`) verifies this
+policy, including repeatable image bytes.
+
 `corpus.json` is a versioned test-only interchange format. Each case names its
 normative rules, Query, encoded input, and expected ordered match offsets, typed scalar encoding or
 diagnostic. The one-byte Fixed format uses `70` as its constructed identifier.
