@@ -10,13 +10,14 @@ does not replace their coverage or the Query 1.0 acceptance contract.
 | Entry point | Trigger | Required checks |
 | --- | --- | --- |
 | `core-pr.yml` | PR to `main` | Linux only: Clang Debug unit/integration tests, formatting/contract checks, clang-tidy, cppcheck, one shared C/C++ public consumer configuration, CodeQL |
-| `core-main.yml` | Push to `main` | One Linux shared C/C++ build and external consumer integration smoke configuration |
+| `core-main.yml` | Push to `main` | One Linux shared C/C++ build and external consumer integration smoke configuration, Full-configuration CodeQL |
 | `core-full.yml` | Manual dispatch or reusable call from Release Gate | The complete Full matrix below, including all required static checks |
 | `core-release.yml` | Manual dispatch from `main`, one `tag` input such as `v0.1.0` | Closed changelog, locked candidate and stable baseline, Full CI and performance comparison in the same run, verified artifacts, checksums, attestations and publication |
 
 Core Pull Request CI replaces Core Fast CI. It has no branch-push trigger, so an
 open PR has one Core validation run per update. Main CI checks integration health
-after merge without repeating static analysis, unit suites or platform matrices.
+after merge without repeating unit suites or platform matrices; of the static
+analyzers it runs only CodeQL, which keeps default-branch code-scanning alerts current.
 Full CI has no push or scheduled trigger. Reusable workers still support manual
 diagnosis, but a standalone worker pass does not produce Full CI evidence.
 Manual **Static Analysis** runs all three source checks.
@@ -34,7 +35,7 @@ of configuration helpers. These describe the declared tested configurations;
 binary package records additionally capture actual compiler and build metadata.
 The nested `Static analysis gate` requires pre-commit, clang-tidy and cppcheck
 to succeed in both PR and Full CI, without path filters. Main has its own
-always-running gate requiring its exact smoke job to succeed. Release reruns
+always-running gate requiring its exact smoke and CodeQL jobs to succeed. Release reruns
 every Full configuration for its exact candidate; historical PR results cannot
 substitute for this evidence.
 
@@ -66,6 +67,15 @@ compiling its `gtest`, `gtest_main`, `gmock` and `gmock_main` targets before
 CodeQL initialization. The traced build then reuses those objects and fails if it
 compiles any fetched source under `build/_deps/`. GoogleTest headers included by
 first-party tests are still extracted with those tests.
+
+Main CI repeats the Full CodeQL configuration, including examples and
+`security-extended`, after every push to `main`. Code scanning closes a
+default-branch alert as fixed when an analysis of the same `/language:cpp`
+category no longer reports it, so a merged fix resolves its alert without
+waiting for a manual Full run or dismissal. Using the Full configuration also
+prevents alerts from `security-extended` queries or examples alternating between
+open and fixed across Main and Full analyses. PR analyses use the default suite
+and compare against the base branch; they never close default-branch alerts.
 
 The exclusion is a build boundary, not a result filter. Query suites, rules and
 first-party findings are not suppressed: PR CI keeps the default suite, Full CI
@@ -178,7 +188,7 @@ publisher access in repository settings when enabling production publication.
 Do not claim administrator-proof enforcement from the workflow alone.
 
 The live ruleset inspected on 2026-10-19 requires CodeQL scanning on `main`, with no
-bypass actors. CodeQL runs in PR and Full CI with the existing analysis
+bypass actors. CodeQL runs in PR, Main and Full CI with the existing analysis
 category. No repository settings were changed by this implementation. If requiring
 CI status checks for merges, select the new always-running Core quality gate after
 its first hosted PR run; do not require Full-only worker checks.

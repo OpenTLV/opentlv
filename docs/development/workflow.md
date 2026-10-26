@@ -10,7 +10,7 @@ release artifacts, provenance verification and timing evidence.
 
 Pull Request CI runs only on Linux for PRs targeting `main`, including clang-tidy,
 cppcheck, CodeQL and essential tests. Main pushes run only Linux build/integration
-smoke checks. Full CI runs manually or through Release Gate and repeats all
+smoke checks and CodeQL, which closes fixed code-scanning alerts on `main`. Full CI runs manually or through Release Gate and repeats all
 required source checks alongside the complete native and memory-safety matrix.
 Development branch pushes do not start a duplicate Core PR run.
 Run **Core Release** manually from `main` with its single **tag** input, such as

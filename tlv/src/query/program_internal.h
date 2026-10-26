@@ -187,8 +187,14 @@ static inline tlv_result_t query_source_metadata(const tlv_tree_event_t* event, 
     *value = header ? event->source.header.size : event->offset;
     return TLV_OK;
 }
+/* Instructions start at this byte offset, directly after the fixed header.
+   Both records hold only uint32_t words, so a uint32_t-aligned image keeps every
+   instruction aligned; the checks pin the version 7 image layout. */
+#define QUERY_NODE_OFFSET sizeof(tlv_query_program_t)
+typedef char query_header_layout[(sizeof(tlv_query_program_t) == 13 * sizeof(uint32_t)) ? 1 : -1];
+typedef char query_node_layout[(sizeof(query_node_t) == 29 * sizeof(uint32_t)) ? 1 : -1];
 static inline const query_node_t* query_nodes(const tlv_query_program_t* p) {
-    return (const query_node_t*)(p + 1);
+    return (const query_node_t*)(const void*)((const uint8_t*)p + QUERY_NODE_OFFSET);
 }
 static inline const char* query_text(const tlv_query_program_t* p) {
     return (const char*)p + p->text_offset;

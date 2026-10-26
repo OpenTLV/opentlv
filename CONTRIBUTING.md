@@ -270,7 +270,7 @@ found, so their absence never breaks a regular build.
 (C++) with `--enable=warning,style,performance,portability`. Both cppcheck and
 clang-tidy are required on every **Core Pull Request CI** run before merge and
 every **Core Full CI** run, including Release Gate. Main CI runs only lightweight
-build/integration smoke checks. Manual **Static Analysis** also runs both
+build/integration smoke checks and CodeQL. Manual **Static Analysis** also runs both
 analyzers and pre-commit. Reproduce cppcheck
 locally by installing cppcheck, configuring a build directory, and building
 the opt-in `cppcheck` target:

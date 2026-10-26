@@ -156,7 +156,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(set(checks['with'].mapping()), {'full'})
         self.assertEqual(checks['with'].mapping()['full'].text(), 'false')
 
-    def test_main_runs_only_one_consumer_smoke_configuration_after_push(self):
+    def test_main_runs_one_consumer_smoke_configuration_and_full_codeql_after_push(self):
         data = workflow('core-main.yml')
         events = data['on'].mapping()
         self.assertEqual(set(events), {'push'})
@@ -164,13 +164,22 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(set(event), {'branches'})
         self.assertEqual(event['branches'].names(), {'main'})
         jobs = data['jobs'].mapping()
-        self.assertEqual(set(jobs), {'smoke', 'gate', 'timings'})
+        self.assertEqual(set(jobs), {'smoke', 'codeql', 'gate', 'timings'})
+        codeql = jobs['codeql'].mapping()
+        self.assert_unconditional(codeql)
+        self.assertEqual(codeql['uses'].text(), './.github/workflows/codeql.yml')
+        self.assertEqual(set(codeql['with'].mapping()), {'full'})
+        self.assertEqual(codeql['with'].mapping()['full'].text(), 'true',
+                         'Main must match the Full CodeQL configuration for default-branch alerts')
+        permissions = codeql['permissions'].mapping()
+        self.assertEqual({name: value.text() for name, value in permissions.items()},
+                         {'actions': 'read', 'contents': 'read', 'security-events': 'write'})
         smoke = jobs['smoke'].mapping()
         self.assert_unconditional(smoke)
         self.assertEqual(smoke['uses'].text(), './.github/workflows/cmake-consumers.yml')
         self.assertEqual(set(smoke['with'].mapping()), {'full'})
         self.assertEqual(smoke['with'].mapping()['full'].text(), 'false')
-        self.assert_gate(jobs['gate'].mapping(), {'smoke'},
+        self.assert_gate(jobs['gate'].mapping(), {'smoke', 'codeql'},
                          'python -B scripts/core_release.py main-gate --output ')
         worker_jobs = workflow('cmake-consumers.yml')['jobs'].mapping()
         self.assertEqual(set(worker_jobs), {'consumers'})

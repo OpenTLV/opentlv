@@ -954,7 +954,8 @@ TEST(Unit_Tlv_QueryProgram, CorruptInternalImagesAreRejectedBeforeExecutionOrFor
     for (unsigned mutation = 0; mutation < 15; ++mutation) {
         auto  storage = original.storage;
         auto* p = reinterpret_cast<tlv_query_program_t*>(storage.data());
-        auto* nodes = reinterpret_cast<query_node_t*>(p + 1);
+        auto* nodes = reinterpret_cast<query_node_t*>(reinterpret_cast<unsigned char*>(p) +
+                                                      QUERY_NODE_OFFSET);
         switch (mutation) {
             case 0: p->root = 1000000; break;
             case 1: ++p->version; break;
