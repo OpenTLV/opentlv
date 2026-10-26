@@ -155,6 +155,23 @@ static int image_name(const char* argument, char name[64]) {
     name[size] = 0;
     return size > 4 && name[0] != '.' && !memcmp(name + size - 4, ".bin", 4);
 }
+/* A failed image is removed while it is still open, so a different object placed
+   at the name by a concurrent writer of the directory is never removed instead. */
+#ifdef _WIN32
+static void discard_image(HANDLE handle) {
+    FILE_DISPOSITION_INFO disposition = {TRUE};
+    SetFileInformationByHandle(handle, FileDispositionInfo, &disposition,
+                               (DWORD)sizeof disposition);
+}
+#else
+/* POSIX cannot unlink a descriptor: unlink the name only while it is the open file. */
+static void discard_image(int fd, const char* name) {
+    struct stat opened, named;
+    if (!fstat(fd, &opened) && !lstat(name, &named) && opened.st_dev == named.st_dev &&
+        opened.st_ino == named.st_ino)
+        unlink(name);
+}
+#endif
 /* Exclusive owner-only creation: an existing file or link at the name is never
    followed, truncated or replaced, and a partially written image is removed. */
 static tlv_result_t write_image(const char* argument, const void* image, size_t size) {
@@ -170,7 +187,7 @@ static tlv_result_t write_image(const char* argument, const void* image, size_t 
     attributes.nLength = (DWORD)sizeof attributes;
     attributes.lpSecurityDescriptor = descriptor;
     attributes.bInheritHandle = FALSE;
-    HANDLE handle = CreateFileA(name, GENERIC_WRITE, 0, &attributes, CREATE_NEW,
+    HANDLE handle = CreateFileA(name, GENERIC_WRITE | DELETE, 0, &attributes, CREATE_NEW,
                                 FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
     LocalFree(descriptor);
     if (handle == INVALID_HANDLE_VALUE) return TLV_ERR_INVALID_ARG;
@@ -181,14 +198,14 @@ static tlv_result_t write_image(const char* argument, const void* image, size_t 
     }
     int fd = _open_osfhandle((intptr_t)handle, _O_WRONLY | _O_BINARY);
     if (fd < 0) {
+        discard_image(handle);
         CloseHandle(handle);
-        remove(name);
         return TLV_ERR_INVALID_ARG;
     }
     FILE* output = _fdopen(fd, "wb");
     if (!output) {
+        discard_image(handle);
         _close(fd);
-        remove(name);
         return TLV_ERR_INVALID_ARG;
     }
 #else
@@ -196,16 +213,23 @@ static tlv_result_t write_image(const char* argument, const void* image, size_t 
     if (fd < 0) return TLV_ERR_INVALID_ARG;
     FILE* output = fdopen(fd, "wb");
     if (!output) {
+        discard_image(fd, name);
         close(fd);
-        remove(name);
         return TLV_ERR_INVALID_ARG;
     }
 #endif
-    size_t written = fwrite(image, 1, size, output);
-    int    closed = fclose(output);
-    if (written == size && !closed) return TLV_OK;
-    remove(name);
-    return TLV_ERR_INVALID_ARG;
+    /* Flush before closing so a failed write is still discarded through the open file.
+       A close failure after a complete flush is reported and leaves the file. */
+    if (fwrite(image, 1, size, output) != size || fflush(output)) {
+#ifdef _WIN32
+        discard_image(handle);
+#else
+        discard_image(fd, name);
+#endif
+        fclose(output);
+        return TLV_ERR_INVALID_ARG;
+    }
+    return fclose(output) ? TLV_ERR_INVALID_ARG : TLV_OK;
 }
 int main(int argc, char** argv) {
     if (argc == 2 && !strcmp(argv[1], "--language-features")) {
