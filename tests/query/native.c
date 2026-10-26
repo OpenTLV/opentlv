@@ -155,25 +155,18 @@ static int image_name(const char* argument, char name[64]) {
     name[size] = 0;
     return size > 4 && name[0] != '.' && !memcmp(name + size - 4, ".bin", 4);
 }
-/* A failed image is removed while it is still open, so a different object placed
-   at the name by a concurrent writer of the directory is never removed instead. */
 #ifdef _WIN32
+/* Deletes a failed image through its exclusive handle, never through the name. */
 static void discard_image(HANDLE handle) {
     FILE_DISPOSITION_INFO disposition = {TRUE};
     SetFileInformationByHandle(handle, FileDispositionInfo, &disposition,
                                (DWORD)sizeof disposition);
 }
-#else
-/* POSIX cannot unlink a descriptor: unlink the name only while it is the open file. */
-static void discard_image(int fd, const char* name) {
-    struct stat opened, named;
-    if (!fstat(fd, &opened) && !lstat(name, &named) && opened.st_dev == named.st_dev &&
-        opened.st_ino == named.st_ino)
-        unlink(name);
-}
 #endif
 /* Exclusive owner-only creation: an existing file or link at the name is never
-   followed, truncated or replaced, and a partially written image is removed. */
+   followed, truncated or replaced. A failed image is deleted on Windows; POSIX
+   cannot remove a file through its descriptor, so it keeps the partial file rather
+   than remove whatever the name designates by then. */
 static tlv_result_t write_image(const char* argument, const void* image, size_t size) {
     char name[64];
     if (!image_name(argument, name)) return TLV_ERR_INVALID_ARG;
@@ -213,18 +206,15 @@ static tlv_result_t write_image(const char* argument, const void* image, size_t 
     if (fd < 0) return TLV_ERR_INVALID_ARG;
     FILE* output = fdopen(fd, "wb");
     if (!output) {
-        discard_image(fd, name);
         close(fd);
         return TLV_ERR_INVALID_ARG;
     }
 #endif
-    /* Flush before closing so a failed write is still discarded through the open file.
-       A close failure after a complete flush is reported and leaves the file. */
+    /* Flush before closing so Windows still deletes a failed write through the open
+       handle. A close failure after a complete flush is reported and leaves the file. */
     if (fwrite(image, 1, size, output) != size || fflush(output)) {
 #ifdef _WIN32
         discard_image(handle);
-#else
-        discard_image(fd, name);
 #endif
         fclose(output);
         return TLV_ERR_INVALID_ARG;

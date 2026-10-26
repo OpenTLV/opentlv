@@ -48,14 +48,13 @@ run the tool from `tests/fuzz/query/corpus/image` to regenerate seeds there:
 - The new file is owner-only: mode `0600` on POSIX regardless of `umask`, and
   on Windows a protected DACL granting full access to the file owner only. A
   name that opens a Windows device instead of a new file is rejected.
-- If writing fails, the partially written file is removed while it is still
-  open, so an object that a concurrent writer of the directory places at the
-  name is never removed instead. Windows deletes it through the open handle,
-  which also blocks renaming or deleting it meanwhile. POSIX cannot unlink a
-  descriptor, so the name is unlinked only while it still identifies the open
-  file. Any rejection or failure exits with status 1 and leaves no output,
-  except a close failure after every byte was flushed, which is reported and
-  leaves the file.
+- Any rejection or failure exits with status 1. If writing fails on Windows,
+  the partial file is deleted through its exclusive handle, which also blocks
+  renaming or deleting it meanwhile. POSIX cannot remove a file through its
+  descriptor, and removing it by name could remove whatever a concurrent
+  writer of the directory placed there, so a failed write leaves the partial
+  file; delete it before retrying. A close failure after every byte was
+  flushed is reported and also leaves the file.
 
 `tests/query/test_image_output.py` (CTest `query-image-output`) verifies this
 policy, including repeatable image bytes.

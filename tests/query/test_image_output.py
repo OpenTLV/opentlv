@@ -150,15 +150,21 @@ class ImageOutputTest(unittest.TestCase):
         self.assertEqual(list(self.work.iterdir()), [])
 
     @unittest.skipIf(os.name == "nt", "POSIX file size limit")
-    def test_write_failure_removes_partial_file(self):
+    def test_write_failure_reports_error_and_keeps_partial_file(self):
         import resource
         import signal
 
         def limit():
             signal.signal(signal.SIGXFSZ, signal.SIG_IGN)
             resource.setrlimit(resource.RLIMIT_FSIZE, (16, 16))
+        # POSIX cannot remove a file through its descriptor, so nothing is removed by name.
+        partial = self.work / "partial.bin"
         self.assertEqual(image(self.work, "partial.bin", preexec_fn=limit), 1)
-        self.assertEqual(list(self.work.iterdir()), [])
+        self.assertEqual(list(self.work.iterdir()), [partial])
+        self.assertEqual(partial.stat().st_size, 16)
+        self.assertEqual(stat.S_IMODE(partial.stat().st_mode), 0o600)
+        self.assertEqual(image(self.work, "partial.bin"), 1)
+        self.assertEqual(partial.stat().st_size, 16)
 
 
 if __name__ == "__main__":
