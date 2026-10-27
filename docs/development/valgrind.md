@@ -146,6 +146,14 @@ the commands above excludes that label; such tests still run under ordinary
 CTest. An exclusion must not hide a failing native memory check;
 sanitized binaries, fuzz targets and WASM require their dedicated workflows.
 
+`query-image-write-failure` uses a 16-byte POSIX `RLIMIT_FSIZE` to force a
+partial native output. Valgrind inherits this process-wide limit before startup,
+so its own report is truncated and the native command may never start. Only
+this fault-injection test carries `no-memcheck`; ordinary CTest still requires
+its error, partial-file size, permissions and retry assertions to pass.
+`query-image-output` retains Memcheck coverage of the other output policies.
+Missing or incomplete Valgrind reports remain errors.
+
 Use `memcheck-full` for expensive native tests retained in the full Memcheck
 selection. Unlike `no-memcheck`, this label does not exclude a test from full
 memory checking. The shorter PR command excludes both labels; the full command

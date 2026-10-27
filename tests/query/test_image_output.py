@@ -65,7 +65,7 @@ def windows_dacl(path):
         kernel32.LocalFree(descriptor)
 
 
-class ImageOutputTest(unittest.TestCase):
+class ImageOutputDirectory(unittest.TestCase):
     def setUp(self):
         directory = tempfile.TemporaryDirectory()
         self.addCleanup(directory.cleanup)
@@ -73,6 +73,8 @@ class ImageOutputTest(unittest.TestCase):
         self.work = self.root / "work"
         self.work.mkdir()
 
+
+class ImageOutputTest(ImageOutputDirectory):
     def test_new_file_is_owner_only_and_repeatable(self):
         if os.name == "nt":
             self.assertEqual(image(self.work, "descendant.bin"), 0)
@@ -149,6 +151,9 @@ class ImageOutputTest(unittest.TestCase):
         self.assertEqual(image(self.work, "denied.bin"), 1)
         self.assertEqual(list(self.work.iterdir()), [])
 
+class ImageOutputWriteFailureTest(ImageOutputDirectory):
+    # This process-wide limit also breaks Valgrind startup/reporting. CTest
+    # runs this class separately without instrumentation; other cases retain it.
     @unittest.skipIf(os.name == "nt", "POSIX file size limit")
     def test_write_failure_reports_error_and_keeps_partial_file(self):
         import resource
