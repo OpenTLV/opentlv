@@ -90,6 +90,7 @@ The links below also work when browsing the sources.
   support for every TLV format is not implied.
 - [API reference](docs/reference/README.md): exact behavior and contracts.
 - [Contributing](CONTRIBUTING.md): build, test and develop OpenTLV.
+- [Licensing and attribution](THIRD_PARTY.md): source metadata and packaged notices.
 
 ## Project status
 

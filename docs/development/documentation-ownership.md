@@ -231,7 +231,7 @@ standalone portal repository.
 | `scripts/check_doc_examples.py` | Mixed: owners check snippets against their own tested sources; portal integration checks assembled examples against the selected component revisions |
 | `scripts/check_doc_inventory.py`, `scripts/test_doc_inventory.py` | Native capability/Doxygen and remaining binding checks stay with Core; CLI inventory integration was removed with #622; assembled navigation is checked only in Portal |
 | `.pre-commit-config.yaml`, `.markdownlint.json`, source/license checks | Each repository retains checks for its own maintained sources; portal extraction does not remove Core Markdown linting |
-| `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `ROADMAP.md`, `AGENTS.md`, repository policies | Core: retain repository entry points, contribution rules, history and contracts; extract only portal/consumer-specific instructions where present |
+| `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `ROADMAP.md`, `AGENTS.md`, `SECURITY.md`, licensing files | Core: retain technical contribution instructions, support windows, licensing, history and contracts; shared community guidance and Code of Conduct belong to `OpenTLV/.github` |
 | `tests/`, `benchmarks/` and native component README files | Implementation owner: Core for native tests/benchmarks; consumer-specific harnesses move with that consumer |
 | Generated Doxygen HTML/tag files, site output and WebAssembly distribution files | Build artifacts, not additional canonical documentation sources; owning producers build them and Portal integrates selected outputs |
 

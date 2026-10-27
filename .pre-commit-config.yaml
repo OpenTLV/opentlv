@@ -2,7 +2,7 @@
 # (identify sniffs content, not .gitattributes), so trailing-whitespace and
 # end-of-file-fixer can silently corrupt them by adding/removing bytes.
 # Exclude the same paths .gitattributes marks `binary`.
-exclude: ^tests/fuzz/(.*/)?corpus/
+exclude: (^tests/fuzz/(.*/)?corpus/|^examples/nfc/type2/.*\.bin$|^(vendor|third_party|generated)/)
 
 repos:
   - repo: local
@@ -40,3 +40,9 @@ repos:
     hooks:
       - id: markdownlint
         args: [--fix, --config, .markdownlint.json]
+
+  - repo: https://codeberg.org/fsfe/reuse-tool
+    rev: v6.2.0
+    hooks:
+      - id: reuse
+        additional_dependencies: ['reuse[charset-normalizer]==6.2.0']

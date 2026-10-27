@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Validate Core licensing with REUSE alongside ownership-preserving SPDX header checks, include license texts and attribution in native packages, and use shared organization community policies while retaining Core development instructions and security support details. (#715)
 - Relocate Core Doxygen configuration and API documentation sources to `docs/api/`, preserving the C/C++ documentation targets, generated references and portal integration. (#681)
 - Run the Full CodeQL configuration in Core Main CI after every push to `main` and require it in the Main quality gate, so code-scanning alerts close automatically once their merged fix is analyzed. (#707)
 - Complete the WASM extraction by moving the remaining private binding adapters and binding-specific examples/contracts to `opentlv-js`; remove the last `bindings/` directory and obsolete build references. (#698)
