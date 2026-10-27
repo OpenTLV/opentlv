@@ -88,8 +88,14 @@ if(Python3_Interpreter_FOUND)
     set_tests_properties(query-s0-conformance PROPERTIES LABELS "query;conformance;memcheck-full")
     add_test(NAME query-image-output
         COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_image_output.py
-            --native $<TARGET_FILE:test-query-conformance>)
+            --native $<TARGET_FILE:test-query-conformance> ImageOutputTest)
     set_tests_properties(query-image-output PROPERTIES LABELS "query;conformance")
+    # RLIMIT_FSIZE is inherited by Valgrind and truncates its own reports before
+    # the native adapter starts. Keep this fault injection in ordinary CTest.
+    add_test(NAME query-image-write-failure
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test_image_output.py
+            --native $<TARGET_FILE:test-query-conformance> ImageOutputWriteFailureTest)
+    set_tests_properties(query-image-write-failure PROPERTIES LABELS "query;conformance;no-memcheck")
     # The default generated matrix starts more than 9,000 native processes.
     opentlv_memcheck_timeout(query-s0-conformance 5400)
 endif()

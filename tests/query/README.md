@@ -56,8 +56,13 @@ run the tool from `tests/fuzz/query/corpus/image` to regenerate seeds there:
   file; delete it before retrying. A close failure after every byte was
   flushed is reported and also leaves the file.
 
-`tests/query/test_image_output.py` (CTest `query-image-output`) verifies this
-policy, including repeatable image bytes.
+`tests/query/test_image_output.py` verifies this policy, including repeatable
+image bytes. CTest `query-image-output` runs the permission, name, link and
+existing-file checks, including under Memcheck. `query-image-write-failure`
+separately tests POSIX partial-output retention with a 16-byte `RLIMIT_FSIZE`.
+It runs in ordinary CTest and carries `no-memcheck`: the process-wide limit
+also affects Valgrind startup and report files, preventing valid memory-check
+evidence. The native failure assertions remain required before Memcheck runs.
 
 `corpus.json` is a versioned test-only interchange format. Each case names its
 normative rules, Query, encoded input, and expected ordered match offsets, typed scalar encoding or
