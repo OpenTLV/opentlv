@@ -47,7 +47,7 @@ reference or release notes.
 | [PULL_REQUEST_TEMPLATE.md](../../.github/PULL_REQUEST_TEMPLATE.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Repository instructions](../../AGENTS.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Changelog](../../CHANGELOG.md) | Lookup | Topic-specific | Keep exact contracts/status; link from learning pages |
-| [Contributor Covenant Code of Conduct](../../CODE_OF_CONDUCT.md) | Contributor | Build workflow | Keep separate from user onboarding |
+| [Contributor Covenant Code of Conduct](https://github.com/OpenTLV/.github/blob/main/CODE_OF_CONDUCT.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [Contributing to OpenTLV](../../CONTRIBUTING.md) | Contributor | Build workflow | Keep separate from user onboarding |
 | [README.md](../../README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Roadmap](../../ROADMAP.md) | Lookup | Topic-specific | Keep exact contracts/status; link from learning pages |

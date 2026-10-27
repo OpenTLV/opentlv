@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 COMMENT_PREFIXES = {
     ".c": "//", ".h": "//", ".cpp": "//", ".hpp": "//",
     ".rs": "//", ".js": "//", ".ts": "//", ".java": "//",
-    ".go": "//", ".py": "#", ".lua": "--",
+    ".go": "//", ".py": "#", ".lua": "--", ".inc": "//",
 }
 # Reserved locations for generated output or third-party code. No currently
 # tracked sources require these exemptions. New exceptions belong here, with
@@ -55,6 +55,8 @@ def header_offset(data, path):
     return offset + sum(len(line) for line in lines[:start])
 
 
+# REUSE-IgnoreStart
+# The literals below describe checked/generated notices, not this file's license.
 def check_file(path, relative, fix=False):
     prefix = comment_prefix(relative)
     if prefix is None:
@@ -63,11 +65,23 @@ def check_file(path, relative, fix=False):
     offset = header_offset(data, relative)
     notice = [f"{prefix} SPDX-License-Identifier: MIT".encode(),
               f"{prefix} Copyright (c) 2026 Marek Cingel".encode()]
-    if data[offset:].splitlines()[:2] == notice:
+    lines = data[offset:].splitlines()
+    # Preserve contributor ownership and years; MIT does not assign copyright.
+    # Require actual leading comments, not a notice buried in a string or body.
+    leading = []
+    for line in lines:
+        if not line.startswith(prefix.encode()):
+            break
+        leading.append(line[len(prefix):].strip())
+    copyright_notice = re.compile(
+        br"^(?:Copyright\s+(?:\([cC]\)\s+)?|SPDX-FileCopyrightText:\s+)"
+        br"(?!\([cC]\)$)\S.*$")
+    if (leading and leading[0] == b"SPDX-License-Identifier: MIT"
+            and any(copyright_notice.match(line) for line in leading[1:])):
         return True
     if fix:
         # Never insert a contradictory or duplicate license declaration.
-        if b"SPDX-License-Identifier:" in data or b"Copyright" in data:
+        if b"SPDX-License-Identifier:" in data or b"copyright" in data.lower():
             print(f"{relative}: existing notice requires manual review")
             return False
         newline = b"\r\n" if b"\r\n" in data else b"\n"
@@ -75,6 +89,7 @@ def check_file(path, relative, fix=False):
         return True
     print(f"{relative}: missing or incorrect SPDX license header")
     return False
+# REUSE-IgnoreEnd
 
 
 def main():

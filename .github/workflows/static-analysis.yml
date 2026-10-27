@@ -56,6 +56,8 @@ jobs:
       - name: Test CI and release contracts
         run: |
           python -B scripts/test_core_release.py
+          python -B scripts/test_package.py
+          python -B scripts/test_license_headers.py
           python -B scripts/test_core_performance.py
           python -B scripts/test_ci_workflows.py
       - uses: pre-commit/action@v3.0.1

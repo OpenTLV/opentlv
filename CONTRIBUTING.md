@@ -1,14 +1,13 @@
 # Contributing to OpenTLV
 
-Report bugs and propose features through
-[GitHub issues](https://github.com/OpenTLV/opentlv/issues), using the
-Bug Report, Feature Request, or Documentation issue form. For bugs, include a
-small reproducer, expected and actual behavior, compiler, build options, and
-the version or commit used. Report suspected security vulnerabilities
-privately instead, following [SECURITY.md](SECURITY.md).
+Follow the [shared contribution guidelines](https://github.com/OpenTLV/.github/blob/main/CONTRIBUTING.md)
+and [Code of Conduct](https://github.com/OpenTLV/.github/blob/main/CODE_OF_CONDUCT.md).
+This local guide retains Core's build, test, API documentation and release
+instructions; GitHub does not merge it with the organization default.
 
-All project spaces, including issues, pull requests, and reviews, are
-governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+Use the [Core issue chooser](https://github.com/OpenTLV/opentlv/issues/new/choose)
+for bugs, features and documentation. For private vulnerability reports and Core's
+support window, follow [SECURITY.md](SECURITY.md), which links the shared policy.
 
 For documentation changes, first follow the
 [ownership rules](docs/development/documentation-ownership.md) and then the
@@ -43,16 +42,18 @@ issue first. Repository-specific instructions are in [AGENTS.md](AGENTS.md).
 
 ## Source license headers
 
-Start project C/C++ sources and headers with:
+For original 2026 contributions by Marek Cingel, start C/C++ sources and headers with:
 
 ```c
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 ```
 
-Python uses `#`. Keep shebangs and Python encoding declarations
-before the notice. C/C++ `.in` source templates also carry the notice so their
-generated outputs inherit it. The complete MIT text remains in [LICENSE](LICENSE).
+Preserve other contributors' names, years and existing notices; do not assign their
+work to Marek Cingel or to the OpenTLV GitHub organization. Python uses `#`. Keep
+shebangs and Python encoding declarations before the notice. C/C++ `.inc` includes
+and `.in` source templates also carry the notice so their generated outputs inherit
+it. The complete MIT text remains in [LICENSE](LICENSE).
 
 [scripts/check_license_headers.py](scripts/check_license_headers.py) owns the
 covered extensions and explicit excluded paths, with reasons. Generated files
@@ -62,8 +63,31 @@ license notices; document any additional exemption in the central policy.
 
 Run `python scripts/check_license_headers.py` to check all tracked sources or
 add `--fix` to insert missing notices while preserving file line endings.
-Existing conflicting notices require manual review. The `license-headers`
-pre-commit hook runs this same check locally and in the Static Analysis CI job.
+Use `--fix` only for unannotated original 2026 work by Marek Cingel; it inserts
+that example notice. Existing conflicting notices require manual review. The
+`license-headers` pre-commit hook runs this same check locally and in the Static
+Analysis CI job.
+
+### REUSE validation
+
+The source-header check from #469 enforces the leading MIT/comment layout while
+accepting contributor copyright notices and years. [REUSE](https://reuse.software/spec-3.3/)
+complements it with whole-repository licensing metadata checks. The pinned
+`reuse lint` pre-commit hook also runs in Static Analysis for PR, Full and release
+validation. It scans independently of pre-commit's file exclusions, including
+tracked generated and third-party files. Ignored build outputs are not scanned.
+
+[REUSE.toml](REUSE.toml) annotates exact documentation, configuration and binary
+fixture paths with `aggregate` precedence, preserving existing notices. New
+sources must carry headers; new binary fixtures need a reviewed annotation or
+`<filename>.license` sidecar. Never rewrite fixture bytes for licensing. Keep
+corresponding license texts in [LICENSES](LICENSES/); `LICENSES/MIT.txt` supplements
+the root `LICENSE`, reconciling #469's original root-only license-text convention.
+See [THIRD_PARTY.md](THIRD_PARTY.md) for ownership, dependencies and distribution.
+
+REUSE validates metadata completeness, not authorship or legal provenance. Do not
+bulk-annotate third-party material as OpenTLV's original work. Source releases
+retain REUSE metadata; native packages retain applicable licenses and notices.
 
 For the branch model, what CI runs on pull requests, on `main` and on release
 tags, and how to cut a release, see the
@@ -221,10 +245,13 @@ portal checkout. Link to API pages through the [C](docs/reference/c-api.md) and
 
 [.pre-commit-config.yaml](.pre-commit-config.yaml) runs clang-format plus a
 few whitespace/YAML/Markdown checks before each commit. Install
-[pre-commit](https://pre-commit.com/) once per clone:
+[pre-commit](https://pre-commit.com/) and REUSE with Python 3.10 or newer in an
+isolated contributor environment (separate from Conan/build dependencies):
 
 ```sh
-pip install pre-commit
+python -m venv build/contributor-venv
+# Activate the environment, then:
+python -m pip install -r requirements-dev.txt
 pre-commit install
 ```
 
@@ -234,6 +261,7 @@ tree (e.g. after changing `.clang-format`) with:
 
 ```sh
 pre-commit run --all-files
+python -m reuse lint
 ```
 
 [static-analysis.yml](.github/workflows/static-analysis.yml) runs the same

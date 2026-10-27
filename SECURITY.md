@@ -22,41 +22,9 @@ major/minor lines.
 
 ## Reporting a vulnerability
 
-**Please do not report security vulnerabilities through public GitHub issues,
-discussions, or pull requests.** Publicly disclosing an unresolved
-vulnerability puts users of OpenTLV at risk before a fix is available.
-
-Instead, use
-[GitHub Private Vulnerability Reporting](https://github.com/OpenTLV/opentlv/security/advisories/new)
-for this repository (Security tab -> Report a vulnerability). If private
-reporting is unavailable to you, contact the maintainer through the profile
-contact information at <https://github.com/marekcingel> and mark the report as
-security-sensitive.
-
-### What to include
-
-To help us triage and fix the issue quickly, include as much of the following
-as you can:
-
-- Affected OpenTLV version (tag, commit hash, or release).
-- Affected component (for example a specific format, codec, schema, or CLI
-  tool).
-- A description of the vulnerability.
-- Reproduction steps or a proof-of-concept input/program.
-- The potential impact (for example crash, memory disclosure, or memory
-  corruption).
-- A suggested mitigation or fix, if you have one.
-
-### What to expect
-
-After submitting a report, you can expect:
-
-1. **Acknowledgement** of the report, typically within a few business days.
-2. **Investigation** to confirm and assess the reported issue.
-3. **Fix development** on a private branch or advisory, without public
-   disclosure of details until a fix is available.
-4. **Coordinated disclosure** with the reporter on timing and credit.
-5. A **security release and GitHub Security Advisory**, where appropriate,
-   once a fix is available.
-
-Thank you for helping keep OpenTLV and its users safe.
+Report privately through [Core's vulnerability form](https://github.com/OpenTLV/opentlv/security/advisories/new).
+Do not disclose suspected vulnerabilities in public issues, discussions or pull requests.
+Follow the [organization security policy](https://github.com/OpenTLV/.github/blob/main/SECURITY.md)
+for report contents, fallback contact paths, triage and coordinated disclosure.
+This local entry point retains Core's supported-version policy; it does not extend
+support for standalone bindings or tools, which own their dependency updates and releases.

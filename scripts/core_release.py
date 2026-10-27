@@ -280,6 +280,11 @@ def source_archive(output, tag, commit):
     require(not git('status', '--porcelain'), 'Source archive requires a clean checkout')
     prefix = f'OpenTLV-{tag}/'
     data = subprocess.check_output(['git', 'archive', '--format=tar', '--prefix=' + prefix, commit])
+    with tarfile.open(fileobj=io.BytesIO(data)) as original:
+        for name in ('LICENSE', 'LICENSES/MIT.txt', 'REUSE.toml', 'THIRD_PARTY.md'):
+            member = next((item for item in original.getmembers() if item.name == prefix + name), None)
+            require(member is not None and member.isfile() and member.size > 0,
+                    f'Source archive is missing licensing file: {name}')
     output.mkdir(parents=True, exist_ok=True)
     path = output / f'OpenTLV-{tag}-source.tar.gz'
     # Archive bytes are stable across retries; Git's commit time supplies entry mtimes.

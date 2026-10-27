@@ -65,6 +65,18 @@ def compare_manifests(expected, actual):
     require(not differences, "Archive differs from cmake --install:\n" + "\n".join(differences))
 
 
+def check_license_files(root, source, datarootdir):
+    """Require original notice bytes even if installation and CPack omit them alike."""
+    paths = [Path("LICENSE"), Path("THIRD_PARTY.md")]
+    paths.extend(path.relative_to(source) for path in sorted((source / "LICENSES").glob("*.txt")))
+    require(Path("LICENSES/MIT.txt") in paths, "Missing source MIT license text")
+    for path in paths:
+        installed = root / datarootdir / "doc/OpenTLV" / path
+        require(installed.is_file(), f"Required license file missing: {path}")
+        require(installed.read_bytes() == (source / path).read_bytes(),
+                f"License file differs from source: {path}")
+
+
 def install_dir(cache, key):
     path = Path(cache[key])
     require(not path.is_absolute() and ".." not in path.parts,
@@ -106,6 +118,7 @@ def main():
         root = roots[0]
         files = manifest(root)
         compare_manifests(expected, files)
+        check_license_files(root, Path(cache["CMAKE_HOME_DIRECTORY"]), datarootdir)
         package_dir = root / libdir / "cmake/OpenTLV"
         for path in (
             f"{includedir}/tlv/tlv.h", f"{includedir}/tlv/config.h",

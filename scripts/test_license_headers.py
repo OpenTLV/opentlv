@@ -10,10 +10,12 @@ from pathlib import Path
 import check_license_headers as policy
 
 
+# REUSE-IgnoreStart
+# License strings inside fixtures are test data, not this file's licensing.
 class LicenseHeadersTest(unittest.TestCase):
     def test_coverage_and_exclusions(self):
         for name in ("tlv/a.c", "tlv/a.h", "tlv++/a.hpp", "tests/a.cpp",
-                     "tlv/resources/config.h.in", "bindings/a.rs", "docs/a.js"):
+                     "tlv/resources/config.h.in", "tests/cases.inc", "docs/a.js"):
             self.assertEqual(policy.comment_prefix(name), "//")
         self.assertEqual(policy.comment_prefix("bindings/a.py"), "#")
         self.assertEqual(policy.comment_prefix("bindings/a.lua"), "--")
@@ -51,6 +53,29 @@ class LicenseHeadersTest(unittest.TestCase):
                 path.write_bytes(original)
                 self.assertFalse(policy.check_file(path, "a.c", fix=True))
                 self.assertEqual(path.read_bytes(), original)
+
+    def test_contributor_notices_and_years_are_preserved(self):
+        notices = [
+            b"// Copyright (c) 2025-2026 Another Contributor\n",
+            b"// SPDX-FileCopyrightText: 2024 Another Contributor\n",
+            b"// Copyright (c) 2026 Marek Cingel\n// Copyright 2027 Another Contributor\n",
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "a.c"
+            for notice in notices:
+                original = b"// SPDX-License-Identifier: MIT\n" + notice + b"\nint x;\n"
+                path.write_bytes(original)
+                self.assertTrue(policy.check_file(path, "a.c", fix=True))
+                self.assertEqual(path.read_bytes(), original)
+
+    def test_empty_or_nonleading_copyright_does_not_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "a.c"
+            for tail in (b"// Copyright (c)\n", b"// SPDX-FileCopyrightText:\n",
+                         b"int x;\n// Copyright 2026 Someone\n"):
+                path.write_bytes(b"// SPDX-License-Identifier: MIT\n" + tail)
+                self.assertFalse(policy.check_file(path, "a.c"))
+# REUSE-IgnoreEnd
 
 
 if __name__ == "__main__":

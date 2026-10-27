@@ -468,13 +468,15 @@ class ArchiveTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
-    def source(self):
+    def source(self, missing=None):
         stream = io.BytesIO()
         with tarfile.open(fileobj=stream, mode='w') as archive:
-            entry = tarfile.TarInfo('OpenTLV-0.8.0/README.md')
-            data = b'test source\n'
-            entry.size = len(data)
-            archive.addfile(entry, io.BytesIO(data))
+            for name in ('README.md', 'LICENSE', 'LICENSES/MIT.txt', 'REUSE.toml', 'THIRD_PARTY.md'):
+                if name != missing:
+                    entry = tarfile.TarInfo('OpenTLV-0.8.0/' + name)
+                    data = b'test source\n'
+                    entry.size = len(data)
+                    archive.addfile(entry, io.BytesIO(data))
         with patch('core_release.git', side_effect=[SHA, '']), \
                 patch('core_release.subprocess.check_output', return_value=stream.getvalue()):
             return release.source_archive(self.root, '0.8.0', SHA)
@@ -487,6 +489,13 @@ class ArchiveTests(unittest.TestCase):
             self.assertEqual(source.extractfile('OpenTLV-0.8.0/README.md').read(), b'test source\n')
             self.assertEqual(source.extractfile('OpenTLV-0.8.0/opentlv-source.txt').read(),
                              f'version=0.8.0\ncommit={SHA}\n'.encode())
+            for name in ('LICENSE', 'LICENSES/MIT.txt', 'REUSE.toml', 'THIRD_PARTY.md'):
+                self.assertEqual(source.extractfile('OpenTLV-0.8.0/' + name).read(), b'test source\n')
+
+    def test_source_requires_local_licensing_files(self):
+        for name in ('LICENSE', 'LICENSES/MIT.txt', 'REUSE.toml', 'THIRD_PARTY.md'):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'missing licensing file'):
+                self.source(missing=name)
 
     def test_dirty_source_is_rejected(self):
         with patch('core_release.git', side_effect=[SHA, '?? unexpected-file']):
