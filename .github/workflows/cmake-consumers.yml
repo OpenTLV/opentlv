@@ -46,3 +46,10 @@ jobs:
         run: >-
           python scripts/check_cmake_integration.py
           --shared ${{ matrix.shared }} --cxx ${{ matrix.cxx }}
+      - name: Verify modular CMake infrastructure and isolation
+        if: runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        run: |
+          python -B scripts/test_module_isolation.py
+          python -B scripts/test_module_isolation.py --integration
+          python -B scripts/check_module_isolation.py --shared ON
+          python -B scripts/check_module_isolation.py --shared OFF

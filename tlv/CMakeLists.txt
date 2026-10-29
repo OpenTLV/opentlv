@@ -269,6 +269,9 @@ generate_export_header(${PROJECT_NAME}
     EXPORT_MACRO_NAME TLV_API
     EXPORT_FILE_NAME "${OpenTLV_BINARY_DIR}/generated/include/tlv/export.h"
 )
+if(NOT OPENTLV_BUILD_SHARED_LIBS)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TLV_STATIC_DEFINE)
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

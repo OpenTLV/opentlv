@@ -47,7 +47,10 @@ def main():
     core_build = work / "core"
     configure(root, core_build, *core_options, "-DOPENTLV_BUILD_TESTS=OFF",
               "-DOPENTLV_BUILD_EXAMPLES=OFF",
+              "-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler",
               "-DCMAKE_INSTALL_LIBDIR=lib", "-DCMAKE_INSTALL_INCLUDEDIR=include")
+    if list((core_build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
+        raise RuntimeError("Library/facade-only configuration enabled a C++ compiler")
     cache = (core_build / "CMakeCache.txt").read_text(encoding="utf-8")
     if re.search(r"^(OPENTLV_BUILD_(?:CLI(?:_TESTS)?|PYTHON)|nlohmann_json_[^:]*):", cache, re.M):
         raise RuntimeError("Core still configures migrated consumer options or dependencies")
@@ -62,6 +65,16 @@ def main():
     run("cmake", "--install", core_build, "--config", "Release", "--prefix", prefix)
     relocated = work / "relocated installation"
     shutil.copytree(prefix, relocated)
+    missing = work / "missing-component"
+    missing.mkdir()
+    (missing / "CMakeLists.txt").write_text(
+        "cmake_minimum_required(VERSION 3.16)\nproject(missing LANGUAGES NONE)\n"
+        "find_package(OpenTLV REQUIRED CONFIG COMPONENTS unavailable)\n", encoding="utf-8")
+    result = subprocess.run(["cmake", "-S", str(missing), "-B", str(missing / "build"),
+                             f"-DCMAKE_PREFIX_PATH={relocated.as_posix()}"],
+                            capture_output=True, text=True)
+    if result.returncode == 0 or "OpenTLV_FOUND" not in result.stdout + result.stderr:
+        raise RuntimeError("Missing required component did not reject the installed package")
     for path in relocated.rglob("*.cmake"):
         content = path.read_text(encoding="utf-8").replace("\\", "/")
         for private_path in (root, core_build, prefix):

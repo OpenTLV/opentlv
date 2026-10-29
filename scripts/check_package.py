@@ -124,6 +124,7 @@ def main():
             f"{includedir}/tlv/tlv.h", f"{includedir}/tlv/config.h",
             f"{includedir}/tlv/version.h", f"{datarootdir}/doc/OpenTLV/LICENSE",
             f"{libdir}/cmake/OpenTLV/OpenTLVConfig.cmake",
+            f"{libdir}/cmake/OpenTLV/OpenTLVModules.cmake",
             f"{libdir}/cmake/OpenTLV/OpenTLVConfigVersion.cmake",
             f"{libdir}/cmake/OpenTLV/OpenTLVTargets.cmake",
         ):
