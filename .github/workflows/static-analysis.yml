@@ -53,6 +53,10 @@ jobs:
           python scripts/check_diagnostic_returns.py
           python scripts/generate_diagnostic_vocabulary.py --check
           python -B scripts/test_diagnostic_vocabulary.py
+      - name: Check functional module contracts
+        run: |
+          python -B scripts/test_module_contracts.py
+          python -B scripts/check_module_contracts.py
       - name: Test CI and release contracts
         run: |
           python -B scripts/test_core_release.py

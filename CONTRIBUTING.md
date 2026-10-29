@@ -93,6 +93,25 @@ For the branch model, what CI runs on pull requests, on `main` and on release
 tags, and how to cut a release, see the
 [development workflow](docs/development/workflow.md).
 
+## Module contracts
+
+Every C source, header, C++ facade header and resource template under `tlv/`
+and `tlv++/` has one owning module or integration target in
+[ownership.json](docs/development/modules/ownership.json), and every public
+diagnostic code has an entry in
+[diagnostic-mapping.json](docs/development/modules/diagnostic-mapping.json).
+When you add, move or remove such a file, change its includes across modules,
+or add a diagnostic enumerator or Query limit name, update these files as the
+[module contracts](docs/development/modules/README.md#enforcement) describe and
+run:
+
+```sh
+python scripts/test_module_contracts.py
+python scripts/check_module_contracts.py
+```
+
+The Static Analysis CI job runs both.
+
 ## Public API documentation
 
 Update the relevant capability/support inventories and executable examples in
