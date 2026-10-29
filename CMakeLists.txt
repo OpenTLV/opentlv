@@ -58,18 +58,20 @@ include(cmake/format_options.cmake)
 include(cmake/capability_options.cmake)
 opentlv_generate_config_files()
 
-# Enable CXX at the top level (rather than relying solely on tlv++'s own
-# project(LANGUAGES CXX)) so multi-config generators such as Visual Studio
-# know about the CXX compiler before generating every subdirectory's project
-# files and resolve CXX compile features consistently.
-# Property adapters also need a C++11 compiler, independently of the facade.
-if(OPENTLV_BUILD_CXX OR (OPENTLV_BUILD_TESTS AND OPENTLV_BUILD_PROPERTY_TESTS))
+# Only executable C++ consumers need a compiler. The header-only facade carries
+# INTERFACE requirements without enabling CXX in a C-only library configuration.
+# Enable it here for multi-config generators before configuring consumers.
+if((OPENTLV_BUILD_TESTS AND (OPENTLV_BUILD_UNIT_TESTS OR
+   OPENTLV_BUILD_INTEGRATION_TESTS OR OPENTLV_BUILD_PROPERTY_TESTS)) OR
+   (OPENTLV_BUILD_CXX AND (OPENTLV_BUILD_TESTS OR OPENTLV_BUILD_EXAMPLES)) OR
+   OPENTLV_BUILD_BENCHMARKS)
     enable_language(CXX)
 endif()
 
 include(cmake/compiler.cmake)
 include(cmake/memcheck.cmake)
 include(GNUInstallDirs)
+include(cmake/modules.cmake)
 
 if(_OPENTLV_TOP_LEVEL)
     include(cmake/clang_format.cmake)
@@ -114,6 +116,7 @@ if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_BER)
     add_subdirectory(benchmarks)
 endif()
 
+opentlv_finalize_modules()
 include(cmake/install.cmake)
 if(_OPENTLV_TOP_LEVEL)
     include(cmake/packaging.cmake)

@@ -110,7 +110,10 @@ python scripts/test_module_contracts.py
 python scripts/check_module_contracts.py
 ```
 
-The Static Analysis CI job runs both.
+The Static Analysis CI job runs both. Module extractions must also register their
+targets, symbols and test owners and run the
+[CMake isolation gates](docs/development/modules/README.md#isolation-and-test-ownership-during-extraction).
+The public CMake consumer workflow requires these gates for every extraction.
 
 ## Public API documentation
 

@@ -126,6 +126,23 @@ def workflow(name):
 
 
 class WorkflowContracts(unittest.TestCase):
+    def test_module_isolation_remains_required_in_consumer_job(self):
+        job = workflow('cmake-consumers.yml')['jobs'].mapping()['consumers'].mapping()
+        steps = job['steps'].steps()
+        matches = [step for step in steps if 'run' in step and
+                   'scripts/check_module_isolation.py' in step['run'].text()]
+        self.assertEqual(len(matches), 1)
+        step = matches[0]
+        self.assertEqual(step['if'].text(),
+                         "runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'")
+        self.assertNotIn('continue-on-error', step)
+        commands = step['run'].text().splitlines()
+        for command in ('python -B scripts/test_module_isolation.py',
+                        'python -B scripts/test_module_isolation.py --integration',
+                        'python -B scripts/check_module_isolation.py --shared ON',
+                        'python -B scripts/check_module_isolation.py --shared OFF'):
+            self.assertIn(command, commands)
+
     def assert_unconditional(self, mapping):
         self.assertNotIn('if', mapping, 'Required check must not be filtered or optional')
         self.assertNotIn('continue-on-error', mapping, 'Required failure must propagate')

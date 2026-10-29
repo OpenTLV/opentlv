@@ -466,7 +466,127 @@ of every Core pull request, with its tests in
 An extraction PR updates [ownership.json](ownership.json) with the code it
 moves: new files get an owner, applied resolutions lose their exceptions and
 `api` entries, and a resolution without remaining entries is removed.
-Symbol-level, CMake and installed-package isolation checks are #646's.
+The CMake and symbol gates below enforce the implemented build graph as modules
+are registered during extraction.
+
+### CMake infrastructure and naming
+
+[#646](https://github.com/OpenTLV/opentlv/issues/646) supplies
+[`cmake/modules.cmake`](../../../cmake/modules.cmake). It does not extract a
+functional module or replace the existing `OpenTLV::tlv` and `OpenTLV::tlv++`
+targets. The public naming decision remains with #702; explicit `EXPORT_NAME`
+arguments keep that decision separate from internal ownership keys.
+
+| Identity | Convention |
+| --- | --- |
+| Package | `OpenTLV`; `find_package(OpenTLV CONFIG REQUIRED COMPONENTS <name>)` |
+| Internal key | Lowercase contract key, for example `query-document` |
+| Build target | `opentlv_<key>` with hyphens replaced by underscores |
+| Public target | `OpenTLV::<EXPORT_NAME>`; the component has the same name |
+| Compiled export macro | `OPENTLV_<KEY>_API`, uppercase with underscores |
+| Static usage requirement | `OPENTLV_<KEY>_STATIC_DEFINE`, propagated to consumers |
+| Generated export header | `tlv/<key>/export.h` |
+| Module test build target | `test-module-<key>` |
+| CTest ownership label | `module:<key>` |
+
+Register each compiled target with `opentlv_add_module(key ...)`, giving
+`EXPORT_NAME`, `INCLUDE_DIR`, `SOURCES`, `PUBLIC_HEADERS`, `PRIVATE_HEADERS`,
+`PUBLIC_DEPS`, `PRIVATE_DEPS`, `PUBLIC_SYMBOLS` and a runnable C `CONSUMER` source.
+Paths are relative to the calling source directory. Public headers are installed
+relative to `INCLUDE_DIR`; private headers are never installed. Lists of symbols
+contain exact external names, including exported data. No symbol-prefix wildcard
+grants ownership. Every registered source/header must agree with `ownership.json`.
+Generated export headers are handled by the helper.
+Feature-disabled C sources retain their contract owner but are omitted from that
+configuration's `SOURCES` and symbol lists; headers retain their registered
+boundaries. Source selection belongs to the registering module.
+
+For an integration, set `OWNER` to its owning module and depend directly on that
+module. `OWNER_SYMBOLS` declares the owner's exported internal interfaces, which
+only integrations with the same owner may reference. Other hidden global
+functions remain private even in static archives. Integrations are real
+independently linkable targets, not aliases to their participants.
+
+A `FACADE` registration has public headers and public dependencies, no compiled
+sources, and a C++ `CONSUMER`. It propagates `cxx_std_11` through an `INTERFACE`
+target. Register its own contract key and dependency edges in `ownership.json`;
+assign its `.hpp` files to that key when moving them out of the original module.
+Creating or installing facade targets does not enable a C++ compiler. C++ tests,
+examples and benchmarks enable C++ when they actually compile C++ sources.
+
+`opentlv_finalize_modules()` runs after registrations. It rejects cycles,
+undeclared links, missing owners and sources added outside the registration. It
+writes the per-configuration `modules-<config>.json` build inventory and the
+installed component registry. Components load their dependencies transitively,
+including private archive dependencies, before importing their own targets.
+Unknown required components reject package discovery; unknown optional components
+report `OpenTLV_<name>_FOUND=FALSE`. No-component discovery preserves existing
+consumption and includes all available module targets. During the transition,
+`tlv` and, when enabled, `tlv++` are the available legacy components; names of
+unextracted modules are not advertised as working components.
+
+All compiled modules follow `OPENTLV_BUILD_SHARED_LIBS`. Shared targets use hidden
+default visibility, disable Windows automatic symbol export and export only
+their public or owner-internal symbol lists through their own macros. Static
+targets propagate their own static definition without suppressing another
+module's exports. The ELF symbol gate compares shared exports exactly and checks
+archive references against direct dependencies and symbol ownership.
+Installed shared modules locate adjacent dependencies through `$ORIGIN` on ELF
+or `@loader_path` on macOS, unless an installation RPATH was explicitly supplied.
+
+### Isolation and test ownership during extraction
+
+Run these checks for each extraction, alongside the existing contract checks:
+
+```sh
+python -B scripts/test_module_isolation.py
+python -B scripts/test_module_isolation.py --integration
+python -B scripts/check_module_isolation.py --shared OFF
+python -B scripts/check_module_isolation.py --shared ON
+python scripts/check_cmake_integration.py --shared OFF --cxx ON
+python scripts/check_cmake_integration.py --shared ON --cxx OFF
+```
+
+The isolation runner requires an ELF platform with CMake, Ninja, C/C++ compilers
+and GNU or LLVM `nm`. It configures a fresh directory for every compiled module,
+builds only that target and its dependency closure, checks declared dependencies
+against the architecture contract, checks quoted and angle-bracket includes,
+rejects foreign private headers and unintended symbol dependencies, and builds
+and runs one installed consumer per component from a relocated package. C
+consumers enable only C; facade consumers link only their facade target and
+inherit its C++ requirements. Platform runtime/toolchain symbols are external to
+the OpenTLV module graph; unresolved `tlv_`/`opentlv_` symbols are rejected.
+
+The real static/shared fixture exercises public and private dependencies,
+owner-internal integration, hidden symbols, per-module exports and a C++ facade.
+Negative tests deliberately introduce dependency cycles, duplicate ownership,
+undeclared dependencies, private-header access and incorrect exports. The
+`cmake-consumers.yml` job runs these gates for PR, Main and Full validation, and
+automatically discovers new module registrations. Its existing Windows/Linux
+consumer matrix continues to check the transitional library. ELF symbol evidence
+does not claim Windows or macOS symbol inspection.
+
+Before the first extraction, the production inventory contains zero extracted
+modules. The fixture proves that the infrastructure works; it does not claim
+that the monolith is already isolated. The #644 checker still governs all
+unextracted code and its explicitly recorded migration exceptions.
+
+Use `opentlv_add_module_test(name OWNER key SOURCES ... DEPENDENCIES ...)` for
+extracted scenarios. A source belongs to one test owner; attempting to compile
+the same scenario source into another module test fails configuration. The
+helper creates a labeled CTest executable and adds it to `test-module-<key>`.
+`cmake --build <build> --target test-module-<key>` builds that owner's tests;
+`ctest --test-dir <build> -L '^module:<key>$' --output-on-failure` runs them.
+On Windows, provide the linked shared modules on the test process's `PATH`.
+
+Keep existing tests in their current targets until their behavior is extracted.
+In that extraction PR, move the scenarios to the owning module's test target and
+remove them from the old source list; preserve assertions and case coverage.
+Tests combining modules belong to the integration that owns that behavior.
+Use additional `DEPENDENCIES` only for fixtures needed by the scenario, not to
+make a module test exercise unrelated behavior. Query feature switches select
+Query tests locally when Query is extracted. Re-run the behavioral baseline and
+the existing native suite to demonstrate that no scenarios disappeared.
 
 ## Decisions to approve
 
