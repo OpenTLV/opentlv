@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Capture the pre-refactor Core v0.8.0 behavioral baseline with exact release and Full CI provenance, reproducible test and regression corpora, deterministic Generator bytes, diagnostic reference data and informational Reader performance measurements. Add capture, replay and integrity checks for future module changes. (#645)
 - Define the [functional module contracts](docs/development/modules/README.md) for the modular C/C++ library: an owning module or integration target for every source and header, the acyclic target dependency graph, an approved resolution for every existing dependency cycle and private-header exception, the [module diagnostic architecture](docs/development/modules/diagnostics.md) with a complete baseline diagnostic code mapping, the Query feature and ASN.1 granularity decisions and the [Reader, Format and Field boundary](docs/development/modules/reader-format-field.md). Static Analysis CI checks the machine-readable inventories against the source tree with `scripts/check_module_contracts.py`. Library behavior, API and build options are unchanged. (#644)
 
 ## [v0.8.0] - 2026-10-27

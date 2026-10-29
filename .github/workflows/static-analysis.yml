@@ -57,6 +57,10 @@ jobs:
         run: |
           python -B scripts/test_module_contracts.py
           python -B scripts/check_module_contracts.py
+      - name: Verify immutable behavioral baseline
+        run: |
+          python -B scripts/test_behavioral_baseline.py
+          python -B scripts/behavioral_baseline.py verify
       - name: Test CI and release contracts
         run: |
           python -B scripts/test_core_release.py

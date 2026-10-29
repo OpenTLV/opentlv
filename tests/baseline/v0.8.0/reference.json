@@ -1,0 +1,12 @@
+{
+  "approval": {
+    "required_before": "#646",
+    "status": "pending"
+  },
+  "commit": "345c77acb29266036df5f27d04ce315bb61853cc",
+  "full_ci_note": "Core Release invokes Core Full CI; this is its enclosing run.",
+  "full_ci_url": "https://github.com/OpenTLV/opentlv/actions/runs/40500582050",
+  "published_at": "2026-10-27T13:18:59Z",
+  "release_url": "https://github.com/OpenTLV/opentlv/releases/tag/v0.8.0",
+  "tag": "v0.8.0"
+}

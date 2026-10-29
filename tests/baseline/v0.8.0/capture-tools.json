@@ -1,0 +1,18 @@
+{
+  "docs/development/modules/diagnostic-mapping.json": {
+    "sha256": "ef4754a29f0629c391951bfe74f497d516ad603a1e106f4fe32214012b61368e",
+    "size": 36968
+  },
+  "scripts/behavioral_baseline.py": {
+    "sha256": "d2d0329fbca66f3f114ebb42eb71ba848bc2c705f2fb0b3012343cf765398cd4",
+    "size": 17715
+  },
+  "scripts/check_module_contracts.py": {
+    "sha256": "8fdbcc3576ae61db24c44840a3f4120069bae120529faaa3a916deb20da111ee",
+    "size": 18078
+  },
+  "tests/baseline/probe.cpp": {
+    "sha256": "14d92bba8579dcd1fd60241fcaf405d84451387644679697ca52a8f8dcc6d01e",
+    "size": 8419
+  }
+}

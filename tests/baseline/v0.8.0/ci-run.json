@@ -1,0 +1,9 @@
+{
+  "id": 40500582050,
+  "name": "Core Release",
+  "head_sha": "345c77acb29266036df5f27d04ce315bb61853cc",
+  "conclusion": "success",
+  "status": "completed",
+  "html_url": "https://github.com/OpenTLV/opentlv/actions/runs/40500582050",
+  "run_attempt": 1
+}

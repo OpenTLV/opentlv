@@ -1,0 +1,1 @@
+171 Query fixtures and 1056 generated comparisons passed (11637 native executions, 0 unavailable-provider fixtures)

@@ -1,0 +1,75 @@
+2026-10-29T10:18:51+01:00
+Running /mnt/d/Projects/marekcingel/OpenTLV/opentlv/build/issue645-capture/build/benchmarks/benchmark-tlv
+Run on (12 X 2611.21 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x6)
+  L1 Instruction 32 KiB (x6)
+  L2 Unified 1280 KiB (x6)
+  L3 Unified 12288 KiB (x1)
+Load Average: 9.46, 4.55, 1.77
+-----------------------------------------------------------------------------------------------------
+Benchmark                                           Time             CPU   Iterations UserCounters...
+-----------------------------------------------------------------------------------------------------
+reader_decode/ber_flat_small                  1456768 ns      1457090 ns           50 bytes_per_second=31.4163Mi/s elements/input=16k items_per_second=10.9808M/s wire_bytes/input=48k
+reader_decode/ber_flat_small                  1478310 ns      1478942 ns           50 bytes_per_second=30.9521Mi/s elements/input=16k items_per_second=10.8185M/s wire_bytes/input=48k
+reader_decode/ber_flat_small                  1282415 ns      1282922 ns           50 bytes_per_second=35.6813Mi/s elements/input=16k items_per_second=12.4715M/s wire_bytes/input=48k
+reader_decode/ber_flat_small_mean             1405831 ns      1406318 ns            3 bytes_per_second=32.6832Mi/s elements/input=16k items_per_second=11.4236M/s wire_bytes/input=48k
+reader_decode/ber_flat_small_median           1456768 ns      1457090 ns            3 bytes_per_second=31.4163Mi/s elements/input=16k items_per_second=10.9808M/s wire_bytes/input=48k
+reader_decode/ber_flat_small_stddev            107423 ns       107421 ns            3 bytes_per_second=2.60677Mi/s elements/input=0 items_per_second=911.134k/s wire_bytes/input=0
+reader_decode/ber_flat_small_cv                  7.64 %          7.64 %             3 bytes_per_second=7.98% elements/input=0.00% items_per_second=7.98% wire_bytes/input=0.00%
+reader_decode/ber_flat_large                    10592 ns        10598 ns         6154 bytes_per_second=46.1172Gi/s elements/input=128 items_per_second=12.0776M/s wire_bytes/input=524.8k
+reader_decode/ber_flat_large                    10380 ns        10388 ns         6154 bytes_per_second=47.0524Gi/s elements/input=128 items_per_second=12.3225M/s wire_bytes/input=524.8k
+reader_decode/ber_flat_large                    10505 ns        10513 ns         6154 bytes_per_second=46.4894Gi/s elements/input=128 items_per_second=12.175M/s wire_bytes/input=524.8k
+reader_decode/ber_flat_large_mean               10492 ns        10500 ns            3 bytes_per_second=46.553Gi/s elements/input=128 items_per_second=12.1917M/s wire_bytes/input=524.8k
+reader_decode/ber_flat_large_median             10505 ns        10513 ns            3 bytes_per_second=46.4894Gi/s elements/input=128 items_per_second=12.175M/s wire_bytes/input=524.8k
+reader_decode/ber_flat_large_stddev               106 ns          106 ns            3 bytes_per_second=482.09Mi/s elements/input=0 items_per_second=123.295k/s wire_bytes/input=0
+reader_decode/ber_flat_large_cv                  1.01 %          1.01 %             3 bytes_per_second=1.01% elements/input=0.00% items_per_second=1.01% wire_bytes/input=0.00%
+reader_decode/ber_nested_definite               15741 ns        15753 ns         4437 bytes_per_second=811.247Mi/s elements/input=200 items_per_second=12.6963M/s wire_bytes/input=13.4k
+reader_decode/ber_nested_definite               15742 ns        15754 ns         4437 bytes_per_second=811.19Mi/s elements/input=200 items_per_second=12.6954M/s wire_bytes/input=13.4k
+reader_decode/ber_nested_definite               16696 ns        16709 ns         4437 bytes_per_second=764.828Mi/s elements/input=200 items_per_second=11.9699M/s wire_bytes/input=13.4k
+reader_decode/ber_nested_definite_mean          16060 ns        16072 ns            3 bytes_per_second=795.755Mi/s elements/input=200 items_per_second=12.4539M/s wire_bytes/input=13.4k
+reader_decode/ber_nested_definite_median        15742 ns        15754 ns            3 bytes_per_second=811.19Mi/s elements/input=200 items_per_second=12.6954M/s wire_bytes/input=13.4k
+reader_decode/ber_nested_definite_stddev          551 ns          552 ns            3 bytes_per_second=26.7835Mi/s elements/input=0 items_per_second=419.172k/s wire_bytes/input=0
+reader_decode/ber_nested_definite_cv             3.43 %          3.43 %             3 bytes_per_second=3.37% elements/input=0.00% items_per_second=3.37% wire_bytes/input=0.00%
+reader_decode/ber_nested_indefinite             98741 ns        98815 ns          765 bytes_per_second=252.858Mi/s elements/input=200 items_per_second=2.02398M/s wire_bytes/input=26.2k
+reader_decode/ber_nested_indefinite             89140 ns        89203 ns          765 bytes_per_second=280.105Mi/s elements/input=200 items_per_second=2.24207M/s wire_bytes/input=26.2k
+reader_decode/ber_nested_indefinite             85368 ns        85429 ns          765 bytes_per_second=292.48Mi/s elements/input=200 items_per_second=2.34112M/s wire_bytes/input=26.2k
+reader_decode/ber_nested_indefinite_mean        91083 ns        91149 ns            3 bytes_per_second=275.148Mi/s elements/input=200 items_per_second=2.20239M/s wire_bytes/input=26.2k
+reader_decode/ber_nested_indefinite_median      89140 ns        89203 ns            3 bytes_per_second=280.105Mi/s elements/input=200 items_per_second=2.24207M/s wire_bytes/input=26.2k
+reader_decode/ber_nested_indefinite_stddev       6895 ns         6902 ns            3 bytes_per_second=20.2708Mi/s elements/input=0 items_per_second=162.255k/s wire_bytes/input=0
+reader_decode/ber_nested_indefinite_cv           7.57 %          7.57 %             3 bytes_per_second=7.37% elements/input=0.00% items_per_second=7.37% wire_bytes/input=0.00%
+reader_decode/fixed_tlv                       1036936 ns      1037701 ns           75 bytes_per_second=44.1132Mi/s elements/input=16k items_per_second=15.4187M/s wire_bytes/input=48k
+reader_decode/fixed_tlv                        951098 ns       951799 ns           75 bytes_per_second=48.0946Mi/s elements/input=16k items_per_second=16.8103M/s wire_bytes/input=48k
+reader_decode/fixed_tlv                        959124 ns       959828 ns           75 bytes_per_second=47.6923Mi/s elements/input=16k items_per_second=16.6697M/s wire_bytes/input=48k
+reader_decode/fixed_tlv_mean                   982386 ns       983109 ns            3 bytes_per_second=46.6334Mi/s elements/input=16k items_per_second=16.2995M/s wire_bytes/input=48k
+reader_decode/fixed_tlv_median                 959124 ns       959828 ns            3 bytes_per_second=47.6923Mi/s elements/input=16k items_per_second=16.6697M/s wire_bytes/input=48k
+reader_decode/fixed_tlv_stddev                  47412 ns        47448 ns            3 bytes_per_second=2.19174Mi/s elements/input=0 items_per_second=766.07k/s wire_bytes/input=0
+reader_decode/fixed_tlv_cv                       4.83 %          4.83 %             3 bytes_per_second=4.70% elements/input=0.00% items_per_second=4.70% wire_bytes/input=0.00%
+reader_decode/fixed_ltv                       1363518 ns      1364573 ns           74 bytes_per_second=33.5463Mi/s elements/input=16k items_per_second=11.7253M/s wire_bytes/input=48k
+reader_decode/fixed_ltv                       1310879 ns      1312064 ns           74 bytes_per_second=34.8888Mi/s elements/input=16k items_per_second=12.1945M/s wire_bytes/input=48k
+reader_decode/fixed_ltv                       1180728 ns      1181736 ns           74 bytes_per_second=38.7365Mi/s elements/input=16k items_per_second=13.5394M/s wire_bytes/input=48k
+reader_decode/fixed_ltv_mean                  1285042 ns      1286124 ns            3 bytes_per_second=35.7239Mi/s elements/input=16k items_per_second=12.4864M/s wire_bytes/input=48k
+reader_decode/fixed_ltv_median                1310879 ns      1312064 ns            3 bytes_per_second=34.8888Mi/s elements/input=16k items_per_second=12.1945M/s wire_bytes/input=48k
+reader_decode/fixed_ltv_stddev                  94094 ns        94138 ns            3 bytes_per_second=2.694Mi/s elements/input=0 items_per_second=941.62k/s wire_bytes/input=0
+reader_decode/fixed_ltv_cv                       7.32 %          7.32 %             3 bytes_per_second=7.54% elements/input=0.00% items_per_second=7.54% wire_bytes/input=0.00%
+reader_decode/variable_tlv                    1091505 ns      1092697 ns           67 bytes_per_second=41.893Mi/s elements/input=16k items_per_second=14.6427M/s wire_bytes/input=48k
+reader_decode/variable_tlv                    1878977 ns      1880921 ns           67 bytes_per_second=24.3372Mi/s elements/input=16k items_per_second=8.50647M/s wire_bytes/input=48k
+reader_decode/variable_tlv                    2206219 ns      2208407 ns           67 bytes_per_second=20.7282Mi/s elements/input=16k items_per_second=7.24504M/s wire_bytes/input=48k
+reader_decode/variable_tlv_mean               1725567 ns      1727342 ns            3 bytes_per_second=28.9861Mi/s elements/input=16k items_per_second=10.1314M/s wire_bytes/input=48k
+reader_decode/variable_tlv_median             1878977 ns      1880921 ns            3 bytes_per_second=24.3372Mi/s elements/input=16k items_per_second=8.50647M/s wire_bytes/input=48k
+reader_decode/variable_tlv_stddev              572973 ns       573491 ns            3 bytes_per_second=11.3224Mi/s elements/input=0 items_per_second=3.95746M/s wire_bytes/input=0
+reader_decode/variable_tlv_cv                   33.20 %         33.20 %             3 bytes_per_second=39.06% elements/input=0.00% items_per_second=39.06% wire_bytes/input=0.00%
+reader_decode/variable_sparse                 2300450 ns      2302722 ns           40 bytes_per_second=19.8792Mi/s elements/input=16k items_per_second=6.9483M/s wire_bytes/input=48k
+reader_decode/variable_sparse                 1590114 ns      1591792 ns           40 bytes_per_second=28.7577Mi/s elements/input=16k items_per_second=10.0516M/s wire_bytes/input=48k
+reader_decode/variable_sparse                 1302131 ns      1303515 ns           40 bytes_per_second=35.1176Mi/s elements/input=16k items_per_second=12.2745M/s wire_bytes/input=48k
+reader_decode/variable_sparse_mean            1730898 ns      1732677 ns            3 bytes_per_second=27.9182Mi/s elements/input=16k items_per_second=9.75812M/s wire_bytes/input=48k
+reader_decode/variable_sparse_median          1590114 ns      1591792 ns            3 bytes_per_second=28.7577Mi/s elements/input=16k items_per_second=10.0516M/s wire_bytes/input=48k
+reader_decode/variable_sparse_stddev           513834 ns       514286 ns            3 bytes_per_second=7.65381Mi/s elements/input=0 items_per_second=2.6752M/s wire_bytes/input=0
+reader_decode/variable_sparse_cv                29.69 %         29.68 %             3 bytes_per_second=27.42% elements/input=0.00% items_per_second=27.42% wire_bytes/input=0.00%
+reader_decode/packed_lldp                     1535019 ns      1536632 ns           38 bytes_per_second=29.7901Mi/s elements/input=16k items_per_second=10.4124M/s wire_bytes/input=48k
+reader_decode/packed_lldp                     1873158 ns      1875155 ns           38 bytes_per_second=24.412Mi/s elements/input=16k items_per_second=8.53263M/s wire_bytes/input=48k
+reader_decode/packed_lldp                     1527828 ns      1529463 ns           38 bytes_per_second=29.9297Mi/s elements/input=16k items_per_second=10.4612M/s wire_bytes/input=48k
+reader_decode/packed_lldp_mean                1645335 ns      1647083 ns            3 bytes_per_second=28.0439Mi/s elements/input=16k items_per_second=9.80207M/s wire_bytes/input=48k
+reader_decode/packed_lldp_median              1535019 ns      1536632 ns            3 bytes_per_second=29.7901Mi/s elements/input=16k items_per_second=10.4124M/s wire_bytes/input=48k
+reader_decode/packed_lldp_stddev               197334 ns       197549 ns            3 bytes_per_second=3.14609Mi/s elements/input=0 items_per_second=1.09964M/s wire_bytes/input=0
+reader_decode/packed_lldp_cv                    11.99 %         11.99 %             3 bytes_per_second=11.22% elements/input=0.00% items_per_second=11.22% wire_bytes/input=0.00%

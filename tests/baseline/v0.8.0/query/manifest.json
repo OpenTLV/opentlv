@@ -1,0 +1,9 @@
+{
+  "commit": "345c77acb29266036df5f27d04ce315bb61853cc",
+  "contract_version": 1,
+  "expected_results": "expected.json",
+  "generator": "python-random-query-v2",
+  "seed": "18211120937614687224",
+  "tree_count": 32,
+  "wire_cases": "wire.json"
+}

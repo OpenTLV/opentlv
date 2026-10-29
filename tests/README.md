@@ -1,5 +1,8 @@
 # Test layout
 
+[`baseline/`](baseline/README.md) preserves the pre-refactor Core v0.8.0
+behavior, regression corpora and reproduction commands for module extraction.
+
 `unit/` contains component contract tests; `integration/` contains tests
 that compose components. Both trees follow the library's module paths:
 

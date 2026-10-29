@@ -1,8 +1,9 @@
 # Fuzz seeds and other binary fixtures can look like text to the hooks below
 # (identify sniffs content, not .gitattributes), so trailing-whitespace and
 # end-of-file-fixer can silently corrupt them by adding/removing bytes.
-# Exclude the same paths .gitattributes marks `binary`.
-exclude: (^tests/fuzz/(.*/)?corpus/|^examples/nfc/type2/.*\.bin$|^(vendor|third_party|generated)/)
+# Sealed baseline evidence also retains raw logs and byte-sensitive checksums.
+# Its dedicated integrity check validates it without rewriting captured bytes.
+exclude: (^tests/fuzz/(.*/)?corpus/|^examples/nfc/type2/.*\.bin$|^tests/baseline/v0\.8\.0/|^(vendor|third_party|generated)/)
 
 repos:
   - repo: local
