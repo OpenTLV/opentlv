@@ -1,0 +1,126 @@
+{
+  "behavior.json": {
+    "sha256": "6871484f8f0994985aaa0baa602f0376f735731ce7b28d7269fea02aca6586af",
+    "size": 3012
+  },
+  "capture-tools.json": {
+    "sha256": "2087fe7bf247f7bb9152b3e4686a98052f4cb9697c1f82dff9d2ddea913af01e",
+    "size": 589
+  },
+  "ci-run.json": {
+    "sha256": "e2fd133b616424e7d92aaeb35affa7723b005335b48a2ec93fe630a5151bbd67",
+    "size": 266
+  },
+  "diagnostic-codes.json": {
+    "sha256": "a6fb41f06246daccb4d52042eb394313efd5f6fb69450f60958429b06b594ffc",
+    "size": 5974
+  },
+  "environment.json": {
+    "sha256": "c5804d35e21a5c1d2282af4b6d8bc790a69d945d2c9707e327cbd3807021970f",
+    "size": 5552
+  },
+  "fuzz-corpus.json": {
+    "sha256": "eb80a8647eabd29fc9e859b2ba367c61fb76794d47fb768ac77ae7ac0ad9178f",
+    "size": 41617
+  },
+  "generator/ber.json": {
+    "sha256": "e1f93ee351245ccf17c269bfa74d5421926f54439913206ddcce4026024b65c9",
+    "size": 37857
+  },
+  "generator/bluetooth.json": {
+    "sha256": "5e8737be2f3eadd5d1f159129f6655f0c414bb2380510c7ec4bb8bdb8dd67211",
+    "size": 122271
+  },
+  "generator/der.json": {
+    "sha256": "a5e4aa2c13f6dadaec224de6c07e921b0ccce53f84e2302d15e4a005b130c0fb",
+    "size": 37857
+  },
+  "generator/emv.json": {
+    "sha256": "99f9b3d429a2fcbeff0b8a7434626e31267860a36671b6f6af6e2116b5bc2639",
+    "size": 37857
+  },
+  "generator/fixed-empty.json": {
+    "sha256": "8e8e7951a70a0fb4c92d4fabcb4b08794b8d8edc4a7ac4d2f081685b42207b3d",
+    "size": 7411
+  },
+  "generator/fixed-wide-be.json": {
+    "sha256": "b6de0236f2aebf8aa9e5554bc55fca81f9dca1816debccaaecef708493907458",
+    "size": 194991
+  },
+  "generator/fixed-wide-le.json": {
+    "sha256": "89283cf5be2959cf6c4498edaa1072654487253f559bbafa1f93f46b2b77b810",
+    "size": 194701
+  },
+  "generator/fixed.json": {
+    "sha256": "eb4021db440ff6b96d9bed0be096cec15dc2cbfdada1f424ae9bf5f0221757de",
+    "size": 127677
+  },
+  "generator/nfc-controls.json": {
+    "sha256": "0d2f280d7c1c86afa5d3c871b0b18be3f6f380b0687a498dc0fe92fd0a4e3dd5",
+    "size": 194019
+  },
+  "generator/nfc.json": {
+    "sha256": "75504f0e571a4a3d0ac868c6f648add8931e09722e0a1f2d1236e8045327eba5",
+    "size": 194203
+  },
+  "logs/build.txt": {
+    "sha256": "c2ed93ffd93c840755c0e91392ae593b1b52de9b7aaf6c208123feaceb1dde2e",
+    "size": 63
+  },
+  "logs/configure.txt": {
+    "sha256": "bc6b6ccc2ff7469e6cc4be64f9b65af1c51129a7e713b0a12e94eedd0c5ac39c",
+    "size": 7179
+  },
+  "logs/ctest.txt": {
+    "sha256": "c1e9d9461f3d4624cbdb6cb429f667294d05755185cdedca640cc45ebb896b16",
+    "size": 411284
+  },
+  "logs/performance.txt": {
+    "sha256": "b8d95a79dddc488ee84a8ecb379e84ed113954c64c78ea28a990f19d40168158",
+    "size": 12075
+  },
+  "logs/probe-build.txt": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "size": 0
+  },
+  "logs/query.txt": {
+    "sha256": "17da26f8ba49056e0dc7b92732bfbcf3186e03941f0d31f13fc241bdac0d2793",
+    "size": 116
+  },
+  "performance.json": {
+    "sha256": "ffe7c2711130e42ff450ddcb2ae0033db58f5c4ea67edcdcf0ea09c1b1908a73",
+    "size": 40686
+  },
+  "query/expected.json": {
+    "sha256": "3d84f98852eef3fb35e88e18996325260863aa7227bdbed3f6784da429217f0d",
+    "size": 134178
+  },
+  "query/manifest.json": {
+    "sha256": "f83916d37793e7f3fb6b65a5352196901085d15d75dec552ceb537ae16d6d61e",
+    "size": 247
+  },
+  "query/wire.json": {
+    "sha256": "585493e31f07a6706c514d380a4d7ca1f4b2188050f96e3fd7d4416321dbe15c",
+    "size": 227730
+  },
+  "reference.json": {
+    "sha256": "821cb5bbffe997df7e64ff9523a6e662592846c2dfb53b4048be44b2f48aa3da",
+    "size": 434
+  },
+  "release-manifest.json": {
+    "sha256": "48e4bfdb6c83d339c6cf18dc8138f55b6a32288dcd73f687c26d9043b8bae821",
+    "size": 234279
+  },
+  "release.json": {
+    "sha256": "f6df826de2888d2b619a3339d64a5fe27c85a797036bd53ef965c5c83949a29c",
+    "size": 189
+  },
+  "source-inventory.json": {
+    "sha256": "c79b9d235f5030f5ebf9d321864dedb964f8f9da6389d729066cbbb772a3b7f1",
+    "size": 135754
+  },
+  "test-results.json": {
+    "sha256": "224fc69ffab60a510bd7f2fe7e0b33cf68f49b92d793b7c5f1d3ad13f3833ffb",
+    "size": 173343
+  }
+}

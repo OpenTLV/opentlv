@@ -1,0 +1,137 @@
+{
+  "codec": {
+    "decoded": 256,
+    "destination_after_failure": 99,
+    "diagnostic": {
+      "cause": 2,
+      "code": 9,
+      "has_path": 0,
+      "location": {
+        "begin": 0,
+        "domain": 0,
+        "end": 0,
+        "kind": 0
+      },
+      "operation": 0,
+      "path": [],
+      "path_omitted": 0,
+      "reason": 0,
+      "reported": 9,
+      "schema": {
+        "actual_length": 2,
+        "definition_index": 0,
+        "definition_kind": 0,
+        "field": "number",
+        "has_length": 1,
+        "has_occurs": 0,
+        "kind": 5,
+        "length_flags": 1,
+        "length_multiple": 0,
+        "max_length": 3,
+        "max_occurs": 0,
+        "min_length": 1,
+        "min_occurs": 0,
+        "occurs": 0,
+        "tag": "01"
+      },
+      "severity": 0,
+      "violation": 0
+    },
+    "encoded": "000100",
+    "invalid_result": 9,
+    "invalid_wire": "0100",
+    "number": 256
+  },
+  "document": {
+    "encoded": "300504030102030401bb",
+    "input": "30030401aa0401bb",
+    "leaf_has_offset_after": 0,
+    "leaf_offset_before": 2,
+    "nodes": 3,
+    "replacement": "010203",
+    "root_has_offset_after": 0,
+    "sibling_original_offset_after": 5
+  },
+  "schema_validation": [
+    {
+      "result": 0,
+      "wire": "3003800101"
+    },
+    {
+      "diagnostic": {
+        "cause": 1,
+        "code": 9,
+        "has_path": 1,
+        "location": {
+          "begin": 2,
+          "domain": 1,
+          "end": 2,
+          "kind": 1
+        },
+        "path": [
+          "30"
+        ],
+        "path_omitted": 0,
+        "schema": {
+          "actual_length": 2,
+          "definition_index": 0,
+          "definition_kind": 0,
+          "field": "id",
+          "has_length": 1,
+          "has_occurs": 0,
+          "kind": 5,
+          "length_flags": 0,
+          "length_multiple": 0,
+          "max_length": 1,
+          "max_occurs": 0,
+          "min_length": 1,
+          "min_occurs": 0,
+          "occurs": 0,
+          "tag": "80"
+        },
+        "severity": 0
+      },
+      "result": 9,
+      "wire": "300480020102"
+    },
+    {
+      "diagnostic": {
+        "cause": 2,
+        "code": 3,
+        "has_path": 0,
+        "location": {
+          "begin": 4,
+          "domain": 1,
+          "end": 4,
+          "kind": 1
+        },
+        "path": [],
+        "path_omitted": 0,
+        "reader": {
+          "available": 1,
+          "declared_length": 2,
+          "enclosing_end": 5,
+          "has_available": 1,
+          "has_declared_length": 1,
+          "has_enclosing_end": 1,
+          "has_length_offset": 1,
+          "has_raw_length": 1,
+          "has_required": 1,
+          "has_tag": 1,
+          "has_tag_offset": 1,
+          "has_value_offset": 1,
+          "length_offset": 3,
+          "operation": 2,
+          "raw_length": "02",
+          "required": 2,
+          "tag": "80",
+          "tag_offset": 2,
+          "value_offset": 4
+        },
+        "severity": 0
+      },
+      "result": 3,
+      "wire": "3003800201"
+    }
+  ]
+}

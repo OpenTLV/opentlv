@@ -1,0 +1,7846 @@
+[
+  {
+    "diagnostic": null,
+    "id": "document-following-source-location",
+    "matches": [
+      4,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "document-preceding-source-location",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "set-precedence",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "explicit-set-grouping",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "signed-boundaries",
+    "matches": [
+      0,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "identity-intersection",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "identity-difference",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "v1-root",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "v1-child",
+    "matches": [
+      2,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "desc-union",
+    "matches": [
+      2,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "wildcard",
+    "matches": [
+      0,
+      2,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "metadata",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "source-header",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "ancestor",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "prefix",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "suffix",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "contains",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "empty-pattern",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "substring",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "mask",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "range",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "empty-container",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": {
+      "begin": 11,
+      "code": 8,
+      "end": 11,
+      "kind": 1
+    },
+    "id": "missing-bracket",
+    "matches": null
+  },
+  {
+    "diagnostic": null,
+    "id": "deferred-union",
+    "matches": [
+      2,
+      5,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "typed-function",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": {
+      "code": 7,
+      "kind": 8
+    },
+    "id": "variable",
+    "matches": null
+  },
+  {
+    "diagnostic": null,
+    "id": "grouped-child-chain",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "grouped-union-chain",
+    "matches": [
+      4,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "rejected-root-prefix",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "ancestor-only",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "byte-order-length-and-not",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-count",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-empty",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-exists",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-bcd",
+    "matches": "int:1234"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-num",
+    "matches": "int:-1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-text",
+    "matches": "string:610062"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-value",
+    "matches": "bytes:1234"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-tag",
+    "matches": "bytes:5a"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-boolean",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-last",
+    "matches": [
+      3
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-step-position",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-global-position",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-deferred-except",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-deferred-intersect",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-string",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-dynamic-pattern",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-candidate-bool",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-candidate-string",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f2-candidate-tag",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-parent-positive",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-parent-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-ancestor-positive",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-ancestor-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-ancestor-or-self-positive",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-ancestor-or-self-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-descendant-positive",
+    "matches": [
+      4,
+      8,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-descendant-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-descendant-or-self-positive",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-descendant-or-self-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-self-positive",
+    "matches": [
+      4,
+      8,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-self-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-child-positive",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-child-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-preceding-sibling-positive",
+    "matches": [
+      2,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-preceding-sibling-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-following-sibling-positive",
+    "matches": [
+      6,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-following-sibling-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-following-positive",
+    "matches": [
+      8,
+      10,
+      12,
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-following-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-preceding-positive",
+    "matches": [
+      2,
+      4,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-preceding-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-reverse-position-positive",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-reverse-position-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-global-position-positive",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-global-position-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-last-positive",
+    "matches": [
+      4,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-last-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-ordered-frontier-positive",
+    "matches": [
+      6,
+      10,
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-ordered-frontier-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-deduplication-positive",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-deduplication-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-root-parent-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-root-parent-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-nested-absolute-positive",
+    "matches": [
+      4,
+      8,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-nested-absolute-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-s1-child-count-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-s1-child-count-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-s1-descendant-count-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-s1-descendant-count-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-s0-predecessor-positive",
+    "matches": [
+      6,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-s0-predecessor-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-reverse-group-positive",
+    "matches": [
+      8,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-reverse-group-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-nested-absence",
+    "matches": [
+      0,
+      2,
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-empty-root-s1",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-primitive-root-s1",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-empty-count",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-eager-s1-booleans",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-reverse-nearest-ancestor",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-preceding-excludes-ancestor",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-following-excludes-descendant",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-sibling-excludes-descendant",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-absence-false",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-sequential-reverse",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-numeric-is-positional",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-explicit-numeric-child",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-count-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-count-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-exists-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-exists-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-empty-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-empty-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-not-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-not-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-position-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-position-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-last-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-last-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-value-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-value-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-len-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-len-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-starts-with-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-starts-with-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-ends-with-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-ends-with-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-contains-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-contains-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-substr-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-substr-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-num-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-num-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-bcd-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-bcd-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-text-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-text-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-date-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-date-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-tag-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-tag-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-class-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-class-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-constructed-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-constructed-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-number-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-number-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-name-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-name-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-tag-mask-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-tag-mask-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-tag-range-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-function-tag-range-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-explicit-descendant-position-positive",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-explicit-descendant-position-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-set-union-positive",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-set-union-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-set-intersection-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-set-intersection-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-set-difference-positive",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-set-difference-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-numeric-predicate-positive",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-numeric-predicate-negative",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-bool-positive",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-bool-negative",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-integer-positive",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-integer-negative",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-bytes-positive",
+    "matches": "bytes:12"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-bytes-negative",
+    "matches": "bytes:"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-string-positive",
+    "matches": "string:61"
+  },
+  {
+    "diagnostic": null,
+    "id": "f3-scalar-string-negative",
+    "matches": "string:"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      10,
+      12,
+      14,
+      16,
+      20
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-(//5A)[1]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//50/preceding-sibling::*[1]",
+    "matches": [
+      16
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//50/following-sibling::*[last()]",
+    "matches": [
+      10,
+      20
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70/descendant-or-self::*[last()]",
+    "matches": [
+      20
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A/following::*",
+    "matches": [
+      10,
+      12,
+      14,
+      16,
+      20
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A/preceding::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A/ancestor::*[1] | //70",
+    "matches": [
+      10,
+      12,
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A[@len > 1]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-count(//70//5A | //50)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-0-//5A[$label = 'a']",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      2,
+      15,
+      42
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A/..",
+    "matches": [
+      7,
+      11,
+      18,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70/5A[last()]",
+    "matches": [
+      9,
+      13,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-(//5A)[1]",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      9,
+      13,
+      20,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//50/preceding-sibling::*[1]",
+    "matches": [
+      7,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//50/following-sibling::*[last()]",
+    "matches": [
+      15
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70/descendant-or-self::*[last()]",
+    "matches": [
+      13,
+      15,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A/following::*",
+    "matches": [
+      11,
+      13,
+      15,
+      18,
+      20,
+      26,
+      28,
+      30,
+      33,
+      36,
+      42
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A/preceding::*[1]",
+    "matches": [
+      2,
+      9,
+      15,
+      20,
+      30,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      7,
+      11,
+      18,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-70[count(descendant::5A)>1]",
+    "matches": [
+      0,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70//5A intersect //5A except //50",
+    "matches": [
+      9,
+      13,
+      20,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-count(//5A/..)",
+    "matches": "int:5"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A[@len > 1]",
+    "matches": [
+      20,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      7,
+      11,
+      18,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0,
+      7,
+      11,
+      18,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-count(//70//5A | //50)",
+    "matches": "int:9"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70/5A",
+    "matches": [
+      9,
+      13,
+      20,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//70//5A",
+    "matches": [
+      9,
+      13,
+      20,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A[@len > $min]",
+    "matches": [
+      20,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-1-//5A[$label = 'a']",
+    "matches": [
+      9,
+      13,
+      20,
+      30,
+      33,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70[not(5A)] | //50",
+    "matches": [
+      11,
+      24,
+      26,
+      29,
+      34,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A/..",
+    "matches": [
+      6,
+      16
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//50[preceding-sibling::5A]",
+    "matches": [
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70/5A[last()]",
+    "matches": [
+      8,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0,
+      8,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//50/preceding-sibling::*[1]",
+    "matches": [
+      8,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//50/following-sibling::*[last()]",
+    "matches": [
+      34
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70/descendant-or-self::*[last()]",
+    "matches": [
+      11,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A/following::*",
+    "matches": [
+      6,
+      8,
+      11,
+      16,
+      18,
+      24,
+      26,
+      29,
+      34,
+      36
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A/ancestor::*[1] | //70",
+    "matches": [
+      6,
+      16,
+      24,
+      34
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70//5A intersect //5A except //50",
+    "matches": [
+      8,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-count(//5A/..)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A[@len > 1]",
+    "matches": [
+      0,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      6,
+      16
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      6,
+      16,
+      24,
+      34
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-count(//70//5A | //50)",
+    "matches": "int:6"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70/5A",
+    "matches": [
+      8,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//70//5A",
+    "matches": [
+      8,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A[@len > $min]",
+    "matches": [
+      0,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-2-//5A[$label = 'a']",
+    "matches": [
+      0,
+      8,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70[not(5A)] | //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A/..",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70/5A[last()]",
+    "matches": [
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-(//5A)[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70/descendant-or-self::*[last()]",
+    "matches": [
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A/following::*",
+    "matches": [
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A/preceding::*[1]",
+    "matches": [
+      2,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-70[count(descendant::5A)>1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70//5A intersect //5A except //50",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A[@len > 1]",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-count(//70//5A | //50)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70/5A",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//70//5A",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A[@len > $min]",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-3-//5A[$label = 'a']",
+    "matches": [
+      2,
+      6,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      2,
+      8,
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-(//5A)[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A/ancestor-or-self::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//50/preceding-sibling::*[1]",
+    "matches": [
+      2,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//50/following-sibling::*[last()]",
+    "matches": [
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70/descendant-or-self::*[last()]",
+    "matches": [
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-count(//5A/..)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-exists(//5A)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-count(//70//5A | //50)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-4-//5A[$label = 'a']",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      9,
+      29,
+      35,
+      39,
+      44
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A/..",
+    "matches": [
+      2,
+      11,
+      27
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//50[preceding-sibling::5A]",
+    "matches": [
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70/5A[last()]",
+    "matches": [
+      4,
+      22,
+      32
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-(//5A)[1]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      4,
+      13,
+      16,
+      22,
+      32
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//50/preceding-sibling::*[1]",
+    "matches": [
+      0,
+      32,
+      39
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//50/following-sibling::*[last()]",
+    "matches": [
+      35,
+      44
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70/descendant-or-self::*[last()]",
+    "matches": [
+      4,
+      22,
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A/following::*",
+    "matches": [
+      9,
+      11,
+      13,
+      16,
+      22,
+      27,
+      29,
+      32,
+      35,
+      39,
+      44
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A/preceding::*[1]",
+    "matches": [
+      4,
+      13,
+      16,
+      29
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      2,
+      9,
+      11,
+      27
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-70[count(descendant::5A)>1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      27
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70//5A intersect //5A except //50",
+    "matches": [
+      4,
+      13,
+      16,
+      22,
+      32
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-count(//5A/..)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A[@len > 1]",
+    "matches": [
+      4,
+      16,
+      22
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      2,
+      11,
+      27
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      2,
+      11,
+      27
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-count(//70//5A | //50)",
+    "matches": "int:9"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70/5A",
+    "matches": [
+      4,
+      13,
+      16,
+      22,
+      32
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//70//5A",
+    "matches": [
+      4,
+      13,
+      16,
+      22,
+      32
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A[@len > $min]",
+    "matches": [
+      4,
+      16,
+      22
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-5-//5A[$label = 'a']",
+    "matches": [
+      4,
+      13,
+      16,
+      22,
+      32
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      5,
+      7,
+      13,
+      15,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-(//5A)[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A/ancestor-or-self::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//50/preceding-sibling::*[1]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//50/following-sibling::*[last()]",
+    "matches": [
+      5,
+      15
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70/descendant-or-self::*[last()]",
+    "matches": [
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A/ancestor::*[1] | //70",
+    "matches": [
+      5,
+      15
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-count(//5A/..)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      5,
+      15
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-exists(//5A)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-count(//70//5A | //50)",
+    "matches": "int:4"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-6-//5A[$label = 'a']",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70[not(5A)] | //50",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A/..",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70/5A[last()]",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-(//5A)[1]",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      5,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//50/following-sibling::*[last()]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70/descendant-or-self::*[last()]",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A/following::*",
+    "matches": [
+      8,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A/ancestor::*[1] | //70",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70//5A intersect //5A except //50",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70/5A",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//70//5A",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-7-//5A[$label = 'a']",
+    "matches": [
+      5,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70[not(5A)] | //50",
+    "matches": [
+      6,
+      13,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A/..",
+    "matches": [
+      0,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70/5A[last()]",
+    "matches": [
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-(//5A)[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      2,
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//50/preceding-sibling::*[1]",
+    "matches": [
+      0,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70/descendant-or-self::*[last()]",
+    "matches": [
+      10,
+      13,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A/following::*",
+    "matches": [
+      6,
+      8,
+      10,
+      13,
+      17,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A/preceding::*[1]",
+    "matches": [
+      2,
+      13
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      6,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-70[count(descendant::5A)>1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70//5A intersect //5A except //50",
+    "matches": [
+      2,
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A[@len > 1]",
+    "matches": [
+      2,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0,
+      6,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-count(//70//5A | //50)",
+    "matches": "int:5"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70/5A",
+    "matches": [
+      2,
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//70//5A",
+    "matches": [
+      2,
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A[@len > $min]",
+    "matches": [
+      2,
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-8-//5A[$label = 'a']",
+    "matches": [
+      2,
+      10,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70[not(5A)] | //50",
+    "matches": [
+      4,
+      6,
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A/..",
+    "matches": [
+      0,
+      13,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70/5A[last()]",
+    "matches": [
+      2,
+      21,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-(//5A)[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      2,
+      8,
+      15,
+      21,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70/descendant-or-self::*[last()]",
+    "matches": [
+      6,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A/following::*",
+    "matches": [
+      4,
+      6,
+      8,
+      13,
+      15,
+      21,
+      24,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A/preceding::*[1]",
+    "matches": [
+      6,
+      8,
+      15,
+      21
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      4,
+      13,
+      24,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-70[count(descendant::5A)>1]",
+    "matches": [
+      13
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70//5A intersect //5A except //50",
+    "matches": [
+      2,
+      15,
+      21,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-count(//5A/..)",
+    "matches": "int:4"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A[@len > 1]",
+    "matches": [
+      8,
+      15,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0,
+      13,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0,
+      4,
+      13,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-count(//70//5A | //50)",
+    "matches": "int:5"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70/5A",
+    "matches": [
+      2,
+      15,
+      21,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//70//5A",
+    "matches": [
+      2,
+      15,
+      21,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A[@len > $min]",
+    "matches": [
+      8,
+      15,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-9-//5A[$label = 'a']",
+    "matches": [
+      2,
+      8,
+      15,
+      21,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70[not(5A)] | //50",
+    "matches": [
+      5,
+      15,
+      17,
+      19,
+      21,
+      28,
+      30
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A/..",
+    "matches": [
+      7,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//50[preceding-sibling::5A]",
+    "matches": [
+      15,
+      28,
+      30
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70/5A[last()]",
+    "matches": [
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0,
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//50/preceding-sibling::*[1]",
+    "matches": [
+      5,
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70/descendant-or-self::*[last()]",
+    "matches": [
+      15,
+      19,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A/following::*",
+    "matches": [
+      5,
+      7,
+      9,
+      15,
+      17,
+      19,
+      21,
+      23,
+      25,
+      28,
+      30
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      19
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A/ancestor::*[1] | //70",
+    "matches": [
+      5,
+      7,
+      17,
+      21,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-70[count(descendant::5A)>1]",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      7,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70//5A intersect //5A except //50",
+    "matches": [
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-count(//5A/..)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A[@len > 1]",
+    "matches": [
+      0,
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      7,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      7,
+      17,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-count(//70//5A | //50)",
+    "matches": "int:6"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70/5A",
+    "matches": [
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//70//5A",
+    "matches": [
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A[@len > $min]",
+    "matches": [
+      0,
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-10-//5A[$label = 'a']",
+    "matches": [
+      0,
+      9,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      19,
+      21,
+      30,
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A/..",
+    "matches": [
+      5,
+      7,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//50[preceding-sibling::5A]",
+    "matches": [
+      19,
+      30,
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70/5A[last()]",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-(//5A)[1]",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//50/preceding-sibling::*[1]",
+    "matches": [
+      15,
+      25,
+      30
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//50/following-sibling::*[last()]",
+    "matches": [
+      21,
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70/descendant-or-self::*[last()]",
+    "matches": [
+      9,
+      19,
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A/following::*",
+    "matches": [
+      15,
+      19,
+      21,
+      23,
+      25,
+      30,
+      35
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      9,
+      19
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A/ancestor::*[1] | //70",
+    "matches": [
+      5,
+      7,
+      21,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-70[count(descendant::5A)>1]",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      5,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70//5A intersect //5A except //50",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-count(//5A/..)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A[@len > 1]",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      5,
+      7,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      5,
+      7,
+      23
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-count(//70//5A | //50)",
+    "matches": "int:7"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70/5A",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//70//5A",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A[@len > $min]",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-11-//5A[$label = 'a']",
+    "matches": [
+      9,
+      15,
+      25
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70[not(5A)] | //50",
+    "matches": [
+      2,
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A/..",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70/5A[last()]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-(//5A)[1]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      7,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//50/preceding-sibling::*[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//50/following-sibling::*[last()]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70/descendant-or-self::*[last()]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A/following::*",
+    "matches": [
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A/preceding::*[1]",
+    "matches": [
+      4,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70//5A intersect //5A except //50",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A[@len > 1]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-count(//70//5A | //50)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70/5A",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//70//5A",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A[@len > $min]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-12-//5A[$label = 'a']",
+    "matches": [
+      7,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      2,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A/..",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70/5A[last()]",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-(//5A)[1]",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      10,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//50/following-sibling::*[last()]",
+    "matches": [
+      5,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70/descendant-or-self::*[last()]",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A/following::*",
+    "matches": [
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A/preceding::*[1]",
+    "matches": [
+      7,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70//5A intersect //5A except //50",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-count(//70//5A | //50)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70/5A",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//70//5A",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A[@len > $min]",
+    "matches": [
+      10,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-13-//5A[$label = 'a']",
+    "matches": [
+      10,
+      12
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70[not(5A)] | //50",
+    "matches": [
+      4,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//50[preceding-sibling::5A]",
+    "matches": [
+      4,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//50/preceding-sibling::*[1]",
+    "matches": [
+      0,
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//50/following-sibling::*[last()]",
+    "matches": [
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A/following::*",
+    "matches": [
+      4,
+      7
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A[@len > 1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A[@len > $min]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-14-//5A[$label = 'a']",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      2,
+      6,
+      8,
+      15,
+      21,
+      23,
+      27,
+      31,
+      33,
+      37,
+      39,
+      41,
+      47,
+      50,
+      58
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A/..",
+    "matches": [
+      4,
+      56
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70/5A[last()]",
+    "matches": [
+      13,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-(//5A)[1]",
+    "matches": [
+      13
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      13,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//50/preceding-sibling::*[1]",
+    "matches": [
+      4,
+      6,
+      23,
+      33,
+      41,
+      47
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//50/following-sibling::*[last()]",
+    "matches": [
+      13,
+      15,
+      31,
+      39,
+      50,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70/descendant-or-self::*[last()]",
+    "matches": [
+      13,
+      15,
+      50,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A/following::*",
+    "matches": [
+      15,
+      21,
+      23,
+      27,
+      31,
+      33,
+      37,
+      39,
+      41,
+      47,
+      50,
+      56,
+      58,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A/preceding::*[1]",
+    "matches": [
+      8,
+      58
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      4,
+      21,
+      31,
+      39,
+      56
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70//5A intersect //5A except //50",
+    "matches": [
+      13,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A[@len > 1]",
+    "matches": [
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      4,
+      56
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0,
+      4,
+      21,
+      31,
+      39,
+      56
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-count(//70//5A | //50)",
+    "matches": "int:14"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70/5A",
+    "matches": [
+      13,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//70//5A",
+    "matches": [
+      13,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A[@len > $min]",
+    "matches": [
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-15-//5A[$label = 'a']",
+    "matches": [
+      13,
+      60
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70[not(5A)] | //50",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-(//5A)[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A/ancestor-or-self::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-count(//5A/..)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-exists(//5A)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-count(//70//5A | //50)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-16-//5A[$label = 'a']",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70[not(5A)] | //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-count(//70//5A | //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A[@len > $min]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-17-//5A[$label = 'a']",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70[not(5A)] | //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0,
+      3
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A/following::*",
+    "matches": [
+      3
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A/preceding::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-count(//70//5A | //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-18-//5A[$label = 'a']",
+    "matches": [
+      0,
+      3
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70[not(5A)] | //50",
+    "matches": [
+      9,
+      11,
+      13,
+      19
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A/..",
+    "matches": [
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70/5A[last()]",
+    "matches": [
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0,
+      6,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//50/preceding-sibling::*[1]",
+    "matches": [
+      13
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//50/following-sibling::*[last()]",
+    "matches": [
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70/descendant-or-self::*[last()]",
+    "matches": [
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A/following::*",
+    "matches": [
+      6,
+      9,
+      11,
+      13,
+      19,
+      24,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      19,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A/ancestor::*[1] | //70",
+    "matches": [
+      9,
+      11,
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-70[count(descendant::5A)>1]",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70//5A intersect //5A except //50",
+    "matches": [
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A[@len > 1]",
+    "matches": [
+      0,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      11,
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-count(//70//5A | //50)",
+    "matches": "int:4"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70/5A",
+    "matches": [
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//70//5A",
+    "matches": [
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A[@len > $min]",
+    "matches": [
+      0,
+      6,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-19-//5A[$label = 'a']",
+    "matches": [
+      0,
+      6,
+      26,
+      28
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70[not(5A)] | //50",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A/..",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70/5A[last()]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-(//5A)[1]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      4,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70/descendant-or-self::*[last()]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A/following::*",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A/preceding::*[1]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-70[count(descendant::5A)>1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70//5A intersect //5A except //50",
+    "matches": [
+      4,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A[@len > 1]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70/5A",
+    "matches": [
+      4,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//70//5A",
+    "matches": [
+      4,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A[@len > $min]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-20-//5A[$label = 'a']",
+    "matches": [
+      4,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70[not(5A)] | //50",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-(//5A)[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//50/following-sibling::*[last()]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A/preceding::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A[@len > 1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-count(//70//5A | //50)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A[@len > $min]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-21-//5A[$label = 'a']",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70[not(5A)] | //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-count(//70//5A | //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-22-//5A[$label = 'a']",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      2,
+      4,
+      13,
+      18,
+      24,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A/..",
+    "matches": [
+      6,
+      31
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//50[preceding-sibling::5A]",
+    "matches": [
+      13,
+      18
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70/5A[last()]",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-(//5A)[1]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//50/preceding-sibling::*[1]",
+    "matches": [
+      8,
+      13
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//50/following-sibling::*[last()]",
+    "matches": [
+      18,
+      24
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70/descendant-or-self::*[last()]",
+    "matches": [
+      18,
+      26,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A/following::*",
+    "matches": [
+      13,
+      18,
+      24,
+      26,
+      31,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A/preceding::*[1]",
+    "matches": [
+      2,
+      26
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0,
+      4,
+      6,
+      24,
+      31
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70//5A intersect //5A except //50",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A[@len > 1]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      6,
+      31
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0,
+      6,
+      24,
+      31
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-count(//70//5A | //50)",
+    "matches": "int:6"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70/5A",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//70//5A",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A[@len > $min]",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-23-//5A[$label = 'a']",
+    "matches": [
+      8,
+      33
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70[not(5A)] | //50",
+    "matches": [
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A/..",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//50[preceding-sibling::5A]",
+    "matches": [
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70/5A[last()]",
+    "matches": [
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0,
+      5,
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//50/preceding-sibling::*[1]",
+    "matches": [
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70/descendant-or-self::*[last()]",
+    "matches": [
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A/following::*",
+    "matches": [
+      5,
+      9,
+      11,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      5
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A/ancestor::*[1] | //70",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70//5A intersect //5A except //50",
+    "matches": [
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A[@len > 1]",
+    "matches": [
+      0,
+      5,
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      9
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70/5A",
+    "matches": [
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//70//5A",
+    "matches": [
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A[@len > $min]",
+    "matches": [
+      0,
+      5,
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-24-//5A[$label = 'a']",
+    "matches": [
+      0,
+      5,
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70[not(5A)] | //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A[@len > 1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-count(//70//5A | //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-25-//5A[$label = 'a']",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70[not(5A)] | //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A/..",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70/5A[last()]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-(//5A)[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//50/preceding-sibling::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70/descendant-or-self::*[last()]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70//5A intersect //5A except //50",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A[@len > 1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-empty(//50)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-count(//70//5A | //50)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70/5A",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//70//5A",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A[@len > $min]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-26-//5A[$label = 'a']",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70[not(5A)] | //50",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A/..",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//50[preceding-sibling::5A]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70/5A[last()]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-(//5A)[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//50/preceding-sibling::*[1]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//50/following-sibling::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70/descendant-or-self::*[last()]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A/following::*",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70//5A intersect //5A except //50",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70/5A",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//70//5A",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-27-//5A[$label = 'a']",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70[not(5A)] | //50",
+    "matches": [
+      11,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A/..",
+    "matches": [
+      2,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//50[preceding-sibling::5A]",
+    "matches": [
+      11,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70/5A[last()]",
+    "matches": [
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0,
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//50/preceding-sibling::*[1]",
+    "matches": [
+      8,
+      11
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//50/following-sibling::*[last()]",
+    "matches": [
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70/descendant-or-self::*[last()]",
+    "matches": [
+      4,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A/following::*",
+    "matches": [
+      2,
+      4,
+      6,
+      8,
+      11,
+      17
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A/preceding::*[1]",
+    "matches": [
+      0,
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A/ancestor::*[1] | //70",
+    "matches": [
+      2,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70[exists(50[preceding-sibling::5A])]",
+    "matches": [
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70//5A intersect //5A except //50",
+    "matches": [
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-count(//5A/..)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      2,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      2,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-count(//70//5A | //50)",
+    "matches": "int:4"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70/5A",
+    "matches": [
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//70//5A",
+    "matches": [
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A[@len > $min]",
+    "matches": [
+      0,
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-28-//5A[$label = 'a']",
+    "matches": [
+      0,
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70[not(5A)] | //50",
+    "matches": [
+      6,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//50[preceding-sibling::5A]",
+    "matches": [
+      6,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-(//5A)[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//50/preceding-sibling::*[1]",
+    "matches": [
+      0,
+      6
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//50/following-sibling::*[last()]",
+    "matches": [
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A/following::*",
+    "matches": [
+      6,
+      10
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-count(//5A/..)",
+    "matches": "int:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A[@len > 1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A[@len > $min]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-29-//5A[$label = 'a']",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70[not(5A)] | //50",
+    "matches": [
+      0,
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A/..",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//50[preceding-sibling::5A]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70/5A[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-(//5A)[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A/ancestor-or-self::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//50/preceding-sibling::*[1]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//50/following-sibling::*[last()]",
+    "matches": [
+      2
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70/descendant-or-self::*[last()]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A/following::*",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A/preceding::*[1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A/ancestor::*[1] | //70",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70//5A intersect //5A except //50",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-count(//5A/..)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A[@len > 1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70[tag-range(x'50', x'5f')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-exists(//5A)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-count(//70//5A | //50)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70/5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//70//5A",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A[@len > $min]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-30-//5A[$label = 'a']",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70[not(5A)] | //50",
+    "matches": [
+      2,
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A/..",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//50[preceding-sibling::5A]",
+    "matches": [
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70/5A[last()]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-(//5A)[1]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A/ancestor-or-self::*[1]",
+    "matches": [
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//50/preceding-sibling::*[1]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//50/following-sibling::*[last()]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70/descendant-or-self::*[last()]",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A/following::*",
+    "matches": [
+      8,
+      14
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A/preceding::*[1]",
+    "matches": [
+      2,
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A/ancestor::*[1] | //70",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-70[count(descendant::5A)>1]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70[exists(50[preceding-sibling::5A])]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70//5A intersect //5A except //50",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-count(//5A/..)",
+    "matches": "int:2"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A[@len > 1]",
+    "matches": [
+      4,
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//50[contains(value(), x'00')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A[starts-with(value(), x'01')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//50[ends-with(value(), x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A[tag-mask(x'5a', x'ff')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A[tag-range(x'50', x'70')]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70[tag-mask(x'5a', x'ff')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70[tag-range(x'50', x'5f')]",
+    "matches": [
+      0
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-exists(//5A)",
+    "matches": "bool:1"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-empty(//50)",
+    "matches": "bool:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-count(//70//5A | //50)",
+    "matches": "int:3"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-count(//5A intersect //50)",
+    "matches": "int:0"
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70/5A",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//70//5A",
+    "matches": [
+      4
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A[@len > $min]",
+    "matches": [
+      8
+    ]
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//50[contains(value(), $needle)]",
+    "matches": []
+  },
+  {
+    "diagnostic": null,
+    "id": "property-31-//5A[$label = 'a']",
+    "matches": [
+      4,
+      8
+    ]
+  }
+]

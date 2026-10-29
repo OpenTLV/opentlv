@@ -1,0 +1,224 @@
+[
+  {
+    "codes": {
+      "TLV_END": 1,
+      "TLV_ERR_BUFFER_TOO_SHORT": 14,
+      "TLV_ERR_CALLBACK": 21,
+      "TLV_ERR_INVALID_ARG": 11,
+      "TLV_ERR_INVALID_LENGTH": 6,
+      "TLV_ERR_INVALID_SCHEMA": 13,
+      "TLV_ERR_INVALID_STATE": 12,
+      "TLV_ERR_INVALID_TAG": 4,
+      "TLV_ERR_INVALID_TAG_SIZE": 5,
+      "TLV_ERR_INVALID_VALUE": 7,
+      "TLV_ERR_LIMIT": 15,
+      "TLV_ERR_NATIVE_SIZE": 17,
+      "TLV_ERR_NULL_ARG": 10,
+      "TLV_ERR_OUT_OF_MEMORY": 18,
+      "TLV_ERR_OVERFLOW": 16,
+      "TLV_ERR_SCHEMA": 9,
+      "TLV_ERR_SYNTAX": 8,
+      "TLV_ERR_TRUNCATED": 3,
+      "TLV_ERR_UNSUPPORTED": 19,
+      "TLV_ERR_VISITOR": 20,
+      "TLV_NEED_MORE_DATA": 2,
+      "TLV_OK": 0
+    },
+    "family": "core.result",
+    "header": "tlv/include/tlv/result.h"
+  },
+  {
+    "codes": {
+      "TLV_DIAGNOSTIC_SEVERITY_ERROR": 0,
+      "TLV_DIAGNOSTIC_SEVERITY_INFO": 2,
+      "TLV_DIAGNOSTIC_SEVERITY_WARNING": 1
+    },
+    "family": "core.severity",
+    "header": "tlv/include/tlv/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_LOCATION_DEFINITION": 4,
+      "TLV_LOCATION_DOMAIN_UNKNOWN": 0,
+      "TLV_LOCATION_EXPRESSION": 3,
+      "TLV_LOCATION_INPUT": 1,
+      "TLV_LOCATION_OUTPUT": 2,
+      "TLV_LOCATION_VALUE": 5
+    },
+    "family": "core.location-domain",
+    "header": "tlv/include/tlv/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_LOCATION_INSERTION": 4,
+      "TLV_LOCATION_POINT": 1,
+      "TLV_LOCATION_SCOPE_END": 3,
+      "TLV_LOCATION_SPAN": 2,
+      "TLV_LOCATION_UNKNOWN": 0
+    },
+    "family": "core.location-kind",
+    "header": "tlv/include/tlv/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_READER_OP_HEADER": 4,
+      "TLV_READER_OP_LENGTH": 1,
+      "TLV_READER_OP_TAG": 0,
+      "TLV_READER_OP_TRAILER": 3,
+      "TLV_READER_OP_VALUE": 2
+    },
+    "family": "io.reader-operation",
+    "header": "tlv/include/tlv/reader/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_WRITER_OP_BEGIN": 7,
+      "TLV_WRITER_OP_COPY": 5,
+      "TLV_WRITER_OP_END": 8,
+      "TLV_WRITER_OP_HEADER": 3,
+      "TLV_WRITER_OP_LENGTH": 1,
+      "TLV_WRITER_OP_PRESERVE": 6,
+      "TLV_WRITER_OP_TAG": 0,
+      "TLV_WRITER_OP_TRAILER": 4,
+      "TLV_WRITER_OP_VALUE": 2
+    },
+    "family": "io.writer-operation",
+    "header": "tlv/include/tlv/writer/writer.h"
+  },
+  {
+    "codes": {
+      "TLV_QUERY_ERROR_ARGUMENT": 17,
+      "TLV_QUERY_ERROR_BINDING": 8,
+      "TLV_QUERY_ERROR_CALLBACK": 13,
+      "TLV_QUERY_ERROR_CAPABILITY": 2,
+      "TLV_QUERY_ERROR_CARDINALITY": 9,
+      "TLV_QUERY_ERROR_CODEC": 10,
+      "TLV_QUERY_ERROR_EVENTS": 5,
+      "TLV_QUERY_ERROR_IMAGE": 15,
+      "TLV_QUERY_ERROR_IMAGE_VERSION": 11,
+      "TLV_QUERY_ERROR_LIMIT": 3,
+      "TLV_QUERY_ERROR_NONE": 0,
+      "TLV_QUERY_ERROR_READER": 7,
+      "TLV_QUERY_ERROR_SCHEMA": 16,
+      "TLV_QUERY_ERROR_SOURCE": 6,
+      "TLV_QUERY_ERROR_STATE": 12,
+      "TLV_QUERY_ERROR_STORAGE": 4,
+      "TLV_QUERY_ERROR_SYNTAX": 1,
+      "TLV_QUERY_ERROR_TYPE": 14
+    },
+    "family": "query.error-kind",
+    "header": "tlv/include/tlv/query/program.h"
+  },
+  {
+    "codes": {
+      "TLV_QUERY_CAUSE_CODEC": 2,
+      "TLV_QUERY_CAUSE_NONE": 0,
+      "TLV_QUERY_CAUSE_READER": 1,
+      "TLV_QUERY_CAUSE_SCHEMA": 3
+    },
+    "family": "query.cause",
+    "header": "tlv/include/tlv/query/program.h"
+  },
+  {
+    "codes": {
+      "TLV_SCHEMA_ISSUE_ASSERTION": 7,
+      "TLV_SCHEMA_ISSUE_DEFINITION": 9,
+      "TLV_SCHEMA_ISSUE_DUPLICATE": 2,
+      "TLV_SCHEMA_ISSUE_KIND": 4,
+      "TLV_SCHEMA_ISSUE_LENGTH": 5,
+      "TLV_SCHEMA_ISSUE_MISSING": 1,
+      "TLV_SCHEMA_ISSUE_NONE": 0,
+      "TLV_SCHEMA_ISSUE_ORDER": 6,
+      "TLV_SCHEMA_ISSUE_UNEXPECTED": 3,
+      "TLV_SCHEMA_ISSUE_VALUE": 8
+    },
+    "family": "schema.issue-kind",
+    "header": "tlv/include/tlv/schema/detail.h"
+  },
+  {
+    "codes": {
+      "TLV_SCHEMA_DEFINITION_COMPONENT": 5,
+      "TLV_SCHEMA_DEFINITION_GROUP": 3,
+      "TLV_SCHEMA_DEFINITION_RULE": 2,
+      "TLV_SCHEMA_DEFINITION_TABLE": 1,
+      "TLV_SCHEMA_DEFINITION_TYPE": 4,
+      "TLV_SCHEMA_DEFINITION_UNKNOWN": 0
+    },
+    "family": "schema.definition-kind",
+    "header": "tlv/include/tlv/schema/detail.h"
+  },
+  {
+    "codes": {
+      "TLV_SCHEMA_CAUSE_CODEC": 3,
+      "TLV_SCHEMA_CAUSE_NONE": 0,
+      "TLV_SCHEMA_CAUSE_READER": 2,
+      "TLV_SCHEMA_CAUSE_SCHEMA": 1
+    },
+    "family": "schema.cause",
+    "header": "tlv/include/tlv/schema/schema.h"
+  },
+  {
+    "codes": {
+      "TLV_CODEC_OP_DECODE": 0,
+      "TLV_CODEC_OP_ENCODE": 1,
+      "TLV_CODEC_OP_MEASURE": 2
+    },
+    "family": "codec.operation",
+    "header": "tlv/include/tlv/codec/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_CODEC_CAUSE_NONE": 0,
+      "TLV_CODEC_CAUSE_READER": 1,
+      "TLV_CODEC_CAUSE_SCHEMA": 2
+    },
+    "family": "codec.cause",
+    "header": "tlv/include/tlv/codec/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_CODEC_VIOLATION_NONE": 0,
+      "TLV_CODEC_VIOLATION_RESULT": 1,
+      "TLV_CODEC_VIOLATION_SIZE": 2,
+      "TLV_CODEC_VIOLATION_TYPE": 3,
+      "TLV_CODEC_VIOLATION_UTF8": 4
+    },
+    "family": "codec.violation",
+    "header": "tlv/include/tlv/codec/diagnostic.h"
+  },
+  {
+    "codes": {
+      "TLV_CODEC_REASON_CANONICAL": 5,
+      "TLV_CODEC_REASON_DIGIT": 2,
+      "TLV_CODEC_REASON_LENGTH": 1,
+      "TLV_CODEC_REASON_NONE": 0,
+      "TLV_CODEC_REASON_OBJECT": 7,
+      "TLV_CODEC_REASON_RANGE": 4,
+      "TLV_CODEC_REASON_SYNTAX": 6,
+      "TLV_CODEC_REASON_TEXT": 3
+    },
+    "family": "codec.reason",
+    "header": "tlv/include/tlv/codec/diagnostic.h"
+  },
+  {
+    "codes": {
+      "candidates": null,
+      "counter": null,
+      "depth": null,
+      "document-depth": null,
+      "document-elements": null,
+      "document-values": null,
+      "elements": null,
+      "nesting": null,
+      "pattern": null,
+      "resolved-tag": null,
+      "schema-contexts": null,
+      "states": null,
+      "text": null,
+      "tokens": null,
+      "work": null
+    },
+    "family": "query.limit",
+    "header": null
+  }
+]

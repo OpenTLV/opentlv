@@ -1,0 +1,130 @@
+-- OpenTLV version: 0.8.0 (0.8.0-0-345c77acb29266036df5f27d04ce315bb61853cc, branch archive)
+CMake Warning at cmake/clang_format.cmake:11 (message):
+  clang-format was not found; skipping the 'format' and 'format-check'
+  targets.  Install clang-format to use them.
+Call Stack (most recent call first):
+  CMakeLists.txt:76 (opentlv_add_clang_format_targets)
+
+
+CMake Warning at cmake/cppcheck.cmake:11 (message):
+  cppcheck was not found; skipping the 'cppcheck' target.  Install cppcheck
+  to use it.
+Call Stack (most recent call first):
+  CMakeLists.txt:78 (opentlv_add_cppcheck_targets)
+
+
+CMake Warning at cmake/clang_tidy.cmake:31 (message):
+  CMAKE_EXPORT_COMPILE_COMMANDS is OFF; skipping the 'clang-tidy' target.
+  Configure with -DCMAKE_EXPORT_COMPILE_COMMANDS=ON to use it.
+Call Stack (most recent call first):
+  CMakeLists.txt:99 (opentlv_add_clang_tidy_targets)
+
+
+-- Performing Test OPENTLV_TAG_LAYOUT_C_default
+-- Performing Test OPENTLV_TAG_LAYOUT_C_default - Success
+-- Performing Test OPENTLV_TAG_LAYOUT_C_ignored_capacity
+-- Performing Test OPENTLV_TAG_LAYOUT_C_ignored_capacity - Success
+-- Performing Test OPENTLV_TAG_LAYOUT_CXX_default
+-- Performing Test OPENTLV_TAG_LAYOUT_CXX_default - Success
+-- Performing Test OPENTLV_TAG_LAYOUT_CXX_ignored_capacity
+-- Performing Test OPENTLV_TAG_LAYOUT_CXX_ignored_capacity - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_C_encoding
+-- Performing Test OPENTLV_FIELD_ENCODING_C_encoding - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_C_packed
+-- Performing Test OPENTLV_FIELD_ENCODING_C_packed - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_C_variable
+-- Performing Test OPENTLV_FIELD_ENCODING_C_variable - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_C_escaped
+-- Performing Test OPENTLV_FIELD_ENCODING_C_escaped - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_C_fixed
+-- Performing Test OPENTLV_FIELD_ENCODING_C_fixed - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_C_forbidden_format
+-- Performing Test OPENTLV_FIELD_ENCODING_C_forbidden_format - Failed
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_encoding
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_encoding - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_packed
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_packed - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_variable
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_variable - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_escaped
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_escaped - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_fixed
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_fixed - Success
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_forbidden_format
+-- Performing Test OPENTLV_FIELD_ENCODING_CXX_forbidden_format - Failed
+-- Performing Test OPENTLV_FIXED_FORMAT_valid_minimum
+-- Performing Test OPENTLV_FIXED_FORMAT_valid_minimum - Success
+-- Performing Test OPENTLV_FIXED_FORMAT_valid_widest
+-- Performing Test OPENTLV_FIXED_FORMAT_valid_widest - Success
+-- Performing Test OPENTLV_FIXED_FORMAT_zero_tag_width
+-- Performing Test OPENTLV_FIXED_FORMAT_zero_tag_width - Failed
+-- Performing Test OPENTLV_FIXED_FORMAT_zero_length_width
+-- Performing Test OPENTLV_FIXED_FORMAT_zero_length_width - Failed
+-- Performing Test OPENTLV_FIXED_FORMAT_oversized_length_width
+-- Performing Test OPENTLV_FIXED_FORMAT_oversized_length_width - Failed
+-- Performing Test OPENTLV_FIXED_FORMAT_unknown_byte_order
+-- Performing Test OPENTLV_FIXED_FORMAT_unknown_byte_order - Failed
+-- Performing Test OPENTLV_FIXED_FORMAT_invalid_byte_order
+-- Performing Test OPENTLV_FIXED_FORMAT_invalid_byte_order - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_valid
+-- Performing Test OPENTLV_CUSTOM_FORMAT_valid - Success
+-- Performing Test OPENTLV_CUSTOM_FORMAT_empty
+-- Performing Test OPENTLV_CUSTOM_FORMAT_empty - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_missing_encode
+-- Performing Test OPENTLV_CUSTOM_FORMAT_missing_encode - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_decode
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_decode - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_throwing_decode
+-- Performing Test OPENTLV_CUSTOM_FORMAT_throwing_decode - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_nonconst_decode
+-- Performing Test OPENTLV_CUSTOM_FORMAT_nonconst_decode - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_classifier
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_classifier - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_measure
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_measure - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_encode
+-- Performing Test OPENTLV_CUSTOM_FORMAT_wrong_encode - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_reader_write_only
+-- Performing Test OPENTLV_CUSTOM_FORMAT_reader_write_only - Failed
+-- Performing Test OPENTLV_CUSTOM_FORMAT_writer_read_only
+-- Performing Test OPENTLV_CUSTOM_FORMAT_writer_read_only - Failed
+-- Performing Test OPENTLV_TYPED_FIELD_valid
+-- Performing Test OPENTLV_TYPED_FIELD_valid - Success
+-- Performing Test OPENTLV_TYPED_FIELD_wrong_type
+-- Performing Test OPENTLV_TYPED_FIELD_wrong_type - Failed
+-- Performing Test OPENTLV_TYPED_FIELD_missing_encode
+-- Performing Test OPENTLV_TYPED_FIELD_missing_encode - Failed
+-- Performing Test OPENTLV_TYPED_FIELD_wrong_decode
+-- Performing Test OPENTLV_TYPED_FIELD_wrong_decode - Failed
+-- Performing Test OPENTLV_TYPED_FIELD_no_default
+-- Performing Test OPENTLV_TYPED_FIELD_no_default - Failed
+-- Performing Test OPENTLV_CXX_CONTRACT_valid
+-- Performing Test OPENTLV_CXX_CONTRACT_valid - Success
+-- Performing Test OPENTLV_CXX_CONTRACT_format_temporary
+-- Performing Test OPENTLV_CXX_CONTRACT_format_temporary - Failed
+-- Performing Test OPENTLV_CXX_CONTRACT_schema_temporary
+-- Performing Test OPENTLV_CXX_CONTRACT_schema_temporary - Failed
+-- Performing Test OPENTLV_CXX_CONTRACT_query_temporary
+-- Performing Test OPENTLV_CXX_CONTRACT_query_temporary - Failed
+-- Performing Test OPENTLV_CXX_CONTRACT_workspace_temporary
+-- Performing Test OPENTLV_CXX_CONTRACT_workspace_temporary - Failed
+-- Performing Test OPENTLV_CXX_WITHOUT_EXCEPTIONS
+-- Performing Test OPENTLV_CXX_WITHOUT_EXCEPTIONS - Failed
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_valid
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_valid - Success
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_bad_name
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_bad_name - Failed
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_conflicting_types
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_conflicting_types - Failed
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_temporary_borrow
+-- Performing Test OPENTLV_CONSTEXPR_QUERY_temporary_borrow - Failed
+-- Failed to find LLVM FileCheck
+-- Google Benchmark version: v1.9.4, normalized to 1.9.4
+-- Performing Test HAVE_STD_REGEX -- success
+-- Performing Test HAVE_GNU_POSIX_REGEX -- failed to compile
+-- Performing Test HAVE_POSIX_REGEX -- success
+-- Performing Test HAVE_STEADY_CLOCK -- success
+-- Performing Test HAVE_PTHREAD_AFFINITY -- success
+-- Configuring done (140.2s)
+-- Generating done (5.4s)
+-- Build files have been written to: /mnt/d/Projects/marekcingel/OpenTLV/opentlv/build/issue645-capture/build

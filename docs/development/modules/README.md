@@ -14,6 +14,10 @@ This page changes no source file, build option or behavior; the current
 capability options and the single `tlv` target stay until the extraction
 issues replace them.
 
+The [pre-refactor behavioral baseline](../../../tests/baseline/README.md) for
+issue #645 pins the released behavior and diagnostic inventory used when applying
+these contracts. Approve that evidence before starting #646.
+
 The public target names below (`OpenTLV::Core` and so on) are the working
 names of the epic. Execution order puts
 [#702](https://github.com/OpenTLV/opentlv/issues/702) first: its approved
