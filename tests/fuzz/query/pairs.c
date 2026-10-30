@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "../../query_diagnostic_helpers.h"
 #include "tlv/query/program.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/document/document.h"
@@ -26,18 +27,24 @@ typedef struct provider {
 } provider_t;
 static tlv_result_t decode(const void* context, const tlv_tree_event_t* event, const uint8_t* data,
                            size_t size, void* scratch, size_t capacity, tlv_query_result_t* result,
-                           tlv_codec_diagnostic_t* diagnostic) {
+                           tlv_diagnostic_envelope_t* query_envelope) {
+    tlv_codec_diagnostic_t  query_codec_storage;
+    tlv_codec_diagnostic_t* diagnostic = query_envelope ? &query_codec_storage : NULL;
+    tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
+
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const provider_t* provider = context;
     if (!event || event->element.tag.size != 1 || event->element.tag.data[0] != 0x5a || size != 1 ||
         !data || capacity != 8 || (uintptr_t)scratch % 8)
         abort();
     if (provider->status != TLV_OK)
-        return tlv_codec_diagnostic_result(diagnostic, provider->status);
+        return query_test_export(query_envelope, diagnostic,
+                                 tlv_codec_diagnostic_result(diagnostic, provider->status));
     memset(result, 0, sizeof *result);
     result->kind = provider->invalid_type ? TLV_QUERY_RESULT_BOOL : TLV_QUERY_RESULT_INTEGER;
     result->integer = data[0];
-    return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
+    return query_test_export(query_envelope, diagnostic,
+                             tlv_codec_diagnostic_result(diagnostic, TLV_OK));
 }
 static int constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
@@ -246,8 +253,7 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 diagnostic.kind != (expected == TLV_ERR_CALLBACK ? TLV_QUERY_ERROR_CALLBACK
                                                                  : TLV_QUERY_ERROR_CODEC) ||
                 diagnostic.cause != TLV_QUERY_CAUSE_CODEC ||
-                diagnostic.detail.codec.reported != expected_codec ||
-                diagnostic.detail.codec.violation != violation ||
+                diagnostic.reported != expected_codec || diagnostic.violation != violation ||
                 /* The provider gives no location: the expression span stays primary. */
                 diagnostic.diagnostic.location.domain != TLV_LOCATION_EXPRESSION ||
                 diagnostic.diagnostic.location.kind != TLV_LOCATION_SPAN ||

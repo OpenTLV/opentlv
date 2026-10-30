@@ -66,6 +66,7 @@ TEST(Integration_Tlvpp, BerIndefiniteRoundTripAndTraversal) {
     EXPECT_FALSE(tlv::ber_write_indefinite(buffer, sizeof(buffer), tlv::tag_bytes<4>(), value));
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlvpp, BerPathQuery) {
     // 6F { 84, A5 { 50 "AB" } }, then a top-level 50.
     const uint8_t    wire[] = {0x6F, 0x0A, 0x84, 0x02, 0xAA, 0xBB, 0xA5, 0x04,
@@ -106,6 +107,7 @@ TEST(Integration_Tlvpp, BerPathQuery) {
     ASSERT_FALSE(limited);
     EXPECT_EQ(tlv::errc::limit, limited.error().status());
 }
+#endif
 #endif
 
 TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {

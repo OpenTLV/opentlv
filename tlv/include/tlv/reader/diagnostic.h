@@ -4,6 +4,7 @@
 #define OPENTLV_READER_DIAGNOSTIC_H
 #include "tlv/io/export.h"
 #include "tlv/diagnostic.h"
+#include "tlv/diagnostic/cause.h"
 #include "tlv/size.h"
 #include "tlv/format.h"
 /**
@@ -118,4 +119,18 @@ typedef struct tlv_reader_diagnostic {
     /** Parsing step, borrowed field bytes and optional bounds. */
     tlv_reader_detail_t detail;
 } tlv_reader_diagnostic_t;
+#ifdef __cplusplus
+extern "C" {
+#endif
+/** @brief Copy producer-owned reader detail into a generic cause chain.
+ * Required pointers must be non-NULL; returns the Core append result. */
+OPENTLV_IO_API tlv_result_t tlv_reader_detail_attach(tlv_diagnostic_causes_t* causes,
+                                                     const tlv_reader_detail_t* detail);
+/** @brief Copy matching reader detail out of a frame; mismatches leave output unchanged. */
+OPENTLV_IO_API tlv_result_t tlv_reader_detail_copy(const tlv_diagnostic_cause_t* cause,
+                                                   tlv_reader_detail_t* detail);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

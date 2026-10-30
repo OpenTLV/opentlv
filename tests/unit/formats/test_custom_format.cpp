@@ -187,6 +187,7 @@ TEST(Unit_Tlvpp_CustomFormat, IncrementalAndMalformedInputDiagnostics) {
     EXPECT_EQ(0u, malformed.consumed());
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_CustomFormat, TreeWriterAndQueryUseCanonicalMachinery) {
     tlv::format_adapter<custom_cpp_format> format;
     const unsigned char                    wire[] = {0x81, 4, 1, 1, 0x7A, 0xA5, 0xA5};
@@ -222,6 +223,7 @@ TEST(Unit_Tlvpp_CustomFormat, TreeWriterAndQueryUseCanonicalMachinery) {
                                     }));
     EXPECT_EQ(1u, matches);
 }
+#endif
 
 #if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_CustomFormat, DocumentAndSelectedSubtreeKeepCustomFormat) {

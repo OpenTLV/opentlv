@@ -1,3 +1,7 @@
+if(NOT OPENTLV_CODEC OR NOT OPENTLV_SCHEMA)
+    return()
+endif()
+
 add_executable(test-query-adversarial adversarial.c)
 target_link_libraries(test-query-adversarial PRIVATE tlv)
 opentlv_configure_compiler(test-query-adversarial)
@@ -11,7 +15,7 @@ opentlv_configure_compiler(test-query-plan)
 if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
     add_custom_command(TARGET test-query-plan POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE_DIR:test-query-plan>)
+            $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE_DIR:test-query-plan>)
 endif()
 add_test(NAME query-static-plan COMMAND test-query-plan)
 set_tests_properties(query-static-plan PROPERTIES LABELS "query;architecture")
@@ -54,7 +58,7 @@ opentlv_configure_compiler(test-query-conformance)
 if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
     add_custom_command(TARGET test-query-conformance POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE_DIR:test-query-conformance>)
+            $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE_DIR:test-query-conformance>)
 endif()
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(OPENTLV_BUILD_CXX)
@@ -64,7 +68,7 @@ if(OPENTLV_BUILD_CXX)
     if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
         add_custom_command(TARGET test-query-cxx-conformance POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE_DIR:test-query-cxx-conformance>)
+                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE_DIR:test-query-cxx-conformance>)
     endif()
     if(Python3_Interpreter_FOUND)
         add_test(NAME query-cxx-conformance

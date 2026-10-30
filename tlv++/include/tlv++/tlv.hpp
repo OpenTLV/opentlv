@@ -36,6 +36,9 @@
 #if OPENTLV_QUERY
 #include "tlv++/query/query.hpp"
 #include "tlv++/query/program.hpp"
+#if OPENTLV_CODEC
+#include "tlv++/query/codec.hpp"
+#endif
 #include "tlv++/query/builder.hpp"
 #endif
 

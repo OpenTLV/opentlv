@@ -364,8 +364,8 @@ foreach(feature IN ITEMS TESTS UNIT_TESTS INTEGRATION_TESTS QUERY_TESTS PROPERTY
     set(OPENTLV_BUILD_${feature} OFF CACHE BOOL "" FORCE)
 endforeach()
 set(OPENTLV_BUILD_CXX ON CACHE BOOL "" FORCE)
-# Core/IO/Document are link-selected now; historical baselines enable them by default.
-foreach(feature IN ITEMS QUERY QUERY_FRONTEND QUERY_SET_OPERATIONS
+# Core/IO/Document/Query are link-selected; historical baselines enable them by default.
+foreach(feature IN ITEMS QUERY_FRONTEND QUERY_SET_OPERATIONS
         SCHEMA CODEC FORMAT_ASN1 FORMAT_BER FORMAT_DER FORMAT_CER EMV BLUETOOTH NFC DHCP LLDP)
     set(OPENTLV_${feature} ON CACHE BOOL "" FORCE)
 endforeach()

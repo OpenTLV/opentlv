@@ -19,6 +19,9 @@
     } while (0)
 
 int main(void) {
+    CHECK_NAME(tlv_query_conversion_violation_string(TLV_QUERY_CONVERSION_RESULT), "result");
+    CHECK_NAME(tlv_query_conversion_violation_string((tlv_query_conversion_violation_t)99),
+               "unknown");
     CHECK_NAME(tlv_reader_operation_string(TLV_READER_OP_TAG), "tag");
     CHECK_NAME(tlv_reader_operation_string(TLV_READER_OP_LENGTH), "length");
     CHECK_NAME(tlv_reader_operation_string(TLV_READER_OP_VALUE), "value");

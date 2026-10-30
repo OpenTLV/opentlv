@@ -70,6 +70,9 @@ if(OPENTLV_FORMAT_BER)
     # written, queried and validated in examples/tlv, examples/tlv++ and the
     # opentlv-rust examples.
     foreach(use_case parse write query validate)
+        if(use_case STREQUAL "query" AND NOT OPENTLV_QUERY_FRONTEND)
+            continue()
+        endif()
         add_executable(example-tlv-${use_case} src/${use_case}.c)
         target_link_libraries(example-tlv-${use_case} PRIVATE tlv)
         opentlv_configure_compiler(example-tlv-${use_case})

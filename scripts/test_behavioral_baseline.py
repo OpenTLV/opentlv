@@ -104,6 +104,18 @@ class BaselineTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "ten property"):
             baseline.collect_generator(self.root, self.root / "output")
 
+    def test_reference_diagnostics_exclude_explicit_post_baseline_families(self):
+        import check_module_contracts as contracts
+        original = {"family": "core.result", "header": "result.h", "typedef": "result",
+                    "codes": [{"previous": "OK", "value": 0}]}
+        added = {"family": "query.conversion", "baseline": False}
+        with patch.object(baseline, "read", return_value={"families": [original, added]}), \
+                patch.object(contracts, "parse_enum", return_value=[("OK", 0)]) as parse:
+            baseline.collect_diagnostics(self.root, self.root / "output")
+        parse.assert_called_once_with(self.root, "result.h", "result")
+        self.assertEqual([{"family": "core.result", "header": "result.h", "codes": {"OK": 0}}],
+                         baseline.read(self.root / "output/diagnostic-codes.json"))
+
     def test_performance_requires_complete_successful_repetitions(self):
         with self.assertRaises(ValueError):
             baseline.check_performance({"benchmarks": []})

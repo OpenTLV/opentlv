@@ -16,7 +16,7 @@ tlv_result_t tlv_test_raw_encode(const void*, const void*, size_t, uint8_t*, siz
                                  tlv_codec_diagnostic_t*);
 #if OPENTLV_QUERY
 tlv_result_t tlv_test_raw_query(const void*, const tlv_tree_event_t*, const uint8_t*, size_t, void*,
-                                size_t, tlv_query_result_t*, tlv_codec_diagnostic_t*);
+                                size_t, tlv_query_result_t*, tlv_diagnostic_envelope_t*);
 #endif
 #ifdef __cplusplus
 }

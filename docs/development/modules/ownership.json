@@ -52,7 +52,10 @@
     "tlv/document/export.h": "document",
     "tlv/generator/export.h": "generator",
     "src/config.c": "core",
-    "src/version.c": "core"
+    "src/version.c": "core",
+    "tlv/query/export.h": "query",
+    "tlv/query-document/export.h": "query-document",
+    "tlv/query/features.h": "query"
   },
   "files": {
     "tlv++/include/tlv++/builtins/asn1/ber.hpp": "asn1",
@@ -286,7 +289,7 @@
     "tlv/src/formats/packed.c": "core",
     "tlv/src/formats/variable.c": "core",
     "tlv/src/generator.c": "generator",
-    "tlv/src/query/adapters.c": "query-codec",
+    "tlv/src/query/adapters.c": "query",
     "tlv/src/query/compiler.c": "query",
     "tlv/src/query/diagnostic_strings.c": "query",
     "tlv/src/query/document_backend.c": "query-document",
@@ -319,7 +322,13 @@
     "tlv/src/value.c": "core",
     "tlv/src/writer/copy.c": "io",
     "tlv/src/writer/tree.c": "io",
-    "tlv/src/writer/writer.c": "io"
+    "tlv/src/writer/writer.c": "io",
+    "tlv/src/query/codec.c": "query-codec",
+    "tlv/include/tlv/query/definition.h": "query",
+    "tlv/src/query/features.c": "query",
+    "tlv/resources/query-features.h.in": "query",
+    "tlv/src/schema/query_diagnostic_internal.h": "schema-query",
+    "tlv++/include/tlv++/query/codec.hpp": "query-codec"
   },
   "api": {
     "tlv_document_contains": {"target": "document", "resolution": "document-query-boundary"},
@@ -400,5 +409,5 @@
     "remove-module-selection": {"issue": 654, "summary": "Remove the module-selection options and their tlv_config_* runtime mirrors; module presence is a link-time fact."},
     "query-features": {"issue": 650, "summary": "Keep OPENTLV_QUERY_FRONTEND and OPENTLV_QUERY_SET_OPERATIONS as Query-internal options with Query-owned macros and runtime mirrors."}
   },
-  "exceptions": [{"kind": "dependency", "include": "tlv++/query/query.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/query/program.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/codec/typed.hpp", "resolution": "document-codec-facade", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv/codec/codec.h", "resolution": "query-codec-hooks", "files": ["tlv/include/tlv/query/program.h"]}, {"kind": "dependency", "include": "../codec/result_internal.h", "resolution": "query-codec-hooks", "files": ["tlv/src/query/evaluation.c"]}, {"kind": "private-header", "include": "../codec/result_internal.h", "resolution": "query-codec-hooks", "files": ["tlv/src/query/evaluation.c"]}, {"kind": "dependency", "include": "tlv/query/adapters.h", "resolution": "query-codec-hooks", "files": ["tlv++/include/tlv++/query/options.hpp"]}, {"kind": "dependency", "include": "tlv/reader/diagnostic.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv/schema/detail.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv++/writer/writer.hpp", "resolution": "io-codec-facade", "files": ["tlv++/include/tlv++/codec/typed.hpp"]}, {"kind": "dependency", "include": "tlv/codec/diagnostic.h", "resolution": "schema-diagnostic-causes", "files": ["tlv/include/tlv/schema/schema.h"]}, {"kind": "dependency", "include": "tlv/schema/schema.h", "resolution": "schema-diagnostic-causes", "files": ["tlv++/include/tlv++/error.hpp"]}, {"kind": "private-header", "include": "../../schema/codec_internal.h", "resolution": "schema-number-api", "files": ["tlv/src/builtins/emv/emv_codec.c"]}, {"kind": "private-header", "include": "../query/program_internal.h", "resolution": "schema-query-integration", "files": ["tlv/src/schema/query.c"]}, {"kind": "dependency", "include": "tlv/document/document.h", "resolution": "schema-query-integration", "files": ["tlv/include/tlv/schema/query.h"]}, {"kind": "dependency", "include": "tlv/query/document.h", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv/query/document.h", "resolution": "schema-query-integration", "files": ["tlv/src/schema/query.c"]}]
+  "exceptions": [{"kind": "dependency", "include": "tlv++/query/query.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/query/program.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/codec/typed.hpp", "resolution": "document-codec-facade", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv/reader/diagnostic.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv/schema/detail.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv++/writer/writer.hpp", "resolution": "io-codec-facade", "files": ["tlv++/include/tlv++/codec/typed.hpp"]}, {"kind": "dependency", "include": "tlv/codec/diagnostic.h", "resolution": "schema-diagnostic-causes", "files": ["tlv/include/tlv/schema/schema.h"]}, {"kind": "dependency", "include": "tlv/schema/schema.h", "resolution": "schema-diagnostic-causes", "files": ["tlv++/include/tlv++/error.hpp"]}, {"kind": "private-header", "include": "../../schema/codec_internal.h", "resolution": "schema-number-api", "files": ["tlv/src/builtins/emv/emv_codec.c"]}, {"kind": "dependency", "include": "tlv/document/document.h", "resolution": "schema-query-integration", "files": ["tlv/include/tlv/schema/query.h"]}, {"kind": "dependency", "include": "tlv/query/document.h", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv/query/document.h", "resolution": "schema-query-integration", "files": ["tlv/src/schema/query.c"]}]
 }

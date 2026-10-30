@@ -167,6 +167,17 @@ static inline tlv_result_t tlv_codec_diagnostic_reason_at(tlv_codec_diagnostic_t
         tlv_location_set(&diagnostic->diagnostic.location, TLV_LOCATION_VALUE, kind, begin, end);
     return tlv_codec_diagnostic_reason(diagnostic, result, reason);
 }
+/** @brief Publish Codec evidence in a producer-independent callback envelope.
+ * NULL output skips evidence; NULL input clears output. Detail and nested cause
+ * are copied by value, retaining the producer's existing borrowed lifetimes. */
+TLV_API void tlv_codec_diagnostic_export(tlv_diagnostic_envelope_t* output,
+                                         const tlv_codec_diagnostic_t* input);
+/** @brief Reconstruct Codec detail from its outer frame and optional delegated frame.
+ * Returns NULL_ARG for NULL pointers or INVALID_ARG for a foreign outer frame.
+ * Output remains unchanged on failure. Missing delegated frames remain unset. */
+TLV_API tlv_result_t tlv_codec_detail_import(const tlv_diagnostic_causes_t* causes,
+                                             tlv_codec_detail_t* output);
+
 #ifdef __cplusplus
 }
 #endif

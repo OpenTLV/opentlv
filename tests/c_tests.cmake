@@ -163,6 +163,11 @@ if(NOT OPENTLV_DOCUMENT)
     list(REMOVE_ITEM SOURCES document/document_test.cpp)
 endif()
 
+# Runtime text scenarios belong to the Query frontend feature.
+if(NOT OPENTLV_QUERY_FRONTEND)
+    list(FILTER SOURCES EXCLUDE REGEX "^query/")
+endif()
+
 add_executable(${test_target}
     ${HEADERS}
     ${SOURCES}

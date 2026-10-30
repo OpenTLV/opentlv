@@ -16,7 +16,8 @@ def main():
     args = parser.parse_args()
     actual = json.loads(args.input.read_text() if args.input else
                         subprocess.check_output([args.native], text=True, timeout=30))
-    profile = f"{actual['pointer_bits']}-{actual['types']['tlv_query_t']['alignment']}"
+    profile = (f"{actual['pointer_bits']}-{actual['types']['tlv_query_t']['alignment']}"
+               f"-{actual['types']['tlv_query_diagnostic_t']['alignment']}")
     baseline = Path(__file__).with_name("abi") / f"{profile}.json"
     expected = json.loads(baseline.read_text())
     assert actual == expected, ("Query ABI layout changed; review snapshot and compatibility", actual, expected)

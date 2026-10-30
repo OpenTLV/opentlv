@@ -2,7 +2,6 @@
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
 #include "tlv/utf8.h"
-#include "../codec/result_internal.h"
 #include <stdio.h>
 
 /* A conversion locates evidence in the bytes it received: VALUE, or INPUT for a
@@ -32,12 +31,14 @@ static void codec_location(tlv_location_t* location, const tlv_tree_event_t* eve
                          TLV_LOCATION_INPUT);
 }
 
-static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_codec_diagnostic_t* cause,
+static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_diagnostic_envelope_t* cause,
                                   tlv_result_t result, const query_node_t* n, const char* expected,
                                   const tlv_tree_event_t* event, const query_value_t* bytes) {
     query_error(d, result, TLV_QUERY_ERROR_CODEC, n->begin, n->end, expected);
     if (d) {
-        tlv_codec_diagnostic_result(cause, result);
+        cause->diagnostic.code = result;
+        cause->diagnostic.severity = result == TLV_NEED_MORE_DATA ? TLV_DIAGNOSTIC_SEVERITY_INFO
+                                                                  : TLV_DIAGNOSTIC_SEVERITY_ERROR;
         codec_location(&cause->diagnostic.location, event, bytes);
         /* A known conversion location stays primary and the expression span becomes
          * related evidence. Without one, for example when Query itself rejects a
@@ -50,7 +51,7 @@ static tlv_result_t codec_failure(tlv_query_diagnostic_t* d, tlv_codec_diagnosti
         if (!located) d->diagnostic.location = span;
         if (!d->diagnostic.expected) d->diagnostic.expected = expected;
         d->cause = TLV_QUERY_CAUSE_CODEC;
-        d->detail.codec = cause->codec;
+        d->detail.causes = cause->causes;
     }
     return result;
 }
@@ -384,9 +385,9 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         for (size_t i = 0; i < e->environment->hook_count; ++i)
             if (e->environment->hooks[i].id == n->hook_id) hook = &e->environment->hooks[i];
         tlv_query_result_t result = {0};
-        tlv_codec_diagnostic_t cause;
-        tlv_codec_diagnostic_t* cd = d ? &cause : NULL;
-        tlv_codec_diagnostic_init(cd, TLV_CODEC_OP_DECODE);
+        tlv_diagnostic_envelope_t cause;
+        tlv_diagnostic_envelope_t* cd = d ? &cause : NULL;
+        if (cd) memset(cd, 0, sizeof *cd);
         /* compatible() checked this hook and its decoder at eval_init. The
            borrowed program and environment remain immutable during execution. */
         // cppcheck-suppress-begin nullPointer
@@ -397,12 +398,18 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
                          hook->scratch_size, &result, cd);
         // cppcheck-suppress-end nullPointer
         if (!e->busy) return TLV_ERR_INVALID_STATE;
-        rc = tlv_codec_callback_result(cd, rc, TLV_CODEC_OP_DECODE);
+        if (d) {
+            d->reported = rc;
+            d->violation = TLV_QUERY_CONVERSION_NONE;
+        }
+        tlv_result_t reported = rc;
+        rc = rc == TLV_NEED_MORE_DATA ? rc : tlv_callback_result(rc, 0);
+        if (d && rc != reported) d->violation = TLV_QUERY_CONVERSION_RESULT;
         if (rc != TLV_OK) {
             return codec_failure(d, cd, rc, n, "strict complete-Value decoding", event, &f->a);
         }
         if (query_private_type(result.kind) != n->type || (result.size && !result.data)) {
-            if (cd) cd->codec.violation = TLV_CODEC_VIOLATION_TYPE;
+            if (d) d->violation = TLV_QUERY_CONVERSION_TYPE;
             return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "declared codec result type", event,
                                  &f->a);
         }
@@ -412,7 +419,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
             tlv_result_t work = eval_charge(e, result.size, n, d);
             if (work != TLV_OK) return work;
             if (tlv_utf8_validate(result.data, result.size) != TLV_OK) {
-                if (cd) cd->codec.violation = TLV_CODEC_VIOLATION_UTF8;
+                if (d) d->violation = TLV_QUERY_CONVERSION_UTF8;
                 return codec_failure(d, cd, TLV_ERR_CALLBACK, n, "UTF-8 decoded string", event,
                                      &f->a);
             }

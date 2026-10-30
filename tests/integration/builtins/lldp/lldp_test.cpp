@@ -170,6 +170,7 @@ TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
 }
 
 #if OPENTLV_DOCUMENT
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     tlv_document_options_t options{};
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &tlv_format_lldp));
@@ -198,6 +199,7 @@ TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), wire.data(), wire.size(), &written));
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), written, 3, nullptr));
 }
+#endif
 #endif
 
 TEST(Integration_Tlv_Lldp, SchemaLengthBoundariesRemainSeparateFromFraming) {
@@ -297,6 +299,7 @@ TEST(Integration_Tlv_Lldp, TruncationReportsWireRegionsAndDoesNotAdvance) {
     }
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Lldp, ReaderDefinitionsAndQueryUseTypeWithoutProtocolSemantics) {
     // End, then organisational value: framing deliberately does not stop at End.
     const uint8_t wire[] = {0, 0, 0xFE, 4, 0, 0x80, 0xC2, 1};
@@ -343,3 +346,4 @@ TEST(Integration_Tlv_Lldp, ReaderDefinitionsAndQueryUseTypeWithoutProtocolSemant
     EXPECT_EQ(0, std::memcmp(wire, output, sizeof(wire)));
 #endif
 }
+#endif

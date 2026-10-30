@@ -259,6 +259,7 @@ TEST(Integration_Tlv_Emv, SemanticTemplateDoesNotChangeWireConstructedBit) {
     EXPECT_EQ(TLV_EMV_CONTEXT_BIT, tlv_emv_child_context(TLV_EMV_CONTEXT_BASE, &child.element.tag));
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
     const uint8_t wire[] = {0x70, 4, 0x9f, 2, 1, 0x42};
     tlv_query_t   query{};
@@ -291,6 +292,7 @@ TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
     EXPECT_EQ(0, std::memcmp(wire, output, written));
 #endif
 }
+#endif
 
 TEST(Integration_Tlv_Emv, AmountCodecKnownVectorsAndLimits) {
     const uint64_t amounts[] = {0, 123456789012ULL, 999999999999ULL};

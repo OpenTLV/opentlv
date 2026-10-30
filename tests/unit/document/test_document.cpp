@@ -85,6 +85,7 @@ struct ReusingAllocation {
     }
 };
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
     auto             config = format();
     tlv::tree_frame  frames[2]{};
@@ -113,6 +114,7 @@ TEST(Unit_Tlvpp_Document, SelectedBuilderUsesPublishedRootAndResumesReader) {
     ASSERT_TRUE(sibling);
     EXPECT_EQ(12u, sibling->offset);
 }
+#endif
 
 TEST(Unit_Tlvpp_Document, ParseRetainsSourceLocationsOnlyWhenRequested) {
     auto config = format();
@@ -135,6 +137,7 @@ TEST(Unit_Tlvpp_Document, ParseRetainsSourceLocationsOnlyWhenRequested) {
     EXPECT_FALSE(tlv::node().source_location().has_offset);
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
     for (int operation = 0; operation < 9; ++operation) {
         SCOPED_TRACE(operation);
@@ -181,6 +184,7 @@ TEST(Unit_Tlvpp_Document, SelectionInvalidatedByCursorAndBuilderOperations) {
         EXPECT_EQ(tlv::errc::invalid_state, rejected.error().status());
     }
 }
+#endif
 
 TEST(Unit_Tlvpp_Document, SelectionUsesLatestPullAndIgnoresCallerItemChanges) {
     auto             config = format();
@@ -218,6 +222,7 @@ TEST(Unit_Tlvpp_Document, WholeStreamBuilderResumesAfterInputReplacement) {
 
 } // namespace
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_Document, ParsesInspectsAndEncodesAgain) {
     auto parsed = tlv::document::parse(view(sample), format());
     ASSERT_TRUE(parsed.has_value());
@@ -254,6 +259,7 @@ TEST(Unit_Tlvpp_Document, ParsesInspectsAndEncodesAgain) {
     EXPECT_EQ(sample, *encoded);
     EXPECT_EQ(sample.size(), *doc.encoded_size());
 }
+#endif
 
 TEST(Unit_Tlvpp_Document, SetInsertAndEraseAsInTheIssueExample) {
     auto parsed = tlv::document::parse(view(sample), format());
@@ -300,6 +306,7 @@ TEST(Unit_Tlvpp_Document, InsertsIntoConstructedElementsBeforeASibling) {
     EXPECT_EQ(6u, doc.size());
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_Document, ReportsErrorsAndKeepsTheDocumentUnchanged) {
     auto parsed = tlv::document::parse(view(sample), format());
     ASSERT_TRUE(parsed.has_value());
@@ -323,6 +330,7 @@ TEST(Unit_Tlvpp_Document, ReportsErrorsAndKeepsTheDocumentUnchanged) {
     ASSERT_FALSE(limited_parse.has_value());
     EXPECT_EQ(tlv::errc::limit, limited_parse.error().status());
 }
+#endif
 
 TEST(Unit_Tlvpp_Document, MovedDocumentKeepsHandlesValid) {
     auto created = tlv::document::create(format());

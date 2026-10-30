@@ -11,8 +11,13 @@ Since #647/#648, Core, IO and Document symbols are exported by `opentlv_core`,
 `OPENTLV_DOCUMENT_API`. The default comparison still reports
 their removal from the original single-library distribution against the stored
 baseline. This is an intentional binary packaging break; existing public type
-layouts remain unchanged. Use `--library opentlv_core`, `--library opentlv_io` or
-`--library opentlv_document` with a matching `--baseline-file` to compare one
+layouts were unchanged in those extractions. #650 adds `opentlv_query` and
+`opentlv_query_document`, changes the Query diagnostic layout and conversion
+callback signature, and requires binding/native consumers to rebuild. Query ABI
+snapshots distinguish pointer width, Query storage alignment and diagnostic
+alignment; Linux, Windows and wasm32 have different payload alignment. Use `--library opentlv_core`, `--library opentlv_io` or
+`--library opentlv_document`, `--library opentlv_query` or
+`--library opentlv_query_document` with a matching `--baseline-file` to compare one
 extracted library. ABI mutation
 self-tests now operate on Core, where their endian and Value test symbols live.
 

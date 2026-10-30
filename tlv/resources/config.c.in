@@ -29,16 +29,6 @@ int tlv_config_codec(void) {
 }
 
 
-/* Query features */
-int tlv_config_query_frontend(void) {
-    return OPENTLV_QUERY_FRONTEND;
-}
-
-int tlv_config_query_set_operations(void) {
-    return OPENTLV_QUERY_SET_OPERATIONS;
-}
-
-
 /* Builtin protocols and formats */
 int tlv_config_format_asn1(void) {
     return OPENTLV_FORMAT_ASN1;

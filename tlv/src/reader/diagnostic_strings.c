@@ -29,3 +29,22 @@ const char* tlv_writer_operation_string(tlv_writer_operation_t value) {
     }
     return "unknown";
 }
+
+static const char* reader_detail_name(uint16_t type) {
+    return type == 1 ? "reader" : "unknown";
+}
+static const char* reader_code_name(uint16_t family, int code) {
+    return family == 1 ? tlv_reader_operation_string(code) : "unknown";
+}
+static const tlv_diagnostic_domain_t reader_domain = {2, "opentlv.io", reader_detail_name,
+                                                      reader_code_name};
+typedef char
+    reader_detail_fits[(sizeof(tlv_reader_detail_t) <= TLV_DIAGNOSTIC_DETAIL_MAX) ? 1 : -1];
+tlv_result_t tlv_reader_detail_attach(tlv_diagnostic_causes_t* causes,
+                                      const tlv_reader_detail_t* detail) {
+    return tlv_diagnostic_causes_append(causes, &reader_domain, 1, detail, sizeof *detail);
+}
+tlv_result_t tlv_reader_detail_copy(const tlv_diagnostic_cause_t* cause,
+                                    tlv_reader_detail_t* detail) {
+    return tlv_diagnostic_cause_copy(cause, &reader_domain, 1, detail, sizeof *detail);
+}

@@ -2,7 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/schema/query.h"
 #include "tlv/query/document.h"
-#include "../query/program_internal.h"
+#include "tlv/query/plan.h"
+#include "query_diagnostic_internal.h"
 #include <string.h>
 
 static tlv_result_t schema_query_requirements(const tlv_schema_query_rule_t* rules, size_t count,
@@ -19,9 +20,11 @@ static void assertion_failure(tlv_query_diagnostic_t* d, tlv_tag_t tag, const ch
     d->diagnostic.has_path = 1;
     d->kind = TLV_QUERY_ERROR_SCHEMA;
     d->cause = TLV_QUERY_CAUSE_SCHEMA;
-    d->detail.schema.kind = TLV_SCHEMA_ISSUE_ASSERTION;
-    d->detail.schema.tag = tag;
-    d->detail.schema.field = name;
+    tlv_schema_detail_t detail = {0};
+    detail.kind = TLV_SCHEMA_ISSUE_ASSERTION;
+    detail.tag = tag;
+    detail.field = name;
+    (void)tlv_schema_detail_attach(&d->detail.causes, &detail);
 }
 
 #if OPENTLV_DOCUMENT
@@ -123,14 +126,15 @@ static tlv_result_t schema_query_requirements(const tlv_schema_query_rule_t* rul
             return TLV_ERR_INVALID_ARG;
         tlv_query_error_kind_t kind = TLV_QUERY_ERROR_NONE;
         const char* expected = NULL;
-        if (!query_program_valid(rules[i].context) || !query_program_valid(rules[i].assertion)) {
+        tlv_query_program_info_t context_info = {0}, assertion_info = {0};
+        context_info.struct_size = sizeof context_info;
+        assertion_info.struct_size = sizeof assertion_info;
+        if (tlv_query_plan_info(rules[i].context, &context_info) != TLV_OK ||
+            tlv_query_plan_info(rules[i].assertion, &assertion_info) != TLV_OK) {
             kind = TLV_QUERY_ERROR_IMAGE;
             expected = "valid Schema Query program image";
-        } else if (query_public_type(query_nodes(rules[i].context)[rules[i].context->root].type) !=
-                       TLV_QUERY_RESULT_NODES ||
-                   query_public_type(
-                       query_nodes(rules[i].assertion)[rules[i].assertion->root].type) !=
-                       TLV_QUERY_RESULT_BOOL) {
+        } else if (context_info.result_kind != TLV_QUERY_RESULT_NODES ||
+                   assertion_info.result_kind != TLV_QUERY_RESULT_BOOL) {
             kind = TLV_QUERY_ERROR_TYPE;
             expected = "node context selector and boolean assertion";
         }

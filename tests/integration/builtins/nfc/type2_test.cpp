@@ -47,6 +47,7 @@ TEST(Integration_Tlv_NfcType2, ReaderWriterExposeNullAndContinuePastTerminator) 
     EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets) {
     // The element after Terminator is intentional: the caller controls stopping.
     const uint8_t                          wire[] = {0, 3, 1, 3, 254, 0, 0xE0, 0};
@@ -100,3 +101,4 @@ TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets
     (void)lengths;
 #endif
 }
+#endif

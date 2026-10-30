@@ -3,10 +3,10 @@
 #ifndef OPENTLV_QUERY_PROGRAM_H
 #define OPENTLV_QUERY_PROGRAM_H
 
-#include "tlv/export.h"
+#include "tlv/query/export.h"
 #include "tlv/query/query.h"
 #include "tlv/reader/diagnostic.h"
-#include "tlv/codec/codec.h"
+#include "tlv/diagnostic/cause.h"
 #include "tlv/definition.h"
 #ifdef __cplusplus
 extern "C" {
@@ -81,7 +81,7 @@ typedef enum tlv_query_error_kind {
  * @note Never returns NULL or allocates. Do not free or modify the string.
  * Available even when the corresponding capability is disabled.
  */
-TLV_API const char* tlv_query_error_kind_string(tlv_query_error_kind_t value);
+OPENTLV_QUERY_API const char* tlv_query_error_kind_string(tlv_query_error_kind_t value);
 
 /** @brief Earliest publication frontier for the conservatively selected backend. */
 typedef enum tlv_query_decision_timing {
@@ -106,13 +106,26 @@ typedef enum tlv_query_cause {
  * @note Never returns NULL or allocates. Do not free or modify the string.
  * Available even when the corresponding capability is disabled.
  */
-TLV_API const char* tlv_query_cause_string(tlv_query_cause_t value);
+OPENTLV_QUERY_API const char* tlv_query_cause_string(tlv_query_cause_t value);
+
+/** @brief Query conversion callback contract violation; independent of producer detail. */
+typedef enum tlv_query_conversion_violation {
+    TLV_QUERY_CONVERSION_NONE = 0,   /**< No violation. */
+    TLV_QUERY_CONVERSION_RESULT = 1, /**< Unknown or forbidden control result. */
+    TLV_QUERY_CONVERSION_TYPE = 3,   /**< Wrong result type or invalid span. */
+    TLV_QUERY_CONVERSION_UTF8 = 4    /**< Invalid UTF-8 output. */
+} tlv_query_conversion_violation_t;
+
+/** @brief Name a conversion violation; unknown values return "unknown".
+ * The returned static string must not be freed or modified. */
+OPENTLV_QUERY_API const char*
+tlv_query_conversion_violation_string(tlv_query_conversion_violation_t value);
 
 /** @brief Fixed-layout compiler/execution failure, initialized by diagnostic entry points.
  * @note Every field has one meaning. Result, severity, primary location, path and
  * expected text live only in `diagnostic`; lower-layer evidence lives only in the
- * `detail` member selected by `cause`. A Reader failure delegated through a
- * conversion hook is reachable only as `detail.codec.detail.reader`.
+ * `detail.causes` frames. Direct Reader failures retain `detail.reader`; conversion
+ * callback violations are Query-owned and preserve the raw `reported` result.
  * @note After initialization, every non-#TLV_OK return has a kind other than
  * #TLV_QUERY_ERROR_NONE. #TLV_ERR_INVALID_STATE has kind #TLV_QUERY_ERROR_STATE.
  * Invalid arguments and configuration (#TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_ARG) have kind
@@ -140,17 +153,13 @@ typedef struct tlv_query_diagnostic {
     const char* limit;       /**< Static resource name, or NULL. */
     size_t configured;       /**< Configured resource bound, when limit is present. */
     tlv_query_cause_t cause; /**< Active member of detail. */
-    /** @brief Discriminated lower-layer detail; only the member selected by cause is active.
-     * @note Borrowed detail follows the lifetime contract of its layer. */
+    /** Reader detail is available directly because IO is a Query dependency. */
     union {
-        tlv_reader_detail_t reader; /**< Original Reader detail. */
-        /** Conversion detail. `reported` is the raw provider result for #TLV_QUERY_ERROR_CODEC
-         * or a conversion #TLV_QUERY_ERROR_CALLBACK, preserving #TLV_OK when a successful
-         * result violates the declared type, has nonzero size with NULL data, or contains
-         * invalid UTF-8; `violation` identifies the breached output contract. */
-        tlv_codec_detail_t codec;
-        tlv_schema_detail_t schema; /**< Schema detail of a failed Schema Query assertion. */
+        tlv_reader_detail_t reader;     /**< Original Reader detail. */
+        tlv_diagnostic_causes_t causes; /**< Conversion or Schema causes, outermost first. */
     } detail;
+    int32_t reported; /**< Raw conversion callback result, including unknown values. */
+    tlv_query_conversion_violation_t violation; /**< Query conversion contract violation. */
 } tlv_query_diagnostic_t;
 
 /** @brief Category of a Query expression's result. */
@@ -190,13 +199,13 @@ typedef enum tlv_query_conversion {
  * @param[out] result Tagged scalar; may borrow input or scratch until reset.
  * @note Return a shared result unchanged; NEED_MORE_DATA is preserved, END and
  * unknown results become CALLBACK. Diagnostic borrows must survive the callback.
- * No allocation. Callback work is outside the engine work bound. * @param[out] diagnostic Optional
- * initialized failure output; NULL skips evidence collection.
+ * No allocation. Callback work is outside the engine work bound.
+ * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
 typedef tlv_result_t (*tlv_query_decode_t)(const void* context, const tlv_tree_event_t* event,
                                            const uint8_t* data, size_t size, void* scratch,
                                            size_t capacity, tlv_query_result_t* result,
-                                           tlv_codec_diagnostic_t* diagnostic);
+                                           tlv_diagnostic_envelope_t* diagnostic);
 
 /** @brief Immutable compile requirement/execution provider. IDs, not pointers, enter programs. */
 typedef struct tlv_query_hook {
@@ -320,7 +329,7 @@ typedef struct tlv_query_variable_info {
  * @param[in] program Live immutable program.
  * @return Unique variable count; zero for NULL or an inconsistent internal image.
  * @note Unused compile-environment declarations are not program requirements. */
-TLV_API size_t tlv_query_program_variable_count(const tlv_query_program_t* program);
+OPENTLV_QUERY_API size_t tlv_query_program_variable_count(const tlv_query_program_t* program);
 
 /** @brief Read a unique referenced variable requirement.
  * @param[in] program Live immutable program.
@@ -328,12 +337,13 @@ TLV_API size_t tlv_query_program_variable_count(const tlv_query_program_t* progr
  * @param[out] info Fixed-layout output; unchanged on failure.
  * @return #TLV_OK; #TLV_ERR_NULL_ARG for missing pointers; #TLV_ERR_INVALID_ARG
  * for invalid image or index. The name remains valid while the program is alive. */
-TLV_API tlv_result_t tlv_query_program_variable(const tlv_query_program_t* program, size_t index,
-                                                tlv_query_variable_info_t* info);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_variable(const tlv_query_program_t* program,
+                                                          size_t index,
+                                                          tlv_query_variable_info_t* info);
 
 /** @brief Initialize safe compile defaults; NULL is a no-op.
  * @param[out] options Optional destination for current defaults. */
-TLV_API void tlv_query_compile_options_init(tlv_query_compile_options_t* options);
+OPENTLV_QUERY_API void tlv_query_compile_options_init(tlv_query_compile_options_t* options);
 
 /**
  * @brief Discover compiler scratch requirements without interpreting unsupported syntax.
@@ -348,10 +358,10 @@ TLV_API void tlv_query_compile_options_init(tlv_query_compile_options_t* options
  * #TLV_ERR_LIMIT for text/token bounds; #TLV_ERR_OVERFLOW for sizing overflow.
  * @note Never allocates; size/alignment outputs are unchanged on failure.
  */
-TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
-                                               const tlv_query_compile_options_t* options,
-                                               size_t* bytes, size_t* alignment,
-                                               tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
+                                                         const tlv_query_compile_options_t* options,
+                                                         size_t* bytes, size_t* alignment,
+                                                         tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Compile or size an immutable, relocatable full-language Query program.
@@ -381,11 +391,11 @@ TLV_API tlv_result_t tlv_query_compile_scratch(const char* text, size_t size,
  * to min(struct_size, sizeof current info); unknown trailing caller bytes are preserved.
  * struct_size is preserved. Rebuilding is required for callers predating this contract.
  */
-TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
-                                       const tlv_query_compile_options_t* options, void* scratch,
-                                       size_t scratch_size, void* storage, size_t capacity,
-                                       tlv_query_program_info_t* info,
-                                       tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_compile(const char* text, size_t size,
+                                                 const tlv_query_compile_options_t* options,
+                                                 void* scratch, size_t scratch_size, void* storage,
+                                                 size_t capacity, tlv_query_program_info_t* info,
+                                                 tlv_query_diagnostic_t* diagnostic);
 
 /** @brief Discover bounded workspace for checked compilation preparation.
  * @param[in] text Required bounded Query text.
@@ -397,10 +407,9 @@ TLV_API tlv_result_t tlv_query_compile(const char* text, size_t size,
  * @return The compile_scratch statuses, including OVERFLOW for workspace sizing.
  * @note No allocation, semantic callbacks or recursion. Workspace includes compiler
  * scratch and a conservative image bound; final program size is reported by prepare. */
-TLV_API tlv_result_t tlv_query_compile_prepare_size(const char* text, size_t size,
-                                                    const tlv_query_compile_options_t* options,
-                                                    size_t* bytes, size_t* alignment,
-                                                    tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_compile_prepare_size(
+    const char* text, size_t size, const tlv_query_compile_options_t* options, size_t* bytes,
+    size_t* alignment, tlv_query_diagnostic_t* diagnostic);
 
 /** @brief Resolve and compile once into caller workspace for checked publication.
  * @param[in] text Required bounded Query text, copied into the prepared image.
@@ -417,12 +426,12 @@ TLV_API tlv_result_t tlv_query_compile_prepare_size(const char* text, size_t siz
  * @note No allocation or recursion. All spans and outputs must be disjoint. Keep
  * workspace alive and unchanged until commit. Each name occurrence is resolved once;
  * commit independently checks all compiled bytes, including copied identifiers. */
-TLV_API tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
-                                               const tlv_query_compile_options_t* options,
-                                               void* workspace, size_t capacity,
-                                               const tlv_query_program_t** prepared,
-                                               tlv_query_program_info_t* info,
-                                               tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
+                                                         const tlv_query_compile_options_t* options,
+                                                         void* workspace, size_t capacity,
+                                                         const tlv_query_program_t** prepared,
+                                                         tlv_query_program_info_t* info,
+                                                         tlv_query_diagnostic_t* diagnostic);
 
 /** @brief Validate preparation against current capabilities and publish atomically.
  * @param[in] prepared Immutable image returned by compile_prepare.
@@ -439,12 +448,12 @@ TLV_API tlv_result_t tlv_query_compile_prepare(const char* text, size_t size,
  * @note No allocation or recursion. All spans and outputs must be disjoint. The
  * complete canonical image is compared without hash collisions before any output
  * storage or info is written. Prepared workspace may be released after success. */
-TLV_API tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepared_size,
-                                              const tlv_query_compile_options_t* options,
-                                              void* scratch, size_t scratch_capacity, void* storage,
-                                              size_t storage_capacity,
-                                              tlv_query_program_info_t* info,
-                                              tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepared_size,
+                                                        const tlv_query_compile_options_t* options,
+                                                        void* scratch, size_t scratch_capacity,
+                                                        void* storage, size_t storage_capacity,
+                                                        tlv_query_program_info_t* info,
+                                                        tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Discover bounded scratch for validating an untrusted internal image.
@@ -460,10 +469,9 @@ TLV_API tlv_result_t tlv_query_compile_commit(const void* prepared, size_t prepa
  * Internal images use native-endian uint32 fields and the release's private layout;
  * no persistent or cross-release compatibility is promised. Call load before use.
  */
-TLV_API tlv_result_t tlv_query_program_load_scratch(const void* image, size_t size,
-                                                    const tlv_query_compile_options_t* options,
-                                                    size_t* bytes, size_t* alignment,
-                                                    tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_load_scratch(
+    const void* image, size_t size, const tlv_query_compile_options_t* options, size_t* bytes,
+    size_t* alignment, tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Validate an exact bounded image and borrow it for read-only execution.
@@ -487,12 +495,12 @@ TLV_API tlv_result_t tlv_query_program_load_scratch(const void* image, size_t si
  * Same-release, same-endian 32/64-bit targets share uint32 image fields; environment
  * contracts and private layout must also match. Checksums cannot replace validation.
  */
-TLV_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
-                                            const tlv_query_compile_options_t* options,
-                                            void* scratch, size_t capacity,
-                                            const tlv_query_program_t** program,
-                                            tlv_query_program_info_t* info,
-                                            tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
+                                                      const tlv_query_compile_options_t* options,
+                                                      void* scratch, size_t capacity,
+                                                      const tlv_query_program_t** program,
+                                                      tlv_query_program_info_t* info,
+                                                      tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Canonically format retained program source, including size discovery.
@@ -508,8 +516,9 @@ TLV_API tlv_result_t tlv_query_program_load(const void* image, size_t size,
  * @return #TLV_ERR_INVALID_ARG for misalignment; #TLV_ERR_INVALID_VALUE for an
  * inconsistent internal image.
  */
-TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program, char* output,
-                                              size_t capacity, size_t* required);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program,
+                                                        char* output, size_t capacity,
+                                                        size_t* required);
 
 /**
  * @brief Discover runtime workspace for a compiled S0/S1 plan and depth capacity.
@@ -524,8 +533,9 @@ TLV_API tlv_result_t tlv_query_program_format(const tlv_query_program_t* program
  * @note Checks the readable image produced by this release's compiler once;
  * this pointer-only API cannot validate arbitrary or truncated external storage.
  */
-TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, size_t max_depth,
-                                         size_t* bytes, size_t* alignment);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program,
+                                                   size_t max_depth, size_t* bytes,
+                                                   size_t* alignment);
 
 /**
  * @brief Initialize or reset independent S0/S1 execution in caller workspace.
@@ -541,9 +551,10 @@ TLV_API tlv_result_t tlv_query_exec_size(const tlv_query_program_t* program, siz
  * #TLV_ERR_INVALID_ARG for alignment/zero budgets; otherwise exec_size errors.
  * @note Never allocates. Program, workspace and exec output must not overlap.
  */
-TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, void* storage,
-                                         size_t capacity, size_t max_depth, size_t max_elements,
-                                         size_t max_work, tlv_query_exec_t** exec);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program,
+                                                   void* storage, size_t capacity, size_t max_depth,
+                                                   size_t max_elements, size_t max_work,
+                                                   tlv_query_exec_t** exec);
 
 /** @brief Reset an initialized execution, preserving its program, providers and budgets.
  * @param[in,out] exec Live initialized execution; may be finished or failed.
@@ -552,7 +563,7 @@ TLV_API tlv_result_t tlv_query_exec_init(const tlv_query_program_t* program, voi
  * Program and environment must remain alive. No allocation occurs. Callback rejection
  * preserves the outer execution. Raw init calls require exclusive workspace ownership
  * and must never be used to overwrite workspace still active on a callback stack. */
-TLV_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
 
 /** @brief Bind one typed variable before consuming any event.
  * @param[in,out] exec Required fresh initialized execution.
@@ -571,10 +582,10 @@ TLV_API tlv_result_t tlv_query_exec_reset(tlv_query_exec_t* exec);
  * Reinitialization clears all bindings. Rebinding during STOP/NEED_MORE_DATA is invalid.
  * Invalid bindings leave state unchanged. All referenced variables must be bound
  * before the first event, including variables in predicates with no matching nodes. */
-TLV_API tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* exec, const char* name,
-                                         tlv_query_result_kind_t type, int64_t integer,
-                                         const uint8_t* data, size_t size,
-                                         tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* exec, const char* name,
+                                                   tlv_query_result_kind_t type, int64_t integer,
+                                                   const uint8_t* data, size_t size,
+                                                   tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Select a relative node context before feeding events.
@@ -587,7 +598,7 @@ TLV_API tlv_result_t tlv_query_exec_bind(tlv_query_exec_t* exec, const char* nam
  * evidence includes outside ancestors. Retained evaluation keeps complete borrowed events until
  * reset; failure preserves state.
  */
-TLV_API tlv_result_t tlv_query_exec_context(tlv_query_exec_t* exec, size_t ordinal);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_context(tlv_query_exec_t* exec, size_t ordinal);
 
 /** @brief Observed execution work and structural validation coverage. */
 typedef struct tlv_query_exec_info {
@@ -610,7 +621,7 @@ typedef struct tlv_query_exec_info {
  * descendant match. Descendant plans and selected relative contexts are conservatively
  * drained. Malformed skipped descendants can be concealed; framing errors still propagate.
  */
-TLV_API tlv_result_t tlv_query_exec_pruning(tlv_query_exec_t* exec, int enabled);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_pruning(tlv_query_exec_t* exec, int enabled);
 
 /**
  * @brief Read execution counters and coverage without altering continuation.
@@ -621,7 +632,8 @@ TLV_API tlv_result_t tlv_query_exec_pruning(tlv_query_exec_t* exec, int enabled)
  * Writes are bounded by struct_size, which must cover elements; struct_size and
  * unknown trailing caller bytes are preserved. Invalid extents return #TLV_ERR_INVALID_ARG.
  */
-TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query_exec_info_t* info);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec,
+                                                   tlv_query_exec_info_t* info);
 
 /**
  * @brief Feed one complete canonical event and report whether its node matches.
@@ -647,8 +659,9 @@ TLV_API tlv_result_t tlv_query_exec_info(const tlv_query_exec_t* exec, tlv_query
  * Each node is emitted at most once, in preorder. Skipped END is rejected under
  * the default full-validation policy. Values must be complete contiguous spans.
  */
-TLV_API tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* exec, const tlv_tree_event_t* event,
-                                         int* matched, tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* exec,
+                                                   const tlv_tree_event_t* event, int* matched,
+                                                   tlv_query_diagnostic_t* diagnostic);
 
 /** @brief Read the node selected by the most recent successful S1 feed.
  * @param[in] exec S1 execution whose most recent feed reported matched=1.
@@ -657,7 +670,8 @@ TLV_API tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* exec, const tlv_tree_
  * failed execution or reentrancy; #TLV_ERR_INVALID_ARG for the wrong backend or overlap.
  * @note A matched END selects its original BEGIN. Complete spans borrow stable caller
  * input; feeding another event supersedes this publication. No allocation or payload copy. */
-TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_tree_event_t* event);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec,
+                                                       tlv_tree_event_t* event);
 
 /**
  * @brief Complete the virtual root at final EOF and require balanced events.
@@ -673,8 +687,8 @@ TLV_API tlv_result_t tlv_query_exec_selected(const tlv_query_exec_t* exec, tlv_t
  * Calling finish on an already failed execution returns INVALID_STATE without
  * changing diagnostic, preserving the initial failure instead of reporting EOF.
  */
-TLV_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
-                                           tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* exec,
+                                                     tlv_query_diagnostic_t* diagnostic);
 
 /** @brief Visitor for one borrowed matching BEGIN or ELEMENT event.
  * @param[in] event Complete matching node; borrowed only for this call.
@@ -700,9 +714,11 @@ typedef tlv_visit_result_t (*tlv_query_event_visitor_t)(const tlv_tree_event_t* 
  * @return #TLV_ERR_INVALID_STATE for reentrancy, a failed execution or callback workspace
  * invalidation.
  */
-TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
-                                             tlv_query_event_visitor_t visitor, void* context,
-                                             tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader,
+                                                       tlv_query_exec_t* exec,
+                                                       tlv_query_event_visitor_t visitor,
+                                                       void* context,
+                                                       tlv_query_diagnostic_t* diagnostic);
 
 /**
  * @brief Test existence with explicit full-validation or early-return behavior.
@@ -718,9 +734,10 @@ TLV_API tlv_result_t tlv_query_program_visit(tlv_tree_reader_t* reader, tlv_quer
  * early_return zero. A malformed suffix still fails full-validation mode.
  * @return #TLV_ERR_INVALID_STATE for reentrancy or a failed execution.
  */
-TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_t* exec,
-                                              int early_return, int* found,
-                                              tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader,
+                                                        tlv_query_exec_t* exec, int early_return,
+                                                        int* found,
+                                                        tlv_query_diagnostic_t* diagnostic);
 
 /** @brief Discover retained-event workspace for compiled Query results.
  * @param[in] program Immutable live program.
@@ -732,8 +749,9 @@ TLV_API tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_que
  * #TLV_ERR_INVALID_ARG for a misaligned program pointer; #TLV_ERR_INVALID_VALUE for malformed
  * readable program contents.
  */
-TLV_API tlv_result_t tlv_query_eval_size(const tlv_query_program_t* program, size_t max_depth,
-                                         size_t max_nodes, size_t* bytes, size_t* alignment);
+OPENTLV_QUERY_API tlv_result_t tlv_query_eval_size(const tlv_query_program_t* program,
+                                                   size_t max_depth, size_t max_nodes,
+                                                   size_t* bytes, size_t* alignment);
 
 /** @brief Initialize retained canonical-event execution and bounded iterative evaluation.
  * @param[in] program Live immutable program.
@@ -753,10 +771,11 @@ TLV_API tlv_result_t tlv_query_eval_size(const tlv_query_program_t* program, siz
  * have run before finalized retained publication; callback effects never roll back.
  * D plans reject event/Reader execution before consuming input. Pruning is unavailable; results
  * become public only after balanced EOF and successful evaluation. No allocation occurs. */
-TLV_API tlv_result_t tlv_query_eval_init(const tlv_query_program_t* program,
-                                         const tlv_query_environment_t* environment, void* storage,
-                                         size_t capacity, size_t max_depth, size_t max_nodes,
-                                         size_t max_work, tlv_query_exec_t** exec);
+OPENTLV_QUERY_API tlv_result_t tlv_query_eval_init(const tlv_query_program_t* program,
+                                                   const tlv_query_environment_t* environment,
+                                                   void* storage, size_t capacity, size_t max_depth,
+                                                   size_t max_nodes, size_t max_work,
+                                                   tlv_query_exec_t** exec);
 
 /** @brief Read a finalized scalar or node result category.
  * @param[in] exec Successfully finished retained execution.
@@ -766,8 +785,8 @@ TLV_API tlv_result_t tlv_query_eval_init(const tlv_query_program_t* program,
  * @return #TLV_ERR_INVALID_STATE before finalization, after failure, during callbacks or for a
  * stale Document revision.
  */
-TLV_API tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* exec,
-                                           tlv_query_result_t* result);
+OPENTLV_QUERY_API tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* exec,
+                                                     tlv_query_result_t* result);
 
 /** @brief Pull finalized unique node events in document order.
  * @param[in,out] exec Successfully finished retained node-result execution.
@@ -777,7 +796,8 @@ TLV_API tlv_result_t tlv_query_exec_result(const tlv_query_exec_t* exec,
  * @return #TLV_ERR_INVALID_STATE before finalization, after failure, during callbacks or for a
  * stale Document revision.
  */
-TLV_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec, tlv_tree_event_t* event);
+OPENTLV_QUERY_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec,
+                                                     tlv_tree_event_t* event);
 
 /** @brief Pull a finalized node and its zero-based traversal ordinal.
  * @param exec Completed retained node-result execution.
@@ -787,8 +807,9 @@ TLV_API tlv_result_t tlv_query_result_next(tlv_query_exec_t* exec, tlv_tree_even
  * @note The ordinal is scoped to one traversal/revision and is not tlv_node_identity().
  * @return #TLV_ERR_INVALID_STATE for the same lifecycle failures as tlv_query_result_next().
  */
-TLV_API tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* exec, tlv_tree_event_t* event,
-                                                   size_t* ordinal);
+OPENTLV_QUERY_API tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* exec,
+                                                             tlv_tree_event_t* event,
+                                                             size_t* ordinal);
 
 /** @brief Format normalized plan details; sizing and atomic short-output handling.
  * @param[in] program Live program.
@@ -798,8 +819,9 @@ TLV_API tlv_result_t tlv_query_result_next_ordinal(tlv_query_exec_t* exec, tlv_t
  * @return OK or pointer/image/capacity errors. * @return #TLV_ERR_INVALID_ARG for a misaligned
  * program pointer; #TLV_ERR_INVALID_VALUE for malformed readable program contents.
  */
-TLV_API tlv_result_t tlv_query_program_explain(const tlv_query_program_t* program, char* output,
-                                               size_t capacity, size_t* required);
+OPENTLV_QUERY_API tlv_result_t tlv_query_program_explain(const tlv_query_program_t* program,
+                                                         char* output, size_t capacity,
+                                                         size_t* required);
 
 /** @} */
 #ifdef __cplusplus

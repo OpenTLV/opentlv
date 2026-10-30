@@ -109,6 +109,8 @@ int main(void) {
     FIELD(tlv_query_diagnostic_t, configured);
     FIELD(tlv_query_diagnostic_t, cause);
     FIELD(tlv_query_diagnostic_t, detail);
+    FIELD(tlv_query_diagnostic_t, reported);
+    FIELD(tlv_query_diagnostic_t, violation);
     printf("},");
     TYPE(tlv_query_result_t);
     FIELD(tlv_query_result_t, kind);

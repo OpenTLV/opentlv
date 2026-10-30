@@ -6,8 +6,11 @@
 int main() {
 #if OPENTLV_QUERY && OPENTLV_QUERY_FRONTEND
     tlv::query_environment environment(tlv::fixed_format<1, 1>{});
-    tlv::query_options     options(&environment);
-    auto                   program = tlv::query_program::compile("count(//01)", options);
+#if OPENTLV_CODEC
+    tlv::configure_query_codecs(environment);
+#endif
+    tlv::query_options options(&environment);
+    auto               program = tlv::query_program::compile("count(//01)", options);
     if (!program || program->result_type() != tlv::query_type::integer) return 4;
 #endif
 #if OPENTLV_CODEC

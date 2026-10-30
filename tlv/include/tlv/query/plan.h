@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_QUERY_PLAN_H
 #define OPENTLV_QUERY_PLAN_H
-#include "tlv/export.h"
+#include "tlv/query/export.h"
 #include "tlv/query/program.h"
 
 /** @file
@@ -179,9 +179,9 @@ extern "C" {
  * A contains literal larger than pattern_capacity is a malformed plan; dynamic
  * patterns exceeding that bound fail during execution in every backend.
  */
-TLV_API tlv_result_t tlv_query_plan_open(const void* image, size_t size,
-                                         const tlv_query_program_t** program,
-                                         tlv_query_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_plan_open(const void* image, size_t size,
+                                                   const tlv_query_program_t** program,
+                                                   tlv_query_diagnostic_t* diagnostic);
 /** @brief Inspect requirements of a validated immutable plan without the frontend.
  * @param[in] program Handle returned by plan_open or runtime compilation.
  * @param[in,out] info Output with struct_size initialized to its writable extent.
@@ -189,8 +189,8 @@ TLV_API tlv_result_t tlv_query_plan_open(const void* image, size_t size,
  * @note Compiler scratch and optimization-history fields are zero. Execution
  * sizing still takes application depth/node limits through exec_size or eval_size.
  */
-TLV_API tlv_result_t tlv_query_plan_info(const tlv_query_program_t* program,
-                                         tlv_query_program_info_t* info);
+OPENTLV_QUERY_API tlv_result_t tlv_query_plan_info(const tlv_query_program_t* program,
+                                                   tlv_query_program_info_t* info);
 #ifdef __cplusplus
 }
 #endif

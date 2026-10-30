@@ -11,6 +11,7 @@
 #include "../../../tlv/src/query/v1_internal.h"
 #include <gtest/gtest.h>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <set>
 #include <vector>
@@ -93,11 +94,28 @@ Bytes encode(const tlv_document_t* doc) {
 }
 
 tlv_node_t* find(const tlv_document_t* doc, const char* path) {
+#if OPENTLV_QUERY_FRONTEND
     tlv_query_t query;
     EXPECT_EQ(TLV_OK, tlv_query_parse(path, &query, nullptr));
     tlv_node_t* result = nullptr;
     EXPECT_EQ(TLV_OK, tlv_document_find_path(doc, &query, &result));
     return result;
+#else
+    // Document-only scenarios use unique one-byte fixture paths. Navigate them
+    // directly so mutation and serialization tests do not need text compilation.
+    tlv_node_t* node = nullptr;
+    while (*path) {
+        char*      end = nullptr;
+        const auto value = std::strtoul(path, &end, 16);
+        EXPECT_TRUE(end != path && value <= 255 && (*end == '/' || *end == '\0'));
+        if (end == path || value > 255 || (*end != '/' && *end != '\0')) return nullptr;
+        const auto tag = static_cast<uint8_t>(value);
+        node = tlv_document_find(doc, node, tlv_tag(&tag, 1));
+        if (!node) return nullptr;
+        path = *end ? end + 1 : end;
+    }
+    return node;
+#endif
 }
 
 Bytes value_of(const tlv_node_t* node) {
@@ -298,6 +316,7 @@ TEST(Unit_Tlv_Document, OpaqueValuesWhenNoPredicate) {
     EXPECT_EQ(sample, encode(doc.get()));
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlv_Document, FindsByTagAndPath) {
     const Bytes wire = {0x50, 0x01, 0x01, 0x6F, 0x03, 0x84, 0x01, 0x02, 0x50,
                         0x01, 0x03, 0x6F, 0x05, 0xA5, 0x03, 0x50, 0x01, 0x04};
@@ -338,7 +357,9 @@ TEST(Unit_Tlv_Document, FindsByTagAndPath) {
     EXPECT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &missing, &result));
     EXPECT_EQ(nullptr, result);
 }
+#endif
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlv_Document, PathLookupPreservesValidationFailuresOnEmptyDocuments) {
     Doc         document = parse({});
     tlv_query_t query{};
@@ -358,6 +379,7 @@ TEST(Unit_Tlv_Document, PathLookupPreservesValidationFailuresOnEmptyDocuments) {
     EXPECT_EQ(TLV_OK, tlv_document_find_path(document.get(), &query, &result));
     EXPECT_EQ(nullptr, result);
 }
+#endif
 
 TEST(Unit_Tlv_Document, SetValueOnPrimitiveUpdatesEnclosingLengths) {
     Doc         doc = parse(sample);
@@ -1033,6 +1055,7 @@ TEST(Unit_Tlv_DocumentBuilder, IncrementalInputOwnsPublishedDataAndTransfersOnly
     EXPECT_EQ(11u, tlv_node_source_location(find(doc.get(), "6F/A5/50")).offset);
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextSiblingUnread) {
     auto opts = options();
     opts.retain_source_locations = 1;
@@ -1071,6 +1094,7 @@ TEST(Unit_Tlv_DocumentBuilder, QuerySelectedSubtreeNormalizesDepthAndLeavesNextS
     ASSERT_EQ(TLV_OK, tlv_node_set_value(find(doc.get(), "A5/50"), &replacement, 1));
     EXPECT_EQ(Bytes({0xA5, 3, 0x50, 1, 7}), encode(doc.get()));
 }
+#endif
 
 TEST(Unit_Tlv_DocumentBuilder, PrimitiveAndEmptyConstructedRootsDoNotReadMalformedSibling) {
     for (uint8_t tag : {0x50, 0xA5}) {
@@ -1434,6 +1458,7 @@ TEST(Unit_Tlv_Document, WorkspaceGrowthAndAllocationFailuresPreserveOwnedTree) {
     EXPECT_TRUE(completed);
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
     auto document = parse(Bytes{0x6F, 2, 0x84, 0, 0x6F, 6, 0xA5, 4, 0x50, 0, 0x50, 0});
     auto query = tlv_query_t{};
@@ -1464,7 +1489,9 @@ TEST(Unit_Tlv_Document, QueryVisitsAllMatchesAndHonorsCallbackCommands) {
               tlv_document_query_visit(document.get(), &query, QueryCollection::collect,
                                        &collection, nullptr));
 }
+#endif
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlv_Document, RetirementEpochAdvancesWhenDeferredEraseActuallyCommits) {
     auto       doc = parse(sample);
     const auto epoch = tlv_document_retire_epoch(doc.get());
@@ -1504,3 +1531,4 @@ TEST(Unit_Tlv_Document, RetirementEpochAdvancesWhenDeferredEraseActuallyCommits)
     EXPECT_EQ(untouched_identity, tlv_document_node_identity(doc.get(), untouched));
     EXPECT_EQ((Bytes{0x50, 1, 0xFF}), encode(doc.get()));
 }
+#endif

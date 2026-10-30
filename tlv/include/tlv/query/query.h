@@ -6,11 +6,11 @@
 
 #include "tlv/result.h"
 #include "tlv/diagnostic.h"
-#include "tlv/config.h"
+#include "tlv/query/features.h"
 #include "tlv/tree.h"
 #include "tlv/reader/visitor.h"
 #include "tlv/tag.h"
-#include "tlv/export.h"
+#include "tlv/query/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -85,8 +85,8 @@ typedef union tlv_query {
  *
  * @note Never allocates. On failure `*query` is unchanged.
  */
-TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query,
-                                     tlv_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query,
+                                               tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Parse a bounded V1 ASCII path without requiring a terminator.
@@ -100,8 +100,8 @@ TLV_API tlv_result_t tlv_query_parse(const char* text, tlv_query_t* query,
  * @return #TLV_ERR_LIMIT above the inline step or tag-byte limits.
  * @note Never allocates or reads outside the supplied span. Output may overlap text.
  */
-TLV_API tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query,
-                                       tlv_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_t* query,
+                                                 tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Return the validated V1 step count.
@@ -109,7 +109,7 @@ TLV_API tlv_result_t tlv_query_parse_n(const char* text, size_t size, tlv_query_
  * @return Step count, or zero for NULL, zero-initialized or corrupt storage.
  * @note Never allocates. O(step count) validation; storage remains unchanged.
  */
-TLV_API size_t tlv_query_count(const tlv_query_t* query);
+OPENTLV_QUERY_API size_t tlv_query_count(const tlv_query_t* query);
 
 /**
  * @brief Format a V1 path as uppercase hexadecimal tags separated by slashes.
@@ -125,8 +125,8 @@ TLV_API size_t tlv_query_count(const tlv_query_t* query);
  * @note Never allocates. Other failures preserve outputs. required must not overlap
  * Query or output storage; output may overlap Query, invalidating it after success.
  */
-TLV_API tlv_result_t tlv_query_format(const tlv_query_t* query, char* output, size_t capacity,
-                                      size_t* required);
+OPENTLV_QUERY_API tlv_result_t tlv_query_format(const tlv_query_t* query, char* output,
+                                                size_t capacity, size_t* required);
 
 /**
  * @brief Returns one tag of a query.
@@ -138,7 +138,7 @@ TLV_API tlv_result_t tlv_query_format(const tlv_query_t* query, char* output, si
  *         `query` is alive and unchanged. The empty tag if `query` is `NULL`
  *         or `index` is out of range, or the stored boundaries are invalid.
  */
-TLV_API tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index);
+OPENTLV_QUERY_API tlv_tag_t tlv_query_step(const tlv_query_t* query, size_t index);
 
 /**
  * @brief Incremental matcher that decides which elements of a preorder traversal a query addresses.
@@ -165,8 +165,8 @@ typedef union tlv_query_matcher {
  * @note Never allocates. Failure preserves matcher. The old Query must remain
  * alive through this call. Use tlv_query_matcher_init() to reset a traversal.
  */
-TLV_API tlv_result_t tlv_query_matcher_rebind(tlv_query_matcher_t* matcher,
-                                              const tlv_query_t* query);
+OPENTLV_QUERY_API tlv_result_t tlv_query_matcher_rebind(tlv_query_matcher_t* matcher,
+                                                        const tlv_query_t* query);
 
 /**
  * @brief Prepares a matcher for one traversal.
@@ -181,7 +181,8 @@ TLV_API tlv_result_t tlv_query_matcher_rebind(tlv_query_matcher_t* matcher,
  *
  * @note Never allocates. On failure `*matcher` is unchanged.
  */
-TLV_API tlv_result_t tlv_query_matcher_init(tlv_query_matcher_t* matcher, const tlv_query_t* query);
+OPENTLV_QUERY_API tlv_result_t tlv_query_matcher_init(tlv_query_matcher_t* matcher,
+                                                      const tlv_query_t* query);
 
 /**
  * @brief Reports whether the next element of a preorder traversal is addressed by the query.
@@ -197,8 +198,8 @@ TLV_API tlv_result_t tlv_query_matcher_init(tlv_query_matcher_t* matcher, const 
  * @return Nonzero if the element is addressed by the query, zero if it is not
  *         or if an argument is `NULL`.
  */
-TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag,
-                                    size_t depth);
+OPENTLV_QUERY_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag,
+                                              size_t depth);
 
 /**
  * @brief Visit matching items from a caller-owned Tree Reader with resumable matching state.
@@ -214,9 +215,10 @@ TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_
  * @warning Keep the matcher's query alive and unchanged. Use a fresh matcher at
  *          the start of a tree; do not interleave unmatched pull operations.
  */
-TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matcher_t* matcher,
-                                     tlv_tree_visitor_t visitor, void* context,
-                                     tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader,
+                                               tlv_query_matcher_t* matcher,
+                                               tlv_tree_visitor_t visitor, void* context,
+                                               tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Calls a visitor for every element a query addresses.
@@ -259,11 +261,12 @@ TLV_API tlv_result_t tlv_query_visit(tlv_tree_reader_t* reader, tlv_query_matche
  *          must remain valid and unchanged during the call.
  * @see tlv_query_visit
  */
-TLV_API tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size,
-                                            const tlv_format_t* format, const tlv_query_t* query,
-                                            size_t max_depth, size_t max_elements,
-                                            tlv_tree_visitor_t visitor, void* context,
-                                            tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_QUERY_API tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size,
+                                                      const tlv_format_t* format,
+                                                      const tlv_query_t* query, size_t max_depth,
+                                                      size_t max_elements,
+                                                      tlv_tree_visitor_t visitor, void* context,
+                                                      tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }
