@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "codec_diagnostic_helpers.h"
 
 #include "tlv/formats/compose.h"
 #include "tlv/reader/reader.h"
@@ -314,25 +315,25 @@ TEST(Unit_Tlv_Architecture, StructureCodecPreservesValidationCauses) {
                   tlv_structure_decode(&codec, data, size, &value, sizeof value, nullptr));
     };
     check(valid + 3, 3, TLV_ERR_SCHEMA);
-    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, diagnostic.codec.detail.schema.kind);
+    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, codec_test_cause(&diagnostic));
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_MISSING, codec_test_schema(&diagnostic).kind);
     auto invalid_schema = children;
     invalid_schema.order = static_cast<tlv_schema_order_t>(99);
     codec.schema = &invalid_schema;
     check(valid, sizeof valid, TLV_ERR_INVALID_SCHEMA);
-    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
+    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, codec_test_cause(&diagnostic));
     codec.schema = nullptr;
     codec.max_elements = 1;
     check(valid, sizeof valid, TLV_ERR_LIMIT);
-    EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, codec_test_cause(&diagnostic));
     codec.max_elements = 2;
     check(valid, sizeof valid - 1, TLV_ERR_TRUNCATED);
-    EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, codec_test_cause(&diagnostic));
     EXPECT_NE(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
     const auto copy = diagnostic;
     diagnostic = {};
     EXPECT_EQ(TLV_ERR_TRUNCATED, copy.diagnostic.code);
-    EXPECT_EQ(TLV_CODEC_CAUSE_READER, copy.codec.cause);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, codec_test_cause(&copy));
 }
 
 TEST(Unit_Tlv_Architecture, StructureEncoderKeepsOutputValidationLocation) {
@@ -362,7 +363,7 @@ TEST(Unit_Tlv_Architecture, StructureEncoderKeepsOutputValidationLocation) {
     EXPECT_EQ(0u, written);
     EXPECT_EQ(TLV_ERR_TRUNCATED, diagnostic.diagnostic.code);
     EXPECT_EQ(TLV_CODEC_OP_ENCODE, diagnostic.codec.operation);
-    EXPECT_EQ(TLV_CODEC_CAUSE_READER, diagnostic.codec.cause);
+    EXPECT_EQ(TLV_CODEC_CAUSE_READER, codec_test_cause(&diagnostic));
     EXPECT_EQ(TLV_LOCATION_OUTPUT, diagnostic.diagnostic.location.domain);
     EXPECT_NE(TLV_LOCATION_UNKNOWN, diagnostic.diagnostic.location.kind);
 }

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "codec_diagnostic_helpers.h"
 
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
@@ -186,6 +187,6 @@ TEST(Unit_Tlv_SchemaFailure, MalformedInputKeepsTheReaderCause) {
     uint8_t                     value;
     EXPECT_EQ(failure, tlv_structure_decode(&codec, input, sizeof input, &value, sizeof value,
                                             &codec_diagnostic));
-    ASSERT_EQ(TLV_CODEC_CAUSE_READER, codec_diagnostic.codec.cause);
-    same_reader(codec_diagnostic.diagnostic, codec_diagnostic.codec.detail.reader);
+    ASSERT_EQ(TLV_CODEC_CAUSE_READER, codec_test_cause(&codec_diagnostic));
+    same_reader(codec_diagnostic.diagnostic, codec_test_reader(&codec_diagnostic));
 }

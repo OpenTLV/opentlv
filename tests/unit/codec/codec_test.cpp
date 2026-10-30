@@ -10,8 +10,6 @@
 #include "tlv/codec/values.h"
 #include "tlv/endian.h"
 #include "tlv/element.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
 
 #include "../../unknown_result.h"
 #include "../codec/raw_result.h"
@@ -288,7 +286,7 @@ TEST(Unit_Tlv_Codec, RejectionsCarryATypedReason) {
                                    sizeof value, &diagnostic));
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.diagnostic.code);
         EXPECT_EQ(test.reason, diagnostic.codec.reason);
-        EXPECT_EQ(TLV_CODEC_CAUSE_NONE, diagnostic.codec.cause);
+        EXPECT_EQ(0u, diagnostic.causes.count);
         EXPECT_EQ(test.kind, diagnostic.diagnostic.location.kind);
         if (test.kind == TLV_LOCATION_UNKNOWN) continue;
         EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);

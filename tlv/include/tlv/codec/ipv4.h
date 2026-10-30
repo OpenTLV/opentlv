@@ -4,7 +4,7 @@
 #ifndef OPENTLV_CODEC_IPV4_H
 #define OPENTLV_CODEC_IPV4_H
 
-#include "tlv/export.h"
+#include "tlv/codec/export.h"
 #include "tlv/codec/codec.h"
 #include "tlv/value.h"
 
@@ -34,7 +34,7 @@ typedef struct tlv_ipv4 {
 } tlv_ipv4_t;
 
 /** @brief Converts exactly four bytes to/from #tlv_ipv4_t without address policy checks. */
-extern TLV_API const tlv_codec_t tlv_codec_ipv4;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_ipv4;
 
 /** @brief Borrowed sequence of IPv4 addresses in network octet order. */
 typedef struct tlv_ipv4_list {
@@ -51,7 +51,7 @@ typedef struct tlv_ipv4_list {
  * NULL data returns #TLV_ERR_NULL_ARG; non-native lengths or incomplete
  * addresses return #TLV_ERR_INVALID_VALUE, including for size queries.
  */
-extern TLV_API const tlv_codec_t tlv_codec_ipv4_list;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_ipv4_list;
 
 /**
  * @brief Copies one address from a validated borrowed IPv4 list.
@@ -64,7 +64,8 @@ extern TLV_API const tlv_codec_t tlv_codec_ipv4_list;
  * @return #TLV_ERR_INVALID_VALUE for malformed lengths or an invalid index.
  * @note The destination is unchanged on failure. No allocation occurs.
  */
-TLV_API tlv_result_t tlv_ipv4_list_at(const tlv_ipv4_list_t* list, size_t index, tlv_ipv4_t* value);
+OPENTLV_CODEC_API tlv_result_t tlv_ipv4_list_at(const tlv_ipv4_list_t* list, size_t index,
+                                                tlv_ipv4_t* value);
 
 #ifdef __cplusplus
 }

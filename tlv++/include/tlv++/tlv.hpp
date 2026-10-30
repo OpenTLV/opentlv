@@ -49,6 +49,7 @@
 #if OPENTLV_CODEC
 #include "tlv++/codec/dynamic.hpp"
 #include "tlv++/codec/typed.hpp"
+#include "tlv++/codec/writer.hpp"
 #include "tlv++/codec/registry.hpp"
 #if OPENTLV_SCHEMA
 #include "tlv++/codec/structure.hpp"

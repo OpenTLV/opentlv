@@ -2,9 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_CODEC_DIAGNOSTIC_H
 #define OPENTLV_CODEC_DIAGNOSTIC_H
-#include "tlv/export.h"
-#include "tlv/reader/diagnostic.h"
-#include "tlv/schema/detail.h"
+#include "tlv/codec/export.h"
+#include "tlv/diagnostic/cause.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,10 +23,10 @@ typedef enum tlv_codec_operation {
  * @param[in] value Diagnostic enum value.
  * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
  * @note Never returns NULL or allocates. Do not free or modify the string.
- * Available even when the corresponding capability is disabled.
+ * Available whenever OpenTLV::Codec is linked.
  */
-TLV_API const char* tlv_codec_operation_string(tlv_codec_operation_t value);
-/** @brief Origin of the optional delegated cause. */
+OPENTLV_CODEC_API const char* tlv_codec_operation_string(tlv_codec_operation_t value);
+/** @brief Legacy cause vocabulary for baseline mapping; new diagnostics use cause frames. */
 typedef enum tlv_codec_cause {
     TLV_CODEC_CAUSE_NONE,   /**< No lower-layer detail was supplied. */
     TLV_CODEC_CAUSE_READER, /**< Reader detail is active. */
@@ -40,9 +39,9 @@ typedef enum tlv_codec_cause {
  * @param[in] value Diagnostic enum value.
  * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
  * @note Never returns NULL or allocates. Do not free or modify the string.
- * Available even when the corresponding capability is disabled.
+ * Available whenever OpenTLV::Codec is linked.
  */
-TLV_API const char* tlv_codec_cause_string(tlv_codec_cause_t value);
+OPENTLV_CODEC_API const char* tlv_codec_cause_string(tlv_codec_cause_t value);
 /** @brief Detected callback contract violation, independent of a returned failure. */
 typedef enum tlv_codec_violation {
     TLV_CODEC_VIOLATION_NONE,   /**< No detected callback breach. */
@@ -58,9 +57,9 @@ typedef enum tlv_codec_violation {
  * @param[in] value Diagnostic enum value.
  * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
  * @note Never returns NULL or allocates. Do not free or modify the string.
- * Available even when the corresponding capability is disabled.
+ * Available whenever OpenTLV::Codec is linked.
  */
-TLV_API const char* tlv_codec_violation_string(tlv_codec_violation_t value);
+OPENTLV_CODEC_API const char* tlv_codec_violation_string(tlv_codec_violation_t value);
 /** @brief Typed reason why a conversion rejected an encoded Value or application object.
  * @note The returned result stays authoritative (usually #TLV_ERR_INVALID_VALUE); the
  * reason explains it. Argument, capacity, delegated and callback failures use NONE. */
@@ -83,11 +82,11 @@ typedef enum tlv_codec_reason {
  * @param[in] value Diagnostic enum value.
  * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
  * @note Never returns NULL or allocates. Do not free or modify the string.
- * Available even when the corresponding capability is disabled.
+ * Available whenever OpenTLV::Codec is linked.
  */
-TLV_API const char* tlv_codec_reason_string(tlv_codec_reason_t value);
+OPENTLV_CODEC_API const char* tlv_codec_reason_string(tlv_codec_reason_t value);
 /** @brief Conversion detail accompanying one shared common diagnostic.
- * @note Only the member selected by cause is active. All borrows must outlive copies.
+ * @note All borrows must outlive copies. Delegated evidence belongs to the diagnostic cause chain.
  */
 typedef struct tlv_codec_detail {
     tlv_codec_operation_t operation; /**< Conversion operation. */
@@ -96,11 +95,6 @@ typedef struct tlv_codec_detail {
     tlv_codec_violation_t violation; /**< Detected callback breach. */
     tlv_codec_reason_t reason;       /**< Why the conversion rejected the Value or object. */
     const char* representation;      /**< Optional borrowed static representation name. */
-    tlv_codec_cause_t cause;         /**< Active delegated detail. */
-    union {
-        tlv_reader_detail_t reader; /**< Reader cause. */
-        tlv_schema_detail_t schema; /**< Schema cause. */
-    } detail;                       /**< Discriminated lower-layer detail. */
 } tlv_codec_detail_t;
 /** @brief Copyable conversion diagnostic with one common location/path.
  * @note Caller-owned and optional. NULL avoids collecting detail. Callback diagnostics
@@ -108,15 +102,16 @@ typedef struct tlv_codec_detail {
  * result in diagnostic.code; unknown detail/location remain unset.
  */
 typedef struct tlv_codec_diagnostic {
-    tlv_diagnostic_t diagnostic; /**< Common result, location and borrowed contexts. */
-    tlv_codec_detail_t codec;    /**< Conversion and delegated cause. */
+    tlv_diagnostic_t diagnostic;    /**< Common result, location and borrowed contexts. */
+    tlv_codec_detail_t codec;       /**< Codec-owned conversion detail. */
+    tlv_diagnostic_causes_t causes; /**< Producer-owned delegated details, outermost first. */
 } tlv_codec_diagnostic_t;
 /** @brief Clear optional conversion evidence for a new operation.
  * @param[out] diagnostic Optional destination.
  * @param[in] operation Conversion operation.
  */
-TLV_API void tlv_codec_diagnostic_init(tlv_codec_diagnostic_t* diagnostic,
-                                       tlv_codec_operation_t operation);
+OPENTLV_CODEC_API void tlv_codec_diagnostic_init(tlv_codec_diagnostic_t* diagnostic,
+                                                 tlv_codec_operation_t operation);
 /** @brief Publish a conversion result without discarding supplied cause evidence.
  * @param[out] diagnostic Optional initialized destination.
  * @param[in] result Result to publish unchanged.
@@ -169,15 +164,31 @@ static inline tlv_result_t tlv_codec_diagnostic_reason_at(tlv_codec_diagnostic_t
 }
 /** @brief Publish Codec evidence in a producer-independent callback envelope.
  * NULL output skips evidence; NULL input clears output. Detail and nested cause
- * are copied by value, retaining the producer's existing borrowed lifetimes. */
-TLV_API void tlv_codec_diagnostic_export(tlv_diagnostic_envelope_t* output,
-                                         const tlv_codec_diagnostic_t* input);
-/** @brief Reconstruct Codec detail from its outer frame and optional delegated frame.
+ * are copied by value, retaining the producer's existing borrowed lifetimes.
+ * Output and input must not overlap. The outermost frames are retained; omitted
+ * inner frames are counted with saturation at SIZE_MAX. */
+OPENTLV_CODEC_API void tlv_codec_diagnostic_export(tlv_diagnostic_envelope_t* output,
+                                                   const tlv_codec_diagnostic_t* input);
+/** @brief Copy Codec detail from the outer frame; delegated frames remain in the chain.
  * Returns NULL_ARG for NULL pointers or INVALID_ARG for a foreign outer frame.
- * Output remains unchanged on failure. Missing delegated frames remain unset. */
-TLV_API tlv_result_t tlv_codec_detail_import(const tlv_diagnostic_causes_t* causes,
-                                             tlv_codec_detail_t* output);
+ * Output remains unchanged on failure. */
+OPENTLV_CODEC_API tlv_result_t tlv_codec_detail_import(const tlv_diagnostic_causes_t* causes,
+                                                       tlv_codec_detail_t* output);
 
+/** @brief Append copied Codec detail to a chain using the registered Codec domain.
+ * @param[in,out] causes Destination chain; required.
+ * @param[in] detail Codec-owned leaf detail; required.
+ * @return OK, NULL_ARG, INVALID_ARG or BUFFER_TOO_SHORT as for tlv_diagnostic_causes_append().
+ */
+OPENTLV_CODEC_API tlv_result_t tlv_codec_detail_attach(tlv_diagnostic_causes_t* causes,
+                                                       const tlv_codec_detail_t* detail);
+/** @brief Copy a Codec frame into typed caller storage without interpreting foreign payloads.
+ * @param[in] cause Source frame; required.
+ * @param[out] detail Destination, unchanged on failure; required.
+ * @return OK, NULL_ARG or INVALID_ARG as for tlv_diagnostic_cause_copy().
+ */
+OPENTLV_CODEC_API tlv_result_t tlv_codec_detail_copy(const tlv_diagnostic_cause_t* cause,
+                                                     tlv_codec_detail_t* detail);
 #ifdef __cplusplus
 }
 #endif

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "codec_diagnostic_helpers.h"
 
 #include "tlv/schema/schema.h"
 #include "tlv/schema/number.h"
@@ -176,9 +177,9 @@ TEST(Unit_Tlv_Schema, NumberCompositionPreservesSchemaDiagnostic) {
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA,
               tlv_schema_number_decode(&config, wire, 1, &decoded, sizeof decoded, &diagnostic));
     EXPECT_EQ(TLV_ERR_INVALID_SCHEMA, diagnostic.diagnostic.code);
-    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, diagnostic.codec.detail.schema.kind);
-    EXPECT_STREQ("number", diagnostic.codec.detail.schema.field);
+    EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, codec_test_cause(&diagnostic));
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_DEFINITION, codec_test_schema(&diagnostic).kind);
+    EXPECT_STREQ("number", codec_test_schema(&diagnostic).field);
     EXPECT_EQ(99u, decoded);
 
     // Sizing succeeds, then the Schema rejects width 2: the caller's operation is kept.
@@ -193,8 +194,8 @@ TEST(Unit_Tlv_Schema, NumberCompositionPreservesSchemaDiagnostic) {
                   tlv_schema_number_encode(&fixed, &number, sizeof number, data,
                                            data ? sizeof out : 0, &written, &diagnostic));
         EXPECT_EQ(data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE, diagnostic.codec.operation);
-        EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, diagnostic.codec.cause);
-        EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, diagnostic.codec.detail.schema.kind);
+        EXPECT_EQ(TLV_CODEC_CAUSE_SCHEMA, codec_test_cause(&diagnostic));
+        EXPECT_EQ(TLV_SCHEMA_ISSUE_LENGTH, codec_test_schema(&diagnostic).kind);
         EXPECT_EQ(0u, written);
     }
 }

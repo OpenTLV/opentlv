@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tests LANGUAGES C)
 
+foreach(module IN ITEMS codec query-codec)
+    string(REPLACE "-" "_" source "${module}")
+    opentlv_add_module_test(module-${module} OWNER ${module} SOURCES modules/${source}.c)
+    opentlv_configure_compiler(module-${module})
+    opentlv_copy_shared_runtime(module-${module})
+endforeach()
+
 opentlv_add_module_test(module-query OWNER query SOURCES modules/query.c)
 opentlv_add_module_test(module-query-document OWNER query-document SOURCES modules/query_document.c)
 opentlv_configure_compiler(module-query)
@@ -70,7 +77,7 @@ if(OPENTLV_BUILD_SHARED_LIBS)
     foreach(contract IN ITEMS capability-contract diagnostic-strings-contract)
         add_custom_command(TARGET ${contract} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE_DIR:${contract}>)
+                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE:opentlv_codec> $<TARGET_FILE:opentlv_query_codec> $<TARGET_FILE_DIR:${contract}>)
     endforeach()
 endif()
 

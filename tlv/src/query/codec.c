@@ -69,14 +69,30 @@ tlv_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t*
 }
 static const tlv_number_codec_config_t bcd_config = {TLV_NUMBER_BCD, 0, 18};
 static const tlv_codec_t bcd_codec = {&bcd_config, tlv_number_decode, tlv_number_encode};
-static const tlv_query_codec_adapter_t integer_adapter = {&tlv_codec_int64_minimal_be,
-                                                          TLV_QUERY_CODEC_SIGNED};
 static const tlv_query_codec_adapter_t bcd_adapter = {&bcd_codec, TLV_QUERY_CODEC_UNSIGNED};
-static const tlv_query_codec_adapter_t text_adapter = {&tlv_codec_bytes, TLV_QUERY_CODEC_UTF8};
+/* Imported DLL data addresses are not C static-initializer constants on Windows.
+ * Form borrowed adapters at the call boundary without mutable global state. */
+static tlv_result_t integer_decode(const void* context, const tlv_tree_event_t* event,
+                                   const uint8_t* data, size_t size, void* scratch, size_t capacity,
+                                   tlv_query_result_t* result,
+                                   tlv_diagnostic_envelope_t* diagnostic) {
+    (void)context;
+    const tlv_query_codec_adapter_t adapter = {&tlv_codec_int64_minimal_be, TLV_QUERY_CODEC_SIGNED};
+    return tlv_query_codec_decode(&adapter, event, data, size, scratch, capacity, result,
+                                  diagnostic);
+}
+static tlv_result_t text_decode(const void* context, const tlv_tree_event_t* event,
+                                const uint8_t* data, size_t size, void* scratch, size_t capacity,
+                                tlv_query_result_t* result, tlv_diagnostic_envelope_t* diagnostic) {
+    (void)context;
+    const tlv_query_codec_adapter_t adapter = {&tlv_codec_bytes, TLV_QUERY_CODEC_UTF8};
+    return tlv_query_codec_decode(&adapter, event, data, size, scratch, capacity, result,
+                                  diagnostic);
+}
 static const tlv_query_hook_t builtin_hooks[] = {
-    {1, TLV_QUERY_NUM, sizeof(int64_t), 8, &integer_adapter, tlv_query_codec_decode},
+    {1, TLV_QUERY_NUM, sizeof(int64_t), 8, NULL, integer_decode},
     {2, TLV_QUERY_BCD, sizeof(uint64_t), 8, &bcd_adapter, tlv_query_codec_decode},
-    {3, TLV_QUERY_TEXT, sizeof(tlv_value_t), 8, &text_adapter, tlv_query_codec_decode}};
+    {3, TLV_QUERY_TEXT, sizeof(tlv_value_t), 8, NULL, text_decode}};
 const tlv_query_hook_t* tlv_query_builtin_hooks(size_t* count) {
     if (count) *count = 3;
     return builtin_hooks;

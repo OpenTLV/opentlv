@@ -447,7 +447,7 @@ The options below still select functionality awaiting extraction.
 | --- | --- |
 | `OpenTLV::Query` target | Canonical Query compiler/execution and path matching; link-selected |
 | `OPENTLV_SCHEMA` | Schema descriptions, length and value constraints; wire traversal requires Reader |
-| `OPENTLV_CODEC` | Semantic Value codecs; structure codecs require Schema and Reader |
+| `OpenTLV::Codec` target | Semantic Value codecs with Core only; structured codecs are an explicit Schema/IO integration. The `OPENTLV_CODEC` option was removed. |
 | `OPENTLV_QUERY_FRONTEND` | Query text parser/compiler; disable for [static C plans](../guides/queries.md#static-c-plans-and-frontend-free-execution) |
 | `OPENTLV_QUERY_SET_OPERATIONS` | Query union, intersection and difference in the shared executor |
 | `OpenTLV::Document` target | Canonical owned mutable [Document](../guides/document.md); links Core and IO. The former `OPENTLV_DOCUMENT` option is removed. |

@@ -152,11 +152,23 @@ void codec_cases() {
               << ",\"invalid_result\":" << int(result)
               << ",\"destination_after_failure\":" << decoded << ",\"diagnostic\":{";
     common(d.diagnostic);
+#ifdef OPENTLV_CODEC_API
+    tlv_schema_detail_t detail{};
+    tlv_codec_cause_t   cause = TLV_CODEC_CAUSE_NONE;
+    if (d.causes.count && tlv_schema_detail_copy(&d.causes.frames[0], &detail) == TLV_OK)
+        cause = TLV_CODEC_CAUSE_SCHEMA;
+    std::cout << ",\"operation\":" << int(d.codec.operation) << ",\"cause\":" << int(cause)
+              << ",\"reason\":" << int(d.codec.reason)
+              << ",\"violation\":" << int(d.codec.violation)
+              << ",\"reported\":" << int(d.codec.reported);
+    if (cause == TLV_CODEC_CAUSE_SCHEMA) schema(detail);
+#else
     std::cout << ",\"operation\":" << int(d.codec.operation) << ",\"cause\":" << int(d.codec.cause)
               << ",\"reason\":" << int(d.codec.reason)
               << ",\"violation\":" << int(d.codec.violation)
               << ",\"reported\":" << int(d.codec.reported);
     if (d.codec.cause == TLV_CODEC_CAUSE_SCHEMA) schema(d.codec.detail.schema);
+#endif
     std::cout << "}}";
 }
 } // namespace

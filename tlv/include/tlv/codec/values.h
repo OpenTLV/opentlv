@@ -4,7 +4,7 @@
 #ifndef OPENTLV_CODEC_VALUES_H
 #define OPENTLV_CODEC_VALUES_H
 
-#include "tlv/export.h"
+#include "tlv/codec/export.h"
 #include "tlv/codec/codec.h"
 #include "tlv/value.h"
 
@@ -28,15 +28,15 @@ extern "C" {
 #endif
 
 /** @brief Converts exactly one byte to/from uint8_t. */
-extern TLV_API const tlv_codec_t tlv_codec_uint8;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_uint8;
 /** @brief Converts exactly two big-endian bytes to/from uint16_t. */
-extern TLV_API const tlv_codec_t tlv_codec_uint16_be;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_uint16_be;
 /** @brief Converts exactly four big-endian bytes to/from uint32_t. */
-extern TLV_API const tlv_codec_t tlv_codec_uint32_be;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_uint32_be;
 /** @brief Converts exactly two little-endian bytes to/from uint16_t. */
-extern TLV_API const tlv_codec_t tlv_codec_uint16_le;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_uint16_le;
 /** @brief Converts exactly four little-endian bytes to/from uint32_t. */
-extern TLV_API const tlv_codec_t tlv_codec_uint32_le;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_uint32_le;
 /**
  * @brief Converts minimal big-endian two's-complement bytes to/from int64_t.
  *
@@ -45,7 +45,7 @@ extern TLV_API const tlv_codec_t tlv_codec_uint32_le;
  * This is value encoding only; no ASN.1 tag or universal-type policy is applied.
  * The common object-size, capacity and size-query rules above apply.
  */
-extern TLV_API const tlv_codec_t tlv_codec_int64_minimal_be;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_int64_minimal_be;
 
 /**
  * @brief Converts arbitrary bytes to/from a borrowed #tlv_value_t.
@@ -56,7 +56,7 @@ extern TLV_API const tlv_codec_t tlv_codec_int64_minimal_be;
  * #TLV_ERR_NULL_ARG and non-native lengths with
  * #TLV_ERR_INVALID_VALUE. No text or identifier semantics are applied.
  */
-extern TLV_API const tlv_codec_t tlv_codec_bytes;
+extern OPENTLV_CODEC_API const tlv_codec_t tlv_codec_bytes;
 
 #ifdef __cplusplus
 }

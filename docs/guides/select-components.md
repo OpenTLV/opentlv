@@ -5,7 +5,7 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-Core, IO, Document, Generator and Query are independent C libraries. Core owns Definition, Format and Field
+Core, IO, Document, Generator, Query and Codec are independent C libraries. Core owns Definition, Format and Field
 Encoding, Element and Layout, byte utilities and generic diagnostics. IO owns
 Reader, Writer, traversal and serialization and depends publicly on Core.
 Document owns mutable trees and depends publicly on Core and IO.
@@ -42,7 +42,7 @@ cmake --build build/modules --target opentlv_document
 cmake --build build/modules --target opentlv_generator
 ```
 
-`OPENTLV_READER`, `OPENTLV_WRITER`, `OPENTLV_DOCUMENT` and `OPENTLV_QUERY` are no longer CMake
+`OPENTLV_READER`, `OPENTLV_WRITER`, `OPENTLV_DOCUMENT`, `OPENTLV_QUERY` and `OPENTLV_CODEC` are no longer CMake
 options. Supplying any of them
 is an error; remove them from presets and existing caches (or use a fresh build
 directory). IO always includes both APIs. For transition compatibility,
@@ -50,8 +50,8 @@ directory). IO always includes both APIs. For transition compatibility,
 they do not select sources or indicate which modules an application linked.
 
 Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO,
-Document, Generator, Query and QueryDocument transitively. Direct library consumers must link the dependencies too (static
-link order: `tlv`, `opentlv_query_document`, `opentlv_query`, `opentlv_document`, `opentlv_generator`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
+Document, Generator, Query, QueryDocument, Codec and QueryCodec transitively. Direct library consumers must link the dependencies too (static
+link order: `tlv`, `opentlv_query_document`, `opentlv_query_codec`, `opentlv_query`, `opentlv_document`, `opentlv_generator`, `opentlv_codec`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
 all linked libraries. Rebuild consumers after the split; the old single-library
 binary distribution is not preserved.
 
@@ -86,6 +86,44 @@ nested callback lifetime guards. Integrations use existing node traversal,
 identity, retirement epoch, revision and mutation APIs. Guarded fallible edits
 fail with `INVALID_STATE`; erasure and destruction are deferred until the
 outermost guard exits. No Document private header is needed by Query.
+
+## Independent Codec
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Codec)
+target_link_libraries(my_values PRIVATE OpenTLV::Codec)
+```
+
+This loads only Codec and Core. A target-only source build with
+`cmake --build build/modules --target opentlv_codec` compiles no Reader, Schema,
+Query, Document, Generator or builtin implementation. All generic numeric,
+digit, text, IPv4 and byte conversions, callbacks and measurement remain available.
+Public headers retain their `tlv/codec/` paths and use `OPENTLV_CODEC_API`.
+
+Link `OpenTLV::QueryCodec` and include `tlv/query/adapters.h` for generic Query
+conversion providers. This integration depends explicitly on Core, IO, Query
+and Codec. Neither base module links the integration.
+
+`tlv/codec/structure.h` belongs to the Codec-owned `codec-structure` integration,
+which composes Codec, Schema and IO. Until Schema extraction (#652), it is
+compiled only into `OpenTLV::tlv`; it is not part of base Codec. The aggregate
+continues to provide structured validation and conversion without changing
+wire behavior. No base Codec dependency points back to Schema or the aggregate.
+
+Codec diagnostics now store a leaf `codec` detail and a separate `causes` chain.
+Use the producer's `tlv_reader_detail_copy()` or `tlv_schema_detail_copy()` on a
+cause frame instead of `codec.cause` and `codec.detail`. Common locations, paths,
+expected/actual text and conversion operation, raw result, reason, representation
+and callback violation are preserved. `tlv_codec_diagnostic_export()` prepends
+the Codec frame while preserving delegated frames and bounded omission counts;
+`tlv_codec_detail_import()` copies only the outer Codec leaf. Legacy cause enum
+names remain available for the approved baseline mapping. Rebuild binary consumers.
+C++ `codec_failure::causes()` exposes the retained chain.
+
+Include `tlv++/codec/writer.hpp` for typed `writer_base::write()` overloads.
+`tlv++/codec/typed.hpp` no longer includes Writer. The aggregate `tlv++/tlv.hpp`
+includes both; shared C++ support headers retain their existing transitional
+Schema dependency until facade extraction.
 
 ## Independent Generator
 

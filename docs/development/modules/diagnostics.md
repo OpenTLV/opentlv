@@ -62,6 +62,15 @@ These embeddings are why Codec, Schema and Query cannot build without each
 other. The detail itself is correct and must keep its precision; only its
 ownership and transport change.
 
+The Codec extraction (#651) resolves the Codec side of this cycle: its detail is
+now a leaf and its diagnostic carries the Core cause chain. Structure Codec and
+Schema number integrations attach IO/Schema frames through producer-owned APIs.
+Codec exports and imports its own detail without linking either producer. The
+legacy `tlv_codec_cause_t` vocabulary is retained for baseline interpretation,
+but no longer discriminates a union. Its mapping remains `none`, `frame:io`,
+and `frame:schema`; no result, operation, reason or violation is renumbered.
+Schema's remaining diagnostic representation changes belong to #652.
+
 ## Ownership
 
 Core owns only generic diagnostic infrastructure:

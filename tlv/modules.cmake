@@ -444,3 +444,72 @@ opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_
         tlv_document_query_value_size
         tlv_document_query_visit
 )
+
+opentlv_add_module(codec EXPORT_NAME Codec INCLUDE_DIR include
+    CONSUMER ../tests/modules/codec.c
+    SOURCES
+        src/codec/codec.c
+        src/codec/diagnostic.c
+        src/codec/diagnostic_strings.c
+        src/codec/digits.c
+        src/codec/ipv4.c
+        src/codec/number.c
+        src/codec/text.c
+        src/codec/values.c
+    PUBLIC_HEADERS
+        include/tlv/codec/codec.h
+        include/tlv/codec/diagnostic.h
+        include/tlv/codec/digits.h
+        include/tlv/codec/ipv4.h
+        include/tlv/codec/number.h
+        include/tlv/codec/text.h
+        include/tlv/codec/values.h
+    PRIVATE_HEADERS
+        src/codec/result_internal.h
+    PUBLIC_DEPS
+        core
+    PUBLIC_SYMBOLS
+        tlv_codec_bytes
+        tlv_codec_cause_string
+        tlv_codec_decode
+        tlv_codec_detail_attach
+        tlv_codec_detail_copy
+        tlv_codec_detail_import
+        tlv_codec_diagnostic_export
+        tlv_codec_diagnostic_init
+        tlv_codec_encode
+        tlv_codec_int64_minimal_be
+        tlv_codec_ipv4
+        tlv_codec_ipv4_list
+        tlv_codec_operation_string
+        tlv_codec_reason_string
+        tlv_codec_uint16_be
+        tlv_codec_uint16_le
+        tlv_codec_uint32_be
+        tlv_codec_uint32_le
+        tlv_codec_uint8
+        tlv_codec_violation_string
+        tlv_digits_decode
+        tlv_digits_encode
+        tlv_ipv4_list_at
+        tlv_number_decode
+        tlv_number_encode
+        tlv_text_decode
+        tlv_text_encode
+)
+
+opentlv_add_module(query-codec OWNER query EXPORT_NAME QueryCodec INCLUDE_DIR include
+    CONSUMER ../tests/modules/query_codec.c
+    SOURCES
+        src/query/codec.c
+    PUBLIC_HEADERS
+        include/tlv/query/adapters.h
+    PUBLIC_DEPS
+        core
+        io
+        query
+        codec
+    PUBLIC_SYMBOLS
+        tlv_query_builtin_hooks
+        tlv_query_codec_decode
+)

@@ -74,6 +74,7 @@ set(SOURCES
     field/fixed_test.cpp
     query/query_test.cpp
     query/program_test.cpp
+    query/raw_result.c
     query/f2_test.cpp
     query/f3_test.cpp
     reader/reader_test.cpp
@@ -103,6 +104,23 @@ foreach(source IN LISTS SOURCES)
         list(REMOVE_ITEM SOURCES "${source}")
     endif()
 endforeach()
+
+# Generic Codec scenarios link only Codec and Core, including callback contracts.
+if(test_group STREQUAL "unit")
+    set(codec_sources)
+    foreach(source IN LISTS SOURCES)
+        if(source MATCHES "^codec/")
+            list(APPEND codec_sources "${source}")
+        endif()
+    endforeach()
+    list(REMOVE_ITEM SOURCES ${codec_sources})
+    opentlv_add_module_test(test-codec OWNER codec SOURCES ${codec_sources} codec/diagnostic_test.cpp)
+    target_link_libraries(test-codec PRIVATE GTest::gtest_main)
+    target_include_directories(test-codec PRIVATE ${OpenTLV_SOURCE_DIR}/tests)
+    opentlv_configure_compiler(test-codec)
+    opentlv_copy_shared_runtime(test-codec)
+    set_tests_properties(test-codec PROPERTIES LABELS "unit;module:codec")
+endif()
 
 # Tests that name an optional component follow the same feature selection.
 if(NOT OPENTLV_NFC)

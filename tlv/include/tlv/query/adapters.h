@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_QUERY_ADAPTERS_H
 #define OPENTLV_QUERY_ADAPTERS_H
-#include "tlv/export.h"
+#include "tlv/query-codec/export.h"
 #include "tlv/query/definition.h"
 #include "tlv/codec/codec.h"
 #ifdef __cplusplus
@@ -36,17 +36,19 @@ typedef struct tlv_query_codec_adapter {
  * @note No allocation. UTF-8 validation adds linear external adapter work. * @param[out] diagnostic
  * Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_query_codec_decode(const void* context, const tlv_tree_event_t* event,
-                                            const uint8_t* data, size_t size, void* scratch,
-                                            size_t capacity, tlv_query_result_t* result,
-                                            tlv_diagnostic_envelope_t* diagnostic);
+OPENTLV_QUERY_CODEC_API tlv_result_t tlv_query_codec_decode(const void* context,
+                                                            const tlv_tree_event_t* event,
+                                                            const uint8_t* data, size_t size,
+                                                            void* scratch, size_t capacity,
+                                                            tlv_query_result_t* result,
+                                                            tlv_diagnostic_envelope_t* diagnostic);
 /** @brief Static native generic NUM/BCD/TEXT providers, IDs 1/2/3.
  * NUM uses minimal signed big-endian int64; BCD uses unsigned packed decimal
  * with at most 18 digits; TEXT uses borrowed UTF-8 bytes. Domain codecs may
  * replace these by explicit adapters and distinct stable capability IDs.
  * @param[out] count Optional provider count.
  * @return Borrowed immutable provider array, never NULL. A NULL count is allowed. */
-TLV_API const tlv_query_hook_t* tlv_query_builtin_hooks(size_t* count);
+OPENTLV_QUERY_CODEC_API const tlv_query_hook_t* tlv_query_builtin_hooks(size_t* count);
 #ifdef __cplusplus
 }
 #endif

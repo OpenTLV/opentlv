@@ -6,7 +6,7 @@
 
 #include "tlv/result.h"
 #include "tlv/codec/diagnostic.h"
-#include "tlv/export.h"
+#include "tlv/codec/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -99,9 +99,9 @@ typedef struct tlv_codec {
  * @warning On error the contents of `value` are unspecified.
  * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data, size_t size,
-                                      void* value, size_t capacity,
-                                      tlv_codec_diagnostic_t* diagnostic);
+OPENTLV_CODEC_API tlv_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* data,
+                                                size_t size, void* value, size_t capacity,
+                                                tlv_codec_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes a C representation into raw value bytes with a codec.
@@ -126,9 +126,10 @@ TLV_API tlv_result_t tlv_codec_decode(const tlv_codec_t* codec, const uint8_t* d
  * @warning On error the destination contents are unspecified and `*written` is zero.
  * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value, size_t size,
-                                      uint8_t* data, size_t capacity, size_t* written,
-                                      tlv_codec_diagnostic_t* diagnostic);
+OPENTLV_CODEC_API tlv_result_t tlv_codec_encode(const tlv_codec_t* codec, const void* value,
+                                                size_t size, uint8_t* data, size_t capacity,
+                                                size_t* written,
+                                                tlv_codec_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }
