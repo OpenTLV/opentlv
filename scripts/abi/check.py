@@ -182,7 +182,7 @@ def main():
     parser.add_argument("--baseline-file", type=Path, default=DEFAULT_BASELINE,
                         help="Stored ABI baseline (abidw dump)")
     parser.add_argument("--candidate-dir", type=Path, default=REPO_ROOT, help="Candidate source tree")
-    parser.add_argument("--library", choices=("tlv", "opentlv_core", "opentlv_io", "opentlv_document"), default="tlv",
+    parser.add_argument("--library", choices=("tlv", "opentlv_core", "opentlv_io", "opentlv_document", "opentlv_generator"), default="tlv",
                         help="Library to compare; use a matching per-library baseline")
     parser.add_argument("--update", action="store_true",
                         help="Regenerate the baseline from the candidate instead of comparing")

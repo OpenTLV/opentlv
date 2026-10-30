@@ -84,6 +84,7 @@ foreach(consumer IN LISTS consumers)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "$<TARGET_FILE:OpenTLV::tlv>"
                 "$<TARGET_FILE:OpenTLV::Core>" "$<TARGET_FILE:OpenTLV::IO>"
+                "$<TARGET_FILE:OpenTLV::Document>" "$<TARGET_FILE:OpenTLV::Generator>"
                 "$<TARGET_FILE_DIR:${consumer}>"
             VERBATIM)
     endif()

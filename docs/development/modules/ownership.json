@@ -50,6 +50,7 @@
     "tlv/core/export.h": "core",
     "tlv/io/export.h": "io",
     "tlv/document/export.h": "document",
+    "tlv/generator/export.h": "generator",
     "src/config.c": "core",
     "src/version.c": "core"
   },

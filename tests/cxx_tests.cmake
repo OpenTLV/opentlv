@@ -11,7 +11,13 @@ set(SOURCES
 
 if(test_group STREQUAL "unit")
     list(APPEND SOURCES public_api_test.cpp)
-    list(APPEND SOURCES generator_test.cpp test_native_boundary.cpp test_semantic_views.cpp codec/test_typed_fields.cpp)
+    list(APPEND SOURCES test_native_boundary.cpp test_semantic_views.cpp codec/test_typed_fields.cpp)
+    # Builtin Formats are fixtures; Generator owns all existing C/C++ scenarios.
+    opentlv_add_module_test(test-generator OWNER generator SOURCES generator_test.cpp)
+    target_link_libraries(test-generator PRIVATE tlv++ GTest::gtest_main)
+    opentlv_configure_compiler(test-generator)
+    opentlv_copy_shared_runtime(test-generator)
+    set_tests_properties(test-generator PROPERTIES LABELS "unit;module:generator")
     list(APPEND SOURCES test_diagnostic.cpp builtins/test_convenience.cpp)
     add_executable(test-builtin-convenience-smoke builtins/convenience_smoke.cpp)
     target_link_libraries(test-builtin-convenience-smoke PRIVATE tlv++)

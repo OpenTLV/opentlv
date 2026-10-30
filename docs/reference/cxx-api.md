@@ -22,6 +22,9 @@ The `<tlv++/generator.hpp>` facade exposes `tlv::generate()`,
 Formats and caller-owned byte spans. See the
 [deterministic wire generation contract](c-api.md#deterministic-wire-generation)
 for limits, reproducibility, workspace and candidate-domain rules.
+It belongs to the independent `OpenTLV::Generator` module and remains header-only;
+link that C target and compile as C++11 or later. The aggregate `OpenTLV::tlv++`
+target also propagates Generator. See [component selection](../guides/select-components.md#independent-generator).
 
 `tlv::generator` copies the options and manages reusable scratch storage.
 `generate(case_index)` returns `expected<std::vector<tlv::byte>, tlv::error>`;

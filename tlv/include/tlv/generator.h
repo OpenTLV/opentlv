@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_GENERATOR_H
 #define OPENTLV_GENERATOR_H
-#include "tlv/export.h"
+#include "tlv/generator/export.h"
 #include "tlv/format.h"
 #ifdef __cplusplus
 extern "C" {
@@ -56,8 +56,8 @@ typedef struct tlv_generator_options {
  * @return #TLV_ERR_OVERFLOW for unrepresentable workspace or attempt budget.
  * @note Output is unchanged on failure.
  */
-TLV_API tlv_result_t tlv_generator_workspace_size(const tlv_generator_options_t* options,
-                                                  size_t* size);
+OPENTLV_GENERATOR_API tlv_result_t
+tlv_generator_workspace_size(const tlv_generator_options_t* options, size_t* size);
 /** @brief Generate one nonempty complete stream through the canonical Writer.
  *
  * A bounded search accepts only elements that decode completely and re-encode
@@ -93,10 +93,10 @@ TLV_API tlv_result_t tlv_generator_workspace_size(const tlv_generator_options_t*
  * Required top-level pointers are checked before Format capabilities, then
  * configuration is validated before output and workspace capacities.
  */
-TLV_API tlv_result_t tlv_generate(const tlv_format_t* format,
-                                  const tlv_generator_options_t* options, uint8_t* data,
-                                  size_t capacity, uint8_t* workspace, size_t workspace_size,
-                                  size_t* written);
+OPENTLV_GENERATOR_API tlv_result_t tlv_generate(const tlv_format_t* format,
+                                                const tlv_generator_options_t* options,
+                                                uint8_t* data, size_t capacity, uint8_t* workspace,
+                                                size_t workspace_size, size_t* written);
 #ifdef __cplusplus
 }
 #endif

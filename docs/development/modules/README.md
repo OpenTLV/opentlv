@@ -9,7 +9,8 @@ reviewers who approve these contracts. Read the
 [failure model](../../concepts/error-model.md) first.
 
 **Implementation status:** #647 extracts the C `OpenTLV::Core` and
-`OpenTLV::IO` targets, and #648 extracts `OpenTLV::Document`, using the
+`OpenTLV::IO` targets, #648 extracts `OpenTLV::Document`, and #649 extracts
+`OpenTLV::Generator`, using the
 infrastructure from #646. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
 checks the compiled dependency graph. The remaining modules and C++ facades
@@ -23,6 +24,15 @@ APIs, with no Document private-header access. The integration remains compiled
 in the compatibility library until #650 registers Query and its integrations.
 The base Document target has no Query, Schema, Codec, Generator or builtin
 headers, sources or symbols. C++ facade separation remains tracked below.
+
+Generator registers `generator.c` and `tlv/generator.h`, with public Core and
+private IO dependencies and its own export header. Its source and algorithm
+version remain unchanged; IO never depends on Generator. The existing
+`tlv++/generator.hpp` retains Generator ownership and is checked with an
+independently linked C++11 consumer. It remains header-only and uses the current
+shared C++ support headers pending their facade separation. Generator test
+ownership includes the existing native/facade regression scenarios; builtin
+Formats in those scenarios are test fixtures, not Generator dependencies.
 
 The [pre-refactor behavioral baseline](../../../tests/baseline/README.md) for
 issue #645 pins the released behavior and diagnostic inventory used when applying
