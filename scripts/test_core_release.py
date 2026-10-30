@@ -113,6 +113,17 @@ class StaticGateTests(unittest.TestCase):
 
 
 class CoreGateTests(unittest.TestCase):
+    def test_changed_module_configuration_invalidates_quality_evidence(self):
+        evidence = quality()
+        original_digest = release.digest
+        for changed in ('cmake/modules.cmake', 'tlv/CMakeLists.txt', 'tlv/modules.cmake'):
+            with self.subTest(changed=changed):
+                self.assertIn(changed, evidence['configuration']['configuration_sources'])
+                with patch('core_release.digest', side_effect=lambda path:
+                           '0' * 64 if path == ROOT / changed else original_digest(path)):
+                    with self.assertRaisesRegex(ValueError, 'configuration evidence'):
+                        release.check_quality(evidence, SHA, '123', '1', ENV['GITHUB_REPOSITORY'])
+
     @patch.dict(os.environ, ENV)
     def test_main_gate_requires_exact_successful_smoke_and_codeql_results(self):
         passed = {'smoke': {'result': 'success'}, 'codeql': {'result': 'success'}}

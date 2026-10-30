@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix CI and release evidence generation after Schema extraction by tracking the current modular CMake configuration instead of the removed capability-options file. Rename the C++ Schema failure factory to `schema_failure::from_result()` to avoid hiding the common error factory and restore cppcheck validation. (#652)
+
 ### Changed
 
 - **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)

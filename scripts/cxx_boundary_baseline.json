@@ -615,9 +615,11 @@
       "symbols": {
         "TLV_DIAGNOSTIC_SEVERITY_ERROR": 2,
         "TLV_ERR_INVALID_SCHEMA": 1,
+        "TLV_ERR_NULL_ARG": 2,
         "TLV_ERR_TRUNCATED": 1,
         "TLV_OK": 2,
         "TLV_READER_OP_VALUE": 1,
+        "TLV_SCHEMA_CAUSE_NONE": 1,
         "TLV_SCHEMA_CAUSE_READER": 1,
         "TLV_SCHEMA_CAUSE_SCHEMA": 1,
         "TLV_SCHEMA_DEFINITION_RULE": 1,

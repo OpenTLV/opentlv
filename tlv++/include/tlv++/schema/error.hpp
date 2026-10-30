@@ -45,7 +45,7 @@ public:
     explicit schema_failure(const tlv_schema_diagnostic_t& value) noexcept
         : error(project(value)), raw_(value) {}
     /** @brief Translate a preflight result without additional evidence. */
-    static schema_failure from_c(tlv_result_t rc) noexcept {
+    static schema_failure from_result(tlv_result_t rc) noexcept {
         tlv_schema_diagnostic_t value{};
         tlv_diagnostic_init(&value.diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
         return schema_failure(value);

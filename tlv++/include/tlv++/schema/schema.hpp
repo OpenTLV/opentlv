@@ -88,7 +88,7 @@ validate(bytes data, const tlv_format_t& format, const tlv_structure_schema_t& s
     tlv_result_t rc =
         tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
                             &schema, max_depth, max_elements, diagnostic);
-    if (rc != TLV_OK) return unexpected<schema_failure>(schema_failure::from_c(rc));
+    if (rc != TLV_OK) return unexpected<schema_failure>(schema_failure::from_result(rc));
     return {};
 }
 

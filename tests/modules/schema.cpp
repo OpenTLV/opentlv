@@ -9,6 +9,12 @@
     } while (0)
 
 int main() {
+    const tlv::schema_failure preflight = tlv::schema_failure::from_result(TLV_ERR_NULL_ARG);
+    CHECK(preflight.status() == tlv::errc::null_argument);
+    CHECK(preflight.native().diagnostic.code == TLV_ERR_NULL_ARG);
+    CHECK(preflight.native().cause == TLV_SCHEMA_CAUSE_NONE);
+    CHECK(preflight.schema_kind() == tlv::schema_issue::none);
+
     const uint8_t           identifier[] = {1};
     tlv_schema_diagnostic_t native{};
     tlv_diagnostic_init(&native.diagnostic, TLV_ERR_INVALID_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
