@@ -26,8 +26,8 @@
 #define OPENTLV_DOCUMENT 1
 /** @brief Whether Query is enabled in this build. */
 #define OPENTLV_QUERY 1
-/** @brief Whether Schema is enabled in this build. */
-#cmakedefine01 OPENTLV_SCHEMA
+/** @brief Schema compatibility constant; link OpenTLV::Schema to use this API. */
+#define OPENTLV_SCHEMA 1
 /** @brief Codec compatibility constant; link OpenTLV::Codec to use this API. */
 #define OPENTLV_CODEC 1
 

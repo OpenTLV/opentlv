@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Core, IO, Document, Query and Codec are selected by linking. Reject obsolete options
+# Core, IO, Document, Query, Schema and Codec are selected by linking. Reject obsolete options
 # instead of silently building a different feature set from the one requested.
-foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER OPENTLV_DOCUMENT OPENTLV_QUERY OPENTLV_CODEC)
+foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER OPENTLV_DOCUMENT OPENTLV_QUERY OPENTLV_CODEC OPENTLV_SCHEMA)
     if(DEFINED ${_removed})
-        message(FATAL_ERROR "${_removed} was removed; link OpenTLV::Core, OpenTLV::IO, OpenTLV::Document, OpenTLV::Query or OpenTLV::Codec instead")
+        message(FATAL_ERROR "${_removed} was removed; link OpenTLV::Core, OpenTLV::IO, OpenTLV::Document, OpenTLV::Query OpenTLV::Codec or OpenTLV::Schema instead")
     endif()
 endforeach()
 
@@ -21,14 +21,14 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 endif()
 
 # Native libraries
-option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of static" ON)
+option(OPENTLV_BUILD_SHARED_LIBS "Build compiled modules as shared libraries instead of static" ON)
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
 
 # Core capabilities
 # Compatibility macro selection remains constant until aggregate cleanup.
 set(OPENTLV_DOCUMENT ON)
 set(OPENTLV_QUERY ON)
-option(OPENTLV_SCHEMA "Include Schema validation" ON)
+set(OPENTLV_SCHEMA ON)
 set(OPENTLV_CODEC ON)
 
 # Query features
@@ -62,7 +62,6 @@ option(OPENTLV_BUILD_MEMCHECK "Enable native Linux CTest Valgrind Memcheck runs"
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
 include(cmake/format_options.cmake)
-include(cmake/capability_options.cmake)
 opentlv_generate_config_files()
 
 # Only executable C++ consumers need a compiler. The header-only facade carries
@@ -124,6 +123,7 @@ if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_BER)
 endif()
 
 opentlv_finalize_modules()
+opentlv_finalize_shared_runtime()
 include(cmake/install.cmake)
 if(_OPENTLV_TOP_LEVEL)
     include(cmake/packaging.cmake)

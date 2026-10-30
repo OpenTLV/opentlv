@@ -6,7 +6,7 @@
 
 #include "tlv/tag.h"
 #include "tlv/diagnostic/cause.h"
-#include "tlv/export.h"
+#include "tlv/schema/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -19,8 +19,8 @@ extern "C" {
  * @ingroup schemas
  * @brief Schema finding detail, shared by Schema, Codec and Query diagnostics.
  *
- * Included by tlv/schema/schema.h. Kept separate so that the Codec detail can
- * embed a Schema cause while the Schema diagnostic embeds a Codec cause.
+ * Included by tlv/schema/schema.h. Integrations attach and copy this producer-owned
+ * leaf through the generic cause transport without embedding foreign detail types.
  */
 
 /** @addtogroup schemas
@@ -69,9 +69,9 @@ typedef enum tlv_schema_issue_kind {
  *
  * @return A static, NUL-terminated string such as `"missing"` or `"order"`, never `NULL`;
  *         an unrecognized value yields `"unknown"`.
- * @note Available even when Schema processing is disabled; never allocates.
+ * @note Provided by OpenTLV::Schema; never allocates.
  */
-TLV_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
+OPENTLV_SCHEMA_API const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind);
 
 /** @brief Native definition object identified by a Schema diagnostic. */
 typedef enum tlv_schema_definition_kind {
@@ -89,9 +89,10 @@ typedef enum tlv_schema_definition_kind {
  * @param[in] value Diagnostic enum value.
  * @return A static NUL-terminated string, or `"unknown"` for an unrecognized value.
  * @note Never returns NULL or allocates. Do not free or modify the string.
- * Available even when the corresponding capability is disabled.
+ * Provided by OpenTLV::Schema.
  */
-TLV_API const char* tlv_schema_definition_kind_string(tlv_schema_definition_kind_t value);
+OPENTLV_SCHEMA_API const char*
+tlv_schema_definition_kind_string(tlv_schema_definition_kind_t value);
 
 /** @brief Native definition evidence, independent of wire/text byte locations.
  * @note The API determines the owner's type. For DER OF types, component index zero
@@ -124,7 +125,7 @@ typedef struct tlv_schema_definition_location {
  *
  * @note This fixed-size value contains no result, location or path. It is the
  * single Schema detail type: #tlv_schema_diagnostic_t pairs it with one common
- * #tlv_diagnostic_t, and Codec and Query embed it as their delegated Schema cause.
+ * #tlv_diagnostic_t, and integrations attach it as a delegated Schema cause frame.
  */
 typedef struct tlv_schema_detail {
     /** Which rule was violated; see #tlv_schema_issue_kind_t. */
@@ -178,11 +179,11 @@ typedef struct tlv_schema_detail {
 
 /** @brief Copy producer-owned schema detail into a generic cause chain.
  * Required pointers must be non-NULL; returns the Core append result. */
-TLV_API tlv_result_t tlv_schema_detail_attach(tlv_diagnostic_causes_t* causes,
-                                              const tlv_schema_detail_t* detail);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_detail_attach(tlv_diagnostic_causes_t* causes,
+                                                         const tlv_schema_detail_t* detail);
 /** @brief Copy matching schema detail out of a frame; mismatches leave output unchanged. */
-TLV_API tlv_result_t tlv_schema_detail_copy(const tlv_diagnostic_cause_t* cause,
-                                            tlv_schema_detail_t* detail);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_detail_copy(const tlv_diagnostic_cause_t* cause,
+                                                       tlv_schema_detail_t* detail);
 
 #ifdef __cplusplus
 }

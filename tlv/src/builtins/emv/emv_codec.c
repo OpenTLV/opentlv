@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "emv_codec_internal.h"
-#include "../../schema/codec_internal.h"
+#include "tlv/schema/number.h"
 #include "tlv/builtins/emv/emv.h"
 #include <string.h>
 #include "tlv/codec/number.h"
@@ -45,10 +45,7 @@ enum { EMV_MAX_ENCODED_VALUE_SIZE = 252 };
 
 static tlv_result_t validate_length(const emv_value_rule_t* rule, size_t size,
                                     tlv_codec_diagnostic_t* diagnostic) {
-    tlv_result_t result = tlv_schema_validate_length(rule->schema, size);
-    return result == TLV_OK
-               ? TLV_OK
-               : tlv_schema_codec_length_result(rule->schema, size, result, diagnostic);
+    return tlv_schema_number_validate_length(rule->schema, size, diagnostic);
 }
 
 /* Domain codecs compose the same numeric primitive as dictionary entries. With a

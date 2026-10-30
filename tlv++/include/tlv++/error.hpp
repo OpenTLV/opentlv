@@ -5,27 +5,12 @@
 #define OPENTLV_TLVPP_ERROR_HPP
 #include "tlv/result.h"
 #include "tlv/diagnostic.h"
-#include "tlv/schema/schema.h"
 #include <cstddef>
 
 /** @file
  * @brief Allocation-free C++ operation status and error context.
  */
 namespace tlv {
-/** @brief Typed schema definition kind diagnostic category. */
-enum class schema_definition_kind {
-    unknown = TLV_SCHEMA_DEFINITION_UNKNOWN /**< Canonical unknown category. */,
-    table = TLV_SCHEMA_DEFINITION_TABLE /**< Canonical table category. */,
-    rule = TLV_SCHEMA_DEFINITION_RULE /**< Canonical rule category. */,
-    group = TLV_SCHEMA_DEFINITION_GROUP /**< Canonical group category. */,
-    type = TLV_SCHEMA_DEFINITION_TYPE /**< Canonical type category. */,
-    component = TLV_SCHEMA_DEFINITION_COMPONENT /**< Canonical component category. */
-};
-/** @brief Canonical static name, or unknown for unrecognized categories. */
-inline const char* message(schema_definition_kind value) noexcept {
-    return tlv_schema_definition_kind_string(static_cast<tlv_schema_definition_kind_t>(value));
-}
-
 class tag;
 /// @cond INTERNAL
 namespace detail {
@@ -110,19 +95,6 @@ enum class severity {
     error = TLV_DIAGNOSTIC_SEVERITY_ERROR,     /**< Operation failed. */
     warning = TLV_DIAGNOSTIC_SEVERITY_WARNING, /**< Recoverable observation. */
     info = TLV_DIAGNOSTIC_SEVERITY_INFO        /**< Informational observation. */
-};
-/** @brief Category of structural Schema violation. */
-enum class schema_issue {
-    none = TLV_SCHEMA_ISSUE_NONE,             /**< No Schema reason. */
-    value = TLV_SCHEMA_ISSUE_VALUE,           /**< Semantic Value constraint. */
-    definition = TLV_SCHEMA_ISSUE_DEFINITION, /**< Malformed definition. */
-    missing = TLV_SCHEMA_ISSUE_MISSING,       /**< Required field or group absent. */
-    duplicate = TLV_SCHEMA_ISSUE_DUPLICATE,   /**< Too many occurrences. */
-    unexpected = TLV_SCHEMA_ISSUE_UNEXPECTED, /**< Unknown or forbidden identifier. */
-    kind = TLV_SCHEMA_ISSUE_KIND,             /**< Primitive/constructed mismatch. */
-    length = TLV_SCHEMA_ISSUE_LENGTH,         /**< Invalid Value length. */
-    order = TLV_SCHEMA_ISSUE_ORDER,           /**< Invalid sibling order. */
-    assertion = TLV_SCHEMA_ISSUE_ASSERTION    /**< Query assertion failed. */
 };
 /** @brief Meaning of a Schema failure's byte offset. */
 enum class location_kind {
@@ -214,10 +186,6 @@ struct error {
     tlv::severity severity() const noexcept {
         return severity_;
     }
-    /** @brief Typed Schema reason, or none for other failures. */
-    schema_issue schema_kind() const noexcept {
-        return schema_kind_;
-    }
     /** @brief Complete primary evidence location, including its domain and range.
      * @return Unknown kind when no evidence is available; otherwise `begin` and `end`
      *         are coordinates in the location's domain, not necessarily input offsets. */
@@ -225,16 +193,6 @@ struct error {
     // cppcheck-suppress returnByReference
     tlv_location_t location() const noexcept {
         return location_;
-    }
-    /** @brief Native definition coordinate; owner borrows the supplied schema/type. */
-    // Return an independent snapshot, including when called on a temporary error.
-    // cppcheck-suppress returnByReference
-    tlv_schema_definition_location_t definition() const noexcept {
-        return definition_;
-    }
-    /** @brief Typed category of the identified definition object. */
-    schema_definition_kind definition_kind() const noexcept {
-        return static_cast<schema_definition_kind>(definition_.kind);
     }
     /** @brief Whether an enclosing path was tracked, including a known empty path. */
     bool has_path() const noexcept {
@@ -283,19 +241,17 @@ struct error {
     }
 
 private:
-    tlv_result_t                     code_;
-    schema_issue                     schema_kind_ = schema_issue::none;
-    const char*                      message_;
-    operation                        stage_ = operation::unspecified;
-    tlv_location_t                   location_{};
-    tlv_schema_definition_location_t definition_{};
-    bool                             has_path_ = false;
-    tlv::severity                    severity_ = tlv::severity::error;
-    tlv_tag_t                        tag_{};
-    tlv_diagnostic_path_t            path_{};
-    bool                             has_tag_ = false;
-    const char*                      expected_ = nullptr;
-    const char*                      actual_ = nullptr;
+    tlv_result_t          code_;
+    const char*           message_;
+    operation             stage_ = operation::unspecified;
+    tlv_location_t        location_{};
+    bool                  has_path_ = false;
+    tlv::severity         severity_ = tlv::severity::error;
+    tlv_tag_t             tag_{};
+    tlv_diagnostic_path_t path_{};
+    bool                  has_tag_ = false;
+    const char*           expected_ = nullptr;
+    const char*           actual_ = nullptr;
     friend struct detail::error_access;
 };
 /** @brief Project an ordinary error into the common diagnostic contract without allocation. */
@@ -313,21 +269,6 @@ template <typename Failure> inline error to_error(const Failure& value) noexcept
 /// @cond INTERNAL
 namespace detail {
 struct error_access {
-    static error schema(const tlv_schema_diagnostic_t& value) noexcept {
-        if (value.cause == TLV_SCHEMA_CAUSE_READER) {
-            const auto& reader = value.detail.reader;
-            return diagnostic(value.diagnostic, operation::schema,
-                              reader.has_tag ? &reader.tag : nullptr, &value.diagnostic.path);
-        }
-        if (value.cause != TLV_SCHEMA_CAUSE_SCHEMA)
-            return diagnostic(value.diagnostic, operation::schema, nullptr, &value.diagnostic.path);
-        const auto& schema = value.detail.schema;
-        error result = diagnostic(value.diagnostic, operation::schema,
-                                  schema.tag.size ? &schema.tag : nullptr, &value.diagnostic.path);
-        result.schema_kind_ = static_cast<schema_issue>(schema.kind);
-        result.definition_ = schema.definition;
-        return result;
-    }
     static error diagnostic(const tlv_diagnostic_t& value, operation stage,
                             const tlv_tag_t*             tag = nullptr,
                             const tlv_diagnostic_path_t* path = nullptr) noexcept {

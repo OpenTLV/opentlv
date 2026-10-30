@@ -5,7 +5,7 @@
 #define OPENTLV_CODEC_STRUCTURE_H
 #include "tlv/codec/codec.h"
 #include "tlv/schema/schema.h"
-#include "tlv/export.h"
+#include "tlv/codec-structure/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,7 +16,7 @@ extern "C" {
  * @ingroup codecs
  * @brief Codec bindings between a complete TLV sequence and one application object.
  * @note Owned by the codec-structure integration, which composes Codec, Schema and IO.
- * Currently supplied by OpenTLV::tlv pending Schema extraction; not part of OpenTLV::Codec.
+ * Link OpenTLV::CodecStructure; it is also supplied transitively by OpenTLV::tlv.
  */
 
 /** @addtogroup codecs
@@ -103,9 +103,10 @@ typedef struct tlv_structure_codec {
  *          object may borrow `data`, which must then outlive it.
  * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_structure_decode(const tlv_structure_codec_t* codec, const uint8_t* data,
-                                          size_t size, void* value, size_t capacity,
-                                          tlv_codec_diagnostic_t* diagnostic);
+OPENTLV_CODEC_STRUCTURE_API tlv_result_t tlv_structure_decode(const tlv_structure_codec_t* codec,
+                                                              const uint8_t* data, size_t size,
+                                                              void* value, size_t capacity,
+                                                              tlv_codec_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes an application object into a complete, validated sequence.
@@ -131,9 +132,11 @@ TLV_API tlv_result_t tlv_structure_decode(const tlv_structure_codec_t* codec, co
  * @warning On error the destination is unspecified and `*written` is zero.
  * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_structure_encode(const tlv_structure_codec_t* codec, const void* value,
-                                          size_t size, uint8_t* data, size_t capacity,
-                                          size_t* written, tlv_codec_diagnostic_t* diagnostic);
+OPENTLV_CODEC_STRUCTURE_API tlv_result_t tlv_structure_encode(const tlv_structure_codec_t* codec,
+                                                              const void* value, size_t size,
+                                                              uint8_t* data, size_t capacity,
+                                                              size_t* written,
+                                                              tlv_codec_diagnostic_t* diagnostic);
 #ifdef __cplusplus
 }
 #endif

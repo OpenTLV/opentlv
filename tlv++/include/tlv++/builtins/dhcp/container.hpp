@@ -6,6 +6,7 @@
 
 #include "tlv/builtins/dhcp/container.h"
 #include "tlv++/types.hpp"
+#include "tlv++/schema/error.hpp"
 
 /** @file
  * @brief C++ access to shared DHCPv4 options container validation.
@@ -64,7 +65,7 @@ struct options_rules {
  * Output storage must not overlap input.
  * @see tlv_dhcpv4_options_validate
  */
-TLV_NODISCARD inline expected<size_t, error>
+TLV_NODISCARD inline expected<size_t, schema_failure>
 options_validate(bytes data, options_rules rules = {}, size_t max_elements = SIZE_MAX,
                  tlv_schema_diagnostic_t* diagnostic = nullptr) {
     const tlv_dhcpv4_options_rules_t raw{rules.require_end ? 1 : 0,
@@ -75,7 +76,7 @@ options_validate(bytes data, options_rules rules = {}, size_t max_elements = SIZ
     const auto rc =
         tlv_dhcpv4_options_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                     &raw, max_elements, &significant_size, diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(*diagnostic));
+    if (rc != TLV_OK) return unexpected<schema_failure>(schema_failure(*diagnostic));
     return significant_size;
 }
 } // namespace dhcp

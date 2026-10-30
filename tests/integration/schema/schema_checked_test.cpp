@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "schema_diagnostic_helpers.h"
 
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/reader/visitor.h"
@@ -69,8 +70,8 @@ void expectSame(const tlv_schema_diagnostic_t& plain, const tlv_schema_diagnosti
             EXPECT_EQ(plain.detail.schema.actual_length, checked.detail.schema.actual_length);
             break;
         case TLV_SCHEMA_CAUSE_READER: {
-            const auto& a = plain.detail.reader;
-            const auto& b = checked.detail.reader;
+            const auto& a = schema_test_reader(&plain);
+            const auto& b = schema_test_reader(&checked);
             EXPECT_EQ(a.operation, b.operation);
             ASSERT_EQ(a.has_tag, b.has_tag);
             if (a.has_tag) EXPECT_TRUE(tlv_tag_equal(a.tag, b.tag));

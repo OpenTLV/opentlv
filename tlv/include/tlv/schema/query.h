@@ -2,14 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_SCHEMA_QUERY_H
 #define OPENTLV_SCHEMA_QUERY_H
-#include "tlv/export.h"
+#include "tlv/schema-query/export.h"
 #include "tlv/schema/schema.h"
 #include "tlv/query/program.h"
-#include "tlv/config.h"
-#if OPENTLV_DOCUMENT
-#include "tlv/document/document.h"
-#include "tlv/writer/tree.h"
-#endif
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,7 +42,7 @@ typedef struct tlv_schema_query_workspace {
  * @note After initialization, every failure is described once by `query`. A
  * failed assertion sets `query.diagnostic.code` to #TLV_ERR_SCHEMA, `query.kind`
  * to #TLV_QUERY_ERROR_SCHEMA and `query.cause` to #TLV_QUERY_CAUSE_SCHEMA, with
- * ASSERTION detail (tag, field=name) in `query.detail.schema`. An execution failure
+ * ASSERTION detail (tag, field=name) in `query.detail.causes`. An execution failure
  * keeps its own result, kind and cause. Invalid program contents initialize
  * `query.kind` to IMAGE; incompatible rule result types initialize it to TYPE,
  * both with #TLV_ERR_INVALID_VALUE. Other preflight rejection before
@@ -68,14 +63,15 @@ typedef struct tlv_schema_query_diagnostic {
  * malformed program contents or a non-node selector/non-boolean assertion.
  * @return Other native sizing/capacity error or OK; outputs unchanged on failure.
  * @note This sizing function has no diagnostic output. Only
- * tlv_schema_query_validate_buffer() and, when enabled,
+ * tlv_schema_query_validate_buffer() and, in SchemaQueryDocument,
  * tlv_schema_query_validate_document() report Query kind IMAGE or TYPE and the
  * failing rule index through their optional diagnostic output.
  * @note Context arrays and Reader frames are additional explicit storage. Rules reuse
  * the two workspaces sequentially; Document Value snapshot and owning tree are separate. */
-TLV_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules, size_t count,
-                                           size_t depth, size_t nodes, size_t* selector,
-                                           size_t* assertion, size_t* alignment);
+OPENTLV_SCHEMA_QUERY_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules,
+                                                            size_t count, size_t depth,
+                                                            size_t nodes, size_t* selector,
+                                                            size_t* assertion, size_t* alignment);
 /** @brief Validate contextual boolean assertions over immutable complete input.
  * @param data Stable input bytes, alive through the call.
  * @param size Input byte count.
@@ -94,34 +90,10 @@ TLV_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules,
  * whole input and normal Query relative-context semantics. Full structural coverage;
  * no subtree pruning. Work is O(sum of selector and per-context assertion executions).
  * No allocation or independent path/expression evaluator. */
-TLV_API tlv_result_t tlv_schema_query_validate_buffer(
+OPENTLV_SCHEMA_QUERY_API tlv_result_t tlv_schema_query_validate_buffer(
     const uint8_t* data, size_t size, const tlv_format_t* format,
     const tlv_schema_query_rule_t* rules, size_t count, size_t depth, size_t nodes, size_t work,
     tlv_schema_query_workspace_t* workspace, tlv_schema_query_diagnostic_t* diagnostic);
-#if OPENTLV_DOCUMENT
-/** @brief Validate the same assertion programs over an immutable Document, including D.
- * @param document Owning tree, alive and unchanged throughout validation.
- * @param rules Borrowed compiled rules.
- * @param count Rule count; zero skips validation explicitly.
- * @param depth Maximum depth.
- * @param nodes Explicit retained-node capacity.
- * @param work Native budget per selector/context assertion execution.
- * @param workspace Sequential execution and context storage from query_size.
- * @param values Caller-owned canonical Value snapshot if programs require Values.
- * @param capacity Value storage bytes.
- * @param staging Bounded Writer frames/scratch when Values are required.
- * @param diagnostic Optional original engine and Schema context failure.
- * @return OK, SCHEMA for false, or original Query/Writer/capacity failure.
- * Invalid program contents and rule result types return #TLV_ERR_INVALID_VALUE
- * with Query kind IMAGE or TYPE and the failing rule index.
- * @note No allocation. D uses the same VM and original Document contexts. Historical
- * Source offsets are unavailable. Structural Schema rules remain separately optional. */
-TLV_API tlv_result_t tlv_schema_query_validate_document(
-    const tlv_document_t* document, const tlv_schema_query_rule_t* rules, size_t count,
-    size_t depth, size_t nodes, size_t work, tlv_schema_query_workspace_t* workspace,
-    uint8_t* values, size_t capacity, tlv_tree_writer_workspace_t* staging,
-    tlv_schema_query_diagnostic_t* diagnostic);
-#endif
 #ifdef __cplusplus
 }
 #endif

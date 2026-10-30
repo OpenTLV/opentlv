@@ -12,7 +12,9 @@ reviewers who approve these contracts. Read the
 `OpenTLV::IO` targets, #648 extracts `OpenTLV::Document`, and #649 extracts
 `OpenTLV::Generator`; #650 extracts `OpenTLV::Query` and `OpenTLV::QueryDocument`, using the
 infrastructure from #646. #651 extracts `OpenTLV::Codec` and the Query-owned
-`OpenTLV::QueryCodec` integration. Their sources, public
+`OpenTLV::QueryCodec` integration. #652 extracts `OpenTLV::Schema` and the
+`SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure`
+integrations. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
 checks the compiled dependency graph. The remaining modules and C++ facades
 retain the planned boundaries below and stay in the compatibility targets until
@@ -35,9 +37,18 @@ Codec registers all generic Value conversions and its diagnostic vocabulary with
 only a Core dependency. `tlv_codec_detail_t` is a Codec-owned leaf; delegated
 Reader and Schema details travel as producer-owned cause frames in
 `tlv_codec_diagnostic_t`. The `codec-structure` integration retains its explicit
-ownership and is delivered by the transitional aggregate until Schema registers
-in #652. Its Reader and Schema validation behavior is preserved. The typed writer
+ownership and is independently linkable as `OpenTLV::CodecStructure`.
+Its Reader and Schema validation behavior is preserved. The typed writer
 implementation now lives in the `io-codec` header `tlv++/codec/writer.hpp`.
+
+Schema registers length, structure, constraint, checking/preparation and report
+implementations with public Core and IO dependencies only. Number conversions
+live in `SchemaNumber`; buffer assertions live in `SchemaQuery`; Document
+assertions live in `SchemaQueryDocument`. Shared Schema-owned helpers use only
+public Query APIs. EMV calls the public SchemaNumber length integration.
+Schema diagnostic names and cause payloads belong to Schema; delegated Reader
+and Codec evidence uses producer-owned frames. Common C++ errors have no Schema
+header dependency; `tlv++/schema/error.hpp` owns `schema_failure`.
 
 Generator registers `generator.c` and `tlv/generator.h`, with public Core and
 private IO dependencies and its own export header. Its source and algorithm
@@ -111,9 +122,9 @@ count as public modules. A *facade-only* integration target is a header-only
 | `query-document` | Query | Core, IO, Document, Query | Document Query visit, evaluation, values, programs, edits and `tlv_document_find_path()` | [#648](https://github.com/OpenTLV/opentlv/issues/648) prepares, [#650](https://github.com/OpenTLV/opentlv/issues/650) completes |
 | `query-codec` | Query | Core, IO, Query, Codec | Codec-backed conversion adapters and builtin hooks | [#650](https://github.com/OpenTLV/opentlv/issues/650) |
 | `codec-structure` | Codec | Core, Codec, Schema; IO privately | Structure Codec | [#651](https://github.com/OpenTLV/opentlv/issues/651) |
-| `schema-number` | Schema | Schema, Codec | Numeric Schema constraints through number codecs | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
+| `schema-number` | Schema | Schema, Codec; Core privately | Numeric Schema constraints through number codecs | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
 | `schema-query` | Schema | Core, IO, Schema, Query | Contextual Query assertions over buffers and events | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
-| `schema-query-document` | Schema | Document, `schema-query`, `query-document` | `tlv_schema_query_validate_document()` | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
+| `schema-query-document` | Schema | Core, IO, Schema, Document, Query, `schema-query`, `query-document` | `tlv_schema_query_validate_document()` | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
 | `document-codec` (facade only) | Document | Document, Codec | Typed decoding of Document nodes in C++ | [#648](https://github.com/OpenTLV/opentlv/issues/648) |
 | `io-codec` (facade only) | Codec | IO, Codec | Typed `writer_base::write()` overloads in C++ | [#651](https://github.com/OpenTLV/opentlv/issues/651) |
 

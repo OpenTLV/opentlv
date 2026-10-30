@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
 - **Breaking:** Extract independently linkable `OpenTLV::Codec` with only Core dependencies and `OpenTLV::QueryCodec` for generic Query conversions; remove the `OPENTLV_CODEC` CMake option. Codec diagnostics retain conversion details and transport delegated Reader/Schema evidence in producer-owned cause frames. Structured conversions remain in the explicitly owned `codec-structure` integration delivered by the aggregate until Schema extraction. Rebuild consumers for the changed diagnostic ABI; include `tlv++/codec/writer.hpp` for typed writer overloads. (#651)
 - **Breaking:** Extract independently linkable `OpenTLV::Query` and `OpenTLV::QueryDocument`, remove the `OPENTLV_QUERY` CMake option, and retain Query-owned frontend/set-operation features. Base Query needs only Core and IO; Document evaluation/editing and Codec providers have explicit integration ownership. Query conversion callbacks now use generic diagnostic envelopes, with producer-owned cause frames and Query-owned callback violations. Rebuild consumers for the changed diagnostic ABI; C++ callers add generic conversion providers explicitly with `configure_query_codecs()`. (#650)
 - **Breaking:** Extract independently linkable `OpenTLV::Generator` with only Core and IO dependencies. Aggregate CMake targets link it transitively; direct library consumers must also link and distribute `opentlv_generator`. Preserve algorithm version 2, deterministic bytes, limits, workspace, allocation-free native generation and the header-only C++ facade. (#649)
@@ -38,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Resolve Clang 18 diagnostics exposed by strict CI failure propagation, preserving empty-buffer and diagnostic contracts while making pointer sizes, workspace alignment and schema-report lifetimes explicit. (#637)
 
 ### Changed
+
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
 
 - **Breaking:** Core no longer includes the CLI or language bindings; use their standalone repositories and build workflows listed below. Source consumers must also migrate the installed C++ CMake target from `OpenTLV::tlvpp` to `OpenTLV::tlv++`. (#620, #622, #633, #662, #679, #686, #698)
 - Validate Core licensing with REUSE alongside ownership-preserving SPDX header checks, include license texts and attribution in native packages, and use shared organization community policies while retaining Core development instructions and security support details. (#715)
@@ -214,6 +217,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the Rust bindings build failing on Windows because the CMake source path had a `\\?\` prefix that MSVC cannot open. (#158)
 
 ### Changed
+
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
 
 - The Rust `opentlv` and `opentlv-sys` crates are version 0.7.0, and the Python and Rust versioning guides use C library 0.7.0 as their example. (#597)
 - The failure model, error reference and architectural rules describe the implemented model instead of an in-progress migration: the migration inventory is a completed record, each #551 acceptance check names the tests and CI workflows that enforce it, the error reference names the typed Go Schema Query kind `QuerySchemaDetail.Kind` and lists binding allocations under `OUT_OF_MEMORY`, and documentation issue links point to `OpenTLV/opentlv` instead of the former repository. (#591)
@@ -570,6 +575,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
+
 - Allow blank GitHub issues alongside the structured issue forms. (#207)
 - Move C API fuzzing out of the Clang pull-request build into a separate [workflow](.github/workflows/fuzz.yml), running on pushes to `main`, weekly on Mondays at 03:17 UTC even without new commits, and on manual request; preserve corpus caching and failure artifacts. (#207)
 - Reorganize `docs/` into `getting-started/`, `concepts/`, `guides/`, `formats/`, `profiles/`, `cli/`, `reference/` and `development/` sections, update the MkDocs navigation and internal links, and add [where documentation belongs](docs/development/documentation-layout.md), including a migration table for moved pages; old page paths are not redirected. (#186)
@@ -614,6 +621,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add an 18-file seed corpus under `tests/fuzz/corpus/codec/` and wire the `fuzz_codec` target into the Clang CI fuzzing job and [docs/development/fuzzing.md](docs/development/fuzzing.md). (#58)
 
 ### Changed
+
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
 
 - `tlv_write` now reports the complete required encoded size (tag + length + value, matching `tlv_encoded_size` for the same tag, length, and format) in `*written` when its capacity check fails with `TLV_ERR_BUFFER_TOO_SHORT`, instead of leaving `*written` unchanged; the destination buffer is still left untouched in that case. Every other failure, including a callback returning `TLV_ERR_BUFFER_TOO_SHORT`, continues to leave `*written` unchanged. This removes the need for a separate `tlv_encoded_size` call to size a retry buffer after an undersized `tlv_write`. `tlv_copy_view` (`tlv/copy.h`), which calls `tlv_write` internally, is unaffected and keeps its own existing contract of an unchanged `*written` on any failure, including insufficient capacity. `tlv_writer_write`'s signature, position semantics, and existing behavior (`pos` unchanged on failure, no required-size feedback) are unchanged. (#108)
 - Reimplement `ber_internal.c`'s `read_length`/`write_length`/`length_size` format callbacks on top of the new standalone `tlv_ber_length_decode`/`tlv_ber_length_encode` (see above), removing the bit-manipulation logic duplicated between them. `read_length` decodes into a local `tlv_length_t`/consumed pair first and only publishes `*length`/`*consumed` after narrowing with `tlv_length_to_size()` also succeeds, so a value that decodes but does not fit this build's `size_t` still leaves both outputs unchanged, same as any other failure. This also drops a `while (width > sizeof(size_t) || width > sizeof(uint64_t))` double bound and a `value > SIZE_MAX` check that were already unreachable given that bound, deferring the size_t-fit check entirely to the already-covered `tlv_length_to_size()`. No behavior change: the full test suite (712 cases across all `TLV_TAG_CAPACITY` variants) passes unchanged, and both files remain clean under `clang -std=c99 -Wall -Wextra -Wpedantic -Wstrict-prototypes -Werror`. (#95)
@@ -661,6 +670,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add Windows x86 MSVC CI builds for Debug/C++11 and Release/C++23 using the Visual Studio Win32 platform, and explicitly label build jobs as x86 or x64. GCC and Clang builds remain x64-only. (#86)
 
 ### Changed
+
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
 
 - Change `tlv_read_uint` and `tlv_write_uint` to return `tlv_result_t`, distinguishing NULL pointers, invalid widths, invalid byte orders, and numeric overflow while preserving outputs on failure. Success is now `TLV_OK` (0), previously 1: update callers and rebuild. Numeric tag helpers retain their documented errors. (#93)
 - `tlv` now builds as a shared library by default (previously always static); the public C API relies on explicit `TLV_API` export annotations instead of `WINDOWS_EXPORT_ALL_SYMBOLS`, which did not export data symbols such as the built-in format descriptors. Set `OPENTLV_BUILD_SHARED_LIBS=OFF` to keep building `tlv` as a static library. (#104)
@@ -732,6 +743,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dedicated CMake targets for the C and C++ test suites.
 
 ### Changed
+
+- **Breaking:** Extract `OpenTLV::Schema` with only Core/IO dependencies and explicit `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure` integrations; remove the `OPENTLV_SCHEMA` CMake option. Schema diagnostics retain delegated Reader/Codec evidence as producer-owned cause frames. Include `tlv/schema/query_document.h` for Document assertions; C++ Schema operations return `schema_failure` with Schema-specific accessors and a common error projection. Rebuild native consumers for the changed diagnostic layouts. Validation and conversion behavior is unchanged. (#652)
 
 - Refreshed the README with workflow badges, hierarchical format/profile support checklists and an expansion catalogue, a quick-start example, documentation organized by C format/profile implementation with byte-tree examples, and light/dark SVG logos. (#79)
 - Updated GCC, Clang, and MSVC CI to build and test Debug and Release: GCC and MSVC use C++11 for Debug and C++23 for Release; Clang uses C++23 and verifies C-only builds in both configurations. (#73)

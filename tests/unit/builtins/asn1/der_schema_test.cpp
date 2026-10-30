@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "codec_diagnostic_helpers.h"
 
 #include "tlv/builtins/asn1/der_schema.h"
 #include "../../../diagnostic_assertions.h"
@@ -297,8 +298,8 @@ TEST(Unit_Tlv_DerSchema, LeafValueRangeConstraint) {
               ReadDiag(std::vector<uint8_t>{0x02, 0x09, 0x01, 0, 0, 0, 0, 0, 0, 0, 0},
                        constrained_integer, &diagnostic));
     ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
-    EXPECT_EQ(TLV_CODEC_OP_DECODE, diagnostic.detail.codec.operation);
-    EXPECT_EQ(TLV_CODEC_REASON_LENGTH, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_CODEC_OP_DECODE, schema_test_codec(&diagnostic).operation);
+    EXPECT_EQ(TLV_CODEC_REASON_LENGTH, schema_test_codec(&diagnostic).reason);
     EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
     EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(2u, diagnostic.diagnostic.location.begin);
@@ -313,8 +314,8 @@ TEST(Unit_Tlv_DerSchema, ReadKeepsCodecCauseAndOffendingOctetOfNonCanonicalLeaf)
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               ReadDiag(std::vector<uint8_t>{0x30, 0x04, 0x02, 0x02, 0x00, 0x05}, seq, &diagnostic));
     ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.detail.codec.reported);
-    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, schema_test_codec(&diagnostic).reported);
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, schema_test_codec(&diagnostic).reason);
     EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
     EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);
@@ -325,7 +326,7 @@ TEST(Unit_Tlv_DerSchema, ReadKeepsCodecCauseAndOffendingOctetOfNonCanonicalLeaf)
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               ReadDiag(std::vector<uint8_t>{0x06, 0x03, 0x2A, 0x80, 0x01}, oid, &diagnostic));
     ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
-    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, schema_test_codec(&diagnostic).reason);
     EXPECT_EQ(TLV_LOCATION_INPUT, diagnostic.diagnostic.location.domain);
     EXPECT_EQ(3u, diagnostic.diagnostic.location.begin);
 }
@@ -769,9 +770,9 @@ TEST(Unit_Tlv_DerSchema, WriteConstraintKeepsCodecCauseOfNonCanonicalInteger) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE,
               WriteDiag(seq, {{&component, 0, true, {0x00, 0x05}}}, &diagnostic));
     ASSERT_EQ(TLV_SCHEMA_CAUSE_CODEC, diagnostic.cause);
-    EXPECT_EQ(TLV_CODEC_OP_DECODE, diagnostic.detail.codec.operation);
-    EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.detail.codec.reported);
-    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_CODEC_OP_DECODE, schema_test_codec(&diagnostic).operation);
+    EXPECT_EQ(TLV_ERR_INVALID_VALUE, schema_test_codec(&diagnostic).reported);
+    EXPECT_EQ(TLV_CODEC_REASON_CANONICAL, schema_test_codec(&diagnostic).reason);
     EXPECT_EQ(TLV_LOCATION_OUTPUT, diagnostic.diagnostic.location.domain);
     EXPECT_EQ(TLV_LOCATION_POINT, diagnostic.diagnostic.location.kind);
     EXPECT_EQ(4u, diagnostic.diagnostic.location.begin);

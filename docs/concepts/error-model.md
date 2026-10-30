@@ -146,10 +146,10 @@ not parse context strings to classify an error.
 Every field of a public diagnostic has exactly one meaning (#579). Layer detail
 types (`tlv_reader_detail_t`, `tlv_schema_detail_t` and `tlv_codec_detail_t`)
 contain no result, location or path. An enclosing diagnostic embeds one common
-base and at most one active lower-layer detail, selected by a discriminated
-cause, so a delegated cause is reachable through one path only. Schema
-diagnostics follow the same pattern: `cause` selects a Schema finding or the
-original Reader detail of a malformed input. See the
+base and a typed finding or a bounded chain of producer-owned cause frames,
+so a delegated cause is reachable through one path only. Schema diagnostics
+use `cause` to select `detail.schema` or Reader/Codec frames in `detail.causes`;
+copy a frame with the producer's typed accessor. See the
 [field table](../reference/errors.md#diagnostic-field-ownership).
 
 The base carries the returned result, severity, origin layer, primary location

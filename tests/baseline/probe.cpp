@@ -124,7 +124,15 @@ void schema_cases() {
             std::cout << ",\"diagnostic\":{";
             common(d.diagnostic);
             std::cout << ",\"cause\":" << int(d.cause);
-            if (d.cause == TLV_SCHEMA_CAUSE_READER) reader(d.detail.reader);
+            if (d.cause == TLV_SCHEMA_CAUSE_READER) {
+#ifdef OPENTLV_SCHEMA_API
+                tlv_reader_detail_t detail{};
+                require(tlv_reader_detail_copy(&d.detail.causes.frames[0], &detail));
+                reader(detail);
+#else
+                reader(d.detail.reader);
+#endif
+            }
             if (d.cause == TLV_SCHEMA_CAUSE_SCHEMA) schema(d.detail.schema);
             std::cout << '}';
         }

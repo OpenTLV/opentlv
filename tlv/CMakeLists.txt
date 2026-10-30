@@ -3,48 +3,28 @@ cmake_minimum_required(VERSION 3.16)
 project(tlv LANGUAGES C)
 
 set(_tlv_library_type STATIC)
-if(OPENTLV_BUILD_SHARED_LIBS)
+if(OPENTLV_BUILD_SHARED_LIBS AND (OPENTLV_NFC OR OPENTLV_DHCP OR OPENTLV_LLDP OR
+   OPENTLV_BLUETOOTH OR OPENTLV_FORMAT_BER OR OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER OR OPENTLV_EMV))
     set(_tlv_library_type SHARED)
 endif()
+# With every builtin disabled, the aggregate has no implementation symbols.
+# Keep an empty compatibility archive: Windows cannot link an export-free DLL.
+# Extracted modules still follow OPENTLV_BUILD_SHARED_LIBS independently.
 
 include(modules.cmake)
 
 # Transitional library for modules extracted by subsequent issues. Extracted modules
 # are linked once; no implementation is duplicated in the compatibility target.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
-    src/schema/diagnostic_strings.c
+    src/aggregate.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument OpenTLV::QueryCodec)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument OpenTLV::QueryCodec OpenTLV::CodecStructure OpenTLV::SchemaNumber OpenTLV::SchemaQueryDocument)
 if(NOT CMAKE_INSTALL_RPATH)
     if(APPLE)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")
     elseif(UNIX)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "$ORIGIN")
     endif()
-endif()
-
-
-if(OPENTLV_SCHEMA)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/schema/schema.c
-        src/schema/constraint.c
-    )
-endif()
-
-# Codec-owned codec-structure integration. Schema extraction (#652) registers
-# its separate target; the base Codec never links this transitional aggregate.
-if(OPENTLV_CODEC AND OPENTLV_SCHEMA)
-    target_sources(${PROJECT_NAME} PRIVATE src/codec/structure.c)
-endif()
-
-if(OPENTLV_SCHEMA AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE src/schema/number.c)
-endif()
-if(OPENTLV_SCHEMA)
-    target_sources(${PROJECT_NAME} PRIVATE src/schema/structure.c src/schema/report.c)
-endif()
-if(OPENTLV_SCHEMA AND OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE src/schema/query.c)
 endif()
 
 
@@ -85,7 +65,7 @@ if(OPENTLV_LLDP AND OPENTLV_CODEC)
     )
 endif()
 
-if(OPENTLV_LLDP AND OPENTLV_SCHEMA)
+if(OPENTLV_LLDP)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/lldp/schema.c
     )
@@ -105,7 +85,7 @@ if(OPENTLV_BLUETOOTH)
     )
 endif()
 
-if(OPENTLV_BLUETOOTH AND OPENTLV_SCHEMA)
+if(OPENTLV_BLUETOOTH)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/bluetooth/ad_schema.c
     )
@@ -154,7 +134,7 @@ if(OPENTLV_FORMAT_DER)
     )
 endif()
 
-if(OPENTLV_FORMAT_DER AND OPENTLV_SCHEMA AND OPENTLV_CODEC)
+if(OPENTLV_FORMAT_DER AND OPENTLV_CODEC)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/asn1/der_schema.c
     )
@@ -175,7 +155,7 @@ if(OPENTLV_EMV)
     )
 endif()
 
-if(OPENTLV_EMV AND OPENTLV_SCHEMA AND OPENTLV_CODEC)
+if(OPENTLV_EMV AND OPENTLV_CODEC)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/emv/emv.c
         src/builtins/emv/dictionary.c
@@ -185,7 +165,7 @@ if(OPENTLV_EMV AND OPENTLV_SCHEMA AND OPENTLV_CODEC)
     )
 endif()
 
-if(OPENTLV_EMV AND OPENTLV_SCHEMA AND OPENTLV_CODEC AND OPENTLV_QUERY)
+if(OPENTLV_EMV AND OPENTLV_CODEC AND OPENTLV_QUERY)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/emv/query.c
     )
@@ -203,7 +183,7 @@ generate_export_header(${PROJECT_NAME}
     EXPORT_MACRO_NAME TLV_API
     EXPORT_FILE_NAME "${OpenTLV_BINARY_DIR}/generated/include/tlv/export.h"
 )
-if(NOT OPENTLV_BUILD_SHARED_LIBS)
+if(_tlv_library_type STREQUAL "STATIC")
     target_compile_definitions(${PROJECT_NAME} PUBLIC TLV_STATIC_DEFINE)
 endif()
 
