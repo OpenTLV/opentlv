@@ -323,9 +323,9 @@ TEST(Unit_Tlv_Diagnostic, InvariantHelperRejectsEmptyAndMismatchedFailureDetail)
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_NEED_MORE_DATA, &query));
     query.kind = TLV_QUERY_ERROR_CODEC;
     query.cause = TLV_QUERY_CAUSE_CODEC;
-    query.detail.codec = {};
+    query.detail.causes = {};
     EXPECT_FALSE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
-    query.detail.codec.reported = TLV_ERR_INVALID_VALUE;
+    query.reported = TLV_ERR_INVALID_VALUE;
     query.diagnostic.code = TLV_ERR_INVALID_VALUE;
     EXPECT_TRUE(test_query_diagnostic_matches(TLV_ERR_INVALID_VALUE, &query));
     query.cause = TLV_QUERY_CAUSE_READER;

@@ -3,7 +3,7 @@
 #ifndef OPENTLV_TLVPP_QUERY_OPTIONS_HPP
 #define OPENTLV_TLVPP_QUERY_OPTIONS_HPP
 #include "tlv++/format.hpp"
-#include "tlv/query/adapters.h"
+#include "tlv/query/program.h"
 #include <vector>
 
 /** @file
@@ -63,21 +63,16 @@ private:
     friend struct detail::query_options_access;
 };
 /** @brief Stationary Query capabilities borrowing immutable Format and provider contexts.
- * @note With Codec enabled, construction adds canonical NUM, BCD and TEXT providers. Provider
+ * @note Construction has no conversion providers. Provider
  * storage grows only when configuring the environment, never during execution.
  * @warning Finish configuration before compiling; this owner and every borrowed
  * provider context must outlive compiled programs and executions using them.
  */
 class query_environment {
 public:
-    /** @brief Select a borrowed Format and the standard generic Value providers. */
+    /** @brief Select a borrowed Format without external Value providers. */
     explicit query_environment(tlv::format format) {
         raw_.format = &detail::format_access::get(format);
-#if OPENTLV_CODEC
-        size_t      count = 0;
-        const auto* hooks = tlv_query_builtin_hooks(&count);
-        hooks_.assign(hooks, hooks + count);
-#endif
         refresh();
     }
     /** @brief Environments remain stationary because programs borrow their capabilities. */

@@ -134,12 +134,14 @@ TEST(Unit_Tlvpp_TreeReaderParity, ValidationReportsMalformedChildWithoutRequesti
     EXPECT_EQ(4u, diagnostic.diagnostic.location.begin); // Missing Value at the parent's end.
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_QueryParity, MatcherOwnsQueryAfterTemporaryExpires) {
     tlv::query_matcher matcher(*tlv::query::parse("80/01"));
     EXPECT_FALSE(matcher.matches(tlv::tag_bytes<0x80>(), 0));
     EXPECT_TRUE(matcher.matches(tlv::tag_bytes<1>(), 1));
     EXPECT_FALSE(matcher.matches(tlv::tag_bytes<1>(), 0));
 }
+#endif
 
 TEST(Unit_Tlvpp_ReaderParity, VisitorStopThenResumeWithoutReplay) {
     const uint8_t data[] = {1, 0, 2, 0};
@@ -235,6 +237,7 @@ TEST(Unit_Tlvpp_TreeReaderParity, CompleteParentRequiredAndVisitorResumesAfterSk
     EXPECT_TRUE(reader.at_end());
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
     const uint8_t data[] = {0x80, 4, 1, 0, 1, 0, 0x80, 2, 1, 0};
     auto          query = tlv::query::parse("80/01");
@@ -268,6 +271,7 @@ TEST(Unit_Tlvpp_QueryParity, MatchStateSurvivesStopAndInputReplacement) {
     }));
     EXPECT_EQ(3u, count);
 }
+#endif
 
 TEST(Unit_Tlvpp_DefinitionParity, LookupUsesCanonicalFirstMatch) {
     const uint8_t         identifier[] = {1};

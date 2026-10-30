@@ -81,6 +81,7 @@ int main() {
         ++count;
     }
     if (count != 2) return 9;
+#if OPENTLV_QUERY_FRONTEND
     tlv::fixed_format<1, 1, tlv::byte_order::big_endian> config;
     tlv::tree_frame                                      frames[1]{};
     tlv::tree_reader tree(fixed_input, config.view(), {frames, 1}, 1, 10);
@@ -91,7 +92,8 @@ int main() {
         if (item.element.tag() != tlv::tag_bytes<2>() || item.offset != 3) return 11;
         ++count;
     }
-    observe_allocations = false;
     if (count != 1) return 12;
+#endif
+    observe_allocations = false;
     return allocation_count == 0 ? 0 : 10;
 }

@@ -36,3 +36,13 @@ const char* tlv_query_cause_string(tlv_query_cause_t value) {
     }
     return "unknown";
 }
+
+const char* tlv_query_conversion_violation_string(tlv_query_conversion_violation_t value) {
+    switch (value) {
+        case TLV_QUERY_CONVERSION_NONE: return "none";
+        case TLV_QUERY_CONVERSION_RESULT: return "result";
+        case TLV_QUERY_CONVERSION_TYPE: return "type";
+        case TLV_QUERY_CONVERSION_UTF8: return "utf8";
+    }
+    return "unknown";
+}

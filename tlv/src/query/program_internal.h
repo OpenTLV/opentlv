@@ -166,8 +166,8 @@ static inline void query_track_borrow(tlv_query_exec_t* e, const void* p, size_t
     if (!e->borrowed_high || begin < e->borrowed_low) e->borrowed_low = begin;
     if (end > e->borrowed_high) e->borrowed_high = end;
 }
-int query_retained_overlap(const tlv_query_exec_t*, const void*, size_t);
-int query_live_overlap(const tlv_query_exec_t*, const void*, size_t);
+OPENTLV_QUERY_API int query_retained_overlap(const tlv_query_exec_t*, const void*, size_t);
+OPENTLV_QUERY_API int query_live_overlap(const tlv_query_exec_t*, const void*, size_t);
 /* Per-event/cursor checks must not scan the accumulated candidate set. */
 static inline int query_output_overlap_live(const tlv_query_exec_t* e, const void* p, size_t n) {
     return query_overlap(e, e->workspace_size, p, n) ||
@@ -256,9 +256,6 @@ static inline int query_plan_supported(const tlv_query_program_t* p) {
 #if !OPENTLV_QUERY_SET_OPERATIONS
     for (size_t i = 0; i < p->count; ++i)
         if (query_nodes(p)[i].op >= Q_UNION && query_nodes(p)[i].op <= Q_EXCEPT) return 0;
-#endif
-#if !OPENTLV_DOCUMENT
-    if (p->level == TLV_QUERY_D) return 0;
 #endif
     (void)p;
     return 1;
@@ -370,18 +367,19 @@ static inline int query_program_valid(const tlv_query_program_t* p) {
     return variables == p->variable_count && query_text(p)[p->text_size] == 0;
 }
 /* Shared scalar VM operations used by both execution profiles. */
-tlv_result_t query_function_eval(tlv_query_exec_t*, const tlv_tree_event_t*, const query_node_t*,
-                                 query_value_t*, tlv_query_diagnostic_t*);
-tlv_result_t query_retained_finish(tlv_query_exec_t*, tlv_query_diagnostic_t*);
-tlv_result_t query_retained_feed(tlv_query_exec_t*, const tlv_tree_event_t*,
-                                 tlv_query_diagnostic_t*);
-void query_document_handle(tlv_query_exec_t*, void*, const uint8_t*);
-const uint8_t* query_document_end(tlv_query_exec_t*);
-tlv_result_t query_document_next(tlv_query_exec_t*, void**);
-tlv_result_t query_document_result_count(const tlv_query_exec_t*, size_t*);
-size_t query_candidate_size(void);
-size_t query_candidate_alignment(void);
-uint32_t query_s1_filter(const query_node_t*, size_t, uint32_t);
+OPENTLV_QUERY_API tlv_result_t query_function_eval(tlv_query_exec_t*, const tlv_tree_event_t*,
+                                                   const query_node_t*, query_value_t*,
+                                                   tlv_query_diagnostic_t*);
+OPENTLV_QUERY_API tlv_result_t query_retained_finish(tlv_query_exec_t*, tlv_query_diagnostic_t*);
+OPENTLV_QUERY_API tlv_result_t query_retained_feed(tlv_query_exec_t*, const tlv_tree_event_t*,
+                                                   tlv_query_diagnostic_t*);
+OPENTLV_QUERY_API void query_document_handle(tlv_query_exec_t*, void*, const uint8_t*);
+OPENTLV_QUERY_API const uint8_t* query_document_end(tlv_query_exec_t*);
+OPENTLV_QUERY_API tlv_result_t query_document_next(tlv_query_exec_t*, void**);
+OPENTLV_QUERY_API tlv_result_t query_document_result_count(const tlv_query_exec_t*, size_t*);
+OPENTLV_QUERY_API size_t query_candidate_size(void);
+OPENTLV_QUERY_API size_t query_candidate_alignment(void);
+OPENTLV_QUERY_API uint32_t query_s1_filter(const query_node_t*, size_t, uint32_t);
 static inline void query_diag_init(tlv_query_diagnostic_t* d) {
     if (d) memset(d, 0, sizeof *d);
 }

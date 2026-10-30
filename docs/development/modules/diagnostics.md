@@ -17,17 +17,32 @@ to typed objects, avoiding alignment and C aliasing assumptions. Descriptors and
 pointers within detail retain their documented lifetimes. The IO consumer asserts
 at compile time that Reader leaf detail fits the payload.
 
-Measured with GCC on Linux x64: Reader detail is 160 bytes, one cause frame is
-192 bytes, the two-frame chain is 400 bytes and the delegation envelope is
-992 bytes. The existing Query diagnostic remains 840 bytes. These are platform
-measurements, not portable size constants.
+Query adopts this transport in #650. Conversion callbacks take the generic
+envelope; Codec adapters export a Codec leaf followed by its optional IO or
+Schema leaf. Schema Query attaches its finding through the Schema-owned helper.
+Query retains raw callback results and conversion violations itself, without
+including Codec or Schema headers. Existing domain/family values stay mapped;
+Query conversion violations have their own registered family.
+That family is marked `baseline: false` in the mapping: its declarations are
+new in #650, while the values preserve the corresponding Codec violations.
+Reference capture excludes it from the immutable v0.8.0 vocabulary; candidate
+ownership and vocabulary checks still validate every member.
 
-Reader/Writer name functions now belong to IO. Query, Schema and Codec name
-functions and Codec initialization are in their owning source directories;
-these implementations remain in the transitional `tlv` library. Existing public
-diagnostic layouts and their detail values are unchanged. Adopting cause frames
-at higher-module callback boundaries remains work for #650, #651 and #652.
-The remainder of this page specifies those planned propagation contracts.
+Measured Query diagnostic sizes are 1072 bytes on Linux x64 (alignment 16),
+1040 bytes on MSVC x64 (alignment 8), 696 bytes on Linux x86 and 704 bytes on
+MSVC x86. Clang wasm32 layout is 720 bytes (alignment 16). The old x64 layout
+was 840 bytes. Preserving the unchanged 592-byte common diagnostic, expression
+and resource context plus two full producer frames exceeds the proposed 1 KiB
+budget on x64; no detail is discarded to meet that estimate. The direct Reader
+detail and delegated chain share discriminated storage. ABI snapshots include
+diagnostic alignment, because platform payload alignment differs.
+
+Reader/Writer name functions belong to IO; Query names and feature mirrors now
+belong to Query. Codec and Schema retain their existing native detail layouts
+until their extraction issues. Their public attach/copy/export helpers bridge
+those layouts to generic frames without exposing private headers. Query never
+interprets foreign payload bytes. All frames remain copyable by value, with the
+original producer's borrowed-pointer lifetimes.
 
 ## Baseline coupling
 

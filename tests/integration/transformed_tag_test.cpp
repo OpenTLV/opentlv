@@ -203,6 +203,7 @@ TEST(Integration_Tlv_TransformedTag, EmptyFormatIdentifierRetainsPresence) {
               tlv_source_preserve(&decoded.source, &element, nullptr, 0, &written));
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_TransformedTag, ReaderQueryAndSchemaUseCanonicalIdentity) {
     std::vector<uint8_t> wire(2 + 255 + 2 + 256, 0xAA);
     wire[0] = 2;
@@ -245,6 +246,7 @@ TEST(Integration_Tlv_TransformedTag, ReaderQueryAndSchemaUseCanonicalIdentity) {
     EXPECT_EQ(TLV_OK, tlv_schema_validate(wire.data(), wire.size(), &packed_format, &schema, 0, 2,
                                           nullptr));
 }
+#endif
 
 #if OPENTLV_DOCUMENT
 TEST(Integration_Tlv_TransformedTag, DocumentCopiesTagAndRegeneratesPackedLength) {

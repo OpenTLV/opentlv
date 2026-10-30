@@ -83,6 +83,7 @@ TEST(Integration_Tlv_Dhcpv4, ReaderWriterExposePadAndContinuePastEnd) {
     EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &element));
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
     // The option after End is intentional: only container validation stops there.
     const uint8_t                          wire[] = {0, 0x35, 1, 3, 255, 0, 0xE0, 0};
@@ -142,6 +143,7 @@ TEST(Integration_Tlv_Dhcpv4, QueryAndDocumentTreatPadAndEndAsOrdinaryElements) {
                                                                     &significant, &diagnostic)));
     EXPECT_EQ(6u, diagnostic.diagnostic.location.begin);
 }
+#endif
 
 TEST(Integration_Tlv_Dhcpv4, GenericSchemaKeepsValueConstraintsSeparateFromContainerPolicy) {
     const tlv_schema_entry_t   rules_fields[] = {{TLV_TAG(0), 0, 0, 0, "Pad", 0},

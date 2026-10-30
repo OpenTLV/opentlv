@@ -328,10 +328,14 @@ TEST(Unit_Tlvpp, SchemaRulesComposeLengthAndGroupConstraintsInInitializerLists) 
     EXPECT_TRUE(report.at(0).is_group());
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp, PublicQueryConfigurationBindsTypedVariables) {
     const tlv::fixed_format<1, 1> format;
     tlv::query_environment        environment(format);
-    tlv::query_options            options(&environment);
+#if OPENTLV_CODEC
+    tlv::configure_query_codecs(environment);
+#endif
+    tlv::query_options options(&environment);
     options.declare("minimum", tlv::query_type::integer);
     auto program = tlv::query_program::compile("count(//01[@len >= $minimum])", options);
     ASSERT_TRUE(program);
@@ -352,6 +356,7 @@ TEST(Unit_Tlvpp, PublicQueryConfigurationBindsTypedVariables) {
     EXPECT_EQ(tlv::query_type::integer, result->kind);
     EXPECT_EQ(1, result->integer);
 }
+#endif
 
 #if OPENTLV_EMV
 TEST(Unit_Tlvpp, RuntimeDictionaryCodecKeepsContextAndConversionErrors) {

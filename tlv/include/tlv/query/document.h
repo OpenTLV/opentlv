@@ -3,14 +3,14 @@
 #ifndef OPENTLV_QUERY_DOCUMENT_H
 #define OPENTLV_QUERY_DOCUMENT_H
 
-#include "tlv/export.h"
+#include "tlv/query-document/export.h"
 #include "tlv/document/document.h"
 #include "tlv/query/query.h"
 
 /** @file
  * @ingroup query
  * @brief Query-owned integration with the public Document API.
- * Link OpenTLV::tlv while the independent Query integration is extracted in #650.
+ * Link OpenTLV::QueryDocument; Document itself does not depend on Query.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -70,11 +70,10 @@ typedef enum tlv_document_query_edit_kind {
  * @return #TLV_ERR_INVALID_STATE during callbacks, for stale results or after result iteration has
  * begun.
  */
-TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tlv_query_exec* exec,
-                                             tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
-                                             const uint8_t* value, size_t size,
-                                             tlv_node_t** targets, size_t capacity, size_t* applied,
-                                             struct tlv_query_diagnostic* diagnostic);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t tlv_document_query_edit(
+    tlv_document_t* document, struct tlv_query_exec* exec, tlv_document_query_edit_kind_t kind,
+    tlv_tag_t tag, const uint8_t* value, size_t size, tlv_node_t** targets, size_t capacity,
+    size_t* applied, struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Callback for a matching Document Node.
  * @param node Borrowed matching node.
@@ -101,10 +100,9 @@ typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, voi
  * #TLV_QUERY_ERROR_STATE.
  * @return #TLV_ERR_INVALID_STATE if a callback requests deferred erasure or destruction.
  */
-TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
-                                              const tlv_query_t* query,
-                                              tlv_document_query_visitor_t visitor, void* context,
-                                              struct tlv_query_diagnostic* diagnostic);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t tlv_document_query_visit(
+    const tlv_document_t* document, const tlv_query_t* query, tlv_document_query_visitor_t visitor,
+    void* context, struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Discover the complete encoded snapshot size for compiled Document Query Values.
  * @param[in] document Live owning Document.
@@ -122,10 +120,9 @@ TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
  * @note Every non-#TLV_OK return has `diagnostic.code == rc` and no location. A Writer
  * result is classified by result: short staging is #TLV_ERR_BUFFER_TOO_SHORT with kind
  * #TLV_QUERY_ERROR_STORAGE and a missing argument has #TLV_QUERY_ERROR_ARGUMENT. */
-TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* document,
-                                                   struct tlv_tree_writer_workspace* staging,
-                                                   size_t* bytes,
-                                                   struct tlv_query_diagnostic* diagnostic);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t tlv_document_query_value_size(
+    const tlv_document_t* document, struct tlv_tree_writer_workspace* staging, size_t* bytes,
+    struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Evaluate a compiled program over Document nodes using a fresh retained execution.
  * @param[in] document Live Document; must remain unchanged through result consumption.
@@ -161,12 +158,10 @@ TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* documen
  * Include tlv/query/program.h and, when needed, tlv/writer/tree.h for type definitions.
  * @return #TLV_ERR_INVALID_STATE for used execution, callback reentrancy or callback invalidation.
  */
-TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
-                                                 struct tlv_query_exec* exec,
-                                                 const tlv_node_t* context, void* values,
-                                                 size_t capacity,
-                                                 struct tlv_tree_writer_workspace* staging,
-                                                 struct tlv_query_diagnostic* diagnostic);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t tlv_document_query_evaluate(
+    const tlv_document_t* document, struct tlv_query_exec* exec, const tlv_node_t* context,
+    void* values, size_t capacity, struct tlv_tree_writer_workspace* staging,
+    struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Pull the next finalized unique node handle in current Document preorder.
  * @param[in,out] exec Successfully evaluated Document node execution.
@@ -185,8 +180,8 @@ TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
  * @return #TLV_ERR_INVALID_STATE for unfinished/failed execution, reentrancy or a stale Document
  * revision.
  */
-TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node,
-                                             struct tlv_query_diagnostic* diagnostic);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t tlv_document_query_next(
+    struct tlv_query_exec* exec, tlv_node_t** node, struct tlv_query_diagnostic* diagnostic);
 
 /** @brief Visit remaining finalized Document results; STOP resumes after the delivered node.
  * @param[in,out] exec Successfully evaluated Document node execution.
@@ -205,10 +200,9 @@ TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_no
  * initialization and leave `diagnostic` untouched.
  * @return #TLV_ERR_INVALID_STATE for callback reentrancy, invalidated results or deferred mutation.
  */
-TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exec,
-                                                      tlv_document_query_visitor_t visitor,
-                                                      void* context,
-                                                      struct tlv_query_diagnostic* diagnostic);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t
+tlv_document_query_program_visit(struct tlv_query_exec* exec, tlv_document_query_visitor_t visitor,
+                                 void* context, struct tlv_query_diagnostic* diagnostic);
 
 /**
  * @brief Finds the first element addressed by a path query.
@@ -230,8 +224,9 @@ TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exe
  * @note Never allocates. On failure, `*node` is unchanged. Query validation happens
  * even for an empty Document. The returned node borrows the Document.
  */
-TLV_API tlv_result_t tlv_document_find_path(const tlv_document_t* document,
-                                            const tlv_query_t* query, tlv_node_t** node);
+OPENTLV_QUERY_DOCUMENT_API tlv_result_t tlv_document_find_path(const tlv_document_t* document,
+                                                               const tlv_query_t* query,
+                                                               tlv_node_t** node);
 
 #ifdef __cplusplus
 }

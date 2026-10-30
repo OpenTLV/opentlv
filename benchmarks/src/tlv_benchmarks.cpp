@@ -100,6 +100,7 @@ BENCHMARK(parse_entries)->Arg(16)->Arg(127)->Arg(128)->Arg(255)->Arg(256)->Arg(4
 BENCHMARK(encode_entries)->Arg(16)->Arg(127)->Arg(128)->Arg(255)->Arg(256)->Arg(4096);
 BENCHMARK(parse_stream)->Arg(16)->Arg(256)->Arg(4096);
 
+#if OPENTLV_QUERY_FRONTEND
 tlv_visit_result_t query_match(const tlv_tree_event_t* event, void*) {
     auto offset = event->offset;
     benchmark::DoNotOptimize(offset);
@@ -497,6 +498,7 @@ void query_phase(benchmark::State& state) {
                                 : "scalar");
 }
 BENCHMARK(query_phase)->ArgsProduct({{0, 1, 2, 3, 4, 5, 6, 7}, {16, 256, 4096}, {0, 1}});
+#endif
 
 #if OPENTLV_DOCUMENT
 // Worst-case stale-address validation after each edit deliberately scans to the

@@ -10,7 +10,7 @@ reviewers who approve these contracts. Read the
 
 **Implementation status:** #647 extracts the C `OpenTLV::Core` and
 `OpenTLV::IO` targets, #648 extracts `OpenTLV::Document`, and #649 extracts
-`OpenTLV::Generator`, using the
+`OpenTLV::Generator`; #650 extracts `OpenTLV::Query` and `OpenTLV::QueryDocument`, using the
 infrastructure from #646. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
 checks the compiled dependency graph. The remaining modules and C++ facades
@@ -20,8 +20,13 @@ their extraction issues. See the [consumer migration guide](../../guides/select-
 Document Query declarations now live in `tlv/query/document.h`; path matching
 and batch-edit policy live in `query/document_path.c` and
 `query/document_backend.c`. Both use `tlv/document/integration.h` and public node
-APIs, with no Document private-header access. The integration remains compiled
-in the compatibility library until #650 registers Query and its integrations.
+APIs, with no Document or Writer private-header access. The integration is
+registered as Query-owned `OpenTLV::QueryDocument`; only Query owner-private
+helpers cross its shared-library boundary. Base Query has only Core and IO
+dependencies. Definition resolution stays in Query; Codec conversion providers
+live in `query/codec.c` and the explicit C++ `query/codec.hpp` integration,
+assembled in the transitional library until #651 extracts Codec. Schema Query
+uses public plan inspection instead of private Query representations.
 The base Document target has no Query, Schema, Codec, Generator or builtin
 headers, sources or symbols. C++ facade separation remains tracked below.
 
@@ -433,12 +438,11 @@ Both Query features stay, as options of the Query target only:
 
 Retained features must not change dependencies or what other modules see:
 
-- Their macros and runtime mirrors move from Core `tlv/config.h` to a
-  Query-owned configuration header (`query-features`, #650); no other module
-  reads them.
+- Their macros and runtime mirrors live in `tlv/query/features.h`; Core no
+  longer owns or reads Query feature configuration.
 - They no longer turn off unrelated tests, examples, benchmarks or fuzzers
   globally; the Query test targets select what they need (#646, #650).
-- `query_plan_supported()` stops checking `OPENTLV_DOCUMENT`: Document-level
+- `query_plan_supported()` does not check `OPENTLV_DOCUMENT`: Document-level
   plans are valid representations, executable through `query-document`.
 
 ## ASN.1 granularity

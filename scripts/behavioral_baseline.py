@@ -200,6 +200,10 @@ def collect_diagnostics(source, output):
     mapping = read(ROOT / "docs/development/modules/diagnostic-mapping.json")
     families = []
     for family in mapping["families"]:
+        # Newly split vocabularies are checked against the candidate headers,
+        # but were not declarations in the immutable v0.8.0 reference.
+        if family.get("baseline") is False:
+            continue
         codes = (contracts.parse_enum(source, family["header"], family["typedef"])
                  if "typedef" in family else [(name, None) for name in sorted(contracts.limit_names(source))])
         checked(dict(codes) == {c["previous"]: c["value"] for c in family["codes"]},
@@ -218,7 +222,7 @@ def run_probe(source, build, work, output):
     if registry.is_file():
         modules = {entry["key"]: entry for entry in read(registry)}
         libraries += [Path(modules[key]["library"])
-                      for key in ("document", "generator", "io", "core") if key in modules]
+                      for key in ("query-document", "query", "document", "generator", "io", "core") if key in modules]
     command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE", "-I" + str(source / "tlv/include"),
              "-I" + str(build / "generated/include"), ROOT / "tests/baseline/probe.cpp",
              *libraries, "-o", executable], log=output / "logs/probe-build.txt")

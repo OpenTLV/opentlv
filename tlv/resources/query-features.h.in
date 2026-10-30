@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+#ifndef OPENTLV_QUERY_FEATURES_H
+#define OPENTLV_QUERY_FEATURES_H
+#include "tlv/query/export.h"
+/* Query features */
+/** @brief Whether Query text frontend is enabled in this build. */
+#cmakedefine01 OPENTLV_QUERY_FRONTEND
+/** @brief Whether Query set operations is enabled in this build. */
+#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/* Query features */
+/** @brief Reports Query text frontend availability.
+ * @return The effective OPENTLV_QUERY_FRONTEND value (0 or 1). */
+OPENTLV_QUERY_API int tlv_config_query_frontend(void);
+/** @brief Reports Query set operations availability.
+ * @return The effective OPENTLV_QUERY_SET_OPERATIONS value (0 or 1). */
+OPENTLV_QUERY_API int tlv_config_query_set_operations(void);
+
+#ifdef __cplusplus
+}
+#endif
+#endif

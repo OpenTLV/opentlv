@@ -115,6 +115,7 @@ struct PipelineFormat {
     }
 };
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Pipeline, IncrementalSelectionMutationAndEncodingAtEverySplit) {
     // A prefix, nested selection, another child, and a following root.
     const uint8_t wire[] = {1, 0, 0x80, 7, 0x81, 3, 2, 1, 42, 3, 0, 4, 0};
@@ -188,6 +189,7 @@ TEST(Integration_Tlv_Pipeline, IncrementalSelectionMutationAndEncodingAtEverySpl
         EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
     }
 }
+#endif
 
 TEST(Integration_Tlv_Pipeline, BuilderPreservesAbsoluteDiagnosticsAndReaderLimits) {
     const uint8_t wire[] = {1, 0, 0x80, 2, 2, 2};
@@ -503,6 +505,7 @@ TEST(Integration_Tlv_Architecture, WholeObjectCodecRoundtripAndValidationBeforeM
 
 } // namespace
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOperations) {
     const tlv_fixed_format_t config{
         {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
@@ -596,3 +599,4 @@ TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOp
 #endif
     }
 }
+#endif

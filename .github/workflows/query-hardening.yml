@@ -54,7 +54,7 @@ jobs:
           python3 scripts/check_query_release.py --output build/query-release.json
       - run: cmake --build build --parallel 2
       - name: Audit production archive symbols and emitted call dependencies
-        run: python3 scripts/check_query_objects.py --archive build/tlv/libtlv.a --output build/query-object-contracts.json
+        run: python3 scripts/check_query_objects.py --archive build/tlv/libopentlv_query.a --output build/query-object-contracts.json
       - name: Sanitized Core suites, conformance and corruption regressions
         env:
           ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
@@ -137,11 +137,11 @@ jobs:
           python3 tests/query/memory_driver.py --output build/query-memory-driver.c
           clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
             -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
-            build/query-memory-driver.c build/msan/tlv/libtlv.a -lm -o build/query-memory-driver
+            build/query-memory-driver.c build/msan/tlv/libtlv.a build/msan/tlv/libopentlv_query_document.a build/msan/tlv/libopentlv_query.a build/msan/tlv/libopentlv_document.a build/msan/tlv/libopentlv_io.a build/msan/tlv/libopentlv_core.a -lm -o build/query-memory-driver
           python3 tests/query/memory_campaign.py --native build/query-memory-driver --output build/query-memory-evidence
           clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
             -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
-            tests/query/adversarial.c build/msan/tlv/libtlv.a -lm -o build/query-adversarial-msan
+            tests/query/adversarial.c build/msan/tlv/libtlv.a build/msan/tlv/libopentlv_query_document.a build/msan/tlv/libopentlv_query.a build/msan/tlv/libopentlv_document.a build/msan/tlv/libopentlv_io.a build/msan/tlv/libopentlv_core.a -lm -o build/query-adversarial-msan
           python3 tests/query/adversarial_campaign.py --native build/query-adversarial-msan --msan --output build/query-adversarial-msan-evidence
       - uses: actions/upload-artifact@v4
         if: always()
@@ -190,7 +190,7 @@ jobs:
       - name: Verify absence of runtime frontend symbols
         if: matrix.frontend == 'OFF'
         run: |
-          nm --defined-only build/tlv/libtlv.a > build/symbols.txt
+          nm --defined-only build/tlv/libopentlv_query.a > build/symbols.txt
           if grep -E ' (tlv_query_compile[^ ]*|tlv_query_parse[^ ]*|tlv_query_program_load[^ ]*|lex|parse)$' build/symbols.txt; then
             echo 'Unexpected Query frontend symbol in executor-only archive'
             exit 1

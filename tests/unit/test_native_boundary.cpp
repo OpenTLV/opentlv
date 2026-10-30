@@ -171,6 +171,7 @@ TEST(Unit_Tlvpp_NativeBoundary, VisitorBridgeBorrowsNoncopyableAndConstCallables
     EXPECT_EQ(2u, *callback.count);
 }
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Unit_Tlvpp_NativeBoundary, TreeAndQueryShareConstructedFormatAndCallbackBridge) {
     const uint8_t    data[] = {0xE1, 2, 1, 0};
     const auto       format = tlv::native::borrow_format(tree_format);
@@ -203,6 +204,7 @@ TEST(Unit_Tlvpp_NativeBoundary, TreeAndQueryShareConstructedFormatAndCallbackBri
     EXPECT_EQ(sizeof(data), writer.size());
     EXPECT_EQ(0, std::memcmp(data, output, sizeof(data)));
 }
+#endif
 
 TEST(Unit_Tlvpp_NativeBoundary, MeasurementConsumesCanonicalRecordsAndEvents) {
     const uint8_t              data[] = {0xE1, 2, 1, 0};

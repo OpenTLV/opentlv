@@ -5,7 +5,7 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-Core, IO, Document and Generator are independent C libraries. Core owns Definition, Format and Field
+Core, IO, Document, Generator and Query are independent C libraries. Core owns Definition, Format and Field
 Encoding, Element and Layout, byte utilities and generic diagnostics. IO owns
 Reader, Writer, traversal and serialization and depends publicly on Core.
 Document owns mutable trees and depends publicly on Core and IO.
@@ -25,7 +25,7 @@ target_link_libraries(my_format_tool PRIVATE OpenTLV::Core)
 
 The same targets are available through `add_subdirectory()` and FetchContent.
 A Core-only package consumer can request just `COMPONENTS Core`; no IO or C++
-library is loaded. All four modules support static and shared builds, selected by
+library is loaded. All extracted modules support static and shared builds, selected by
 `OPENTLV_BUILD_SHARED_LIBS`. A library-only build does not require a C++ compiler,
 even when the compatibility C++ facade is enabled.
 
@@ -42,7 +42,7 @@ cmake --build build/modules --target opentlv_document
 cmake --build build/modules --target opentlv_generator
 ```
 
-`OPENTLV_READER`, `OPENTLV_WRITER` and `OPENTLV_DOCUMENT` are no longer CMake
+`OPENTLV_READER`, `OPENTLV_WRITER`, `OPENTLV_DOCUMENT` and `OPENTLV_QUERY` are no longer CMake
 options. Supplying any of them
 is an error; remove them from presets and existing caches (or use a fresh build
 directory). IO always includes both APIs. For transition compatibility,
@@ -50,8 +50,8 @@ directory). IO always includes both APIs. For transition compatibility,
 they do not select sources or indicate which modules an application linked.
 
 Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO,
-Document and Generator transitively. Direct library consumers must link the dependencies too (static
-link order: `tlv`, `opentlv_document`, `opentlv_generator`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
+Document, Generator, Query and QueryDocument transitively. Direct library consumers must link the dependencies too (static
+link order: `tlv`, `opentlv_query_document`, `opentlv_query`, `opentlv_document`, `opentlv_generator`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
 all linked libraries. Rebuild consumers after the split; the old single-library
 binary distribution is not preserved.
 
@@ -76,8 +76,8 @@ Query, Schema, Codec, Generator or builtin implementation; supply a Format.
 
 Include `tlv/query/document.h` explicitly for Document Query operations previously
 declared by `tlv/document/document.h`. The aggregate `tlv/tlv.h` still includes
-both. Query integration remains in `OpenTLV::tlv` until #650 extracts its own
-target; linking Document alone intentionally does not provide Query symbols.
+both. Link `OpenTLV::QueryDocument` for these operations; linking Document alone
+does not provide Query symbols.
 The existing C++ facade remains part of the compatibility target.
 
 `tlv/document/integration.h` defines the public integration boundary: effective
@@ -110,25 +110,60 @@ Algorithm version 2, seeds, case indices, candidate order, limits, workspace,
 Writer reconstruction checks and errors are unchanged. See the
 [generation contract](../reference/c-api.md#deterministic-wire-generation).
 
+## Independent Query
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Query)
+target_link_libraries(my_filter PRIVATE OpenTLV::Query)
+# For Document evaluation and editing:
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS QueryDocument)
+target_link_libraries(my_editor PRIVATE OpenTLV::QueryDocument)
+```
+
+`Query` loads only Core and IO. It provides exact-path matching, text compilation,
+static plans, streaming and retained execution. Build `opentlv_query` to compile
+only that dependency closure. `QueryDocument` adds Document through public
+traversal, mutation and callback interfaces; Document never links Query.
+
+Include `tlv/query/definition.h` for name resolution, `tlv/query/program.h` for
+programs and execution, and `tlv/query/features.h` for the frontend/set-operation
+macros and runtime mirrors. `OPENTLV_QUERY_FRONTEND` and
+`OPENTLV_QUERY_SET_OPERATIONS` remain Query-internal CMake options.
+
+Codec adapters live in the Query-owned `query-codec` implementation, currently
+assembled into the transitional `OpenTLV::tlv` target until Codec extraction.
+Include `tlv/query/adapters.h` for them. The base Query target does not compile or
+link that implementation. C++ environments start without conversion providers;
+include `tlv++/query/codec.hpp` and call `tlv::configure_query_codecs(environment)`
+before compilation to add NUM, BCD and TEXT. Existing builtin configuration
+functions still add their own providers explicitly.
+
+Query conversion callbacks now receive `tlv_diagnostic_envelope_t*`.
+Codec-backed callbacks can publish their original diagnostic using
+`tlv_codec_diagnostic_export()`. Query preserves the primary location, expression,
+context and path, stores the raw callback result and violation in `reported` and
+`violation`, and carries delegated frames in `detail.causes` when `cause` is CODEC
+or SCHEMA. Read frames through their producer's copy/import helpers. Direct Reader
+failures retain `detail.reader`. This changes the public Query diagnostic ABI and
+callback signature; rebuild native consumers and update binding layouts.
+
 ## Remaining capability profiles
 
-Query, Schema, Codec and builtin selection remain transitional options until
-their own extraction issues. The compatibility target includes Document, Generator and IO
-in every profile. `OPENTLV_QUERY=OFF` also disables its frontend and set operations.
-Generated headers must match the linked libraries.
+Schema, Codec and builtin selection remain transitional options until their own
+extraction issues. The compatibility target includes Document, Generator, Query
+and IO in every profile. Generated headers must match the linked libraries.
 
-| Profile | Query | Schema | Codec |
-| --- | --- | --- | --- |
-| Document (also the legacy IO profile) | OFF | OFF | OFF |
-| Document/Query (also the Query profile) | ON | OFF | OFF |
-| Schema | OFF | ON | OFF |
-| Codec | OFF | OFF | ON |
-| Full | ON | ON | ON |
+| Profile | Schema | Codec |
+| --- | --- | --- |
+| IO, Document, Query or Document/Query | OFF | OFF |
+| Schema | ON | OFF |
+| Codec | OFF | ON |
+| Full | ON | ON |
 
 Broad unit/integration suites need the full profile. Module C tests and the
 `capability-contract` remain available in reduced builds.
 `python scripts/check_capabilities.py` validates these remaining profiles;
-`scripts/check_module_isolation.py` separately builds Core, IO and Document in fresh trees,
+`scripts/check_module_isolation.py` separately builds each extracted module in fresh trees,
 checks symbol/header boundaries and runs relocated package consumers. CI runs
 static and shared variants of both checks.
 

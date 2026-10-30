@@ -12,12 +12,11 @@ include(modules.cmake)
 # Transitional library for modules extracted by subsequent issues. Extracted modules
 # are linked once; no implementation is duplicated in the compatibility target.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
-    src/query/diagnostic_strings.c
     src/schema/diagnostic_strings.c
     src/codec/diagnostic_strings.c
     src/codec/diagnostic.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument)
 if(NOT CMAKE_INSTALL_RPATH)
     if(APPLE)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")
@@ -26,14 +25,6 @@ if(NOT CMAKE_INSTALL_RPATH)
     endif()
 endif()
 
-if(OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/query/query.c
-        src/query/plan.c
-        src/query/execute.c
-        src/query/evaluation.c
-    )
-endif()
 
 if(OPENTLV_SCHEMA)
     target_sources(${PROJECT_NAME} PRIVATE
@@ -58,7 +49,7 @@ if(OPENTLV_CODEC AND OPENTLV_SCHEMA)
 endif()
 
 if(OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE src/query/adapters.c)
+    target_sources(${PROJECT_NAME} PRIVATE src/query/codec.c)
 endif()
 if(OPENTLV_SCHEMA AND OPENTLV_CODEC)
     target_sources(${PROJECT_NAME} PRIVATE src/schema/number.c)
@@ -70,9 +61,6 @@ if(OPENTLV_SCHEMA AND OPENTLV_QUERY)
     target_sources(${PROJECT_NAME} PRIVATE src/schema/query.c)
 endif()
 
-if(OPENTLV_QUERY_FRONTEND)
-    target_sources(${PROJECT_NAME} PRIVATE src/query/compiler.c)
-endif()
 
 # Builtin framing and optional protocol integrations.
 if(OPENTLV_NFC)
@@ -217,12 +205,6 @@ if(OPENTLV_EMV AND OPENTLV_SCHEMA AND OPENTLV_CODEC AND OPENTLV_QUERY)
     )
 endif()
 
-if(OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/query/document_path.c
-        src/query/document_backend.c
-    )
-endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden

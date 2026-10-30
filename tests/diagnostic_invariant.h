@@ -57,7 +57,7 @@ static inline int test_query_cause_matches(const tlv_query_diagnostic_t* diagnos
         case TLV_QUERY_CAUSE_READER:
             return kind == TLV_QUERY_ERROR_READER || kind == TLV_QUERY_ERROR_STATE;
         case TLV_QUERY_CAUSE_CODEC:
-            return (kind == TLV_QUERY_ERROR_CODEC && diagnostic->detail.codec.reported != TLV_OK) ||
+            return (kind == TLV_QUERY_ERROR_CODEC && diagnostic->reported != TLV_OK) ||
                    kind == TLV_QUERY_ERROR_CALLBACK || kind == TLV_QUERY_ERROR_STATE;
         case TLV_QUERY_CAUSE_SCHEMA: return kind == TLV_QUERY_ERROR_SCHEMA;
     }

@@ -104,7 +104,7 @@
       "invalid": 24
     },
     "tlv_query_diagnostic_t": {
-      "size": 452,
+      "size": 696,
       "alignment": 4,
       "diagnostic": 0,
       "kind": 304,
@@ -112,7 +112,9 @@
       "limit": 324,
       "configured": 328,
       "cause": 332,
-      "detail": 336
+      "detail": 336,
+      "reported": 688,
+      "violation": 692
     },
     "tlv_query_result_t": {
       "size": 24,

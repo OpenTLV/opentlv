@@ -167,7 +167,7 @@ configuration that were previously filed under `STORAGE`, `EVENTS`, `BINDING` or
 `IMAGE_VERSION` for a recognized version mismatch. `CODEC` denotes conversion
 context; a callback contract violation during conversion uses `CALLBACK` and
 records the codec operation and reported result, including a reported `OK`.
-The raw `codec.reported` field, which Query reaches as `detail.codec.reported`,
+The raw `codec.reported` field, and Query's own `reported` field,
 uses `int32_t`, preserving unknown and negative foreign callback results
 without invalid C++ enum reads.
 Callback signatures still use `tlv_result_t`: C++ callbacks must return values
@@ -337,7 +337,8 @@ does not make it a wire parser or require Reader/Schema dependencies. Structure
 codecs compose those capabilities and preserve their results. The typed codec
 diagnostic carries Reader or Schema cause detail when it delegates, as well as
 its conversion operation and representation. Codec entry points, descriptor
-callbacks and Query conversion hooks receive an optional typed diagnostic
+callbacks receive an optional typed diagnostic; Query conversion hooks receive
+a producer-independent `tlv_diagnostic_envelope_t`
 output so that this cause can cross the callback boundary. When NULL, only the
 common result is propagated; the output is neither a second conversion engine
 nor a required allocation.

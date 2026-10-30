@@ -41,14 +41,17 @@ def check(root):
             return ""
 
     architecture = read("docs/concepts/architecture.md")
-    components = set(re.findall(r"^#cmakedefine01 (OPENTLV_\w+)$",
-                                read("tlv/resources/config.h.in"), re.M))
+    configuration_templates = ("tlv/resources/config.h.in",
+                               "tlv/resources/query-features.h.in")
+    components = set()
+    for template in configuration_templates:
+        components.update(re.findall(r"^#cmakedefine01 (OPENTLV_\w+)$", read(template), re.M))
     options = set(re.findall(r"option\((OPENTLV_\w+)\s", read("CMakeLists.txt")))
     capability_options = {option for option in options
                           if not option.startswith("OPENTLV_BUILD_")
                           and option != "OPENTLV_WARNINGS_AS_ERRORS"}
     compare(errors, "public component configuration", capability_options, components,
-            "tlv/resources/config.h.in")
+            "public configuration templates")
     if not components:
         errors.append("tlv/resources/config.h.in: no public components found")
     for component in sorted(components):

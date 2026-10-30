@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "../../query_diagnostic_helpers.h"
 
 #include "../../diagnostic_assertions.h"
 #include "tlv++/native.hpp"
@@ -282,7 +283,7 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
                                                     input, sizeof input, &format, &rule, 1, 3, 100,
                                                     100000, &workspace, &diagnostic)));
     EXPECT_EQ(0u, diagnostic.rule);
-    EXPECT_STREQ("label-requires-name", diagnostic.query.detail.schema.field);
+    EXPECT_STREQ("label-requires-name", query_test_schema(diagnostic.query).field);
     EXPECT_EQ(4u, diagnostic.query.diagnostic.location.begin);
     EXPECT_EQ(TLV_OK, tlv_schema_query_validate_buffer(input, 4, &format, &rule, 1, 3, 100, 100000,
                                                        &workspace, &diagnostic));
@@ -312,7 +313,8 @@ TEST(Unit_Tlvpp_FullQuery, ContextualSchemaAssertionsPreserveReaderFailures) {
                                                     100000, &workspace, &diagnostic)));
     ASSERT_EQ(1u, diagnostic.query.diagnostic.path.length);
     EXPECT_EQ(0x6F, diagnostic.query.diagnostic.path.tags[0].data[0]);
-    EXPECT_STREQ("assertion", tlv_schema_issue_kind_string(diagnostic.query.detail.schema.kind));
+    EXPECT_STREQ("assertion",
+                 tlv_schema_issue_kind_string(query_test_schema(diagnostic.query).kind));
     // A Reader workspace rejected before traversal is not a Reader input failure.
     auto* saved_frames = workspace.frames;
     workspace.frames = nullptr;
@@ -809,8 +811,8 @@ TEST(Unit_Tlvpp_FullQuery, DocumentSchemaRunsTheSameContextualPrograms) {
               TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_schema_query_validate_document(
                                                     tlv::native::handle(*doc), &rule, 1, 3, 100,
                                                     100000, &w, nullptr, 0, nullptr, &diagnostic)));
-    EXPECT_EQ(TLV_SCHEMA_ISSUE_ASSERTION, diagnostic.query.detail.schema.kind);
-    EXPECT_STREQ("name", diagnostic.query.detail.schema.field);
+    EXPECT_EQ(TLV_SCHEMA_ISSUE_ASSERTION, query_test_schema(diagnostic.query).kind);
+    EXPECT_STREQ("name", query_test_schema(diagnostic.query).field);
 }
 
 TEST(Unit_Tlvpp_FullQuery, DocumentEnvironmentAcceptsCopiedDescriptorAndRejectsForeignPolicy) {

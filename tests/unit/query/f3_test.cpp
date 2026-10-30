@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "../../query_diagnostic_helpers.h"
 #include "../../diagnostic_assertions.h"
 #include "tlv/query/adapters.h"
 #include "tlv/document/document.h"
@@ -121,16 +122,18 @@ TEST(Unit_Tlv_QueryF3, AsnDateHookKeepsTheGeneralizedTimeDiagnostic) {
                           {"20260231120000Z", TLV_LOCATION_UNKNOWN, 0, 0}};
     for (const auto& test : cases) {
         SCOPED_TRACE(test.text);
-        alignas(8) uint8_t     scratch[sizeof(tlv_asn1_generalized_time_t)];
-        tlv_query_result_t     result{};
-        tlv_codec_diagnostic_t diagnostic;
+        alignas(8) uint8_t        scratch[sizeof(tlv_asn1_generalized_time_t)];
+        tlv_query_result_t        result{};
+        tlv_diagnostic_envelope_t diagnostic;
         EXPECT_EQ(TLV_ERR_INVALID_VALUE,
                   tlv_asn1_query_date.decode(tlv_asn1_query_date.context, nullptr,
                                              reinterpret_cast<const uint8_t*>(test.text),
                                              std::strlen(test.text), scratch, sizeof scratch,
                                              &result, &diagnostic));
         EXPECT_EQ(TLV_ERR_INVALID_VALUE, diagnostic.diagnostic.code);
-        EXPECT_EQ(TLV_CODEC_REASON_RANGE, diagnostic.codec.reason);
+        tlv_codec_detail_t detail{};
+        ASSERT_EQ(TLV_OK, tlv_codec_detail_import(&diagnostic.causes, &detail));
+        EXPECT_EQ(TLV_CODEC_REASON_RANGE, detail.reason);
         EXPECT_EQ(test.kind, diagnostic.diagnostic.location.kind);
         if (test.kind == TLV_LOCATION_UNKNOWN) continue;
         EXPECT_EQ(TLV_LOCATION_VALUE, diagnostic.diagnostic.location.domain);
@@ -460,7 +463,7 @@ TEST(Unit_Tlv_QueryF3, DocumentConversionKeepsValueLocalEvidence) {
                                                       document, e.exec, nullptr, values.data(),
                                                       bytes, &staging, &e.diagnostic)));
     ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, e.diagnostic.cause);
-    EXPECT_EQ(TLV_CODEC_REASON_DIGIT, e.diagnostic.detail.codec.reason);
+    EXPECT_EQ(TLV_CODEC_REASON_DIGIT, query_test_codec(e.diagnostic).reason);
     // A Document node does not record where its Value starts in the original input,
     // so the offending octet keeps its Value-local coordinate.
     EXPECT_EQ(TLV_LOCATION_VALUE, e.diagnostic.diagnostic.location.domain);

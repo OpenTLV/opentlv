@@ -13,6 +13,7 @@
 #include <cstring>
 #include <memory>
 
+#if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Packed, ReaderQueryAndOwnedDocumentUseCanonicalTags) {
     static const uint8_t      tags[] = {0, 1, 2, 3};
     const tlv_packed_layout_t layout = {1,
@@ -68,3 +69,4 @@ TEST(Integration_Tlv_Packed, ReaderQueryAndOwnedDocumentUseCanonicalTags) {
     EXPECT_EQ(0, std::memcmp(expected, output, sizeof(expected)));
 #endif
 }
+#endif

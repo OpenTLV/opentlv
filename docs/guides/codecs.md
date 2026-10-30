@@ -84,7 +84,9 @@ supports it. On failure destination contents are unspecified and encode's
 `written` is zero. The descriptor, context, and buffers remain caller-owned.
 
 Codec operations use the same `tlv_result_t` and `tlv_result_string()` as Reader,
-Writer and Query. Their final argument is an optional `tlv_codec_diagnostic_t*`;
+Writer and Query. Codec entry points take an optional `tlv_codec_diagnostic_t*`.
+Query conversion hooks take `tlv_diagnostic_envelope_t*`, populated through
+`tlv_codec_diagnostic_export()`;
 pass `NULL` when evidence is not needed. Callbacks receive the same optional
 output. Preserve lower-layer results and evidence, and keep borrowed descriptions,
 paths and Tags alive after returning. Decode can propagate `NEED_MORE_DATA`;

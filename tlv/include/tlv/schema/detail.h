@@ -5,6 +5,7 @@
 #define OPENTLV_SCHEMA_DETAIL_H
 
 #include "tlv/tag.h"
+#include "tlv/diagnostic/cause.h"
 #include "tlv/export.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -174,6 +175,14 @@ typedef struct tlv_schema_detail {
 } tlv_schema_detail_t;
 
 /** @} */
+
+/** @brief Copy producer-owned schema detail into a generic cause chain.
+ * Required pointers must be non-NULL; returns the Core append result. */
+TLV_API tlv_result_t tlv_schema_detail_attach(tlv_diagnostic_causes_t* causes,
+                                              const tlv_schema_detail_t* detail);
+/** @brief Copy matching schema detail out of a frame; mismatches leave output unchanged. */
+TLV_API tlv_result_t tlv_schema_detail_copy(const tlv_diagnostic_cause_t* cause,
+                                            tlv_schema_detail_t* detail);
 
 #ifdef __cplusplus
 }

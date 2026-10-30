@@ -19,6 +19,7 @@ class InventoryTests(unittest.TestCase):
         files = {
             "CMakeLists.txt": 'option(OPENTLV_FORMAT_BER "BER" ON)\n',
             "tlv/resources/config.h.in": "#cmakedefine01 OPENTLV_FORMAT_BER\n",
+            "tlv/resources/query-features.h.in": "// Query feature configuration\n",
             "docs/concepts/architecture.md": "| `OPENTLV_FORMAT_BER` | BER |\n",
             "tlv/include/tlv/builtins/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
             "tlv++/include/tlv++/builtins/asn1/ber.hpp": "// fixture\n",
@@ -61,6 +62,11 @@ class InventoryTests(unittest.TestCase):
     def test_added_cxx_family(self):
         self.write("tlv++/include/tlv++/builtins/new/format.hpp", "// fixture\n")
         self.assert_drift("C++ built-in families: document new")
+
+    def test_query_owned_feature_needs_option_and_documentation(self):
+        self.write("tlv/resources/query-features.h.in", "#cmakedefine01 OPENTLV_QUERY_FRONTEND\n")
+        self.assert_drift("OPENTLV_QUERY_FRONTEND: public configuration has no root CMake option")
+        self.assert_drift("OPENTLV_QUERY_FRONTEND: add a build-configuration row")
 
     def test_binding_addition_requires_guide(self):
         self.write("bindings/new/README.md", "# New\n")

@@ -40,3 +40,22 @@ const char* tlv_schema_issue_kind_string(tlv_schema_issue_kind_t kind) {
     }
     return "unknown";
 }
+
+static const char* schema_detail_name(uint16_t type) {
+    return type == 1 ? "schema" : "unknown";
+}
+static const char* schema_code_name(uint16_t family, int code) {
+    return family == 1 ? tlv_schema_issue_kind_string(code) : "unknown";
+}
+static const tlv_diagnostic_domain_t schema_domain = {5, "opentlv.schema", schema_detail_name,
+                                                      schema_code_name};
+typedef char
+    schema_detail_fits[(sizeof(tlv_schema_detail_t) <= TLV_DIAGNOSTIC_DETAIL_MAX) ? 1 : -1];
+tlv_result_t tlv_schema_detail_attach(tlv_diagnostic_causes_t* causes,
+                                      const tlv_schema_detail_t* detail) {
+    return tlv_diagnostic_causes_append(causes, &schema_domain, 1, detail, sizeof *detail);
+}
+tlv_result_t tlv_schema_detail_copy(const tlv_diagnostic_cause_t* cause,
+                                    tlv_schema_detail_t* detail) {
+    return tlv_diagnostic_cause_copy(cause, &schema_domain, 1, detail, sizeof *detail);
+}

@@ -14,6 +14,11 @@ one value out of nested data without traversing the whole structure itself. The
 same text works in the C API, the C++ API and the [`otlv query`](https://github.com/OpenTLV/opentlv-cli/blob/main/docs/README.md#path-queries)
 command.
 
+Link `OpenTLV::Query` for buffer/event execution, or `OpenTLV::QueryDocument`
+for Document operations. Base Query has no Schema or Codec dependency; see
+[independent Query](select-components.md#independent-query) for providers, feature
+headers and the diagnostic migration.
+
 ## Syntax
 
 The V1 helpers below retain exact-path syntax. The separately selected compiled
@@ -63,9 +68,9 @@ A universal model/schema fingerprint is left to the future model architecture.
 
 Configure `OPENTLV_QUERY_FRONTEND=OFF` to omit the runtime compiler and V1 text
 parser. Execution, plan validation, parameter introspection and explain remain
-available. Text-dependent CLI, examples, benchmarks, fuzzers and language-extension
-builds are skipped in that configuration, as are the broad frontend test suites;
-the independent C static-plan test remains enabled. Existing source-compilation
+available. Text-dependent Query tests, examples, benchmarks and fuzzers are
+skipped; unrelated tests and examples remain enabled. The independent C
+static-plan test remains enabled. Existing source-compilation
 facades require a frontend-enabled library.
 
 `OPENTLV_QUERY_SET_OPERATIONS=OFF` omits union/intersection/difference execution

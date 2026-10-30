@@ -73,8 +73,6 @@ opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR include
         tlv_config_lldp
         tlv_config_nfc
         tlv_config_query
-        tlv_config_query_frontend
-        tlv_config_query_set_operations
         tlv_config_reader
         tlv_config_schema
         tlv_config_writer
@@ -232,6 +230,8 @@ opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR include
         tlv_reader_next_diag
         tlv_reader_next_source_diag
         tlv_reader_offset
+        tlv_reader_detail_attach
+        tlv_reader_detail_copy
         tlv_reader_operation_string
         tlv_reader_set_input
         tlv_reader_visit
@@ -343,4 +343,104 @@ opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR include
         tlv_node_tag
         tlv_node_value_data
         tlv_node_value_size
+)
+
+configure_file(resources/query-features.h.in "${OpenTLV_BINARY_DIR}/generated/include/tlv/query/features.h" @ONLY)
+install(FILES "${OpenTLV_BINARY_DIR}/generated/include/tlv/query/features.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/tlv/query")
+set(_query_sources)
+set(_query_frontend_symbols)
+if(OPENTLV_QUERY_FRONTEND)
+    list(APPEND _query_sources src/query/compiler.c)
+    list(APPEND _query_frontend_symbols tlv_query_compile tlv_query_compile_commit tlv_query_compile_options_init tlv_query_compile_prepare tlv_query_compile_prepare_size tlv_query_compile_scratch tlv_query_program_format tlv_query_program_load tlv_query_program_load_scratch tlv_query_parse tlv_query_parse_n)
+endif()
+opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR include
+    CONSUMER ../tests/modules/query.c
+    SOURCES
+        src/query/query.c
+        src/query/plan.c
+        src/query/execute.c
+        src/query/evaluation.c
+        src/query/diagnostic_strings.c
+        src/query/adapters.c
+        src/query/features.c
+        ${_query_sources}
+    PUBLIC_HEADERS
+        include/tlv/query/query.h
+        include/tlv/query/program.h
+        include/tlv/query/plan.h
+        include/tlv/query/definition.h
+    PRIVATE_HEADERS
+        src/query/program_internal.h
+        src/query/frontend_internal.h
+        src/query/match_internal.h
+        src/query/v1_internal.h
+    PUBLIC_DEPS core io
+    PUBLIC_SYMBOLS
+        tlv_query_conversion_violation_string
+        tlv_query_cause_string
+        tlv_query_count
+        tlv_query_definition_resolve
+        tlv_query_error_kind_string
+        tlv_query_eval_init
+        tlv_query_eval_size
+        tlv_query_exec_bind
+        tlv_query_exec_context
+        tlv_query_exec_feed
+        tlv_query_exec_finish
+        tlv_query_exec_info
+        tlv_query_exec_init
+        tlv_query_exec_pruning
+        tlv_query_exec_reset
+        tlv_query_exec_result
+        tlv_query_exec_selected
+        tlv_query_exec_size
+        tlv_query_format
+        tlv_query_matcher_init
+        tlv_query_matcher_rebind
+        tlv_query_matcher_visit
+        tlv_query_plan_info
+        tlv_query_plan_open
+        tlv_query_program_exists
+        tlv_query_program_explain
+        tlv_query_program_variable
+        tlv_query_program_variable_count
+        tlv_query_program_visit
+        tlv_query_result_next
+        tlv_query_result_next_ordinal
+        tlv_query_step
+        tlv_query_visit
+        tlv_query_visit_buffer
+        tlv_config_query_frontend
+        tlv_config_query_set_operations
+        ${_query_frontend_symbols}
+    OWNER_SYMBOLS
+        query_retained_overlap
+        query_live_overlap
+        query_function_eval
+        query_retained_finish
+        query_retained_feed
+        query_document_handle
+        query_document_end
+        query_document_next
+        query_document_result_count
+        query_candidate_size
+        query_candidate_alignment
+        query_s1_filter
+)
+opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_DIR include
+    CONSUMER ../tests/modules/query_document.c
+    SOURCES
+        src/query/document_path.c
+        src/query/document_backend.c
+    PUBLIC_HEADERS
+        include/tlv/query/document.h
+    PUBLIC_DEPS core io document query
+    PUBLIC_SYMBOLS
+        tlv_document_find_path
+        tlv_document_query_edit
+        tlv_document_query_evaluate
+        tlv_document_query_next
+        tlv_document_query_program_visit
+        tlv_document_query_value_size
+        tlv_document_query_visit
 )

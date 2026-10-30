@@ -25,17 +25,11 @@
 /** @brief Document compatibility constant; link OpenTLV::Document to use this API. */
 #define OPENTLV_DOCUMENT 1
 /** @brief Whether Query is enabled in this build. */
-#cmakedefine01 OPENTLV_QUERY
+#define OPENTLV_QUERY 1
 /** @brief Whether Schema is enabled in this build. */
 #cmakedefine01 OPENTLV_SCHEMA
 /** @brief Whether Codec is enabled in this build. */
 #cmakedefine01 OPENTLV_CODEC
-
-/* Query features */
-/** @brief Whether Query text frontend is enabled in this build. */
-#cmakedefine01 OPENTLV_QUERY_FRONTEND
-/** @brief Whether Query set operations is enabled in this build. */
-#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS
 
 /* Builtin protocols and formats */
 /** @brief Whether ASN.1 format family is enabled in this build. */
@@ -83,14 +77,6 @@ OPENTLV_CORE_API int tlv_config_schema(void);
 /** @brief Reports Codec availability.
  * @return The effective OPENTLV_CODEC value (0 or 1). */
 OPENTLV_CORE_API int tlv_config_codec(void);
-
-/* Query features */
-/** @brief Reports Query text frontend availability.
- * @return The effective OPENTLV_QUERY_FRONTEND value (0 or 1). */
-OPENTLV_CORE_API int tlv_config_query_frontend(void);
-/** @brief Reports Query set operations availability.
- * @return The effective OPENTLV_QUERY_SET_OPERATIONS value (0 or 1). */
-OPENTLV_CORE_API int tlv_config_query_set_operations(void);
 
 /* Builtin protocols and formats */
 /** @brief Reports ASN.1 format family availability.

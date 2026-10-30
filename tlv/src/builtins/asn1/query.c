@@ -25,9 +25,10 @@ static tlv_result_t tag_number(const void* context, const tlv_tag_t* tag, int64_
     return TLV_OK;
 }
 const tlv_query_tag_adapter_t tlv_asn1_query_tags = {1, NULL, tag_class, tag_number};
-static tlv_result_t date_decode(const void* context, const tlv_tree_event_t* event,
-                                const uint8_t* data, size_t size, void* scratch, size_t capacity,
-                                tlv_query_result_t* result, tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t date_codec_decode(const void* context, const tlv_tree_event_t* event,
+                                      const uint8_t* data, size_t size, void* scratch,
+                                      size_t capacity, tlv_query_result_t* result,
+                                      tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
     (void)event;
@@ -61,6 +62,15 @@ static tlv_result_t date_decode(const void* context, const tlv_tree_event_t* eve
         (total - epoch) * 86400 + t.hour * INT64_C(3600) + t.minute * INT64_C(60) + t.second;
     *result = out;
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
+}
+static tlv_result_t date_decode(const void* context, const tlv_tree_event_t* event,
+                                const uint8_t* data, size_t size, void* scratch, size_t capacity,
+                                tlv_query_result_t* result, tlv_diagnostic_envelope_t* diagnostic) {
+    tlv_codec_diagnostic_t codec;
+    tlv_result_t rc = date_codec_decode(context, event, data, size, scratch, capacity, result,
+                                        diagnostic ? &codec : NULL);
+    tlv_codec_diagnostic_export(diagnostic, diagnostic ? &codec : NULL);
+    return rc;
 }
 const tlv_query_hook_t tlv_asn1_query_date = {
     4, TLV_QUERY_DATE, sizeof(tlv_asn1_generalized_time_t), 8, NULL, date_decode};

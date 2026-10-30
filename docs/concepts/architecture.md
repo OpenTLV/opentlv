@@ -445,7 +445,7 @@ The options below still select functionality awaiting extraction.
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
-| `OPENTLV_QUERY` | Canonical Query compiler/execution and path matching |
+| `OpenTLV::Query` target | Canonical Query compiler/execution and path matching; link-selected |
 | `OPENTLV_SCHEMA` | Schema descriptions, length and value constraints; wire traversal requires Reader |
 | `OPENTLV_CODEC` | Semantic Value codecs; structure codecs require Schema and Reader |
 | `OPENTLV_QUERY_FRONTEND` | Query text parser/compiler; disable for [static C plans](../guides/queries.md#static-c-plans-and-frontend-free-execution) |

@@ -25,6 +25,8 @@ FAMILIES = (
      "tlv/include/tlv/writer/writer.h", "tlv_writer_operation_string", "writer_operation"),
     ("QueryErrorKind", "tlv_query_error_kind", "TLV_QUERY_ERROR_",
      "tlv/include/tlv/query/program.h", "tlv_query_error_kind_string", "query_error_kind"),
+    ("QueryConversionViolation", "tlv_query_conversion_violation", "TLV_QUERY_CONVERSION_",
+     "tlv/include/tlv/query/program.h", "tlv_query_conversion_violation_string", "query_conversion_violation"),
     ("QueryCause", "tlv_query_cause", "TLV_QUERY_CAUSE_",
      "tlv/include/tlv/query/program.h", "tlv_query_cause_string", "query_cause"),
     ("SchemaIssue", "tlv_schema_issue_kind", "TLV_SCHEMA_ISSUE_",

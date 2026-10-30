@@ -27,7 +27,7 @@ return describes that result:
 - `tlv_query_diagnostic_t` has `kind != TLV_QUERY_ERROR_NONE`. A `READER` kind
   has cause `READER` and stores its result, location and path only in
   `diagnostic`; a `CODEC` kind has cause `CODEC` with a non-OK
-  `detail.codec.reported`; a `SCHEMA` kind has cause `SCHEMA`.
+  `reported`; a `SCHEMA` kind has cause `SCHEMA`.
 - An initialized Query diagnostic for `TLV_ERR_INVALID_STATE` has kind
   `TLV_QUERY_ERROR_STATE`. Pre-initialization preservation exceptions below still apply.
 - Schema Query reports every failure once in `query`: a false assertion has
@@ -135,7 +135,7 @@ most one active lower-layer detail, selected by its cause.
 | `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
 | `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`), `detail.reader` or `detail.codec` (`tlv_codec_detail_t`) |
 | `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
-| `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured` | `cause` selects `detail.reader`, `detail.codec` or `detail.schema` |
+| `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured`, `reported`, `violation` | `cause` selects `detail.reader` or producer-owned frames in `detail.causes` |
 | `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
 
 The Query `expression` field is related evidence: it holds the expression span
@@ -145,7 +145,7 @@ of a Reader or conversion failure. Otherwise the span itself is primary
 conversion failures without a location, such as a provider output contract that
 Query rejects itself, so the span always remains visible in `diagnostic.location`. A Reader
 failure inside a conversion hook is reachable only as
-`detail.codec.detail.reader`; Query cause `READER` is reserved for its own
+the IO frame following the Codec frame in `detail.causes`; Query cause `READER` is reserved for its own
 Reader traversal.
 
 A Schema diagnostic reports a malformed wire input with cause `READER` and the
@@ -175,13 +175,14 @@ Fields removed in #579 and where their values now live:
 | Schema diagnostic `kind`, `tag`, `definition`, `field`, occurrence, length and form fields | `tlv_schema_diagnostic_t::detail.schema.*` under cause `TLV_SCHEMA_CAUSE_SCHEMA` |
 | Query `begin` / `end` | `diagnostic.location` when it is an EXPRESSION span, otherwise `expression` |
 | Query `expected` | `diagnostic.expected`; a conversion's own expectation takes precedence and Query fills only a missing one |
-| Query `int32_t codec` | `detail.codec.reported` under cause `CODEC` |
-| Query `has_codec` / `codec_detail` | `cause == TLV_QUERY_CAUSE_CODEC` / `detail.codec` |
+| Query `int32_t codec` | `reported` under cause `CODEC` |
+| Query `has_codec` / `codec_detail` | `cause == TLV_QUERY_CAUSE_CODEC` / producer-owned `detail.causes` frames |
 | Query `has_reader` / `reader` | `cause == TLV_QUERY_CAUSE_READER` / `detail.reader` |
-| Schema Query `schema` | `query` with kind and cause `SCHEMA`; Schema detail in `query.detail.schema`, common evidence in `query.diagnostic` |
+| Schema Query `schema` | `query` with kind and cause `SCHEMA`; Schema detail in a `query.detail.causes` frame, common evidence in `query.diagnostic` |
 
 `tlv_query_cause_string()` names the Query cause. The 64-bit Query diagnostic
-shrinks from 1000 to 840 bytes.
+shrank from 1000 to 840 bytes in #579. The #650 module transport changes it
+again; see [module diagnostic layouts](../development/modules/diagnostics.md).
 
 ## Codes
 
@@ -448,17 +449,18 @@ the primary input/output/Value location. Retained paths hold outermost scopes;
 `path_omitted` counts omitted innermost scopes. Go's `HasReader` guards the
 Reader-specific part of a Query failure.
 
-Binding Query and Schema Query projections follow the single-source C layout
-and read each value from one C member:
+Bindings adopting the #650 Core pin must update Query layouts and read delegated
+frames through producer accessors; independently pinned older binding releases
+retain their existing representation. The native-to-binding projection is:
 
 | C member | Binding projection |
 | --- | --- |
 | `diagnostic` | The error's common evidence: `location`, severity, path, expected and actual text, contexts |
 | `kind`, `limit`, `configured` | Query `kind` (Python `query_kind`), `limit`, `configured` |
 | `expression` | Query `expression` location: the related span, unknown when the expression span is the primary `location` |
-| `detail.codec` | Codec detail; `reported` is the raw provider result |
+| Codec frame in `detail.causes`; Query `reported` and `violation` | Codec detail and Query callback contract evidence |
 | `detail.reader` | Reader detail beside the common evidence |
-| `detail.schema` | Schema Query `schema`: `kind`, `tag` and `field` of the failed assertion; absent (`None`, `nil`, `null`) for any other cause |
+| Schema frame in `detail.causes` | Schema Query `schema`: `kind`, `tag` and `field` of the failed assertion; absent (`None`, `nil`, `null`) for any other cause |
 
 There are no `begin`/`end`, `source_offset`, Query `expected` or `codec`
 copies. The expression span of a failure is its `location` when that has the
