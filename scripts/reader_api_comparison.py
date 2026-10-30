@@ -106,15 +106,23 @@ def prepare(args):
             subprocess.run(["cmake", "--build", str(build), "--target", "tlv", "--parallel", "2"],
                            check=True, stdout=output, stderr=subprocess.STDOUT)
             flags = CPP_FLAGS + (["-DOPENTLV_LEGACY_FACADE"] if label in args.legacy_label else [])
+            libraries = [build / "tlv/libtlv.a"]
+            registry = build / "modules-Release.json"
+            if registry.is_file():
+                modules = {entry["key"]: entry for entry in json.loads(registry.read_text())}
+                libraries += [Path(modules[key]["library"]) for key in ("io", "core") if key in modules]
             subprocess.run([args.cxx, *flags, "-I" + str(source / "tlv++/include"),
                             "-I" + str(source / "tlv/include"), "-I" + str(build / "generated/include"),
-                            str(BENCHMARK), str(build / "tlv/libtlv.a"), "-o", str(directory / "benchmark")],
+                            str(BENCHMARK), *map(str, libraries), "-o", str(directory / "benchmark")],
                            check=True, stdout=output, stderr=subprocess.STDOUT)
         metadata["variants"][label] = {"source_commit": source_commit,
                                         "legacy_facade": label in args.legacy_label,
                                         "source_patch": patch,
                                         "generated_config_sha256": digest(build / "generated/include/tlv/config.h"),
                                         "library_sha256": digest(build / "tlv/libtlv.a"),
+                                        "module_libraries_sha256": {
+                                            path.relative_to(build).as_posix(): digest(path)
+                                            for path in libraries[1:]},
                                         "executable_sha256": digest(directory / "benchmark")}
         print(f"Prepared {label}: {source_commit[:12]}", flush=True)
     (args.work_dir / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
@@ -133,6 +141,9 @@ def measure(args):
             raise ValueError(f"benchmark executable changed since preparation: {label}")
         if variant["library_sha256"] != digest(args.work_dir / label / "build/tlv/libtlv.a"):
             raise ValueError(f"native library changed since preparation: {label}")
+        for name, expected in variant.get("module_libraries_sha256", {}).items():
+            if expected != digest(args.work_dir / label / "build" / name):
+                raise ValueError(f"native module changed since preparation: {label}/{name}")
     allowed_cpus = sorted(os.sched_getaffinity(0))
     cpu = args.cpu if args.cpu is not None else allowed_cpus[0]
     os.sched_setaffinity(0, {cpu})

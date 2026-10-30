@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_READER_DIAGNOSTIC_H
 #define OPENTLV_READER_DIAGNOSTIC_H
+#include "tlv/io/export.h"
 #include "tlv/diagnostic.h"
 #include "tlv/size.h"
 #include "tlv/format.h"
@@ -38,7 +39,7 @@ extern "C" {
  * @note Never returns NULL or allocates. Do not free or modify the string.
  * Available even when the corresponding capability is disabled.
  */
-TLV_API const char* tlv_reader_operation_string(tlv_reader_operation_t value);
+OPENTLV_IO_API const char* tlv_reader_operation_string(tlv_reader_operation_t value);
 #ifdef __cplusplus
 }
 #endif

@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_EMV_FORMAT_H
 #define OPENTLV_BUILTINS_EMV_FORMAT_H
 
+#include "tlv/export.h"
 #include "tlv/format.h"
 
 /**

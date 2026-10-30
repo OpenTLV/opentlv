@@ -11,17 +11,17 @@
  */
 
 
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 
 /** @addtogroup core
  * @{
  */
 
 /* Core capabilities */
-/** @brief Whether Reader is enabled in this build. */
-#cmakedefine01 OPENTLV_READER
-/** @brief Whether Writer is enabled in this build. */
-#cmakedefine01 OPENTLV_WRITER
+/** @brief Reader compatibility constant; link OpenTLV::IO to use this API. */
+#define OPENTLV_READER 1
+/** @brief Writer compatibility constant; link OpenTLV::IO to use this API. */
+#define OPENTLV_WRITER 1
 /** @brief Whether Document is enabled in this build. */
 #cmakedefine01 OPENTLV_DOCUMENT
 /** @brief Whether Query is enabled in this build. */
@@ -65,61 +65,61 @@ extern "C" {
  * select protocol families; integrations also require their core capabilities. */
 
 /* Core capabilities */
-/** @brief Reports Reader availability.
- * @return The effective OPENTLV_READER value (0 or 1). */
-TLV_API int tlv_config_reader(void);
-/** @brief Reports Writer availability.
- * @return The effective OPENTLV_WRITER value (0 or 1). */
-TLV_API int tlv_config_writer(void);
+/** @brief Legacy Reader compatibility mirror; link IO to use Reader.
+ * @return Always 1; this does not report the application's linked modules. */
+OPENTLV_CORE_API int tlv_config_reader(void);
+/** @brief Legacy Writer compatibility mirror; link IO to use Writer.
+ * @return Always 1; this does not report the application's linked modules. */
+OPENTLV_CORE_API int tlv_config_writer(void);
 /** @brief Reports Document availability.
  * @return The effective OPENTLV_DOCUMENT value (0 or 1). */
-TLV_API int tlv_config_document(void);
+OPENTLV_CORE_API int tlv_config_document(void);
 /** @brief Reports Query availability.
  * @return The effective OPENTLV_QUERY value (0 or 1). */
-TLV_API int tlv_config_query(void);
+OPENTLV_CORE_API int tlv_config_query(void);
 /** @brief Reports Schema availability.
  * @return The effective OPENTLV_SCHEMA value (0 or 1). */
-TLV_API int tlv_config_schema(void);
+OPENTLV_CORE_API int tlv_config_schema(void);
 /** @brief Reports Codec availability.
  * @return The effective OPENTLV_CODEC value (0 or 1). */
-TLV_API int tlv_config_codec(void);
+OPENTLV_CORE_API int tlv_config_codec(void);
 
 /* Query features */
 /** @brief Reports Query text frontend availability.
  * @return The effective OPENTLV_QUERY_FRONTEND value (0 or 1). */
-TLV_API int tlv_config_query_frontend(void);
+OPENTLV_CORE_API int tlv_config_query_frontend(void);
 /** @brief Reports Query set operations availability.
  * @return The effective OPENTLV_QUERY_SET_OPERATIONS value (0 or 1). */
-TLV_API int tlv_config_query_set_operations(void);
+OPENTLV_CORE_API int tlv_config_query_set_operations(void);
 
 /* Builtin protocols and formats */
 /** @brief Reports ASN.1 format family availability.
  * @return The effective OPENTLV_FORMAT_ASN1 value (0 or 1). */
-TLV_API int tlv_config_format_asn1(void);
+OPENTLV_CORE_API int tlv_config_format_asn1(void);
 /** @brief Reports BER format availability.
  * @return The effective OPENTLV_FORMAT_BER value (0 or 1). */
-TLV_API int tlv_config_format_ber(void);
+OPENTLV_CORE_API int tlv_config_format_ber(void);
 /** @brief Reports DER format availability.
  * @return The effective OPENTLV_FORMAT_DER value (0 or 1). */
-TLV_API int tlv_config_format_der(void);
+OPENTLV_CORE_API int tlv_config_format_der(void);
 /** @brief Reports CER format availability.
  * @return The effective OPENTLV_FORMAT_CER value (0 or 1). */
-TLV_API int tlv_config_format_cer(void);
+OPENTLV_CORE_API int tlv_config_format_cer(void);
 /** @brief Reports EMV availability.
  * @return The effective OPENTLV_EMV value (0 or 1). */
-TLV_API int tlv_config_emv(void);
+OPENTLV_CORE_API int tlv_config_emv(void);
 /** @brief Reports Bluetooth availability.
  * @return The effective OPENTLV_BLUETOOTH value (0 or 1). */
-TLV_API int tlv_config_bluetooth(void);
+OPENTLV_CORE_API int tlv_config_bluetooth(void);
 /** @brief Reports NFC availability.
  * @return The effective OPENTLV_NFC value (0 or 1). */
-TLV_API int tlv_config_nfc(void);
+OPENTLV_CORE_API int tlv_config_nfc(void);
 /** @brief Reports DHCP availability.
  * @return The effective OPENTLV_DHCP value (0 or 1). */
-TLV_API int tlv_config_dhcp(void);
+OPENTLV_CORE_API int tlv_config_dhcp(void);
 /** @brief Reports LLDP availability.
  * @return The effective OPENTLV_LLDP value (0 or 1). */
-TLV_API int tlv_config_lldp(void);
+OPENTLV_CORE_API int tlv_config_lldp(void);
 
 #ifdef __cplusplus
 }

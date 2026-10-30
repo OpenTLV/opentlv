@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "tlv/formats/fixed.h"
-#include "tlv/copy.h"
+#include "tlv/writer/copy.h"
 #include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"

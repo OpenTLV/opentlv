@@ -4,6 +4,7 @@
 #ifndef OPENTLV_TREE_WRITER_H
 #define OPENTLV_TREE_WRITER_H
 
+#include "tlv/io/export.h"
 #include "tlv/writer/writer.h"
 #include "tlv/defaults.h"
 #include "tlv/tree.h"
@@ -70,8 +71,8 @@ typedef struct tlv_tree_writer {
  * @note begin() copies Tags in this mode; end() releases capacity on success.
  * Failure preserves the configuration. Exhaustion at begin returns #TLV_ERR_BUFFER_TOO_SHORT.
  */
-TLV_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, uint8_t* data,
-                                                     size_t capacity);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer,
+                                                            uint8_t* data, size_t capacity);
 
 /**
  * @brief Consume one canonical structural event without reconstructing depth transitions.
@@ -85,8 +86,8 @@ TLV_API tlv_result_t tlv_tree_writer_set_tag_storage(tlv_tree_writer_t* writer, 
  * to release input after every successful event. On failure retain the current
  * event for retry; do not advance the producer. Source metadata is ignored.
  */
-TLV_API tlv_result_t tlv_tree_writer_write_event(tlv_tree_writer_t* writer,
-                                                 const tlv_tree_event_t* event);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_write_event(tlv_tree_writer_t* writer,
+                                                        const tlv_tree_event_t* event);
 
 /**
  * @brief Consume an event with Writer diagnostics.
@@ -95,9 +96,9 @@ TLV_API tlv_result_t tlv_tree_writer_write_event(tlv_tree_writer_t* writer,
  * @param[out] diagnostic Optional failure detail; unchanged on success.
  * @return Same results and guarantees as tlv_tree_writer_write_event().
  */
-TLV_API tlv_result_t tlv_tree_writer_write_event_diag(tlv_tree_writer_t* writer,
-                                                      const tlv_tree_event_t* event,
-                                                      tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_write_event_diag(tlv_tree_writer_t* writer,
+                                                             const tlv_tree_event_t* event,
+                                                             tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Initialize an empty bounded output sequence without allocating.
@@ -116,11 +117,11 @@ TLV_API tlv_result_t tlv_tree_writer_write_event_diag(tlv_tree_writer_t* writer,
  * @warning Cursor, frames, scratch and output storage must be disjoint and live
  *          throughout use. Format/context must remain alive and immutable.
  */
-TLV_API tlv_result_t tlv_tree_writer_init(tlv_tree_writer_t* writer, uint8_t* data, size_t size,
-                                          const tlv_format_t* format,
-                                          tlv_tree_writer_frame_t* frames, size_t capacity,
-                                          uint8_t* scratch, size_t scratch_capacity,
-                                          size_t max_depth, size_t max_elements);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_init(tlv_tree_writer_t* writer, uint8_t* data,
+                                                 size_t size, const tlv_format_t* format,
+                                                 tlv_tree_writer_frame_t* frames, size_t capacity,
+                                                 uint8_t* scratch, size_t scratch_capacity,
+                                                 size_t max_depth, size_t max_elements);
 
 /**
  * @brief Open a constructed element without emitting its header yet.
@@ -136,7 +137,7 @@ TLV_API tlv_result_t tlv_tree_writer_init(tlv_tree_writer_t* writer, uint8_t* da
  * @warning Tag bytes must remain immutable and must not overlap output, scratch,
  *          cursor, frame or Tag storage. Without configured Tag storage, begin retains Tag.
  */
-TLV_API tlv_result_t tlv_tree_writer_begin(tlv_tree_writer_t* writer, tlv_tag_t tag);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_begin(tlv_tree_writer_t* writer, tlv_tag_t tag);
 
 /**
  * @brief Open a parent with structured failure detail.
@@ -145,8 +146,8 @@ TLV_API tlv_result_t tlv_tree_writer_begin(tlv_tree_writer_t* writer, tlv_tag_t 
  * @param[out] diagnostic Optional failure detail; unchanged on success.
  * @return Same results and guarantees as tlv_tree_writer_begin().
  */
-TLV_API tlv_result_t tlv_tree_writer_begin_diag(tlv_tree_writer_t* writer, tlv_tag_t tag,
-                                                tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_begin_diag(tlv_tree_writer_t* writer, tlv_tag_t tag,
+                                                       tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Append a primitive or already-complete constructed Element.
@@ -158,8 +159,8 @@ TLV_API tlv_result_t tlv_tree_writer_begin_diag(tlv_tree_writer_t* writer, tlv_t
  *       counts only on success. Previously accumulated bytes remain valid on failure.
  * @warning Callback errors may modify unused bytes at or beyond the unchanged cursor.
  */
-TLV_API tlv_result_t tlv_tree_writer_write_element(tlv_tree_writer_t* writer,
-                                                   const tlv_element_t* element);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_write_element(tlv_tree_writer_t* writer,
+                                                          const tlv_element_t* element);
 
 /**
  * @brief Append a complete Element with structured failure detail.
@@ -169,9 +170,9 @@ TLV_API tlv_result_t tlv_tree_writer_write_element(tlv_tree_writer_t* writer,
  *                        in the current output buffer, including provisional storage.
  * @return Same results and guarantees as tlv_tree_writer_write_element().
  */
-TLV_API tlv_result_t tlv_tree_writer_write_element_diag(tlv_tree_writer_t* writer,
-                                                        const tlv_element_t* element,
-                                                        tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_write_element_diag(tlv_tree_writer_t* writer,
+                                                               const tlv_element_t* element,
+                                                               tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Close the innermost parent using its complete accumulated Value.
@@ -184,7 +185,7 @@ TLV_API tlv_result_t tlv_tree_writer_write_element_diag(tlv_tree_writer_t* write
  *       bytes are preserved, including after callback failure. The parent stays open.
  *       Scratch and unused destination bytes may change. No implicit end or allocation.
  */
-TLV_API tlv_result_t tlv_tree_writer_end(tlv_tree_writer_t* writer);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_end(tlv_tree_writer_t* writer);
 
 /**
  * @brief Close the innermost parent with structured failure detail.
@@ -193,8 +194,8 @@ TLV_API tlv_result_t tlv_tree_writer_end(tlv_tree_writer_t* writer);
  *                        TLV_WRITER_OP_END with scratch available/required byte counts.
  * @return Same results and guarantees as tlv_tree_writer_end().
  */
-TLV_API tlv_result_t tlv_tree_writer_end_diag(tlv_tree_writer_t* writer,
-                                              tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_end_diag(tlv_tree_writer_t* writer,
+                                                     tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Verify that every begin has a matching end, without changing state.
@@ -202,14 +203,14 @@ TLV_API tlv_result_t tlv_tree_writer_end_diag(tlv_tree_writer_t* writer,
  * @return #TLV_OK if complete, #TLV_ERR_INVALID_STATE for an open parent,
  *         or #TLV_ERR_NULL_ARG for NULL writer. Does not seal the cursor.
  */
-TLV_API tlv_result_t tlv_tree_writer_finish(const tlv_tree_writer_t* writer);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_finish(const tlv_tree_writer_t* writer);
 
 /**
  * @brief Return the final output prefix containing only closed root elements.
  * @param[in] writer Initialized cursor, or NULL.
  * @return Stable prefix size in bytes, or zero for NULL. Provisional bytes are excluded.
  */
-TLV_API size_t tlv_tree_writer_size(const tlv_tree_writer_t* writer);
+OPENTLV_IO_API size_t tlv_tree_writer_size(const tlv_tree_writer_t* writer);
 
 /**
  * @brief Supply the next semantic node in preorder, without encoding it.
@@ -263,12 +264,10 @@ typedef tlv_result_t (*tlv_tree_event_next_fn)(void* context, tlv_tree_event_t* 
  * tlv_tree_writer_measure(). NEED_MORE_DATA aborts this one-shot helper; use a
  * persistent Tree Writer and write_event() for resumable transformations.
  */
-TLV_API tlv_result_t tlv_tree_writer_measure_events(const tlv_format_t* format,
-                                                    tlv_tree_event_next_fn next, void* context,
-                                                    tlv_tree_writer_workspace_t* workspace,
-                                                    size_t max_depth, size_t max_elements,
-                                                    size_t* size,
-                                                    tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_measure_events(
+    const tlv_format_t* format, tlv_tree_event_next_fn next, void* context,
+    tlv_tree_writer_workspace_t* workspace, size_t max_depth, size_t max_elements, size_t* size,
+    tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Measure a preorder tree through canonical Tree Writer encoding, without allocating.
@@ -300,11 +299,34 @@ TLV_API tlv_result_t tlv_tree_writer_measure_events(const tlv_format_t* format,
  * @warning Failure may modify workspace bytes. Format and source callbacks must be
  *          deterministic for replay. No recursion, allocation, or Format-specific path.
  */
-TLV_API tlv_result_t tlv_tree_writer_measure(const tlv_format_t* format,
-                                             tlv_tree_writer_next_fn next, void* context,
-                                             tlv_tree_writer_workspace_t* workspace,
-                                             size_t max_depth, size_t max_elements, size_t* size,
-                                             tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_measure(const tlv_format_t* format,
+                                                    tlv_tree_writer_next_fn next, void* context,
+                                                    tlv_tree_writer_workspace_t* workspace,
+                                                    size_t max_depth, size_t max_elements,
+                                                    size_t* size,
+                                                    tlv_writer_diagnostic_t* diagnostic);
+
+/** @brief Optional budget observer: one unit per event and three per actual Value byte
+ * processed by sizing/copying/encoding. Called before the associated operation.
+ * Storage capacities never participate in this accounting.
+ * @param[in,out] context Borrowed observer state.
+ * @param[in] amount Work units to charge, possibly zero.
+ * @return TLV_OK to proceed or an error to abort. Control statuses are invalid.
+ */
+typedef tlv_result_t (*tlv_tree_writer_charge_fn)(void* context, size_t amount);
+/** @brief Measure events with optional budget accounting before each operation.
+ * All measurement parameters and failure/storage contracts match
+ * tlv_tree_writer_measure_events(). charge may be NULL; otherwise it receives
+ * charge_context and a work amount. Provider errors are propagated unchanged;
+ * control statuses and unknown results become TLV_ERR_CALLBACK.
+ * Observer failures leave diagnostic and size unchanged; the source and staging
+ * workspace may already have advanced. The observer may report its own detail
+ * through charge_context and must not mutate the measurement workspace.
+ */
+OPENTLV_IO_API tlv_result_t tlv_tree_writer_measure_events_observed(
+    const tlv_format_t* format, tlv_tree_event_next_fn next, void* context,
+    tlv_tree_writer_workspace_t* workspace, size_t max_depth, size_t max_elements, size_t* size,
+    tlv_writer_diagnostic_t* diagnostic, tlv_tree_writer_charge_fn charge, void* charge_context);
 
 /** @} */
 #ifdef __cplusplus

@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_AD_DATA_H
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_DATA_H
 
+#include "tlv/export.h"
 #include "tlv/result.h"
 #include "tlv/reader/diagnostic.h"
 #include <stddef.h>

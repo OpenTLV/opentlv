@@ -6,6 +6,14 @@ Compatibility** CI job compares the library built from a pull request with a
 stored ABI baseline using [libabigail](https://sourceware.org/libabigail/)
 (`abidw` and `abidiff`).
 
+Since #647, Core and IO symbols are exported by `opentlv_core` and `opentlv_io`
+using `OPENTLV_CORE_API` and `OPENTLV_IO_API`. The default comparison still reports
+their removal from the original single-library distribution against the stored
+baseline. This is an intentional binary packaging break; existing public type
+layouts remain unchanged. Use `--library opentlv_core` or `--library opentlv_io`
+with a matching `--baseline-file` to compare one extracted library. ABI mutation
+self-tests now operate on Core, where their endian and Value test symbols live.
+
 Out of scope: private and internal symbols (hidden by
 `-fvisibility=hidden`), static libraries, the header-only C++ layer (`tlv++`),
 source and behavioral compatibility, and Windows/MSVC.

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "common.h"
-#include "../../tlv/src/utf8_internal.h"
+#include "tlv/utf8.h"
 
 /* The validator, its streaming form and the diagnostic locator are separate
  * implementations of the same UTF-8 definition; they must never disagree. */

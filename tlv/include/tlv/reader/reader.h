@@ -7,7 +7,7 @@
 #include "tlv/result.h"
 #include "tlv/reader/diagnostic.h"
 #include "tlv/format.h"
-#include "tlv/export.h"
+#include "tlv/io/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,15 +54,15 @@ extern "C" {
  * @warning The caller must keep `data` alive and unchanged while any part of `out_element` is used.
  *          Format-supplied identifier storage must likewise outlive every retained Tag.
  */
-TLV_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
-                              tlv_element_t* out_element, size_t* consumed);
+OPENTLV_IO_API tlv_result_t tlv_read(const uint8_t* data, size_t size, const tlv_format_t* format,
+                                     tlv_element_t* out_element, size_t* consumed);
 
 /**
  * @brief Resets a reader diagnostic to all-unset.
  *
  * @param[out] diagnostic Diagnostic to initialize; must not be `NULL`.
  */
-TLV_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_IO_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Parses one element from the beginning of a buffer, with diagnostic detail on failure.
@@ -84,9 +84,10 @@ TLV_API void tlv_reader_diagnostic_init(tlv_reader_diagnostic_t* diagnostic);
  * @warning The caller must keep `data` alive while `out_element->value` or
  *          `out_diagnostic->detail.tag` is used.
  */
-TLV_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size, const tlv_format_t* format,
-                                   tlv_element_t* out_element, size_t* consumed,
-                                   tlv_reader_diagnostic_t* out_diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_read_diag(const uint8_t* data, size_t size,
+                                          const tlv_format_t* format, tlv_element_t* out_element,
+                                          size_t* consumed,
+                                          tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Canonical pull-based cursor over a caller-owned input buffer.
@@ -148,8 +149,8 @@ typedef struct tlv_reader {
  * @warning Format and its context must outlive the reader. Input must remain
  *          valid until replaced and while any retained borrowed result uses it.
  */
-TLV_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t size,
-                                     const tlv_format_t* format);
+OPENTLV_IO_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, size_t size,
+                                            const tlv_format_t* format);
 
 /**
  * @brief Initializes a non-final, incremental Reader at absolute offset zero.
@@ -163,8 +164,8 @@ TLV_API tlv_result_t tlv_reader_init(tlv_reader_t* reader, const uint8_t* data, 
  * @note No allocation or copying occurs. Empty input yields #TLV_NEED_MORE_DATA.
  * @warning Input and Format storage must obey the lifetime contract of #tlv_reader_t.
  */
-TLV_API tlv_result_t tlv_reader_init_incremental(tlv_reader_t* reader, const uint8_t* data,
-                                                 size_t size, const tlv_format_t* format);
+OPENTLV_IO_API tlv_result_t tlv_reader_init_incremental(tlv_reader_t* reader, const uint8_t* data,
+                                                        size_t size, const tlv_format_t* format);
 
 /**
  * @brief Extends or replaces the caller-owned contiguous input window.
@@ -195,8 +196,8 @@ TLV_API tlv_result_t tlv_reader_init_incremental(tlv_reader_t* reader, const uin
  *          original storage. Relocating or overwriting it invalidates them;
  *          this operation cannot transfer existing views to the new buffer.
  */
-TLV_API tlv_result_t tlv_reader_set_input(tlv_reader_t* reader, const uint8_t* data, size_t size,
-                                          size_t discard, int final_input);
+OPENTLV_IO_API tlv_result_t tlv_reader_set_input(tlv_reader_t* reader, const uint8_t* data,
+                                                 size_t size, size_t discard, int final_input);
 
 /**
  * @brief Returns the consumed prefix size in the current window.
@@ -204,14 +205,14 @@ TLV_API tlv_result_t tlv_reader_set_input(tlv_reader_t* reader, const uint8_t* d
  * @return reader->pos in bytes, or zero for NULL.
  * @note These bytes may be discarded only after borrowed views into them are released.
  */
-TLV_API size_t tlv_reader_consumed(const tlv_reader_t* reader);
+OPENTLV_IO_API size_t tlv_reader_consumed(const tlv_reader_t* reader);
 
 /**
  * @brief Returns the absolute logical offset of the next element.
  * @param[in] reader Initialized cursor with unmodified valid state, or NULL.
  * @return base_offset + pos in bytes, or zero for NULL. Bounded by SIZE_MAX.
  */
-TLV_API size_t tlv_reader_offset(const tlv_reader_t* reader);
+OPENTLV_IO_API size_t tlv_reader_offset(const tlv_reader_t* reader);
 
 /**
  * @brief Reports whether the reader has consumed all input.
@@ -221,7 +222,7 @@ TLV_API size_t tlv_reader_offset(const tlv_reader_t* reader);
  * @return 1 if input is final and position equals input size, otherwise 0 (also for `NULL`).
  * @note This checks exhaustion only; it does not parse or validate remaining bytes.
  */
-TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
+OPENTLV_IO_API int tlv_reader_at_end(const tlv_reader_t* reader);
 
 /**
  * @brief Reads the next TLV element and advances the reader.
@@ -246,7 +247,7 @@ TLV_API int tlv_reader_at_end(const tlv_reader_t* reader);
  * @warning The caller must keep the original buffer alive while the returned
  *          element is used.
  */
-TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_element);
+OPENTLV_IO_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_element);
 
 /**
  * @brief Reads the next TLV element and advances the reader, with diagnostic detail on failure.
@@ -266,8 +267,8 @@ TLV_API tlv_result_t tlv_reader_next(tlv_reader_t* reader, tlv_element_t* out_el
  * @note On error the reader position and `*out_element` remain unchanged.
  * @note On success `*out_diagnostic` is left unchanged.
  */
-TLV_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
-                                          tlv_reader_diagnostic_t* out_diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* out_element,
+                                                 tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Pulls one element and its borrowed source metadata in one decode.
@@ -287,9 +288,10 @@ TLV_API tlv_result_t tlv_reader_next_diag(tlv_reader_t* reader, tlv_element_t* o
  * @warning Input bytes, Format and context must outlive retained sources and
  *          remain unchanged; format-supplied identifier storage must outlive Tags.
  */
-TLV_API tlv_result_t tlv_reader_next_source_diag(tlv_reader_t* reader, tlv_element_t* out_element,
-                                                 tlv_source_t* source,
-                                                 tlv_reader_diagnostic_t* out_diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_reader_next_source_diag(tlv_reader_t* reader,
+                                                        tlv_element_t* out_element,
+                                                        tlv_source_t* source,
+                                                        tlv_reader_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Decode once, returning semantic content, source information and failure detail.
@@ -306,10 +308,10 @@ TLV_API tlv_result_t tlv_reader_next_source_diag(tlv_reader_t* reader, tlv_eleme
  *
  * @warning Source bytes and format/context must outlive source and remain unchanged.
  */
-TLV_API tlv_result_t tlv_read_source_diag(const uint8_t* data, size_t size,
-                                          const tlv_format_t* format, tlv_element_t* element,
-                                          size_t* consumed, tlv_source_t* source,
-                                          tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_read_source_diag(const uint8_t* data, size_t size,
+                                                 const tlv_format_t* format, tlv_element_t* element,
+                                                 size_t* consumed, tlv_source_t* source,
+                                                 tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

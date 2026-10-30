@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/bluetooth/ad_codec.h"
-#include "../../utf8_internal.h"
+#include "tlv/utf8.h"
 #include <string.h>
 #include "tlv/codec/values.h"
 

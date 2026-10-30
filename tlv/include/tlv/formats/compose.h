@@ -103,25 +103,27 @@ typedef struct tlv_field_composition {
  *
  * @copydetails tlv_decode_fn
  */
-TLV_API tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data, size_t size,
-                                       tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_fields_decode(const void* context, const uint8_t* data,
+                                                size_t size, tlv_decoded_t* result,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Measure a field composition; context points to #tlv_field_composition_t.
  *
  * @copydetails tlv_measure_fn
  */
-TLV_API tlv_result_t tlv_fields_measure(const void* context, const tlv_element_t* element,
-                                        tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_fields_measure(const void* context, const tlv_element_t* element,
+                                                 tlv_encoding_t* encoding,
+                                                 tlv_format_error_t* error);
 
 /**
  * @brief Encode a field composition; context points to #tlv_field_composition_t.
  *
  * @copydetails tlv_encode_fn
  */
-TLV_API tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t* element,
-                                       uint8_t* data, size_t capacity, size_t* written,
-                                       tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t* element,
+                                                uint8_t* data, size_t capacity, size_t* written,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Initialize a canonical descriptor borrowing a field composition.
@@ -132,8 +134,8 @@ TLV_API tlv_result_t tlv_fields_encode(const void* context, const tlv_element_t*
  * @return #TLV_OK on success.
  * @return #TLV_ERR_INVALID_ARG for incomplete capabilities or invalid configuration.
  */
-TLV_API tlv_result_t tlv_fields_format_init(tlv_format_t* format,
-                                            const tlv_field_composition_t* composition);
+OPENTLV_CORE_API tlv_result_t tlv_fields_format_init(tlv_format_t* format,
+                                                     const tlv_field_composition_t* composition);
 
 /**
  * @brief Fixed-width binary fields, independent of any protocol.
@@ -150,25 +152,27 @@ typedef struct tlv_binary_composition {
  *
  * @copydetails tlv_decode_fn
  */
-TLV_API tlv_result_t tlv_binary_decode(const void* context, const uint8_t* data, size_t size,
-                                       tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_binary_decode(const void* context, const uint8_t* data,
+                                                size_t size, tlv_decoded_t* result,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Measure binary fields; context points to #tlv_binary_composition_t.
  *
  * @copydetails tlv_measure_fn
  */
-TLV_API tlv_result_t tlv_binary_measure(const void* context, const tlv_element_t* element,
-                                        tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_binary_measure(const void* context, const tlv_element_t* element,
+                                                 tlv_encoding_t* encoding,
+                                                 tlv_format_error_t* error);
 
 /**
  * @brief Encode binary fields; context points to #tlv_binary_composition_t.
  *
  * @copydetails tlv_encode_fn
  */
-TLV_API tlv_result_t tlv_binary_encode(const void* context, const tlv_element_t* element,
-                                       uint8_t* data, size_t capacity, size_t* written,
-                                       tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_binary_encode(const void* context, const tlv_element_t* element,
+                                                uint8_t* data, size_t capacity, size_t* written,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Fixed binary TLV framing with identifier-selected tag-only elements.
@@ -211,24 +215,28 @@ typedef struct tlv_tagged_fields_composition {
  * @copydetails tlv_decode_fn
  * @note context points to a valid immutable #tlv_tagged_fields_composition_t.
  */
-TLV_API tlv_result_t tlv_tagged_fields_decode(const void* context, const uint8_t* data, size_t size,
-                                              tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_tagged_fields_decode(const void* context, const uint8_t* data,
+                                                       size_t size, tlv_decoded_t* result,
+                                                       tlv_format_error_t* error);
 
 /** @brief Measure identifier-selected field framing.
  * @copydetails tlv_measure_fn
  * @note context points to a valid immutable #tlv_tagged_fields_composition_t.
  * Nonempty tag-only Values return #TLV_ERR_INVALID_LENGTH.
  */
-TLV_API tlv_result_t tlv_tagged_fields_measure(const void* context, const tlv_element_t* element,
-                                               tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_tagged_fields_measure(const void* context,
+                                                        const tlv_element_t* element,
+                                                        tlv_encoding_t* encoding,
+                                                        tlv_format_error_t* error);
 
 /** @brief Encode identifier-selected field framing.
  * @copydetails tlv_encode_fn
  * @note context points to a valid immutable #tlv_tagged_fields_composition_t.
  */
-TLV_API tlv_result_t tlv_tagged_fields_encode(const void* context, const tlv_element_t* element,
-                                              uint8_t* data, size_t capacity, size_t* written,
-                                              tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_tagged_fields_encode(const void* context,
+                                                       const tlv_element_t* element, uint8_t* data,
+                                                       size_t capacity, size_t* written,
+                                                       tlv_format_error_t* error);
 
 /** @brief Initialize a bidirectional identifier-selected field format.
  * @param[out] format Descriptor, unchanged on failure.
@@ -239,7 +247,7 @@ TLV_API tlv_result_t tlv_tagged_fields_encode(const void* context, const tlv_ele
  * table.
  * @return A tag encoder error for an unrepresentable table identifier.
  */
-TLV_API tlv_result_t tlv_tagged_fields_format_init(
+OPENTLV_CORE_API tlv_result_t tlv_tagged_fields_format_init(
     tlv_format_t* format, const tlv_tagged_fields_composition_t* composition);
 
 /**
@@ -248,8 +256,9 @@ TLV_API tlv_result_t tlv_tagged_fields_format_init(
  * @copydetails tlv_decode_fn
  * @note context points to a valid immutable #tlv_tagged_binary_composition_t.
  */
-TLV_API tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data, size_t size,
-                                              tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t* data,
+                                                       size_t size, tlv_decoded_t* result,
+                                                       tlv_format_error_t* error);
 
 /**
  * @brief Measure identifier-selected binary framing.
@@ -258,8 +267,10 @@ TLV_API tlv_result_t tlv_tagged_binary_decode(const void* context, const uint8_t
  * @note context points to a valid immutable #tlv_tagged_binary_composition_t.
  * Tag-only elements with nonempty Value return #TLV_ERR_INVALID_LENGTH.
  */
-TLV_API tlv_result_t tlv_tagged_binary_measure(const void* context, const tlv_element_t* element,
-                                               tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_tagged_binary_measure(const void* context,
+                                                        const tlv_element_t* element,
+                                                        tlv_encoding_t* encoding,
+                                                        tlv_format_error_t* error);
 
 /**
  * @brief Encode identifier-selected binary framing.
@@ -268,9 +279,10 @@ TLV_API tlv_result_t tlv_tagged_binary_measure(const void* context, const tlv_el
  * @note context points to a valid immutable #tlv_tagged_binary_composition_t.
  * Tag-only elements with nonempty Value return #TLV_ERR_INVALID_LENGTH.
  */
-TLV_API tlv_result_t tlv_tagged_binary_encode(const void* context, const tlv_element_t* element,
-                                              uint8_t* data, size_t capacity, size_t* written,
-                                              tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_tagged_binary_encode(const void* context,
+                                                       const tlv_element_t* element, uint8_t* data,
+                                                       size_t capacity, size_t* written,
+                                                       tlv_format_error_t* error);
 
 /**
  * @brief Initialize a bidirectional descriptor with identifier-selected framing.
@@ -282,7 +294,7 @@ TLV_API tlv_result_t tlv_tagged_binary_encode(const void* context, const tlv_ele
  * @return #TLV_ERR_INVALID_ARG for invalid widths, ordering, scope or table entries.
  * @return #TLV_ERR_INVALID_ARG for an unknown length byte order.
  */
-TLV_API tlv_result_t tlv_tagged_binary_format_init(
+OPENTLV_CORE_API tlv_result_t tlv_tagged_binary_format_init(
     tlv_format_t* format, const tlv_tagged_binary_composition_t* composition);
 
 /** @} */

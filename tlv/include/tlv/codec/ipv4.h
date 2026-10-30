@@ -4,6 +4,7 @@
 #ifndef OPENTLV_CODEC_IPV4_H
 #define OPENTLV_CODEC_IPV4_H
 
+#include "tlv/export.h"
 #include "tlv/codec/codec.h"
 #include "tlv/value.h"
 

@@ -10,12 +10,26 @@ of [#647](https://github.com/OpenTLV/opentlv/issues/647),
 [#651](https://github.com/OpenTLV/opentlv/issues/651) and
 [#652](https://github.com/OpenTLV/opentlv/issues/652).
 
-**Status: proposed** in [#644](https://github.com/OpenTLV/opentlv/issues/644).
-The code ownership mechanism below must be approved before #651 and #652
-start. Type and function names are provisional; #647 fixes them with the
-[#702](https://github.com/OpenTLV/opentlv/issues/702) naming contract.
+**Implementation status:** #647 publishes `tlv/diagnostic/cause.h` with static
+domain descriptors, two inline 160-byte payload slots, saturating omission counts,
+a delegation envelope and validated append/copy helpers. Payloads are copied out
+to typed objects, avoiding alignment and C aliasing assumptions. Descriptors and
+pointers within detail retain their documented lifetimes. The IO consumer asserts
+at compile time that Reader leaf detail fits the payload.
 
-## Current coupling
+Measured with GCC on Linux x64: Reader detail is 160 bytes, one cause frame is
+192 bytes, the two-frame chain is 400 bytes and the delegation envelope is
+992 bytes. The existing Query diagnostic remains 840 bytes. These are platform
+measurements, not portable size constants.
+
+Reader/Writer name functions now belong to IO. Query, Schema and Codec name
+functions and Codec initialization are in their owning source directories;
+these implementations remain in the transitional `tlv` library. Existing public
+diagnostic layouts and their detail values are unchanged. Adopting cause frames
+at higher-module callback boundaries remains work for #650, #651 and #652.
+The remainder of this page specifies those planned propagation contracts.
+
+## Baseline coupling
 
 The monolithic library lets every layer embed every other layer's detail:
 

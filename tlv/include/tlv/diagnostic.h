@@ -5,7 +5,7 @@
 #define OPENTLV_DIAGNOSTIC_H
 
 #include "tlv/result.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 #include "tlv/tag.h"
 #include <stddef.h>
 
@@ -70,14 +70,14 @@ typedef struct tlv_location {
  * @param[in] begin Inclusive start.
  * @param[in] end Exclusive end; must equal begin except for SPAN.
  * @note Invalid optional enrichment never changes the operation's result. */
-TLV_API void tlv_location_set(tlv_location_t* location, tlv_location_domain_t domain,
-                              tlv_location_kind_t kind, size_t begin, size_t end);
+OPENTLV_CORE_API void tlv_location_set(tlv_location_t* location, tlv_location_domain_t domain,
+                                       tlv_location_kind_t kind, size_t begin, size_t end);
 
 /** @brief Translate a known location by a byte origin using checked arithmetic.
  * @param[in,out] location Optional location; overflow makes it unknown.
  * @param[in] origin Bytes to add to both coordinates.
  * @note Unknown locations remain unknown; the coordinate domain is preserved. */
-TLV_API void tlv_location_translate(tlv_location_t* location, size_t origin);
+OPENTLV_CORE_API void tlv_location_translate(tlv_location_t* location, size_t origin);
 
 /** @brief Place Value-local evidence in the coordinate space that contains the Value.
  * @param[in,out] location Optional location.
@@ -87,18 +87,18 @@ TLV_API void tlv_location_translate(tlv_location_t* location, size_t origin);
  * it is translated by `origin` and takes `domain`. Other locations, including
  * unknown ones, and an unknown or invalid `domain` leave it unchanged. Overflow
  * makes the location unknown; the operation's result is never affected. */
-TLV_API void tlv_location_resolve(tlv_location_t* location, size_t origin,
-                                  tlv_location_domain_t domain);
+OPENTLV_CORE_API void tlv_location_resolve(tlv_location_t* location, size_t origin,
+                                           tlv_location_domain_t domain);
 
 /** @brief Return a static domain name, or "unknown" for an unrecognized value.
  * @param[in] domain Coordinate domain.
  * @return Immutable NUL-terminated name. */
-TLV_API const char* tlv_location_domain_string(tlv_location_domain_t domain);
+OPENTLV_CORE_API const char* tlv_location_domain_string(tlv_location_domain_t domain);
 
 /** @brief Return a static anchor name, or "unknown" for an unrecognized value.
  * @param[in] kind Anchor kind.
  * @return Immutable NUL-terminated name. */
-TLV_API const char* tlv_location_kind_string(tlv_location_kind_t kind);
+OPENTLV_CORE_API const char* tlv_location_kind_string(tlv_location_kind_t kind);
 
 /**
  * @brief One piece of context a layer has attached to a #tlv_diagnostic_t.
@@ -154,7 +154,7 @@ typedef struct tlv_diagnostic_path {
  *
  * @param[out] path Path to initialize; must not be `NULL`.
  */
-TLV_API void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path);
+OPENTLV_CORE_API void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path);
 
 /**
  * @brief Pushes a tag onto the end of a path.
@@ -173,7 +173,7 @@ TLV_API void tlv_diagnostic_path_init(tlv_diagnostic_path_t* path);
  *         tags remain unchanged and `omitted` increments, saturating at SIZE_MAX.
  *         This descent must still be paired with a pop when unwinding.
  */
-TLV_API tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_tag_t tag);
+OPENTLV_CORE_API tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_tag_t tag);
 
 /**
  * @brief Pops the last tag off a path.
@@ -185,7 +185,7 @@ TLV_API tlv_result_t tlv_diagnostic_path_push(tlv_diagnostic_path_t* path, tlv_t
  *
  * @param[in,out] path Path to update; must not be `NULL`.
  */
-TLV_API void tlv_diagnostic_path_pop(tlv_diagnostic_path_t* path);
+OPENTLV_CORE_API void tlv_diagnostic_path_pop(tlv_diagnostic_path_t* path);
 
 /**
  * @brief Formats a path as uppercase hexadecimal tags joined by `" > "`.
@@ -206,8 +206,9 @@ TLV_API void tlv_diagnostic_path_pop(tlv_diagnostic_path_t* path);
  *         or a tag in `path` is invalid.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is below `*length + 1`.
  */
-TLV_API tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* path, char* out,
-                                                size_t capacity, size_t* length);
+OPENTLV_CORE_API tlv_result_t tlv_diagnostic_path_string(const tlv_diagnostic_path_t* path,
+                                                         char* out, size_t capacity,
+                                                         size_t* length);
 
 /**
  * @brief A structured diagnostic: a stable code plus the state that produced it.
@@ -257,8 +258,8 @@ typedef struct tlv_diagnostic {
  * @param[in]  code       Stable code identifying the failure or observation.
  * @param[in]  severity   How serious the diagnostic is.
  */
-TLV_API void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code,
-                                 tlv_diagnostic_severity_t severity);
+OPENTLV_CORE_API void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code,
+                                          tlv_diagnostic_severity_t severity);
 
 /**
  * @brief Sets a checked primary evidence location.
@@ -270,8 +271,10 @@ TLV_API void tlv_diagnostic_init(tlv_diagnostic_t* diagnostic, tlv_result_t code
  * @param[in] end Exclusive end, or begin for a point/boundary.
  * @note Invalid coordinates clear the location without changing the result.
  */
-TLV_API void tlv_diagnostic_set_location(tlv_diagnostic_t* diagnostic, tlv_location_domain_t domain,
-                                         tlv_location_kind_t kind, size_t begin, size_t end);
+OPENTLV_CORE_API void tlv_diagnostic_set_location(tlv_diagnostic_t* diagnostic,
+                                                  tlv_location_domain_t domain,
+                                                  tlv_location_kind_t kind, size_t begin,
+                                                  size_t end);
 
 /**
  * @brief Attaches one context entry to a diagnostic.
@@ -289,9 +292,10 @@ TLV_API void tlv_diagnostic_set_location(tlv_diagnostic_t* diagnostic, tlv_locat
  * @warning `context` and the strings passed in must stay valid, and `context` must stay at the same
  *          address, for as long as the diagnostic is used.
  */
-TLV_API void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic,
-                                        tlv_diagnostic_context_t* context, const char* layer,
-                                        const char* key, const char* value);
+OPENTLV_CORE_API void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic,
+                                                 tlv_diagnostic_context_t* context,
+                                                 const char* layer, const char* key,
+                                                 const char* value);
 
 /**
  * @brief Sets the hierarchical path a diagnostic refers to.
@@ -301,8 +305,8 @@ TLV_API void tlv_diagnostic_add_context(tlv_diagnostic_t* diagnostic,
  *
  * @warning Tag bytes remain borrowed and must stay valid and unchanged while used.
  */
-TLV_API void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic,
-                                     const tlv_diagnostic_path_t* path);
+OPENTLV_CORE_API void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic,
+                                              const tlv_diagnostic_path_t* path);
 
 /**
  * @brief Returns a short name for a severity.
@@ -312,7 +316,7 @@ TLV_API void tlv_diagnostic_set_path(tlv_diagnostic_t* diagnostic,
  * @return A static, NUL-terminated string such as `"error"`, never `NULL`; an
  *         unrecognized value yields `"unknown"`.
  */
-TLV_API const char* tlv_diagnostic_severity_string(tlv_diagnostic_severity_t severity);
+OPENTLV_CORE_API const char* tlv_diagnostic_severity_string(tlv_diagnostic_severity_t severity);
 
 #ifdef __cplusplus
 }

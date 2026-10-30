@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_GENERATOR_H
 #define OPENTLV_GENERATOR_H
+#include "tlv/export.h"
 #include "tlv/format.h"
 #ifdef __cplusplus
 extern "C" {

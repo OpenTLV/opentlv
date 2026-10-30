@@ -18,11 +18,12 @@ Low level, zero-copy:   bytes -> reader -> element -> traversal / schema / codec
 High level, mutable:    Tree Reader -> Document Builder -> document -> modify -> encode
 ```
 
-Document builds on Element and Format and owns its mutable tree. It can be
-created and edited programmatically without Reader, Writer or Query. Wire import
-requires Reader; encoding requires Writer; path matching requires Query. The
-compiled Query adapter currently also requires Reader and Writer for Value snapshots.
-These integrations are compiled only when their participating capabilities are enabled.
+Document builds on Element and Format and owns its mutable tree. Programmatic
+editing needs no parsing, encoding or Query operation. Wire import and encoding
+use IO, which always provides Reader and Writer; path matching requires Query.
+The compiled Query adapter also uses IO for Value snapshots. Document and Query
+remain optional capabilities during module extraction; Reader and Writer are
+selected together by linking IO.
 Borrowed C processing retains its allocation-free buffer/workspace contracts.
 Merely enabling Document does not allocate a tree. See
 [building only the components you need](select-components.md).

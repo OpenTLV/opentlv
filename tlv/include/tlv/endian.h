@@ -4,7 +4,7 @@
 #ifndef OPENTLV_ENDIAN_H
 #define OPENTLV_ENDIAN_H
 
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 #include "tlv/result.h"
 #include <stddef.h>
 #include <stdint.h>
@@ -41,7 +41,7 @@ typedef enum tlv_byte_order {
  *
  * @note This describes the executing platform, not the format of incoming data.
  */
-TLV_API tlv_byte_order_t tlv_endian_native(void);
+OPENTLV_CORE_API tlv_byte_order_t tlv_endian_native(void);
 
 /**
  * @brief Reads a 16-bit unsigned integer from raw bytes, big-endian.
@@ -58,22 +58,22 @@ TLV_API tlv_byte_order_t tlv_endian_native(void);
  *
  * @warning Passing `NULL` or a shorter buffer is undefined behavior.
  */
-TLV_API uint16_t tlv_read_u16_be(const uint8_t* data);
+OPENTLV_CORE_API uint16_t tlv_read_u16_be(const uint8_t* data);
 /** @brief Reads a 16-bit unsigned integer from raw bytes, little-endian.
  *  @copydetails tlv_read_u16_be */
-TLV_API uint16_t tlv_read_u16_le(const uint8_t* data);
+OPENTLV_CORE_API uint16_t tlv_read_u16_le(const uint8_t* data);
 /** @brief Reads a 32-bit unsigned integer from raw bytes, big-endian.
  *  @copydetails tlv_read_u16_be */
-TLV_API uint32_t tlv_read_u32_be(const uint8_t* data);
+OPENTLV_CORE_API uint32_t tlv_read_u32_be(const uint8_t* data);
 /** @brief Reads a 32-bit unsigned integer from raw bytes, little-endian.
  *  @copydetails tlv_read_u16_be */
-TLV_API uint32_t tlv_read_u32_le(const uint8_t* data);
+OPENTLV_CORE_API uint32_t tlv_read_u32_le(const uint8_t* data);
 /** @brief Reads a 64-bit unsigned integer from raw bytes, big-endian.
  *  @copydetails tlv_read_u16_be */
-TLV_API uint64_t tlv_read_u64_be(const uint8_t* data);
+OPENTLV_CORE_API uint64_t tlv_read_u64_be(const uint8_t* data);
 /** @brief Reads a 64-bit unsigned integer from raw bytes, little-endian.
  *  @copydetails tlv_read_u16_be */
-TLV_API uint64_t tlv_read_u64_le(const uint8_t* data);
+OPENTLV_CORE_API uint64_t tlv_read_u64_le(const uint8_t* data);
 
 /**
  * @brief Writes a 16-bit unsigned integer to raw bytes, big-endian.
@@ -88,23 +88,23 @@ TLV_API uint64_t tlv_read_u64_le(const uint8_t* data);
  *
  * @warning Passing `NULL` or a shorter buffer is undefined behavior.
  */
-TLV_API void tlv_write_u16_be(uint8_t* data, uint16_t value);
+OPENTLV_CORE_API void tlv_write_u16_be(uint8_t* data, uint16_t value);
 /** @brief Writes a 16-bit unsigned integer to raw bytes, little-endian.
  *  @copydetails tlv_write_u16_be */
-TLV_API void tlv_write_u16_le(uint8_t* data, uint16_t value);
+OPENTLV_CORE_API void tlv_write_u16_le(uint8_t* data, uint16_t value);
 /** @brief Writes a 32-bit unsigned integer to raw bytes, big-endian.
  *  @copydetails tlv_write_u16_be */
-TLV_API void tlv_write_u32_be(uint8_t* data, uint32_t value);
+OPENTLV_CORE_API void tlv_write_u32_be(uint8_t* data, uint32_t value);
 /** @brief Writes a 32-bit unsigned integer to raw bytes, little-endian.
  *  @copydetails tlv_write_u16_be */
-TLV_API void tlv_write_u32_le(uint8_t* data, uint32_t value);
+OPENTLV_CORE_API void tlv_write_u32_le(uint8_t* data, uint32_t value);
 
 /** @brief Writes a 64-bit unsigned integer to raw bytes, big-endian.
  *  @copydetails tlv_write_u16_be */
-TLV_API void tlv_write_u64_be(uint8_t* data, uint64_t value);
+OPENTLV_CORE_API void tlv_write_u64_be(uint8_t* data, uint64_t value);
 /** @brief Writes a 64-bit unsigned integer to raw bytes, little-endian.
  *  @copydetails tlv_write_u16_be */
-TLV_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
+OPENTLV_CORE_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
 
 /**
  * @brief Reads an unsigned integer of 1..8 bytes with an explicit byte order.
@@ -129,8 +129,8 @@ TLV_API void tlv_write_u64_le(uint8_t* data, uint64_t value);
  *
  * @note On failure `*value` is unchanged.
  */
-TLV_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_order_t order,
-                                   uint64_t* value);
+OPENTLV_CORE_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width,
+                                            tlv_byte_order_t order, uint64_t* value);
 
 /**
  * @brief Writes an unsigned integer as 1..8 bytes with an explicit byte order.
@@ -154,8 +154,8 @@ TLV_API tlv_result_t tlv_read_uint(const uint8_t* data, size_t width, tlv_byte_o
  *
  * @note On failure the destination is unchanged.
  */
-TLV_API tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
-                                    uint64_t value);
+OPENTLV_CORE_API tlv_result_t tlv_write_uint(uint8_t* data, size_t width, tlv_byte_order_t order,
+                                             uint64_t value);
 
 #ifdef __cplusplus
 }

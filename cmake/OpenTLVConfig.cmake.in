@@ -2,18 +2,6 @@
 
 include("${CMAKE_CURRENT_LIST_DIR}/OpenTLVModules.cmake")
 
-# Keep no-component discovery compatible with the existing distribution.
-if((NOT OpenTLV_FIND_COMPONENTS OR "tlv" IN_LIST OpenTLV_FIND_COMPONENTS OR
-    "tlv++" IN_LIST OpenTLV_FIND_COMPONENTS) AND
-   EXISTS "${CMAKE_CURRENT_LIST_DIR}/OpenTLVTargets.cmake")
-    include("${CMAKE_CURRENT_LIST_DIR}/OpenTLVTargets.cmake")
-    foreach(_component IN ITEMS tlv tlv++)
-        if(TARGET OpenTLV::${_component})
-            set(OpenTLV_${_component}_FOUND TRUE)
-        endif()
-    endforeach()
-endif()
-
 function(_OpenTLV_load_component component)
     if(TARGET OpenTLV::${component})
         return()
@@ -23,6 +11,21 @@ function(_OpenTLV_load_component component)
     endforeach()
     include("${CMAKE_CURRENT_LIST_DIR}/OpenTLV-${_OpenTLV_key_${component}}Targets.cmake")
 endfunction()
+
+# Keep no-component discovery compatible with the existing distribution.
+if((NOT OpenTLV_FIND_COMPONENTS OR "tlv" IN_LIST OpenTLV_FIND_COMPONENTS OR
+    "tlv++" IN_LIST OpenTLV_FIND_COMPONENTS) AND
+   EXISTS "${CMAKE_CURRENT_LIST_DIR}/OpenTLVTargets.cmake")
+    foreach(_component IN LISTS _OpenTLV_components)
+        _OpenTLV_load_component("${_component}")
+    endforeach()
+    include("${CMAKE_CURRENT_LIST_DIR}/OpenTLVTargets.cmake")
+    foreach(_component IN ITEMS tlv tlv++)
+        if(TARGET OpenTLV::${_component})
+            set(OpenTLV_${_component}_FOUND TRUE)
+        endif()
+    endforeach()
+endif()
 
 set(_OpenTLV_requested "${OpenTLV_FIND_COMPONENTS}")
 if(NOT _OpenTLV_requested)

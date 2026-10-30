@@ -211,9 +211,16 @@ def collect_diagnostics(source, output):
 
 def run_probe(source, build, work, output):
     executable = work / "baseline-probe"
+    # The immutable reference has one archive; extracted candidates declare
+    # their dependency closure in the generated module registry.
+    libraries = [build / "tlv/libtlv.a"]
+    registry = build / "modules-Release.json"
+    if registry.is_file():
+        modules = {entry["key"]: entry for entry in read(registry)}
+        libraries += [Path(modules[key]["library"]) for key in ("io", "core") if key in modules]
     command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE", "-I" + str(source / "tlv/include"),
              "-I" + str(build / "generated/include"), ROOT / "tests/baseline/probe.cpp",
-             build / "tlv/libtlv.a", "-o", executable], log=output / "logs/probe-build.txt")
+             *libraries, "-o", executable], log=output / "logs/probe-build.txt")
     return json.loads(command([executable]))
 
 

@@ -7,45 +7,24 @@ if(OPENTLV_BUILD_SHARED_LIBS)
     set(_tlv_library_type SHARED)
 endif()
 
+include(modules.cmake)
+
+# Transitional library for modules extracted by subsequent issues. Core and IO
+# are linked once; no implementation is duplicated in the compatibility target.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
-    src/definition.c
-    src/format.c
-    src/field/fixed.c
-    src/field/packed.c
-    src/field/variable.c
-    src/field/escaped.c
-    src/formats/packed.c
-    src/formats/compose.c
-    src/formats/fixed.c
-    src/formats/variable.c
-    src/formats/escaped.c
-    src/copy.c
-    src/diagnostic.c
-    src/diagnostic_strings.c
-    src/tag.c
-    src/endian.c
-    src/size.c
-    src/value.c
-    src/utf8_internal.c
-    src/result.c
-    ${OpenTLV_BINARY_DIR}/generated/src/version.c
-    ${OpenTLV_BINARY_DIR}/generated/src/config.c
+    src/generator.c
+    src/query/diagnostic_strings.c
+    src/schema/diagnostic_strings.c
+    src/codec/diagnostic_strings.c
+    src/codec/diagnostic.c
 )
-
-if(OPENTLV_READER)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/reader/reader.c
-        src/reader/tree.c
-        src/reader/visitor.c
-    )
-endif()
-
-if(OPENTLV_WRITER)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/generator.c
-        src/writer/writer.c
-        src/writer/tree.c
-    )
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::IO)
+if(NOT CMAKE_INSTALL_RPATH)
+    if(APPLE)
+        set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")
+    elseif(UNIX)
+        set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "$ORIGIN")
+    endif()
 endif()
 
 if(OPENTLV_QUERY)
@@ -75,7 +54,7 @@ if(OPENTLV_CODEC)
     )
 endif()
 
-if(OPENTLV_CODEC AND OPENTLV_SCHEMA AND OPENTLV_READER)
+if(OPENTLV_CODEC AND OPENTLV_SCHEMA)
     target_sources(${PROJECT_NAME} PRIVATE src/codec/structure.c)
 endif()
 
@@ -85,10 +64,10 @@ endif()
 if(OPENTLV_SCHEMA AND OPENTLV_CODEC)
     target_sources(${PROJECT_NAME} PRIVATE src/schema/number.c)
 endif()
-if(OPENTLV_SCHEMA AND OPENTLV_READER)
+if(OPENTLV_SCHEMA)
     target_sources(${PROJECT_NAME} PRIVATE src/schema/structure.c src/schema/report.c)
 endif()
-if(OPENTLV_SCHEMA AND OPENTLV_READER AND OPENTLV_QUERY)
+if(OPENTLV_SCHEMA AND OPENTLV_QUERY)
     target_sources(${PROJECT_NAME} PRIVATE src/schema/query.c)
 endif()
 
@@ -115,7 +94,7 @@ if(OPENTLV_DHCP AND OPENTLV_CODEC)
     )
 endif()
 
-if(OPENTLV_DHCP AND OPENTLV_READER)
+if(OPENTLV_DHCP)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/dhcp/container.c
     )
@@ -133,7 +112,7 @@ if(OPENTLV_LLDP AND OPENTLV_CODEC)
     )
 endif()
 
-if(OPENTLV_LLDP AND OPENTLV_SCHEMA AND OPENTLV_READER)
+if(OPENTLV_LLDP AND OPENTLV_SCHEMA)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/lldp/schema.c
     )
@@ -147,7 +126,7 @@ if(OPENTLV_BLUETOOTH)
     )
 endif()
 
-if(OPENTLV_BLUETOOTH AND OPENTLV_READER)
+if(OPENTLV_BLUETOOTH)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/bluetooth/ad_data.c
     )
@@ -202,7 +181,7 @@ if(OPENTLV_FORMAT_DER)
     )
 endif()
 
-if(OPENTLV_FORMAT_DER AND OPENTLV_SCHEMA AND OPENTLV_CODEC AND OPENTLV_WRITER)
+if(OPENTLV_FORMAT_DER AND OPENTLV_SCHEMA AND OPENTLV_CODEC)
     target_sources(${PROJECT_NAME} PRIVATE
         src/builtins/asn1/der_schema.c
     )
@@ -244,17 +223,17 @@ if(OPENTLV_DOCUMENT)
     target_sources(${PROJECT_NAME} PRIVATE src/document/document.c)
 endif()
 
-if(OPENTLV_DOCUMENT AND OPENTLV_READER)
+if(OPENTLV_DOCUMENT)
     target_sources(${PROJECT_NAME} PRIVATE src/document/reader.c)
 endif()
-if(OPENTLV_DOCUMENT AND OPENTLV_WRITER)
+if(OPENTLV_DOCUMENT)
     target_sources(${PROJECT_NAME} PRIVATE src/document/writer.c)
 endif()
 if(OPENTLV_DOCUMENT AND OPENTLV_QUERY)
     target_sources(${PROJECT_NAME} PRIVATE src/document/query.c)
 endif()
 
-if(OPENTLV_DOCUMENT AND OPENTLV_QUERY AND OPENTLV_READER AND OPENTLV_WRITER)
+if(OPENTLV_DOCUMENT AND OPENTLV_QUERY)
     target_sources(${PROJECT_NAME} PRIVATE src/query/document_backend.c)
 endif()
 

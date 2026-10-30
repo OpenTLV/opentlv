@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_QUERY_PLAN_H
 #define OPENTLV_QUERY_PLAN_H
+#include "tlv/export.h"
 #include "tlv/query/program.h"
 
 /** @file

@@ -4,6 +4,7 @@
 #ifndef OPENTLV_SCHEMA_NUMBER_H
 #define OPENTLV_SCHEMA_NUMBER_H
 
+#include "tlv/export.h"
 #include "tlv/schema/schema.h"
 #include "tlv/codec/number.h"
 

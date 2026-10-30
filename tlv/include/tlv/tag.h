@@ -5,7 +5,7 @@
 #define OPENTLV_TAG_H
 
 #include "tlv/result.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -108,7 +108,7 @@ extern "C" {
  *
  * @return `true` if both tags have the same size and bytes.
  */
-TLV_API bool tlv_tag_equal(tlv_tag_t lhs, tlv_tag_t rhs);
+OPENTLV_CORE_API bool tlv_tag_equal(tlv_tag_t lhs, tlv_tag_t rhs);
 
 /**
  * @brief Orders two tags lexicographically by their bytes.
@@ -125,7 +125,7 @@ TLV_API bool tlv_tag_equal(tlv_tag_t lhs, tlv_tag_t rhs);
  * @return A negative value if `lhs` orders before `rhs`, zero if the tags are
  *         equal, and a positive value if `lhs` orders after `rhs`.
  */
-TLV_API int tlv_tag_compare(tlv_tag_t lhs, tlv_tag_t rhs);
+OPENTLV_CORE_API int tlv_tag_compare(tlv_tag_t lhs, tlv_tag_t rhs);
 
 /**
  * @brief Tests whether a tag has zero length.
@@ -134,7 +134,7 @@ TLV_API int tlv_tag_compare(tlv_tag_t lhs, tlv_tag_t rhs);
  *
  * @return `true` if `tag.size` is zero.
  */
-TLV_API bool tlv_tag_is_empty(tlv_tag_t tag);
+OPENTLV_CORE_API bool tlv_tag_is_empty(tlv_tag_t tag);
 
 /**
  * @brief Computes a hash of a tag's bytes.
@@ -149,7 +149,7 @@ TLV_API bool tlv_tag_is_empty(tlv_tag_t tag);
  *
  * @return A hash of `tag`'s bytes.
  */
-TLV_API size_t tlv_tag_hash(tlv_tag_t tag);
+OPENTLV_CORE_API size_t tlv_tag_hash(tlv_tag_t tag);
 
 /**
  * @brief Copies a tag's bytes into caller-owned storage.
@@ -172,7 +172,8 @@ TLV_API size_t tlv_tag_hash(tlv_tag_t tag);
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient; `*written`
  *         is unchanged.
  */
-TLV_API tlv_result_t tlv_tag_copy(tlv_tag_t tag, uint8_t* data, size_t capacity, size_t* written);
+OPENTLV_CORE_API tlv_result_t tlv_tag_copy(tlv_tag_t tag, uint8_t* data, size_t capacity,
+                                           size_t* written);
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
 #include "../document/document_internal.h"
-#include "../writer/tree_internal.h"
+#include "tlv/writer/tree.h"
 #include "tlv/reader/reader.h"
 
 typedef struct document_source {
@@ -136,9 +136,9 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         output.data = storage;
         output.data_capacity = capacity;
         e->busy = 1;
-        rc = tree_writer_measure_events_observed(format, document_event, &source, &output,
-                                                 e->depth_capacity - 1, e->max_elements, &encoded,
-                                                 NULL, document_charge, &budget);
+        rc = tlv_tree_writer_measure_events_observed(format, document_event, &source, &output,
+                                                     e->depth_capacity - 1, e->max_elements,
+                                                     &encoded, NULL, document_charge, &budget);
         /* Format callbacks can invalidate caller-owned execution storage. */
         // cppcheck-suppress knownConditionTrueFalse
         if (!e->busy) rc = TLV_ERR_INVALID_STATE;

@@ -80,13 +80,19 @@ def check_metadata(entries, contract=None, source_root=None):
             # Feature-disabled C sources remain owned by the contract but are
             # absent from this configuration's build. Installed/private headers
             # must still have a registered boundary in every configuration.
-            if key in modules and name.endswith((".h", ".hpp")):
+            # C++ facades are extracted separately. Their logical ownership
+            # stays checked by check_module_contracts until a facade registers.
+            if key in modules and (name.endswith(".h") or (
+                    name.endswith(".hpp") and modules[key]["facade"] == ["TRUE"])):
                 if owned.get((source_root / name).resolve()) != key:
                     raise ValueError(f"{key}: contract file missing from registration: {name}")
         for path, key in owned.items():
             if path.is_relative_to(source_root):
                 name = path.relative_to(source_root).as_posix()
-                if contract["files"].get(name) != key:
+                generated = name.rsplit("/generated/", 1)
+                generated_owner = (contract.get("generated", {}).get(generated[1])
+                                   if len(generated) == 2 else None)
+                if contract["files"].get(name) != key and generated_owner != key:
                     raise ValueError(f"{key}: file ownership differs from contract: {name}")
     for path, key in owned.items():
         for include in INCLUDE.findall(COMMENT.sub("", path.read_text(encoding="utf-8"))):

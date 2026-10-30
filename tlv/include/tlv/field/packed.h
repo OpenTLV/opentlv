@@ -51,8 +51,9 @@ typedef struct tlv_packed_field {
  * @note Validation follows the order above. Failure leaves *value unchanged.
  * No allocation or access beyond storage_size bytes occurs.
  */
-TLV_API tlv_result_t tlv_packed_field_read(const tlv_packed_field_t* field, const uint8_t* data,
-                                           size_t size, uint64_t* value);
+OPENTLV_CORE_API tlv_result_t tlv_packed_field_read(const tlv_packed_field_t* field,
+                                                    const uint8_t* data, size_t size,
+                                                    uint64_t* value);
 
 /**
  * @brief Insert an unsigned field, preserving every bit outside the field.
@@ -72,8 +73,8 @@ TLV_API tlv_result_t tlv_packed_field_read(const tlv_packed_field_t* field, cons
  * Initialize backing bytes (for example to zero) before first insertion.
  * No allocation or access beyond storage_size bytes occurs.
  */
-TLV_API tlv_result_t tlv_packed_field_write(const tlv_packed_field_t* field, uint8_t* data,
-                                            size_t capacity, uint64_t value);
+OPENTLV_CORE_API tlv_result_t tlv_packed_field_write(const tlv_packed_field_t* field, uint8_t* data,
+                                                     size_t capacity, uint64_t value);
 
 /** @} */
 

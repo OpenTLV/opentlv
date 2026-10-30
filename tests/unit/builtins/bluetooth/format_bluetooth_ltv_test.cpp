@@ -3,7 +3,7 @@
 
 #include "visitor_input.h"
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/copy.h"
+#include "tlv/writer/copy.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/visitor.h"
 #include "tlv/schema/schema.h"

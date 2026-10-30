@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_EMV_PRESENTATION_H
 #define OPENTLV_BUILTINS_EMV_PRESENTATION_H
 
+#include "tlv/export.h"
 #include "tlv/builtins/emv/emv.h"
 
 #ifdef __cplusplus

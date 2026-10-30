@@ -4,6 +4,7 @@
 #ifndef OPENTLV_TREE_READER_H
 #define OPENTLV_TREE_READER_H
 
+#include "tlv/io/export.h"
 #include "tlv/reader/reader.h"
 #include "tlv/defaults.h"
 #include "tlv/tree.h"
@@ -93,7 +94,8 @@ typedef struct tlv_tree_reader {
  * Do not interleave event pulls with node-only next()/Visitor projections when
  * consuming a balanced stream: those projections intentionally hide END events.
  */
-TLV_API tlv_result_t tlv_tree_reader_next_event(tlv_tree_reader_t* reader, tlv_tree_event_t* event);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_next_event(tlv_tree_reader_t* reader,
+                                                       tlv_tree_event_t* event);
 
 /**
  * @brief Pull a canonical event with original Reader diagnostics.
@@ -102,9 +104,9 @@ TLV_API tlv_result_t tlv_tree_reader_next_event(tlv_tree_reader_t* reader, tlv_t
  * @param[out] diagnostic Optional Reader failure detail, unchanged on events or tree errors.
  * @return Same results and guarantees as tlv_tree_reader_next_event().
  */
-TLV_API tlv_result_t tlv_tree_reader_next_event_diag(tlv_tree_reader_t* reader,
-                                                     tlv_tree_event_t* event,
-                                                     tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_next_event_diag(tlv_tree_reader_t* reader,
+                                                            tlv_tree_event_t* event,
+                                                            tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Initialize traversal of a complete, final input window.
@@ -124,10 +126,10 @@ TLV_API tlv_result_t tlv_tree_reader_next_event_diag(tlv_tree_reader_t* reader,
  *          must not overlap input or cursor storage. Input and Format lifetimes
  *          follow #tlv_reader_t and retained borrowed results.
  */
-TLV_API tlv_result_t tlv_tree_reader_init(tlv_tree_reader_t* reader, const uint8_t* data,
-                                          size_t size, const tlv_format_t* format,
-                                          tlv_tree_frame_t* frames, size_t capacity,
-                                          size_t max_depth, size_t max_elements);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_init(tlv_tree_reader_t* reader, const uint8_t* data,
+                                                 size_t size, const tlv_format_t* format,
+                                                 tlv_tree_frame_t* frames, size_t capacity,
+                                                 size_t max_depth, size_t max_elements);
 
 /**
  * @brief Initialize non-final input, with the same storage contract as final initialization.
@@ -136,11 +138,9 @@ TLV_API tlv_result_t tlv_tree_reader_init(tlv_tree_reader_t* reader, const uint8
  * @note Unlike tlv_tree_reader_init(), empty or incomplete input returns
  *       #TLV_NEED_MORE_DATA until the caller supplies bytes or declares EOF.
  */
-TLV_API tlv_result_t tlv_tree_reader_init_incremental(tlv_tree_reader_t* reader,
-                                                      const uint8_t* data, size_t size,
-                                                      const tlv_format_t* format,
-                                                      tlv_tree_frame_t* frames, size_t capacity,
-                                                      size_t max_depth, size_t max_elements);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_init_incremental(
+    tlv_tree_reader_t* reader, const uint8_t* data, size_t size, const tlv_format_t* format,
+    tlv_tree_frame_t* frames, size_t capacity, size_t max_depth, size_t max_elements);
 
 /**
  * @brief Replace or extend the contiguous input window without copying.
@@ -156,8 +156,9 @@ TLV_API tlv_result_t tlv_tree_reader_init_incremental(tlv_tree_reader_t* reader,
  *       On failure all state remains unchanged. Final input cannot be extended.
  * @warning Release borrowed results before moving or overwriting their storage.
  */
-TLV_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader, const uint8_t* data,
-                                               size_t size, size_t discard, int final_input);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader,
+                                                      const uint8_t* data, size_t size,
+                                                      size_t discard, int final_input);
 
 /**
  * @brief Pull the next complete node, hiding canonical END events.
@@ -180,7 +181,7 @@ TLV_API tlv_result_t tlv_tree_reader_set_input(tlv_tree_reader_t* reader, const 
  *       after publishing the parent, so it can be skipped without entering it.
  * @warning The item borrows input and Format storage; it owns neither.
  */
-TLV_API tlv_result_t tlv_tree_reader_next(tlv_tree_reader_t* reader, tlv_tree_item_t* item);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_next(tlv_tree_reader_t* reader, tlv_tree_item_t* item);
 
 /**
  * @brief Pull an item with the original Reader failure detail, without a second decode.
@@ -191,8 +192,9 @@ TLV_API tlv_result_t tlv_tree_reader_next(tlv_tree_reader_t* reader, tlv_tree_it
  *            on success or tree argument/resource errors; filled on Reader outcomes.
  * @return Same results and state transitions as tlv_tree_reader_next().
  */
-TLV_API tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tree_item_t* item,
-                                               tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader,
+                                                      tlv_tree_item_t* item,
+                                                      tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Skip the last published item's descendants without decoding them.
@@ -208,7 +210,7 @@ TLV_API tlv_result_t tlv_tree_reader_next_diag(tlv_tree_reader_t* reader, tlv_tr
  *       validation occurs here; Format may already have scanned framing while
  *       decoding the parent. Closing enclosing scopes takes O(depth) work.
  */
-TLV_API tlv_result_t tlv_tree_reader_skip_subtree(tlv_tree_reader_t* reader);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_skip_subtree(tlv_tree_reader_t* reader);
 
 /**
  * @brief Get the prefix no longer needed for future traversal.
@@ -217,21 +219,21 @@ TLV_API tlv_result_t tlv_tree_reader_skip_subtree(tlv_tree_reader_t* reader);
  * @note A published parent does not consume its unvisited value. Retained
  *       borrowed results can require keeping bytes beyond this parser contract.
  */
-TLV_API size_t tlv_tree_reader_consumed(const tlv_tree_reader_t* reader);
+OPENTLV_IO_API size_t tlv_tree_reader_consumed(const tlv_tree_reader_t* reader);
 
 /**
  * @brief Get the absolute logical traversal frontier, including pending descent.
  * @param[in] reader Initialized cursor, or NULL.
  * @return Absolute next position, bounded by SIZE_MAX, or zero for NULL.
  */
-TLV_API size_t tlv_tree_reader_offset(const tlv_tree_reader_t* reader);
+OPENTLV_IO_API size_t tlv_tree_reader_offset(const tlv_tree_reader_t* reader);
 
 /**
  * @brief Report complete exhaustion of final input and all nested scopes.
  * @param[in] reader Initialized cursor, or NULL.
  * @return 1 at final end, otherwise 0, including NULL and non-final empty input.
  */
-TLV_API int tlv_tree_reader_at_end(const tlv_tree_reader_t* reader);
+OPENTLV_IO_API int tlv_tree_reader_at_end(const tlv_tree_reader_t* reader);
 
 /** @} */
 #ifdef __cplusplus

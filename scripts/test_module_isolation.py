@@ -196,6 +196,24 @@ class IsolationTests(unittest.TestCase):
         (self.root / "optional.c").write_text("/* Feature-disabled source. */\n", encoding="utf-8")
         contract["files"]["optional.c"] = "base"
         check_metadata(entries, contract, self.root)
+        # A not-yet-extracted C++ facade retains logical ownership, but is
+        # not part of the C module registration. Native headers still are.
+        (self.root / "future.hpp").write_text("// Future facade.\n", encoding="utf-8")
+        contract["files"]["future.hpp"] = "base"
+        check_metadata(entries, contract, self.root)
+        (self.root / "missing.h").write_text("/* Missing C header. */\n", encoding="utf-8")
+        contract["files"]["missing.h"] = "base"
+        with self.assertRaisesRegex(ValueError, "contract file missing from registration"):
+            check_metadata(entries, contract, self.root)
+        del contract["files"]["missing.h"]
+        generated = self.root / "build/generated/src/config.c"
+        generated.parent.mkdir(parents=True, exist_ok=True)
+        generated.write_text("/* Generated configuration. */\n", encoding="utf-8")
+        entries[0]["sources"].append(str(generated))
+        with self.assertRaisesRegex(ValueError, "file ownership differs from contract"):
+            check_metadata(entries, contract, self.root)
+        contract["generated"] = {"src/config.c": "base"}
+        check_metadata(entries, contract, self.root)
         contract["targets"]["base"]["public"] = ["util"]
         with self.assertRaisesRegex(ValueError, "dependencies differ from contract"):
             check_metadata(entries, contract, self.root)

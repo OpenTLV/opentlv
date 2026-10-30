@@ -3,7 +3,7 @@
 
 #include "controlled_format.h"
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/copy.h"
+#include "tlv/writer/copy.h"
 #include "tlv/reader/reader.h"
 #include <gtest/gtest.h>
 #include <cstring>

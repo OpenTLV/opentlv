@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_LLDP_CODEC_H
 #define OPENTLV_BUILTINS_LLDP_CODEC_H
 
+#include "tlv/export.h"
 #include "tlv/codec/values.h"
 #include "tlv/value.h"
 

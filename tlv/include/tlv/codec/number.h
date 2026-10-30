@@ -4,6 +4,7 @@
 #ifndef OPENTLV_CODEC_NUMBER_H
 #define OPENTLV_CODEC_NUMBER_H
 
+#include "tlv/export.h"
 #include "tlv/codec/codec.h"
 
 /**

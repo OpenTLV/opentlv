@@ -379,10 +379,8 @@ int main(int argc, char** argv) {
     CHECK(loader_aliases() == 0);
     CHECK(callbacks() == 0);
     CHECK(raw_reinitialization() == 0);
-#if OPENTLV_READER
     CHECK(reader_aliases() == 0);
-#endif
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
     CHECK(documents() == 0);
     CHECK(document_format_reinitialization() == 0);
 #endif

@@ -6,22 +6,14 @@ import argparse
 from pathlib import Path
 import subprocess
 
-CAPABILITIES = ("READER", "WRITER", "DOCUMENT", "QUERY", "SCHEMA", "CODEC")
+CAPABILITIES = ("DOCUMENT", "QUERY", "SCHEMA", "CODEC")
 PROFILES = {
-    "core": (),
-    "read": ("READER",),
-    "write": ("WRITER",),
-    "read-write": ("READER", "WRITER"),
+    "io": (),
     "document": ("DOCUMENT",),
-    "parse-document": ("READER", "DOCUMENT"),
-    "write-document": ("WRITER", "DOCUMENT"),
     "query": ("QUERY",),
-    "query-reader": ("QUERY", "READER"),
     "document-query": ("DOCUMENT", "QUERY"),
     "schema": ("SCHEMA",),
     "codec": ("CODEC",),
-    "no-reader": tuple(cap for cap in CAPABILITIES if cap != "READER"),
-    "no-writer": tuple(cap for cap in CAPABILITIES if cap != "WRITER"),
     "full": CAPABILITIES,
 }
 
@@ -51,7 +43,11 @@ def main():
         subprocess.run(command, check=True)
         sources = (build / "capability-sources.txt").read_text().replace("\\", "/").split(";")
         for cap in set(CAPABILITIES) - set(PROFILES[name]):
-            if any(f"src/{cap.lower()}/" in source for source in sources):
+            # Diagnostic vocabularies preserve their historical availability in
+            # the compatibility library while implementations remain optional.
+            if any(f"src/{cap.lower()}/" in source and
+                   Path(source).name not in ("diagnostic.c", "diagnostic_strings.c")
+                   for source in sources):
                 raise RuntimeError(f"{name}: disabled {cap} sources are still compiled")
         subprocess.run(["cmake", "--build", str(build), "--config", "Debug",
                         "--parallel", "1"], check=True)

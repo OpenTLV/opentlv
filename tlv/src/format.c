@@ -3,7 +3,7 @@
 
 #include "tlv/format.h"
 #include "tlv/size.h"
-#include "callback_internal.h"
+#include "tlv/callback.h"
 #include <string.h>
 
 int tlv_constructed_bit_predicate(const void* context, const tlv_tag_t* tag) {

@@ -5,7 +5,7 @@
 #include "controlled_format.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#include "tlv/copy.h"
+#include "tlv/writer/copy.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

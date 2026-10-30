@@ -7,7 +7,7 @@
 #include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/format.h"
-#include "tlv/export.h"
+#include "tlv/io/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -43,8 +43,8 @@ extern "C" {
  *
  * @note On failure `*size` is unchanged.
  */
-TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_format_t* format,
-                                      size_t* size);
+OPENTLV_IO_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length,
+                                             const tlv_format_t* format, size_t* size);
 
 /**
  * @brief Encodes one element directly into caller-owned memory.
@@ -79,8 +79,9 @@ TLV_API tlv_result_t tlv_encoded_size(tlv_tag_t tag, size_t length, const tlv_fo
  *          have modified `data`.
  * @see tlv_encoded_size
  */
-TLV_API tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format,
-                               tlv_tag_t tag, const uint8_t* value, size_t length, size_t* written);
+OPENTLV_IO_API tlv_result_t tlv_write(uint8_t* data, size_t capacity, const tlv_format_t* format,
+                                      tlv_tag_t tag, const uint8_t* value, size_t length,
+                                      size_t* written);
 
 /**
  * @brief Which encoding step a #tlv_writer_diagnostic_t reports on.
@@ -114,7 +115,7 @@ typedef enum tlv_writer_operation {
  * @note Never returns NULL or allocates. Do not free or modify the string.
  * Available even when the corresponding capability is disabled.
  */
-TLV_API const char* tlv_writer_operation_string(tlv_writer_operation_t value);
+OPENTLV_IO_API const char* tlv_writer_operation_string(tlv_writer_operation_t value);
 
 /**
  * @brief Structured detail for a failed tlv_write() or tlv_writer_write() call.
@@ -168,7 +169,7 @@ typedef struct tlv_writer_diagnostic {
  *
  * @param[out] diagnostic Diagnostic to initialize; NULL is ignored.
  */
-TLV_API void tlv_writer_diagnostic_init(tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API void tlv_writer_diagnostic_init(tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Measures exact native output storage for a semantic Element without allocating.
@@ -183,8 +184,8 @@ TLV_API void tlv_writer_diagnostic_init(tlv_writer_diagnostic_t* diagnostic);
  *         #TLV_ERR_NATIVE_SIZE for a non-native total, or a Format error.
  * @note On failure *size is unchanged. Input is not retained.
  */
-TLV_API tlv_result_t tlv_element_encoded_size(const tlv_element_t* element,
-                                              const tlv_format_t* format, size_t* size);
+OPENTLV_IO_API tlv_result_t tlv_element_encoded_size(const tlv_element_t* element,
+                                                     const tlv_format_t* format, size_t* size);
 
 /**
  * @brief Measures an Element with optional structured failure information.
@@ -194,9 +195,9 @@ TLV_API tlv_result_t tlv_element_encoded_size(const tlv_element_t* element,
  * @param[out] diagnostic Optional diagnostic, unchanged on success. No capacity is set.
  * @return Same as tlv_element_encoded_size(). Never allocates.
  */
-TLV_API tlv_result_t tlv_element_encoded_size_diag(const tlv_element_t* element,
-                                                   const tlv_format_t* format, size_t* size,
-                                                   tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_element_encoded_size_diag(const tlv_element_t* element,
+                                                          const tlv_format_t* format, size_t* size,
+                                                          tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes a semantic Element into caller-owned storage without allocating.
@@ -210,8 +211,9 @@ TLV_API tlv_result_t tlv_element_encoded_size_diag(const tlv_element_t* element,
  * @note A NULL, zero-capacity destination is a real write, not a sizing query.
  * @warning Encoder callback failures may modify destination bytes. Input is not retained.
  */
-TLV_API tlv_result_t tlv_write_element(uint8_t* data, size_t capacity, const tlv_format_t* format,
-                                       const tlv_element_t* element, size_t* written);
+OPENTLV_IO_API tlv_result_t tlv_write_element(uint8_t* data, size_t capacity,
+                                              const tlv_format_t* format,
+                                              const tlv_element_t* element, size_t* written);
 
 /**
  * @brief Encodes an Element with optional structured failure information.
@@ -223,10 +225,10 @@ TLV_API tlv_result_t tlv_write_element(uint8_t* data, size_t capacity, const tlv
  * @param[out] diagnostic Optional diagnostic; unchanged on success.
  * @return Same as tlv_write_element(), including callback-error buffer semantics.
  */
-TLV_API tlv_result_t tlv_write_element_diag(uint8_t* data, size_t capacity,
-                                            const tlv_format_t* format,
-                                            const tlv_element_t* element, size_t* written,
-                                            tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_write_element_diag(uint8_t* data, size_t capacity,
+                                                   const tlv_format_t* format,
+                                                   const tlv_element_t* element, size_t* written,
+                                                   tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes one element directly into caller-owned memory, with diagnostic detail on failure.
@@ -250,9 +252,10 @@ TLV_API tlv_result_t tlv_write_element_diag(uint8_t* data, size_t capacity,
  * @note On success `*out_diagnostic` is left unchanged.
  * @see tlv_write
  */
-TLV_API tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity, const tlv_format_t* format,
-                                    tlv_tag_t tag, const uint8_t* value, size_t length,
-                                    size_t* written, tlv_writer_diagnostic_t* out_diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_write_diag(uint8_t* data, size_t capacity,
+                                           const tlv_format_t* format, tlv_tag_t tag,
+                                           const uint8_t* value, size_t length, size_t* written,
+                                           tlv_writer_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Sequential writer over a caller-owned buffer.
@@ -289,8 +292,8 @@ typedef struct tlv_writer {
  * @warning The caller must keep `buf` and `format` alive for the lifetime
  *          of the writer.
  */
-TLV_API tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
-                                     const tlv_format_t* format);
+OPENTLV_IO_API tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t capacity,
+                                            const tlv_format_t* format);
 
 /**
  * @brief Writes one TLV element at the writer's current position.
@@ -309,8 +312,8 @@ TLV_API tlv_result_t tlv_writer_init(tlv_writer_t* writer, uint8_t* buf, size_t 
  * @note On error the position is unchanged.
  * @warning Callbacks may have modified buffer bytes on error.
  */
-TLV_API tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag, const uint8_t* value,
-                                      size_t length);
+OPENTLV_IO_API tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag,
+                                             const uint8_t* value, size_t length);
 
 /**
  * @brief Writes one TLV element at the writer's current position, with diagnostic detail on
@@ -333,9 +336,9 @@ TLV_API tlv_result_t tlv_writer_write(tlv_writer_t* writer, tlv_tag_t tag, const
  * @note On success `*out_diagnostic` is left unchanged.
  * @warning Callbacks may have modified buffer bytes on error.
  */
-TLV_API tlv_result_t tlv_writer_write_diag(tlv_writer_t* writer, tlv_tag_t tag,
-                                           const uint8_t* value, size_t length,
-                                           tlv_writer_diagnostic_t* out_diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_writer_write_diag(tlv_writer_t* writer, tlv_tag_t tag,
+                                                  const uint8_t* value, size_t length,
+                                                  tlv_writer_diagnostic_t* out_diagnostic);
 
 /**
  * @brief Re-encodes an Element at the writer's current position.
@@ -361,7 +364,8 @@ TLV_API tlv_result_t tlv_writer_write_diag(tlv_writer_t* writer, tlv_tag_t tag,
  *       tlv_element_encoded_size() for that.
  * @see tlv_copy_element
  */
-TLV_API tlv_result_t tlv_writer_copy_element(tlv_writer_t* writer, const tlv_element_t* element);
+OPENTLV_IO_API tlv_result_t tlv_writer_copy_element(tlv_writer_t* writer,
+                                                    const tlv_element_t* element);
 
 /**
  * @brief Appends an exact encoded byte range at the writer's current position.
@@ -387,8 +391,9 @@ TLV_API tlv_result_t tlv_writer_copy_element(tlv_writer_t* writer, const tlv_ele
  * @note On failure the position is unchanged.
  * @see tlv_copy_encoded
  */
-TLV_API tlv_result_t tlv_writer_copy_encoded(tlv_writer_t* writer, const uint8_t* encoded_data,
-                                             size_t encoded_length);
+OPENTLV_IO_API tlv_result_t tlv_writer_copy_encoded(tlv_writer_t* writer,
+                                                    const uint8_t* encoded_data,
+                                                    size_t encoded_length);
 
 /**
  * @brief Returns the number of bytes currently written to the buffer.
@@ -397,14 +402,14 @@ TLV_API tlv_result_t tlv_writer_copy_encoded(tlv_writer_t* writer, const uint8_t
  *
  * @return The current write position in bytes, or 0 if `writer` is `NULL`.
  */
-TLV_API size_t tlv_writer_size(const tlv_writer_t* writer);
+OPENTLV_IO_API size_t tlv_writer_size(const tlv_writer_t* writer);
 
 /**
  * @brief Returns remaining destination capacity without allocating or changing state.
  * @param[in] writer Cursor, or NULL.
  * @return Remaining bytes, or zero for NULL or a position beyond capacity.
  */
-TLV_API size_t tlv_writer_remaining(const tlv_writer_t* writer);
+OPENTLV_IO_API size_t tlv_writer_remaining(const tlv_writer_t* writer);
 
 /**
  * @brief Appends an Element using the cursor's Format without allocating.
@@ -416,7 +421,8 @@ TLV_API size_t tlv_writer_remaining(const tlv_writer_t* writer);
  *       to determine required storage before writing.
  * @warning Callback errors may modify bytes at or beyond the unchanged position.
  */
-TLV_API tlv_result_t tlv_writer_write_element(tlv_writer_t* writer, const tlv_element_t* element);
+OPENTLV_IO_API tlv_result_t tlv_writer_write_element(tlv_writer_t* writer,
+                                                     const tlv_element_t* element);
 
 /**
  * @brief Appends an Element with optional structured failure information.
@@ -425,9 +431,9 @@ TLV_API tlv_result_t tlv_writer_write_element(tlv_writer_t* writer, const tlv_el
  * @param[out] diagnostic Optional diagnostic; unchanged on success, absolute output offset.
  * @return Same as tlv_writer_write_element(), with the same state and buffer guarantees.
  */
-TLV_API tlv_result_t tlv_writer_write_element_diag(tlv_writer_t* writer,
-                                                   const tlv_element_t* element,
-                                                   tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_writer_write_element_diag(tlv_writer_t* writer,
+                                                          const tlv_element_t* element,
+                                                          tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Appends raw encoded bytes with optional structured failure information.
@@ -437,9 +443,10 @@ TLV_API tlv_result_t tlv_writer_write_element_diag(tlv_writer_t* writer,
  * @param[out] diagnostic Optional diagnostic; unchanged on success, absolute output offset.
  * @return Same as tlv_writer_copy_encoded(); failure leaves position and buffer unchanged.
  */
-TLV_API tlv_result_t tlv_writer_copy_encoded_diag(tlv_writer_t* writer, const uint8_t* encoded_data,
-                                                  size_t encoded_length,
-                                                  tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_writer_copy_encoded_diag(tlv_writer_t* writer,
+                                                         const uint8_t* encoded_data,
+                                                         size_t encoded_length,
+                                                         tlv_writer_diagnostic_t* diagnostic);
 
 /**
  * @brief Appends unchanged original wire bytes without allocating or re-encoding.
@@ -456,8 +463,8 @@ TLV_API tlv_result_t tlv_writer_copy_encoded_diag(tlv_writer_t* writer, const ui
  * @note Failure leaves position and output bytes unchanged. No size-query mode:
  *       use tlv_source_preserve() with NULL, 0 to measure original representation.
  */
-TLV_API tlv_result_t tlv_writer_preserve(tlv_writer_t* writer, const tlv_source_t* source,
-                                         const tlv_element_t* element);
+OPENTLV_IO_API tlv_result_t tlv_writer_preserve(tlv_writer_t* writer, const tlv_source_t* source,
+                                                const tlv_element_t* element);
 
 /**
  * @brief Preserves original bytes with optional structured failure information.
@@ -467,9 +474,10 @@ TLV_API tlv_result_t tlv_writer_preserve(tlv_writer_t* writer, const tlv_source_
  * @param[out] diagnostic Optional diagnostic; unchanged on success, absolute output offset.
  * @return Same as tlv_writer_preserve(), with unchanged position and bytes on failure.
  */
-TLV_API tlv_result_t tlv_writer_preserve_diag(tlv_writer_t* writer, const tlv_source_t* source,
-                                              const tlv_element_t* element,
-                                              tlv_writer_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_writer_preserve_diag(tlv_writer_t* writer,
+                                                     const tlv_source_t* source,
+                                                     const tlv_element_t* element,
+                                                     tlv_writer_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

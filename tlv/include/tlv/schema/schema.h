@@ -348,7 +348,6 @@ TLV_API tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked,
                                         const tlv_structure_schema_t* schema,
                                         tlv_schema_diagnostic_t* diagnostic);
 
-#if OPENTLV_READER
 /**
  * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
  * alternative groups and child membership.
@@ -418,7 +417,6 @@ TLV_API tlv_result_t tlv_schema_validate_checked(const tlv_schema_checked_t* che
                                                  const tlv_format_t* format, size_t max_depth,
                                                  size_t max_elements,
                                                  tlv_schema_diagnostic_t* diagnostic);
-#endif
 
 /**
  * @brief Caller-provided storage for the violations of tlv_schema_validate_all_diag().
@@ -435,7 +433,6 @@ typedef struct tlv_schema_diagnostic_report {
     size_t count;
 } tlv_schema_diagnostic_report_t;
 
-#if OPENTLV_READER
 /**
  * @brief Validates a TLV structure and reports every schema violation.
  *
@@ -525,7 +522,6 @@ TLV_API tlv_result_t tlv_schema_validate_all_checked(const tlv_schema_checked_t*
                                                      tlv_schema_unknown_policy_t unknown,
                                                      tlv_schema_diagnostic_report_t* report,
                                                      tlv_schema_diagnostic_t* diagnostic);
-#endif
 
 #ifdef __cplusplus
 }

@@ -5,12 +5,8 @@
 #include "tlv/size.h"
 #include "document_internal.h"
 #include "tlv/defaults.h"
-#if OPENTLV_READER
 #include "tlv/reader/tree.h"
-#endif
-#if OPENTLV_WRITER
 #include "tlv/writer/tree.h"
-#endif
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -227,20 +223,6 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
     *created = node;
     return TLV_OK;
 }
-
-#if !OPENTLV_READER
-tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                                 size_t size, size_t depth, size_t base,
-                                 tlv_reader_diagnostic_t* diagnostic) {
-    (void)document;
-    (void)parent;
-    (void)data;
-    (void)depth;
-    (void)base;
-    (void)diagnostic;
-    return size ? TLV_ERR_UNSUPPORTED : TLV_OK;
-}
-#endif
 
 static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
                                const uint8_t* value, size_t length, size_t depth, size_t value_base,
@@ -537,7 +519,7 @@ int document_query_callback(tlv_document_t* document, int active) {
     return pending;
 }
 
-#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_QUERY
 static tlv_result_t edit_limit(document_edit_failure_t* failure, const char* name,
                                size_t configured) {
     if (failure) {

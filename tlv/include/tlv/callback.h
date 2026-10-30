@@ -1,13 +1,23 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#ifndef OPENTLV_CALLBACK_INTERNAL_H
-#define OPENTLV_CALLBACK_INTERNAL_H
+#ifndef OPENTLV_CALLBACK_H
+#define OPENTLV_CALLBACK_H
 
 #include "tlv/result.h"
+#include "tlv/core/export.h"
 
-/* Callback control statuses are opt-in. Ordinary provider failures retain
- * their identity; an unknown discriminator is a provider contract defect. */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/** @brief Callback control statuses are opt-in. Ordinary provider failures retain
+ * their identity; an unknown discriminator is a provider contract defect.
+ * @param[in] result Result returned by a provider.
+ * @param[in] allow_end Nonzero only when the callback contract permits TLV_END.
+ * @return The original success/error, permitted TLV_END, or TLV_ERR_CALLBACK
+ * for unsupported control statuses and unknown values.
+ */
 static inline tlv_result_t tlv_callback_result(tlv_result_t result, int allow_end) {
     switch (result) {
         case TLV_END: return allow_end ? result : TLV_ERR_CALLBACK;
@@ -33,8 +43,12 @@ static inline tlv_result_t tlv_callback_result(tlv_result_t result, int allow_en
         case TLV_ERR_CALLBACK: return result;
         case TLV_NEED_MORE_DATA: return TLV_ERR_CALLBACK;
     }
-    /* No default: -Wswitch must diagnose newly added result enumerators. */
+    /** @brief No default: -Wswitch must diagnose newly added result enumerators. */
     return TLV_ERR_CALLBACK;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

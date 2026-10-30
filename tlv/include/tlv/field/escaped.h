@@ -57,9 +57,9 @@ typedef struct tlv_escaped_length {
  * Argument/configuration errors preserve both outputs; incomplete input reports
  * the available prefix through consumed.
  */
-TLV_API tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* config,
-                                             const uint8_t* data, size_t size, tlv_size_t* length,
-                                             size_t* consumed);
+OPENTLV_CORE_API tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* config,
+                                                      const uint8_t* data, size_t size,
+                                                      tlv_size_t* length, size_t* consumed);
 
 /** @brief Encode a count, or measure its field width with NULL output.
  * @param[in] config Immutable encoding configuration.
@@ -76,8 +76,9 @@ TLV_API tlv_result_t tlv_escaped_length_read(const tlv_escaped_length_t* config,
  * @note Validate required pointers, configuration, count range and capacity in
  * that order. Failure preserves written and destination bytes. No allocation occurs.
  */
-TLV_API tlv_result_t tlv_escaped_length_write(const tlv_escaped_length_t* config, tlv_size_t length,
-                                              uint8_t* data, size_t capacity, size_t* written);
+OPENTLV_CORE_API tlv_result_t tlv_escaped_length_write(const tlv_escaped_length_t* config,
+                                                       tlv_size_t length, uint8_t* data,
+                                                       size_t capacity, size_t* written);
 
 /** @} */
 

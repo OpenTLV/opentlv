@@ -7,7 +7,7 @@
 #include "tlv/result.h"
 #include "tlv/element.h"
 #include "tlv/length.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +49,7 @@ typedef struct tlv_constructed_bit {
  * @return One for an exact masked match, zero otherwise or for invalid configuration.
  * @note No allocation or mutation. Out-of-range indices are never read.
  */
-TLV_API int tlv_constructed_bit_predicate(const void* context, const tlv_tag_t* tag);
+OPENTLV_CORE_API int tlv_constructed_bit_predicate(const void* context, const tlv_tag_t* tag);
 
 /**
  * @brief An optional, buffer-relative field range.
@@ -274,19 +274,19 @@ typedef struct tlv_format {
  * @return #TLV_ERR_INVALID_ARG for a `NULL` destination, incomplete write
  *         capability or no capabilities.
  */
-TLV_API tlv_result_t tlv_format_init(tlv_format_t* format, const void* context,
-                                     tlv_decode_fn decode, tlv_measure_fn measure,
-                                     tlv_encode_fn encode);
+OPENTLV_CORE_API tlv_result_t tlv_format_init(tlv_format_t* format, const void* context,
+                                              tlv_decode_fn decode, tlv_measure_fn measure,
+                                              tlv_encode_fn encode);
 
 /**
  * @brief Return nonzero if format has decoding capability; NULL returns zero.
  */
-TLV_API int tlv_format_can_read(const tlv_format_t* format);
+OPENTLV_CORE_API int tlv_format_can_read(const tlv_format_t* format);
 
 /**
  * @brief Return nonzero if format has complete encoding capability; NULL returns zero.
  */
-TLV_API int tlv_format_can_write(const tlv_format_t* format);
+OPENTLV_CORE_API int tlv_format_can_write(const tlv_format_t* format);
 
 /**
  * @brief Decode and validate one complete element, preserving source information.
@@ -307,8 +307,9 @@ TLV_API int tlv_format_can_write(const tlv_format_t* format);
  *         including returning #TLV_ERR_BUFFER_TOO_SHORT.
  * @return Any permitted decoder error, propagated unchanged; see the callback result contract.
  */
-TLV_API tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data, size_t size,
-                                       tlv_decoded_t* decoded, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t* data,
+                                                size_t size, tlv_decoded_t* decoded,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Compute exact logical sizes without requiring a destination buffer.
@@ -324,8 +325,10 @@ TLV_API tlv_result_t tlv_format_decode(const tlv_format_t* format, const uint8_t
  * @return #TLV_ERR_CALLBACK if the callback result or measured framing sizes are inconsistent.
  * @return Any permitted measurement error, propagated unchanged; see the callback result contract.
  */
-TLV_API tlv_result_t tlv_format_measure(const tlv_format_t* format, const tlv_element_t* element,
-                                        tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_format_measure(const tlv_format_t* format,
+                                                 const tlv_element_t* element,
+                                                 tlv_encoding_t* encoding,
+                                                 tlv_format_error_t* error);
 
 /**
  * @brief Encode semantic content using the format's configured policy.
@@ -348,9 +351,10 @@ TLV_API tlv_result_t tlv_format_measure(const tlv_format_t* format, const tlv_el
  *
  * @note Preflight errors leave destination unchanged; callback errors may modify it.
  */
-TLV_API tlv_result_t tlv_format_encode(const tlv_format_t* format, const tlv_element_t* element,
-                                       uint8_t* data, size_t capacity, size_t* written,
-                                       tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_format_encode(const tlv_format_t* format,
+                                                const tlv_element_t* element, uint8_t* data,
+                                                size_t capacity, size_t* written,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Reproduce immutable source bytes only if element still equals the source.
@@ -373,8 +377,9 @@ TLV_API tlv_result_t tlv_format_encode(const tlv_format_t* format, const tlv_ele
  * @return #TLV_ERR_NATIVE_SIZE if the value size exceeds `SIZE_MAX`.
  * @return #TLV_ERR_BUFFER_TOO_SHORT if the destination cannot hold the source.
  */
-TLV_API tlv_result_t tlv_source_preserve(const tlv_source_t* source, const tlv_element_t* element,
-                                         uint8_t* data, size_t capacity, size_t* written);
+OPENTLV_CORE_API tlv_result_t tlv_source_preserve(const tlv_source_t* source,
+                                                  const tlv_element_t* element, uint8_t* data,
+                                                  size_t capacity, size_t* written);
 
 /** @} */
 

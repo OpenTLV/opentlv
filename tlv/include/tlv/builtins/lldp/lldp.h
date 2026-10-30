@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_LLDP_LLDP_H
 #define OPENTLV_BUILTINS_LLDP_LLDP_H
 
+#include "tlv/export.h"
 #include "tlv/format.h"
 #include "tlv/definition.h"
 

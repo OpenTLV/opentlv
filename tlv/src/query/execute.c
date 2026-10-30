@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
-#include "../utf8_internal.h"
+#include "tlv/utf8.h"
 
 static unsigned byte_at(query_value_t v, size_t i) {
     return v.data[i];
@@ -870,7 +870,6 @@ tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
     return TLV_OK;
 }
 
-#if OPENTLV_READER
 /* Outputs may not alias the cursor, its frames, input bytes or Format descriptor. */
 static int reader_output_overlap(const tlv_tree_reader_t* reader, const void* p, size_t n) {
     return query_overlap(reader, sizeof *reader, p, n) ||
@@ -1053,4 +1052,3 @@ tlv_result_t tlv_query_program_exists(tlv_tree_reader_t* reader, tlv_query_exec_
     *found = e->any_match;
     return TLV_OK;
 }
-#endif

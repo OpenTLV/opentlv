@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_COMPANY_IDS_H
 #define OPENTLV_BUILTINS_BLUETOOTH_COMPANY_IDS_H
 
+#include "tlv/export.h"
 #include "tlv/definition.h"
 
 /**

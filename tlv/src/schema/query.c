@@ -23,7 +23,7 @@ static void assertion_failure(tlv_query_diagnostic_t* d, tlv_tag_t tag, const ch
     d->detail.schema.field = name;
 }
 
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
 tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
                                                 const tlv_schema_query_rule_t* rules, size_t count,
                                                 size_t depth, size_t nodes, size_t work,

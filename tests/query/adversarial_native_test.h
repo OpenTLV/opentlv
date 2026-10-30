@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "adversarial_native.h"
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/writer/tree.h"
@@ -80,7 +80,7 @@ static int native_profiles(void) {
 #endif
         CHECK(tlv_query_plan_open(image, image->reserved, &p, NULL) == TLV_OK);
         CHECK(p->text_size == 0 && p->level == (unsigned)levels[kind]);
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
         CHECK(native_document(p, kind) == 0);
 #endif
 #if OPENTLV_QUERY_FRONTEND

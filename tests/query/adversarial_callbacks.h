@@ -5,7 +5,7 @@
 #include "tlv/defaults.h"
 #include "tlv/format.h"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/writer/tree.h"
 #endif
@@ -14,7 +14,7 @@ typedef struct callback_state {
     size_t            workspace_bytes;
     unsigned          calls, errors;
     int               fail, mutation;
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
     tlv_document_t* document;
     tlv_node_t*     node;
 #endif
@@ -172,7 +172,7 @@ static tlv_result_t resolve(const void* context, const char* ns, size_t ns_size,
     *tag = tlv_tag(&byte, 1);
     return TLV_OK;
 }
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
 static tlv_visit_result_t document_visitor(tlv_node_t*, void*);
 static void               mutate(callback_state* s) {
     if (!s->document) return;
@@ -260,7 +260,6 @@ static tlv_result_t tag_number(const void* context, const tlv_tag_t* tag, int64_
     *out = tag->data[0];
     return s->fail ? TLV_ERR_INVALID_TAG : TLV_OK;
 }
-#if OPENTLV_READER
 static int constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
     return tag->size == 1 && tag->data[0] == 0x70;
@@ -294,8 +293,6 @@ static tlv_visit_result_t event_visitor(const tlv_tree_event_t* input, void* con
     if (!same_event(input, &saved)) ++s->errors;
     return TLV_VISIT_CONTINUE;
 }
-#endif
-#if OPENTLV_READER
 static tlv_visit_result_t stop_visitor(const tlv_tree_event_t* input, void* context) {
     (void)input;
     (void)context;
@@ -358,7 +355,6 @@ static int reader_aliases(void) {
     }
     return 0;
 }
-#endif
 static int callbacks(void) {
     tlv_fixed_format_t config = {
         {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
@@ -398,7 +394,6 @@ static int callbacks(void) {
             if (!failed) CHECK(result.integer == 1);
         }
     }
-#if OPENTLV_READER
     format.is_constructed = constructed;
     const char* selections[] = {"//01", "/70[child::01]"};
     for (unsigned kind = 0; kind < 2; ++kind)
@@ -422,7 +417,6 @@ static int callbacks(void) {
                   TLV_OK);
             CHECK(state.calls == 2 && !state.errors);
         }
-#endif
     return 0;
 }
 typedef struct raw_init_state {
@@ -466,13 +460,11 @@ static tlv_result_t reinitializing_codec(const void* context, const tlv_tree_eve
     out->integer = 1;
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
-#if OPENTLV_READER
 static tlv_visit_result_t reinitializing_event(const tlv_tree_event_t* input, void* context) {
     (void)input;
     raw_reinitialize(context);
     return TLV_VISIT_STOP;
 }
-#endif
 static int raw_reinitialization(void) {
     arena                   image, memory;
     raw_init_state          state = {0};
@@ -512,7 +504,6 @@ static int raw_reinitialization(void) {
         tlv_query_result_t result;
         CHECK(tlv_query_exec_result(state.exec, &result) == TLV_ERR_INVALID_STATE);
     }
-#if OPENTLV_READER
     const char*        selections[] = {"//01", "/70[child::01]"};
     tlv_fixed_format_t config = {
         {0}, {0, TLV_BYTE_ORDER_UNKNOWN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
@@ -547,10 +538,8 @@ static int raw_reinitialization(void) {
             CHECK(tlv_query_exec_info(state.exec, &info) == TLV_OK && info.invalid &&
                   !info.finished);
         }
-#endif
     return 0;
 }
-#if OPENTLV_READER
 typedef struct resume_visitor_state {
     size_t calls;
     int    errors;
@@ -635,7 +624,6 @@ static int retained_resume_scale(void) {
     free(allocation);
     return 0;
 }
-#endif
 /* Put outputs in a legal gap between two borrowed spans. The retained envelope
  * necessarily includes them, regardless of stack/heap address ordering. */
 static int retained_scale(void) {
@@ -679,12 +667,10 @@ static int retained_scale(void) {
     }
     CHECK(tlv_query_result_next(e, &spans.selected) == TLV_END);
     free(allocation);
-#if OPENTLV_READER
     CHECK(retained_resume_scale() == 0);
-#endif
     return 0;
 }
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
 typedef struct callback_format {
     tlv_fixed_format_t config;
     callback_state*    state;

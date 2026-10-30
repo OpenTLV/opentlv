@@ -176,7 +176,8 @@ if(WIN32 AND core_type STREQUAL "SHARED_LIBRARY")
         if(TARGET ${consumer_target})
             add_custom_command(TARGET ${consumer_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "$<TARGET_FILE:OpenTLV::tlv>" "$<TARGET_FILE_DIR:${consumer_target}>"
+                    "$<TARGET_FILE:OpenTLV::tlv>" "$<TARGET_FILE:OpenTLV::Core>"
+                    "$<TARGET_FILE:OpenTLV::IO>" "$<TARGET_FILE_DIR:${consumer_target}>"
                 VERBATIM)
         endif()
     endforeach()
