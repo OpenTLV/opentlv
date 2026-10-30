@@ -19,7 +19,7 @@ endif()
 
 get_target_property(tlv_includes tlv INCLUDE_DIRECTORIES)
 set(fuzz_sources)
-foreach(library IN ITEMS tlv opentlv_document opentlv_io opentlv_core)
+foreach(library IN ITEMS tlv opentlv_document opentlv_generator opentlv_io opentlv_core)
     get_target_property(library_sources ${library} SOURCES)
     get_target_property(library_source_dir ${library} SOURCE_DIR)
     foreach(source IN LISTS library_sources)

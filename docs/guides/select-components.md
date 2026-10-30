@@ -5,10 +5,12 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-Core, IO and Document are independent C libraries. Core owns Definition, Format and Field
+Core, IO, Document and Generator are independent C libraries. Core owns Definition, Format and Field
 Encoding, Element and Layout, byte utilities and generic diagnostics. IO owns
 Reader, Writer, traversal and serialization and depends publicly on Core.
 Document owns mutable trees and depends publicly on Core and IO.
+Generator owns deterministic wire generation, with public Core and private IO
+dependencies. IO does not build or link Generator.
 
 ## Core, IO and Document
 
@@ -23,7 +25,7 @@ target_link_libraries(my_format_tool PRIVATE OpenTLV::Core)
 
 The same targets are available through `add_subdirectory()` and FetchContent.
 A Core-only package consumer can request just `COMPONENTS Core`; no IO or C++
-library is loaded. All three modules support static and shared builds, selected by
+library is loaded. All four modules support static and shared builds, selected by
 `OPENTLV_BUILD_SHARED_LIBS`. A library-only build does not require a C++ compiler,
 even when the compatibility C++ facade is enabled.
 
@@ -36,6 +38,8 @@ cmake --build build/modules --target opentlv_core
 cmake --build build/modules --target opentlv_io
 # Builds Document and its Core/IO dependencies only:
 cmake --build build/modules --target opentlv_document
+# Builds Generator and its Core/IO dependencies only:
+cmake --build build/modules --target opentlv_generator
 ```
 
 `OPENTLV_READER`, `OPENTLV_WRITER` and `OPENTLV_DOCUMENT` are no longer CMake
@@ -45,9 +49,9 @@ directory). IO always includes both APIs. For transition compatibility,
 `tlv/config.h` retains the constant macros with value 1 and their runtime mirrors;
 they do not select sources or indicate which modules an application linked.
 
-Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO and
-Document transitively. Direct library consumers must link the dependencies too (static
-link order: `tlv`, `opentlv_document`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
+Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO,
+Document and Generator transitively. Direct library consumers must link the dependencies too (static
+link order: `tlv`, `opentlv_document`, `opentlv_generator`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
 all linked libraries. Rebuild consumers after the split; the old single-library
 binary distribution is not preserved.
 
@@ -55,7 +59,8 @@ Public Reader/Writer headers and function signatures remain at their existing
 paths. `tlv_copy_element()` now belongs to `tlv/writer/copy.h`; Core `tlv/copy.h`
 contains raw byte/value copies only. `tlv/tlv.h` includes both. New public utility
 headers are `tlv/utf8.h`, `tlv/callback.h` and `tlv/diagnostic/cause.h`. Module
-exports use `OPENTLV_CORE_API`, `OPENTLV_IO_API` and `OPENTLV_DOCUMENT_API`; CMake propagates the matching
+exports use `OPENTLV_CORE_API`, `OPENTLV_IO_API`, `OPENTLV_DOCUMENT_API` and
+`OPENTLV_GENERATOR_API`; CMake propagates the matching
 static-build definitions automatically.
 
 ## Independent Document
@@ -82,10 +87,33 @@ identity, retirement epoch, revision and mutation APIs. Guarded fallible edits
 fail with `INVALID_STATE`; erasure and destruction are deferred until the
 outermost guard exits. No Document private header is needed by Query.
 
+## Independent Generator
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Generator)
+target_link_libraries(my_generator PRIVATE OpenTLV::Generator)
+```
+
+This loads only Generator, IO and Core. Include `tlv/generator.h`; Generator has
+no Document, Query, Schema, Codec or builtin library dependency. Supply a readable,
+writable Format and caller-owned output and workspace. The module always provides
+generation; no Writer capability option selects it.
+
+The existing header-only `tlv++/generator.hpp` belongs to Generator. A C++11
+consumer can use it with `OpenTLV::Generator` and the installed C++ headers;
+`OPENTLV_BUILD_CXX=ON` installs them. No compiled C++ library is introduced.
+The shared C++ support headers remain in the compatibility facade until their
+own extraction. Its owned generator still allocates scratch/results, while
+native generation and the caller-buffer facade remain allocation-free.
+
+Algorithm version 2, seeds, case indices, candidate order, limits, workspace,
+Writer reconstruction checks and errors are unchanged. See the
+[generation contract](../reference/c-api.md#deterministic-wire-generation).
+
 ## Remaining capability profiles
 
 Query, Schema, Codec and builtin selection remain transitional options until
-their own extraction issues. The compatibility target includes Document and IO
+their own extraction issues. The compatibility target includes Document, Generator and IO
 in every profile. `OPENTLV_QUERY=OFF` also disables its frontend and set operations.
 Generated headers must match the linked libraries.
 

@@ -81,6 +81,39 @@ def main():
             if private_path.as_posix() in content:
                 raise RuntimeError(f"Non-relocatable package: {path}")
 
+    # Generator's header-only facade must work without the aggregate library.
+    # Compile copied sources against the relocated installation only.
+    for language in (["C", "CXX"] if args.cxx == "ON" else ["C"]):
+        generator_consumer = work / ("generator-" + language.lower())
+        generator_consumer.mkdir()
+        extension = "cpp" if language == "CXX" else "c"
+        shutil.copyfile(root / f"tests/modules/generator.{extension}",
+                        generator_consumer / f"main.{extension}")
+        (generator_consumer / "CMakeLists.txt").write_text(
+            f"cmake_minimum_required(VERSION 3.16)\nproject(generator LANGUAGES {language})\n"
+            "find_package(OpenTLV REQUIRED CONFIG COMPONENTS Generator)\n"
+            "foreach(unrelated IN ITEMS tlv tlv++ Document Query Schema Codec)\n"
+            "  if(TARGET OpenTLV::${unrelated})\n"
+            "    message(FATAL_ERROR \"Generator loaded unrelated target ${unrelated}\")\n"
+            "  endif()\nendforeach()\n"
+            f"add_executable(consumer main.{extension})\n"
+            "target_link_libraries(consumer PRIVATE OpenTLV::Generator)\n"
+            "get_target_property(kind OpenTLV::Generator TYPE)\n"
+            "if(WIN32 AND kind STREQUAL \"SHARED_LIBRARY\")\n"
+            "  add_custom_command(TARGET consumer POST_BUILD\n"
+            "    COMMAND ${CMAKE_COMMAND} -E copy_if_different\n"
+            "      $<TARGET_FILE:OpenTLV::Generator> $<TARGET_FILE:OpenTLV::IO>\n"
+            "      $<TARGET_FILE:OpenTLV::Core> $<TARGET_FILE_DIR:consumer> VERBATIM)\n"
+            "endif()\n"
+            "set_target_properties(consumer PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)\n"
+            "enable_testing()\nadd_test(NAME generator COMMAND consumer)\n",
+            encoding="utf-8")
+        configure(generator_consumer, generator_consumer / "build",
+                  f"-DCMAKE_PREFIX_PATH={relocated.as_posix()}",
+                  "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF",
+                  "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF")
+        build_and_test(generator_consumer / "build")
+
     consumer = work / "application"
     shutil.copytree(root / "tests/cmake-consumer", consumer)
     # An empty application repository prevents accidental use of Core's Git

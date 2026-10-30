@@ -9,16 +9,15 @@ endif()
 
 include(modules.cmake)
 
-# Transitional library for modules extracted by subsequent issues. Core, IO and Document
+# Transitional library for modules extracted by subsequent issues. Extracted modules
 # are linked once; no implementation is duplicated in the compatibility target.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
-    src/generator.c
     src/query/diagnostic_strings.c
     src/schema/diagnostic_strings.c
     src/codec/diagnostic_strings.c
     src/codec/diagnostic.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator)
 if(NOT CMAKE_INSTALL_RPATH)
     if(APPLE)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")

@@ -283,6 +283,15 @@ opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR include
         tlv_writer_write_element_diag
 )
 
+opentlv_add_module(generator EXPORT_NAME Generator INCLUDE_DIR include
+    CONSUMER ../tests/modules/generator.c
+    SOURCES src/generator.c
+    PUBLIC_HEADERS include/tlv/generator.h
+    PUBLIC_DEPS core
+    PRIVATE_DEPS io
+    PUBLIC_SYMBOLS tlv_generate tlv_generator_workspace_size
+)
+
 opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR include
     CONSUMER ../tests/modules/document.c
     SOURCES

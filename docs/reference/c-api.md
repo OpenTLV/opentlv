@@ -36,6 +36,9 @@ and [memory ownership](../guides/memory.md).
 
 The native `<tlv/generator.h>` API generates complete nonempty TLV streams
 through Writer, with no allocation. The C++ facade is `<tlv++/generator.hpp>`.
+Link the independent `OpenTLV::Generator` target (package component `Generator`),
+which depends only on Core and IO. The aggregate targets also include it; see
+[component selection](../guides/select-components.md#independent-generator).
 Provide an ordered candidate table of borrowed identifiers and inclusive Value
 size intervals, together with seed, case index and element/depth/Value/case
 limits. Format alone classifies constructed tags; their Values are generated
