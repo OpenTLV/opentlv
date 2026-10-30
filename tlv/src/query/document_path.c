@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "document_internal.h"
-#include "../query/program_internal.h"
+#include "tlv/document/integration.h"
+#include "tlv/query/document.h"
+#include "program_internal.h"
 #include "tlv/size.h"
 #include <string.h>
 
@@ -20,13 +21,13 @@ tlv_result_t tlv_document_query_visit(const tlv_document_t* document, const tlv_
     rc = tlv_query_matcher_init(&matcher, query);
     if (rc != TLV_OK)
         return query_failure(diagnostic, rc, TLV_QUERY_ERROR_ARGUMENT, "valid parsed path Query");
-    node = document->first;
+    node = tlv_document_first(document);
     while (node) {
-        tlv_tag_t tag = document_node_tag(node);
+        tlv_tag_t tag = tlv_node_tag(node);
         if (tlv_query_matcher_visit(&matcher, &tag, depth)) {
-            document_query_callback((tlv_document_t*)document, 1);
+            tlv_document_callback((tlv_document_t*)document, 1);
             tlv_visit_result_t result = visitor(node, context);
-            if (document_query_callback((tlv_document_t*)document, 0))
+            if (tlv_document_callback((tlv_document_t*)document, 0))
                 return query_error_unlocated(diagnostic, TLV_ERR_INVALID_STATE,
                                              TLV_QUERY_ERROR_STATE,
                                              "Document kept alive during path Query callbacks");
@@ -36,15 +37,15 @@ tlv_result_t tlv_document_query_visit(const tlv_document_t* document, const tlv_
                     diagnostic, result == TLV_VISIT_ERROR ? TLV_ERR_VISITOR : TLV_ERR_CALLBACK,
                     TLV_QUERY_ERROR_CALLBACK, "visitor continue or stop");
         }
-        if (node->first) {
-            node = node->first;
+        if (tlv_node_first_child(node)) {
+            node = tlv_node_first_child(node);
             ++depth;
         } else {
-            while (node->parent && !node->next) {
-                node = node->parent;
+            while (tlv_node_parent(node) && !tlv_node_next(node)) {
+                node = tlv_node_parent(node);
                 --depth;
             }
-            node = node->next;
+            node = tlv_node_next(node);
         }
     }
     return TLV_OK;

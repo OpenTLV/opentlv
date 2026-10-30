@@ -5,6 +5,7 @@
 #include "controlled_format.h"
 #include "tlv/config.h"
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 // Private state is used only to place the nonwrapping counters near exhaustion.
 #include "../../../tlv/src/document/document_internal.h"
 #include "../../../tlv/src/query/v1_internal.h"

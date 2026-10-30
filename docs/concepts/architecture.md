@@ -302,13 +302,13 @@ harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
 ## Mutable document
 
 `document/document.h` provides the canonical owned mutable tree, selected by
-`OPENTLV_DOCUMENT`. Programmatic construction and mutation need neither Reader
+`OpenTLV::Document`. Programmatic construction and mutation need neither Reader
 nor Writer. Document owns its Tags and Values and supports a caller allocator;
 enabling the capability alone does not allocate a tree.
 
 Wire import is a Reader + Document integration (`document/reader.c`), serialization
 is a Writer + Document integration (`document/writer.c`), and path matching is a
-Query + Document integration (`document/query.c`). Nonempty constructed Values
+Query + Document integration (`query/document_path.c`). Nonempty constructed Values
 passed to insert/set-value are encoded children and require Reader; without it,
 these operations return `TLV_ERR_UNSUPPORTED` without changing the tree.
 Empty constructed nodes and programmatically inserted children remain available.
@@ -440,7 +440,7 @@ These packages default to ON and can be disabled subject to the dependencies bel
 Core primitives are provided by `OpenTLV::Core`. Reader, Writer, traversal and
 serialization are provided together by `OpenTLV::IO`, which depends only on Core.
 The former `OPENTLV_READER` and `OPENTLV_WRITER` CMake options are removed; see
-[component selection](../guides/select-components.md#core-and-io) for migration.
+[component selection](../guides/select-components.md#core-io-and-document) for migration.
 The options below still select functionality awaiting extraction.
 
 | CMake option / generated config macro | Included component |
@@ -450,7 +450,7 @@ The options below still select functionality awaiting extraction.
 | `OPENTLV_CODEC` | Semantic Value codecs; structure codecs require Schema and Reader |
 | `OPENTLV_QUERY_FRONTEND` | Query text parser/compiler; disable for [static C plans](../guides/queries.md#static-c-plans-and-frontend-free-execution) |
 | `OPENTLV_QUERY_SET_OPERATIONS` | Query union, intersection and difference in the shared executor |
-| `OPENTLV_DOCUMENT` | Canonical owned mutable [Document](../guides/document.md); optional build inclusion, not a format or standard package |
+| `OpenTLV::Document` target | Canonical owned mutable [Document](../guides/document.md); links Core and IO. The former `OPENTLV_DOCUMENT` option is removed. |
 
 `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
 `OPENTLV_EMV` form a tree (ASN1 -> BER -> DER/CER/EMV): disabling an

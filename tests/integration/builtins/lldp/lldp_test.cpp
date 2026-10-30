@@ -12,6 +12,7 @@
 #include "tlv/query/query.h"
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #endif
 #include <gtest/gtest.h>
 #include <array>

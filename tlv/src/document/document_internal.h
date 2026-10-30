@@ -28,8 +28,8 @@ struct tlv_document {
     size_t count;
     uint64_t revision;
     uint64_t retire_epoch;
-    size_t query_callbacks;
-    int query_pending;
+    size_t active_callbacks;
+    int pending_mutation;
     uint64_t next_identity;
 };
 
@@ -45,26 +45,5 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
 tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
                                  size_t size, size_t depth, size_t base,
                                  tlv_reader_diagnostic_t* diagnostic);
-
-/* Metadata bridge for optional consumers; topology remains public node navigation. */
-const tlv_format_t* document_format(const tlv_document_t* document);
-int document_contains(const tlv_document_t* document, const tlv_node_t* node);
-/* Exit returns 0 unchanged, 1 deferred erase, 2 deferred destruction. */
-int document_query_callback(tlv_document_t* document, int active);
-
-#if OPENTLV_QUERY
-/* Detail of a failed Query edit, zero-initialized by the caller. `reader` is the
- * Reader detail of a rejected constructed Value, valid only when its code equals the
- * returned result. `limit` names an exceeded Document limit, otherwise NULL. */
-typedef struct document_edit_failure {
-    tlv_reader_diagnostic_t reader;
-    const char* limit;
-    size_t configured;
-} document_edit_failure_t;
-tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
-                                   tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
-                                   const uint8_t* value, size_t size, size_t* applied,
-                                   document_edit_failure_t* failure);
-#endif
 
 #endif

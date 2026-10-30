@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Reader and Writer are inseparable parts of IO. Reject obsolete cache options
+# Core, IO and Document are selected by linking. Reject obsolete cache options
 # instead of silently building a different feature set from the one requested.
-foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER)
+foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER OPENTLV_DOCUMENT)
     if(DEFINED ${_removed})
-        message(FATAL_ERROR "${_removed} was removed; link OpenTLV::Core or OpenTLV::IO instead")
+        message(FATAL_ERROR "${_removed} was removed; link OpenTLV::Core, OpenTLV::IO or OpenTLV::Document instead")
     endif()
 endforeach()
 
@@ -25,7 +25,8 @@ option(OPENTLV_BUILD_SHARED_LIBS "Build tlv as a shared library instead of stati
 option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
 
 # Core capabilities
-option(OPENTLV_DOCUMENT "Include the allocating mutable document API" ON)
+# Compatibility macro selection remains constant until aggregate cleanup.
+set(OPENTLV_DOCUMENT ON)
 option(OPENTLV_QUERY "Include Query execution" ON)
 option(OPENTLV_SCHEMA "Include Schema validation" ON)
 option(OPENTLV_CODEC "Include semantic value codecs" ON)

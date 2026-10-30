@@ -217,7 +217,8 @@ def run_probe(source, build, work, output):
     registry = build / "modules-Release.json"
     if registry.is_file():
         modules = {entry["key"]: entry for entry in read(registry)}
-        libraries += [Path(modules[key]["library"]) for key in ("io", "core") if key in modules]
+        libraries += [Path(modules[key]["library"])
+                      for key in ("document", "io", "core") if key in modules]
     command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE", "-I" + str(source / "tlv/include"),
              "-I" + str(build / "generated/include"), ROOT / "tests/baseline/probe.cpp",
              *libraries, "-o", executable], log=output / "logs/probe-build.txt")

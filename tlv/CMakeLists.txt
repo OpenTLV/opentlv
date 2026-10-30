@@ -9,7 +9,7 @@ endif()
 
 include(modules.cmake)
 
-# Transitional library for modules extracted by subsequent issues. Core and IO
+# Transitional library for modules extracted by subsequent issues. Core, IO and Document
 # are linked once; no implementation is duplicated in the compatibility target.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/generator.c
@@ -18,7 +18,7 @@ add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/codec/diagnostic_strings.c
     src/codec/diagnostic.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::IO)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document)
 if(NOT CMAKE_INSTALL_RPATH)
     if(APPLE)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")
@@ -218,23 +218,11 @@ if(OPENTLV_EMV AND OPENTLV_SCHEMA AND OPENTLV_CODEC AND OPENTLV_QUERY)
     )
 endif()
 
-if(OPENTLV_DOCUMENT)
-    # Owned topology; integrations below require each participating capability.
-    target_sources(${PROJECT_NAME} PRIVATE src/document/document.c)
-endif()
-
-if(OPENTLV_DOCUMENT)
-    target_sources(${PROJECT_NAME} PRIVATE src/document/reader.c)
-endif()
-if(OPENTLV_DOCUMENT)
-    target_sources(${PROJECT_NAME} PRIVATE src/document/writer.c)
-endif()
-if(OPENTLV_DOCUMENT AND OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE src/document/query.c)
-endif()
-
-if(OPENTLV_DOCUMENT AND OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE src/query/document_backend.c)
+if(OPENTLV_QUERY)
+    target_sources(${PROJECT_NAME} PRIVATE
+        src/query/document_path.c
+        src/query/document_backend.c
+    )
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

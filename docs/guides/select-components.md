@@ -5,11 +5,12 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-Core and IO are independent C libraries. Core owns Definition, Format and Field
+Core, IO and Document are independent C libraries. Core owns Definition, Format and Field
 Encoding, Element and Layout, byte utilities and generic diagnostics. IO owns
 Reader, Writer, traversal and serialization and depends publicly on Core.
+Document owns mutable trees and depends publicly on Core and IO.
 
-## Core and IO
+## Core, IO and Document
 
 Select functionality by linking the target you use:
 
@@ -22,7 +23,7 @@ target_link_libraries(my_format_tool PRIVATE OpenTLV::Core)
 
 The same targets are available through `add_subdirectory()` and FetchContent.
 A Core-only package consumer can request just `COMPONENTS Core`; no IO or C++
-library is loaded. Both modules support static and shared builds, selected by
+library is loaded. All three modules support static and shared builds, selected by
 `OPENTLV_BUILD_SHARED_LIBS`. A library-only build does not require a C++ compiler,
 even when the compatibility C++ facade is enabled.
 
@@ -33,17 +34,20 @@ cmake -S . -B build/modules -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=O
 cmake --build build/modules --target opentlv_core
 # Builds Core and IO, without the remaining library implementations:
 cmake --build build/modules --target opentlv_io
+# Builds Document and its Core/IO dependencies only:
+cmake --build build/modules --target opentlv_document
 ```
 
-`OPENTLV_READER` and `OPENTLV_WRITER` are no longer CMake options. Supplying either
+`OPENTLV_READER`, `OPENTLV_WRITER` and `OPENTLV_DOCUMENT` are no longer CMake
+options. Supplying any of them
 is an error; remove them from presets and existing caches (or use a fresh build
 directory). IO always includes both APIs. For transition compatibility,
 `tlv/config.h` retains the constant macros with value 1 and their runtime mirrors;
 they do not select sources or indicate which modules an application linked.
 
-Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core and IO
-transitively. Direct library consumers must link the dependencies too (static
-link order: `tlv`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
+Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO and
+Document transitively. Direct library consumers must link the dependencies too (static
+link order: `tlv`, `opentlv_document`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
 all linked libraries. Rebuild consumers after the split; the old single-library
 binary distribution is not preserved.
 
@@ -51,30 +55,52 @@ Public Reader/Writer headers and function signatures remain at their existing
 paths. `tlv_copy_element()` now belongs to `tlv/writer/copy.h`; Core `tlv/copy.h`
 contains raw byte/value copies only. `tlv/tlv.h` includes both. New public utility
 headers are `tlv/utf8.h`, `tlv/callback.h` and `tlv/diagnostic/cause.h`. Module
-exports use `OPENTLV_CORE_API` and `OPENTLV_IO_API`; CMake propagates the matching
+exports use `OPENTLV_CORE_API`, `OPENTLV_IO_API` and `OPENTLV_DOCUMENT_API`; CMake propagates the matching
 static-build definitions automatically.
+
+## Independent Document
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Document)
+target_link_libraries(my_editor PRIVATE OpenTLV::Document)
+```
+
+This loads only Document, IO and Core. Include `tlv/document/document.h` for
+ownership, topology, mutation, parsing and serialization. Document requires no
+Query, Schema, Codec, Generator or builtin implementation; supply a Format.
+
+Include `tlv/query/document.h` explicitly for Document Query operations previously
+declared by `tlv/document/document.h`. The aggregate `tlv/tlv.h` still includes
+both. Query integration remains in `OpenTLV::tlv` until #650 extracts its own
+target; linking Document alone intentionally does not provide Query symbols.
+The existing C++ facade remains part of the compatibility target.
+
+`tlv/document/integration.h` defines the public integration boundary: effective
+options and allocator access, live-node ownership checks, callback activity and
+nested callback lifetime guards. Integrations use existing node traversal,
+identity, retirement epoch, revision and mutation APIs. Guarded fallible edits
+fail with `INVALID_STATE`; erasure and destruction are deferred until the
+outermost guard exits. No Document private header is needed by Query.
 
 ## Remaining capability profiles
 
-Document, Query, Schema, Codec and builtin selection remain transitional options
-until their own extraction issues. The compatibility target includes IO in every
-profile. `OPENTLV_QUERY=OFF` also disables its frontend and set operations.
+Query, Schema, Codec and builtin selection remain transitional options until
+their own extraction issues. The compatibility target includes Document and IO
+in every profile. `OPENTLV_QUERY=OFF` also disables its frontend and set operations.
 Generated headers must match the linked libraries.
 
-| Profile | Document | Query | Schema | Codec |
-| --- | --- | --- | --- | --- |
-| IO | OFF | OFF | OFF | OFF |
-| Document | ON | OFF | OFF | OFF |
-| Query | OFF | ON | OFF | OFF |
-| Document/Query | ON | ON | OFF | OFF |
-| Schema | OFF | OFF | ON | OFF |
-| Codec | OFF | OFF | OFF | ON |
-| Full | ON | ON | ON | ON |
+| Profile | Query | Schema | Codec |
+| --- | --- | --- | --- |
+| Document (also the legacy IO profile) | OFF | OFF | OFF |
+| Document/Query (also the Query profile) | ON | OFF | OFF |
+| Schema | OFF | ON | OFF |
+| Codec | OFF | OFF | ON |
+| Full | ON | ON | ON |
 
 Broad unit/integration suites need the full profile. Module C tests and the
 `capability-contract` remain available in reduced builds.
 `python scripts/check_capabilities.py` validates these remaining profiles;
-`scripts/check_module_isolation.py` separately builds Core and IO in fresh trees,
+`scripts/check_module_isolation.py` separately builds Core, IO and Document in fresh trees,
 checks symbol/header boundaries and runs relocated package consumers. CI runs
 static and shared variants of both checks.
 
@@ -102,7 +128,7 @@ build scripts must migrate removed CMake options when adopting this revision.
 | `OPENTLV_EMV` | [EMV module](../standards/emv/README.md) |
 
 The [mutable document](document.md) is a separate optional generic component,
-controlled by `OPENTLV_DOCUMENT`; it is not a format or a standard package.
+selected by linking `OpenTLV::Document`; it is not a format or a standard package.
 
 Turning an option OFF also turns OFF everything below it in the chain
 `ASN1 -> BER`, with DER, CER and EMV as siblings under BER.

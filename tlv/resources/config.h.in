@@ -22,8 +22,8 @@
 #define OPENTLV_READER 1
 /** @brief Writer compatibility constant; link OpenTLV::IO to use this API. */
 #define OPENTLV_WRITER 1
-/** @brief Whether Document is enabled in this build. */
-#cmakedefine01 OPENTLV_DOCUMENT
+/** @brief Document compatibility constant; link OpenTLV::Document to use this API. */
+#define OPENTLV_DOCUMENT 1
 /** @brief Whether Query is enabled in this build. */
 #cmakedefine01 OPENTLV_QUERY
 /** @brief Whether Schema is enabled in this build. */

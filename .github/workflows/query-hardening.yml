@@ -178,7 +178,6 @@ jobs:
           -DOPENTLV_BUILD_CXX=${{ matrix.cxx }} -DOPENTLV_BUILD_SHARED_LIBS=OFF
           -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF
-          -DOPENTLV_DOCUMENT=OFF
           -DOPENTLV_QUERY_FRONTEND=${{ matrix.frontend }}
           -DOPENTLV_QUERY_SET_OPERATIONS=${{ matrix.sets }}
           -DCMAKE_C_FLAGS='-fsanitize=address,undefined -fno-omit-frame-pointer'

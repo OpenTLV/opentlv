@@ -3,6 +3,7 @@
 #include "../../diagnostic_assertions.h"
 #include "tlv/query/adapters.h"
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
 #include "tlv/builtins/emv/query.h"
 #include "tlv/builtins/asn1/query.h"

@@ -3,6 +3,7 @@
 #include "adversarial_native.h"
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/writer/tree.h"
 static int native_constructed(const void* context, const tlv_tag_t* tag) {

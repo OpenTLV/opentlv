@@ -7,6 +7,7 @@
 #include "../../tlv/src/query/frontend_internal.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
 #include "tlv/config.h"
 #if OPENTLV_FORMAT_BER

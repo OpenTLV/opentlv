@@ -71,7 +71,8 @@ facades require a frontend-enabled library.
 `OPENTLV_QUERY_SET_OPERATIONS=OFF` omits union/intersection/difference execution
 from both backends. Compilation and static-plan validation reject these operations
 with `TLV_ERR_UNSUPPORTED`; enabled operations preserve the same semantics.
-Document-only navigation additionally requires `OPENTLV_DOCUMENT`. These are
+Document-only navigation uses the Query-owned `tlv/query/document.h` integration
+and the independently linked Document module. These are
 capability choices within the same plan and execution architecture. Further
 operation-family switches and automatic `.otlv` code generation are future work.
 
