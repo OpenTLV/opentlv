@@ -19,14 +19,21 @@ function(opentlv_configure_compiler target)
     )
 endfunction()
 
-# Copies the tlv runtime library next to a Windows executable that links it
-# (directly or through tlv++), so it can be launched or run under ctest
-# without adjusting PATH. No-op for static tlv builds or non-Windows platforms.
+# Copy the local shared-library dependency closure beside Windows consumers.
 function(opentlv_copy_shared_runtime target)
     if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
-        add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:tlv>" "$<TARGET_FILE_DIR:${target}>"
-        )
+        get_target_property(links ${target} LINK_LIBRARIES)
+        set(runtime opentlv_core)
+        if(NOT links STREQUAL "opentlv_core")
+            list(APPEND runtime opentlv_io)
+            if(NOT links STREQUAL "opentlv_io")
+                list(APPEND runtime tlv)
+            endif()
+        endif()
+        foreach(library IN LISTS runtime)
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "$<TARGET_FILE:${library}>" "$<TARGET_FILE_DIR:${target}>")
+        endforeach()
     endif()
 endfunction()

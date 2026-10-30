@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tests LANGUAGES C)
 
+opentlv_add_module_test(module-core OWNER core SOURCES modules/core.c)
+opentlv_add_module_test(module-io OWNER io SOURCES modules/io.c)
+opentlv_configure_compiler(module-core)
+opentlv_configure_compiler(module-io)
+opentlv_copy_shared_runtime(module-core)
+opentlv_copy_shared_runtime(module-io)
+
 if(OPENTLV_BUILD_MEMCHECK)
     add_test(NAME memcheck-launcher
         COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/memcheck_launcher_test.py")
@@ -43,7 +50,7 @@ if(OPENTLV_BUILD_SHARED_LIBS)
     foreach(contract IN ITEMS capability-contract diagnostic-strings-contract)
         add_custom_command(TARGET ${contract} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:tlv> $<TARGET_FILE_DIR:${contract}>)
+                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE_DIR:${contract}>)
     endforeach()
 endif()
 

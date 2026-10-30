@@ -5,7 +5,7 @@
 #define OPENTLV_ASN1_VALUES_INTERNAL_H
 #include "tlv/result.h"
 #include "tlv/codec/diagnostic.h"
-#include "../../utf8_internal.h"
+#include "tlv/utf8.h"
 #include <stdint.h>
 #include <stddef.h>
 

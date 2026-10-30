@@ -3,7 +3,7 @@
 #ifndef OPENTLV_CODEC_RESULT_INTERNAL_H
 #define OPENTLV_CODEC_RESULT_INTERNAL_H
 #include "tlv/codec/diagnostic.h"
-#include "../callback_internal.h"
+#include "tlv/callback.h"
 
 /* Decode may preserve delegated resumable input. END never produces a Value. */
 static inline tlv_result_t tlv_codec_result(tlv_result_t result, tlv_codec_operation_t operation) {

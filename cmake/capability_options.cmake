@@ -6,7 +6,7 @@ endif()
 
 # These consumers currently expose the full composed API. Keep requirements
 # explicit rather than producing unresolved symbols in reduced builds.
-if(NOT OPENTLV_READER OR NOT OPENTLV_WRITER OR NOT OPENTLV_QUERY OR
+if(NOT OPENTLV_QUERY OR
    NOT OPENTLV_SCHEMA OR NOT OPENTLV_CODEC)
     foreach(component IN ITEMS EXAMPLES BENCHMARKS FUZZING)
         if(OPENTLV_BUILD_${component})

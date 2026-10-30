@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_CODEC_DIAGNOSTIC_H
 #define OPENTLV_CODEC_DIAGNOSTIC_H
+#include "tlv/export.h"
 #include "tlv/reader/diagnostic.h"
 #include "tlv/schema/detail.h"
 #ifdef __cplusplus

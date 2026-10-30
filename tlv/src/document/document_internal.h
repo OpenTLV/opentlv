@@ -52,7 +52,7 @@ int document_contains(const tlv_document_t* document, const tlv_node_t* node);
 /* Exit returns 0 unchanged, 1 deferred erase, 2 deferred destruction. */
 int document_query_callback(tlv_document_t* document, int active);
 
-#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_QUERY
 /* Detail of a failed Query edit, zero-initialized by the caller. `reader` is the
  * Reader detail of a rejected constructed Value, valid only when its code equals the
  * returned result. `limit` names an exceeded Document limit, otherwise NULL. */

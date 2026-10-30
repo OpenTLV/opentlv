@@ -3,7 +3,7 @@
 #include "tlv/query/adapters.h"
 #include "tlv/codec/values.h"
 #include "tlv/codec/number.h"
-#include "../utf8_internal.h"
+#include "tlv/utf8.h"
 #include <string.h>
 static int same_name(const char* text, size_t size, const char* name) {
     return name && strlen(name) == size && (!size || !memcmp(text, name, size));

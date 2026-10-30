@@ -45,7 +45,9 @@ FAMILIES = (
     ("Severity", "tlv_diagnostic_severity", "TLV_DIAGNOSTIC_SEVERITY_",
      "tlv/include/tlv/diagnostic.h", "tlv_diagnostic_severity_string", "diagnostic_severity"),
 )
-NAME_TABLES = ("tlv/src/diagnostic_strings.c", "tlv/src/diagnostic.c")
+NAME_TABLES = ("tlv/src/diagnostic.c", "tlv/src/reader/diagnostic_strings.c",
+               "tlv/src/query/diagnostic_strings.c", "tlv/src/schema/diagnostic_strings.c",
+               "tlv/src/codec/diagnostic_strings.c")
 
 HEADER = "// SPDX-License-Identifier: MIT\n// Copyright (c) 2026 Marek Cingel\n"
 PY_HEADER = "# SPDX-License-Identifier: MIT\n# Copyright (c) 2026 Marek Cingel\n"

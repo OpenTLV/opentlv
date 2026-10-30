@@ -68,11 +68,11 @@ def build(source, build_dir):
         stdout=subprocess.DEVNULL)
 
 
-def find_library(build_dir):
-    for path in sorted(Path(build_dir).rglob("libtlv.so*")):
+def find_library(build_dir, name="tlv"):
+    for path in sorted(Path(build_dir).rglob(f"lib{name}.so*")):
         if path.is_file():
             return path
-    raise CheckError("shared library libtlv.so was not built")
+    raise CheckError(f"shared library lib{name}.so was not built")
 
 
 def stage_headers(source, build_dir, dest):
@@ -86,12 +86,12 @@ def suppression_args():
     return ["--suppressions", str(SUPPRESSIONS)] if SUPPRESSIONS.is_file() else []
 
 
-def build_candidate(candidate_dir, work_dir):
+def build_candidate(candidate_dir, work_dir, name="tlv"):
     """Build the candidate; return its library and staged public headers."""
     build(candidate_dir, work_dir / "candidate-build")
     headers = work_dir / "candidate-headers"
     stage_headers(candidate_dir, work_dir / "candidate-build", headers)
-    return find_library(work_dir / "candidate-build"), headers
+    return find_library(work_dir / "candidate-build", name), headers
 
 
 def dump_abi(library, headers, out_file):
@@ -182,6 +182,8 @@ def main():
     parser.add_argument("--baseline-file", type=Path, default=DEFAULT_BASELINE,
                         help="Stored ABI baseline (abidw dump)")
     parser.add_argument("--candidate-dir", type=Path, default=REPO_ROOT, help="Candidate source tree")
+    parser.add_argument("--library", choices=("tlv", "opentlv_core", "opentlv_io"), default="tlv",
+                        help="Library to compare; use a matching per-library baseline")
     parser.add_argument("--update", action="store_true",
                         help="Regenerate the baseline from the candidate instead of comparing")
     parser.add_argument("--mode", choices=("auto", "report", "enforce"), default="auto")
@@ -194,7 +196,7 @@ def main():
             if shutil.which(tool) is None:
                 raise CheckError(f"{tool} not found (install abigail-tools)")
         work_dir = options.work_dir.resolve()
-        library, headers = build_candidate(options.candidate_dir.resolve(), work_dir)
+        library, headers = build_candidate(options.candidate_dir.resolve(), work_dir, options.library)
 
         if options.update:
             dump_abi(library, headers, options.baseline_file.resolve())

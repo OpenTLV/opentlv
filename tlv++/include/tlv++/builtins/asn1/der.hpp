@@ -6,20 +6,15 @@
 #include "tlv/builtins/asn1/der.h"
 #include "tlv++/format.hpp"
 #include "tlv/config.h"
-#if OPENTLV_READER
 #include "tlv++/reader/reader.hpp"
 #include "tlv/builtins/asn1/der_validation.h"
-#endif
-#if OPENTLV_WRITER
 #include "tlv++/writer/builder.hpp"
-#endif
 /** @file
  * @brief Generic C++ DER framing preset.
  */
 namespace tlv {
 /** @brief DER wire framing; semantic validation remains separate. */
 namespace der {
-#if OPENTLV_READER
 /** @brief Explicit resource limits for canonical DER semantic validation. */
 struct limits {
     size_t depth;    /**< Maximum nesting depth. */
@@ -49,14 +44,12 @@ expected<void, error> visit(bytes data, limits resources, Visitor&& visitor) {
         return unexpected<error>(detail::error_access::diagnostic(diagnostic, operation::reader));
     return {};
 }
-#endif
 /** @brief Built-in Format satisfying the generic C++ customization contract. */
 class format : public tlv::format {
 public:
     /** @brief Borrow the immutable canonical descriptor without allocation. */
     format() noexcept : tlv::format(detail::format_access::borrow(tlv_format_der)) {}
 };
-#if OPENTLV_WRITER
 /** @brief Build DER output with explicit caller-owned frames and scratch.
  * @param output Borrowed mutable byte span, array or contiguous byte container.
  * @param workspace Disjoint construction storage, never resized.
@@ -88,9 +81,7 @@ TLV_NODISCARD expected<size_t, writer_failure> encode(Output&& output, Callback&
     return tlv::encode<format, ScratchCapacity, Depth>(
         std::forward<Output>(output), std::forward<Callback>(callback), format{}, diagnostic);
 }
-#endif
 
-#if OPENTLV_READER
 /**
  * @brief Parse final input as borrowed Elements using the built-in Format.
  * @param data Immutable borrowed final input.
@@ -102,7 +93,6 @@ TLV_NODISCARD expected<size_t, writer_failure> encode(Output&& output, Callback&
 TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
     return tlv::parse<format>(data);
 }
-#endif
 
 } // namespace der
 } // namespace tlv

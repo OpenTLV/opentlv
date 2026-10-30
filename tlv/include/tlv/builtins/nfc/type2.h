@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_NFC_TYPE2_H
 #define OPENTLV_BUILTINS_NFC_TYPE2_H
 
+#include "tlv/export.h"
 #include "tlv/format.h"
 
 /** @file

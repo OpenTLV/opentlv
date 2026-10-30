@@ -42,21 +42,23 @@ typedef struct tlv_escaped_format {
  * @copydetails tlv_decode_fn
  * @note context points to a valid immutable #tlv_escaped_format_t.
  */
-TLV_API tlv_result_t tlv_escaped_decode(const void* context, const uint8_t* data, size_t size,
-                                        tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_escaped_decode(const void* context, const uint8_t* data,
+                                                 size_t size, tlv_decoded_t* result,
+                                                 tlv_format_error_t* error);
 /** @brief Measure escape-length framing.
  * @copydetails tlv_measure_fn
  * @note context points to a valid immutable #tlv_escaped_format_t.
  */
-TLV_API tlv_result_t tlv_escaped_measure(const void* context, const tlv_element_t* element,
-                                         tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_escaped_measure(const void* context, const tlv_element_t* element,
+                                                  tlv_encoding_t* encoding,
+                                                  tlv_format_error_t* error);
 /** @brief Encode escape-length framing.
  * @copydetails tlv_encode_fn
  * @note context points to a valid immutable #tlv_escaped_format_t.
  */
-TLV_API tlv_result_t tlv_escaped_encode(const void* context, const tlv_element_t* element,
-                                        uint8_t* data, size_t capacity, size_t* written,
-                                        tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_escaped_encode(const void* context, const tlv_element_t* element,
+                                                 uint8_t* data, size_t capacity, size_t* written,
+                                                 tlv_format_error_t* error);
 
 /** @brief Initialize a bidirectional escape-length format.
  * @param[out] format Descriptor, unchanged on failure.
@@ -66,8 +68,8 @@ TLV_API tlv_result_t tlv_escaped_encode(const void* context, const tlv_element_t
  * @return #TLV_ERR_INVALID_ARG for invalid widths, ranges, framing or tag table.
  * @return #TLV_ERR_INVALID_ARG for an unknown byte order.
  */
-TLV_API tlv_result_t tlv_escaped_format_init(tlv_format_t* format,
-                                             const tlv_escaped_format_t* config);
+OPENTLV_CORE_API tlv_result_t tlv_escaped_format_init(tlv_format_t* format,
+                                                      const tlv_escaped_format_t* config);
 
 /** @} */
 #ifdef __cplusplus

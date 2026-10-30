@@ -44,7 +44,7 @@ def append(root, name, text):
 
 
 def remove_export(root):
-    edit(root, ENDIAN_H, "TLV_API uint16_t tlv_read_u16_be(", "uint16_t tlv_read_u16_be(")
+    edit(root, ENDIAN_H, "OPENTLV_CORE_API uint16_t tlv_read_u16_be(", "uint16_t tlv_read_u16_be(")
 
 
 def change_signature(root):
@@ -59,8 +59,8 @@ def change_struct(root):
 
 
 def add_export(root):
-    anchor = "TLV_API uint16_t tlv_read_u16_be(const uint8_t* data);"
-    edit(root, ENDIAN_H, anchor, anchor + "\nTLV_API uint32_t tlv_abi_test_added(void);")
+    anchor = "OPENTLV_CORE_API uint16_t tlv_read_u16_be(const uint8_t* data);"
+    edit(root, ENDIAN_H, anchor, anchor + "\nOPENTLV_CORE_API uint32_t tlv_abi_test_added(void);")
     append(root, ENDIAN_C, "\nuint32_t tlv_abi_test_added(void) { return 1; }\n")
 
 
@@ -102,7 +102,7 @@ def main():
     copy_tree(work_dir / "baseline")
     baseline_file = work_dir / "baseline.abi"
     subprocess.run(
-        [sys.executable, str(REPO_ROOT / "scripts" / "abi" / "check.py"), "--update",
+        [sys.executable, str(REPO_ROOT / "scripts" / "abi" / "check.py"), "--update", "--library", "opentlv_core",
          "--candidate-dir", str(work_dir / "baseline"), "--baseline-file", str(baseline_file),
          "--work-dir", str(work_dir / "run-baseline")],
         check=True,
@@ -115,7 +115,7 @@ def main():
         copy_tree(candidate)
         mutation(candidate)
         result = subprocess.run(
-            [sys.executable, str(REPO_ROOT / "scripts" / "abi" / "check.py"), "--mode", "enforce",
+            [sys.executable, str(REPO_ROOT / "scripts" / "abi" / "check.py"), "--mode", "enforce", "--library", "opentlv_core",
              "--baseline-file", str(baseline_file), "--candidate-dir", str(candidate),
              "--work-dir", str(work_dir / f"run-{name}"),
              "--output-dir", str(work_dir / f"report-{name}")],

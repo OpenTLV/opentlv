@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_UUID_H
 #define OPENTLV_BUILTINS_BLUETOOTH_UUID_H
 
+#include "tlv/export.h"
 #include "tlv/codec/values.h"
 #include "tlv/value.h"
 

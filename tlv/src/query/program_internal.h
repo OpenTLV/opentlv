@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_QUERY_PROGRAM_INTERNAL_H
 #define OPENTLV_QUERY_PROGRAM_INTERNAL_H
-#include "../callback_internal.h"
+#include "tlv/callback.h"
 #include "tlv/query/plan.h"
 #include "tlv/config.h"
 #include <stdint.h>

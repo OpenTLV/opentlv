@@ -5,76 +5,81 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-Core primitives and generic formats are always built. Reader, Writer, Document,
-Query, Schema and Codec default to ON and can be disabled independently. Operations
-combining capabilities require each participant. Protocol family flags select
-framing and the integrations permitted by the selected core capabilities.
+Core and IO are independent C libraries. Core owns Definition, Format and Field
+Encoding, Element and Layout, byte utilities and generic diagnostics. IO owns
+Reader, Writer, traversal and serialization and depends publicly on Core.
 
-## Capability profiles
+## Core and IO
 
-Start with all six capability switches OFF, then enable the selected columns:
+Select functionality by linking the target you use:
 
-| Profile | Reader | Writer | Document | Query | Schema | Codec |
-| --- | --- | --- | --- | --- | --- | --- |
-| Minimal read | ON | OFF | OFF | OFF | OFF | OFF |
-| Minimal write | OFF | ON | OFF | OFF | OFF | OFF |
-| Read/write | ON | ON | OFF | OFF | OFF | OFF |
-| Standalone Document | OFF | OFF | ON | OFF | OFF | OFF |
-| Parse Document | ON | OFF | ON | OFF | OFF | OFF |
-| Serialize Document | OFF | ON | ON | OFF | OFF | OFF |
-| Full | ON | ON | ON | ON | ON | ON |
-
-For example, this builds a C library for reading generic formats only:
-
-```sh
-cmake -S . -B build/read \
-  -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_EXAMPLES=OFF \
-  -DOPENTLV_READER=ON -DOPENTLV_WRITER=OFF -DOPENTLV_DOCUMENT=OFF \
-  -DOPENTLV_QUERY=OFF -DOPENTLV_SCHEMA=OFF -DOPENTLV_CODEC=OFF \
-  -DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_BLUETOOTH=OFF \
-  -DOPENTLV_NFC=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_LLDP=OFF
-cmake --build build/read --target tlv
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Core IO)
+target_link_libraries(my_parser PRIVATE OpenTLV::IO)
+# For generic primitives without Reader/Writer:
+target_link_libraries(my_format_tool PRIVATE OpenTLV::Core)
 ```
 
-`OPENTLV_QUERY=OFF` also disables its frontend and set operations in the effective
-configuration. `tlv/config.h` and `tlv_config_*()` report that configuration.
-Disabling a capability does not enable another one. Generated headers must match
-the linked library; using declarations from a disabled capability is unsupported.
+The same targets are available through `add_subdirectory()` and FetchContent.
+A Core-only package consumer can request just `COMPONENTS Core`; no IO or C++
+library is loaded. Both modules support static and shared builds, selected by
+`OPENTLV_BUILD_SHARED_LIBS`. A library-only build does not require a C++ compiler,
+even when the compatibility C++ facade is enabled.
 
-Reader + Document provides parse/build and constructed-wire mutation. Writer +
-Document provides encoding. Query + Document provides path matching; the current
-compiled Document Query adapter additionally requires Reader and Writer. Schema
-wire validation requires Reader; Schema/Query assertions require both. Structure
-codecs require Reader and Schema. EMV dictionaries compose Schema and Codec;
-EMV framing remains available independently. ASN.1 Query adapters require Codec;
-DER Schema operations currently require Codec and Writer.
+Build only the required target from a checkout:
 
-### Bindings and tools
+```sh
+cmake -S . -B build/modules -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+cmake --build build/modules --target opentlv_core
+# Builds Core and IO, without the remaining library implementations:
+cmake --build build/modules --target opentlv_io
+```
 
-The C dependency graph is authoritative. Binding conveniences may require more:
+`OPENTLV_READER` and `OPENTLV_WRITER` are no longer CMake options. Supplying either
+is an error; remove them from presets and existing caches (or use a fresh build
+directory). IO always includes both APIs. For transition compatibility,
+`tlv/config.h` retains the constant macros with value 1 and their runtime mirrors;
+they do not select sources or indicate which modules an application linked.
 
-| Consumer | Current requirements |
-| --- | --- |
-| C++ Reader/Writer headers | Matching C capability; the umbrella selects enabled components |
-| C++ Schema facade | Schema and Reader |
-| C++ Query facade | Query and Reader |
-| C++ Document facade | Document, Reader, Writer, Query and Codec |
-| Examples, benchmarks and fuzz suites | Reader, Writer, Query, Schema, Codec and Query frontend; CMake skips these in reduced builds |
-| Rust | Native build explicitly enables Reader, Writer, Query, Schema and Codec; Document remains a Cargo feature |
-| Go | Prebuilt library must enable Reader, Writer, Query, Schema and Codec; the bridge checks generated configuration |
+Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core and IO
+transitively. Direct library consumers must link the dependencies too (static
+link order: `tlv`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
+all linked libraries. Rebuild consumers after the split; the old single-library
+binary distribution is not preserved.
 
-The standalone [Lua build](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/development.md)
-checks its required Core capabilities in its own repository.
-The standalone [Python build](https://github.com/OpenTLV/opentlv-python/blob/main/docs/development/python.md)
-requires its complete Core feature contract and rejects reduced Core builds.
-The standalone CLI also owns its dependency checks; Core does not configure
-these external consumers.
+Public Reader/Writer headers and function signatures remain at their existing
+paths. `tlv_copy_element()` now belongs to `tlv/writer/copy.h`; Core `tlv/copy.h`
+contains raw byte/value copies only. `tlv/tlv.h` includes both. New public utility
+headers are `tlv/utf8.h`, `tlv/callback.h` and `tlv/diagnostic/cause.h`. Module
+exports use `OPENTLV_CORE_API` and `OPENTLV_IO_API`; CMake propagates the matching
+static-build definitions automatically.
 
-Broad unit/integration suites are skipped in reduced builds. The dependency-free
-`capability-contract` test remains available with `OPENTLV_BUILD_TESTS=ON`.
-`python scripts/check_capabilities.py` configures, links and executes the profiles
-above plus core-only, Query-only, Document/Query, Schema-only and Codec-only builds. CI runs both
-shared and static variants and checks that disabled source groups are absent.
+## Remaining capability profiles
+
+Document, Query, Schema, Codec and builtin selection remain transitional options
+until their own extraction issues. The compatibility target includes IO in every
+profile. `OPENTLV_QUERY=OFF` also disables its frontend and set operations.
+Generated headers must match the linked libraries.
+
+| Profile | Document | Query | Schema | Codec |
+| --- | --- | --- | --- | --- |
+| IO | OFF | OFF | OFF | OFF |
+| Document | ON | OFF | OFF | OFF |
+| Query | OFF | ON | OFF | OFF |
+| Document/Query | ON | ON | OFF | OFF |
+| Schema | OFF | OFF | ON | OFF |
+| Codec | OFF | OFF | OFF | ON |
+| Full | ON | ON | ON | ON |
+
+Broad unit/integration suites need the full profile. Module C tests and the
+`capability-contract` remain available in reduced builds.
+`python scripts/check_capabilities.py` validates these remaining profiles;
+`scripts/check_module_isolation.py` separately builds Core and IO in fresh trees,
+checks symbol/header boundaries and runs relocated package consumers. CI runs
+static and shared variants of both checks.
+
+Standalone bindings and tools own their Core dependency checks and pins. Their
+build scripts must migrate removed CMake options when adopting this revision.
 
 ## Generic core formats
 

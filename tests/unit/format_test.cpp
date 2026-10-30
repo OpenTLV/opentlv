@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../diagnostic_assertions.h"
-#include "../../tlv/src/callback_internal.h"
+#include "tlv/callback.h"
 #include "tlv/config.h"
 #include "tlv/formats/compose.h"
 #include "tlv/formats/fixed.h"

@@ -57,7 +57,7 @@ typedef struct tlv_packed_layout {
  * @return #TLV_ERR_OVERFLOW if the full table size cannot fit size_t.
  * @note Never allocates or modifies configuration.
  */
-TLV_API tlv_result_t tlv_packed_layout_validate(const tlv_packed_layout_t* layout);
+OPENTLV_CORE_API tlv_result_t tlv_packed_layout_validate(const tlv_packed_layout_t* layout);
 
 /**
  * @brief Decode one packed element using the canonical Format callback contract.
@@ -77,8 +77,9 @@ TLV_API tlv_result_t tlv_packed_layout_validate(const tlv_packed_layout_t* layou
  * Outputs and input storage must not overlap. Prefer tlv_format_decode(),
  * which stages output and initializes diagnostics.
  */
-TLV_API tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data, size_t size,
-                                       tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data,
+                                                size_t size, tlv_decoded_t* result,
+                                                tlv_format_error_t* error);
 
 /**
  * @brief Measure packed encoding without accessing Value bytes.
@@ -99,8 +100,8 @@ TLV_API tlv_result_t tlv_packed_decode(const void* context, const uint8_t* data,
  * @note No allocation. Outputs must not overlap inputs. Sizes are logical;
  * encoding additionally checks native output capacity.
  */
-TLV_API tlv_result_t tlv_packed_measure(const void* context, const tlv_element_t* element,
-                                        tlv_encoding_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_packed_measure(const void* context, const tlv_element_t* element,
+                                                 tlv_encoding_t* result, tlv_format_error_t* error);
 
 /**
  * @brief Encode packed framing with every unused header bit cleared.
@@ -118,9 +119,9 @@ TLV_API tlv_result_t tlv_packed_measure(const void* context, const tlv_element_t
  * @note No allocation. Destination is unchanged on failure. Outputs must be
  * disjoint. Prefer tlv_format_encode() for canonical size preflight.
  */
-TLV_API tlv_result_t tlv_packed_encode(const void* context, const tlv_element_t* element,
-                                       uint8_t* data, size_t capacity, size_t* written,
-                                       tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_packed_encode(const void* context, const tlv_element_t* element,
+                                                uint8_t* data, size_t capacity, size_t* written,
+                                                tlv_format_error_t* error);
 
 /** @} */
 

@@ -9,7 +9,7 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include <memory>
 #endif
@@ -1705,7 +1705,7 @@ TEST(Unit_Tlv_QueryProgram, SchemaRuleImagesTypesAndAlignmentRemainDistinct) {
     ASSERT_EQ(TLV_OK, selector.compile("//5A"));
     ASSERT_EQ(TLV_OK, assertion.compile("exists(//5A)"));
     ASSERT_EQ(TLV_OK, number.compile("count(//5A)"));
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
     tlv_document_t*        raw = nullptr;
     tlv_document_options_t options;
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &controlled::format));
@@ -1753,7 +1753,7 @@ TEST(Unit_Tlv_QueryProgram, SchemaRuleImagesTypesAndAlignmentRemainDistinct) {
                                         nullptr, 0, &controlled::format, rules, 2, 4, 8, 1000,
                                         &workspace, detailed ? &diagnostic : nullptr));
                 check();
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
                 diagnostic = {};
                 diagnostic.rule = 777;
                 EXPECT_EQ(expected, tlv_schema_query_validate_document(
@@ -1801,7 +1801,7 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
         EXPECT_EQ(depth - retained, diagnostic.query.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
             EXPECT_EQ(0x80 + i, diagnostic.query.diagnostic.path.tags[i].data[0]);
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_DOCUMENT
         tlv_document_options_t options;
         ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &nested_format));
         options.max_depth = 64;

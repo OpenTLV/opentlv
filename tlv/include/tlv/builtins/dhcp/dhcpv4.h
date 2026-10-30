@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_DHCP_DHCPV4_H
 #define OPENTLV_BUILTINS_DHCP_DHCPV4_H
 
+#include "tlv/export.h"
 #include "tlv/format.h"
 
 /**

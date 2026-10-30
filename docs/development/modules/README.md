@@ -8,11 +8,12 @@ reviewers who approve these contracts. Read the
 [architectural rules](../../concepts/architectural-rules.md) and the
 [failure model](../../concepts/error-model.md) first.
 
-**Status: proposed.** Approval of the pull request that adds this page
-approves the decisions listed in [Decisions to approve](#decisions-to-approve).
-This page changes no source file, build option or behavior; the current
-capability options and the single `tlv` target stay until the extraction
-issues replace them.
+**Implementation status:** #647 extracts the C `OpenTLV::Core` and
+`OpenTLV::IO` targets using the infrastructure from #646. Their sources, public
+headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
+checks the compiled dependency graph. The remaining modules and C++ facades
+retain the planned boundaries below and stay in the compatibility targets until
+their extraction issues. See the [consumer migration guide](../../guides/select-components.md).
 
 The [pre-refactor behavioral baseline](../../../tests/baseline/README.md) for
 issue #645 pins the released behavior and diagnostic inventory used when applying
@@ -219,15 +220,16 @@ for every build.
 
 A public declaration is owned by the target that owns its header. The `api`
 section of [ownership.json](ownership.json) lists every declaration or
-definition whose owner differs from the file it is in today, each with the
-resolution that moves it:
+definition whose owner differed from its file in the #644 baseline, each with
+the resolution that moves it. #647 completes the Core/IO moves and relocates
+the other diagnostic name implementations to their owning directories:
 
 | Moved API | From | To | Resolution |
 | --- | --- | --- | --- |
 | `tlv_copy_element()` | Core `copy.h` | IO | `core-copy-element` |
 | `tlv_utf8_*` helpers | Core private header | Core public API | `core-utf8-api` |
 | Reader and Writer operation names | Core `diagnostic_strings.c` | IO | `io-diagnostic-names` |
-| `tree_writer_measure_events_observed()` | IO private header | IO public API | `io-tree-measure` |
+| `tlv_tree_writer_measure_events_observed()` | IO private helper without `tlv_` prefix | IO public API | `io-tree-measure` |
 | `tlv_document_query_*`, `tlv_document_find_path()` and their types | Document `document.h` | `query-document` | `document-query-boundary` |
 | `document_contains()`, `document_format()`, `document_node_tag()` | Document internals | Document public boundary | `document-query-boundary` |
 | `query_document_*`, `query_live_overlap()`, `query_retained_overlap()` | Query internals | Query owner-internal interface | `query-document-integration` |
@@ -248,11 +250,15 @@ linking its module; see [Module diagnostics](diagnostics.md#names).
 
 ## Existing cycles
 
-The current `tlv` target compiles everything together, so its include and
-symbol graph contains cycles that separate targets cannot have. Assigning the
-current files to their target owners gives these cycles, computed by
+The pre-extraction `tlv` target compiled everything together, so its include and
+symbol graph contained cycles that separate targets cannot have. Assigning the
+baseline files to their target owners gave these cycles, computed by
 `python scripts/check_module_contracts.py --report` and by `nm` symbol
 references:
+
+The C Core cycles and Core/IO private-header exceptions are resolved by #647.
+The C++ error facade still needs Schema, and the higher-module cycles remain
+scheduled below. `ownership.json` records only the remaining exceptions.
 
 | Cycle | Evidence | Resolution | Issue |
 | --- | --- | --- | --- |
@@ -393,7 +399,9 @@ issues stop using them for their own sources.
 | `OPENTLV_BUILD_DOCS`, `OPENTLV_BUILD_EXAMPLES`, `OPENTLV_BUILD_TESTS` and the other `OPENTLV_BUILD_*` test, benchmark, fuzzing and Memcheck options, `OPENTLV_WARNINGS_AS_ERRORS` | Keep. |
 
 The `tlv_config_*()` mirrors and `tlv/config.h` macros of removed options go
-with them. Code that checks them, such as `#if OPENTLV_READER` in `ber.h` or
+with them in #654. #647 removes Reader/Writer CMake options and source conditions,
+but retains constant compatibility macros and runtime mirrors until then.
+Remaining code that checks module-selection macros, such as
 `document.c`, takes the always-available branch.
 
 ## Query features

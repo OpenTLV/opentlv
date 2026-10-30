@@ -3,15 +3,8 @@
 #include "tlv++/tlv.hpp"
 #include "tlv++/native.hpp"
 
-#if !OPENTLV_READER && defined(OPENTLV_READER_H)
-#error Unrelated C++ headers must not import Reader
-#endif
-#if !OPENTLV_WRITER && defined(OPENTLV_WRITER_H)
-#error Unrelated C++ headers must not import Writer
-#endif
-
 int main() {
-#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_QUERY_FRONTEND
+#if OPENTLV_QUERY && OPENTLV_QUERY_FRONTEND
     tlv::query_environment environment(tlv::fixed_format<1, 1>{});
     tlv::query_options     options(&environment);
     auto                   program = tlv::query_program::compile("count(//01)", options);

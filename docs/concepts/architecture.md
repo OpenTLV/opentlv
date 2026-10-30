@@ -437,10 +437,14 @@ These packages default to ON and can be disabled subject to the dependencies bel
 
 ### Core capabilities and Query features
 
+Core primitives are provided by `OpenTLV::Core`. Reader, Writer, traversal and
+serialization are provided together by `OpenTLV::IO`, which depends only on Core.
+The former `OPENTLV_READER` and `OPENTLV_WRITER` CMake options are removed; see
+[component selection](../guides/select-components.md#core-and-io) for migration.
+The options below still select functionality awaiting extraction.
+
 | CMake option / generated config macro | Included component |
 | --- | --- |
-| `OPENTLV_READER` | Wire Reader and Tree traversal |
-| `OPENTLV_WRITER` | Wire Writer, Tree Writer and generation |
 | `OPENTLV_QUERY` | Canonical Query compiler/execution and path matching |
 | `OPENTLV_SCHEMA` | Schema descriptions, length and value constraints; wire traversal requires Reader |
 | `OPENTLV_CODEC` | Semantic Value codecs; structure codecs require Schema and Reader |

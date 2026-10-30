@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_EMV_QUERY_H
 #define OPENTLV_EMV_QUERY_H
+#include "tlv/export.h"
 #include "tlv/query/program.h"
 #include "tlv/builtins/emv/emv.h"
 #ifdef __cplusplus

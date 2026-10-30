@@ -6,7 +6,7 @@
 
 #include "tlv++/format.hpp"
 #include "tlv/config.h"
-#if OPENTLV_QUERY && OPENTLV_READER
+#if OPENTLV_QUERY
 #include "tlv++/query/query.hpp"
 #include "tlv++/query/options.hpp"
 #include "tlv++/query/program.hpp"
@@ -18,7 +18,7 @@
 #if OPENTLV_SCHEMA
 #include "tlv++/schema/definition.hpp"
 #endif
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER && OPENTLV_QUERY && OPENTLV_CODEC
+#if OPENTLV_DOCUMENT && OPENTLV_QUERY && OPENTLV_CODEC
 #include "tlv++/document/document.hpp"
 #endif
 
@@ -29,7 +29,7 @@
 namespace tlv {
 /** @brief Explicit C interoperability; ordinary C++ code uses public C++ types. */
 namespace native {
-#if OPENTLV_QUERY && OPENTLV_READER
+#if OPENTLV_QUERY
 /** @brief Borrow an immutable native program; its owner and providers must outlive use. */
 inline const tlv_query_program_t* handle(const query_program& value) noexcept {
     return detail::query_program_access::get(value);
@@ -101,7 +101,7 @@ inline const tlv_structure_schema_t* descriptor(schema view) noexcept {
 }
 #endif
 
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER && OPENTLV_QUERY && OPENTLV_CODEC
+#if OPENTLV_DOCUMENT && OPENTLV_QUERY && OPENTLV_CODEC
 /** @brief Borrow a mutable native Document for explicit interoperability; never free it.
  * @warning Pointer must not outlive the owner. Edits preserve checked C++ handle invalidation. */
 inline tlv_document_t* handle(document& value) {

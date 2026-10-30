@@ -4,7 +4,7 @@
 #ifndef OPENTLV_RESULT_H
 #define OPENTLV_RESULT_H
 
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,7 +106,7 @@ typedef enum tlv_result {
  * @return A static, NUL-terminated string, never `NULL`; an unrecognized
  *         value yields `"unknown error"`. The caller must not free or modify it.
  */
-TLV_API const char* tlv_result_string(tlv_result_t result);
+OPENTLV_CORE_API const char* tlv_result_string(tlv_result_t result);
 
 #ifdef __cplusplus
 }

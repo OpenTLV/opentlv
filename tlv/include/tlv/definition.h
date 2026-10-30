@@ -5,7 +5,7 @@
 #define OPENTLV_DEFINITION_H
 
 #include "tlv/tag.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 
 /**
  * @file
@@ -63,8 +63,8 @@ typedef struct {
  * @return `NULL` for an unknown tag, NULL arguments, an invalid lookup tag,
  *         or a missing nonempty table.
  */
-TLV_API const tlv_definition_t* tlv_definition_find(const tlv_definition_registry_t* registry,
-                                                    const tlv_tag_t* tag);
+OPENTLV_CORE_API const tlv_definition_t*
+tlv_definition_find(const tlv_definition_registry_t* registry, const tlv_tag_t* tag);
 
 #ifdef __cplusplus
 }

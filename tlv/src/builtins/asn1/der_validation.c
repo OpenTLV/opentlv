@@ -166,7 +166,6 @@ tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size, const tlv_der
     return read_impl(data, size, limits, element, consumed, 1, diagnostic);
 }
 
-#if OPENTLV_WRITER
 static tlv_result_t write_impl(uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* value,
                                size_t length, const tlv_der_limits_t* limits, int strict,
                                size_t* written, tlv_diagnostic_t* diagnostic) {
@@ -222,5 +221,3 @@ tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
         diagnostic->location.domain = TLV_LOCATION_OUTPUT;
     return rc;
 }
-
-#endif

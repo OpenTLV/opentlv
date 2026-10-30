@@ -8,9 +8,7 @@
 #include "tlv/diagnostic.h"
 #include "tlv/config.h"
 #include "tlv/tree.h"
-#if OPENTLV_READER
 #include "tlv/reader/visitor.h"
-#endif
 #include "tlv/tag.h"
 #include "tlv/export.h"
 
@@ -202,7 +200,6 @@ TLV_API tlv_result_t tlv_query_matcher_init(tlv_query_matcher_t* matcher, const 
 TLV_API int tlv_query_matcher_visit(tlv_query_matcher_t* matcher, const tlv_tag_t* tag,
                                     size_t depth);
 
-#if OPENTLV_READER
 /**
  * @brief Visit matching items from a caller-owned Tree Reader with resumable matching state.
  *
@@ -267,8 +264,6 @@ TLV_API tlv_result_t tlv_query_visit_buffer(const uint8_t* data, size_t size,
                                             size_t max_depth, size_t max_elements,
                                             tlv_tree_visitor_t visitor, void* context,
                                             tlv_reader_diagnostic_t* diagnostic);
-
-#endif
 
 #ifdef __cplusplus
 }

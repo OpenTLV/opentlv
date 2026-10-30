@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_LLDP_SCHEMA_H
 #define OPENTLV_BUILTINS_LLDP_SCHEMA_H
 
+#include "tlv/export.h"
 #include "tlv/schema/schema.h"
 
 /**

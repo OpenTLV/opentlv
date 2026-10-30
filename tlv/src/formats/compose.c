@@ -3,7 +3,7 @@
 
 #include "tlv/formats/compose.h"
 #include "../field/fixed_internal.h"
-#include "../callback_internal.h"
+#include "tlv/callback.h"
 #include "tlv/size.h"
 #include <string.h>
 

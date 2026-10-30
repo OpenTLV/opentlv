@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tree_internal.h"
-#include "../callback_internal.h"
+#include "tlv/writer/tree.h"
+#include "tlv/callback.h"
 #include <string.h>
 
 static tlv_result_t tree_error(tlv_writer_diagnostic_t* diagnostic, tlv_result_t rc,
@@ -288,14 +288,14 @@ tlv_result_t tlv_tree_writer_measure_events(const tlv_format_t* format, tlv_tree
                                             void* context, tlv_tree_writer_workspace_t* workspace,
                                             size_t max_depth, size_t max_elements, size_t* size,
                                             tlv_writer_diagnostic_t* diagnostic) {
-    return tree_writer_measure_events_observed(format, next, context, workspace, max_depth,
-                                               max_elements, size, diagnostic, NULL, NULL);
+    return tlv_tree_writer_measure_events_observed(format, next, context, workspace, max_depth,
+                                                   max_elements, size, diagnostic, NULL, NULL);
 }
 
-tlv_result_t tree_writer_measure_events_observed(
+tlv_result_t tlv_tree_writer_measure_events_observed(
     const tlv_format_t* format, tlv_tree_event_next_fn next, void* context,
     tlv_tree_writer_workspace_t* workspace, size_t max_depth, size_t max_elements, size_t* size,
-    tlv_writer_diagnostic_t* diagnostic, tree_writer_charge_fn charge, void* charge_context) {
+    tlv_writer_diagnostic_t* diagnostic, tlv_tree_writer_charge_fn charge, void* charge_context) {
     tlv_tree_writer_t writer;
     tlv_result_t rc;
     if (workspace) workspace->required_data = workspace->required_scratch = 0;
@@ -320,7 +320,7 @@ tlv_result_t tree_writer_measure_events_observed(
             return tree_error(diagnostic, TLV_ERR_INVALID_VALUE, TLV_WRITER_OP_VALUE,
                               writer.output.pos, NULL);
         if (charge) {
-            rc = charge(charge_context, 1);
+            rc = tlv_callback_result(charge(charge_context, 1), 0);
             if (rc != TLV_OK) return rc;
             if (event.kind == TLV_TREE_ELEMENT && event.element.value.size > SIZE_MAX)
                 return TLV_ERR_NATIVE_SIZE;
@@ -329,7 +329,7 @@ tlv_result_t tree_writer_measure_events_observed(
                            : event.kind == TLV_TREE_ELEMENT ? (size_t)event.element.value.size
                                                             : 0;
             for (unsigned pass = 0; pass < 3; ++pass) {
-                rc = charge(charge_context, bytes);
+                rc = tlv_callback_result(charge(charge_context, bytes), 0);
                 if (rc != TLV_OK) return rc;
             }
         }

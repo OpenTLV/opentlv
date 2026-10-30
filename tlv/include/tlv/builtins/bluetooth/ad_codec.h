@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_AD_CODEC_H
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_CODEC_H
 
+#include "tlv/export.h"
 #include "tlv/codec/codec.h"
 #include "tlv/value.h"
 

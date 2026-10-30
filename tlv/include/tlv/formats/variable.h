@@ -44,25 +44,28 @@ typedef struct tlv_variable_format {
  * @copydetails tlv_decode_fn
  * @note context must point to a valid immutable tlv_variable_format_t.
  */
-TLV_API tlv_result_t tlv_variable_decode(const void* context, const uint8_t* data, size_t size,
-                                         tlv_decoded_t* result, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_variable_decode(const void* context, const uint8_t* data,
+                                                  size_t size, tlv_decoded_t* result,
+                                                  tlv_format_error_t* error);
 
 /**
  * @brief Measure configured variable fields.
  * @copydetails tlv_measure_fn
  * @note context must point to a valid immutable tlv_variable_format_t.
  */
-TLV_API tlv_result_t tlv_variable_measure(const void* context, const tlv_element_t* element,
-                                          tlv_encoding_t* encoding, tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_variable_measure(const void* context,
+                                                   const tlv_element_t* element,
+                                                   tlv_encoding_t* encoding,
+                                                   tlv_format_error_t* error);
 
 /**
  * @brief Encode configured variable fields.
  * @copydetails tlv_encode_fn
  * @note context must point to a valid immutable tlv_variable_format_t.
  */
-TLV_API tlv_result_t tlv_variable_encode(const void* context, const tlv_element_t* element,
-                                         uint8_t* data, size_t capacity, size_t* written,
-                                         tlv_format_error_t* error);
+OPENTLV_CORE_API tlv_result_t tlv_variable_encode(const void* context, const tlv_element_t* element,
+                                                  uint8_t* data, size_t capacity, size_t* written,
+                                                  tlv_format_error_t* error);
 
 /**
  * @brief Apply a variable Format's optional constructed predicate.
@@ -71,7 +74,7 @@ TLV_API tlv_result_t tlv_variable_encode(const void* context, const tlv_element_
  * @return The result of tlv_constructed_bit_predicate(), or zero without a predicate.
  * @note No allocation or mutation; policies are not identifier validators here.
  */
-TLV_API int tlv_variable_is_constructed(const void* context, const tlv_tag_t* tag);
+OPENTLV_CORE_API int tlv_variable_is_constructed(const void* context, const tlv_tag_t* tag);
 
 /**
  * @brief Initialize reusable variable field callbacks for format composition.
@@ -92,8 +95,8 @@ TLV_API int tlv_variable_is_constructed(const void* context, const tlv_tag_t* ta
  * descriptor context. A field-composition context requires a wrapper before
  * calling tlv_variable_is_constructed(), which expects the Variable configuration.
  */
-TLV_API tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
-                                              const tlv_variable_format_t* config);
+OPENTLV_CORE_API tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
+                                                       const tlv_variable_format_t* config);
 
 /**
  * @brief Initialize a bidirectional definite variable-width format.
@@ -109,8 +112,8 @@ TLV_API tlv_result_t tlv_variable_fields_init(tlv_field_composition_t* fields,
  * tlv_variable_is_constructed(); otherwise it has no constructed classifier.
  * No runtime engine or builtin is required.
  */
-TLV_API tlv_result_t tlv_variable_format_init(tlv_format_t* format,
-                                              const tlv_variable_format_t* config);
+OPENTLV_CORE_API tlv_result_t tlv_variable_format_init(tlv_format_t* format,
+                                                       const tlv_variable_format_t* config);
 
 /** @} */
 

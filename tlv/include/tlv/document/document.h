@@ -11,9 +11,7 @@
 #if OPENTLV_QUERY
 #include "tlv/query/query.h"
 #endif
-#if OPENTLV_READER
 #include "tlv/reader/visitor.h"
-#endif
 #include "tlv/tag.h"
 
 #include <stddef.h>
@@ -40,10 +38,10 @@ struct tlv_tree_writer_workspace;
  * The Reader integration tlv_document_parse() copies wire input into nodes;
  * the Writer integration tlv_document_encode() serializes the current tree.
  *
- * The owned tree is independent of Reader, Writer and Query. Wire import
- * requires OPENTLV_READER; encoding requires OPENTLV_WRITER; path matching
- * requires OPENTLV_QUERY. Compiled Document Query currently requires Reader
- * and Writer as well. The Format and nesting predicate are supplied through
+ * Programmatic tree operations need no Reader, Writer or Query operation.
+ * Wire import and encoding use IO, which always provides Reader and Writer;
+ * path matching requires OPENTLV_QUERY. Compiled Document Query uses IO as
+ * well. The Format and nesting predicate are supplied through
  * #tlv_document_options_t. Read/write callbacks are needed only by wire
  * operations. Nothing in the allocation-free core depends on Document. It is
  * an optional component (`OPENTLV_DOCUMENT`, see tlv/config.h) and the only
@@ -95,8 +93,8 @@ typedef struct tlv_allocator {
 /**
  * @brief Format descriptor and limits of a document.
  * @note The Format need not provide read/write callbacks for programmatic trees.
- * Nonempty constructed wire values require OPENTLV_READER; without it, insert
- * and set_value return TLV_ERR_UNSUPPORTED without changing the tree.
+ * Nonempty constructed wire values use the IO Reader and require a readable
+ * Format; read failures leave insert and set_value operations atomic.
  *
  * Initialize with tlv_document_options_init(). The document copies this
  * structure, but the format, the format's context and the allocator context are
@@ -200,7 +198,7 @@ TLV_API uint64_t tlv_document_node_identity(const tlv_document_t* document, cons
  * @see tlv_document_node_identity for checking a possibly stale address. */
 TLV_API uint64_t tlv_node_identity(const tlv_node_t* node);
 
-#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_WRITER
+#if OPENTLV_QUERY
 /** @brief Completed Query selection edit operation. */
 typedef enum tlv_document_query_edit_kind {
     TLV_DOCUMENT_QUERY_REMOVE,  /**< Erase selected roots; selected ancestors dominate descendants.
@@ -256,7 +254,6 @@ TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tl
 
 #endif
 
-#if OPENTLV_READER
 /**
  * @brief Resumable owning consumer of a Tree Reader, optionally limited to one subtree.
  *
@@ -337,8 +334,6 @@ TLV_API tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builde
  */
 TLV_API void tlv_document_builder_free(tlv_document_builder_t* builder);
 
-#endif
-
 /**
  * @brief Fills options with the given format and the default limits.
  *
@@ -369,7 +364,6 @@ TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
 TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
                                          tlv_document_t** document);
 
-#if OPENTLV_READER
 /**
  * @brief Parses encoded elements into a new owned document.
  *
@@ -400,8 +394,6 @@ TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
                                         const tlv_document_options_t* options,
                                         tlv_document_t** document,
                                         tlv_reader_diagnostic_t* diagnostic);
-
-#endif
 
 /**
  * @brief Frees a document and every node in it.
@@ -492,7 +484,6 @@ TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
                                               tlv_document_query_visitor_t visitor, void* context,
                                               struct tlv_query_diagnostic* diagnostic);
 
-#if OPENTLV_READER && OPENTLV_WRITER
 /** @brief Discover the complete encoded snapshot size for compiled Document Query Values.
  * @param[in] document Live owning Document.
  * @param[in,out] staging Caller-owned Tree Writer frames/output/scratch, disjoint
@@ -596,8 +587,6 @@ TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exe
                                                       tlv_document_query_visitor_t visitor,
                                                       void* context,
                                                       struct tlv_query_diagnostic* diagnostic);
-
-#endif
 
 /**
  * @brief Finds the first element addressed by a path query.
@@ -744,7 +733,6 @@ TLV_API void tlv_node_erase(tlv_node_t* node);
  * @{
  */
 
-#if OPENTLV_WRITER
 /**
  * @brief Computes the encoded size of a whole document.
  *
@@ -862,8 +850,6 @@ TLV_API tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_
  */
 TLV_API tlv_result_t tlv_node_encode_as(const tlv_node_t* node, const tlv_format_t* format,
                                         uint8_t* data, size_t capacity, size_t* written);
-
-#endif
 
 /** @} */
 

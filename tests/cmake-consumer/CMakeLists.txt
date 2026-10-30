@@ -82,7 +82,9 @@ foreach(consumer IN LISTS consumers)
     if(WIN32 AND core_type STREQUAL "SHARED_LIBRARY")
         add_custom_command(TARGET ${consumer} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "$<TARGET_FILE:OpenTLV::tlv>" "$<TARGET_FILE_DIR:${consumer}>"
+                "$<TARGET_FILE:OpenTLV::tlv>"
+                "$<TARGET_FILE:OpenTLV::Core>" "$<TARGET_FILE:OpenTLV::IO>"
+                "$<TARGET_FILE_DIR:${consumer}>"
             VERBATIM)
     endif()
     add_test(NAME ${consumer} COMMAND ${consumer} "${EXPECTED_RUNTIME_VERSION}")

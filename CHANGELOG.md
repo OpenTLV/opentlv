@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** Extract independently linkable `OpenTLV::Core` and `OpenTLV::IO` libraries. IO always provides Reader, Writer, tree traversal and serialization; remove the `OPENTLV_READER` and `OPENTLV_WRITER` CMake options. Existing `OpenTLV::tlv` consumers receive both dependencies transitively. Direct archive/shared-library consumers must link and distribute the module libraries; include `tlv/writer/copy.h` for `tlv_copy_element()`. Publish Core UTF-8 and callback utilities, bounded diagnostic cause transport and IO observed tree measurement without changing existing wire behavior or diagnostic layouts. (#647)
+
 ### Added
 
 - Prepare modular CMake targets with explicit dependencies, per-module exports, package components and test ownership. Add incremental isolation gates for independent static/shared builds, private headers, symbol ownership and relocated C/C++ consumers. Library-only configuration can expose the header-only C++ facade without requiring a C++ compiler. (#646)

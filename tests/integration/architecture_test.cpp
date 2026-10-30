@@ -25,7 +25,7 @@
 #endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/copy.h"
+#include "tlv/writer/copy.h"
 #endif
 #if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"

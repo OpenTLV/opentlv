@@ -117,9 +117,9 @@ typedef struct tlv_variable_length {
  * Incomplete input sets *consumed to size; other failures preserve consumed.
  * The tag is unchanged on failure. No allocation occurs.
  */
-TLV_API tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* config,
-                                                  const uint8_t* data, size_t size, tlv_tag_t* tag,
-                                                  size_t* consumed);
+OPENTLV_CORE_API tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_t* config,
+                                                           const uint8_t* data, size_t size,
+                                                           tlv_tag_t* tag, size_t* consumed);
 
 /**
  * @brief Validate and copy a raw identifier, or measure it with NULL output.
@@ -139,9 +139,9 @@ TLV_API tlv_result_t tlv_variable_identifier_read(const tlv_variable_identifier_
  * capacity in that order. Outputs are unchanged on failure. Source and destination
  * may overlap.
  */
-TLV_API tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier_t* config,
-                                                   const tlv_tag_t* tag, uint8_t* data,
-                                                   size_t capacity, size_t* written);
+OPENTLV_CORE_API tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier_t* config,
+                                                            const tlv_tag_t* tag, uint8_t* data,
+                                                            size_t capacity, size_t* written);
 
 /**
  * @brief Decode a definite count without narrowing to native size.
@@ -162,9 +162,9 @@ TLV_API tlv_result_t tlv_variable_identifier_write(const tlv_variable_identifier
  * Argument/configuration errors leave both outputs unchanged. Incomplete input
  * reports the available prefix through consumed.
  */
-TLV_API tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* config,
-                                              const uint8_t* data, size_t size, tlv_size_t* length,
-                                              size_t* consumed);
+OPENTLV_CORE_API tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* config,
+                                                       const uint8_t* data, size_t size,
+                                                       tlv_size_t* length, size_t* consumed);
 
 /**
  * @brief Encode a definite count, or measure it with NULL output.
@@ -183,9 +183,9 @@ TLV_API tlv_result_t tlv_variable_length_read(const tlv_variable_length_t* confi
  * @note Validate required pointers, configuration, count representability and
  * capacity in that order. Outputs are unchanged on failure. No allocation occurs.
  */
-TLV_API tlv_result_t tlv_variable_length_write(const tlv_variable_length_t* config,
-                                               tlv_size_t length, uint8_t* data, size_t capacity,
-                                               size_t* written);
+OPENTLV_CORE_API tlv_result_t tlv_variable_length_write(const tlv_variable_length_t* config,
+                                                        tlv_size_t length, uint8_t* data,
+                                                        size_t capacity, size_t* written);
 
 /** @} */
 

@@ -4,12 +4,8 @@
 #include "tlv/tlv.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/tree.h"
-#if OPENTLV_READER
 #include "tlv/reader/reader.h"
-#endif
-#if OPENTLV_WRITER
 #include "tlv/writer/writer.h"
-#endif
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #endif
@@ -24,13 +20,6 @@
 #endif
 #include <stdio.h>
 #include <string.h>
-
-#if !OPENTLV_READER && defined(OPENTLV_READER_H)
-#error Unrelated public headers must not import Reader
-#endif
-#if !OPENTLV_WRITER && defined(OPENTLV_WRITER_H)
-#error Unrelated public headers must not import Writer
-#endif
 
 #define CHECK(expr)                                                                                \
     do {                                                                                           \
@@ -89,7 +78,6 @@ int main(void) {
         CHECK(tlv_fixed_length_write(&length, count, output, sizeof output, &used) == TLV_OK);
         CHECK(used == sizeof count_bytes && memcmp(output, count_bytes, used) == 0);
     }
-#if OPENTLV_READER
     {
         tlv_reader_t  reader;
         tlv_element_t element;
@@ -98,8 +86,6 @@ int main(void) {
         CHECK(element.value.size == 1 && element.value.data[0] == 42);
         CHECK(tlv_reader_at_end(&reader));
     }
-#endif
-#if OPENTLV_WRITER
     {
         uint8_t output[3];
         size_t  written = 0;
@@ -107,7 +93,6 @@ int main(void) {
               TLV_OK);
         CHECK(written == sizeof wire && memcmp(output, wire, sizeof wire) == 0);
     }
-#endif
 #if OPENTLV_DOCUMENT
     {
         const uint8_t          container = 2;
@@ -132,7 +117,6 @@ int main(void) {
             CHECK(found == child);
         }
 #endif
-#if OPENTLV_WRITER
         {
             const uint8_t expected[] = {2, 3, 1, 1, 42};
             uint8_t       output[5];
@@ -140,29 +124,18 @@ int main(void) {
             CHECK(tlv_document_encode(document, output, sizeof output, &written) == TLV_OK);
             CHECK(written == sizeof expected && memcmp(output, expected, written) == 0);
         }
-#endif
-#if !OPENTLV_READER
-        {
-            uint64_t revision = tlv_document_revision(document);
-            CHECK(tlv_node_set_value(parent, wire, sizeof wire) == TLV_ERR_UNSUPPORTED);
-            CHECK(tlv_document_revision(document) == revision);
-            CHECK(tlv_node_first_child(parent) == child && tlv_document_count(document) == 2);
-        }
-#endif
         CHECK(tlv_node_set_value(child, wire, 1) == TLV_OK);
         CHECK(tlv_document_retire_epoch(document) == 0);
         tlv_node_erase(child);
         CHECK(tlv_document_retire_epoch(document) == 1);
         CHECK(tlv_document_count(document) == 1);
         tlv_document_free(document);
-#if OPENTLV_READER
         options.retain_source_locations = 1;
         CHECK(tlv_document_parse(wire, sizeof wire, &options, &document, NULL) == TLV_OK);
         CHECK(tlv_document_count(document) == 1);
         CHECK(tlv_node_source_location(tlv_document_first(document)).has_offset);
         CHECK(tlv_node_source_location(tlv_document_first(document)).header_size == 2);
         tlv_document_free(document);
-#endif
         /* Programmatic trees need neither a decoder nor an encoder. */
         format.decode = NULL;
         format.measure = NULL;

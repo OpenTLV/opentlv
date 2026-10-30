@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "utf8_internal.h"
+#include "tlv/utf8.h"
 
 void tlv_utf8_stream_init(tlv_utf8_stream_t* state) {
     state->pending_len = 0;

@@ -8,15 +8,11 @@
 
 #include "tlv++/format.hpp"
 #include "tlv/config.h"
-#if OPENTLV_READER
 #include "tlv++/reader/reader.hpp"
 #if OPENTLV_SCHEMA
 #include "tlv/builtins/lldp/schema.h"
 #endif
-#endif
-#if OPENTLV_WRITER
 #include "tlv++/writer/builder.hpp"
-#endif
 
 /** @file
  * @brief C++ preset for LLDP framing, delegating to the shared C descriptor.
@@ -24,7 +20,7 @@
 namespace tlv {
 /** @brief LLDP wire framing presets. */
 namespace lldp {
-#if OPENTLV_READER && OPENTLV_SCHEMA
+#if OPENTLV_SCHEMA
 /**
  * @brief Validate LLDP sequence rules and field constraints without allocation.
  * @param data Borrowed complete LLDPDU.
@@ -46,7 +42,6 @@ public:
     /** @brief Borrow the canonical program-lifetime descriptor without allocation. */
     format() noexcept : tlv::format(detail::format_access::borrow(tlv_format_lldp)) {}
 };
-#if OPENTLV_WRITER
 /** @brief Build LLDP output with explicit caller-owned frames and scratch.
  * @param output Borrowed mutable byte span, array or contiguous byte container.
  * @param workspace Disjoint construction storage, never resized.
@@ -78,9 +73,7 @@ TLV_NODISCARD expected<size_t, writer_failure> encode(Output&& output, Callback&
     return tlv::encode<format, ScratchCapacity, Depth>(
         std::forward<Output>(output), std::forward<Callback>(callback), format{}, diagnostic);
 }
-#endif
 
-#if OPENTLV_READER
 /**
  * @brief Parse final input as borrowed Elements using the built-in Format.
  * @param data Immutable borrowed final input.
@@ -92,7 +85,6 @@ TLV_NODISCARD expected<size_t, writer_failure> encode(Output&& output, Callback&
 TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
     return tlv::parse<format>(data);
 }
-#endif
 
 } // namespace lldp
 

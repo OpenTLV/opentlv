@@ -7,7 +7,7 @@
 #include "tlv/result.h"
 #include "tlv/format.h"
 #include "tlv/reader/tree.h"
-#include "tlv/export.h"
+#include "tlv/io/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,7 +72,8 @@ typedef tlv_visit_result_t (*tlv_tree_visitor_t)(const tlv_element_t* element, s
  *          the same lifetime contract as direct pull results. Application
  *          recursion inside callbacks is outside the library traversal contract.
  */
-TLV_API tlv_result_t tlv_reader_visit(tlv_reader_t* reader, tlv_visitor_t visitor, void* context);
+OPENTLV_IO_API tlv_result_t tlv_reader_visit(tlv_reader_t* reader, tlv_visitor_t visitor,
+                                             void* context);
 
 /**
  * @brief Visit sequential elements with original Reader diagnostics.
@@ -82,8 +83,9 @@ TLV_API tlv_result_t tlv_reader_visit(tlv_reader_t* reader, tlv_visitor_t visito
  *            failure or need-more-data with absolute offsets; remains clear on
  *            success and visitor errors. Borrowed diagnostic storage follows Reader.
  */
-TLV_API tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t visitor,
-                                           void* context, tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t visitor,
+                                                  void* context,
+                                                  tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Visit remaining preorder items from an initialized Tree Reader.
@@ -110,8 +112,9 @@ TLV_API tlv_result_t tlv_reader_visit_diag(tlv_reader_t* reader, tlv_visitor_t v
  * @warning Callback effects are not rolled back. Cursor mutation and borrowed
  *          lifetimes follow tlv_reader_visit(); do not modify active frames.
  */
-TLV_API tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader, tlv_tree_visitor_t visitor,
-                                           void* context, tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_IO_API tlv_result_t tlv_tree_reader_visit(tlv_tree_reader_t* reader,
+                                                  tlv_tree_visitor_t visitor, void* context,
+                                                  tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

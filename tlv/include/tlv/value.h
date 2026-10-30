@@ -6,7 +6,7 @@
 
 #include "tlv/result.h"
 #include "tlv/size.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -65,7 +65,8 @@ typedef struct {
  * @note `*value` is unchanged on every failure. Allocation bounds of `data`
  *       remain the caller's responsibility.
  */
-TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_size_t length, tlv_value_t* value);
+OPENTLV_CORE_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_size_t length,
+                                             tlv_value_t* value);
 
 /**
  * @brief Validates a value view's representation and pointer requirements.
@@ -81,7 +82,7 @@ TLV_API tlv_result_t tlv_value_init(const uint8_t* data, tlv_size_t length, tlv_
  * @return #TLV_ERR_NULL_ARG if its `data` is `NULL` with a nonzero length.
  * @return #TLV_ERR_NATIVE_SIZE if the length is not representable as `size_t`.
  */
-TLV_API tlv_result_t tlv_value_validate(const tlv_value_t* value);
+OPENTLV_CORE_API tlv_result_t tlv_value_validate(const tlv_value_t* value);
 
 /**
  * @brief Tests whether two values have the same length and bytes.
@@ -99,7 +100,7 @@ TLV_API tlv_result_t tlv_value_validate(const tlv_value_t* value);
  *
  * @return `true` if both values have the same length and bytes.
  */
-TLV_API bool tlv_value_equal(tlv_value_t lhs, tlv_value_t rhs);
+OPENTLV_CORE_API bool tlv_value_equal(tlv_value_t lhs, tlv_value_t rhs);
 
 /**
  * @brief Orders two values lexicographically by their bytes.
@@ -115,7 +116,7 @@ TLV_API bool tlv_value_equal(tlv_value_t lhs, tlv_value_t rhs);
  * @return A negative value if `lhs` orders before `rhs`, zero if the values
  *         are equal, and a positive value if `lhs` orders after `rhs`.
  */
-TLV_API int tlv_value_compare(tlv_value_t lhs, tlv_value_t rhs);
+OPENTLV_CORE_API int tlv_value_compare(tlv_value_t lhs, tlv_value_t rhs);
 
 /**
  * @brief Tests whether a value has zero length.
@@ -124,7 +125,7 @@ TLV_API int tlv_value_compare(tlv_value_t lhs, tlv_value_t rhs);
  *
  * @return `true` if `value.size` is zero.
  */
-TLV_API bool tlv_value_is_empty(tlv_value_t value);
+OPENTLV_CORE_API bool tlv_value_is_empty(tlv_value_t value);
 
 /**
  * @brief Builds a sub-view over part of a value, without copying.
@@ -145,8 +146,8 @@ TLV_API bool tlv_value_is_empty(tlv_value_t value);
  *
  * @note `*out` is unchanged on every failure.
  */
-TLV_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_size_t offset, tlv_size_t length,
-                                     tlv_value_t* out);
+OPENTLV_CORE_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_size_t offset,
+                                              tlv_size_t length, tlv_value_t* out);
 
 /**
  * @brief Copies a value's bytes into caller-owned storage.
@@ -170,8 +171,8 @@ TLV_API tlv_result_t tlv_value_slice(tlv_value_t value, tlv_size_t offset, tlv_s
  * @return #TLV_ERR_BUFFER_TOO_SHORT if `capacity` is insufficient; `*written`
  *         is unchanged.
  */
-TLV_API tlv_result_t tlv_value_copy(tlv_value_t value, uint8_t* data, size_t capacity,
-                                    size_t* written);
+OPENTLV_CORE_API tlv_result_t tlv_value_copy(tlv_value_t value, uint8_t* data, size_t capacity,
+                                             size_t* written);
 
 #ifdef __cplusplus
 }

@@ -157,7 +157,6 @@ TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_c
                                    tlv_cer_visitor_t visitor, void* context,
                                    tlv_diagnostic_t* diagnostic);
 
-#if OPENTLV_WRITER
 /**
  * @brief Writes a canonical CER element.
  *
@@ -195,7 +194,6 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
                                    const uint8_t* value, size_t length,
                                    const tlv_cer_limits_t* limits, size_t* written,
                                    tlv_diagnostic_t* diagnostic);
-#endif
 
 /**
  * @brief Strict counterpart of tlv_cer_read().
@@ -228,7 +226,6 @@ TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
 TLV_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
                                           const tlv_cer_limits_t* limits, tlv_cer_visitor_t visitor,
                                           void* context, tlv_diagnostic_t* diagnostic);
-#if OPENTLV_WRITER
 /**
  * @brief Strict counterpart of tlv_cer_write().
  *
@@ -241,9 +238,7 @@ TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_ta
                                           const uint8_t* value, size_t length,
                                           const tlv_cer_limits_t* limits, size_t* written,
                                           tlv_diagnostic_t* diagnostic);
-#endif
 
-#if OPENTLV_WRITER
 /**
  * @brief Encodes logical string content as canonical CER.
  *
@@ -291,7 +286,6 @@ TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capaci
                                                     const uint8_t* content, size_t content_length,
                                                     const tlv_cer_limits_t* limits, size_t* written,
                                                     tlv_diagnostic_t* diagnostic);
-#endif
 
 #ifdef __cplusplus
 }

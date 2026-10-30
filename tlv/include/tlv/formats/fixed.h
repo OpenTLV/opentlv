@@ -6,7 +6,7 @@
 
 #include "tlv/endian.h"
 #include "tlv/formats/compose.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -78,7 +78,8 @@ typedef tlv_binary_composition_t tlv_fixed_format_t;
  *
  * @note On failure the descriptor is unchanged.
  */
-TLV_API tlv_result_t tlv_fixed_format_init(tlv_format_t* format, const tlv_fixed_format_t* config);
+OPENTLV_CORE_API tlv_result_t tlv_fixed_format_init(tlv_format_t* format,
+                                                    const tlv_fixed_format_t* config);
 
 #ifdef __cplusplus
 }

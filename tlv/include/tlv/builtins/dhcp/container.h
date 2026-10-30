@@ -4,6 +4,7 @@
 #ifndef OPENTLV_BUILTINS_DHCP_CONTAINER_H
 #define OPENTLV_BUILTINS_DHCP_CONTAINER_H
 
+#include "tlv/export.h"
 #include "tlv/schema/schema.h"
 
 /** @file

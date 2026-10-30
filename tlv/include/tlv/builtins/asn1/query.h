@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_ASN1_QUERY_H
 #define OPENTLV_ASN1_QUERY_H
+#include "tlv/export.h"
 #include "tlv/query/program.h"
 #ifdef __cplusplus
 extern "C" {

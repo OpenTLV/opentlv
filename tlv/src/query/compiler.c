@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #include "frontend_internal.h"
 #include "match_internal.h"
-#include "../utf8_internal.h"
+#include "tlv/utf8.h"
 #include <limits.h>
 
 static int whitespace(unsigned char c) {

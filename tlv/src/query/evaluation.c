@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "program_internal.h"
-#include "../utf8_internal.h"
+#include "tlv/utf8.h"
 #include "../codec/result_internal.h"
 #include <stdio.h>
 

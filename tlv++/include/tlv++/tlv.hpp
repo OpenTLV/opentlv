@@ -21,29 +21,25 @@
 #include "tlv++/formats/runtime_fixed.hpp"
 
 /* Core capabilities */
-#if OPENTLV_READER
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/reader/tree.hpp"
-#endif
 
-#if OPENTLV_WRITER
 #include "tlv++/writer/writer.hpp"
 #include "tlv++/writer/tree.hpp"
 #include "tlv++/writer/builder.hpp"
 #include "tlv++/generator.hpp"
-#endif
 
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER && OPENTLV_QUERY && OPENTLV_CODEC
+#if OPENTLV_DOCUMENT && OPENTLV_QUERY && OPENTLV_CODEC
 #include "tlv++/document/document.hpp"
 #endif
 
-#if OPENTLV_QUERY && OPENTLV_READER
+#if OPENTLV_QUERY
 #include "tlv++/query/query.hpp"
 #include "tlv++/query/program.hpp"
 #include "tlv++/query/builder.hpp"
 #endif
 
-#if OPENTLV_SCHEMA && OPENTLV_READER
+#if OPENTLV_SCHEMA
 #include "tlv++/schema/schema.hpp"
 #endif
 
@@ -51,7 +47,7 @@
 #include "tlv++/codec/dynamic.hpp"
 #include "tlv++/codec/typed.hpp"
 #include "tlv++/codec/registry.hpp"
-#if OPENTLV_SCHEMA && OPENTLV_READER
+#if OPENTLV_SCHEMA
 #include "tlv++/codec/structure.hpp"
 #endif
 #endif
@@ -59,7 +55,7 @@
 /* Builtin protocols and formats */
 #if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
-#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_CODEC
+#if OPENTLV_QUERY && OPENTLV_CODEC
 #include "tlv++/builtins/asn1/query.hpp"
 #endif
 #if OPENTLV_CODEC
@@ -77,7 +73,7 @@
 
 #if OPENTLV_EMV
 #include "tlv++/builtins/emv/format.hpp"
-#if OPENTLV_QUERY && OPENTLV_READER && OPENTLV_SCHEMA && OPENTLV_CODEC
+#if OPENTLV_QUERY && OPENTLV_SCHEMA && OPENTLV_CODEC
 #include "tlv++/builtins/emv/query.hpp"
 #endif
 #if OPENTLV_CODEC && OPENTLV_SCHEMA
@@ -88,7 +84,7 @@
 
 #if OPENTLV_BLUETOOTH
 #include "tlv++/builtins/bluetooth/ltv.hpp"
-#if OPENTLV_SCHEMA && OPENTLV_READER
+#if OPENTLV_SCHEMA
 #include "tlv++/builtins/bluetooth/metadata.hpp"
 #endif
 #if OPENTLV_CODEC
@@ -105,9 +101,7 @@
 #if OPENTLV_CODEC
 #include "tlv++/builtins/dhcp/codec.hpp"
 #endif
-#if OPENTLV_READER
 #include "tlv++/builtins/dhcp/container.hpp"
-#endif
 #endif
 
 #if OPENTLV_LLDP

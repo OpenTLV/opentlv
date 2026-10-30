@@ -5,7 +5,7 @@
 #define OPENTLV_SIZE_H
 
 #include "tlv/result.h"
-#include "tlv/export.h"
+#include "tlv/core/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -57,7 +57,7 @@ typedef uint64_t tlv_size_t;
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `logical_size` is `NULL`; nothing is written.
  */
-TLV_API tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size);
+OPENTLV_CORE_API tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size);
 
 /**
  * @brief Narrows a #tlv_size_t to the current build's native size.
@@ -75,7 +75,7 @@ TLV_API tlv_result_t tlv_size_from_native(size_t size, tlv_size_t* logical_size)
  *       accessible, or has sufficient capacity; actual bounds remain the
  *       caller's responsibility.
  */
-TLV_API tlv_result_t tlv_size_to_native(tlv_size_t logical_size, size_t* size);
+OPENTLV_CORE_API tlv_result_t tlv_size_to_native(tlv_size_t logical_size, size_t* size);
 
 /**
  * @brief Checks whether a logical size fits the current build's `size_t` range.
@@ -90,7 +90,7 @@ TLV_API tlv_result_t tlv_size_to_native(tlv_size_t logical_size, size_t* size);
  * @note Success does not prove that a buffer exists, is accessible, or has
  *       sufficient capacity.
  */
-TLV_API tlv_result_t tlv_size_validate_native(tlv_size_t logical_size);
+OPENTLV_CORE_API tlv_result_t tlv_size_validate_native(tlv_size_t logical_size);
 
 /**
  * @brief Adds two logical sizes, detecting overflow.
@@ -108,7 +108,7 @@ TLV_API tlv_result_t tlv_size_validate_native(tlv_size_t logical_size);
  * @return #TLV_ERR_OVERFLOW if `a + b` exceeds #TLV_SIZE_MAX; `*sum` is
  *         unchanged.
  */
-TLV_API tlv_result_t tlv_size_add(tlv_size_t a, tlv_size_t b, tlv_size_t* sum);
+OPENTLV_CORE_API tlv_result_t tlv_size_add(tlv_size_t a, tlv_size_t b, tlv_size_t* sum);
 
 #ifdef __cplusplus
 }

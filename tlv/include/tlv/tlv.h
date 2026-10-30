@@ -21,6 +21,9 @@
 #include "tlv/value.h"
 #include "tlv/copy.h"
 #include "tlv/diagnostic.h"
+#include "tlv/diagnostic/cause.h"
+#include "tlv/callback.h"
+#include "tlv/utf8.h"
 #include "tlv/endian.h"
 #include "tlv/format.h"
 #include "tlv/field/encoding.h"
@@ -35,17 +38,14 @@
 #include "tlv/formats/escaped.h"
 
 /* Core capabilities */
-#if OPENTLV_READER
 #include "tlv/reader/reader.h"
 #include "tlv/reader/tree.h"
 #include "tlv/reader/visitor.h"
-#endif
 
-#if OPENTLV_WRITER
 #include "tlv/writer/writer.h"
+#include "tlv/writer/copy.h"
 #include "tlv/writer/tree.h"
 #include "tlv/generator.h"
-#endif
 
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
@@ -58,14 +58,14 @@
 #if OPENTLV_SCHEMA
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
-#if OPENTLV_QUERY && OPENTLV_READER
+#if OPENTLV_QUERY
 #include "tlv/schema/query.h"
 #endif
 #endif
 
 #if OPENTLV_CODEC
 #include "tlv/codec/codec.h"
-#if OPENTLV_SCHEMA && OPENTLV_READER
+#if OPENTLV_SCHEMA
 #include "tlv/codec/structure.h"
 #endif
 #endif

@@ -54,8 +54,8 @@ Field Encoding writes.
    contract and public Field Encoding API. They know nothing about the Reader.
 3. Reader detail, locations and incremental-input policy stay in IO. Core
    reports failures only through its return value and `tlv_format_error_t`.
-4. Core private headers (`field/*_internal.h`, `callback_internal.h` until
-   `core-callback-api` publishes it) are used only by Core.
+4. Core private headers (`field/*_internal.h`) are used only by Core.
+   Callback-result validation is public in `tlv/callback.h` since #647.
 
 ## Call boundaries and symbol visibility
 
