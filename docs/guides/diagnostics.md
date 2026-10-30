@@ -120,7 +120,8 @@ Query embeds the same detail as `detail.reader`, selected by
 `cause == TLV_QUERY_CAUSE_READER`, while `query.diagnostic` is the sole result,
 location, path and expected text for the failure. Reader causes remain present
 under Query `STATE`; pure Query failures have cause `NONE`. A Reader failure
-inside a conversion hook is reachable only as `detail.codec.detail.reader`, under
+inside a conversion hook is reachable through the IO frame after the Codec frame
+in `detail.causes`, under
 cause `CODEC`. Neither representation contains self-referential pointers.
 
 ## Writer diagnostics
@@ -192,7 +193,7 @@ Schema-specific evidence lives in `tlv_schema_detail_t`. A Schema diagnostic
 pairs one common `diagnostic` with a `cause` that selects the active `detail`
 member: `detail.schema` for a Schema finding or definition failure, or
 `detail.reader` with the original Reader detail when the wire input itself is
-malformed. Codec and Query embed `tlv_schema_detail_t` as their Schema cause; a
+malformed. Codec and Query transport Schema detail in producer-owned cause frames; a
 Structure Codec reports a Reader failure under its Schema as its own Reader
 cause. For a value whose length is outside its rule's bounds,
 `d->detail.schema.kind` is `TLV_SCHEMA_ISSUE_LENGTH`, `d->diagnostic.code` is

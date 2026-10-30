@@ -88,11 +88,11 @@ struct codec_failure {
     codec_phase phase() const noexcept {
         return static_cast<codec_phase>(diagnostic.codec.operation);
     }
-    /** @brief Delegated diagnostic category. */
+    /** @brief Producer-owned delegated detail, copied with this failure. */
     // Reads this instance's native diagnostic, even in standalone header analysis.
     // cppcheck-suppress functionStatic
-    codec_cause cause() const noexcept {
-        return static_cast<codec_cause>(diagnostic.codec.cause);
+    const tlv_diagnostic_causes_t& causes() const noexcept {
+        return diagnostic.causes;
     }
     /** @brief Callback contract violation, if detected. */
     // Reads this instance's native diagnostic, even in standalone header analysis.

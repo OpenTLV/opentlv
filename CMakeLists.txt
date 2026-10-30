@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 
-# Core, IO, Document and Query are selected by linking. Reject obsolete cache options
+# Core, IO, Document, Query and Codec are selected by linking. Reject obsolete options
 # instead of silently building a different feature set from the one requested.
-foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER OPENTLV_DOCUMENT OPENTLV_QUERY)
+foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER OPENTLV_DOCUMENT OPENTLV_QUERY OPENTLV_CODEC)
     if(DEFINED ${_removed})
-        message(FATAL_ERROR "${_removed} was removed; link OpenTLV::Core, OpenTLV::IO, OpenTLV::Document or OpenTLV::Query instead")
+        message(FATAL_ERROR "${_removed} was removed; link OpenTLV::Core, OpenTLV::IO, OpenTLV::Document, OpenTLV::Query or OpenTLV::Codec instead")
     endif()
 endforeach()
 
@@ -29,7 +29,7 @@ option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" O
 set(OPENTLV_DOCUMENT ON)
 set(OPENTLV_QUERY ON)
 option(OPENTLV_SCHEMA "Include Schema validation" ON)
-option(OPENTLV_CODEC "Include semantic value codecs" ON)
+set(OPENTLV_CODEC ON)
 
 # Query features
 option(OPENTLV_QUERY_FRONTEND "Include Query text parsing and compilation" ON)

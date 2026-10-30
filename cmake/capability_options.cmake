@@ -1,6 +1,6 @@
 # These consumers currently expose the full composed API. Keep requirements
 # explicit rather than producing unresolved symbols in reduced builds.
-if(NOT OPENTLV_SCHEMA OR NOT OPENTLV_CODEC)
+if(NOT OPENTLV_SCHEMA)
     foreach(component IN ITEMS EXAMPLES BENCHMARKS FUZZING)
         if(OPENTLV_BUILD_${component})
             message(STATUS "Reduced capability build: skipping ${component} (requires Reader, Writer, Query, Schema and Codec)")

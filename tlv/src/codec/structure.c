@@ -16,11 +16,9 @@ static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* 
             /* Keep one path per cause: a Reader failure under Schema is a Reader cause. */
             diagnostic->diagnostic = cause.diagnostic;
             if (cause.cause == TLV_SCHEMA_CAUSE_READER) {
-                diagnostic->codec.cause = TLV_CODEC_CAUSE_READER;
-                diagnostic->codec.detail.reader = cause.detail.reader;
+                (void)tlv_reader_detail_attach(&diagnostic->causes, &cause.detail.reader);
             } else if (cause.cause == TLV_SCHEMA_CAUSE_SCHEMA) {
-                diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
-                diagnostic->codec.detail.schema = cause.detail.schema;
+                (void)tlv_schema_detail_attach(&diagnostic->causes, &cause.detail.schema);
             }
         }
     } else {
@@ -34,8 +32,7 @@ static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* 
             rc = tlv_tree_reader_visit(&reader, NULL, NULL, diagnostic ? &cause : NULL);
         if (diagnostic && rc != TLV_OK) {
             diagnostic->diagnostic = cause.diagnostic;
-            diagnostic->codec.cause = TLV_CODEC_CAUSE_READER;
-            diagnostic->codec.detail.reader = cause.detail;
+            (void)tlv_reader_detail_attach(&diagnostic->causes, &cause.detail);
         }
     }
     return tlv_codec_diagnostic_result(diagnostic, rc);

@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "../../unknown_result.h"
-#include "../codec/raw_result.h"
+#include "raw_result.h"
 
 // Query rejected the conversion itself or the provider gave no location, so the
 // expression span is the only evidence and stays primary instead of related.
@@ -572,9 +572,10 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
                 if (diagnostic) {
                     diagnostic->diagnostic.location = {TLV_LOCATION_INPUT, TLV_LOCATION_POINT, 17,
                                                        17};
-                    diagnostic->codec.cause = TLV_CODEC_CAUSE_READER;
-                    diagnostic->codec.detail.reader.has_required = 1;
-                    diagnostic->codec.detail.reader.required = 42;
+                    tlv_reader_detail_t detail{};
+                    detail.has_required = 1;
+                    detail.required = 42;
+                    (void)tlv_reader_detail_attach(&diagnostic->causes, &detail);
                 }
                 return query_test_export(query_envelope, diagnostic,
                                          *static_cast<const tlv_result_t*>(context));
@@ -591,7 +592,7 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
         // The hook's coordinates count from the Value, which starts at input offset 2.
         EXPECT_EQ(TLV_LOCATION_INPUT, e.diagnostic.diagnostic.location.domain);
         EXPECT_EQ(19u, e.diagnostic.diagnostic.location.begin);
-        EXPECT_EQ(42u, query_test_codec(e.diagnostic).detail.reader.required);
+        EXPECT_EQ(42u, query_test_codec_reader(e.diagnostic).required);
         EXPECT_EQ(TLV_LOCATION_EXPRESSION, e.diagnostic.expression.domain);
         EXPECT_LT(e.diagnostic.expression.begin, e.diagnostic.expression.end);
     }
@@ -651,17 +652,16 @@ TEST(Unit_Tlv_QueryF2, ReaderFailureReachesQueryOnlyThroughTheCodecCause) {
     EXPECT_STREQ("opentlv.io", d.detail.causes.frames[1].domain->name);
     EXPECT_EQ(0u, d.detail.causes.omitted);
     const auto copied = d;
-    EXPECT_EQ(query_test_codec(d).detail.reader.required,
-              query_test_codec(copied).detail.reader.required);
+    EXPECT_EQ(query_test_codec_reader(d).required, query_test_codec_reader(copied).required);
 
     EXPECT_EQ(TLV_QUERY_ERROR_CODEC, d.kind);
     // Exactly one path: Query cause CODEC, then the conversion's own Reader cause.
     ASSERT_EQ(TLV_QUERY_CAUSE_CODEC, d.cause);
-    ASSERT_EQ(TLV_CODEC_CAUSE_READER, query_test_codec(d).cause);
+    ASSERT_STREQ("opentlv.io", d.detail.causes.frames[1].domain->name);
     EXPECT_EQ(failure, d.reported);
     EXPECT_EQ(TLV_QUERY_CONVERSION_NONE, d.violation);
     // The Reader detail and its common evidence equal the original.
-    const auto& actual = query_test_codec(d).detail.reader;
+    const auto& actual = query_test_codec_reader(d);
     const auto& expected = original.detail;
     EXPECT_EQ(expected.operation, actual.operation);
     EXPECT_EQ(expected.has_tag, actual.has_tag);

@@ -28,8 +28,8 @@
 #define OPENTLV_QUERY 1
 /** @brief Whether Schema is enabled in this build. */
 #cmakedefine01 OPENTLV_SCHEMA
-/** @brief Whether Codec is enabled in this build. */
-#cmakedefine01 OPENTLV_CODEC
+/** @brief Codec compatibility constant; link OpenTLV::Codec to use this API. */
+#define OPENTLV_CODEC 1
 
 /* Builtin protocols and formats */
 /** @brief Whether ASN.1 format family is enabled in this build. */

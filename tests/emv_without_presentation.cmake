@@ -30,7 +30,7 @@ target_compile_definitions(test-emv-without-presentation PUBLIC TLV_STATIC_DEFIN
 target_include_directories(test-emv-without-presentation PUBLIC
     "${_emv_poison}"
     "${OpenTLV_BINARY_DIR}/generated/include")
-target_link_libraries(test-emv-without-presentation PUBLIC OpenTLV::IO)
+target_link_libraries(test-emv-without-presentation PUBLIC OpenTLV::IO OpenTLV::Codec)
 target_compile_features(test-emv-without-presentation PUBLIC c_std_99)
 opentlv_configure_compiler(test-emv-without-presentation)
 add_executable(test-emv-domain-independence

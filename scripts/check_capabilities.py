@@ -6,14 +6,14 @@ import argparse
 from pathlib import Path
 import subprocess
 
-CAPABILITIES = ("SCHEMA", "CODEC")
+CAPABILITIES = ("SCHEMA",)
 PROFILES = {
     "io": (),
     "document": (),
     "query": (),
     "document-query": (),
     "schema": ("SCHEMA",),
-    "codec": ("CODEC",),
+    "codec": (),,
     "full": CAPABILITIES,
 }
 

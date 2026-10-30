@@ -134,7 +134,7 @@ most one active lower-layer detail, selected by its cause.
 | --- | --- | --- | --- |
 | `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
 | `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`), `detail.reader` or `detail.codec` (`tlv_codec_detail_t`) |
-| `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `codec.cause` selects `codec.detail.reader` or `codec.detail.schema` |
+| `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `causes` stores producer-owned Reader or Schema frames; copy detail with its producer accessor |
 | `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured`, `reported`, `violation` | `cause` selects `detail.reader` or producer-owned frames in `detail.causes` |
 | `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
 

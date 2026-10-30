@@ -9,8 +9,8 @@ static tlv_result_t tlv_schema_codec_length_result(const tlv_schema_entry_t* rul
                                                    tlv_result_t result,
                                                    tlv_codec_diagnostic_t* diagnostic) {
     if (diagnostic) {
-        diagnostic->codec.cause = TLV_CODEC_CAUSE_SCHEMA;
-        tlv_schema_detail_t* detail = &diagnostic->codec.detail.schema;
+        tlv_schema_detail_t storage = {0};
+        tlv_schema_detail_t* detail = &storage;
         detail->kind = result == TLV_ERR_INVALID_SCHEMA ? TLV_SCHEMA_ISSUE_DEFINITION
                                                         : TLV_SCHEMA_ISSUE_LENGTH;
         detail->tag = rule->tag;
@@ -21,6 +21,7 @@ static tlv_result_t tlv_schema_codec_length_result(const tlv_schema_entry_t* rul
         detail->actual_length = width;
         detail->length_multiple = rule->length_multiple;
         detail->length_flags = rule->flags;
+        (void)tlv_schema_detail_attach(&diagnostic->causes, detail);
     }
     return tlv_codec_diagnostic_result(diagnostic, result);
 }

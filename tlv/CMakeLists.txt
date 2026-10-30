@@ -13,10 +13,8 @@ include(modules.cmake)
 # are linked once; no implementation is duplicated in the compatibility target.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/schema/diagnostic_strings.c
-    src/codec/diagnostic_strings.c
-    src/codec/diagnostic.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument OpenTLV::QueryCodec)
 if(NOT CMAKE_INSTALL_RPATH)
     if(APPLE)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")
@@ -33,24 +31,12 @@ if(OPENTLV_SCHEMA)
     )
 endif()
 
-if(OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/codec/codec.c
-        src/codec/values.c
-        src/codec/number.c
-        src/codec/digits.c
-        src/codec/text.c
-        src/codec/ipv4.c
-    )
-endif()
-
+# Codec-owned codec-structure integration. Schema extraction (#652) registers
+# its separate target; the base Codec never links this transitional aggregate.
 if(OPENTLV_CODEC AND OPENTLV_SCHEMA)
     target_sources(${PROJECT_NAME} PRIVATE src/codec/structure.c)
 endif()
 
-if(OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE src/query/codec.c)
-endif()
 if(OPENTLV_SCHEMA AND OPENTLV_CODEC)
     target_sources(${PROJECT_NAME} PRIVATE src/schema/number.c)
 endif()

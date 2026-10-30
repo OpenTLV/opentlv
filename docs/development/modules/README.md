@@ -11,7 +11,8 @@ reviewers who approve these contracts. Read the
 **Implementation status:** #647 extracts the C `OpenTLV::Core` and
 `OpenTLV::IO` targets, #648 extracts `OpenTLV::Document`, and #649 extracts
 `OpenTLV::Generator`; #650 extracts `OpenTLV::Query` and `OpenTLV::QueryDocument`, using the
-infrastructure from #646. Their sources, public
+infrastructure from #646. #651 extracts `OpenTLV::Codec` and the Query-owned
+`OpenTLV::QueryCodec` integration. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
 checks the compiled dependency graph. The remaining modules and C++ facades
 retain the planned boundaries below and stay in the compatibility targets until
@@ -25,10 +26,18 @@ registered as Query-owned `OpenTLV::QueryDocument`; only Query owner-private
 helpers cross its shared-library boundary. Base Query has only Core and IO
 dependencies. Definition resolution stays in Query; Codec conversion providers
 live in `query/codec.c` and the explicit C++ `query/codec.hpp` integration,
-assembled in the transitional library until #651 extracts Codec. Schema Query
+registered as `OpenTLV::QueryCodec`. Schema Query
 uses public plan inspection instead of private Query representations.
 The base Document target has no Query, Schema, Codec, Generator or builtin
 headers, sources or symbols. C++ facade separation remains tracked below.
+
+Codec registers all generic Value conversions and its diagnostic vocabulary with
+only a Core dependency. `tlv_codec_detail_t` is a Codec-owned leaf; delegated
+Reader and Schema details travel as producer-owned cause frames in
+`tlv_codec_diagnostic_t`. The `codec-structure` integration retains its explicit
+ownership and is delivered by the transitional aggregate until Schema registers
+in #652. Its Reader and Schema validation behavior is preserved. The typed writer
+implementation now lives in the `io-codec` header `tlv++/codec/writer.hpp`.
 
 Generator registers `generator.c` and `tlv/generator.h`, with public Core and
 private IO dependencies and its own export header. Its source and algorithm
@@ -100,7 +109,7 @@ count as public modules. A *facade-only* integration target is a header-only
 | Integration target | Owner | Direct dependencies | Contents | Implemented by |
 | --- | --- | --- | --- | --- |
 | `query-document` | Query | Core, IO, Document, Query | Document Query visit, evaluation, values, programs, edits and `tlv_document_find_path()` | [#648](https://github.com/OpenTLV/opentlv/issues/648) prepares, [#650](https://github.com/OpenTLV/opentlv/issues/650) completes |
-| `query-codec` | Query | Query, Codec | Codec-backed conversion adapters and builtin hooks | [#650](https://github.com/OpenTLV/opentlv/issues/650) |
+| `query-codec` | Query | Core, IO, Query, Codec | Codec-backed conversion adapters and builtin hooks | [#650](https://github.com/OpenTLV/opentlv/issues/650) |
 | `codec-structure` | Codec | Core, Codec, Schema; IO privately | Structure Codec | [#651](https://github.com/OpenTLV/opentlv/issues/651) |
 | `schema-number` | Schema | Schema, Codec | Numeric Schema constraints through number codecs | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
 | `schema-query` | Schema | Core, IO, Schema, Query | Contextual Query assertions over buffers and events | [#652](https://github.com/OpenTLV/opentlv/issues/652) |
@@ -281,8 +290,9 @@ baseline files to their target owners gave these cycles, computed by
 references:
 
 The C Core cycles and Core/IO private-header exceptions are resolved by #647.
-The C++ error facade still needs Schema, and the higher-module cycles remain
-scheduled below. `ownership.json` records only the remaining exceptions.
+The C Codec-to-Schema dependency and the typed Codec-to-Writer include are
+resolved by #651. The table records the original cycle evidence; the C++ error
+facade still needs Schema, and the remaining facade cycles are scheduled below. `ownership.json` records only the remaining exceptions.
 
 | Cycle | Evidence | Resolution | Issue |
 | --- | --- | --- | --- |

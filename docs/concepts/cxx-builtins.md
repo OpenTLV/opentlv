@@ -88,8 +88,8 @@ headers. All codecs support the generic `tlv::field` contract: `value_type`,
 `decode(bytes)` and `encode(value, output, capacity)`. Passing `nullptr, 0`
 to `encode` validates and measures the Value. Storage must not overlap input.
 The original codec errors and semantic restrictions are preserved. EMV dictionary
-codecs require both `OPENTLV_CODEC` and `OPENTLV_SCHEMA`, matching the canonical
-C package. Generic Query environments remain usable without Codec; automatic
+codecs require Codec and Schema, matching the canonical
+C package. Codec is selected by linking; `OPENTLV_CODEC` is no longer a CMake option. Generic Query environments remain usable without Codec; automatic
 NUM/BCD/TEXT providers and ASN.1 conversions require Codec.
 
 | Namespace | Codec header under `tlv++/builtins/` | Coverage |

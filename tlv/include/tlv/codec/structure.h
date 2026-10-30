@@ -15,6 +15,8 @@ extern "C" {
  * @file
  * @ingroup codecs
  * @brief Codec bindings between a complete TLV sequence and one application object.
+ * @note Owned by the codec-structure integration, which composes Codec, Schema and IO.
+ * Currently supplied by OpenTLV::tlv pending Schema extraction; not part of OpenTLV::Codec.
  */
 
 /** @addtogroup codecs
