@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv++/diagnostic.hpp"
+#include "tlv++/schema/error.hpp"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/writer.hpp"
 #include "tlv++/query/program.hpp"

@@ -128,12 +128,12 @@ Each public diagnostic field has one meaning (#579). The common
 `tlv_diagnostic_t` owns the result, severity, primary location, expected and
 actual text, contexts and path. Layer detail types carry only layer-specific
 evidence and never repeat those common fields. An enclosing diagnostic holds at
-most one active lower-layer detail, selected by its cause.
+a typed finding or a bounded chain of delegated producer-owned details.
 
 | Diagnostic | Common part | Layer-specific fields | Delegated cause |
 | --- | --- | --- | --- |
 | `tlv_reader_diagnostic_t` | `diagnostic` | `detail` (`tlv_reader_detail_t`) | none |
-| `tlv_schema_diagnostic_t` | `diagnostic` | none | `cause` selects `detail.schema` (`tlv_schema_detail_t`), `detail.reader` or `detail.codec` (`tlv_codec_detail_t`) |
+| `tlv_schema_diagnostic_t` | `diagnostic` | `detail.schema` for a Schema finding | `cause` selects the finding or producer-owned Reader/Codec frames in `detail.causes`; copy detail through its producer API |
 | `tlv_codec_diagnostic_t` | `diagnostic` | `codec.operation`, `reported`, `violation`, `reason`, `representation` | `causes` stores producer-owned Reader or Schema frames; copy detail with its producer accessor |
 | `tlv_query_diagnostic_t` | `diagnostic` | `kind`, `expression`, `limit`, `configured`, `reported`, `violation` | `cause` selects `detail.reader` or producer-owned frames in `detail.causes` |
 | `tlv_schema_query_diagnostic_t` | `query.diagnostic` | `rule` | `query.cause`; a false assertion uses `SCHEMA` |
@@ -155,8 +155,9 @@ Reader cause, so the Reader detail stays reachable through one path. Codec
 `reason` is the typed explanation of an `INVALID_VALUE` conversion failure.
 DER Schema reports a leaf Value that its conversion rejects, such as a
 non-canonical INTEGER or one too long for a value constraint, with cause `CODEC`
-(#589): `detail.codec` keeps the conversion's operation, result and reason, and
-`detail.codec.reported` equals the returned result. A valid leaf constraint
+(#589, #652): the Codec frame in `detail.causes` keeps the conversion's operation,
+result and reason; copy it with `tlv_codec_detail_copy()`. Its `reported` field
+equals the returned result. A valid leaf constraint
 rejecting data is `SCHEMA` with `VALUE` detail when reading and writing.
 
 Kind and cause agree in both directions: cause `READER` accompanies kind
@@ -339,8 +340,9 @@ explain the failure. Generic report findings now use scope end for missing field
 including known offset zero for an empty root. Definition failures have no input
 byte location; `definition.kind`, `owner` and `index` identify native definitions.
 
-The Schema diagnostic layout and affected signatures changed in #553 and #555. Rebuild
-native clients and use the matching binding version. C++ errors expose
+The Schema diagnostic layout and affected signatures changed in #553, #555 and #652.
+Rebuild native clients and use the matching binding version. C++
+`schema_failure` in `tlv++/schema/error.hpp` exposes
 `schema_kind()`, `location()` and `definition()`; Python uses `InvalidSchemaError` for definitions
 and `SchemaError` with `kind="missing"` for required absence.
 

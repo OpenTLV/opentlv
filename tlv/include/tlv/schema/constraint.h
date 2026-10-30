@@ -4,7 +4,7 @@
 #ifndef OPENTLV_SCHEMA_CONSTRAINT_H
 #define OPENTLV_SCHEMA_CONSTRAINT_H
 #include "tlv/result.h"
-#include "tlv/export.h"
+#include "tlv/schema/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -72,7 +72,8 @@ typedef struct tlv_value_constraint {
  * @return #TLV_OK, #TLV_ERR_NULL_ARG for NULL, or #TLV_ERR_INVALID_SCHEMA for
  * invalid kind, reversed bounds or missing allowed-values storage.
  */
-TLV_API tlv_result_t tlv_value_constraint_check(const tlv_value_constraint_t* constraint);
+OPENTLV_SCHEMA_API tlv_result_t
+tlv_value_constraint_check(const tlv_value_constraint_t* constraint);
 
 /**
  * @brief Validates a decoded scalar value against a constraint.
@@ -93,8 +94,8 @@ TLV_API tlv_result_t tlv_value_constraint_check(const tlv_value_constraint_t* co
  *         `allowed_values_count`.
  * @return #TLV_ERR_NULL_ARG if `constraint` is `NULL`.
  */
-TLV_API tlv_result_t tlv_value_constraint_validate(const tlv_value_constraint_t* constraint,
-                                                   int64_t value);
+OPENTLV_SCHEMA_API tlv_result_t
+tlv_value_constraint_validate(const tlv_value_constraint_t* constraint, int64_t value);
 
 /**
  * @brief Looks up an allowed value's display name, such as an ASN.1 named number.
@@ -107,8 +108,8 @@ TLV_API tlv_result_t tlv_value_constraint_validate(const tlv_value_constraint_t*
  *         `allowed_values` or `allowed_value_names` is `NULL`; `value` is not among
  *         `allowed_values`; or the matching entry's name is `NULL`.
  */
-TLV_API const char* tlv_value_constraint_name(const tlv_value_constraint_t* constraint,
-                                              int64_t value);
+OPENTLV_SCHEMA_API const char* tlv_value_constraint_name(const tlv_value_constraint_t* constraint,
+                                                         int64_t value);
 
 #ifdef __cplusplus
 }

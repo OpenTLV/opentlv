@@ -12,11 +12,7 @@ opentlv_memcheck_timeout(query-adversarial 1200)
 add_executable(test-query-plan plan.c)
 target_link_libraries(test-query-plan PRIVATE tlv)
 opentlv_configure_compiler(test-query-plan)
-if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
-    add_custom_command(TARGET test-query-plan POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE:opentlv_codec> $<TARGET_FILE:opentlv_query_codec> $<TARGET_FILE_DIR:test-query-plan>)
-endif()
+opentlv_copy_shared_runtime(test-query-plan)
 add_test(NAME query-static-plan COMMAND test-query-plan)
 set_tests_properties(query-static-plan PROPERTIES LABELS "query;architecture")
 if(OPENTLV_BUILD_CXX)
@@ -55,21 +51,13 @@ if(WIN32)
     target_link_libraries(test-query-conformance PRIVATE advapi32)
 endif()
 opentlv_configure_compiler(test-query-conformance)
-if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
-    add_custom_command(TARGET test-query-conformance POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE:opentlv_codec> $<TARGET_FILE:opentlv_query_codec> $<TARGET_FILE_DIR:test-query-conformance>)
-endif()
+opentlv_copy_shared_runtime(test-query-conformance)
 find_package(Python3 COMPONENTS Interpreter QUIET)
 if(OPENTLV_BUILD_CXX)
     add_executable(test-query-cxx-conformance cxx_facade.cpp)
     target_link_libraries(test-query-cxx-conformance PRIVATE tlv++)
     opentlv_configure_compiler(test-query-cxx-conformance)
-    if(WIN32 AND OPENTLV_BUILD_SHARED_LIBS)
-        add_custom_command(TARGET test-query-cxx-conformance POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE:opentlv_codec> $<TARGET_FILE:opentlv_query_codec> $<TARGET_FILE_DIR:test-query-cxx-conformance>)
-    endif()
+    opentlv_copy_shared_runtime(test-query-cxx-conformance)
     if(Python3_Interpreter_FOUND)
         add_test(NAME query-cxx-conformance
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/run.py

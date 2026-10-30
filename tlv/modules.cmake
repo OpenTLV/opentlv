@@ -513,3 +513,92 @@ opentlv_add_module(query-codec OWNER query EXPORT_NAME QueryCodec INCLUDE_DIR in
         tlv_query_builtin_hooks
         tlv_query_codec_decode
 )
+
+opentlv_add_module(schema EXPORT_NAME Schema INCLUDE_DIR include
+    CONSUMER ../tests/modules/schema.c
+    SOURCES
+        src/schema/constraint.c
+        src/schema/diagnostic_strings.c
+        src/schema/report.c
+        src/schema/schema.c
+        src/schema/structure.c
+    PUBLIC_HEADERS
+        include/tlv/schema/constraint.h
+        include/tlv/schema/detail.h
+        include/tlv/schema/schema.h
+    PRIVATE_HEADERS
+        src/schema/diagnostic_internal.h
+        src/schema/traversal_internal.h
+    PUBLIC_DEPS core io
+    PUBLIC_SYMBOLS
+        tlv_schema_cause_string
+        tlv_schema_check
+        tlv_schema_definition_kind_string
+        tlv_schema_detail_attach
+        tlv_schema_detail_copy
+        tlv_schema_diagnostic_init
+        tlv_schema_find
+        tlv_schema_issue_kind_string
+        tlv_schema_prepare
+        tlv_schema_validate
+        tlv_schema_validate_all_checked
+        tlv_schema_validate_all_diag
+        tlv_schema_validate_checked
+        tlv_schema_validate_length
+        tlv_value_constraint_check
+        tlv_value_constraint_name
+        tlv_value_constraint_validate
+)
+
+opentlv_add_module(schema-number EXPORT_NAME SchemaNumber OWNER schema INCLUDE_DIR include
+    CONSUMER ../tests/modules/schema_number.c
+    SOURCES
+        src/schema/number.c
+    PUBLIC_HEADERS
+        include/tlv/schema/number.h
+    PUBLIC_DEPS schema codec
+    PRIVATE_DEPS core
+    PUBLIC_SYMBOLS
+        tlv_schema_number_decode
+        tlv_schema_number_encode
+        tlv_schema_number_validate_length
+)
+
+opentlv_add_module(schema-query EXPORT_NAME SchemaQuery OWNER schema INCLUDE_DIR include
+    CONSUMER ../tests/modules/schema_query.c
+    SOURCES
+        src/schema/query.c
+    PUBLIC_HEADERS
+        include/tlv/schema/query.h
+    PRIVATE_HEADERS
+        src/schema/query_diagnostic_internal.h
+        src/schema/query_internal.h
+    PUBLIC_DEPS core io schema query
+    PUBLIC_SYMBOLS
+        tlv_schema_query_size
+        tlv_schema_query_validate_buffer
+)
+
+opentlv_add_module(schema-query-document EXPORT_NAME SchemaQueryDocument OWNER schema INCLUDE_DIR include
+    CONSUMER ../tests/modules/schema_query_document.c
+    SOURCES
+        src/schema/query_document.c
+    PUBLIC_HEADERS
+        include/tlv/schema/query_document.h
+    PUBLIC_DEPS core io schema document schema-query query query-document
+    PUBLIC_SYMBOLS
+        tlv_schema_query_validate_document
+)
+
+opentlv_add_module(codec-structure EXPORT_NAME CodecStructure OWNER codec INCLUDE_DIR include
+    CONSUMER ../tests/modules/codec_structure.c
+    SOURCES
+        src/codec/structure.c
+    PUBLIC_HEADERS
+        include/tlv/codec/structure.h
+    PUBLIC_DEPS core codec schema
+    PRIVATE_DEPS io
+    PUBLIC_SYMBOLS
+        tlv_structure_decode
+        tlv_structure_encode
+)

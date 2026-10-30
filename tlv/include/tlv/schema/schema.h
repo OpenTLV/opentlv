@@ -10,9 +10,9 @@
 #include "tlv/format.h"
 #include "tlv/diagnostic.h"
 #include "tlv/reader/diagnostic.h"
-#include "tlv/codec/diagnostic.h"
+#include "tlv/diagnostic/cause.h"
 #include "tlv/schema/detail.h"
-#include "tlv/export.h"
+#include "tlv/schema/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,7 +95,8 @@ typedef struct {
  * @return `NULL` for an unknown tag, `NULL` arguments, an invalid lookup tag,
  *         or a missing nonempty table. No separate failure channel is provided.
  */
-TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, const tlv_tag_t* tag);
+OPENTLV_SCHEMA_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema,
+                                                             const tlv_tag_t* tag);
 
 /**
  * @brief Validates a value length against an entry's bounds.
@@ -115,7 +116,8 @@ TLV_API const tlv_schema_entry_t* tlv_schema_find(const tlv_schema_t* schema, co
  * @return #TLV_ERR_INVALID_SCHEMA for reversed bounds.
  * @return #TLV_ERR_NULL_ARG if `entry` is `NULL`.
  */
-TLV_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry, size_t length);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_validate_length(const tlv_schema_entry_t* entry,
+                                                           size_t length);
 
 struct tlv_structure_schema;
 
@@ -241,8 +243,8 @@ typedef enum tlv_schema_unknown_policy {
 typedef enum tlv_schema_cause {
     TLV_SCHEMA_CAUSE_NONE,   /**< No typed detail, for example an argument or resource failure. */
     TLV_SCHEMA_CAUSE_SCHEMA, /**< A Schema finding or definition failure; `detail.schema`. */
-    TLV_SCHEMA_CAUSE_READER, /**< The Reader rejected the input; `detail.reader`. */
-    TLV_SCHEMA_CAUSE_CODEC   /**< A Value conversion rejected the input; `detail.codec`. */
+    TLV_SCHEMA_CAUSE_READER, /**< The Reader rejected the input; `detail.causes`. */
+    TLV_SCHEMA_CAUSE_CODEC   /**< A Value conversion rejected the input; `detail.causes`. */
 } tlv_schema_cause_t;
 
 /**
@@ -253,7 +255,7 @@ typedef enum tlv_schema_cause {
  * @note Never returns NULL or allocates. Do not free or modify the string.
  * Available even when the corresponding capability is disabled.
  */
-TLV_API const char* tlv_schema_cause_string(tlv_schema_cause_t value);
+OPENTLV_SCHEMA_API const char* tlv_schema_cause_string(tlv_schema_cause_t value);
 
 /**
  * @brief Common failure diagnostic paired with one discriminated typed detail.
@@ -262,7 +264,7 @@ TLV_API const char* tlv_schema_cause_string(tlv_schema_cause_t value);
  * code, severity, primary location, expected text and enclosing path. `cause`
  * selects the active `detail` member: the Schema finding that explains the
  * violation, the original Reader detail when the wire input itself is
- * malformed, or the Codec detail when a builtin rejects a Value it interprets,
+ * malformed, or producer-owned cause frames when a builtin rejects a Value it interprets,
  * such as a non-canonical DER INTEGER. The common base owns its bounded path value, so copies
  * retain valid external Tag borrows without self-references.
  *
@@ -278,11 +280,10 @@ typedef struct tlv_schema_diagnostic {
     union {
         /** Violated rule, affected tag and expected-versus-actual evidence. */
         tlv_schema_detail_t schema;
-        /** Original Reader detail; its result, location and path are in `diagnostic`. */
-        tlv_reader_detail_t reader;
-        /** Value conversion detail, including its typed reason; its location is in
-         * `diagnostic`. */
-        tlv_codec_detail_t codec;
+        /** Delegated conversion detail, outermost first; copy out through the producer API.
+         * Active for TLV_SCHEMA_CAUSE_READER and TLV_SCHEMA_CAUSE_CODEC. Primary metadata stays in
+         * diagnostic. */
+        tlv_diagnostic_causes_t causes;
     } detail;
 } tlv_schema_diagnostic_t;
 
@@ -291,7 +292,7 @@ typedef struct tlv_schema_diagnostic {
  *
  * @param[out] diagnostic Diagnostic to initialize; must not be `NULL`.
  */
-TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Checks every reachable structural schema table independently of input.
@@ -304,8 +305,8 @@ TLV_API void tlv_schema_diagnostic_init(tlv_schema_diagnostic_t* diagnostic);
  * @return #TLV_OK, #TLV_ERR_NULL_ARG, #TLV_ERR_INVALID_SCHEMA, or
  * #TLV_ERR_UNSUPPORTED when the definition exceeds bounded checking capacity.
  */
-TLV_API tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
-                                      tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_check(const tlv_structure_schema_t* schema,
+                                                 tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief A structural schema whose definition has passed tlv_schema_check().
@@ -344,9 +345,9 @@ typedef struct tlv_schema_checked {
  * @return #TLV_ERR_NULL_ARG if `checked` or `schema` is `NULL`.
  * @return Any other error of tlv_schema_check().
  */
-TLV_API tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked,
-                                        const tlv_structure_schema_t* schema,
-                                        tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked,
+                                                   const tlv_structure_schema_t* schema,
+                                                   tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates framing, nesting, lengths, occurrence counts, ordering,
@@ -387,10 +388,11 @@ TLV_API tlv_result_t tlv_schema_prepare(tlv_schema_checked_t* checked,
  * @return #TLV_ERR_NULL_ARG for a missing required pointer.
  * @return Any other error of tlv_tree_reader_visit().
  */
-TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
-                                         const tlv_format_t* format,
-                                         const tlv_structure_schema_t* schema, size_t max_depth,
-                                         size_t max_elements, tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
+                                                    const tlv_format_t* format,
+                                                    const tlv_structure_schema_t* schema,
+                                                    size_t max_depth, size_t max_elements,
+                                                    tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates input against a prepared schema without repeating its definition check.
@@ -412,11 +414,11 @@ TLV_API tlv_result_t tlv_schema_validate(const uint8_t* data, size_t size,
  * @return #TLV_ERR_INVALID_STATE if `checked` is not prepared.
  * @return Any other error of tlv_schema_validate() except #TLV_ERR_INVALID_SCHEMA.
  */
-TLV_API tlv_result_t tlv_schema_validate_checked(const tlv_schema_checked_t* checked,
-                                                 const uint8_t* data, size_t size,
-                                                 const tlv_format_t* format, size_t max_depth,
-                                                 size_t max_elements,
-                                                 tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_validate_checked(const tlv_schema_checked_t* checked,
+                                                            const uint8_t* data, size_t size,
+                                                            const tlv_format_t* format,
+                                                            size_t max_depth, size_t max_elements,
+                                                            tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Caller-provided storage for the violations of tlv_schema_validate_all_diag().
@@ -483,13 +485,13 @@ typedef struct tlv_schema_diagnostic_report {
  *
  * @see tlv_schema_diagnostic_t
  */
-TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
-                                                  const tlv_format_t* format,
-                                                  const tlv_structure_schema_t* schema,
-                                                  size_t max_depth, size_t max_elements,
-                                                  tlv_schema_unknown_policy_t unknown,
-                                                  tlv_schema_diagnostic_report_t* report,
-                                                  tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t size,
+                                                             const tlv_format_t* format,
+                                                             const tlv_structure_schema_t* schema,
+                                                             size_t max_depth, size_t max_elements,
+                                                             tlv_schema_unknown_policy_t unknown,
+                                                             tlv_schema_diagnostic_report_t* report,
+                                                             tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Reports every violation against a prepared schema without repeating its definition check.
@@ -515,13 +517,11 @@ TLV_API tlv_result_t tlv_schema_validate_all_diag(const uint8_t* data, size_t si
  * @return #TLV_ERR_INVALID_STATE if `checked` is not prepared.
  * @return Any other error of tlv_schema_validate_all_diag() except #TLV_ERR_INVALID_SCHEMA.
  */
-TLV_API tlv_result_t tlv_schema_validate_all_checked(const tlv_schema_checked_t* checked,
-                                                     const uint8_t* data, size_t size,
-                                                     const tlv_format_t* format, size_t max_depth,
-                                                     size_t max_elements,
-                                                     tlv_schema_unknown_policy_t unknown,
-                                                     tlv_schema_diagnostic_report_t* report,
-                                                     tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_API tlv_result_t tlv_schema_validate_all_checked(
+    const tlv_schema_checked_t* checked, const uint8_t* data, size_t size,
+    const tlv_format_t* format, size_t max_depth, size_t max_elements,
+    tlv_schema_unknown_policy_t unknown, tlv_schema_diagnostic_report_t* report,
+    tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

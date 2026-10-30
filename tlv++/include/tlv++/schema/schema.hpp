@@ -6,6 +6,7 @@
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
 #include "tlv++/schema/definition.hpp"
+#include "tlv++/schema/error.hpp"
 #include "tlv++/schema/report.hpp"
 #include "tlv/schema/schema.h"
 
@@ -26,15 +27,15 @@ namespace tlv {
  * @return Success or a canonical error with the failure's absolute byte offset.
  * @note Does not decode semantic Values; all borrows need only survive this call.
  */
-inline expected<void, error> validate(bytes data, tlv::format format, schema definition,
-                                      size_t max_depth = TLV_SCHEMA_MAX_DEPTH,
-                                      size_t max_elements = SIZE_MAX) {
+inline expected<void, schema_failure> validate(bytes data, tlv::format format, schema definition,
+                                               size_t max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                               size_t max_elements = SIZE_MAX) {
     tlv_schema_diagnostic_t failure_detail{};
     const auto rc = tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                         &detail::format_access::get(format),
                                         detail::schema_access::get(definition), max_depth,
                                         max_elements, &failure_detail);
-    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(failure_detail));
+    if (rc != TLV_OK) return unexpected<schema_failure>(schema_failure(failure_detail));
     return {};
 }
 
@@ -47,15 +48,15 @@ inline expected<void, error> validate(bytes data, tlv::format format, schema def
  * @param max_elements Maximum element count.
  * @return Success or a canonical error with the failure's absolute byte offset.
  */
-inline expected<void, error> validate(bytes data, tlv::format format,
-                                      const checked_schema& definition,
-                                      size_t                max_depth = TLV_SCHEMA_MAX_DEPTH,
-                                      size_t                max_elements = SIZE_MAX) {
+inline expected<void, schema_failure> validate(bytes data, tlv::format format,
+                                               const checked_schema& definition,
+                                               size_t max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                               size_t max_elements = SIZE_MAX) {
     tlv_schema_diagnostic_t failure_detail{};
     const auto              rc = tlv_schema_validate_checked(
         &definition.native(), reinterpret_cast<const uint8_t*>(data.data()), data.size(),
         &detail::format_access::get(format), max_depth, max_elements, &failure_detail);
-    if (rc != TLV_OK) return unexpected<error>(detail::error_access::schema(failure_detail));
+    if (rc != TLV_OK) return unexpected<schema_failure>(schema_failure(failure_detail));
     return {};
 }
 
@@ -81,14 +82,13 @@ using schema_diagnostic = tlv_schema_diagnostic_t;
  *         tlv_schema_validate(), including #TLV_ERR_SCHEMA and
  *         #TLV_ERR_INVALID_SCHEMA.
  */
-TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format_t& format,
-                                                    const tlv_structure_schema_t& schema,
-                                                    size_t max_depth, size_t max_elements,
-                                                    tlv_schema_diagnostic_t* diagnostic = nullptr) {
+TLV_NODISCARD inline expected<void, schema_failure>
+validate(bytes data, const tlv_format_t& format, const tlv_structure_schema_t& schema,
+         size_t max_depth, size_t max_elements, tlv_schema_diagnostic_t* diagnostic = nullptr) {
     tlv_result_t rc =
         tlv_schema_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(), &format,
                             &schema, max_depth, max_elements, diagnostic);
-    if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
+    if (rc != TLV_OK) return unexpected<schema_failure>(schema_failure::from_result(rc));
     return {};
 }
 
@@ -117,7 +117,7 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, const tlv_format
  *
  * @see tlv_schema_diagnostic_t
  */
-TLV_NODISCARD inline expected<size_t, error>
+TLV_NODISCARD inline expected<size_t, schema_failure>
 validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_schema_t& schema,
                   size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
                   size_t                      capacity,
@@ -131,7 +131,7 @@ validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_sc
                                                    max_elements, unknown, &report, failure);
     if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) {
         failure->diagnostic.code = rc;
-        return unexpected<error>(detail::error_access::schema(*failure));
+        return unexpected<schema_failure>(schema_failure(*failure));
     }
     return report.count;
 }
@@ -139,10 +139,9 @@ validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_sc
  * @copydetails validate(bytes, const tlv_format_t&, const tlv_structure_schema_t&, size_t, size_t,
  * tlv_schema_diagnostic_t*)
  */
-TLV_NODISCARD inline expected<void, error> validate(bytes data, tlv::format format,
-                                                    const tlv_structure_schema_t& schema,
-                                                    size_t max_depth, size_t max_elements,
-                                                    tlv_schema_diagnostic_t* diagnostic = nullptr) {
+TLV_NODISCARD inline expected<void, schema_failure>
+validate(bytes data, tlv::format format, const tlv_structure_schema_t& schema, size_t max_depth,
+         size_t max_elements, tlv_schema_diagnostic_t* diagnostic = nullptr) {
     return validate(data, detail::format_access::get(format), schema, max_depth, max_elements,
                     diagnostic);
 }
@@ -151,7 +150,7 @@ TLV_NODISCARD inline expected<void, error> validate(bytes data, tlv::format form
  * @copydetails validate_all_diag(bytes, const tlv_format_t&, const tlv_structure_schema_t&, size_t,
  * size_t, schema_diagnostic*, size_t, tlv_schema_unknown_policy_t, tlv_schema_diagnostic_t*)
  */
-TLV_NODISCARD inline expected<size_t, error>
+TLV_NODISCARD inline expected<size_t, schema_failure>
 validate_all_diag(bytes data, tlv::format format, const tlv_structure_schema_t& schema,
                   size_t max_depth, size_t max_elements, schema_diagnostic* diagnostics,
                   size_t                      capacity,

@@ -5,7 +5,7 @@ recipes for the common selections. For the principle and the option reference, s
 [include only what you need](../concepts/architecture.md#include-only-what-you-need) and
 [build configuration](../concepts/architecture.md#build-configuration).
 
-Core, IO, Document, Generator, Query and Codec are independent C libraries. Core owns Definition, Format and Field
+Core, IO, Document, Generator, Query, Schema and Codec are independent C libraries. Core owns Definition, Format and Field
 Encoding, Element and Layout, byte utilities and generic diagnostics. IO owns
 Reader, Writer, traversal and serialization and depends publicly on Core.
 Document owns mutable trees and depends publicly on Core and IO.
@@ -42,7 +42,7 @@ cmake --build build/modules --target opentlv_document
 cmake --build build/modules --target opentlv_generator
 ```
 
-`OPENTLV_READER`, `OPENTLV_WRITER`, `OPENTLV_DOCUMENT`, `OPENTLV_QUERY` and `OPENTLV_CODEC` are no longer CMake
+`OPENTLV_READER`, `OPENTLV_WRITER`, `OPENTLV_DOCUMENT`, `OPENTLV_QUERY`, `OPENTLV_SCHEMA` and `OPENTLV_CODEC` are no longer CMake
 options. Supplying any of them
 is an error; remove them from presets and existing caches (or use a fresh build
 directory). IO always includes both APIs. For transition compatibility,
@@ -50,10 +50,15 @@ directory). IO always includes both APIs. For transition compatibility,
 they do not select sources or indicate which modules an application linked.
 
 Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO,
-Document, Generator, Query, QueryDocument, Codec and QueryCodec transitively. Direct library consumers must link the dependencies too (static
-link order: `tlv`, `opentlv_query_document`, `opentlv_query_codec`, `opentlv_query`, `opentlv_document`, `opentlv_generator`, `opentlv_codec`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
+Document, Generator, Query, Codec, Schema and their extracted integrations transitively. Direct library consumers must link the dependencies too (static
+link order: `tlv`, `opentlv_schema_query_document`, `opentlv_schema_query`,
+`opentlv_schema_number`, `opentlv_codec_structure`, `opentlv_query_document`, `opentlv_query_codec`, `opentlv_query`, `opentlv_document`, `opentlv_generator`, `opentlv_codec`, `opentlv_schema`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
 all linked libraries. Rebuild consumers after the split; the old single-library
 binary distribution is not preserved.
+
+If every builtin is disabled, the transitional `tlv` target contains no
+implementation symbols and is an empty compatibility archive, including in a
+shared build. Its extracted dependencies remain shared; no empty DLL is required.
 
 Public Reader/Writer headers and function signatures remain at their existing
 paths. `tlv_copy_element()` now belongs to `tlv/writer/copy.h`; Core `tlv/copy.h`
@@ -105,8 +110,7 @@ conversion providers. This integration depends explicitly on Core, IO, Query
 and Codec. Neither base module links the integration.
 
 `tlv/codec/structure.h` belongs to the Codec-owned `codec-structure` integration,
-which composes Codec, Schema and IO. Until Schema extraction (#652), it is
-compiled only into `OpenTLV::tlv`; it is not part of base Codec. The aggregate
+which composes Codec, Schema and IO. Link `OpenTLV::CodecStructure`; the aggregate
 continues to provide structured validation and conversion without changing
 wire behavior. No base Codec dependency points back to Schema or the aggregate.
 
@@ -122,8 +126,47 @@ C++ `codec_failure::causes()` exposes the retained chain.
 
 Include `tlv++/codec/writer.hpp` for typed `writer_base::write()` overloads.
 `tlv++/codec/typed.hpp` no longer includes Writer. The aggregate `tlv++/tlv.hpp`
-includes both; shared C++ support headers retain their existing transitional
-Schema dependency until facade extraction.
+includes both. Common C++ error support no longer includes Schema headers.
+
+## Independent Schema
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Schema)
+target_link_libraries(my_validator PRIVATE OpenTLV::Schema)
+```
+
+Only Schema, IO and Core are loaded. A source build with
+`cmake --build build/modules --target opentlv_schema` compiles no Codec, Query,
+Document, Generator or builtin implementation. Length constraints, structural
+rules, occurrence/order checks, preparation and diagnostic reports remain available.
+Supply a Format; builtin Formats are optional consumers of the generic contract.
+
+Select integrations explicitly:
+
+| Target | Header | Behavior |
+| --- | --- | --- |
+| `OpenTLV::SchemaNumber` | `tlv/schema/number.h` | Schema-backed numeric conversion and length diagnostic composition |
+| `OpenTLV::SchemaQuery` | `tlv/schema/query.h` | Contextual assertions over buffers |
+| `OpenTLV::SchemaQueryDocument` | `tlv/schema/query_document.h` | Contextual assertions over Document, including D plans |
+| `OpenTLV::CodecStructure` | `tlv/codec/structure.h` | Object conversion with structural validation |
+
+Base modules do not depend on these integrations. Rules retain their order,
+context selection and execution semantics; assertion failures retain the rule
+index, name, tag, path and available source location. Query execution failures
+keep their original cause and result. The aggregate includes all integrations.
+
+`tlv_schema_diagnostic_t` keeps Schema findings in `detail.schema`. For
+`TLV_SCHEMA_CAUSE_READER` or `TLV_SCHEMA_CAUSE_CODEC`, inspect `detail.causes`
+using the producer's `tlv_reader_detail_copy()` or `tlv_codec_detail_copy()`.
+Direct `detail.reader` and `detail.codec` members are removed. Diagnostic copies
+retain their external borrows; codes, classifications and evidence are unchanged.
+The cause discriminator keeps its existing numeric vocabulary for compatibility.
+
+C++ Schema validation, reports and preparation return `schema_failure`, declared
+in `tlv++/schema/error.hpp`. It retains `schema_kind()`, `definition()` and
+`definition_kind()`, exposes the complete diagnostic with `native()`, and provides
+`failure()` / `to_error()` for common status, location and path. Those
+Schema-specific accessors no longer belong to `tlv::error`.
 
 ## Independent Generator
 

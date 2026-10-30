@@ -45,7 +45,11 @@ static const char* schema_detail_name(uint16_t type) {
     return type == 1 ? "schema" : "unknown";
 }
 static const char* schema_code_name(uint16_t family, int code) {
-    return family == 1 ? tlv_schema_issue_kind_string(code) : "unknown";
+    switch (family) {
+        case 1: return tlv_schema_issue_kind_string(code);
+        case 2: return tlv_schema_definition_kind_string(code);
+        default: return "unknown";
+    }
 }
 static const tlv_diagnostic_domain_t schema_domain = {5, "opentlv.schema", schema_detail_name,
                                                       schema_code_name};

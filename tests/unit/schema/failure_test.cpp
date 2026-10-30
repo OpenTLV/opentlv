@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
+#include "schema_diagnostic_helpers.h"
 #include "codec_diagnostic_helpers.h"
 
 #include "tlv/schema/schema.h"
@@ -161,7 +162,7 @@ TEST(Unit_Tlv_SchemaFailure, MalformedInputKeepsTheReaderCause) {
     EXPECT_EQ(failure, tlv_schema_validate(input, sizeof input, &controlled::format, &schema, 8, 16,
                                            &diagnostic));
     ASSERT_EQ(TLV_SCHEMA_CAUSE_READER, diagnostic.cause);
-    same_reader(diagnostic.diagnostic, diagnostic.detail.reader);
+    same_reader(diagnostic.diagnostic, schema_test_reader(&diagnostic));
 
     tlv_schema_diagnostic_t        entries[1]{};
     tlv_schema_diagnostic_report_t report = {entries, 1, 0};
@@ -171,7 +172,7 @@ TEST(Unit_Tlv_SchemaFailure, MalformedInputKeepsTheReaderCause) {
                                            TLV_SCHEMA_UNKNOWN_BY_SCHEMA, &report, &diagnostic));
     EXPECT_EQ(0u, report.count);
     ASSERT_EQ(TLV_SCHEMA_CAUSE_READER, diagnostic.cause);
-    same_reader(diagnostic.diagnostic, diagnostic.detail.reader);
+    same_reader(diagnostic.diagnostic, schema_test_reader(&diagnostic));
 
     // A structure codec with a Schema reports the same failure as its own Reader cause.
     const tlv_structure_codec_t codec = {nullptr,

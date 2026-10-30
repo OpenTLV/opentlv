@@ -4,7 +4,7 @@
 #ifndef OPENTLV_SCHEMA_NUMBER_H
 #define OPENTLV_SCHEMA_NUMBER_H
 
-#include "tlv/export.h"
+#include "tlv/schema-number/export.h"
 #include "tlv/schema/schema.h"
 #include "tlv/codec/number.h"
 
@@ -43,9 +43,10 @@ typedef struct tlv_schema_number {
  * @note Output is unchanged on failure; no allocation occurs.
  * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_schema_number_decode(const void* context, const uint8_t* data, size_t size,
-                                              void* value, size_t capacity,
-                                              tlv_codec_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_NUMBER_API tlv_result_t tlv_schema_number_decode(const void* context,
+                                                                const uint8_t* data, size_t size,
+                                                                void* value, size_t capacity,
+                                                                tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Selects a fitting schema-permitted width, then delegates numeric encoding.
  * @param[in] context Required immutable #tlv_schema_number_t with a non-NULL schema.
@@ -60,9 +61,22 @@ TLV_API tlv_result_t tlv_schema_number_decode(const void* context, const uint8_t
  *       and written must be disjoint. No allocation occurs.
  * @param[out] diagnostic Optional initialized failure output; NULL skips evidence collection.
  */
-TLV_API tlv_result_t tlv_schema_number_encode(const void* context, const void* value, size_t size,
-                                              uint8_t* data, size_t capacity, size_t* written,
-                                              tlv_codec_diagnostic_t* diagnostic);
+OPENTLV_SCHEMA_NUMBER_API tlv_result_t tlv_schema_number_encode(const void* context,
+                                                                const void* value, size_t size,
+                                                                uint8_t* data, size_t capacity,
+                                                                size_t* written,
+                                                                tlv_codec_diagnostic_t* diagnostic);
+
+/** @brief Apply a Schema length rule at a Codec integration boundary.
+ * @param rule Borrowed field rule; NULL returns NULL_ARG.
+ * @param width Actual Value length in bytes.
+ * @param diagnostic Optional initialized Codec diagnostic; its operation is retained.
+ * @return The result of tlv_schema_validate_length(). On failure, attaches the
+ * Schema rule identity and complete length evidence and records the Codec result.
+ * On success, leaves the diagnostic unchanged. No conversion is performed.
+ */
+OPENTLV_SCHEMA_NUMBER_API tlv_result_t tlv_schema_number_validate_length(
+    const tlv_schema_entry_t* rule, size_t width, tlv_codec_diagnostic_t* diagnostic);
 
 /** @brief Creates a codec borrowing an explicit Schema/number composition.
  * @param[in] config Borrowed immutable composition, validated on invocation.

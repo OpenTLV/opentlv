@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tests LANGUAGES C)
 
-foreach(module IN ITEMS codec query-codec)
+foreach(module IN ITEMS codec query-codec schema schema-number schema-query schema-query-document codec-structure)
     string(REPLACE "-" "_" source "${module}")
     opentlv_add_module_test(module-${module} OWNER ${module} SOURCES modules/${source}.c)
     opentlv_configure_compiler(module-${module})
@@ -23,6 +23,11 @@ opentlv_add_module_test(module-generator OWNER generator SOURCES modules/generat
 opentlv_configure_compiler(module-generator)
 opentlv_copy_shared_runtime(module-generator)
 if(OPENTLV_BUILD_CXX)
+    opentlv_add_module_test(module-schema-cxx OWNER schema SOURCES modules/schema.cpp)
+    target_include_directories(module-schema-cxx PRIVATE ${OpenTLV_SOURCE_DIR}/tlv++/include)
+    target_compile_features(module-schema-cxx PRIVATE cxx_std_11)
+    opentlv_configure_compiler(module-schema-cxx)
+    opentlv_copy_shared_runtime(module-schema-cxx)
     opentlv_add_module_test(module-generator-cxx OWNER generator SOURCES modules/generator.cpp)
     target_include_directories(module-generator-cxx PRIVATE ${OpenTLV_SOURCE_DIR}/tlv++/include)
     target_compile_features(module-generator-cxx PRIVATE cxx_std_11)
@@ -73,13 +78,9 @@ if(OPENTLV_BUILD_CXX)
     add_test(NAME capability-cxx-contract COMMAND capability-cxx-contract)
     set_tests_properties(capability-cxx-contract PROPERTIES LABELS "capabilities")
 endif()
-if(OPENTLV_BUILD_SHARED_LIBS)
-    foreach(contract IN ITEMS capability-contract diagnostic-strings-contract)
-        add_custom_command(TARGET ${contract} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:tlv> $<TARGET_FILE:opentlv_core> $<TARGET_FILE:opentlv_io> $<TARGET_FILE:opentlv_document> $<TARGET_FILE:opentlv_generator> $<TARGET_FILE:opentlv_query> $<TARGET_FILE:opentlv_query_document> $<TARGET_FILE:opentlv_codec> $<TARGET_FILE:opentlv_query_codec> $<TARGET_FILE_DIR:${contract}>)
-    endforeach()
-endif()
+opentlv_copy_shared_runtime(capability-contract)
+opentlv_copy_shared_runtime(diagnostic-strings-contract)
+
 
 if(OPENTLV_BUILD_UNIT_TESTS OR OPENTLV_BUILD_INTEGRATION_TESTS)
     enable_language(CXX)

@@ -53,7 +53,8 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
             if (rc != TLV_OK) {
                 diagnostic->diagnostic = detail.diagnostic;
                 diagnostic->cause = TLV_SCHEMA_CAUSE_READER;
-                diagnostic->detail.reader = detail.detail;
+                tlv_diagnostic_causes_init(&diagnostic->detail.causes);
+                (void)tlv_reader_detail_attach(&diagnostic->detail.causes, &detail.detail);
                 diagnostic->diagnostic.location.kind =
                     detail.diagnostic.location.kind ? TLV_LOCATION_POINT : TLV_LOCATION_UNKNOWN;
             }

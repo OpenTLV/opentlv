@@ -61,6 +61,7 @@
 #include "tlv/schema/constraint.h"
 #if OPENTLV_QUERY
 #include "tlv/schema/query.h"
+#include "tlv/schema/query_document.h"
 #endif
 #endif
 

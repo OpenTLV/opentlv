@@ -16,7 +16,7 @@ static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* 
             /* Keep one path per cause: a Reader failure under Schema is a Reader cause. */
             diagnostic->diagnostic = cause.diagnostic;
             if (cause.cause == TLV_SCHEMA_CAUSE_READER) {
-                (void)tlv_reader_detail_attach(&diagnostic->causes, &cause.detail.reader);
+                diagnostic->causes = cause.detail.causes;
             } else if (cause.cause == TLV_SCHEMA_CAUSE_SCHEMA) {
                 (void)tlv_schema_detail_attach(&diagnostic->causes, &cause.detail.schema);
             }

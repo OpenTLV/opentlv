@@ -38,9 +38,10 @@ detail and delegated chain share discriminated storage. ABI snapshots include
 diagnostic alignment, because platform payload alignment differs.
 
 Reader/Writer name functions belong to IO; Query names and feature mirrors now
-belong to Query. Codec and Schema retain their existing native detail layouts
-until their extraction issues. Their public attach/copy/export helpers bridge
-those layouts to generic frames without exposing private headers. Query never
+belong to Query. Codec (#651) and Schema (#652) own their diagnostic names and
+transport delegated detail as producer-owned frames. Their public
+attach/copy/export helpers bridge native detail to generic frames without exposing
+private headers. Query never
 interprets foreign payload bytes. All frames remain copyable by value, with the
 original producer's borrowed-pointer lifetimes.
 
@@ -69,7 +70,19 @@ Codec exports and imports its own detail without linking either producer. The
 legacy `tlv_codec_cause_t` vocabulary is retained for baseline interpretation,
 but no longer discriminates a union. Its mapping remains `none`, `frame:io`,
 and `frame:schema`; no result, operation, reason or violation is renumbered.
-Schema's remaining diagnostic representation changes belong to #652.
+Schema extraction (#652) replaces both delegated `detail.reader` and
+`detail.codec` with `detail.causes`, while keeping its finding in `detail.schema`.
+The legacy cause discriminator remains numerically unchanged: Reader maps to an
+IO frame and Codec to a Codec frame, as specified below. Generic Schema links only
+Core and IO. DER Schema exports the complete Codec chain before preserving its
+primary location and path. Schema's descriptor resolves issue family 1 and
+definition-kind family 2. C++ Schema failures retain complete evidence in
+`schema_failure`; common `error` no longer embeds Schema types.
+
+On Linux x64, the Schema native diagnostic measures 1008 bytes with alignment 16.
+The C++ `schema_failure` measures 1632 bytes: it retains the complete native
+diagnostic alongside its common `error` projection (624 bytes). These are measured
+layouts, not portable ABI constants; consumers must rebuild for this change.
 
 ## Ownership
 

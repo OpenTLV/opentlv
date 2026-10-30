@@ -226,7 +226,9 @@ static void leaf_cause(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc,
         diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_VALUE;
     } else if (conversion) {
         diagnostic->cause = TLV_SCHEMA_CAUSE_CODEC;
-        diagnostic->detail.codec = conversion->codec;
+        tlv_diagnostic_envelope_t envelope;
+        tlv_codec_diagnostic_export(&envelope, conversion);
+        diagnostic->detail.causes = envelope.causes;
     }
 }
 

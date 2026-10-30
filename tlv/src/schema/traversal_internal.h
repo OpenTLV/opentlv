@@ -24,7 +24,8 @@ static tlv_result_t schema_check_tree(const uint8_t* data, size_t size, const tl
     if (diagnostic && rc != TLV_OK) {
         diagnostic->diagnostic = detail.diagnostic;
         diagnostic->cause = TLV_SCHEMA_CAUSE_READER;
-        diagnostic->detail.reader = detail.detail;
+        tlv_diagnostic_causes_init(&diagnostic->detail.causes);
+        (void)tlv_reader_detail_attach(&diagnostic->detail.causes, &detail.detail);
     }
     return rc;
 }

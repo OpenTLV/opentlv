@@ -11,6 +11,7 @@
 #include "tlv++/reader/reader.hpp"
 #if OPENTLV_SCHEMA
 #include "tlv/builtins/lldp/schema.h"
+#include "tlv++/schema/error.hpp"
 #endif
 #include "tlv++/writer/builder.hpp"
 
@@ -27,13 +28,12 @@ namespace lldp {
  * @param max_elements Maximum total element count, including the End element.
  * @return Success or a canonical error with the diagnostic byte offset when known.
  */
-inline expected<void, error> validate(bytes data, size_t max_elements = SIZE_MAX) {
+inline expected<void, schema_failure> validate(bytes data, size_t max_elements = SIZE_MAX) {
     tlv_schema_diagnostic_t diagnostic{};
     const auto rc = tlv_lldp_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                       max_elements, &diagnostic);
     if (rc == TLV_OK) return {};
-    auto failure = detail::error_access::schema(diagnostic);
-    return unexpected<error>(failure);
+    return unexpected<schema_failure>(schema_failure(diagnostic));
 }
 #endif
 /** @brief Built-in Format satisfying the generic C++ customization contract. */

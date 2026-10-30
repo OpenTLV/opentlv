@@ -4,6 +4,7 @@
 #ifndef OPENTLV_TLVPP_SCHEMA_REPORT_HPP
 #define OPENTLV_TLVPP_SCHEMA_REPORT_HPP
 #include "tlv++/schema/definition.hpp"
+#include "tlv++/schema/error.hpp"
 #include "tlv++/format.hpp"
 #include "tlv++/diagnostic.hpp"
 
@@ -28,8 +29,8 @@ public:
         return static_cast<schema_issue>(raw_.detail.schema.kind);
     }
     /** @brief Canonical status and absolute wire offset. */
-    tlv::error error() const noexcept {
-        return detail::error_access::schema(raw_);
+    tlv::schema_failure error() const noexcept {
+        return schema_failure(raw_);
     }
     /** @brief Affected identifier, borrowed from input, Format or Schema. */
     tlv::tag tag() const noexcept {
@@ -130,12 +131,12 @@ public:
      * @param definition Immutable borrowed Schema.
      * @return The prepared handle, or the definition failure of tlv_schema_prepare().
      */
-    static expected<checked_schema, error> prepare(schema definition) {
+    static expected<checked_schema, schema_failure> prepare(schema definition) {
         checked_schema          result;
         tlv_schema_diagnostic_t failure_detail{};
         if (tlv_schema_prepare(&result.raw_, detail::schema_access::get(definition),
                                &failure_detail) != TLV_OK)
-            return unexpected<error>(detail::error_access::schema(failure_detail));
+            return unexpected<schema_failure>(schema_failure(failure_detail));
         return result;
     }
     /** @brief The checked borrowed Schema. */
@@ -174,10 +175,10 @@ public:
      * @return Total violations (possibly greater than capacity), or a wire/argument failure.
      * @note A Schema violation is report data, not a failed report operation.
      */
-    expected<size_t, error> validate(bytes input, tlv::format format, schema definition,
-                                     unknown_policy unknown = unknown_policy::by_schema,
-                                     size_t         max_depth = TLV_SCHEMA_MAX_DEPTH,
-                                     size_t         max_elements = SIZE_MAX) {
+    expected<size_t, schema_failure> validate(bytes input, tlv::format format, schema definition,
+                                              unknown_policy unknown = unknown_policy::by_schema,
+                                              size_t         max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                              size_t         max_elements = SIZE_MAX) {
         tlv_schema_diagnostic_report_t report{storage_.data(), Capacity, 0};
         tlv_schema_diagnostic_t        diagnostic{};
         const auto                     rc = tlv_schema_validate_all_diag(
@@ -186,7 +187,7 @@ public:
             max_elements, static_cast<tlv_schema_unknown_policy_t>(unknown), &report, &diagnostic);
         total_ = report.count;
         if (rc != TLV_OK && rc != TLV_ERR_SCHEMA)
-            return unexpected<error>(detail::error_access::schema(diagnostic));
+            return unexpected<schema_failure>(schema_failure(diagnostic));
         return total_;
     }
     /**
@@ -199,11 +200,11 @@ public:
      * @param max_elements Maximum element count.
      * @return Total violations (possibly greater than capacity), or a wire/argument failure.
      */
-    expected<size_t, error> validate(bytes input, tlv::format format,
-                                     const checked_schema& definition,
-                                     unknown_policy        unknown = unknown_policy::by_schema,
-                                     size_t                max_depth = TLV_SCHEMA_MAX_DEPTH,
-                                     size_t                max_elements = SIZE_MAX) {
+    expected<size_t, schema_failure> validate(bytes input, tlv::format format,
+                                              const checked_schema& definition,
+                                              unknown_policy unknown = unknown_policy::by_schema,
+                                              size_t         max_depth = TLV_SCHEMA_MAX_DEPTH,
+                                              size_t         max_elements = SIZE_MAX) {
         tlv_schema_diagnostic_report_t report{storage_.data(), Capacity, 0};
         tlv_schema_diagnostic_t        diagnostic{};
         const auto                     rc = tlv_schema_validate_all_checked(
@@ -213,7 +214,7 @@ public:
         total_ = report.count;
         if (rc != TLV_OK && rc != TLV_ERR_SCHEMA) {
             diagnostic.diagnostic.code = rc;
-            return unexpected<error>(detail::error_access::schema(diagnostic));
+            return unexpected<schema_failure>(schema_failure(diagnostic));
         }
         return total_;
     }
