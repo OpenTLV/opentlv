@@ -22,6 +22,7 @@
 #endif
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #endif
 #if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"

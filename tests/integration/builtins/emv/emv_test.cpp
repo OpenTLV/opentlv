@@ -12,6 +12,7 @@
 #include "tlv/config.h"
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #include <memory>
 #endif
 #include <gtest/gtest.h>

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/schema/query.h"
+#include "tlv/query/document.h"
 #include "../query/program_internal.h"
 #include <string.h>
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/document/document.h"
+#include "tlv/document/integration.h"
 #include "tlv/size.h"
 #include "document_internal.h"
 #include "tlv/defaults.h"
@@ -297,8 +297,8 @@ tlv_result_t tlv_document_create(const tlv_document_options_t* options, tlv_docu
 
 void tlv_document_free(tlv_document_t* document) {
     if (!document) return;
-    if (document->query_callbacks) {
-        document->query_pending = 2;
+    if (document->active_callbacks) {
+        document->pending_mutation = 2;
         return;
     }
     discard_children(document, NULL);
@@ -375,7 +375,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     tlv_result_t rc;
     if (!node || (!value && length)) return TLV_ERR_NULL_ARG;
     document = node->document;
-    if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
+    if (document->active_callbacks) return TLV_ERR_INVALID_STATE;
     if (!node->constructed) {
         uint8_t* copy = copy_bytes(document, value, length);
         if (length && !copy) return TLV_ERR_OUT_OF_MEMORY;
@@ -421,7 +421,7 @@ tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
     tlv_encoding_t probe_size;
     tlv_result_t rc;
     if (!document || (!value && length) || !tag_valid(tag)) return TLV_ERR_NULL_ARG;
-    if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
+    if (document->active_callbacks) return TLV_ERR_INVALID_STATE;
     if (parent && (parent->document != document || !parent->constructed))
         return TLV_ERR_INVALID_ARG;
     if (before && (before->document != document || before->parent != parent))
@@ -450,9 +450,9 @@ void tlv_node_erase(tlv_node_t* node) {
     tlv_document_t* document;
     if (!node) return;
     document = node->document;
-    if (document->query_callbacks) {
+    if (document->active_callbacks) {
         node->pending_erase = 1;
-        if (!document->query_pending) document->query_pending = 1;
+        if (!document->pending_mutation) document->pending_mutation = 1;
         return;
     }
     invalidate_locations(node->parent);
@@ -463,10 +463,18 @@ void tlv_node_erase(tlv_node_t* node) {
     ++document->revision;
 }
 
-const tlv_format_t* document_format(const tlv_document_t* document) {
-    return document ? document->options.format : NULL;
+tlv_document_options_t tlv_document_options(const tlv_document_t* document) {
+    tlv_document_options_t options = {0};
+    if (document) {
+        options = document->options;
+        options.allocator = &document->allocator;
+    }
+    return options;
 }
-int document_contains(const tlv_document_t* document, const tlv_node_t* node) {
+int tlv_document_callbacks_active(const tlv_document_t* document) {
+    return document && document->active_callbacks != 0;
+}
+int tlv_document_contains(const tlv_document_t* document, const tlv_node_t* node) {
     /* Internal context validation accepts live nodes, not possibly stale handles. */
     return document && node && node->document == document;
 }
@@ -492,15 +500,15 @@ uint64_t tlv_document_revision(const tlv_document_t* document) {
 uint64_t tlv_document_retire_epoch(const tlv_document_t* document) {
     return document ? document->retire_epoch : 0;
 }
-int document_query_callback(tlv_document_t* document, int active) {
+int tlv_document_callback(tlv_document_t* document, int active) {
     if (active) {
-        ++document->query_callbacks;
+        ++document->active_callbacks;
         return 0;
     }
-    assert(document->query_callbacks);
-    if (--document->query_callbacks) return 0;
-    int pending = document->query_pending;
-    document->query_pending = 0;
+    assert(document->active_callbacks);
+    if (--document->active_callbacks) return 0;
+    int pending = document->pending_mutation;
+    document->pending_mutation = 0;
     if (pending == 2) {
         tlv_document_free(document);
     } else if (pending == 1) {
@@ -518,149 +526,3 @@ int document_query_callback(tlv_document_t* document, int active) {
     }
     return pending;
 }
-
-#if OPENTLV_QUERY
-static tlv_result_t edit_limit(document_edit_failure_t* failure, const char* name,
-                               size_t configured) {
-    if (failure) {
-        failure->limit = name;
-        failure->configured = configured;
-    }
-    return TLV_ERR_LIMIT;
-}
-
-/* Count the nodes and relative depth of a constructed edit Value. A Value rejected by
- * the Reader fills the optional Reader detail. Tree depth and element limits leave that
- * detail untouched: they are the Document limits, so they are named instead. */
-static tlv_result_t edit_value_shape(const tlv_document_t* document, const uint8_t* value,
-                                     size_t size, tlv_tree_frame_t* frames, size_t capacity,
-                                     size_t* added, size_t* relative_depth,
-                                     document_edit_failure_t* failure) {
-    tlv_tree_reader_t reader;
-    tlv_result_t check =
-        tlv_tree_reader_init(&reader, value, size, document->options.format, frames, capacity,
-                             document->options.max_depth, document->options.max_elements);
-    while (check == TLV_OK) {
-        tlv_tree_event_t event;
-        check = tlv_tree_reader_next_event_diag(&reader, &event, failure ? &failure->reader : NULL);
-        if (check == TLV_OK && event.kind != TLV_TREE_END) {
-            ++*added;
-            if (event.depth > *relative_depth) *relative_depth = event.depth;
-        }
-    }
-    if (check == TLV_END) return TLV_OK;
-    if (check == TLV_ERR_LIMIT && (!failure || failure->reader.diagnostic.code != check))
-        return reader.descend_pending && reader.depth == reader.max_depth
-                   ? edit_limit(failure, "document-depth", document->options.max_depth)
-                   : edit_limit(failure, "document-elements", document->options.max_elements);
-    return check;
-}
-
-tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t** targets, size_t count,
-                                   tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
-                                   const uint8_t* value, size_t size, size_t* applied,
-                                   document_edit_failure_t* failure) {
-    if (document->query_callbacks) return TLV_ERR_INVALID_STATE;
-    if (!count) return TLV_OK;
-#ifndef NDEBUG
-    /* Private input comes directly from the unique preorder Query cursor. */
-    size_t ordered = 0;
-    for (const tlv_node_t* node = document->first; node;) {
-        if (ordered < count && node == targets[ordered]) ++ordered;
-        if (node->first)
-            node = node->first;
-        else {
-            while (node->parent && !node->next) node = node->parent;
-            node = node->next;
-        }
-    }
-    assert(ordered == count);
-#endif
-    /* Resolve overlap against the initial topology before freeing a single node. */
-    if (kind != TLV_DOCUMENT_QUERY_INSERT_AFTER) {
-        const tlv_node_t* covering = NULL;
-        for (size_t i = 0; i < count; ++i) {
-            int covered = 0;
-            for (const tlv_node_t* parent = targets[i]->parent; parent; parent = parent->parent) {
-                if (parent == covering) {
-                    covered = 1;
-                    break;
-                }
-            }
-            if (covered)
-                targets[i] = NULL;
-            else
-                covering = targets[i];
-        }
-    }
-    /* Preflight Format framing, Value syntax and every target's depth/count
-     * limits before changing the tree. Primitive Values remain opaque bytes. */
-    size_t added = 0, relative_depth = 0;
-    int constructed = 0;
-    if (kind == TLV_DOCUMENT_QUERY_INSERT_AFTER) {
-        size_t encoded;
-        if (!tag_valid(tag)) return TLV_ERR_NULL_ARG;
-        tlv_result_t check = tlv_encoded_size(tag, size, document->options.format, &encoded);
-        if (check != TLV_OK) return check;
-        constructed =
-            document->options.format->is_constructed &&
-            document->options.format->is_constructed(document->options.format->context, &tag);
-    } else if (kind == TLV_DOCUMENT_QUERY_REPLACE) {
-        for (size_t i = 0; i < count; ++i)
-            if (targets[i] && targets[i]->constructed) constructed = 1;
-    }
-    if (constructed && size) {
-        size_t capacity = document->options.max_depth;
-        if (capacity > size) capacity = size;
-        if (capacity > SIZE_MAX / sizeof(tlv_tree_frame_t)) return TLV_ERR_OVERFLOW;
-        tlv_tree_frame_t* frames =
-            capacity ? document_memory_allocate(document, capacity * sizeof *frames) : NULL;
-        if (capacity && !frames) return TLV_ERR_OUT_OF_MEMORY;
-        tlv_result_t check = edit_value_shape(document, value, size, frames, capacity, &added,
-                                              &relative_depth, failure);
-        document_memory_release(document, frames);
-        if (check != TLV_OK) return check;
-    }
-    size_t projected = document->count;
-    for (size_t i = 0; i < count; ++i) {
-        const tlv_node_t* target = targets[i];
-        if (!target) continue;
-        if (kind == TLV_DOCUMENT_QUERY_REMOVE) continue;
-        if (kind == TLV_DOCUMENT_QUERY_REPLACE && !target->constructed) continue;
-        size_t depth = node_depth(target);
-        if (added && (depth >= document->options.max_depth ||
-                      relative_depth > document->options.max_depth - depth - 1))
-            return edit_limit(failure, "document-depth", document->options.max_depth);
-        if (kind == TLV_DOCUMENT_QUERY_REPLACE)
-            projected -= subtree_size(target) - 1;
-        else {
-            if (projected == document->options.max_elements)
-                return edit_limit(failure, "document-elements", document->options.max_elements);
-            ++projected;
-        }
-        if (added > document->options.max_elements - projected)
-            return edit_limit(failure, "document-elements", document->options.max_elements);
-        projected += added;
-    }
-    uint8_t* copy = NULL;
-    if (kind != TLV_DOCUMENT_QUERY_REMOVE && size) {
-        copy = copy_bytes(document, value, size);
-        if (!copy) return TLV_ERR_OUT_OF_MEMORY;
-    }
-    tlv_result_t rc = TLV_OK;
-    for (size_t i = 0; i < count; ++i) {
-        tlv_node_t* target = targets[i];
-        if (!target) continue;
-        if (kind == TLV_DOCUMENT_QUERY_REMOVE)
-            tlv_node_erase(target);
-        else if (kind == TLV_DOCUMENT_QUERY_REPLACE)
-            rc = tlv_node_set_value(target, copy, size);
-        else
-            rc = tlv_document_insert(document, target->parent, target->next, tag, copy, size, NULL);
-        if (rc != TLV_OK) break;
-        ++*applied;
-    }
-    document_memory_release(document, copy);
-    return rc;
-}
-#endif

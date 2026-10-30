@@ -7,6 +7,7 @@
 #include "tlv/formats/fixed.h"
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
 #endif
 typedef struct callback_state {

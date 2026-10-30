@@ -9,11 +9,20 @@ reviewers who approve these contracts. Read the
 [failure model](../../concepts/error-model.md) first.
 
 **Implementation status:** #647 extracts the C `OpenTLV::Core` and
-`OpenTLV::IO` targets using the infrastructure from #646. Their sources, public
+`OpenTLV::IO` targets, and #648 extracts `OpenTLV::Document`, using the
+infrastructure from #646. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
 checks the compiled dependency graph. The remaining modules and C++ facades
 retain the planned boundaries below and stay in the compatibility targets until
 their extraction issues. See the [consumer migration guide](../../guides/select-components.md).
+
+Document Query declarations now live in `tlv/query/document.h`; path matching
+and batch-edit policy live in `query/document_path.c` and
+`query/document_backend.c`. Both use `tlv/document/integration.h` and public node
+APIs, with no Document private-header access. The integration remains compiled
+in the compatibility library until #650 registers Query and its integrations.
+The base Document target has no Query, Schema, Codec, Generator or builtin
+headers, sources or symbols. C++ facade separation remains tracked below.
 
 The [pre-refactor behavioral baseline](../../../tests/baseline/README.md) for
 issue #645 pins the released behavior and diagnostic inventory used when applying
@@ -268,7 +277,7 @@ scheduled below. `ownership.json` records only the remaining exceptions.
 | Core ↔ Schema | `diagnostic_strings.c` and `tlv++/error.hpp` include `tlv/schema/schema.h` | `schema-diagnostic-causes` | #652 |
 | Codec ↔ Schema | `tlv_codec_detail_t` embeds `tlv_schema_detail_t`; `tlv_schema_diagnostic_t` embeds `tlv_codec_detail_t` | `codec-diagnostic-vocabulary`, `schema-diagnostic-causes` | #651, #652 |
 | Query ↔ `query-codec` | `tlv++/query/options.hpp` includes `tlv/query/adapters.h` for codec hooks | `query-codec-hooks` | #650 |
-| Document ↔ Query (modules) | `document.h` includes `tlv/query/query.h` and declares Document Query; `document/query.c` and `query/document_backend.c` use both modules' internals | `document-query-boundary`, `query-document-integration` | #648, #650 |
+| Document ↔ Query (modules) | C boundary resolved in #648; Query-owned implementations use public Document APIs. Query target extraction and C++ facade separation remain | `document-query-boundary`, `query-document-integration` | #648, #650 |
 | Query ↔ Schema (modules) | `tlv_query_diagnostic_t` embeds Schema and Codec detail; `schema/query.c` includes `query/program_internal.h` | `query-codec-hooks`, `schema-query-integration` | #650, #652 |
 
 Every resolution is approved with this page. After them the target graph in
@@ -290,7 +299,7 @@ its entries when it applies the resolution:
 | `io-tree-measure` | `query/document_backend.c` → `writer/tree_internal.h` |
 | `document-query-boundary` | `document.h` → `tlv/query/query.h`; `document.hpp` → Query facades |
 | `document-codec-facade` | `document.hpp` → `tlv++/codec/typed.hpp` |
-| `query-document-integration` | `document/query.c` and `query/document_backend.c` → `document_internal.h` |
+| `query-document-integration` | Document private-header access resolved in #648; Query owner-internal exports remain for #650 |
 | `query-codec-hooks` | `tlv/query/program.h` → `tlv/codec/codec.h`; `query/evaluation.c` → `codec/result_internal.h`; `tlv++/query/options.hpp` → `tlv/query/adapters.h` |
 | `query-diagnostic-names` | `diagnostic_strings.c` → `tlv/query/program.h` |
 | `codec-diagnostic-vocabulary` | `diagnostic.c`, `diagnostic_strings.c` → `tlv/codec/diagnostic.h`; `tlv/codec/diagnostic.h` → Reader and Schema detail headers |
@@ -313,7 +322,7 @@ targets are separate libraries:
 | Symbols | Caller → owner | Resolution |
 | --- | --- | --- |
 | `tlv_utf8_validate()`, `tlv_utf8_find_invalid()`, `tlv_utf8_stream_*()` | ASN.1, Bluetooth, Query, `query-codec` → Core | `core-utf8-api` |
-| `document_query_callback()`, `document_edit_targets()`, `document_node_tag()`, `document_contains()`, `document_format()` | `query-document` → Document | `document-query-boundary` |
+| Resolved in #648: public `tlv_document_callback()`, `tlv_document_callbacks_active()`, `tlv_document_contains()`, `tlv_document_options()` and `tlv_node_tag()`; batch-edit helpers are local to Query | `query-document` → Document | `document-query-boundary` |
 | `tree_writer_measure_events_observed()` | `query-document` → IO | `io-tree-measure` |
 | `query_document_end()`, `query_document_handle()`, `query_document_next()`, `query_document_result_count()`, `query_live_overlap()`, `query_retained_overlap()` | `query-document` → Query | `query-document-integration` |
 
@@ -355,13 +364,12 @@ symbol lacks a public declaration.
 
 The repository stays buildable and testable between the two issues:
 
-1. #648 creates the Document target with Core and IO only. The Document Query
-   declarations move to a Query-owned header, and `document/query.c`,
-   `query/document_backend.c` and the Query-specific part of `document.c`
-   (`document_query_callback()`, `document_edit_targets()` and the edit
-   helpers) stay with Query in the part of the library that is not extracted
-   yet. They may still use the current private headers, recorded as
-   exceptions.
+1. #648 creates the Document target with Core and IO only. Document Query
+   declarations move to `tlv/query/document.h`. Path matching and selection-edit
+   helpers move to Query-owned sources in the compatibility library. Generic
+   callback lifetime protection stays with Document and is exposed through
+   `tlv/document/integration.h`, alongside effective options and ownership checks.
+   Query uses this boundary without accessing Document private headers.
 2. #650 creates the Query target, completes `query-document` on public
    Document and IO APIs and the Query owner-internal interface, and removes
    the exceptions. The Document Query tests then run against the integration

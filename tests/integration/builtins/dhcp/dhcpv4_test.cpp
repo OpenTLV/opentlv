@@ -10,6 +10,7 @@
 #include "tlv/schema/schema.h"
 #if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #endif
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"

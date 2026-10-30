@@ -4,13 +4,9 @@
 #ifndef OPENTLV_DOCUMENT_H
 #define OPENTLV_DOCUMENT_H
 
-#include "tlv/export.h"
+#include "tlv/document/export.h"
 #include "tlv/result.h"
 #include "tlv/format.h"
-#include "tlv/config.h"
-#if OPENTLV_QUERY
-#include "tlv/query/query.h"
-#endif
 #include "tlv/reader/visitor.h"
 #include "tlv/tag.h"
 
@@ -21,17 +17,10 @@
 extern "C" {
 #endif
 
-/** @brief Opaque compiled Query execution, defined in tlv/query/program.h. */
-struct tlv_query_exec;
-/** @brief Query diagnostic, defined in tlv/query/program.h. */
-struct tlv_query_diagnostic;
-/** @brief Caller Writer staging, defined in tlv/writer/tree.h. */
-struct tlv_tree_writer_workspace;
-
 /**
  * @file
  * @ingroup document
- * @brief Optional mutable TLV document that owns its data and can be modified and encoded again.
+ * @brief Mutable TLV document that owns its data and can be modified and encoded again.
  *
  * The reader, writer and traversal APIs are zero-copy and never allocate.
  * This component owns a mutable tree that can be built programmatically.
@@ -40,12 +29,11 @@ struct tlv_tree_writer_workspace;
  *
  * Programmatic tree operations need no Reader, Writer or Query operation.
  * Wire import and encoding use IO, which always provides Reader and Writer;
- * path matching requires OPENTLV_QUERY. Compiled Document Query uses IO as
- * well. The Format and nesting predicate are supplied through
+ * Query operations are declared separately in tlv/query/document.h.
+ * The Format and nesting predicate are supplied through
  * #tlv_document_options_t. Read/write callbacks are needed only by wire
  * operations. Nothing in the allocation-free core depends on Document. It is
- * an optional component (`OPENTLV_DOCUMENT`, see tlv/config.h) and the only
- * OpenTLV component that allocates memory.
+ * independently linkable through OpenTLV::Document and owns its allocations.
  *
  * **Ownership.** A #tlv_document_t owns every node, tag and value in it.
  * Nodes are handed out as #tlv_node_t pointers that borrow from the document:
@@ -151,7 +139,8 @@ typedef struct tlv_node tlv_node_t;
  * children and inserted nodes never acquire locations from mutation buffers.
  * Unaffected siblings keep their original coordinates even if encoding shifts.
  */
-TLV_API tlv_document_source_location_t tlv_node_source_location(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API tlv_document_source_location_t
+tlv_node_source_location(const tlv_node_t* node);
 
 /** @brief Observe the whole-Document mutation revision; NULL returns zero.
  * @param document Live Document, borrowed for the call.
@@ -162,7 +151,7 @@ TLV_API tlv_document_source_location_t tlv_node_source_location(const tlv_node_t
  * are deferred until the outermost Query callback on this Document returns;
  * that visit ends with INVALID_STATE. Concurrent mutation requires exclusive access
  * even when requested from a callback. Revisions wrap after UINT64_MAX edits. */
-TLV_API uint64_t tlv_document_revision(const tlv_document_t* document);
+OPENTLV_DOCUMENT_API uint64_t tlv_document_revision(const tlv_document_t* document);
 
 /** @brief Observe the whole-Document Node retirement epoch; NULL returns zero.
  *
@@ -181,7 +170,7 @@ TLV_API uint64_t tlv_document_revision(const tlv_document_t* document);
  * @note Epochs never wrap: each increment retires a distinct Node identity, and
  * identity exhaustion rejects further creation before identities can be reused.
  * @see tlv_document_node_identity for allocation-free stale-address validation. */
-TLV_API uint64_t tlv_document_retire_epoch(const tlv_document_t* document);
+OPENTLV_DOCUMENT_API uint64_t tlv_document_retire_epoch(const tlv_document_t* document);
 
 /** @brief Check a possibly stale node address without dereferencing it.
  * @param document Live owning Document; caller must retain its lifetime.
@@ -190,69 +179,14 @@ TLV_API uint64_t tlv_document_retire_epoch(const tlv_document_t* document);
  * @note O(node count) scan, allocation-free. Identities are never reused, including
  * allocator address reuse; exhaustion rejects creation with LIMIT. Store identity
  * alongside an address to detect erase/replacement after the retirement epoch changes. */
-TLV_API uint64_t tlv_document_node_identity(const tlv_document_t* document, const tlv_node_t* node);
+OPENTLV_DOCUMENT_API uint64_t tlv_document_node_identity(const tlv_document_t* document,
+                                                         const tlv_node_t* node);
 
 /** @brief Read a live node's immutable Document-local identity in constant time.
  * @param node Live node or NULL; stale pointers are forbidden.
  * @return Nonzero identity, or zero for NULL.
  * @see tlv_document_node_identity for checking a possibly stale address. */
-TLV_API uint64_t tlv_node_identity(const tlv_node_t* node);
-
-#if OPENTLV_QUERY
-/** @brief Completed Query selection edit operation. */
-typedef enum tlv_document_query_edit_kind {
-    TLV_DOCUMENT_QUERY_REMOVE,  /**< Erase selected roots; selected ancestors dominate descendants.
-                                 */
-    TLV_DOCUMENT_QUERY_REPLACE, /**< Replace Values; selected ancestors dominate descendants. */
-    TLV_DOCUMENT_QUERY_INSERT_AFTER /**< Insert one sibling immediately after each selected target.
-                                     */
-} tlv_document_query_edit_kind_t;
-
-/** @brief Edit an already finalized compiled Query selection, never an active traversal.
- * @param document Live mutable Document used by execution.
- * @param exec Finished node-result execution; all targets are collected before mutation.
- * @param kind Operation selector.
- * @param tag Insertion identifier; ignored by other operations.
- * @param value Replacement/insertion Value, copied before editing; ignored by removal.
- * @param size Value bytes.
- * @param targets Exclusive caller array of node pointers for the complete selection.
- * @param capacity Array entries; short storage leaves the cursor and targets unchanged,
- * permitting retry of the same completed execution with a larger target array.
- * @param applied Required output, initialized to zero; successful edited selected roots.
- * Targets, applied and diagnostic must not overlap each other, the execution or a used
- * Value; such overlap returns #TLV_ERR_INVALID_ARG before writes.
- * @param[out] diagnostic Optional Query failure detail; NULL when not needed. A
- * constructed Value rejected by the Reader keeps the original Reader detail, with
- * #TLV_LOCATION_INPUT relative to `value`. An edit exceeding the Document depth or
- * element limit, including inside a constructed Value, reports #TLV_ERR_LIMIT with kind
- * #TLV_QUERY_ERROR_LIMIT, `limit` "document-depth" or "document-elements" and its
- * `configured` bound. A rejected Tag, Value framing or Document allocation keeps its
- * result with kind #TLV_QUERY_ERROR_ARGUMENT or #TLV_QUERY_ERROR_STORAGE.
- * @return OK for no matches, or native error. Invalid operation/capacity/revision makes
- * no edits. Remove cannot fail after collection. Replace/insert commit in preorder,
- * stopping at first failure; previous successful edits remain, without rollback.
- * Tag framing, constructed Value syntax and every target's depth/count limits are
- * prevalidated before editing; their failure makes no tree changes. Allocation or
- * identity exhaustion can still cause partial application during commit.
- * @note Ancestor dominance is resolved before editing. Insertion includes every selected
- * node once and preserves original sibling order. Document allocator owns temporary Value
- * copies and normal inserted nodes. Native pointers borrow Document; keep it alive through
- * collection. Any successful edit invalidates the execution's whole-document revision.
- * REPLACE stores identical bytes on primitive targets but parses them as children on
- * constructed targets. Overlap filtering is O(target count * depth), allocation-free.
- * @note Reentrancy, failed-execution and overlap guards return before initializing
- * `diagnostic` and leave it untouched, preserving the original failure of the execution;
- * after initialization, every non-#TLV_OK return has `diagnostic.code == rc`.
- * @return #TLV_ERR_INVALID_STATE during callbacks, for stale results or after result iteration has
- * begun.
- */
-TLV_API tlv_result_t tlv_document_query_edit(tlv_document_t* document, struct tlv_query_exec* exec,
-                                             tlv_document_query_edit_kind_t kind, tlv_tag_t tag,
-                                             const uint8_t* value, size_t size,
-                                             tlv_node_t** targets, size_t capacity, size_t* applied,
-                                             struct tlv_query_diagnostic* diagnostic);
-
-#endif
+OPENTLV_DOCUMENT_API uint64_t tlv_node_identity(const tlv_node_t* node);
 
 /**
  * @brief Resumable owning consumer of a Tree Reader, optionally limited to one subtree.
@@ -291,10 +225,10 @@ typedef struct tlv_document_builder tlv_document_builder_t;
  *          and allocator contexts must outlive both builder and resulting document.
  *          Reader's complete contiguous constructed-element contract still applies.
  */
-TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
-                                                 tlv_tree_reader_t* reader,
-                                                 const tlv_tree_item_t* root,
-                                                 tlv_document_builder_t** builder);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
+                                                              tlv_tree_reader_t* reader,
+                                                              const tlv_tree_item_t* root,
+                                                              tlv_document_builder_t** builder);
 
 /**
  * @brief Consume structural events and transfer ownership only on completion.
@@ -323,16 +257,16 @@ TLV_API tlv_result_t tlv_document_builder_create(const tlv_document_options_t* o
  * @note On terminal traversal/build failure all unfinished nodes are released.
  *       Only NEED_MORE_DATA is resumable. The cursor is not rolled back on failure.
  */
-TLV_API tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
-                                                  tlv_document_t** document,
-                                                  tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_builder_consume(tlv_document_builder_t* builder,
+                                                               tlv_document_t** document,
+                                                               tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Destroy a builder and discard any unfinished document.
  * @param[in] builder Builder to release; NULL is ignored. A transferred document
  *                    is unaffected. Does not free the borrowed reader or its input.
  */
-TLV_API void tlv_document_builder_free(tlv_document_builder_t* builder);
+OPENTLV_DOCUMENT_API void tlv_document_builder_free(tlv_document_builder_t* builder);
 
 /**
  * @brief Fills options with the given format and the default limits.
@@ -346,8 +280,8 @@ TLV_API void tlv_document_builder_free(tlv_document_builder_t* builder);
  * @return #TLV_OK on success.
  * @return #TLV_ERR_NULL_ARG if `options` or `format` is `NULL`.
  */
-TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
-                                               const tlv_format_t* format);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
+                                                            const tlv_format_t* format);
 
 /**
  * @brief Creates an empty document.
@@ -361,8 +295,8 @@ TLV_API tlv_result_t tlv_document_options_init(tlv_document_options_t* options,
  *         lacks a callback.
  * @return #TLV_ERR_OUT_OF_MEMORY if memory is exhausted.
  */
-TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
-                                         tlv_document_t** document);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
+                                                      tlv_document_t** document);
 
 /**
  * @brief Parses encoded elements into a new owned document.
@@ -390,10 +324,10 @@ TLV_API tlv_result_t tlv_document_create(const tlv_document_options_t* options,
  *
  * @note Nothing is retained on failure: everything allocated so far is released.
  */
-TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
-                                        const tlv_document_options_t* options,
-                                        tlv_document_t** document,
-                                        tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
+                                                     const tlv_document_options_t* options,
+                                                     tlv_document_t** document,
+                                                     tlv_reader_diagnostic_t* diagnostic);
 
 /**
  * @brief Frees a document and every node in it.
@@ -405,7 +339,7 @@ TLV_API tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
  * returns from its callback. That visit returns INVALID_STATE; do not use the owner
  * or any node after it returns. Repeated pending free requests release only once.
  */
-TLV_API void tlv_document_free(tlv_document_t* document);
+OPENTLV_DOCUMENT_API void tlv_document_free(tlv_document_t* document);
 
 /**
  * @brief Returns the number of elements in the document, including nested ones.
@@ -414,7 +348,7 @@ TLV_API void tlv_document_free(tlv_document_t* document);
  *
  * @return The element count, or zero for `NULL`.
  */
-TLV_API size_t tlv_document_count(const tlv_document_t* document);
+OPENTLV_DOCUMENT_API size_t tlv_document_count(const tlv_document_t* document);
 
 /**
  * @name Navigation
@@ -425,16 +359,16 @@ TLV_API size_t tlv_document_count(const tlv_document_t* document);
  */
 
 /** @brief Returns the first top-level node. */
-TLV_API tlv_node_t* tlv_document_first(const tlv_document_t* document);
+OPENTLV_DOCUMENT_API tlv_node_t* tlv_document_first(const tlv_document_t* document);
 
 /** @brief Returns the first child of a constructed node. */
-TLV_API tlv_node_t* tlv_node_first_child(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API tlv_node_t* tlv_node_first_child(const tlv_node_t* node);
 
 /** @brief Returns the next sibling of a node. */
-TLV_API tlv_node_t* tlv_node_next(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API tlv_node_t* tlv_node_next(const tlv_node_t* node);
 
 /** @brief Returns the parent of a node, or `NULL` for a top-level node. */
-TLV_API tlv_node_t* tlv_node_parent(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API tlv_node_t* tlv_node_parent(const tlv_node_t* node);
 
 /**
  * @brief Finds the first direct child with a tag.
@@ -447,169 +381,11 @@ TLV_API tlv_node_t* tlv_node_parent(const tlv_node_t* node);
  * an invalid Tag, or a NULL Document when searching the top level. This lookup
  * has no separate failure channel; it does not validate parent ownership.
  */
-TLV_API tlv_node_t* tlv_document_find(const tlv_document_t* document, const tlv_node_t* parent,
-                                      tlv_tag_t tag);
+OPENTLV_DOCUMENT_API tlv_node_t* tlv_document_find(const tlv_document_t* document,
+                                                   const tlv_node_t* parent, tlv_tag_t tag);
 
 /** @brief Returns the next sibling that has the same tag as `node`, or `NULL`. */
-TLV_API tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node);
-
-#if OPENTLV_QUERY
-/** @brief Callback for a matching Document Node.
- * @param node Borrowed matching node.
- * @param context Caller context.
- * @return CONTINUE, STOP or ERROR following the Visitor contract.
- */
-typedef tlv_visit_result_t (*tlv_document_query_visitor_t)(tlv_node_t* node, void* context);
-
-/** @brief Visit every path match in Document order using the canonical Query matcher.
- * @param document Borrowed Document.
- * @param query Parsed Query, borrowed for the call.
- * @param visitor Required callback.
- * @param context Optional caller context.
- * @param[out] diagnostic Optional Query failure detail, initialized before the arguments
- * are checked; NULL when not needed. Include tlv/query/program.h for its definition.
- * @return OK on exhaustion or STOP, NULL_ARG for missing arguments, Query validation
- * errors, VISITOR for ERROR, or CALLBACK for an unknown callback result.
- * @warning Do not mutate or destroy the Document during traversal. Nodes borrow it.
- * Callback effects are not rolled back on failure.
- * @note Never allocates. Every non-#TLV_OK return has `diagnostic.code == rc` and no
- * location: missing arguments and an invalid parsed path have kind
- * #TLV_QUERY_ERROR_ARGUMENT, keeping the path validation result, #TLV_ERR_VISITOR and
- * #TLV_ERR_CALLBACK have #TLV_QUERY_ERROR_CALLBACK, and #TLV_ERR_INVALID_STATE has
- * #TLV_QUERY_ERROR_STATE.
- * @return #TLV_ERR_INVALID_STATE if a callback requests deferred erasure or destruction.
- */
-TLV_API tlv_result_t tlv_document_query_visit(const tlv_document_t* document,
-                                              const tlv_query_t* query,
-                                              tlv_document_query_visitor_t visitor, void* context,
-                                              struct tlv_query_diagnostic* diagnostic);
-
-/** @brief Discover the complete encoded snapshot size for compiled Document Query Values.
- * @param[in] document Live owning Document.
- * @param[in,out] staging Caller-owned Tree Writer frames/output/scratch, disjoint
- * from Document storage. Short storage reports Writer requirements; resize
- * explicitly and repeat discovery from the start.
- * @param[out] bytes Complete encoded Document size, not a sum of nested Values.
- * @param[out] diagnostic Optional Query failure detail, initialized before the arguments
- * are checked; NULL when not needed.
- * @return OK, NULL argument, overflow or original Writer sizing error.
- * @note No allocation. Encodes the Document once through the canonical Writer.
- * Discovery is outside the execution work budget. It is unnecessary when program
- * info reports constructed_values_required == 0. Output may be reused as the
- * evaluation snapshot. Include tlv/writer/tree.h for the workspace definition.
- * @note Every non-#TLV_OK return has `diagnostic.code == rc` and no location. A Writer
- * result is classified by result: short staging is #TLV_ERR_BUFFER_TOO_SHORT with kind
- * #TLV_QUERY_ERROR_STORAGE and a missing argument has #TLV_QUERY_ERROR_ARGUMENT. */
-TLV_API tlv_result_t tlv_document_query_value_size(const tlv_document_t* document,
-                                                   struct tlv_tree_writer_workspace* staging,
-                                                   size_t* bytes,
-                                                   struct tlv_query_diagnostic* diagnostic);
-
-/** @brief Evaluate a compiled program over Document nodes using a fresh retained execution.
- * @param[in] document Live Document; must remain unchanged through result consumption.
- * @param[in,out] exec Fresh execution created with tlv_query_eval_init, including D plans.
- * @param[in] context Optional live node in this Document; NULL selects its virtual root.
- * Erased/stale pointers are forbidden. Ownership validation is O(1).
- * @param[in,out] values Complete encoded snapshot storage, alive until execution reset.
- * May reuse discovery staging.data. NULL/zero is sufficient when constructed
- * Values are not required by the compiled program.
- * @param[in] capacity Snapshot bytes, discovered with query_value_size when needed.
- * @param[in,out] staging Caller-owned bounded Tree Writer frames and closing scratch.
- * Output data/capacity are used only during discovery; evaluation writes directly
- * into values. Frames/scratch must be disjoint from values, Query and Document storage.
- * May be NULL when program info reports constructed_values_required == 0.
- * @param[out] diagnostic Optional error detail, with retained source offset when available.
- * @return OK with finalized nodes/scalar; capacity, depth, candidate, work or original
- * Writer/Reader/evaluation errors. A foreign context or used execution is invalid.
- * @note No allocation. Uses public node navigation and the shared Query VM. Programs
- * that may inspect constructed Values encode the Document once; canonical Reader
- * decoding maps nodes to slices of that snapshot. Other programs skip encoding entirely.
- * Encoding follows current Document semantics, including edits. Historical wire
- * spellings are not preserved. `@offset` and `@hlen` use optional retained original
- * locations; unavailable locations produce SOURCE diagnostics. They never refer to
- * the canonical Value snapshot. Work charges use visited events
- * and actual byte extents, independently of spare buffer capacity. General Writer
- * encoding and Query evaluation may still be superlinear on deeply nested inputs.
- * Failure after execution begins is terminal until reset; no results have been emitted.
- * During evaluation and result callbacks, replacement/insertion and nested traversal
- * on this Document are rejected. Erase/free requests are deferred until the enclosing
- * operation returns from its callbacks, then invalidate execution. Borrowed node and
- * Value spans remain alive during callbacks. Outside those operations the caller must
- * keep the Document alive; this API does not retain ownership or synchronize threads.
- * Include tlv/query/program.h and, when needed, tlv/writer/tree.h for type definitions.
- * @return #TLV_ERR_INVALID_STATE for used execution, callback reentrancy or callback invalidation.
- */
-TLV_API tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document,
-                                                 struct tlv_query_exec* exec,
-                                                 const tlv_node_t* context, void* values,
-                                                 size_t capacity,
-                                                 struct tlv_tree_writer_workspace* staging,
-                                                 struct tlv_query_diagnostic* diagnostic);
-
-/** @brief Pull the next finalized unique node handle in current Document preorder.
- * @param[in,out] exec Successfully evaluated Document node execution.
- * @param[out] node Borrowed node; unchanged on exhaustion or error.
- * @param[out] diagnostic Optional Query failure detail; NULL when not needed. It is
- * written only on failure, so a pull loop does not clear it on every node.
- * @return OK, #TLV_END at exhaustion, NULL argument or invalid execution state/revision.
- * @note Document and Value storage must remain alive and unchanged. First is one pull;
- * all is repeated pulls. Any successful Document edit rejects subsequent pulls
- * before dereferencing retained nodes. Iteration allocates nothing and also works
- * without Source. Keep the native Document alive; revision is not a destruction token.
- * @note Every failure has `diagnostic.code == rc`, no location and kind
- * #TLV_QUERY_ERROR_STATE or #TLV_QUERY_ERROR_ARGUMENT. #TLV_END ends the iteration
- * normally and leaves `diagnostic` unchanged. Reentrancy, failed-execution and overlap
- * guards also leave it unchanged, preserving the original failure of the execution.
- * @return #TLV_ERR_INVALID_STATE for unfinished/failed execution, reentrancy or a stale Document
- * revision.
- */
-TLV_API tlv_result_t tlv_document_query_next(struct tlv_query_exec* exec, tlv_node_t** node,
-                                             struct tlv_query_diagnostic* diagnostic);
-
-/** @brief Visit remaining finalized Document results; STOP resumes after the delivered node.
- * @param[in,out] exec Successfully evaluated Document node execution.
- * @param[in] visitor Required callback; must not edit the Document.
- * @param[in] context Optional callback context.
- * @param[out] diagnostic Optional Query failure detail; NULL when not needed. It must not
- * overlap the execution workspace.
- * @return OK on exhaustion/STOP, VISITOR on callback error (terminal), or pull errors.
- * @warning Previously delivered callbacks are never rolled back. Erase/free requests
- * are deferred until callback return and invalidate this execution. Same-execution
- * feed, finish, reset, bind and nested visits are rejected without altering it.
- * @note Every non-#TLV_OK return after initialization has `diagnostic.code == rc` and no
- * location: #TLV_ERR_VISITOR and #TLV_ERR_CALLBACK have kind #TLV_QUERY_ERROR_CALLBACK,
- * #TLV_ERR_INVALID_STATE has #TLV_QUERY_ERROR_STATE and a missing argument has
- * #TLV_QUERY_ERROR_ARGUMENT. Reentrancy, failed-execution and overlap guards return before
- * initialization and leave `diagnostic` untouched.
- * @return #TLV_ERR_INVALID_STATE for callback reentrancy, invalidated results or deferred mutation.
- */
-TLV_API tlv_result_t tlv_document_query_program_visit(struct tlv_query_exec* exec,
-                                                      tlv_document_query_visitor_t visitor,
-                                                      void* context,
-                                                      struct tlv_query_diagnostic* diagnostic);
-
-/**
- * @brief Finds the first element addressed by a path query.
- *
- * Uses the query language of tlv_query_parse(), for example `6F/A5/50`: the first tag names
- * a top-level element, each further tag one of its direct children. The elements
- * addressed by the query are searched in document order, and a step that leads to a dead end
- * does not hide a later match.
- *
- * @param[in] document Document to search.
- * @param[in] query    Parsed query.
- * @param[out] node    Required output; receives the first borrowed matching node,
- *                    or `NULL` when no node matches. Must not overlap the inputs.
- *
- * @return #TLV_OK on a completed search, including no match.
- * @return #TLV_ERR_NULL_ARG if a required argument is `NULL`.
- * @return #TLV_ERR_INVALID_ARG if the query is empty or has an invalid step count.
- * @return #TLV_ERR_INVALID_TAG_SIZE if the query contains invalid step boundaries.
- * @note Never allocates. On failure, `*node` is unchanged. Query validation happens
- * even for an empty Document. The returned node borrows the Document.
- */
-TLV_API tlv_result_t tlv_document_find_path(const tlv_document_t* document,
-                                            const tlv_query_t* query, tlv_node_t** node);
+OPENTLV_DOCUMENT_API tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node);
 
 /** @} */
 
@@ -618,8 +394,6 @@ TLV_API tlv_result_t tlv_document_find_path(const tlv_document_t* document,
  * @{
  */
 
-#endif
-
 /**
  * @brief Returns the tag of a node.
  *
@@ -627,11 +401,11 @@ TLV_API tlv_result_t tlv_document_find_path(const tlv_document_t* document,
  *
  * @return A tag that borrows the node's storage, or the empty tag for `NULL`.
  */
-TLV_API tlv_tag_t tlv_node_tag(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API tlv_tag_t tlv_node_tag(const tlv_node_t* node);
 
 /** @brief Returns nonzero when the node's value holds nested elements, zero otherwise and for
  * `NULL`. */
-TLV_API int tlv_node_is_constructed(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API int tlv_node_is_constructed(const tlv_node_t* node);
 
 /**
  * @brief Returns the value bytes of a primitive node.
@@ -642,11 +416,11 @@ TLV_API int tlv_node_is_constructed(const tlv_node_t* node);
  *         the node is constructed (read its children instead) or when `node` is `NULL`.
  *         Use tlv_node_value_size() for the length.
  */
-TLV_API const uint8_t* tlv_node_value_data(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API const uint8_t* tlv_node_value_data(const tlv_node_t* node);
 
 /** @brief Returns the length of a primitive node's value; zero for a constructed node and for
  * `NULL`. */
-TLV_API size_t tlv_node_value_size(const tlv_node_t* node);
+OPENTLV_DOCUMENT_API size_t tlv_node_value_size(const tlv_node_t* node);
 
 /** @} */
 
@@ -678,7 +452,8 @@ TLV_API size_t tlv_node_value_size(const tlv_node_t* node);
  *          every child pointer.
  * @return #TLV_ERR_INVALID_STATE during a Query callback.
  */
-TLV_API tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t length);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value,
+                                                     size_t length);
 
 /**
  * @brief Inserts a new element.
@@ -707,9 +482,10 @@ TLV_API tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, 
  * @return Any writer format error for the tag, or reader error for a constructed value.
  * @return #TLV_ERR_INVALID_STATE during a Query callback.
  */
-TLV_API tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
-                                         const tlv_node_t* before, tlv_tag_t tag,
-                                         const uint8_t* value, size_t length, tlv_node_t** node);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* parent,
+                                                      const tlv_node_t* before, tlv_tag_t tag,
+                                                      const uint8_t* value, size_t length,
+                                                      tlv_node_t** node);
 
 /**
  * @brief Removes a node and all of its descendants from its document.
@@ -721,7 +497,7 @@ TLV_API tlv_result_t tlv_document_insert(tlv_document_t* document, tlv_node_t* p
  * from its callback, and that visit returns INVALID_STATE. Pending ancestor erasure
  * dominates descendant requests; all borrowed nodes remain alive inside the callback.
  */
-TLV_API void tlv_node_erase(tlv_node_t* node);
+OPENTLV_DOCUMENT_API void tlv_node_erase(tlv_node_t* node);
 
 /** @} */
 
@@ -751,7 +527,8 @@ TLV_API void tlv_node_erase(tlv_node_t* node);
  * @return Any writer format error, such as #TLV_ERR_INVALID_LENGTH for a length the format
  *         cannot represent.
  */
-TLV_API tlv_result_t tlv_document_encoded_size(const tlv_document_t* document, size_t* size);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_encoded_size(const tlv_document_t* document,
+                                                            size_t* size);
 
 /**
  * @brief Encodes a whole document into caller-owned memory.
@@ -773,8 +550,8 @@ TLV_API tlv_result_t tlv_document_encoded_size(const tlv_document_t* document, s
  *
  * @warning A failure other than the capacity check may leave `data` modified.
  */
-TLV_API tlv_result_t tlv_document_encode(const tlv_document_t* document, uint8_t* data,
-                                         size_t capacity, size_t* written);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_encode(const tlv_document_t* document, uint8_t* data,
+                                                      size_t capacity, size_t* written);
 
 /**
  * @brief Computes the encoded size of one element with its descendants.
@@ -784,7 +561,7 @@ TLV_API tlv_result_t tlv_document_encode(const tlv_document_t* document, uint8_t
  * @param[in]  node Node to size.
  * @param[out] size Receives the size in bytes. Unchanged on failure.
  */
-TLV_API tlv_result_t tlv_node_encoded_size(const tlv_node_t* node, size_t* size);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_node_encoded_size(const tlv_node_t* node, size_t* size);
 
 /**
  * @brief Encodes one element with its descendants.
@@ -796,8 +573,8 @@ TLV_API tlv_result_t tlv_node_encoded_size(const tlv_node_t* node, size_t* size)
  * @param[in]  capacity Destination capacity in bytes.
  * @param[out] written  Receives the number of bytes written, or the required size.
  */
-TLV_API tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size_t capacity,
-                                     size_t* written);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data,
+                                                  size_t capacity, size_t* written);
 
 /**
  * @brief Compute document size with an explicit destination Format.
@@ -810,8 +587,9 @@ TLV_API tlv_result_t tlv_node_encode(const tlv_node_t* node, uint8_t* data, size
  *       are never remapped. The Format need not support decoding. Deterministic
  *       callbacks may be replayed while Document grows its staging workspace.
  */
-TLV_API tlv_result_t tlv_document_encoded_size_as(const tlv_document_t* document,
-                                                  const tlv_format_t* format, size_t* size);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_encoded_size_as(const tlv_document_t* document,
+                                                               const tlv_format_t* format,
+                                                               size_t* size);
 
 /**
  * @brief Encode a document using an explicit compatible destination Format.
@@ -825,9 +603,9 @@ TLV_API tlv_result_t tlv_document_encoded_size_as(const tlv_document_t* document
  * @note Uses the Document allocator. Wire rules come exclusively from Format
  *       through Tree Writer; the original document and its Format are unchanged.
  */
-TLV_API tlv_result_t tlv_document_encode_as(const tlv_document_t* document,
-                                            const tlv_format_t* format, uint8_t* data,
-                                            size_t capacity, size_t* written);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_document_encode_as(const tlv_document_t* document,
+                                                         const tlv_format_t* format, uint8_t* data,
+                                                         size_t capacity, size_t* written);
 
 /**
  * @brief Measure one node and its descendants using a destination Format.
@@ -836,8 +614,9 @@ TLV_API tlv_result_t tlv_document_encode_as(const tlv_document_t* document,
  * @param[out] size Exact encoded subtree size; unchanged on failure.
  * @return Same results as tlv_document_encoded_size_as().
  */
-TLV_API tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_format_t* format,
-                                              size_t* size);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node,
+                                                           const tlv_format_t* format,
+                                                           size_t* size);
 
 /**
  * @brief Encode one node and its descendants using a destination Format.
@@ -848,8 +627,9 @@ TLV_API tlv_result_t tlv_node_encoded_size_as(const tlv_node_t* node, const tlv_
  * @param[out] written Encoded size on success or required size on capacity failure.
  * @return Same results and output guarantees as tlv_document_encode_as().
  */
-TLV_API tlv_result_t tlv_node_encode_as(const tlv_node_t* node, const tlv_format_t* format,
-                                        uint8_t* data, size_t capacity, size_t* written);
+OPENTLV_DOCUMENT_API tlv_result_t tlv_node_encode_as(const tlv_node_t* node,
+                                                     const tlv_format_t* format, uint8_t* data,
+                                                     size_t capacity, size_t* written);
 
 /** @} */
 

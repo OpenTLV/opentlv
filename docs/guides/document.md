@@ -21,9 +21,10 @@ High level, mutable:    Tree Reader -> Document Builder -> document -> modify ->
 Document builds on Element and Format and owns its mutable tree. Programmatic
 editing needs no parsing, encoding or Query operation. Wire import and encoding
 use IO, which always provides Reader and Writer; path matching requires Query.
-The compiled Query adapter also uses IO for Value snapshots. Document and Query
-remain optional capabilities during module extraction; Reader and Writer are
-selected together by linking IO.
+The compiled Query adapter also uses IO for Value snapshots. Link
+`OpenTLV::Document` for the independent C Document API, with Core and IO supplied
+transitively. Include `tlv/query/document.h` and link the compatibility target
+for Query operations until its integration target is extracted in #650.
 Borrowed C processing retains its allocation-free buffer/workspace contracts.
 Merely enabling Document does not allocate a tree. See
 [building only the components you need](select-components.md).

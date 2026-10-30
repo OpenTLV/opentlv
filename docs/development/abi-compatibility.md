@@ -6,12 +6,14 @@ Compatibility** CI job compares the library built from a pull request with a
 stored ABI baseline using [libabigail](https://sourceware.org/libabigail/)
 (`abidw` and `abidiff`).
 
-Since #647, Core and IO symbols are exported by `opentlv_core` and `opentlv_io`
-using `OPENTLV_CORE_API` and `OPENTLV_IO_API`. The default comparison still reports
+Since #647/#648, Core, IO and Document symbols are exported by `opentlv_core`,
+`opentlv_io` and `opentlv_document` using `OPENTLV_CORE_API`, `OPENTLV_IO_API` and
+`OPENTLV_DOCUMENT_API`. The default comparison still reports
 their removal from the original single-library distribution against the stored
 baseline. This is an intentional binary packaging break; existing public type
-layouts remain unchanged. Use `--library opentlv_core` or `--library opentlv_io`
-with a matching `--baseline-file` to compare one extracted library. ABI mutation
+layouts remain unchanged. Use `--library opentlv_core`, `--library opentlv_io` or
+`--library opentlv_document` with a matching `--baseline-file` to compare one
+extracted library. ABI mutation
 self-tests now operate on Core, where their endian and Value test symbols live.
 
 Out of scope: private and internal symbols (hidden by

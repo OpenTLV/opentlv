@@ -49,6 +49,7 @@
     "tlv/version.h": "core",
     "tlv/core/export.h": "core",
     "tlv/io/export.h": "io",
+    "tlv/document/export.h": "document",
     "src/config.c": "core",
     "src/version.c": "core"
   },
@@ -162,6 +163,8 @@
     "tlv/include/tlv/diagnostic.h": "core",
     "tlv/include/tlv/diagnostic/cause.h": "core",
     "tlv/include/tlv/document/document.h": "document",
+    "tlv/include/tlv/document/integration.h": "document",
+    "tlv/include/tlv/query/document.h": "query-document",
     "tlv/include/tlv/element.h": "core",
     "tlv/include/tlv/endian.h": "core",
     "tlv/include/tlv/field/encoding.h": "core",
@@ -264,7 +267,7 @@
     "tlv/src/diagnostic_cause.c": "core",
     "tlv/src/document/document.c": "document",
     "tlv/src/document/document_internal.h": "document",
-    "tlv/src/document/query.c": "query-document",
+    "tlv/src/query/document_path.c": "query-document",
     "tlv/src/document/reader.c": "document",
     "tlv/src/document/writer.c": "document",
     "tlv/src/endian.c": "core",
@@ -318,11 +321,11 @@
     "tlv/src/writer/writer.c": "io"
   },
   "api": {
-    "document_contains": {"target": "document", "resolution": "document-query-boundary"},
+    "tlv_document_contains": {"target": "document", "resolution": "document-query-boundary"},
     "document_edit_targets": {"target": "query-document", "resolution": "document-query-boundary"},
-    "document_format": {"target": "document", "resolution": "document-query-boundary"},
+    "tlv_document_options": {"target": "document", "resolution": "document-query-boundary"},
     "document_node_tag": {"target": "document", "resolution": "document-query-boundary"},
-    "document_query_callback": {"target": "query-document", "resolution": "document-query-boundary"},
+    "tlv_document_callback": {"target": "document", "resolution": "document-query-boundary"},
     "query_document_end": {"target": "query", "resolution": "query-document-integration"},
     "query_document_handle": {"target": "query", "resolution": "query-document-integration"},
     "query_document_next": {"target": "query", "resolution": "query-document-integration"},
@@ -385,7 +388,7 @@
     "io-tree-measure": {"issue": 647, "summary": "Publish the observed Tree Writer event measurement used by Document Query editing as an IO API instead of the private writer/tree_internal.h declaration."},
     "document-query-boundary": {"issue": 648, "summary": "Move the Document Query declarations, types and Query-specific node edit helpers out of the Document target into the Query-owned query-document integration; Document exposes the public node traversal and edit boundary that the integration needs."},
     "document-codec-facade": {"issue": 648, "summary": "Move typed decoding of Document nodes (document.hpp decode()/get()) into a header-only document-codec integration so the Document facade needs no Codec headers."},
-    "query-document-integration": {"issue": 650, "summary": "Re-implement document/query.c and query/document_backend.c on the public Document boundary from #648; Query internals they call become the Query owner-internal interface exported only to Query integrations."},
+    "query-document-integration": {"issue": 650, "summary": "Register query/document_path.c and query/document_backend.c as the Query-owned integration. They use the public Document boundary from #648; Query internals they call become the Query owner-internal interface exported only to Query integrations."},
     "query-codec-hooks": {"issue": 650, "summary": "Query conversion hooks and tlv_query_diagnostic_t report conversion failures through Core cause frames; codec-specific adapters, builtin hooks and the C++ hook options move to query-codec, and tlv_query_definition_resolve() stays in Query.", "requires": ["core-diagnostic-causes"]},
     "query-diagnostic-names": {"issue": 650, "summary": "Move tlv_query_error_kind_string() and tlv_query_cause_string() from Core diagnostic_strings.c to Query."},
     "codec-diagnostic-vocabulary": {"issue": 651, "summary": "Move tlv_codec_diagnostic_init() and the Codec name functions from Core diagnostic.c/diagnostic_strings.c to Codec; tlv_codec_detail_t drops its Reader/Schema union and Structure Codec attaches those causes as cause frames.", "requires": ["core-diagnostic-causes"]},
@@ -396,5 +399,5 @@
     "remove-module-selection": {"issue": 654, "summary": "Remove the module-selection options and their tlv_config_* runtime mirrors; module presence is a link-time fact."},
     "query-features": {"issue": 650, "summary": "Keep OPENTLV_QUERY_FRONTEND and OPENTLV_QUERY_SET_OPERATIONS as Query-internal options with Query-owned macros and runtime mirrors."}
   },
-  "exceptions": [{"kind": "dependency", "include": "tlv/query/query.h", "resolution": "document-query-boundary", "files": ["tlv/include/tlv/document/document.h"]}, {"kind": "dependency", "include": "tlv++/query/query.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/query/program.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/codec/typed.hpp", "resolution": "document-codec-facade", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "private-header", "include": "document_internal.h", "resolution": "query-document-integration", "files": ["tlv/src/document/query.c"]}, {"kind": "private-header", "include": "../document/document_internal.h", "resolution": "query-document-integration", "files": ["tlv/src/query/document_backend.c"]}, {"kind": "dependency", "include": "tlv/codec/codec.h", "resolution": "query-codec-hooks", "files": ["tlv/include/tlv/query/program.h"]}, {"kind": "dependency", "include": "../codec/result_internal.h", "resolution": "query-codec-hooks", "files": ["tlv/src/query/evaluation.c"]}, {"kind": "private-header", "include": "../codec/result_internal.h", "resolution": "query-codec-hooks", "files": ["tlv/src/query/evaluation.c"]}, {"kind": "dependency", "include": "tlv/query/adapters.h", "resolution": "query-codec-hooks", "files": ["tlv++/include/tlv++/query/options.hpp"]}, {"kind": "dependency", "include": "tlv/reader/diagnostic.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv/schema/detail.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv++/writer/writer.hpp", "resolution": "io-codec-facade", "files": ["tlv++/include/tlv++/codec/typed.hpp"]}, {"kind": "dependency", "include": "tlv/codec/diagnostic.h", "resolution": "schema-diagnostic-causes", "files": ["tlv/include/tlv/schema/schema.h"]}, {"kind": "dependency", "include": "tlv/schema/schema.h", "resolution": "schema-diagnostic-causes", "files": ["tlv++/include/tlv++/error.hpp"]}, {"kind": "private-header", "include": "../../schema/codec_internal.h", "resolution": "schema-number-api", "files": ["tlv/src/builtins/emv/emv_codec.c"]}, {"kind": "private-header", "include": "../query/program_internal.h", "resolution": "schema-query-integration", "files": ["tlv/src/schema/query.c"]}, {"kind": "dependency", "include": "tlv/document/document.h", "resolution": "schema-query-integration", "files": ["tlv/include/tlv/schema/query.h"]}]
+  "exceptions": [{"kind": "dependency", "include": "tlv++/query/query.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/query/program.hpp", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv++/codec/typed.hpp", "resolution": "document-codec-facade", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv/codec/codec.h", "resolution": "query-codec-hooks", "files": ["tlv/include/tlv/query/program.h"]}, {"kind": "dependency", "include": "../codec/result_internal.h", "resolution": "query-codec-hooks", "files": ["tlv/src/query/evaluation.c"]}, {"kind": "private-header", "include": "../codec/result_internal.h", "resolution": "query-codec-hooks", "files": ["tlv/src/query/evaluation.c"]}, {"kind": "dependency", "include": "tlv/query/adapters.h", "resolution": "query-codec-hooks", "files": ["tlv++/include/tlv++/query/options.hpp"]}, {"kind": "dependency", "include": "tlv/reader/diagnostic.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv/schema/detail.h", "resolution": "codec-diagnostic-vocabulary", "files": ["tlv/include/tlv/codec/diagnostic.h"]}, {"kind": "dependency", "include": "tlv++/writer/writer.hpp", "resolution": "io-codec-facade", "files": ["tlv++/include/tlv++/codec/typed.hpp"]}, {"kind": "dependency", "include": "tlv/codec/diagnostic.h", "resolution": "schema-diagnostic-causes", "files": ["tlv/include/tlv/schema/schema.h"]}, {"kind": "dependency", "include": "tlv/schema/schema.h", "resolution": "schema-diagnostic-causes", "files": ["tlv++/include/tlv++/error.hpp"]}, {"kind": "private-header", "include": "../../schema/codec_internal.h", "resolution": "schema-number-api", "files": ["tlv/src/builtins/emv/emv_codec.c"]}, {"kind": "private-header", "include": "../query/program_internal.h", "resolution": "schema-query-integration", "files": ["tlv/src/schema/query.c"]}, {"kind": "dependency", "include": "tlv/document/document.h", "resolution": "schema-query-integration", "files": ["tlv/include/tlv/schema/query.h"]}, {"kind": "dependency", "include": "tlv/query/document.h", "resolution": "document-query-boundary", "files": ["tlv++/include/tlv++/document/document.hpp"]}, {"kind": "dependency", "include": "tlv/query/document.h", "resolution": "schema-query-integration", "files": ["tlv/src/schema/query.c"]}]
 }

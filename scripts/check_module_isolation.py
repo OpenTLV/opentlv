@@ -248,8 +248,10 @@ def main():
     parser.add_argument("--shared", choices=("ON", "OFF"), default="ON")
     parser.add_argument("--generator", default="Ninja")
     parser.add_argument("--nm", default="nm")
+    parser.add_argument("--cmake-arg", action="append", default=[])
     args = parser.parse_args()
-    verify(args.source.resolve(), args.build_root, args.shared, args.generator, args.nm)
+    verify(args.source.resolve(), args.build_root, args.shared, args.generator, args.nm,
+           args.cmake_arg)
 
 
 if __name__ == "__main__":

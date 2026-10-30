@@ -282,3 +282,56 @@ opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR include
         tlv_writer_write_element
         tlv_writer_write_element_diag
 )
+
+opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR include
+    CONSUMER ../tests/modules/document.c
+    SOURCES
+        src/document/document.c
+        src/document/reader.c
+        src/document/writer.c
+    PUBLIC_HEADERS
+        include/tlv/document/document.h
+        include/tlv/document/integration.h
+    PRIVATE_HEADERS
+        src/document/document_internal.h
+    PUBLIC_DEPS core io
+    PUBLIC_SYMBOLS
+        tlv_document_builder_consume
+        tlv_document_builder_create
+        tlv_document_builder_free
+        tlv_document_callback
+        tlv_document_callbacks_active
+        tlv_document_contains
+        tlv_document_count
+        tlv_document_create
+        tlv_document_encode
+        tlv_document_encode_as
+        tlv_document_encoded_size
+        tlv_document_encoded_size_as
+        tlv_document_find
+        tlv_document_first
+        tlv_document_free
+        tlv_document_insert
+        tlv_document_node_identity
+        tlv_document_options
+        tlv_document_options_init
+        tlv_document_parse
+        tlv_document_retire_epoch
+        tlv_document_revision
+        tlv_node_encode
+        tlv_node_encode_as
+        tlv_node_encoded_size
+        tlv_node_encoded_size_as
+        tlv_node_erase
+        tlv_node_first_child
+        tlv_node_identity
+        tlv_node_is_constructed
+        tlv_node_next
+        tlv_node_next_same_tag
+        tlv_node_parent
+        tlv_node_set_value
+        tlv_node_source_location
+        tlv_node_tag
+        tlv_node_value_data
+        tlv_node_value_size
+)

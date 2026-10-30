@@ -144,7 +144,7 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.
 | Query | `tlv/src/query/query.c` | Tag/depth matcher; Tree Reader Visitor for buffer traversal |
 | Document topology | `tlv/src/document/document.c` | Owned nodes and programmatic mutation; optional Format measurement validates inserted tags |
 | Document parsing | `tlv/src/document/reader.c` | Reader + Document integration: resumable Builder consuming canonical structural events |
-| Document lookup | `tlv/src/document/query.c` | Query + Document integration: node preorder feeding the same Query matcher |
+| Document lookup | `tlv/src/query/document_path.c` | Query + Document integration: node preorder feeding the same Query matcher |
 | Document encoding | `tlv/src/document/writer.c` | Writer + Document integration: node events feeding `tlv_tree_writer_measure_events`, then Writer encoded copy |
 | Tree Writer | `tlv/src/writer/tree.c` | Writer measurement and encoding; iterative parent stack |
 | Writer | `tlv/src/writer/writer.c` | Format measurement and encoding |

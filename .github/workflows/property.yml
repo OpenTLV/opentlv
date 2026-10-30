@@ -44,7 +44,7 @@ jobs:
           if [[ '${{ matrix.configuration }}' == minimal ]]; then
             options=(-DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_EMV=OFF
                      -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_NFC=OFF
-                     -DOPENTLV_DHCP=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DOCUMENT=OFF)
+                     -DOPENTLV_DHCP=OFF -DOPENTLV_LLDP=OFF)
           fi
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF \

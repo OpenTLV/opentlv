@@ -7,6 +7,7 @@
 #include "tlv/query/program.h"
 #include "tlv/config.h"
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 
 #include <benchmark/benchmark.h>
 

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Extract independently linkable `OpenTLV::Document` with only Core and IO dependencies; remove the `OPENTLV_DOCUMENT` CMake option. Existing aggregate CMake targets link it transitively; direct library consumers must also link and distribute `opentlv_document`. Move Document Query declarations to `tlv/query/document.h` and keep its implementation outside Document, using a public metadata and callback-lifetime boundary. Preserve ownership, mutation, node identity, source locations, serialization and diagnostics. (#648)
 - **Breaking:** Extract independently linkable `OpenTLV::Core` and `OpenTLV::IO` libraries. IO always provides Reader, Writer, tree traversal and serialization; remove the `OPENTLV_READER` and `OPENTLV_WRITER` CMake options. Existing `OpenTLV::tlv` consumers receive both dependencies transitively. Direct archive/shared-library consumers must link and distribute the module libraries; include `tlv/writer/copy.h` for `tlv_copy_element()`. Publish Core UTF-8 and callback utilities, bounded diagnostic cause transport and IO observed tree measurement without changing existing wire behavior or diagnostic layouts. (#647)
 
 ### Added

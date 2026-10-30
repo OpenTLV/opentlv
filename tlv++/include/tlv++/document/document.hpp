@@ -18,6 +18,7 @@
 #include "tlv++/codec/typed.hpp"
 #include "tlv++/writer/builder.hpp"
 #include "tlv/document/document.h"
+#include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
 
 /**
