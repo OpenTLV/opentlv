@@ -398,7 +398,7 @@ own option, and no code or dependency added to builds that do not enable it.
 Language bindings are expected to follow the same rule: a binding should expose a
 component only when the matching C component is enabled, so a binding build can also be
 limited to what it needs. Rust maps its default `lldp` Cargo feature to
-`OPENTLV_LLDP`; Reader, Writer, Query, Schema and Codec are explicitly enabled by its native build. Mapping the
+`OpenTLV::LLDP`; standalone bindings own their native target selection. Mapping the
 remaining component options to Cargo features is future work; see
 [Rust Cargo features](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/development/rust.md#cargo-features). Ready-made CMake recipes are in
 [building only the components you need](../guides/select-components.md).
@@ -421,19 +421,16 @@ remains the distribution unit.
 
 ### Built-in standards
 
-These packages default to ON and can be disabled subject to the dependencies below.
+Protocol families are selected by linking independent public targets:
+`OpenTLV::ASN1`, `OpenTLV::EMV`, `OpenTLV::Bluetooth`, `OpenTLV::NFC`,
+`OpenTLV::DHCP` and `OpenTLV::LLDP`. Each owns its public exports and depends
+explicitly on generic modules. Generic modules never depend on builtins.
+ASN1 contains BER, DER and CER together; EMV privately uses its DOL identifier
+helper. DHCP contains the existing DHCPv4 implementation only.
 
-| CMake option / generated config macro | Included component |
-| --- | --- |
-| `OPENTLV_NFC` | [NFC Type 2 Tag framing](../formats/nfc/README.md) for contiguous TLV streams |
-| `OPENTLV_DHCP` | [DHCPv4 option framing](../formats/dhcp/README.md), including Pad and End |
-| `OPENTLV_BLUETOOTH` | Bluetooth LTV format, containers, definitions, schemas and codecs |
-| `OPENTLV_LLDP` | LLDP packed framing, base definitions, LLDPDU structural validation, Value codecs and binding presets |
-| `OPENTLV_FORMAT_ASN1` | ASN.1-related wire formats (BER, DER, CER) |
-| `OPENTLV_FORMAT_BER` | Public BER format |
-| `OPENTLV_FORMAT_DER` | DER format and bounded DER validation operations |
-| `OPENTLV_FORMAT_CER` | CER format and bounded CER validation operations |
-| `OPENTLV_EMV` | EMV framing, dictionary, schemas and value codecs |
+See [component selection](../guides/select-components.md#built-in-standards)
+for exact dependencies, installed-package recipes and migration from the removed
+builtin CMake options.
 
 ### Core capabilities and Query features
 
@@ -441,7 +438,7 @@ Core primitives are provided by `OpenTLV::Core`. Reader, Writer, traversal and
 serialization are provided together by `OpenTLV::IO`, which depends only on Core.
 The former `OPENTLV_READER` and `OPENTLV_WRITER` CMake options are removed; see
 [component selection](../guides/select-components.md#core-io-and-document) for migration.
-The options below still select functionality awaiting extraction.
+Select generic modules by linking; only the Query features remain options.
 
 | CMake option / generated config macro | Included component |
 | --- | --- |
@@ -452,31 +449,12 @@ The options below still select functionality awaiting extraction.
 | `OPENTLV_QUERY_SET_OPERATIONS` | Query union, intersection and difference in the shared executor |
 | `OpenTLV::Document` target | Canonical owned mutable [Document](../guides/document.md); links Core and IO. The former `OPENTLV_DOCUMENT` option is removed. |
 
-`OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`, and
-`OPENTLV_EMV` form a tree (ASN1 -> BER -> DER/CER/EMV): disabling an
-option forces every option below it OFF as well, regardless of how that
-option was set, so `-DOPENTLV_FORMAT_BER=OFF` also disables DER, CER and EMV.
-`OPENTLV_FORMAT_CER` is an independent sibling of `OPENTLV_FORMAT_DER` under
-`OPENTLV_FORMAT_BER`, not a descendant of it: CER never depends on DER (or
-vice versa), and disabling DER does not affect CER or EMV. This cascade is
-centralized in `cmake/format_options.cmake`. EMV element framing uses generic
-variable-width primitives directly; the BER build dependency remains only for
-the unchanged DOL identifier helper. No component creates
-another public binary library. `tlv/config.h` exposes the configured
-selection, including `OPENTLV_FORMAT_ASN1`. Explicitly including a disabled
-component's header does not provide its symbols; consumers should use the
-config macros when supporting reduced builds.
-
-Tests that require disabled components and examples that demonstrate them are
-omitted. Generic architecture tests use an application-defined format and run
-even when all protocol extensions are disabled. The benchmark uses BER and
-is built only when that component is enabled.
-
-```sh
-cmake -S . -B build-minimal \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF -DOPENTLV_FORMAT_ASN1=OFF
-cmake --build build-minimal --parallel
-```
+All compiled modules have independent static/shared libraries. The compatibility
+`OpenTLV::tlv` target links every module transitively, while component-only
+package discovery loads the requested dependency closure. The legacy feature
+macros and runtime mirrors in `tlv/config.h` remain constant 1 and do not report
+which targets the application links. Only Query frontend/set operations remain
+selectable implementation features.
 
 ## Migration
 
@@ -601,7 +579,7 @@ optional implementations that work without the future `.otlv` interpreter.
 
 | Previous public name | Replacement |
 | --- | --- |
-| `OPENTLV_PROFILE_EMV` | `OPENTLV_EMV` (same defaults and dependencies) |
+| `OPENTLV_PROFILE_EMV` | `OpenTLV::EMV` target (builtin selection options were removed in #653) |
 | `tlv_config_profile_emv()` | `tlv_config_emv()` |
 | `tlv/builtins/asn1/der_profile.h` | `tlv/builtins/asn1/der_validation.h` |
 | `tlv/builtins/asn1/cer_profile.h` | `tlv/builtins/asn1/cer_validation.h` |
@@ -611,7 +589,7 @@ optional implementations that work without the future `.otlv` interpreter.
 | Rust `ProfileError` | `ValidationError` |
 
 The old names have no compatibility aliases. Reconfigure existing builds using
-`OPENTLV_EMV`; an old cache entry does not control the renamed option. Rust
+`OpenTLV::EMV`; remove both historical cache options. Rust
 `default_limits()` now returns a `Result`; bounded validation operations reject
 formats other than DER/CER with `InvalidArg` and unknown location. Reader/Writer keep
 using their selected Format directly. Standard guides now live in `standards/`.

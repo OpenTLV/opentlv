@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_DHCP_OPTIONS_H
 #define OPENTLV_BUILTINS_DHCP_OPTIONS_H
 
-#include "tlv/export.h"
+#include "tlv/dhcp/export.h"
 #include "tlv/definition.h"
 
 /**
@@ -12,7 +12,7 @@
  * @ingroup core
  * @brief DHCPv4 option Code definitions.
  *
- * @note Requires `OPENTLV_DHCP=ON`.
+ * @note Requires linking `OpenTLV::DHCP`.
  */
 
 #ifdef __cplusplus
@@ -30,12 +30,12 @@ extern "C" {
  * Use tlv_definition_find() for allocation-free lookup. Unknown Codes return
  * NULL and remain valid for structural parsing. The registry neither defines
  * framing nor decodes Values, validates lengths or imposes schema constraints.
- * Requires `OPENTLV_DHCP=ON`; no Reader or Writer is required.
+ * Requires linking `OpenTLV::DHCP`; no Reader or Writer is required.
  *
  * @see tlv_definition_find
  * @see https://www.rfc-editor.org/rfc/rfc2132.html
  */
-extern TLV_API const tlv_definition_registry_t tlv_dhcpv4_options;
+extern OPENTLV_DHCP_API const tlv_definition_registry_t tlv_dhcpv4_options;
 
 #ifdef __cplusplus
 }

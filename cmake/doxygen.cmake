@@ -4,6 +4,16 @@ find_package(Doxygen 1.9.1 REQUIRED COMPONENTS doxygen)
 # link generated API pages back to the guides and concepts.
 set(OPENTLV_DOCS_URL "https://opentlv.github.io/opentlv-docs/latest/")
 
+# Public declarations now use each module's generated export macro. Doxygen
+# expands only PREDEFINED macros, so derive the full list from the registry.
+set(OPENTLV_DOXYGEN_EXPORTS "TLV_API=")
+get_property(_opentlv_doc_modules GLOBAL PROPERTY OPENTLV_MODULES)
+foreach(_module IN LISTS _opentlv_doc_modules)
+    get_property(_target GLOBAL PROPERTY OPENTLV_MODULE_${_module})
+    string(TOUPPER "${_target}" _prefix)
+    string(APPEND OPENTLV_DOXYGEN_EXPORTS " ${_prefix}_API=")
+endforeach()
+
 configure_file(
     "${PROJECT_SOURCE_DIR}/docs/api/Doxyfile.in"
     "${PROJECT_BINARY_DIR}/Doxyfile"

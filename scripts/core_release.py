@@ -134,7 +134,7 @@ def configuration(tier):
         inputs = {'full': tier == 'full', 'release_tag': os.environ.get('RELEASE_TAG', '')}
     helpers = ('CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake',
                'tlv/CMakeLists.txt', 'tlv/modules.cmake',
-               'cmake/format_options.cmake', 'scripts/check_cmake_integration.py',
+               'scripts/check_cmake_integration.py',
                'scripts/check_capabilities.py', 'scripts/abi/check.py')
     return {'inputs': inputs, 'configuration_sources': {name: digest(source / name) for name in helpers},
             'workflows': {

@@ -4,12 +4,12 @@
 #ifndef OPENTLV_BUILTINS_DHCP_CONTAINER_H
 #define OPENTLV_BUILTINS_DHCP_CONTAINER_H
 
-#include "tlv/export.h"
+#include "tlv/dhcp/export.h"
 #include "tlv/schema/schema.h"
 
 /** @file
  * @brief DHCPv4 options sequence validation above generic Reader.
- * @note Requires `OPENTLV_DHCP=ON`.
+ * @note Requires linking `OpenTLV::DHCP`.
  */
 
 #ifdef __cplusplus
@@ -70,10 +70,11 @@ typedef struct tlv_dhcpv4_options_rules {
  *       overlap input, rules or other outputs. Optional End with no End present
  *       keeps the entire region, including trailing Pad elements.
  */
-TLV_API tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
-                                                 const tlv_dhcpv4_options_rules_t* rules,
-                                                 size_t max_elements, size_t* significant_size,
-                                                 tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_DHCP_API tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
+                                                          const tlv_dhcpv4_options_rules_t* rules,
+                                                          size_t max_elements,
+                                                          size_t* significant_size,
+                                                          tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

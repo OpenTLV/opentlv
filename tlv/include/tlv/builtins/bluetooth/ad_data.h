@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_AD_DATA_H
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_DATA_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/result.h"
 #include "tlv/reader/diagnostic.h"
 #include <stddef.h>
@@ -18,7 +18,7 @@ extern "C" {
  * @file
  * @brief Bluetooth Advertising Data container framing and zero padding.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 
 /**
@@ -33,7 +33,7 @@ extern "C" {
  * The significant prefix can be passed to a generic reader, visitor or schema
  * validator with the original input pointer, preserving source offsets.
  * This function never allocates, copies or retains input bytes.
- * Available when `OPENTLV_BLUETOOTH` is enabled.
+ * Provided by `OpenTLV::Bluetooth`.
  *
  * @param[in] data Caller-owned input, unchanged during the call. May be
  *                 `NULL` only when `size` is zero.
@@ -55,9 +55,9 @@ extern "C" {
  * @note `significant_size` remains unchanged on failure. Output storage must
  *       not overlap the input or each other.
  */
-TLV_API tlv_result_t tlv_bluetooth_ad_data_validate(const uint8_t* data, size_t size,
-                                                    size_t* significant_size,
-                                                    tlv_reader_diagnostic_t* diagnostic);
+OPENTLV_BLUETOOTH_API tlv_result_t
+tlv_bluetooth_ad_data_validate(const uint8_t* data, size_t size, size_t* significant_size,
+                               tlv_reader_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_AD_TYPES_H
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_TYPES_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/definition.h"
 
 /**
@@ -12,7 +12,7 @@
  * @ingroup core
  * @brief Bluetooth Advertising Data Type definitions.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 
 #ifdef __cplusplus
@@ -28,11 +28,11 @@ extern "C" {
  * parsing; lookup does not validate values or impose schema constraints.
  *
  * Use tlv_definition_find() for allocation-free lookup. Requires
- * `OPENTLV_BLUETOOTH=ON`; no parser or writer is required.
+ * linking `OpenTLV::Bluetooth`; no parser or writer is required.
  *
  * @see https://www.bluetooth.com/specifications/assigned-numbers/
  */
-extern TLV_API const tlv_definition_registry_t tlv_bluetooth_ad_types;
+extern OPENTLV_BLUETOOTH_API const tlv_definition_registry_t tlv_bluetooth_ad_types;
 
 #ifdef __cplusplus
 }

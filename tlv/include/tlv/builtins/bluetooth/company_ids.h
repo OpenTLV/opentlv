@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_COMPANY_IDS_H
 #define OPENTLV_BUILTINS_BLUETOOTH_COMPANY_IDS_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/definition.h"
 
 /**
@@ -12,7 +12,7 @@
  * @ingroup core
  * @brief Bluetooth Company Identifier definitions, independent of value codecs.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -37,12 +37,12 @@ extern "C" {
  * This is a non-exhaustive snapshot, not a validity list: missing identifiers
  * remain valid and lookup returns NULL. No value validation or vendor protocol
  * interpretation occurs. Lookup never allocates and returned entries borrow
- * static storage. Requires `OPENTLV_BLUETOOTH=ON`; no value codec is invoked.
+ * static storage. Requires linking `OpenTLV::Bluetooth`; no value codec is invoked.
  *
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/index-en.html
  */
-extern TLV_API const tlv_definition_registry_t tlv_bluetooth_company_ids;
+extern OPENTLV_BLUETOOTH_API const tlv_definition_registry_t tlv_bluetooth_company_ids;
 
 /** @} */
 #ifdef __cplusplus

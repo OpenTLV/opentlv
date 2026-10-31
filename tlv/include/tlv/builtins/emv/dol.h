@@ -7,7 +7,7 @@
 #include "tlv/result.h"
 #include "tlv/diagnostic.h"
 #include "tlv/tag.h"
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 #include <stddef.h>
 #include <stdint.h>
 
@@ -93,7 +93,7 @@ typedef struct tlv_dol_limits {
 } tlv_dol_limits_t;
 
 /** @brief Default limits used when a function receives `NULL` limits. */
-extern TLV_API const tlv_dol_limits_t tlv_dol_default_limits;
+extern OPENTLV_EMV_API const tlv_dol_limits_t tlv_dol_default_limits;
 
 /**
  * @brief Parses a raw DOL value, calling a visitor once per entry in wire order.
@@ -115,9 +115,9 @@ extern TLV_API const tlv_dol_limits_t tlv_dol_default_limits;
  * @return #TLV_ERR_LIMIT if a limit is exceeded.
  * @return Any error returned by `visit`, unchanged.
  */
-TLV_API tlv_result_t tlv_dol_read(const uint8_t* data, size_t size, const tlv_dol_limits_t* limits,
-                                  tlv_dol_visit_fn visit, void* context,
-                                  tlv_diagnostic_t* diagnostic);
+OPENTLV_EMV_API tlv_result_t tlv_dol_read(const uint8_t* data, size_t size,
+                                          const tlv_dol_limits_t* limits, tlv_dol_visit_fn visit,
+                                          void* context, tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief EMV Book 3 section 5.4's two padding/truncation styles for fitting a resolved value.
@@ -224,10 +224,10 @@ typedef tlv_result_t (*tlv_dol_resolve_fn)(const tlv_dol_entry_t* entry, size_t 
  *          unspecified contents beyond that point, matching #tlv_codec_t's
  *          convention.
  */
-TLV_API tlv_result_t tlv_dol_write(const uint8_t* dol, size_t dol_size, uint8_t* data,
-                                   size_t capacity, const tlv_dol_limits_t* limits,
-                                   tlv_dol_resolve_fn resolve, void* context, size_t* written,
-                                   tlv_diagnostic_t* diagnostic);
+OPENTLV_EMV_API tlv_result_t tlv_dol_write(const uint8_t* dol, size_t dol_size, uint8_t* data,
+                                           size_t capacity, const tlv_dol_limits_t* limits,
+                                           tlv_dol_resolve_fn resolve, void* context,
+                                           size_t* written, tlv_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

@@ -5,7 +5,7 @@
 #define OPENTLV_BUILTINS_BLUETOOTH_BLUETOOTH_LTV_H
 
 #include "tlv/format.h"
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,7 +40,7 @@ extern "C" {
  * @note Writing any tag size other than one returns #TLV_ERR_INVALID_TAG_SIZE,
  *       and a value longer than 254 bytes returns #TLV_ERR_INVALID_LENGTH.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 
 /** @addtogroup formats
@@ -48,7 +48,7 @@ extern "C" {
  */
 
 /** @brief Format for Bluetooth LTV; a borrowed, immutable global. */
-extern TLV_API const tlv_format_t tlv_format_bluetooth_ltv;
+extern OPENTLV_BLUETOOTH_API const tlv_format_t tlv_format_bluetooth_ltv;
 
 #ifdef __cplusplus
 }

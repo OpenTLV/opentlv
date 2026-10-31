@@ -1,7 +1,7 @@
 # Compile the actual library source set with presentation physically excluded.
 # A poisoned public header also catches newly introduced include dependencies.
-get_target_property(_emv_isolated_sources tlv SOURCES)
-get_target_property(_emv_source_dir tlv SOURCE_DIR)
+get_target_property(_emv_isolated_sources opentlv_emv SOURCES)
+get_target_property(_emv_source_dir opentlv_emv SOURCE_DIR)
 set(_emv_isolated_absolute)
 foreach(_source IN LISTS _emv_isolated_sources)
     if(_source MATCHES "builtins/emv/presentation\\.c$")
@@ -26,11 +26,11 @@ endforeach()
 file(WRITE "${_emv_poison}/tlv/builtins/emv/presentation.h"
      "#error EMV domain code must not depend on the presentation adapter\n")
 add_library(test-emv-without-presentation STATIC ${_emv_isolated_absolute})
-target_compile_definitions(test-emv-without-presentation PUBLIC TLV_STATIC_DEFINE)
+target_compile_definitions(test-emv-without-presentation PUBLIC OPENTLV_EMV_STATIC_DEFINE)
 target_include_directories(test-emv-without-presentation PUBLIC
     "${_emv_poison}"
     "${OpenTLV_BINARY_DIR}/generated/include")
-target_link_libraries(test-emv-without-presentation PUBLIC OpenTLV::IO OpenTLV::Codec OpenTLV::SchemaNumber)
+target_link_libraries(test-emv-without-presentation PUBLIC OpenTLV::Core OpenTLV::Codec OpenTLV::Schema OpenTLV::Query OpenTLV::ASN1 OpenTLV::SchemaNumber)
 target_compile_features(test-emv-without-presentation PUBLIC c_std_99)
 opentlv_configure_compiler(test-emv-without-presentation)
 add_executable(test-emv-domain-independence

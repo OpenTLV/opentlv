@@ -5,7 +5,7 @@
 #define OPENTLV_BUILTINS_ASN1_IDENTIFIER_H
 
 #include "tlv/tag.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,7 +94,7 @@ static inline int tlv_asn1_tag_is_constructed(const tlv_tag_t* tag) {
  * @param tag A successfully parsed or created ASN.1 tag; non-`NULL` and nonempty.
  * @return Nonzero if constructed, zero otherwise.
  */
-TLV_API int tlv_asn1_is_constructed(const void* context, const tlv_tag_t* tag);
+OPENTLV_ASN1_API int tlv_asn1_is_constructed(const void* context, const tlv_tag_t* tag);
 /** @} */
 #ifdef __cplusplus
 }

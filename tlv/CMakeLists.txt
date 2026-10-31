@@ -2,173 +2,24 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tlv LANGUAGES C)
 
+# The compatibility archive has no implementation symbols. Compiled modules
+# independently follow OPENTLV_BUILD_SHARED_LIBS (an empty DLL is not portable).
 set(_tlv_library_type STATIC)
-if(OPENTLV_BUILD_SHARED_LIBS AND (OPENTLV_NFC OR OPENTLV_DHCP OR OPENTLV_LLDP OR
-   OPENTLV_BLUETOOTH OR OPENTLV_FORMAT_BER OR OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER OR OPENTLV_EMV))
-    set(_tlv_library_type SHARED)
-endif()
-# With every builtin disabled, the aggregate has no implementation symbols.
-# Keep an empty compatibility archive: Windows cannot link an export-free DLL.
-# Extracted modules still follow OPENTLV_BUILD_SHARED_LIBS independently.
 
 include(modules.cmake)
 
-# Transitional library for modules extracted by subsequent issues. Extracted modules
-# are linked once; no implementation is duplicated in the compatibility target.
+# Compatibility aggregate: implementations are owned by independently linkable modules.
 add_library(${PROJECT_NAME} ${_tlv_library_type}
     src/aggregate.c
 )
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument OpenTLV::QueryCodec OpenTLV::CodecStructure OpenTLV::SchemaNumber OpenTLV::SchemaQueryDocument)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenTLV::Document OpenTLV::Generator OpenTLV::QueryDocument OpenTLV::QueryCodec OpenTLV::CodecStructure OpenTLV::SchemaNumber OpenTLV::SchemaQueryDocument
+    OpenTLV::ASN1 OpenTLV::EMV OpenTLV::Bluetooth OpenTLV::NFC OpenTLV::DHCP OpenTLV::LLDP)
 if(NOT CMAKE_INSTALL_RPATH)
     if(APPLE)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "@loader_path")
     elseif(UNIX)
         set_property(TARGET ${PROJECT_NAME} PROPERTY INSTALL_RPATH "$ORIGIN")
     endif()
-endif()
-
-
-# Builtin framing and optional protocol integrations.
-if(OPENTLV_NFC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/nfc/type2.c
-    )
-endif()
-
-if(OPENTLV_DHCP)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/dhcp/dhcpv4.c
-    )
-endif()
-
-if(OPENTLV_DHCP AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/dhcp/options.c
-    )
-endif()
-
-if(OPENTLV_DHCP)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/dhcp/container.c
-    )
-endif()
-
-if(OPENTLV_LLDP)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/lldp/lldp.c
-    )
-endif()
-
-if(OPENTLV_LLDP AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/lldp/codec.c
-    )
-endif()
-
-if(OPENTLV_LLDP)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/lldp/schema.c
-    )
-endif()
-
-if(OPENTLV_BLUETOOTH)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/bluetooth/ad_types.c
-        src/builtins/bluetooth/company_ids.c
-        src/builtins/bluetooth/bluetooth_ltv.c
-    )
-endif()
-
-if(OPENTLV_BLUETOOTH)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/bluetooth/ad_data.c
-    )
-endif()
-
-if(OPENTLV_BLUETOOTH)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/bluetooth/ad_schema.c
-    )
-endif()
-
-if(OPENTLV_BLUETOOTH AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/bluetooth/ad_codec.c
-        src/builtins/bluetooth/uuid.c
-        src/builtins/bluetooth/service_data.c
-        src/builtins/bluetooth/manufacturer_data.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_BER)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/ber.c
-        src/builtins/asn1/identifier.c
-        src/builtins/asn1/ber_internal.c
-        src/builtins/asn1/asn1_values_internal.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_BER AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/asn1_codec.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_BER AND OPENTLV_QUERY AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/query.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_DER OR OPENTLV_FORMAT_CER)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/asn1_internal.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_DER)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/der.c
-        src/builtins/asn1/der_validation.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_DER AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/der_schema.c
-    )
-endif()
-
-if(OPENTLV_FORMAT_CER)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/asn1/cer.c
-        src/builtins/asn1/cer_validation.c
-        src/builtins/asn1/cer_values_internal.c
-    )
-endif()
-
-if(OPENTLV_EMV)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/emv/format.c
-        src/builtins/emv/dol.c
-    )
-endif()
-
-if(OPENTLV_EMV AND OPENTLV_CODEC)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/emv/emv.c
-        src/builtins/emv/dictionary.c
-        src/builtins/emv/emv_codec.c
-        src/builtins/emv/presentation.c
-        src/builtins/emv/emv_schema.c
-    )
-endif()
-
-if(OPENTLV_EMV AND OPENTLV_CODEC AND OPENTLV_QUERY)
-    target_sources(${PROJECT_NAME} PRIVATE
-        src/builtins/emv/query.c
-    )
 endif()
 
 

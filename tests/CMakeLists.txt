@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(tests LANGUAGES C)
 
-foreach(module IN ITEMS codec query-codec schema schema-number schema-query schema-query-document codec-structure)
+foreach(module IN ITEMS asn1 emv bluetooth nfc dhcp lldp codec query-codec schema schema-number schema-query schema-query-document codec-structure)
     string(REPLACE "-" "_" source "${module}")
     opentlv_add_module_test(module-${module} OWNER ${module} SOURCES modules/${source}.c)
     opentlv_configure_compiler(module-${module})
@@ -61,9 +61,6 @@ if(Python3_Interpreter_FOUND)
 endif()
 
 add_executable(capability-contract capabilities.c)
-get_target_property(_capability_sources tlv SOURCES)
-file(GENERATE OUTPUT "${OpenTLV_BINARY_DIR}/capability-sources.txt"
-    CONTENT "${_capability_sources}")
 target_link_libraries(capability-contract PRIVATE tlv)
 add_test(NAME capability-contract COMMAND capability-contract)
 set_tests_properties(capability-contract PROPERTIES LABELS "capabilities")

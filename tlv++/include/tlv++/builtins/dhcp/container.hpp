@@ -23,7 +23,7 @@ namespace native {
  * @param[out] diagnostic Optional diagnostic, reset on every call.
  * @return The result of tlv_dhcpv4_options_validate(), propagated unchanged.
  * @note Never allocates or retains input. Output storage must not overlap input,
- *       rules or other outputs. Requires `OPENTLV_DHCP=ON`.
+ *       rules or other outputs. Requires linking `OpenTLV::DHCP`.
  * @see tlv_dhcpv4_options_validate
  */
 inline tlv_result_t

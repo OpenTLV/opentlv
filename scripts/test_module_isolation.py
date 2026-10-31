@@ -107,6 +107,19 @@ class IsolationTests(unittest.TestCase):
         self.assertEqual(len(check_metadata(entries)), 4)
         self.assertFalse(list(self.build.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")))
 
+    def test_builtin_selection_options_are_rejected(self):
+        for family in ("FORMAT_ASN1", "FORMAT_BER", "FORMAT_DER", "FORMAT_CER",
+                       "EMV", "BLUETOOTH", "NFC", "DHCP", "LLDP"):
+            for value in ("ON", "OFF"):
+                with self.subTest(family=family, value=value):
+                    option = "OPENTLV_" + family
+                    result = subprocess.run(
+                        ["cmake", "-S", str(ROOT), "-B", str(self.build / (family + value)),
+                         f"-D{option}={value}"], capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(f"{option} was removed", result.stdout + result.stderr)
+                    self.assertIn("OpenTLV::ASN1", result.stdout + result.stderr)
+
     def test_cycle(self):
         self.change("CMakeLists.txt", "OWNER_SYMBOLS tlv_fixture_owner",
                     "PUBLIC_DEPS addon OWNER_SYMBOLS tlv_fixture_owner")

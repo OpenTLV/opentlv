@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_EMV_FORMAT_H
 #define OPENTLV_BUILTINS_EMV_FORMAT_H
 
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 #include "tlv/format.h"
 
 /**
@@ -37,10 +37,10 @@ extern "C" {
  * use of three-octet lengths belong to the enclosing application or schema.
  * This descriptor covers element framing, not full Book 3 conformance.
  *
- * @note Available with OPENTLV_EMV. Immutable, allocation-free, and
+ * @note Provided by OpenTLV::EMV. Immutable, allocation-free, and
  * zero-copy on read. No ASN.1 format is called by this descriptor.
  */
-extern TLV_API const tlv_format_t tlv_format_emv;
+extern OPENTLV_EMV_API const tlv_format_t tlv_format_emv;
 
 #ifdef __cplusplus
 }

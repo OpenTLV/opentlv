@@ -62,7 +62,13 @@
     "tlv/schema-number/export.h": "schema-number",
     "tlv/schema-query/export.h": "schema-query",
     "tlv/schema-query-document/export.h": "schema-query-document",
-    "tlv/codec-structure/export.h": "codec-structure"
+    "tlv/codec-structure/export.h": "codec-structure",
+    "tlv/asn1/export.h": "asn1",
+    "tlv/emv/export.h": "emv",
+    "tlv/bluetooth/export.h": "bluetooth",
+    "tlv/nfc/export.h": "nfc",
+    "tlv/dhcp/export.h": "dhcp",
+    "tlv/lldp/export.h": "lldp"
   },
   "files": {
     "tlv++/include/tlv++/builtins/asn1/ber.hpp": "asn1",

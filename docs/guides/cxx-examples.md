@@ -213,8 +213,8 @@ ctest --test-dir build -C Debug -L examples --output-on-failure --no-tests=error
 python scripts/check_doc_examples.py
 ```
 
-BER examples require `OPENTLV_FORMAT_BER`; Document examples additionally require
-`OPENTLV_DOCUMENT`. Generic Format, typed field and advanced control examples
-remain available when optional protocols are disabled. The CI compiler jobs run
+BER examples link `OpenTLV::ASN1`; Document examples additionally use
+`OpenTLV::Document`. Generic Format, typed field and advanced control examples
+remain independent of protocol implementations. The CI compiler jobs run
 registered examples through the integration label. Documentation blocks above
 are synchronized with their compiled or executed sources by the example checker.

@@ -8,13 +8,11 @@
 | --- | --- |
 | Format header | `tlv/builtins/asn1/cer.h` |
 | Descriptor | `tlv_format_cer` |
-| CMake option (default ON) | `OPENTLV_FORMAT_CER` |
-| Link target | `tlv` |
+| Link target | `OpenTLV::ASN1` |
 
-CER is a sibling of DER over the same BER-TLV wire helpers: `OPENTLV_FORMAT_CER`
-cascades from `OPENTLV_FORMAT_BER`, not from `OPENTLV_FORMAT_DER`, and neither
-sibling depends on the other. `OPENTLV_EMV` cascades only from
-`OPENTLV_FORMAT_DER` and is unaffected by `OPENTLV_FORMAT_CER` either way.
+BER, DER and CER share one `OpenTLV::ASN1` library. Their former CMake
+selection options are removed; canonical encoding and validation behavior is
+unchanged. EMV privately uses ASN1 for its existing DOL identifier helper.
 
 See [shared ASN.1 mechanisms](ber.md#shared-asn1-mechanisms) for the common
 identifier API, framing reuse and division of canonical validation.

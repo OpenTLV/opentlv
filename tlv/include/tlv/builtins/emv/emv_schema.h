@@ -5,7 +5,7 @@
 #define OPENTLV_BUILTINS_EMV_SCHEMA_H
 
 #include "tlv/schema/schema.h"
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +41,7 @@ extern "C" {
  * reports the wire constructed bit. Semantic primitive-bit templates are
  * outside this structural schema and require explicit application traversal.
  */
-extern TLV_API const tlv_structure_schema_t tlv_emv_structure_schema;
+extern OPENTLV_EMV_API const tlv_structure_schema_t tlv_emv_structure_schema;
 
 #ifdef __cplusplus
 }

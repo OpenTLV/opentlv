@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_EMV_CODEC_H
 #define OPENTLV_BUILTINS_EMV_CODEC_H
 #include "tlv/codec/codec.h"
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -210,7 +210,7 @@ typedef struct {
  * unscaled minor units. The general semantic-codec rules in the file
  * documentation apply.
  */
-extern TLV_API const tlv_codec_t tlv_emv_codec_amount;
+extern OPENTLV_EMV_API const tlv_codec_t tlv_emv_codec_amount;
 
 #ifdef __cplusplus
 }

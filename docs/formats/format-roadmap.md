@@ -32,7 +32,7 @@ interpretation remain outside that implementation.
 Keep raw framing, nesting rules, structural schemas, value codecs, and protocol
 semantics separate. Generic formats such as Fixed belong to the always-available
 core. Standard-specific built-ins remain selectable through their package
-build options, such as `OPENTLV_BLUETOOTH`. Preserve caller-owned storage,
+link targets, such as `OpenTLV::Bluetooth`. Preserve caller-owned storage,
 capacity checks, and zero-copy value reads in the C API.
 
 The current callback contract decodes a complete element and reports separate

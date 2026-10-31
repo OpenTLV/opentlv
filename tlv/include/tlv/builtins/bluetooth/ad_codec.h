@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_AD_CODEC_H
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_CODEC_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/codec/codec.h"
 #include "tlv/value.h"
 
@@ -16,7 +16,7 @@
  * Use tlv_codec_decode() and tlv_codec_encode() on value bytes only. Callers
  * select the codec from the AD Type; these immutable, static-lifetime
  * descriptors do not depend on the Bluetooth LTV format, schema or registry.
- * They require `OPENTLV_BLUETOOTH=ON`.
+ * They require linking `OpenTLV::Bluetooth`.
  *
  * Flags and Local Name use #tlv_value_t, borrowing the complete input without
  * changing it. Keep that storage alive and immutable while using the result.
@@ -31,7 +31,7 @@
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v14/out/en/core-supplementary-features/data-types-specification.html
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 
 #ifdef __cplusplus
@@ -69,7 +69,7 @@ typedef enum tlv_bluetooth_ad_flag {
  * size is #TLV_ERR_INVALID_VALUE. Insufficient destination capacity is
  * #TLV_ERR_BUFFER_TOO_SHORT. Encode preserves accepted bytes exactly.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_flags;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_ad_codec_flags;
 
 /**
  * @brief Tests masks in the first octet of a decoded Flags value.
@@ -83,7 +83,7 @@ extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_flags;
  * @note Does not validate or modify the view and never allocates. An absent
  *       Flags AD structure must not be interpreted as an all-clear value.
  */
-TLV_API bool tlv_bluetooth_ad_flags_test(const tlv_value_t* flags, uint8_t mask);
+OPENTLV_BLUETOOTH_API bool tlv_bluetooth_ad_flags_test(const tlv_value_t* flags, uint8_t mask);
 
 /**
  * @brief Local Name codec for AD Types 0x08 and 0x09, using a borrowed #tlv_value_t.
@@ -103,7 +103,7 @@ TLV_API bool tlv_bluetooth_ad_flags_test(const tlv_value_t* flags, uint8_t mask)
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_local_name;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_ad_codec_local_name;
 
 /**
  * @brief Tx Power Level codec for AD Type 0x0A, represented by `int8_t` dBm.
@@ -114,7 +114,7 @@ extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_local_name;
  * length or incorrect encode object size is #TLV_ERR_INVALID_VALUE.
  * Insufficient destination capacity is #TLV_ERR_BUFFER_TOO_SHORT.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_ad_codec_tx_power;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_ad_codec_tx_power;
 
 /** @} */
 

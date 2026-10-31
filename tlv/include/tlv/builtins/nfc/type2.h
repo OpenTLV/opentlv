@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_NFC_TYPE2_H
 #define OPENTLV_BUILTINS_NFC_TYPE2_H
 
-#include "tlv/export.h"
+#include "tlv/nfc/export.h"
 #include "tlv/format.h"
 
 /** @file
@@ -14,7 +14,7 @@
  * Supply a contiguous TLV stream from the data area, excluding the Capability
  * Container, lock bytes and reserved memory. This descriptor does not map a
  * physical tag dump, interpret NDEF records or validate control Values/order.
- * Source offsets refer to the supplied stream. Requires `OPENTLV_NFC=ON`.
+ * Source offsets refer to the supplied stream. Requires linking `OpenTLV::NFC`.
  */
 
 #ifdef __cplusplus
@@ -54,7 +54,7 @@ enum tlv_nfc_type2_tag {
  * Measurement does not access Value storage. Encoding regenerates valid wire
  * bytes; exact unchanged-source preservation uses tlv_source_preserve().
  */
-extern TLV_API const tlv_format_t tlv_format_nfc_type2;
+extern OPENTLV_NFC_API const tlv_format_t tlv_format_nfc_type2;
 
 #ifdef __cplusplus
 }

@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_ASN1_CODEC_H
 #define OPENTLV_BUILTINS_ASN1_CODEC_H
 #include "tlv/codec/codec.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -52,7 +52,7 @@ extern "C" {
  * any other content, including any other length, is
  * #TLV_ERR_INVALID_VALUE. Encode always writes one byte, `00` or `FF`.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_boolean;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_boolean;
 
 /**
  * @brief INTEGER codec (X.690 section 8.3 and 11.2): minimal two's complement, `int64_t`.
@@ -63,7 +63,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_boolean;
  * is rejected with #TLV_ERR_INVALID_VALUE. Encode always writes the
  * minimal two's complement encoding of the given value, 1 to 8 bytes.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_integer;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_integer;
 
 /**
  * @brief ENUMERATED codec (X.690 section 8.4 and 11.2).
@@ -74,7 +74,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_integer;
  *
  * @see tlv_asn1_codec_integer
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_enumerated;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_enumerated;
 
 /**
  * @brief Decoded BIT STRING content (X.690 section 8.6): unused-bit count and borrowed bits.
@@ -99,7 +99,7 @@ typedef struct tlv_asn1_bit_string {
  * `unused_bits` outside 0-7, or a nonzero `unused_bits` with an empty
  * `data`.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_bit_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_bit_string;
 
 /**
  * @brief One named bit of a BIT STRING (X.680's `NamedBitList` notation, for example
@@ -128,7 +128,7 @@ typedef struct tlv_asn1_named_bit {
  * @return Nonzero if the bit is set.
  * @return 0 if the bit is clear, or `position` is at or beyond the encoded content.
  */
-TLV_API int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t position);
+OPENTLV_ASN1_API int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t position);
 
 /**
  * @brief Looks up a named bit's display name by position in a table.
@@ -142,8 +142,8 @@ TLV_API int tlv_asn1_bit_string_test(const tlv_asn1_bit_string_t* bits, size_t p
  * @note The caller must supply a valid table extent; this lookup does not
  * validate the table and has no separate failure channel.
  */
-TLV_API const char* tlv_asn1_named_bit_find(const tlv_asn1_named_bit_t* names, size_t count,
-                                            size_t position);
+OPENTLV_ASN1_API const char* tlv_asn1_named_bit_find(const tlv_asn1_named_bit_t* names,
+                                                     size_t count, size_t position);
 
 /** @brief Decoded OCTET STRING content (X.690 section 8.7): borrowed, unconstrained bytes. */
 typedef struct tlv_asn1_octet_string {
@@ -159,7 +159,7 @@ typedef struct tlv_asn1_octet_string {
  * Every byte sequence, including empty content, is valid; decode borrows
  * the input value and encode reproduces it unchanged.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_octet_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_octet_string;
 
 /**
  * @brief NULL codec (X.690 section 8.8 and 11.2): no representation.
@@ -169,7 +169,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_octet_string;
  * and any capacity including zero. Encode reads nothing from `value` and
  * always reports zero bytes written.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_null;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_null;
 
 /**
  * @brief Maximum number of arcs #tlv_asn1_oid_t can hold.
@@ -202,7 +202,7 @@ typedef struct tlv_asn1_oid {
  *
  * @see tlv_asn1_codec_relative_oid
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_oid;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_oid;
 
 /**
  * @brief RELATIVE-OID codec (X.690 section 8.20 and 11.3): #tlv_asn1_oid_t.
@@ -214,7 +214,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_oid;
  *
  * @see tlv_asn1_codec_oid
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_relative_oid;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_relative_oid;
 
 /**
  * @brief Decoded restricted character string content (X.690 section 8.23): borrowed bytes.
@@ -238,7 +238,7 @@ typedef struct tlv_asn1_string {
  * malformed continuation byte. Encode enforces the same rule and reproduces
  * the content unchanged.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_utf8_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_utf8_string;
 
 /**
  * @brief NumericString codec (X.690 section 8.23): #tlv_asn1_string_t.
@@ -246,7 +246,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_utf8_string;
  * Every content byte must be `0`-`9` or the space character; any other byte
  * is #TLV_ERR_INVALID_VALUE on decode or encode.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_numeric_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_numeric_string;
 
 /**
  * @brief PrintableString codec (X.690 section 8.23): #tlv_asn1_string_t.
@@ -255,7 +255,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_numeric_string;
  * `'()+,-./:=?`; any other byte is #TLV_ERR_INVALID_VALUE on decode or
  * encode.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_printable_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_printable_string;
 
 /**
  * @brief IA5String codec (X.690 section 8.23): #tlv_asn1_string_t.
@@ -263,7 +263,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_printable_string;
  * Every content byte must be 7-bit ASCII (`0x00`-`0x7F`); any other byte is
  * #TLV_ERR_INVALID_VALUE on decode or encode.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_ia5_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_ia5_string;
 
 /**
  * @brief VisibleString codec (X.690 section 8.23): #tlv_asn1_string_t.
@@ -272,7 +272,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_ia5_string;
  * (`0x20`-`0x7E`); any other byte is #TLV_ERR_INVALID_VALUE on decode
  * or encode.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_visible_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_visible_string;
 
 /** @brief Decoded BMPString content (X.690 section 8.23): borrowed UCS-2 code units. */
 typedef struct tlv_asn1_bmp_string {
@@ -291,7 +291,7 @@ typedef struct tlv_asn1_bmp_string {
  * (U+D800-U+DFFF); use tlv_read_u16_be() on `data + 2 * i` to read code unit
  * `i`. Encode enforces the same rule and reproduces the content unchanged.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_bmp_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_bmp_string;
 
 /** @brief Decoded UniversalString content (X.690 section 8.23): borrowed UCS-4 code points. */
 typedef struct tlv_asn1_universal_string {
@@ -311,7 +311,7 @@ typedef struct tlv_asn1_universal_string {
  * read code point `i`. Encode enforces the same rule and reproduces the
  * content unchanged.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_universal_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_universal_string;
 
 /**
  * @brief Decoded UTCTime content (X.690 section 8.26 and 11.8): a two-digit-year timestamp.
@@ -346,7 +346,7 @@ typedef struct tlv_asn1_utc_time {
  * representation under that same convention) and every other field in its
  * documented range, and always reproduces the canonical form.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_utc_time;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_utc_time;
 
 /**
  * @brief Decoded GeneralizedTime content (X.690 section 8.26 and 11.7): a four-digit-year
@@ -386,7 +386,7 @@ typedef struct tlv_asn1_generalized_time {
  * `fraction_digits`, and rejects a `fraction_digits_length` of 0 paired with
  * a non-`NULL` `fraction_digits` or vice versa.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_generalized_time;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_generalized_time;
 
 /**
  * @brief ObjectDescriptor codec (X.690 section 11.2): #tlv_asn1_octet_string_t.
@@ -396,7 +396,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_generalized_time;
  * canonical byte-level restriction on GraphicString's character set. Decode
  * and encode behave exactly as #tlv_asn1_codec_octet_string.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_object_descriptor;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_object_descriptor;
 
 /**
  * @brief TeletexString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
@@ -406,7 +406,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_object_descriptor;
  * every byte sequence is valid content, as with OCTET STRING. Decode and
  * encode behave exactly as #tlv_asn1_codec_octet_string.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_teletex_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_teletex_string;
 
 /**
  * @brief VideotexString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
@@ -414,21 +414,21 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_teletex_string;
  * Same treatment as #tlv_asn1_codec_teletex_string: a complex legacy
  * character set X.690 does not canonically restrict at the byte level.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_videotex_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_videotex_string;
 
 /**
  * @brief GraphicString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
  *
  * Same treatment as #tlv_asn1_codec_teletex_string.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_graphic_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_graphic_string;
 
 /**
  * @brief GeneralString codec (X.690 section 8.23 and 11.2): #tlv_asn1_octet_string_t.
  *
  * Same treatment as #tlv_asn1_codec_teletex_string.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_general_string;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_general_string;
 
 /**
  * @brief Generic TIME codec (X.690 section 11.7 and X.680 clause 38): #tlv_asn1_string_t.
@@ -439,7 +439,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_general_string;
  * VisibleString's character-set restriction, not the fuller ISO 8601
  * canonical-form grammar.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_time;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_time;
 
 /** @brief Decoded DATE content (X.690 section 11.x): a calendar date. */
 typedef struct tlv_asn1_date {
@@ -460,7 +460,7 @@ typedef struct tlv_asn1_date {
  * requires `year` in 0-9999 and every other field in its documented range,
  * and always reproduces the canonical form.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_date;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_date;
 
 /** @brief Decoded TIME-OF-DAY content (X.690 section 11.x): a local time of day. */
 typedef struct tlv_asn1_time_of_day {
@@ -479,7 +479,7 @@ typedef struct tlv_asn1_time_of_day {
  * and range-checks every field. Encode requires every field in its
  * documented range and always reproduces the canonical form.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_time_of_day;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_time_of_day;
 
 /** @brief Decoded DATE-TIME content (X.690 section 11.x): a DATE immediately followed by a
  *  TIME-OF-DAY. */
@@ -506,7 +506,7 @@ typedef struct tlv_asn1_date_time {
  * requires `year` in 0-9999 and every other field in its documented range,
  * and always reproduces the canonical form.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_date_time;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_date_time;
 
 /**
  * @brief DURATION codec (X.690 section 11.x): #tlv_asn1_string_t.
@@ -518,7 +518,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_date_time;
  * omission of zero-valued components, and accept a fractional value only on
  * the seconds component.
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_duration;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_duration;
 
 /**
  * @brief Maximum number of arcs #tlv_asn1_iri_t can hold.
@@ -557,7 +557,7 @@ typedef struct tlv_asn1_iri {
  *
  * @see tlv_asn1_codec_relative_oid_iri
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_oid_iri;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_oid_iri;
 
 /**
  * @brief RELATIVE-OID-IRI codec (X.690 section 8.22 and 11.3): #tlv_asn1_iri_t.
@@ -567,7 +567,7 @@ extern TLV_API const tlv_codec_t tlv_asn1_codec_oid_iri;
  *
  * @see tlv_asn1_codec_oid_iri
  */
-extern TLV_API const tlv_codec_t tlv_asn1_codec_relative_oid_iri;
+extern OPENTLV_ASN1_API const tlv_codec_t tlv_asn1_codec_relative_oid_iri;
 
 #ifdef __cplusplus
 }

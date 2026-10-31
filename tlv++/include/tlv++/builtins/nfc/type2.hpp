@@ -72,7 +72,7 @@ TLV_NODISCARD inline detail::parsing_range<format> parse(bytes data) {
 namespace native {
 /** @brief Returns the immutable NFC Type 2 framing preset.
  * @return Shared C descriptor with static lifetime.
- * @note Requires `OPENTLV_NFC=ON`. The caller handles padding, termination
+ * @note Requires linking `OpenTLV::NFC`. The caller handles padding, termination
  * and physical memory mapping; NDEF contents remain opaque.
  * @see tlv_format_nfc_type2
  */

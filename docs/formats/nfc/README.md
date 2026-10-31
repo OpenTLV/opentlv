@@ -2,8 +2,8 @@
 
 Select `tlv_format_nfc_type2` from `tlv/builtins/nfc/type2.h`, or
 `tlv::nfc::format{}` from `tlv++/builtins/nfc/type2.hpp`.
-The independent `OPENTLV_NFC` option defaults to `ON`;
-`tlv_config_nfc()` reports availability in the linked library.
+Link `OpenTLV::NFC` for framing and add `OpenTLV::IO` for Reader/Writer.
+`tlv_config_nfc()` remains a legacy constant mirror, not a linked-module query.
 
 This implements the TLV block framing in the
 [NFC Forum Type 2 Tag Operation Specification 1.1, section 2.3](https://community.nxp.com/pwmxy87654/attachments/pwmxy87654/nfc/3252/1/NFCForum-Type-2-Tag_1.1%20Specification.pdf).
@@ -79,8 +79,7 @@ documents the bytes, expected Elements, and synthetic provenance. Integration
 tests read the checked-in files and independently verify decoding, encoding
 from expected Elements, and Reader -> Element -> Writer byte equality.
 
-With [standalone otlv](https://github.com/OpenTLV/opentlv-cli) built against a Core
-with `OPENTLV_NFC=ON`, run from the Core repository root:
+With [standalone otlv](https://github.com/OpenTLV/opentlv-cli) linked with `OpenTLV::NFC`, run from the Core repository root:
 
 ```sh
 otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin
@@ -95,10 +94,10 @@ include `nfc-type2` when enabled. See the corpus README for binary re-encoding.
 
 | Binding | Preset | Availability |
 | --- | --- | --- |
-| C++ | `tlv::nfc::format{}` | `OPENTLV_NFC` |
+| C++ | `tlv::nfc::format{}` | `OpenTLV::NFC` |
 | Python | `Format.NFC_TYPE2` | Present when native `HAS_NFC` is true |
 | Rust | `Format::NfcType2` / `"nfc-type2"` | Default-enabled Cargo feature `nfc` |
-| Lua | `opentlv.formats.nfc_type2` | Present when `OPENTLV_NFC` is enabled |
+| Lua | `opentlv.formats.nfc_type2` | Availability is owned by the standalone Lua binding |
 
 All use the C format through their existing operations. None interprets NDEF
 or automatically stops traversal at Terminator.
@@ -120,4 +119,4 @@ encodings. The Escaped format reuses the fixed identifier primitive from
 `tlv/field/fixed.h`. The existing DHCP binary composition delegates tag-only
 selection to the same generic mechanism.
 Neither mechanism imposes protocol termination or padding policy. These
-generic capabilities remain built when `OPENTLV_NFC=OFF`.
+generic capabilities belong to Core and do not depend on NFC.

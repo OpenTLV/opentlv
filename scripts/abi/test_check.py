@@ -6,10 +6,13 @@ tree and check that check.py (in enforce mode) reacts as the compatibility
 policy requires."""
 
 import argparse
+import contextlib
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+
+import check
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 ENDIAN_H = "tlv/include/tlv/endian.h"
@@ -80,9 +83,52 @@ CASES = [
 ]
 
 
+def aggregate_fixture(work_dir):
+    """A monolith and split DSOs must compare the same exported declarations."""
+    root = work_dir / "aggregate-fixture"
+    root.mkdir(parents=True, exist_ok=True)
+    header = "struct value { int field; };\nint base(struct value*);\nint addon(void);\n"
+    base = '#include "api.h"\nint base(struct value* v) { return v->field; }\n'
+    addon = '#include "api.h"\nint addon(void) { return 2; }\n'
+    (root / "api.h").write_text(header, encoding="utf-8")
+    (root / "base.c").write_text(base, encoding="utf-8")
+    (root / "addon.c").write_text(addon, encoding="utf-8")
+
+    def compile_library(name, *sources):
+        library = root / (name + ".so")
+        subprocess.run(["cc", "-g", "-shared", "-fPIC",
+                        *(str(root / source) for source in sources),
+                        "-o", str(library)], check=True)
+        return library
+
+    baseline = root / "baseline.abi"
+    check.dump_abi(compile_library("whole", "base.c", "addon.c"), root, baseline)
+    baseline_bytes = baseline.read_bytes()
+    for name, body, layout, expected in (
+        ("split", addon, header, 0),
+        ("removed", addon.replace("int addon", '__attribute__((visibility("hidden"))) int addon'), header, 1),
+        ("added", addon + "int extra(void) { return 3; }\n", header + "int extra(void);\n", 0),
+        ("layout", addon, header.replace("int field;", "int field; int extra;"), 1),
+    ):
+        (root / "api.h").write_text(layout, encoding="utf-8")
+        (root / "addon.c").write_text(body, encoding="utf-8")
+        libraries = [compile_library("base", "base.c"), compile_library("addon", "addon.c")]
+        candidate = root / (name + ".abi")
+        check.dump_abi(libraries, root, candidate)
+        with (root / (name + ".log")).open("w", encoding="utf-8") as log:
+            with contextlib.redirect_stdout(log), contextlib.redirect_stderr(log):
+                actual = check.compare(baseline, candidate, root / name, "enforce")
+        if actual != expected:
+            raise RuntimeError(f"aggregate ABI {name}: expected {expected}, got {actual}")
+        if baseline.read_bytes() != baseline_bytes:
+            raise RuntimeError("aggregate ABI check changed the baseline")
+        print(f"PASS aggregate ABI {name} (exit {actual})")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--work-dir", type=Path, default=REPO_ROOT / "build" / "abi-selftest")
+    parser.add_argument("--aggregate-fixture-only", action="store_true")
     parser.add_argument(
         "--only-if-changed", metavar="BASE",
         help="Run only if the ABI scripts differ from this Git ref (empty: always run)",
@@ -99,6 +145,9 @@ def main():
             print("ABI scripts unchanged; skipping the self-test.")
             return 0
     work_dir = options.work_dir.resolve()
+    aggregate_fixture(work_dir)
+    if options.aggregate_fixture_only:
+        return 0
     copy_tree(work_dir / "baseline")
     baseline_file = work_dir / "baseline.abi"
     subprocess.run(

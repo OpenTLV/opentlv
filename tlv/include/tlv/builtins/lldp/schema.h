@@ -4,14 +4,14 @@
 #ifndef OPENTLV_BUILTINS_LLDP_SCHEMA_H
 #define OPENTLV_BUILTINS_LLDP_SCHEMA_H
 
-#include "tlv/export.h"
+#include "tlv/lldp/export.h"
 #include "tlv/schema/schema.h"
 
 /**
  * @file
  * @ingroup schemas
  * @brief LLDPDU structural rules and sequence validation above generic Reader.
- * @note Requires `OPENTLV_LLDP=ON`. Ethernet headers and padding are excluded.
+ * @note Requires linking `OpenTLV::LLDP`. Ethernet headers and padding are excluded.
  */
 
 #ifdef __cplusplus
@@ -30,7 +30,7 @@ extern "C" {
  * prefix or End position; use tlv_lldp_validate() for those sequence rules.
  * Does not decode Values or enforce subtype-specific or vendor constraints.
  */
-extern TLV_API const tlv_structure_schema_t tlv_lldp_schema;
+extern OPENTLV_LLDP_API const tlv_structure_schema_t tlv_lldp_schema;
 
 /**
  * @brief Validates base lengths/occurrences, mandatory prefix and optional End.
@@ -61,8 +61,9 @@ extern TLV_API const tlv_structure_schema_t tlv_lldp_schema;
  * @return Any framing error from generic Reader/Schema.
  * @see tlv_lldp_schema, tlv_codec_decode
  */
-TLV_API tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size, size_t max_elements,
-                                       tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_LLDP_API tlv_result_t tlv_lldp_validate(const uint8_t* data, size_t size,
+                                                size_t max_elements,
+                                                tlv_schema_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

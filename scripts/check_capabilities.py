@@ -6,15 +6,11 @@ import argparse
 from pathlib import Path
 import subprocess
 
-CAPABILITIES = ("SCHEMA",)
+# Module selection belongs to target links. Only Query implementation features
+# still have configuration profiles; each profile runs all native module probes.
 PROFILES = {
-    "io": (),
-    "document": (),
-    "query": (),
-    "document-query": (),
-    "schema": ("SCHEMA",),
-    "codec": (),,
-    "full": CAPABILITIES,
+    "full": ("ON", "ON"),
+    "static-query": ("OFF", "OFF"),
 }
 
 
@@ -36,23 +32,16 @@ def main():
                    "-DOPENTLV_BUILD_SHARED_LIBS=" + ("OFF" if args.static else "ON")]
         if args.generator:
             command += ["-G", args.generator]
-        command += [f"-DOPENTLV_{cap}={'ON' if cap in PROFILES[name] else 'OFF'}"
-                    for cap in CAPABILITIES]
+        frontend, sets = PROFILES[name]
+        command += [f"-DOPENTLV_QUERY_FRONTEND={frontend}",
+                    f"-DOPENTLV_QUERY_SET_OPERATIONS={sets}"]
         command += args.cmake_arg
         print(f"Capability profile: {name}", flush=True)
         subprocess.run(command, check=True)
-        sources = (build / "capability-sources.txt").read_text().replace("\\", "/").split(";")
-        for cap in set(CAPABILITIES) - set(PROFILES[name]):
-            # Diagnostic vocabularies preserve their historical availability in
-            # the compatibility library while implementations remain optional.
-            if any(f"src/{cap.lower()}/" in source and
-                   Path(source).name not in ("diagnostic.c", "diagnostic_strings.c")
-                   for source in sources):
-                raise RuntimeError(f"{name}: disabled {cap} sources are still compiled")
         subprocess.run(["cmake", "--build", str(build), "--config", "Debug",
                         "--parallel", "1"], check=True)
         subprocess.run(["ctest", "--test-dir", str(build), "-C", "Debug",
-                        "-L", "capabilities", "--output-on-failure",
+                        "-L", "capabilities|module:", "--output-on-failure",
                         "--no-tests=error"], check=True)
 
 

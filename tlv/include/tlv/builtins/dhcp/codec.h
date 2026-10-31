@@ -12,7 +12,7 @@
  * @brief DHCPv4 message type semantics composed with generic value codecs.
  *
  * These constants and the generic codec alias require no optional component.
- * DHCP framing/registry APIs require OPENTLV_DHCP=ON. Integers, IPv4 addresses, address lists,
+ * DHCP framing/registry APIs require OpenTLV::DHCP. Integers, IPv4 addresses, address lists,
  * opaque identifiers and Parameter Request Lists use the generic codecs in tlv/codec/values.h and
  * tlv/codec/ipv4.h directly. PRL bytes retain order, duplicates and unknown option Codes.
  * Option-specific length and value policy is not imposed here.

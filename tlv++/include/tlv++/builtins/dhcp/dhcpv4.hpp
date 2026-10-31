@@ -73,7 +73,7 @@ namespace native {
 /**
  * @brief Returns the immutable DHCPv4 option framing preset.
  * @return The shared C descriptor with static lifetime.
- * @note Requires `OPENTLV_DHCP=ON`. The caller handles End and packet semantics.
+ * @note Requires linking `OpenTLV::DHCP`. The caller handles End and packet semantics.
  * @see tlv_format_dhcpv4
  */
 inline const tlv_format_t& dhcpv4_format() noexcept {

@@ -1,25 +1,28 @@
 # C ABI compatibility
 
-The `tlv` C shared library exports a public ABI: the functions and data marked
-`TLV_API`, and the layout of the public types in `tlv/include/`. The **ABI
-Compatibility** CI job compares the library built from a pull request with a
-stored ABI baseline using [libabigail](https://sourceware.org/libabigail/)
-(`abidw` and `abidiff`).
+The C modules export public functions and data through their
+`OPENTLV_<MODULE>_API` macros, with public type layouts in `tlv/include/`.
+The **ABI Compatibility** CI job compares their combined ABI with the stored
+baseline using [libabigail](https://sourceware.org/libabigail/) (`abidw` and
+`abidiff`). The `tlv` compatibility archive contains no implementation symbols.
 
-Since #647/#648, Core, IO and Document symbols are exported by `opentlv_core`,
-`opentlv_io` and `opentlv_document` using `OPENTLV_CORE_API`, `OPENTLV_IO_API` and
-`OPENTLV_DOCUMENT_API`. The default comparison still reports
-their removal from the original single-library distribution against the stored
-baseline. This is an intentional binary packaging break; existing public type
-layouts were unchanged in those extractions. #650 adds `opentlv_query` and
-`opentlv_query_document`, changes the Query diagnostic layout and conversion
-callback signature, and requires binding/native consumers to rebuild. Query ABI
-snapshots distinguish pointer width, Query storage alignment and diagnostic
-alignment; Linux, Windows and wasm32 have different payload alignment. Use `--library opentlv_core`, `--library opentlv_io` or
-`--library opentlv_document`, `--library opentlv_query` or
-`--library opentlv_query_document` with a matching `--baseline-file` to compare one
-extracted library. ABI mutation
-self-tests now operate on Core, where their endian and Value test symbols live.
+Since #653, the default `--library tlv` comparison reads the generated module
+registry and dumps the union of the real module shared libraries with
+`abidw --add-binaries`. The generated corpus group is flattened into a
+single declaration corpus while preserving its shared type IDs. The historic
+single-library baseline and its committed file remain unchanged. This preserves detection of removed exports and changed types
+while symbols move between binaries. The module isolation gate separately checks
+symbol ownership and exact exported sets. This union comparison does not certify
+binary distribution compatibility: consumers must relink and distribute the
+required module libraries.
+
+Use `--library opentlv_core`, `--library opentlv_asn1` or another compiled module
+name with a matching `--baseline-file` to compare one library. Core mutation
+self-tests cover endian/Value ABI changes; the aggregate fixture checks that a
+split preserves the combined ABI, additions remain compatible, and removed
+exports or changed public layouts are rejected.
+Query (#650) and Schema (#652) diagnostic ABI changes still require consumers
+to rebuild; this extraction does not undo those changes.
 
 Out of scope: private and internal symbols (hidden by
 `-fvisibility=hidden`), static libraries, the header-only C++ layer (`tlv++`),

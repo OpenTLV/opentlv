@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_EMV_PRESENTATION_H
 #define OPENTLV_BUILTINS_EMV_PRESENTATION_H
 
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 #include "tlv/builtins/emv/emv.h"
 
 #ifdef __cplusplus
@@ -74,7 +74,8 @@ typedef enum {
  * invoke their codecs directly; they do not need this adapter. Copies and custom
  * entries are deliberately excluded, even if their tag matches a builtin tag.
  */
-TLV_API tlv_emv_value_kind_t tlv_emv_builtin_value_kind(const tlv_emv_definition_t* definition);
+OPENTLV_EMV_API tlv_emv_value_kind_t
+tlv_emv_builtin_value_kind(const tlv_emv_definition_t* definition);
 
 /**
  * @brief Describes a value kind's C representation and wire meaning.
@@ -87,7 +88,7 @@ TLV_API tlv_emv_value_kind_t tlv_emv_builtin_value_kind(const tlv_emv_definition
  * @return A static, NUL-terminated description, never `NULL`. Every declared
  *         kind has one; any other value returns `"Unspecified representation"`.
  */
-TLV_API const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind);
+OPENTLV_EMV_API const char* tlv_emv_value_kind_description(tlv_emv_value_kind_t kind);
 
 #ifdef __cplusplus
 }

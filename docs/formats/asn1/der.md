@@ -8,8 +8,7 @@
 | --- | --- |
 | Format header | `tlv/builtins/asn1/der.h` |
 | Descriptor | `tlv_format_der` |
-| CMake option (default ON) | `OPENTLV_FORMAT_DER` |
-| Link target | `tlv` |
+| Link target | `OpenTLV::ASN1` |
 
 See [shared ASN.1 mechanisms](ber.md#shared-asn1-mechanisms) for the common
 identifier API, framing reuse and division of canonical validation.

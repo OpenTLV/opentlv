@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_LLDP_LLDP_H
 #define OPENTLV_BUILTINS_LLDP_LLDP_H
 
-#include "tlv/export.h"
+#include "tlv/lldp/export.h"
 #include "tlv/format.h"
 #include "tlv/definition.h"
 
@@ -24,7 +24,7 @@
  * callers select the TLV region and handle End/padding at the protocol layer.
  * There are no automatically constructed Values. No operation allocates.
  *
- * @note Requires `OPENTLV_LLDP=ON`. This is framing support, not complete
+ * @note Requires linking `OpenTLV::LLDP`. This is framing support, not complete
  * IEEE 802.1AB conformance or an LLDP agent.
  */
 
@@ -41,7 +41,7 @@ extern "C" {
  * #TLV_ERR_INVALID_LENGTH. Source Tag/Length byte envelopes overlap; semantic
  * Tag storage uses #TLV_TAG_BINDING_FORMAT. Measurement needs no Value bytes.
  */
-extern TLV_API const tlv_format_t tlv_format_lldp;
+extern OPENTLV_LLDP_API const tlv_format_t tlv_format_lldp;
 
 /**
  * @brief Immutable registry for base LLDP Types 0..8 and organisational Type 127.
@@ -51,7 +51,7 @@ extern TLV_API const tlv_format_t tlv_format_lldp;
  * Codec constraints. Entries and their identifier bytes have static lifetime.
  * @see tlv_definition_find
  */
-extern TLV_API const tlv_definition_registry_t tlv_lldp_types;
+extern OPENTLV_LLDP_API const tlv_definition_registry_t tlv_lldp_types;
 
 #ifdef __cplusplus
 }

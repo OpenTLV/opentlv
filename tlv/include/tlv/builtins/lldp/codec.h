@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_LLDP_CODEC_H
 #define OPENTLV_BUILTINS_LLDP_CODEC_H
 
-#include "tlv/export.h"
+#include "tlv/lldp/export.h"
 #include "tlv/codec/values.h"
 #include "tlv/value.h"
 
@@ -13,7 +13,7 @@
  * @ingroup codecs
  * @brief Allocation-free codecs for the LLDP base information strings.
  *
- * Specialized descriptors require `OPENTLV_LLDP=ON`; the TTL/text source
+ * Specialized descriptors require linking `OpenTLV::LLDP`; the TTL/text source
  * aliases use core codecs and need no optional component. Descriptors have
  * static lifetime. Decode borrows
  * variable-length fields; keep input storage alive and unchanged. Encode takes
@@ -79,14 +79,14 @@ typedef struct tlv_lldp_organisation {
  * octet. IPv4/IPv6 families require 4/16 address octets. Other identifier
  * subtypes are opaque; no textual normalization or assignment lookup occurs.
  */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_chassis_id;
+extern OPENTLV_LLDP_API const tlv_codec_t tlv_lldp_codec_chassis_id;
 /**
  * @brief Port ID codec (Type 2), represented by #tlv_lldp_id_t.
  *
  * Same representation as Chassis ID; MAC is subtype 3 and network address subtype 4.
  * Other subtype-specific syntax is left to the application.
  */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_port_id;
+extern OPENTLV_LLDP_API const tlv_codec_t tlv_lldp_codec_port_id;
 /** @brief Source alias of #tlv_codec_uint16_be for TTL (Type 3), including zero.
  * No separate binary symbol or domain dispatcher is used. */
 #define tlv_lldp_codec_ttl tlv_codec_uint16_be
@@ -105,7 +105,7 @@ extern TLV_API const tlv_codec_t tlv_lldp_codec_port_id;
  * Requires four octets and enabled bits contained in supported. Reserved bits
  * are preserved; capability assignments and device-role policy are not checked.
  */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_capabilities;
+extern OPENTLV_LLDP_API const tlv_codec_t tlv_lldp_codec_capabilities;
 /**
  * @brief Type 8 codec, represented by #tlv_lldp_management_address_t.
  *
@@ -114,7 +114,7 @@ extern TLV_API const tlv_codec_t tlv_lldp_codec_capabilities;
  * require 4/16 address octets. Interface number is big-endian on wire.
  * OID octets remain opaque; the codec does not establish ASN.1 OID validity.
  */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_management_address;
+extern OPENTLV_LLDP_API const tlv_codec_t tlv_lldp_codec_management_address;
 /**
  * @brief Type 127 codec, represented by #tlv_lldp_organisation_t.
  *
@@ -122,7 +122,7 @@ extern TLV_API const tlv_codec_t tlv_lldp_codec_management_address;
  * No outer length limit is applied; tlv_lldp_schema owns the 511-octet limit.
  * Does not validate OUI ownership, vendor syntax, or nested TLVs.
  */
-extern TLV_API const tlv_codec_t tlv_lldp_codec_organisation;
+extern OPENTLV_LLDP_API const tlv_codec_t tlv_lldp_codec_organisation;
 
 #ifdef __cplusplus
 }
