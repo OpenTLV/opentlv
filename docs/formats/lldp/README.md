@@ -19,7 +19,7 @@ contracts from the remaining full-edition normative audit.
 | Descriptor | `tlv_format_lldp` |
 | Definitions | `tlv_lldp_types`, lookup with `tlv_definition_find()` |
 | C++ header/preset | `tlv++/builtins/lldp/lldp.hpp`, `tlv::lldp::format{}` |
-| CMake option | `OPENTLV_LLDP` (ON by default, independent of ASN.1 and Bluetooth) |
+| CMake target | `OpenTLV::LLDP` (independent of ASN1 and Bluetooth) |
 | Availability query | `tlv_config_lldp()` |
 | Structural API | `tlv/builtins/lldp/schema.h`: `tlv_lldp_schema`, `tlv_lldp_validate()` |
 | Value codecs | `tlv/builtins/lldp/codec.h` |
@@ -150,9 +150,9 @@ For example, `06 02 00 78` is Type 3 with a two-byte Value: the TTL codec yields
 ## Coverage of #362 and #363
 
 The combined implementation provides framing, definitions, structural rules,
-value codecs, shared diagnostics and generic layer integration. The independent
-build option is `OPENTLV_LLDP`, following the `OPENTLV_BLUETOOTH` package naming
-convention. It removes all LLDP implementation sources when disabled.
+value codecs, shared diagnostics and generic layer integration. Link the
+independent `OpenTLV::LLDP` target to select this family. Generic targets do not
+depend on LLDP.
 
 Framing tests cover all 65,536 Type/Length combinations, canonical identity,
 borrowed Values, exact source preservation and round trips. Codec and structural
@@ -172,9 +172,8 @@ All presets select the shared C descriptor; bindings do not reimplement packing.
 | Python | `Format.LLDP` | Member exists only when `_opentlv.HAS_LLDP` is true |
 | Lua | `opentlv.formats.lldp` | Field exists only when LLDP is built |
 
-Rust's `--no-default-features` removes the LLDP preset and disables its C
-package when building from source. For a prebuilt library selected through
-`OPENTLV_LIB_DIR`, match the Cargo `lldp` feature to `OPENTLV_LLDP` in that library.
+Standalone bindings own their Core pins, native target selection and feature
+mappings; consult their documentation when updating a prebuilt library.
 The Python native extension and its Python package must be rebuilt/updated
 together. Lua currently exposes parsing, so its preset does not add a
 new writing API.

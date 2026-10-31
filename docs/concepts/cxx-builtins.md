@@ -17,16 +17,19 @@ Every supported framing domain provides `format`, `parse(data)` and
 `encode(output, callback)`, plus an encoding overload accepting an explicit
 `writer_workspace` before the callback:
 
-| Domain | Framing | CMake option | Header under `tlv++/builtins/` |
+| Domain | Framing | CMake target | Header under `tlv++/builtins/` |
 | --- | --- | --- | --- |
-| `tlv::ber` | BER | `OPENTLV_FORMAT_BER` | `asn1/ber.hpp` |
-| `tlv::der` | DER | `OPENTLV_FORMAT_DER` | `asn1/der.hpp` |
-| `tlv::cer` | CER | `OPENTLV_FORMAT_CER` | `asn1/cer.hpp` |
-| `tlv::emv` | EMV Contact Book 3 | `OPENTLV_EMV` | `emv/format.hpp` |
-| `tlv::bluetooth` | Bluetooth Advertising Data LTV | `OPENTLV_BLUETOOTH` | `bluetooth/ltv.hpp` |
-| `tlv::lldp` | LLDP information strings | `OPENTLV_LLDP` | `lldp/lldp.hpp` |
-| `tlv::dhcp` | DHCPv4 options | `OPENTLV_DHCP` | `dhcp/dhcpv4.hpp` |
-| `tlv::nfc` | NFC Type 2 data-area TLV | `OPENTLV_NFC` | `nfc/type2.hpp` |
+| `tlv::ber` | BER | `OpenTLV::ASN1` | `asn1/ber.hpp` |
+| `tlv::der` | DER | `OpenTLV::ASN1` | `asn1/der.hpp` |
+| `tlv::cer` | CER | `OpenTLV::ASN1` | `asn1/cer.hpp` |
+| `tlv::emv` | EMV Contact Book 3 | `OpenTLV::EMV` | `emv/format.hpp` |
+| `tlv::bluetooth` | Bluetooth Advertising Data LTV | `OpenTLV::Bluetooth` | `bluetooth/ltv.hpp` |
+| `tlv::lldp` | LLDP information strings | `OpenTLV::LLDP` | `lldp/lldp.hpp` |
+| `tlv::dhcp` | DHCPv4 options | `OpenTLV::DHCP` | `dhcp/dhcpv4.hpp` |
+| `tlv::nfc` | NFC Type 2 data-area TLV | `OpenTLV::NFC` | `nfc/type2.hpp` |
+
+The table names the owning C library. Reader/Writer conveniences also need IO;
+`OpenTLV::tlv++` supplies all dependencies transitively.
 
 These are conveniences over the same [generic Format contracts](cxx-formats.md)
 available to user-defined Formats. For example:
@@ -89,7 +92,7 @@ headers. All codecs support the generic `tlv::field` contract: `value_type`,
 to `encode` validates and measures the Value. Storage must not overlap input.
 The original codec errors and semantic restrictions are preserved. EMV dictionary
 codecs require Codec and Schema, matching the canonical
-C package. Codec is selected by linking; `OPENTLV_CODEC` is no longer a CMake option. Generic Query environments remain usable without Codec; automatic
+C package. Codec is selected by linking; `OPENTLV_CODEC` is no longer a CMake target. Generic Query environments remain usable without Codec; automatic
 NUM/BCD/TEXT providers and ASN.1 conversions require Codec.
 
 | Namespace | Codec header under `tlv++/builtins/` | Coverage |

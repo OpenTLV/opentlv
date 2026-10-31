@@ -10,7 +10,7 @@
 #include "tlv/schema/constraint.h"
 #include "tlv/schema/schema.h"
 #include "tlv/element.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -255,7 +255,7 @@ typedef struct tlv_der_schema_limits {
 } tlv_der_schema_limits_t;
 
 /** @brief Default limits used when a function receives `NULL` limits. */
-extern TLV_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
+extern OPENTLV_ASN1_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
 
 /**
  * @brief One-time structural self-check of a schema table.
@@ -283,8 +283,8 @@ extern TLV_API const tlv_der_schema_limits_t tlv_der_schema_default_limits;
  * @return #TLV_ERR_NULL_ARG for a NULL root.
  * @return #TLV_ERR_UNSUPPORTED for a graph exceeding fixed checking capacity.
  */
-TLV_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
-                                          tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_schema_check(const tlv_der_schema_type_t* root,
+                                                   tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief A DER schema whose definition has passed tlv_der_schema_check().
@@ -323,9 +323,9 @@ typedef struct tlv_der_schema_checked {
  * @return #TLV_ERR_NULL_ARG if `checked` or `root` is `NULL`.
  * @return Any other error of tlv_der_schema_check().
  */
-TLV_API tlv_result_t tlv_der_schema_prepare(tlv_der_schema_checked_t* checked,
-                                            const tlv_der_schema_type_t* root,
-                                            tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_schema_prepare(tlv_der_schema_checked_t* checked,
+                                                     const tlv_der_schema_type_t* root,
+                                                     tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates encoded data against a schema.
@@ -361,11 +361,11 @@ TLV_API tlv_result_t tlv_der_schema_prepare(tlv_der_schema_checked_t* checked,
  *
  * @warning The caller must keep `data` alive while `element` is used.
  */
-TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
-                                         const tlv_der_schema_type_t* root,
-                                         const tlv_der_schema_limits_t* limits,
-                                         tlv_element_t* element, size_t* consumed,
-                                         tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
+                                                  const tlv_der_schema_type_t* root,
+                                                  const tlv_der_schema_limits_t* limits,
+                                                  tlv_element_t* element, size_t* consumed,
+                                                  tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates encoded data against a prepared schema without repeating its definition check.
@@ -389,11 +389,11 @@ TLV_API tlv_result_t tlv_der_schema_read(const uint8_t* data, size_t size,
  *
  * @warning The caller must keep `data` alive while `element` is used.
  */
-TLV_API tlv_result_t tlv_der_schema_read_checked(const tlv_der_schema_checked_t* checked,
-                                                 const uint8_t* data, size_t size,
-                                                 const tlv_der_schema_limits_t* limits,
-                                                 tlv_element_t* element, size_t* consumed,
-                                                 tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_schema_read_checked(const tlv_der_schema_checked_t* checked,
+                                                          const uint8_t* data, size_t size,
+                                                          const tlv_der_schema_limits_t* limits,
+                                                          tlv_element_t* element, size_t* consumed,
+                                                          tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Callback supplying one component's raw inner content for tlv_der_schema_write().
@@ -541,13 +541,11 @@ typedef struct tlv_der_schema_record {
  *       MISSING detail distinguishes absent content from other schema violations;
  *       an absent required root has INSERTION anchor at output offset zero.
  */
-TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
-                                          const tlv_der_schema_type_t* root,
-                                          tlv_der_schema_encode_fn encode, const void* context,
-                                          const tlv_der_schema_limits_t* limits,
-                                          uint8_t* scratch_bytes, size_t scratch_bytes_capacity,
-                                          tlv_der_schema_record_t* scratch, size_t scratch_capacity,
-                                          size_t* written, tlv_schema_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_schema_write(
+    uint8_t* data, size_t capacity, const tlv_der_schema_type_t* root,
+    tlv_der_schema_encode_fn encode, const void* context, const tlv_der_schema_limits_t* limits,
+    uint8_t* scratch_bytes, size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,
+    size_t scratch_capacity, size_t* written, tlv_schema_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes with a prepared schema without repeating its definition check.
@@ -577,7 +575,7 @@ TLV_API tlv_result_t tlv_der_schema_write(uint8_t* data, size_t capacity,
  * @note The destination and `written` remain unchanged on error, as for
  *       tlv_der_schema_write().
  */
-TLV_API tlv_result_t tlv_der_schema_write_checked(
+OPENTLV_ASN1_API tlv_result_t tlv_der_schema_write_checked(
     uint8_t* data, size_t capacity, const tlv_der_schema_checked_t* checked,
     tlv_der_schema_encode_fn encode, const void* context, const tlv_der_schema_limits_t* limits,
     uint8_t* scratch_bytes, size_t scratch_bytes_capacity, tlv_der_schema_record_t* scratch,

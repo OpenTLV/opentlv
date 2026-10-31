@@ -11,7 +11,7 @@ OpenTLV; these vectors do not assert physical tag or NDEF conformance.
 ## Decode and encode the sample
 
 Build [standalone otlv](https://github.com/OpenTLV/opentlv-cli) against a Core
-with `OPENTLV_NFC=ON` and put `otlv` on PATH.
+linked with `OpenTLV::NFC` and put `otlv` on PATH.
 From the repository root:
 
 ```sh

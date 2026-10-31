@@ -92,7 +92,7 @@ namespace native {
 /**
  * @brief Returns the immutable LLDP framing preset.
  * @return The shared C descriptor with static lifetime.
- * @note Requires `OPENTLV_LLDP=ON`. Does not validate LLDPDU semantics.
+ * @note Requires linking `OpenTLV::LLDP`. Does not validate LLDPDU semantics.
  * @see tlv_format_lldp
  */
 inline const tlv_format_t& lldp_format() noexcept {

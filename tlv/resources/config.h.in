@@ -32,31 +32,31 @@
 #define OPENTLV_CODEC 1
 
 /* Builtin protocols and formats */
-/** @brief Whether ASN.1 format family is enabled in this build. */
-#cmakedefine01 OPENTLV_FORMAT_ASN1
-/** @brief Whether BER format is enabled in this build. */
-#cmakedefine01 OPENTLV_FORMAT_BER
-/** @brief Whether DER format is enabled in this build. */
-#cmakedefine01 OPENTLV_FORMAT_DER
-/** @brief Whether CER format is enabled in this build. */
-#cmakedefine01 OPENTLV_FORMAT_CER
-/** @brief Whether EMV is enabled in this build. */
-#cmakedefine01 OPENTLV_EMV
-/** @brief Whether Bluetooth is enabled in this build. */
-#cmakedefine01 OPENTLV_BLUETOOTH
-/** @brief Whether NFC is enabled in this build. */
-#cmakedefine01 OPENTLV_NFC
-/** @brief Whether DHCP is enabled in this build. */
-#cmakedefine01 OPENTLV_DHCP
-/** @brief Whether LLDP is enabled in this build. */
-#cmakedefine01 OPENTLV_LLDP
+/** @brief Compatibility constant; link OpenTLV::ASN1 to use this API. */
+#define OPENTLV_FORMAT_ASN1 1
+/** @brief Compatibility constant; link OpenTLV::ASN1 to use this API. */
+#define OPENTLV_FORMAT_BER 1
+/** @brief Compatibility constant; link OpenTLV::ASN1 to use this API. */
+#define OPENTLV_FORMAT_DER 1
+/** @brief Compatibility constant; link OpenTLV::ASN1 to use this API. */
+#define OPENTLV_FORMAT_CER 1
+/** @brief Compatibility constant; link OpenTLV::EMV to use this API. */
+#define OPENTLV_EMV 1
+/** @brief Compatibility constant; link OpenTLV::Bluetooth to use this API. */
+#define OPENTLV_BLUETOOTH 1
+/** @brief Compatibility constant; link OpenTLV::NFC to use this API. */
+#define OPENTLV_NFC 1
+/** @brief Compatibility constant; link OpenTLV::DHCP to use this API. */
+#define OPENTLV_DHCP 1
+/** @brief Compatibility constant; link OpenTLV::LLDP to use this API. */
+#define OPENTLV_LLDP 1
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Runtime mirrors return 1 when enabled and 0 otherwise. Builtin flags
- * select protocol families; integrations also require their core capabilities. */
+/* Legacy availability mirrors return 1. They do not report which modules
+ * the application links; select protocol families through their CMake targets. */
 
 /* Core capabilities */
 /** @brief Legacy Reader compatibility mirror; link IO to use Reader.
@@ -80,31 +80,31 @@ OPENTLV_CORE_API int tlv_config_codec(void);
 
 /* Builtin protocols and formats */
 /** @brief Reports ASN.1 format family availability.
- * @return The effective OPENTLV_FORMAT_ASN1 value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_format_asn1(void);
 /** @brief Reports BER format availability.
- * @return The effective OPENTLV_FORMAT_BER value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_format_ber(void);
 /** @brief Reports DER format availability.
- * @return The effective OPENTLV_FORMAT_DER value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_format_der(void);
 /** @brief Reports CER format availability.
- * @return The effective OPENTLV_FORMAT_CER value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_format_cer(void);
 /** @brief Reports EMV availability.
- * @return The effective OPENTLV_EMV value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_emv(void);
 /** @brief Reports Bluetooth availability.
- * @return The effective OPENTLV_BLUETOOTH value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_bluetooth(void);
 /** @brief Reports NFC availability.
- * @return The effective OPENTLV_NFC value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_nfc(void);
 /** @brief Reports DHCP availability.
- * @return The effective OPENTLV_DHCP value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_dhcp(void);
 /** @brief Reports LLDP availability.
- * @return The effective OPENTLV_LLDP value (0 or 1). */
+ * @return Always 1; this does not report the application's linked modules. */
 OPENTLV_CORE_API int tlv_config_lldp(void);
 
 #ifdef __cplusplus

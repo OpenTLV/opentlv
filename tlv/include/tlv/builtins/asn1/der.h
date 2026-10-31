@@ -7,7 +7,7 @@
 #include "tlv/result.h"
 #include "tlv/format.h"
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,8 +45,8 @@ extern "C" {
  *
  * @note The destination is unchanged on failure.
  */
-TLV_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
-                                      uint8_t* storage, tlv_tag_t* tag);
+OPENTLV_ASN1_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructed,
+                                               uint64_t number, uint8_t* storage, tlv_tag_t* tag);
 /**
  * @brief Extracts the numeric tag number from a DER tag.
  *
@@ -62,7 +62,7 @@ TLV_API tlv_result_t tlv_der_tag_make(tlv_asn1_class_t tag_class, int constructe
  *
  * @note `*number` is unchanged on failure.
  */
-TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
+OPENTLV_ASN1_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /**
  * @brief Format for canonical ASN.1 DER identifiers and definite lengths.
@@ -71,7 +71,7 @@ TLV_API tlv_result_t tlv_der_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * or nested headers. Use tlv/builtins/asn1/der_validation.h for bounded recursive validation
  * and error offsets.
  */
-extern TLV_API const tlv_format_t tlv_format_der;
+extern OPENTLV_ASN1_API const tlv_format_t tlv_format_der;
 
 #ifdef __cplusplus
 }

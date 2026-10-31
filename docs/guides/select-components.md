@@ -228,25 +228,14 @@ or SCHEMA. Read frames through their producer's copy/import helpers. Direct Read
 failures retain `detail.reader`. This changes the public Query diagnostic ABI and
 callback signature; rebuild native consumers and update binding layouts.
 
-## Remaining capability profiles
+## Module and feature checks
 
-Schema, Codec and builtin selection remain transitional options until their own
-extraction issues. The compatibility target includes Document, Generator, Query
-and IO in every profile. Generated headers must match the linked libraries.
-
-| Profile | Schema | Codec |
-| --- | --- | --- |
-| IO, Document, Query or Document/Query | OFF | OFF |
-| Schema | ON | OFF |
-| Codec | OFF | ON |
-| Full | ON | ON |
-
-Broad unit/integration suites need the full profile. Module C tests and the
-`capability-contract` remain available in reduced builds.
-`python scripts/check_capabilities.py` validates these remaining profiles;
-`scripts/check_module_isolation.py` separately builds each extracted module in fresh trees,
-checks symbol/header boundaries and runs relocated package consumers. CI runs
-static and shared variants of both checks.
+Module selection is expressed by target links. The old capability-selection
+options are rejected. `python scripts/check_capabilities.py` runs all module
+probes with full Query features and with Query frontend/set operations disabled.
+`scripts/check_module_isolation.py` builds each module in a fresh tree, checks
+symbol/header ownership, and runs relocated installed-package consumers. CI
+checks static and shared configurations.
 
 Standalone bindings and tools own their Core dependency checks and pins. Their
 build scripts must migrate removed CMake options when adopting this revision.
@@ -259,108 +248,82 @@ build scripts must migrate removed CMake options when adopting this revision.
 
 ## Built-in standards
 
-| Option | Component |
-| --- | --- |
-| `OPENTLV_NFC` | [NFC Type 2 Tag framing](../formats/nfc/README.md) for contiguous TLV streams |
-| `OPENTLV_DHCP` | [DHCPv4 option framing](../formats/dhcp/README.md), including Pad and End |
-| `OPENTLV_BLUETOOTH` | [Bluetooth](../formats/bluetooth/README.md): LTV format, containers, definitions, schemas and codecs |
-| `OPENTLV_LLDP` | [LLDP](../formats/lldp/README.md): packed framing and base Type definitions; no schemas or value codecs |
-| `OPENTLV_FORMAT_ASN1` | The ASN.1 group; must be ON for BER, DER, CER and EMV |
-| `OPENTLV_FORMAT_BER` | [BER-TLV](../formats/asn1/ber.md); must be ON for DER, CER and EMV |
-| `OPENTLV_FORMAT_DER` | [DER-TLV](../formats/asn1/der.md); independent of EMV |
-| `OPENTLV_FORMAT_CER` | [CER-TLV](../formats/asn1/cer.md); independent of DER |
-| `OPENTLV_EMV` | [EMV module](../standards/emv/README.md) |
+Each protocol family has one independently linkable public target. All family
+implementations are available in the package; consumers select their dependencies
+by linking targets. Generic modules never link a builtin.
 
-The [mutable document](document.md) is a separate optional generic component,
-selected by linking `OpenTLV::Document`; it is not a format or a standard package.
+| Target | Component | Dependencies |
+| --- | --- | --- |
+| `OpenTLV::ASN1` | BER, DER, CER, shared identifiers, strict validation, codecs, DER Schema and Query hooks | Core, IO, Codec, Schema, Query |
+| `OpenTLV::EMV` | Framing, DOL, dictionary, codecs, Schema, presentation and Query integration | Core, Codec, Schema, Query; ASN1 and SchemaNumber privately |
+| `OpenTLV::Bluetooth` | LTV framing, containers, definitions, Schema and codecs | Core, IO, Codec, Schema |
+| `OpenTLV::NFC` | NFC Type 2 framing | Core |
+| `OpenTLV::DHCP` | DHCPv4 framing, options, codecs and container validation | Core, Codec, Schema; IO privately |
+| `OpenTLV::LLDP` | Framing, definitions, LLDPDU validation and codecs | Core, Codec, Schema; IO privately |
 
-Turning an option OFF also turns OFF everything below it in the chain
-`ASN1 -> BER`, with DER, CER and EMV as siblings under BER.
-EMV framing uses generic primitives; only the unchanged DOL implementation
-retains a BER dependency. EMV does not require DER or CER.
-The C++ [configurable fixed-width format](../formats/fixed/configurable.md)
-template delegates to the always-built C implementation.
+EMV retains its existing ASN.1 identifier helper for DOL. BER, DER and CER form
+one ASN1 library; there are no separate BER/DER/CER targets. DHCP contains only
+the existing DHCPv4 implementation; no DHCPv6 functionality is added.
+
+Remove `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`,
+`OPENTLV_FORMAT_CER`, `OPENTLV_EMV`, `OPENTLV_BLUETOOTH`, `OPENTLV_NFC`,
+`OPENTLV_DHCP` and `OPENTLV_LLDP` from CMake invocations and old caches.
+Supplying either ON or OFF now fails with migration guidance. The corresponding
+`tlv/config.h` macros and runtime mirrors remain constant 1 for compatibility;
+they do not indicate which libraries an application links.
 
 ## Recipes
 
-Each recipe starts from a clean build directory; replace `build` with your own. Every
-option defaults to ON, so a recipe lists exactly the options it turns OFF.
+For a generic custom Format and Reader, request only IO (which brings Core):
 
-### Generic formats without protocol extensions
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS IO)
+target_link_libraries(app PRIVATE OpenTLV::IO)
+```
 
-Use this when you supply your own [format callbacks](../formats/custom/README.md).
+For BER, DER or CER, request ASN1:
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS ASN1)
+target_link_libraries(app PRIVATE OpenTLV::ASN1)
+```
+
+For Bluetooth or EMV, select the relevant family:
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Bluetooth EMV)
+target_link_libraries(app PRIVATE OpenTLV::Bluetooth OpenTLV::EMV)
+```
+
+NFC framing itself needs only Core. Add IO explicitly when using Reader/Writer:
+
+```cmake
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS NFC IO)
+target_link_libraries(app PRIVATE OpenTLV::NFC OpenTLV::IO)
+```
+
+The same target names work with `add_subdirectory` and FetchContent. To build
+only NFC and its dependency from source:
 
 ```sh
-cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF -DOPENTLV_FORMAT_ASN1=OFF
-cmake --build build --parallel --target tlv
+cmake -S . -B build-nfc -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+cmake --build build-nfc --target opentlv_nfc
 ```
 
-### Core and BER
+The compatibility targets `OpenTLV::tlv` and `OpenTLV::tlv++` bring all families
+transitively. The empty `tlv` compatibility archive remains static even in a
+shared-module build, because an export-free Windows DLL cannot be linked.
+Direct archive/shared-library consumers must rebuild, link and distribute the
+required `opentlv_*` libraries; builtin symbols are no longer defined by `tlv`.
 
-```sh
-cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF \
-  -DOPENTLV_FORMAT_DER=OFF -DOPENTLV_FORMAT_CER=OFF -DOPENTLV_EMV=OFF
-cmake --build build --parallel --target tlv
-```
+## Footprint and bindings
 
-### Core, BER, DER and EMV
+Static linking selects referenced archive members. A BER-only executable need
+not retain DER, CER, codecs or Query hooks. Shared linking loads the complete
+ASN1 library and its dependencies. See the measured
+[ASN.1 footprint](../development/modules/README.md#asn1-granularity).
 
-This recipe enables DER alongside EMV. EMV itself does not need DER;
-add `-DOPENTLV_FORMAT_DER=OFF` for BER and EMV only. CER is off.
-
-```sh
-cmake -S . -B build \
-  -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF -DOPENTLV_FORMAT_CER=OFF
-cmake --build build --parallel --target tlv
-```
-
-### Core and Bluetooth LTV only
-
-Bluetooth uses the generic binary composition primitives. Fixed is always available.
-
-```sh
-cmake -S . -B build \
-  -DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_LLDP=OFF -DOPENTLV_DHCP=OFF -DOPENTLV_NFC=OFF
-cmake --build build --parallel --target tlv
-```
-
-### Everything
-
-The default. No options are needed.
-
-```sh
-cmake -S . -B build
-cmake --build build --parallel
-```
-
-## What you get
-
-Fixed remains available in every configuration, including core-only builds.
-Disabled protocol extensions contribute no implementation symbols.
-
-Confirm your own selection from the generated `tlv/config.h`, which defines each option
-as `1` or `0`:
-
-```c
-#include "tlv/config.h"
-
-#if OPENTLV_FORMAT_BER
-#include "tlv/builtins/asn1/ber.h"
-/* use tlv_format_ber */
-#endif
-```
-
-Use these macros when your code has to compile against a reduced build. Including the
-header of a disabled component does not provide its symbols.
-
-## Notes
-
-- Tests, examples and the CLI that need a disabled component are omitted from that build.
-- The C++ wrapper adds cost only for the headers you include.
-- Rust exposes LLDP through the default `lldp` feature; `--no-default-features`
-  disables that package in source builds. Other C components retain their defaults. See
-  [include only what you need](../concepts/architecture.md#include-only-what-you-need).
-- Protocol extensions remain optional; generic formats belong to the core. See the
-  [format expansion candidates](../formats/format-roadmap.md).
+The C++ facade remains header-only. Individual builtin C++ headers may require
+additional generic integration targets; the compatibility C++ target supplies
+them. Standalone language bindings own their pins, feature mappings and migration
+from removed Core options.

@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        configuration: [default, minimal]
+        configuration: [static, shared]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -40,19 +40,17 @@ jobs:
       - name: Configure property suite
         shell: bash
         run: |
-          options=()
-          if [[ '${{ matrix.configuration }}' == minimal ]]; then
-            options=(-DOPENTLV_FORMAT_ASN1=OFF -DOPENTLV_EMV=OFF
-                     -DOPENTLV_BLUETOOTH=OFF -DOPENTLV_NFC=OFF
-                     -DOPENTLV_DHCP=OFF -DOPENTLV_LLDP=OFF)
+          shared=OFF
+          if [[ '${{ matrix.configuration }}' == shared ]]; then
+            shared=ON
           fi
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug \
             -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF \
-            -DOPENTLV_BUILD_SHARED_LIBS=OFF -DOPENTLV_BUILD_TESTS=ON \
+            -DOPENTLV_BUILD_SHARED_LIBS="$shared" -DOPENTLV_BUILD_TESTS=ON \
             -DOPENTLV_BUILD_UNIT_TESTS=OFF -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF \
             -DOPENTLV_BUILD_PROPERTY_TESTS=ON -DOPENTLV_BUILD_CXX=OFF \
             -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_PROPERTY_COUNT=1000 \
-            -DOPENTLV_PROPERTY_COMMIT="$(git rev-parse HEAD)" "${options[@]}"
+            -DOPENTLV_PROPERTY_COMMIT="$(git rev-parse HEAD)"
       - name: Build generator and property verifier
         run: cmake --build build --target property-generate property-roundtrip test-query-conformance --parallel 2
       - name: Generate and verify complete cases

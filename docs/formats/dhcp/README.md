@@ -4,8 +4,8 @@ Include `tlv/builtins/dhcp/dhcpv4.h` and select `tlv_format_dhcpv4`.
 C++ callers can include `tlv++/builtins/dhcp/dhcpv4.hpp` and use
 the typed `tlv::dhcp::format` with Reader/Writer or `tlv::dhcp::parse`.
 Native descriptor access is explicit through `tlv::native::descriptor`.
-The independent CMake option `OPENTLV_DHCP` defaults to `ON`;
-`tlv_config_dhcp()` reports the compiled library's availability.
+Link `OpenTLV::DHCP` for the DHCPv4 family. `tlv_config_dhcp()` remains a
+legacy constant mirror, not a linked-module query.
 
 The descriptor implements the option framing in
 [RFC 2132 sections 2, 3.1 and 3.2](https://www.rfc-editor.org/rfc/rfc2132.html#section-2):
@@ -60,7 +60,7 @@ Message Size, Renewal Time Value, Rebinding Time Value, Vendor Class Identifier,
 Client Identifier and End, as defined in [RFC 2132](https://www.rfc-editor.org/rfc/rfc2132.html).
 It is not an exhaustive option registry.
 
-The registry requires `OPENTLV_DHCP=ON`. Entries, identifier bytes and names
+The registry requires linking `OpenTLV::DHCP`. Entries, identifier bytes and names
 have static lifetime; lookup allocates nothing and needs no Reader or Writer.
 Definitions only describe identifiers: they do not decode Values, validate
 option lengths or control Pad/End handling. Framing does not consult the registry.
@@ -103,8 +103,8 @@ constraints (such as a nonempty Router list) require separate validation.
 Parameter Request Lists preserve unknown option Codes. Opaque identifiers
 are retained whole, without interpreting hardware types or vendor payloads.
 
-Generic codecs and the Message Type source alias are available with
-`OPENTLV_DHCP=OFF`. Codec selection is explicit and does not change Format or
+Generic codecs and the Message Type source alias are available through
+`OpenTLV::Codec` without linking DHCP. Codec selection is explicit and does not change Format or
 Definition behavior.
 The Message Type name is a source alias of `tlv_codec_uint8`, without DHCP
 forwarding callbacks. Prefer the generic descriptor when composing a caller-owned

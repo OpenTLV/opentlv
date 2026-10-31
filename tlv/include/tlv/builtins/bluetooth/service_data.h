@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_SERVICE_DATA_H
 #define OPENTLV_BUILTINS_BLUETOOTH_SERVICE_DATA_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/builtins/bluetooth/uuid.h"
 
 /**
@@ -21,7 +21,7 @@
  * Decode requires at least sizeof(object); encode requires exactly sizeof(object).
  * Decode preserves the destination on error. Encode reports written == 0 on error.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -58,7 +58,7 @@ typedef struct tlv_bluetooth_service_data16 {
  * or nonempty NULL payload return #TLV_ERR_NULL_ARG. Insufficient output
  * capacity returns #TLV_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_service_data16;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_service_data16;
 
 /**
  * @brief Service Data with a 32-bit UUID and borrowed opaque payload.
@@ -87,7 +87,7 @@ typedef struct tlv_bluetooth_service_data32 {
  * or nonempty NULL payload return #TLV_ERR_NULL_ARG. Insufficient output
  * capacity returns #TLV_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_service_data32;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_service_data32;
 
 /**
  * @brief Service Data with a 128-bit UUID and borrowed opaque payload.
@@ -116,7 +116,7 @@ typedef struct tlv_bluetooth_service_data128 {
  * or nonempty NULL payload return #TLV_ERR_NULL_ARG. Insufficient output
  * capacity returns #TLV_ERR_BUFFER_TOO_SHORT. Neither direction allocates.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_service_data128;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_service_data128;
 
 /** @} */
 #ifdef __cplusplus

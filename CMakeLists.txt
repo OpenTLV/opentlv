@@ -8,6 +8,15 @@ foreach(_removed IN ITEMS OPENTLV_READER OPENTLV_WRITER OPENTLV_DOCUMENT OPENTLV
     endif()
 endforeach()
 
+# Protocol families are selected by linking their targets, not by cache options.
+foreach(_family IN ITEMS FORMAT_ASN1 FORMAT_BER FORMAT_DER FORMAT_CER EMV BLUETOOTH NFC DHCP LLDP)
+    if(DEFINED OPENTLV_${_family})
+        message(FATAL_ERROR "OPENTLV_${_family} was removed; link OpenTLV::ASN1, OpenTLV::EMV, OpenTLV::Bluetooth, OpenTLV::NFC, OpenTLV::DHCP or OpenTLV::LLDP instead")
+    endif()
+    # Transitional feature guards and config mirrors remain constant until #654.
+    set(OPENTLV_${_family} ON)
+endforeach()
+
 include(cmake/version.cmake)
 
 project(OpenTLV VERSION ${OPENTLV_VERSION} LANGUAGES C)
@@ -35,17 +44,6 @@ set(OPENTLV_CODEC ON)
 option(OPENTLV_QUERY_FRONTEND "Include Query text parsing and compilation" ON)
 option(OPENTLV_QUERY_SET_OPERATIONS "Include Query union, intersection and difference operations" ON)
 
-# Builtin protocols and formats
-option(OPENTLV_FORMAT_ASN1 "Include ASN.1-related wire formats (BER, DER)" ON)
-option(OPENTLV_FORMAT_BER "Include the BER wire format" ON)
-option(OPENTLV_FORMAT_DER "Include the DER wire format and validation" ON)
-option(OPENTLV_FORMAT_CER "Include the CER wire format and validation" ON)
-option(OPENTLV_EMV "Include EMV framing, dictionary, schemas and codecs" ON)
-option(OPENTLV_BLUETOOTH "Include Bluetooth format, containers, definitions, schemas and codecs" ON)
-option(OPENTLV_NFC "Include NFC Type 2 Tag TLV framing" ON)
-option(OPENTLV_DHCP "Include DHCPv4 option framing, definitions and value codecs" ON)
-option(OPENTLV_LLDP "Include LLDP framing, definitions, structural validation and value codecs" ON)
-
 # Tools and documentation
 option(OPENTLV_BUILD_EXAMPLES "Build examples" ${_OPENTLV_TOP_LEVEL})
 option(OPENTLV_BUILD_DOCS "Enable the Doxygen C and C++ API reference targets" OFF)
@@ -61,8 +59,8 @@ option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and 
 option(OPENTLV_BUILD_MEMCHECK "Enable native Linux CTest Valgrind Memcheck runs" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
-include(cmake/format_options.cmake)
-opentlv_generate_config_files()
+configure_file(tlv/resources/config.h.in "${PROJECT_BINARY_DIR}/generated/include/tlv/config.h" @ONLY)
+configure_file(tlv/resources/config.c.in "${PROJECT_BINARY_DIR}/generated/src/config.c" @ONLY)
 
 # Only executable C++ consumers need a compiler. The header-only facade carries
 # INTERFACE requirements without enabling CXX in a C-only library configuration.

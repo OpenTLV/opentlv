@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_EMV_QUERY_H
 #define OPENTLV_EMV_QUERY_H
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 #include "tlv/query/program.h"
 #include "tlv/builtins/emv/emv.h"
 #ifdef __cplusplus
@@ -22,9 +22,9 @@ extern "C" {
  * @param[out] tag Borrowed canonical identifier, copied by Query compilation.
  * @return OK, INVALID_TAG for unknown, INVALID_ARG for ambiguous symbols.
  * @note No codec selection or execution-time lookup occurs. */
-TLV_API tlv_result_t tlv_emv_query_resolve(const void* context, const char* namespace_name,
-                                           size_t namespace_size, const char* name,
-                                           size_t name_size, tlv_tag_t* tag);
+OPENTLV_EMV_API tlv_result_t tlv_emv_query_resolve(const void* context, const char* namespace_name,
+                                                   size_t namespace_size, const char* name,
+                                                   size_t name_size, tlv_tag_t* tag);
 #ifdef __cplusplus
 }
 #endif

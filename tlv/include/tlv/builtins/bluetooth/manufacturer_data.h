@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_MANUFACTURER_DATA_H
 #define OPENTLV_BUILTINS_BLUETOOTH_MANUFACTURER_DATA_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/codec/codec.h"
 #include "tlv/value.h"
 
@@ -21,7 +21,7 @@
  * Decode requires at least sizeof(object); encode requires exactly sizeof(object).
  * Decode preserves the destination on error. Encode reports written == 0 on error.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -60,7 +60,7 @@ typedef struct tlv_bluetooth_manufacturer_data {
  * Insufficient output capacity returns #TLV_ERR_BUFFER_TOO_SHORT.
  * Neither direction allocates or performs Company Identifier lookup.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_manufacturer_data;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_manufacturer_data;
 
 /** @} */
 #ifdef __cplusplus

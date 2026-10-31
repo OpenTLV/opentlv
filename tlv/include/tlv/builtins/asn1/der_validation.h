@@ -9,7 +9,7 @@
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/tree.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,7 +55,7 @@ typedef struct tlv_der_limits {
 } tlv_der_limits_t;
 
 /** @brief Default limits used when a function receives `NULL` limits. */
-extern TLV_API const tlv_der_limits_t tlv_der_default_limits;
+extern OPENTLV_ASN1_API const tlv_der_limits_t tlv_der_default_limits;
 
 /**
  * @brief Callback for zero-copy preorder DER traversal.
@@ -97,9 +97,9 @@ typedef tlv_visit_result_t (*tlv_der_visitor_t)(const tlv_element_t* element, si
  * @note Outputs other than `diagnostic` remain unchanged on failure.
  * @warning The caller must keep `data` alive while `element` is used.
  */
-TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                  tlv_element_t* element, size_t* consumed,
-                                  tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size,
+                                           const tlv_der_limits_t* limits, tlv_element_t* element,
+                                           size_t* consumed, tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates all concatenated DER elements recursively.
@@ -120,9 +120,10 @@ TLV_API tlv_result_t tlv_der_read(const uint8_t* data, size_t size, const tlv_de
  *
  * @warning Callback side effects are not rolled back on errors.
  */
-TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_der_limits_t* limits,
-                                   tlv_der_visitor_t visitor, void* context,
-                                   tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size,
+                                            const tlv_der_limits_t* limits,
+                                            tlv_der_visitor_t visitor, void* context,
+                                            tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Writes a canonical DER element.
@@ -149,10 +150,10 @@ TLV_API tlv_result_t tlv_der_visit(const uint8_t* data, size_t size, const tlv_d
  *
  * @note Output and `*written` remain unchanged on error.
  */
-TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                   const uint8_t* value, size_t length,
-                                   const tlv_der_limits_t* limits, size_t* written,
-                                   tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                            const uint8_t* value, size_t length,
+                                            const tlv_der_limits_t* limits, size_t* written,
+                                            tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Strict counterpart of tlv_der_read().
@@ -170,9 +171,10 @@ TLV_API tlv_result_t tlv_der_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  *
  * @see docs/standards/der/README.md for the supported-type table.
  */
-TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
-                                         const tlv_der_limits_t* limits, tlv_element_t* element,
-                                         size_t* consumed, tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
+                                                  const tlv_der_limits_t* limits,
+                                                  tlv_element_t* element, size_t* consumed,
+                                                  tlv_diagnostic_t* diagnostic);
 /**
  * @brief Strict counterpart of tlv_der_visit().
  *
@@ -180,9 +182,10 @@ TLV_API tlv_result_t tlv_der_read_strict(const uint8_t* data, size_t size,
  *
  * @see tlv_der_read_strict
  */
-TLV_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
-                                          const tlv_der_limits_t* limits, tlv_der_visitor_t visitor,
-                                          void* context, tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
+                                                   const tlv_der_limits_t* limits,
+                                                   tlv_der_visitor_t visitor, void* context,
+                                                   tlv_diagnostic_t* diagnostic);
 /**
  * @brief Strict counterpart of tlv_der_write().
  *
@@ -190,10 +193,10 @@ TLV_API tlv_result_t tlv_der_visit_strict(const uint8_t* data, size_t size,
  *
  * @see tlv_der_read_strict
  */
-TLV_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                          const uint8_t* value, size_t length,
-                                          const tlv_der_limits_t* limits, size_t* written,
-                                          tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_der_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                                   const uint8_t* value, size_t length,
+                                                   const tlv_der_limits_t* limits, size_t* written,
+                                                   tlv_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

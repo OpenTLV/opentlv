@@ -101,7 +101,7 @@ The preset is available as Rust `Format::Emv`, Python `Format.EMV`, Lua
 in the CLI for definite framing with dictionary annotations. Selecting `ber`
 with the EMV module still annotates BER input and does not enforce EMV framing.
 
-`OPENTLV_EMV` controls the descriptor alongside the existing EMV APIs.
+`OpenTLV::EMV` owns the descriptor alongside the existing EMV APIs.
 DER and CER may be disabled. The component still requires BER solely for the
 unchanged DOL identifier helper; DOL refactoring is outside this change.
 

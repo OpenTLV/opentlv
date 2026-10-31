@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_AD_SCHEMA_H
 #define OPENTLV_BUILTINS_BLUETOOTH_AD_SCHEMA_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/schema/schema.h"
 
 /**
@@ -12,7 +12,7 @@
  * @ingroup schemas
  * @brief Bluetooth Advertising Data length and occurrence constraints.
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 
 #ifdef __cplusplus
@@ -46,7 +46,7 @@ extern "C" {
  * padding is not an element and remains a framing error. Use
  * tlv_bluetooth_ad_data_validate() to obtain the significant prefix first.
  *
- * Static lifetime, allocation-free and requires `OPENTLV_BLUETOOTH=ON`.
+ * Static lifetime, allocation-free and requires linking `OpenTLV::Bluetooth`.
  * The definition registry and codecs are not required.
  *
  * @see
@@ -54,7 +54,7 @@ extern "C" {
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-60/out/en/host/generic-access-profile.html
  */
-extern TLV_API const tlv_structure_schema_t tlv_bluetooth_ad_schema;
+extern OPENTLV_BLUETOOTH_API const tlv_structure_schema_t tlv_bluetooth_ad_schema;
 
 /** @} */
 

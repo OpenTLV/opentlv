@@ -9,7 +9,7 @@
 #include "tlv/config.h"
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/tree.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,7 +69,7 @@ typedef struct tlv_cer_limits {
 } tlv_cer_limits_t;
 
 /** @brief Default limits used when a function receives `NULL` limits. */
-extern TLV_API const tlv_cer_limits_t tlv_cer_default_limits;
+extern OPENTLV_ASN1_API const tlv_cer_limits_t tlv_cer_default_limits;
 
 /**
  * @brief Callback for zero-copy CER traversal.
@@ -130,9 +130,9 @@ typedef tlv_visit_result_t (*tlv_cer_visitor_t)(const tlv_element_t* element, si
  * @note Outputs other than `diagnostic` remain unchanged on failure.
  * @warning The caller must keep `data` alive while `element` is used.
  */
-TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                  tlv_element_t* element, size_t* consumed,
-                                  tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size,
+                                           const tlv_cer_limits_t* limits, tlv_element_t* element,
+                                           size_t* consumed, tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Validates all concatenated CER elements recursively.
@@ -153,9 +153,10 @@ TLV_API tlv_result_t tlv_cer_read(const uint8_t* data, size_t size, const tlv_ce
  *
  * @warning Callback side effects are not rolled back on errors.
  */
-TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_cer_limits_t* limits,
-                                   tlv_cer_visitor_t visitor, void* context,
-                                   tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size,
+                                            const tlv_cer_limits_t* limits,
+                                            tlv_cer_visitor_t visitor, void* context,
+                                            tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Writes a canonical CER element.
@@ -190,10 +191,10 @@ TLV_API tlv_result_t tlv_cer_visit(const uint8_t* data, size_t size, const tlv_c
  *
  * @note Output and `*written` remain unchanged on error.
  */
-TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                   const uint8_t* value, size_t length,
-                                   const tlv_cer_limits_t* limits, size_t* written,
-                                   tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                            const uint8_t* value, size_t length,
+                                            const tlv_cer_limits_t* limits, size_t* written,
+                                            tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Strict counterpart of tlv_cer_read().
@@ -213,9 +214,10 @@ TLV_API tlv_result_t tlv_cer_write(uint8_t* data, size_t capacity, tlv_tag_t tag
  *
  * @see docs/standards/cer/README.md for the supported-type table.
  */
-TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
-                                         const tlv_cer_limits_t* limits, tlv_element_t* element,
-                                         size_t* consumed, tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
+                                                  const tlv_cer_limits_t* limits,
+                                                  tlv_element_t* element, size_t* consumed,
+                                                  tlv_diagnostic_t* diagnostic);
 /**
  * @brief Strict counterpart of tlv_cer_visit().
  *
@@ -223,9 +225,10 @@ TLV_API tlv_result_t tlv_cer_read_strict(const uint8_t* data, size_t size,
  *
  * @see tlv_cer_read_strict
  */
-TLV_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
-                                          const tlv_cer_limits_t* limits, tlv_cer_visitor_t visitor,
-                                          void* context, tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
+                                                   const tlv_cer_limits_t* limits,
+                                                   tlv_cer_visitor_t visitor, void* context,
+                                                   tlv_diagnostic_t* diagnostic);
 /**
  * @brief Strict counterpart of tlv_cer_write().
  *
@@ -234,10 +237,10 @@ TLV_API tlv_result_t tlv_cer_visit_strict(const uint8_t* data, size_t size,
  *
  * @see tlv_cer_read_strict
  */
-TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                          const uint8_t* value, size_t length,
-                                          const tlv_cer_limits_t* limits, size_t* written,
-                                          tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_tag_t tag,
+                                                   const uint8_t* value, size_t length,
+                                                   const tlv_cer_limits_t* limits, size_t* written,
+                                                   tlv_diagnostic_t* diagnostic);
 
 /**
  * @brief Encodes logical string content as canonical CER.
@@ -282,10 +285,9 @@ TLV_API tlv_result_t tlv_cer_write_strict(uint8_t* data, size_t capacity, tlv_ta
  *
  * @note Failed calls leave `data` and `*written` unchanged.
  */
-TLV_API tlv_result_t tlv_cer_write_segmented_string(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                                    const uint8_t* content, size_t content_length,
-                                                    const tlv_cer_limits_t* limits, size_t* written,
-                                                    tlv_diagnostic_t* diagnostic);
+OPENTLV_ASN1_API tlv_result_t tlv_cer_write_segmented_string(
+    uint8_t* data, size_t capacity, tlv_tag_t tag, const uint8_t* content, size_t content_length,
+    const tlv_cer_limits_t* limits, size_t* written, tlv_diagnostic_t* diagnostic);
 
 #ifdef __cplusplus
 }

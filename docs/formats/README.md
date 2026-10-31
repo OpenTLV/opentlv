@@ -61,15 +61,15 @@ These formats implement a specific standard. Their packages may also provide
 definitions, schemas, value codecs and container handling. Each format's page
 explains its wire representation and supported scope.
 
-| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Build option |
+| Format | Tag | Length field | Largest value | Field order on the wire | Nesting for the tree visitor | Link target |
 | --- | --- | --- | --- | --- | --- | --- |
-| [NFC Type 2](nfc/README.md) | 1 byte | 1 or 3 bytes; absent for NULL/Terminator | 65534 bytes | tag, length, value; tag only for controls | none | `OPENTLV_NFC` |
-| [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OPENTLV_DHCP` |
-| [Bluetooth LTV](bluetooth/README.md#wire-representation-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OPENTLV_BLUETOOTH` |
-| [LLDP](lldp/README.md#wire-representation-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OPENTLV_LLDP` |
-| [BER-TLV](asn1/ber.md#framing-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_BER` |
-| [DER-TLV](asn1/der.md#framing-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_DER` |
-| [CER-TLV](asn1/cer.md#framing-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OPENTLV_FORMAT_CER` |
+| [NFC Type 2](nfc/README.md) | 1 byte | 1 or 3 bytes; absent for NULL/Terminator | 65534 bytes | tag, length, value; tag only for controls | none | `OpenTLV::NFC` |
+| [DHCPv4 options](dhcp/README.md) | 1-byte code | 1 byte; absent for Pad/End | 255 bytes; 0 for Pad/End | code, length, value; code only for Pad/End | none | `OpenTLV::DHCP` |
+| [Bluetooth LTV](bluetooth/README.md#wire-representation-and-logical-model) | 1-byte type | 1 byte, counting the type and the value | 254 bytes | length, type, value | none | `OpenTLV::Bluetooth` |
+| [LLDP](lldp/README.md#wire-representation-and-logical-model) | 7-bit Type, canonical one-byte Tag | 9 bits, Value only | 511 bytes | packed Type/Length, Value | none | `OpenTLV::LLDP` |
+| [BER-TLV](asn1/ber.md#framing-and-typical-use) | 1 to 8 bytes (multi-byte tags) | short, long, or indefinite for constructed values | up to `SIZE_MAX` | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OpenTLV::ASN1` |
+| [DER-TLV](asn1/der.md#framing-and-typical-use) | as BER | definite, shortest form only | definite lengths | identifier, length, contents | `tlv_asn1_is_constructed` | `OpenTLV::ASN1` |
+| [CER-TLV](asn1/cer.md#framing-and-typical-use) | as BER | primitive: definite, shortest; constructed: indefinite | definite lengths for primitives | identifier, length, contents (and EOC) | `tlv_asn1_is_constructed` | `OpenTLV::ASN1` |
 
 [Application-defined formats](custom/README.md) supply their own field composition,
 limits and nesting predicate through the same generic callback contract.

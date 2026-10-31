@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_BLUETOOTH_UUID_H
 #define OPENTLV_BUILTINS_BLUETOOTH_UUID_H
 
-#include "tlv/export.h"
+#include "tlv/bluetooth/export.h"
 #include "tlv/codec/values.h"
 #include "tlv/value.h"
 
@@ -26,7 +26,7 @@
  * @see
  * https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/CSS_v14/out/en/core-supplementary-features/data-types-specification.html
  *
- * @note Requires `OPENTLV_BLUETOOTH=ON`.
+ * @note Requires linking `OpenTLV::Bluetooth`.
  */
 
 #ifdef __cplusplus
@@ -54,7 +54,7 @@ typedef struct tlv_bluetooth_uuid128 {
  *
  * Reverses the complete 16-byte sequence, independently of host endianness.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid128;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_uuid128;
 
 /**
  * @brief Borrowed UUID list, retaining all original bytes in wire order.
@@ -80,19 +80,19 @@ typedef struct tlv_bluetooth_uuid_list {
  * #TLV_ERR_NULL_ARG. No AD framing limit or completeness policy applies.
  * Use for AD Types 0x02 and 0x03; retain the AD Type separately.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid16_list;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_uuid16_list;
 /**
  * @brief UUID32 list codec (width 4), for AD Types 0x04 and 0x05.
  *
  * Same borrowing, validation and encoding contract as #tlv_bluetooth_codec_uuid16_list.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid32_list;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_uuid32_list;
 /**
  * @brief UUID128 list codec (width 16), for AD Types 0x06 and 0x07.
  *
  * Same borrowing, validation and encoding contract as #tlv_bluetooth_codec_uuid16_list.
  */
-extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid128_list;
+extern OPENTLV_BLUETOOTH_API const tlv_codec_t tlv_bluetooth_codec_uuid128_list;
 
 /**
  * @brief Decodes one UUID by index without allocation or advancing state.
@@ -110,8 +110,9 @@ extern TLV_API const tlv_codec_t tlv_bluetooth_codec_uuid128_list;
  * @return #TLV_ERR_BUFFER_TOO_SHORT for insufficient object capacity.
  * @note The view and source remain unchanged. Destination is unchanged on error.
  */
-TLV_API tlv_result_t tlv_bluetooth_uuid_list_at(const tlv_bluetooth_uuid_list_t* list, size_t index,
-                                                void* value, size_t capacity);
+OPENTLV_BLUETOOTH_API tlv_result_t tlv_bluetooth_uuid_list_at(const tlv_bluetooth_uuid_list_t* list,
+                                                              size_t index, void* value,
+                                                              size_t capacity);
 
 /** @} */
 #ifdef __cplusplus

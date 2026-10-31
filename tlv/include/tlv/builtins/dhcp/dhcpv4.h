@@ -4,7 +4,7 @@
 #ifndef OPENTLV_BUILTINS_DHCP_DHCPV4_H
 #define OPENTLV_BUILTINS_DHCP_DHCPV4_H
 
-#include "tlv/export.h"
+#include "tlv/dhcp/export.h"
 #include "tlv/format.h"
 
 /**
@@ -15,7 +15,7 @@
  * Normal options have a one-byte Code, one-byte Length and 0..255 Value bytes.
  * Pad (0) and End (255) contain only Code and have an empty semantic Value.
  * Identifiers and Values borrow the input. All values are opaque; no operation
- * allocates. Requires `OPENTLV_DHCP=ON`.
+ * allocates. Requires linking `OpenTLV::DHCP`.
  *
  * The caller supplies an option region without the packet header or magic
  * cookie. Pad and End are returned as elements; the generic Reader neither
@@ -40,7 +40,7 @@ extern "C" {
  * Measurement needs no Value storage. No automatically constructed Values.
  * @see tlv_source_preserve
  */
-extern TLV_API const tlv_format_t tlv_format_dhcpv4;
+extern OPENTLV_DHCP_API const tlv_format_t tlv_format_dhcpv4;
 
 #ifdef __cplusplus
 }

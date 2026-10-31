@@ -9,7 +9,7 @@
 #include "tlv/builtins/emv/format.h"
 #include "tlv/schema/schema.h"
 #include "tlv/builtins/emv/emv_codec.h"
-#include "tlv/export.h"
+#include "tlv/emv/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,7 +83,8 @@ typedef enum {
  *         otherwise a known template; tlv_emv_find() with `context` and `tag`
  *         resolves it.
  */
-TLV_API tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context, const tlv_tag_t* tag);
+OPENTLV_EMV_API tlv_emv_context_t tlv_emv_child_context(tlv_emv_context_t context,
+                                                        const tlv_tag_t* tag);
 
 /**
  * @name AIP masks
@@ -578,341 +579,341 @@ enum {
  * @{
  */
 /** @brief iin identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_iin;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_iin;
 /** @brief adf_name identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_adf_name;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_adf_name;
 /** @brief application_label identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_label;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_label;
 /** @brief track2_equivalent_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_track2_equivalent_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_track2_equivalent_data;
 /** @brief pan identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_pan;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_pan;
 /** @brief application_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_template;
 /** @brief fci_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_fci_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_fci_template;
 /** @brief read_record_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_read_record_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_read_record_template;
 /** @brief issuer_script_template1 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_script_template1;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_script_template1;
 /** @brief issuer_script_template2 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_script_template2;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_script_template2;
 /** @brief directory_discretionary_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_directory_discretionary_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_directory_discretionary_template;
 /** @brief response_template2 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_response_template2;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_response_template2;
 /** @brief response_template1 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_response_template1;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_response_template1;
 /** @brief amount_authorised_binary identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_amount_authorised_binary;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_amount_authorised_binary;
 /** @brief aip identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_aip;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_aip;
 /** @brief command_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_command_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_command_template;
 /** @brief df_name identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_df_name;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_df_name;
 /** @brief issuer_script_command identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_script_command;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_script_command;
 /** @brief application_priority_indicator identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_priority_indicator;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_priority_indicator;
 /** @brief sfi identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_sfi;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_sfi;
 /** @brief authorisation_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_authorisation_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_authorisation_code;
 /** @brief authorisation_response_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_authorisation_response_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_authorisation_response_code;
 /** @brief cdol1 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cdol1;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cdol1;
 /** @brief cdol2 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cdol2;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cdol2;
 /** @brief cvm_list identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cvm_list;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cvm_list;
 /** @brief ca_public_key_index identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_ca_public_key_index;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_ca_public_key_index;
 /** @brief issuer_public_key_certificate identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_public_key_certificate;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_public_key_certificate;
 /** @brief issuer_authentication_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_authentication_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_authentication_data;
 /** @brief issuer_public_key_remainder identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_public_key_remainder;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_public_key_remainder;
 /** @brief signed_static_application_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_signed_static_application_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_signed_static_application_data;
 /** @brief afl identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_afl;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_afl;
 /** @brief tvr identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_tvr;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_tvr;
 /** @brief tdol identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_tdol;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_tdol;
 /** @brief tc_hash_value identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_tc_hash_value;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_tc_hash_value;
 /** @brief transaction_pin_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_pin_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_pin_data;
 /** @brief transaction_date identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_date;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_date;
 /** @brief tsi identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_tsi;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_tsi;
 /** @brief transaction_type identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_type;
 /** @brief ddf_name identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_ddf_name;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_ddf_name;
 /** @brief fci_proprietary_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_fci_proprietary_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_fci_proprietary_template;
 /** @brief cardholder_name identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cardholder_name;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cardholder_name;
 /** @brief application_expiration_date identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_expiration_date;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_expiration_date;
 /** @brief application_effective_date identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_effective_date;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_effective_date;
 /** @brief issuer_country_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_country_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_country_code;
 /** @brief transaction_currency_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_currency_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_currency_code;
 /** @brief language_preference identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_language_preference;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_language_preference;
 /** @brief service_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_service_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_service_code;
 /** @brief pan_sequence_number identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_pan_sequence_number;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_pan_sequence_number;
 /** @brief transaction_currency_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_currency_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_currency_exponent;
 /** @brief issuer_url identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_url;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_url;
 /** @brief iban identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_iban;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_iban;
 /** @brief bic identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_bic;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_bic;
 /** @brief issuer_country_alpha2 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_country_alpha2;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_country_alpha2;
 /** @brief issuer_country_alpha3 identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_country_alpha3;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_country_alpha3;
 /** @brief account_type identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_account_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_account_type;
 /** @brief biometric_information_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_information_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_information_template;
 /** @brief acquirer_identifier identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_acquirer_identifier;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_acquirer_identifier;
 /** @brief amount_authorised identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_amount_authorised;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_amount_authorised;
 /** @brief amount_other identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_amount_other;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_amount_other;
 /** @brief amount_other_binary identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_amount_other_binary;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_amount_other_binary;
 /** @brief application_discretionary_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_discretionary_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_discretionary_data;
 /** @brief aid_terminal identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_aid_terminal;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_aid_terminal;
 /** @brief application_usage_control identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_usage_control;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_usage_control;
 /** @brief application_version_card identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_version_card;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_version_card;
 /** @brief application_version_terminal identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_version_terminal;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_version_terminal;
 /** @brief asrpd identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_asrpd;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_asrpd;
 /** @brief cardholder_name_extended identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cardholder_name_extended;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cardholder_name_extended;
 /** @brief iin_extended identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_iin_extended;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_iin_extended;
 /** @brief issuer_action_code_default identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_action_code_default;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_action_code_default;
 /** @brief issuer_action_code_denial identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_action_code_denial;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_action_code_denial;
 /** @brief issuer_action_code_online identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_action_code_online;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_action_code_online;
 /** @brief issuer_application_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_application_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_application_data;
 /** @brief issuer_code_table_index identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_code_table_index;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_code_table_index;
 /** @brief application_preferred_name identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_preferred_name;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_preferred_name;
 /** @brief last_online_atc identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_last_online_atc;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_last_online_atc;
 /** @brief lower_consecutive_offline_limit identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_lower_consecutive_offline_limit;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_lower_consecutive_offline_limit;
 /** @brief merchant_category_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_merchant_category_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_merchant_category_code;
 /** @brief merchant_identifier identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_merchant_identifier;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_merchant_identifier;
 /** @brief pin_try_counter identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_pin_try_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_pin_try_counter;
 /** @brief issuer_script_identifier identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_script_identifier;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_script_identifier;
 /** @brief token_requestor_id identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_token_requestor_id;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_token_requestor_id;
 /** @brief terminal_country_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_terminal_country_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_terminal_country_code;
 /** @brief terminal_floor_limit identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_terminal_floor_limit;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_terminal_floor_limit;
 /** @brief terminal_identification identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_terminal_identification;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_terminal_identification;
 /** @brief terminal_risk_management_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_terminal_risk_management_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_terminal_risk_management_data;
 /** @brief ifd_serial_number identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_ifd_serial_number;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_ifd_serial_number;
 /** @brief track1_discretionary_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_track1_discretionary_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_track1_discretionary_data;
 /** @brief track2_discretionary_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_track2_discretionary_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_track2_discretionary_data;
 /** @brief transaction_time identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_time;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_time;
 /** @brief ca_public_key_index_terminal identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_ca_public_key_index_terminal;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_ca_public_key_index_terminal;
 /** @brief upper_consecutive_offline_limit identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_upper_consecutive_offline_limit;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_upper_consecutive_offline_limit;
 /** @brief payment_account_reference identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_payment_account_reference;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_payment_account_reference;
 /** @brief last4_pan identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_last4_pan;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_last4_pan;
 /** @brief application_cryptogram identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_cryptogram;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_cryptogram;
 /** @brief cryptogram_information_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cryptogram_information_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cryptogram_information_data;
 /** @brief icc_pin_public_key_certificate identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_pin_public_key_certificate;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_pin_public_key_certificate;
 /** @brief icc_pin_public_key_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_pin_public_key_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_pin_public_key_exponent;
 /** @brief icc_pin_public_key_remainder identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_pin_public_key_remainder;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_pin_public_key_remainder;
 /** @brief biometric_terminal_capabilities identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_terminal_capabilities;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_terminal_capabilities;
 /** @brief card_bit_group_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_card_bit_group_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_card_bit_group_template;
 /** @brief issuer_public_key_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_issuer_public_key_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_issuer_public_key_exponent;
 /** @brief terminal_capabilities identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_terminal_capabilities;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_terminal_capabilities;
 /** @brief cvm_results identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_cvm_results;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_cvm_results;
 /** @brief terminal_type identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_terminal_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_terminal_type;
 /** @brief atc identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_atc;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_atc;
 /** @brief unpredictable_number identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_unpredictable_number;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_unpredictable_number;
 /** @brief pdol identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_pdol;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_pdol;
 /** @brief pos_entry_mode identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_pos_entry_mode;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_pos_entry_mode;
 /** @brief amount_reference_currency identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_amount_reference_currency;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_amount_reference_currency;
 /** @brief application_reference_currency identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_reference_currency;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_reference_currency;
 /** @brief transaction_reference_currency_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_reference_currency_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_reference_currency_code;
 /** @brief transaction_reference_currency_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_reference_currency_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_reference_currency_exponent;
 /** @brief additional_terminal_capabilities identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_additional_terminal_capabilities;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_additional_terminal_capabilities;
 /** @brief transaction_sequence_counter identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_transaction_sequence_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_transaction_sequence_counter;
 /** @brief application_currency_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_currency_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_currency_code;
 /** @brief application_reference_currency_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_reference_currency_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_reference_currency_exponent;
 /** @brief application_currency_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_application_currency_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_application_currency_exponent;
 /** @brief data_authentication_code identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_data_authentication_code;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_data_authentication_code;
 /** @brief icc_public_key_certificate identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_public_key_certificate;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_public_key_certificate;
 /** @brief icc_public_key_exponent identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_public_key_exponent;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_public_key_exponent;
 /** @brief icc_public_key_remainder identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_public_key_remainder;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_public_key_remainder;
 /** @brief ddol identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_ddol;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_ddol;
 /** @brief sda_tag_list identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_sda_tag_list;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_sda_tag_list;
 /** @brief signed_dynamic_application_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_signed_dynamic_application_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_signed_dynamic_application_data;
 /** @brief icc_dynamic_number identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_icc_dynamic_number;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_icc_dynamic_number;
 /** @brief log_entry identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_log_entry;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_log_entry;
 /** @brief merchant_name_and_location identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_merchant_name_and_location;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_merchant_name_and_location;
 /** @brief log_format identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_log_format;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_log_format;
 /** @brief fci_issuer_discretionary_data identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_fci_issuer_discretionary_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_fci_issuer_discretionary_data;
 /** @brief offline_bit_group_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_offline_bit_group_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_offline_bit_group_template;
 /** @brief online_bit_group_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_online_bit_group_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_online_bit_group_template;
 /** @brief biometric_try_counters_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_try_counters_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_try_counters_template;
 /** @brief preferred_attempts_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_preferred_attempts_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_preferred_attempts_template;
 /** @brief biometric_verification_data_template identifier in BASE. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_verification_data_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_verification_data_template;
 /** @brief biometric_header_template identifier in BIT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_header_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_header_template;
 /** @brief biometric_header_version identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_header_version;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_header_version;
 /** @brief biometric_type identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_type;
 /** @brief biometric_subtype identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_subtype;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_subtype;
 /** @brief biometric_creation_datetime identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_creation_datetime;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_creation_datetime;
 /** @brief biometric_creator identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_creator;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_creator;
 /** @brief biometric_validity_period identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_validity_period;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_validity_period;
 /** @brief biometric_product_id identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_product_id;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_product_id;
 /** @brief biometric_format_owner identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_format_owner;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_format_owner;
 /** @brief biometric_format_type identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_format_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_format_type;
 /** @brief biometric_solution_id identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_solution_id;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_solution_id;
 /** @brief biometric_matching_parameters identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_matching_parameters;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_matching_parameters;
 /** @brief bht1 identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_bht1;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_bht1;
 /** @brief bht2 identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_bht2;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_bht2;
 /** @brief biometric_matching_parameters_template identifier in BHT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_matching_parameters_template;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_matching_parameters_template;
 /** @brief bht_format_owner identifier in BHT_FORMAT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_bht_format_owner;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_bht_format_owner;
 /** @brief bht_format_type identifier in BHT_FORMAT. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_bht_format_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_bht_format_type;
 /** @brief bit_count identifier in BIT_GROUP. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_bit_count;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_bit_count;
 /** @brief group_bit identifier in BIT_GROUP. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_group_bit;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_group_bit;
 /** @brief facial_try_counter identifier in BIOMETRIC_COUNTERS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_facial_try_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_facial_try_counter;
 /** @brief finger_try_counter identifier in BIOMETRIC_COUNTERS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_finger_try_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_finger_try_counter;
 /** @brief iris_try_counter identifier in BIOMETRIC_COUNTERS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_iris_try_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_iris_try_counter;
 /** @brief palm_try_counter identifier in BIOMETRIC_COUNTERS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_palm_try_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_palm_try_counter;
 /** @brief voice_try_counter identifier in BIOMETRIC_COUNTERS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_voice_try_counter;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_voice_try_counter;
 /** @brief preferred_facial_attempts identifier in BIOMETRIC_ATTEMPTS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_preferred_facial_attempts;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_preferred_facial_attempts;
 /** @brief preferred_finger_attempts identifier in BIOMETRIC_ATTEMPTS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_preferred_finger_attempts;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_preferred_finger_attempts;
 /** @brief preferred_iris_attempts identifier in BIOMETRIC_ATTEMPTS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_preferred_iris_attempts;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_preferred_iris_attempts;
 /** @brief preferred_palm_attempts identifier in BIOMETRIC_ATTEMPTS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_preferred_palm_attempts;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_preferred_palm_attempts;
 /** @brief preferred_voice_attempts identifier in BIOMETRIC_ATTEMPTS. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_preferred_voice_attempts;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_preferred_voice_attempts;
 /** @brief verification_biometric_type identifier in BIOMETRIC_VERIFICATION. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_verification_biometric_type;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_verification_biometric_type;
 /** @brief verification_biometric_solution_id identifier in BIOMETRIC_VERIFICATION. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_verification_biometric_solution_id;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_verification_biometric_solution_id;
 /** @brief enciphered_biometric_key_seed identifier in BIOMETRIC_VERIFICATION. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_enciphered_biometric_key_seed;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_enciphered_biometric_key_seed;
 /** @brief enciphered_biometric_data identifier in BIOMETRIC_VERIFICATION. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_enciphered_biometric_data;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_enciphered_biometric_data;
 /** @brief biometric_data_mac identifier in BIOMETRIC_VERIFICATION. */
-extern TLV_API const tlv_tag_t tlv_emv_tag_biometric_data_mac;
+extern OPENTLV_EMV_API const tlv_tag_t tlv_emv_tag_biometric_data_mac;
 /** @} */
 
 /** @brief Borrowed composition of identifier metadata, field Schema and Value Codec.
@@ -935,7 +936,7 @@ typedef struct {
  * @param[in] definition Borrowed entry, or NULL.
  * @return Borrowed NUL-terminated symbol, or NULL when absent.
  */
-TLV_API const char* tlv_emv_symbol(const tlv_emv_definition_t* definition);
+OPENTLV_EMV_API const char* tlv_emv_symbol(const tlv_emv_definition_t* definition);
 
 /**
  * @brief Borrowed EMV domain dictionary for one explicitly selected context.
@@ -957,7 +958,7 @@ typedef struct tlv_emv_dictionary {
  * @param[in] context Context to select; no fallback is performed.
  * @return Borrowed static dictionary, or NULL for an invalid context.
  */
-TLV_API const tlv_emv_dictionary_t* tlv_emv_dictionary_for(tlv_emv_context_t context);
+OPENTLV_EMV_API const tlv_emv_dictionary_t* tlv_emv_dictionary_for(tlv_emv_context_t context);
 
 /**
  * @brief Finds the first byte-identical tag in a selected domain dictionary.
@@ -968,11 +969,11 @@ TLV_API const tlv_emv_dictionary_t* tlv_emv_dictionary_for(tlv_emv_context_t con
  *       Schema, or whose identifiers disagree, are skipped. No fallback, allocation, schema
  * validation or value decoding occurs.
  */
-TLV_API const tlv_emv_definition_t* tlv_emv_dictionary_find(const tlv_emv_dictionary_t* dictionary,
-                                                            const tlv_tag_t* tag);
+OPENTLV_EMV_API const tlv_emv_definition_t*
+tlv_emv_dictionary_find(const tlv_emv_dictionary_t* dictionary, const tlv_tag_t* tag);
 
 /** @brief The dictionary schema for #TLV_EMV_CONTEXT_BASE; an immutable static table. */
-extern TLV_API const tlv_schema_t tlv_emv_schema;
+extern OPENTLV_EMV_API const tlv_schema_t tlv_emv_schema;
 
 /**
  * @brief Returns the dictionary schema for a context.
@@ -984,7 +985,7 @@ extern TLV_API const tlv_schema_t tlv_emv_schema;
  *
  * @return The context's schema, or `NULL` for an invalid context.
  */
-TLV_API const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context);
+OPENTLV_EMV_API const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context);
 
 /**
  * @brief Looks up a tag's definition in a context.
@@ -997,7 +998,8 @@ TLV_API const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context);
  * @return The definition, borrowed from the library's static tables, or
  *         `NULL` if the tag is unknown in `context` or an argument is invalid.
  */
-TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, const tlv_tag_t* tag);
+OPENTLV_EMV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context,
+                                                         const tlv_tag_t* tag);
 
 /**
  * @brief Validates a value length against a definition.
@@ -1016,7 +1018,8 @@ TLV_API const tlv_emv_definition_t* tlv_emv_find(tlv_emv_context_t context, cons
  *       required and duplicate tags, template membership, and cryptographic
  *       or value semantics are separate checks.
  */
-TLV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition, size_t length);
+OPENTLV_EMV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definition,
+                                                     size_t length);
 
 /**
  * @brief Returns the spacing of permitted lengths for EMV display compatibility.
@@ -1026,7 +1029,7 @@ TLV_API tlv_result_t tlv_emv_validate_length(const tlv_emv_definition_t* definit
  * @note This is derived information, not a separate constraint. Always validate
  *       through tlv_emv_validate_length(), including when bounds are equal.
  */
-TLV_API size_t tlv_emv_length_step(const tlv_emv_definition_t* definition);
+OPENTLV_EMV_API size_t tlv_emv_length_step(const tlv_emv_definition_t* definition);
 
 /**
  * @brief Returns a curated human-readable label for a dictionary symbol.
@@ -1041,7 +1044,7 @@ TLV_API size_t tlv_emv_length_step(const tlv_emv_definition_t* definition);
  *         (including for a `NULL` `name`); tlv_emv_titlecase_name() derives
  *         a generic label from the symbol itself in that case.
  */
-TLV_API const char* tlv_emv_display_label(const char* name);
+OPENTLV_EMV_API const char* tlv_emv_display_label(const char* name);
 
 /**
  * @brief Writes a generic human-readable label for a dictionary symbol.
@@ -1060,7 +1063,8 @@ TLV_API const char* tlv_emv_display_label(const char* name);
  *
  * @warning On #TLV_ERR_BUFFER_TOO_SHORT the contents of `buffer` are unspecified.
  */
-TLV_API tlv_result_t tlv_emv_titlecase_name(const char* name, char* buffer, size_t capacity);
+OPENTLV_EMV_API tlv_result_t tlv_emv_titlecase_name(const char* name, char* buffer,
+                                                    size_t capacity);
 
 #ifdef __cplusplus
 }

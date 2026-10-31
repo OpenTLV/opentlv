@@ -46,12 +46,12 @@ in the existing ASan/UBSan fuzz workflow; release requirements are tracked by th
 | `fuzz_codec` | `tlv_codec_decode`/`tlv_codec_encode` for every EMV dictionary tag's codec (NUMBER, FLAGS, DIGITS, DATE, TIME, ACCOUNT, CRYPTOGRAM, BIOMETRIC, NUMBER_LIST), one-byte-short capacities, decode/encode/decode round-trip equality, and undersized-output rejection. |
 | `fuzz_dol` | `tlv_dol_read` and `tlv_dol_write` (both a size query and a full write against a deterministic `resolve` callback exercising presence, padding and truncation), both DOL limits, and that `tlv_dol_write`'s output length depends only on the input DOL. |
 
-The reader, visitor, and round-trip targets run each input against every enabled
-built-in format: default, fixed-width (one tag byte, one length byte), Bluetooth LTV, BER, and DER. Component switches still
-apply; `fuzz_fixed` is always built when fuzzing is enabled, while `fuzz_der` and
-`fuzz_der_schema` are omitted when `OPENTLV_FORMAT_DER=OFF`,
-and `fuzz_codec` and `fuzz_dol` are omitted when `OPENTLV_EMV=OFF`. At
-least one built-in format must be enabled. For the raw-byte formats, the
+The reader, visitor, and round-trip targets run each input against the supported
+built-in formats: default, fixed-width (one tag byte, one length byte), Bluetooth
+LTV, BER and DER. All protocol families are available as link-selected modules;
+the former builtin CMake switches are removed. `fuzz_fixed`, `fuzz_der`,
+`fuzz_der_schema`, `fuzz_codec` and `fuzz_dol` remain available when fuzzing is
+built. For raw-byte formats, the
 Visitor harness uses tag bit `0x20` as a test-only container convention. BER
 and DER use their public nesting predicates. `fuzz_fixed` covers the
 configurable dimensions (tag width, length width, byte order) that the

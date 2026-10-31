@@ -14,11 +14,12 @@ reviewers who approve these contracts. Read the
 infrastructure from #646. #651 extracts `OpenTLV::Codec` and the Query-owned
 `OpenTLV::QueryCodec` integration. #652 extracts `OpenTLV::Schema` and the
 `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure`
-integrations. Their sources, public
+integrations. #653 extracts all six builtin families: `ASN1`, `EMV`,
+`Bluetooth`, `NFC`, `DHCP` and `LLDP`. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
-checks the compiled dependency graph. The remaining modules and C++ facades
-retain the planned boundaries below and stay in the compatibility targets until
-their extraction issues. See the [consumer migration guide](../../guides/select-components.md).
+checks the compiled dependency graph. C++ facades retain the planned boundaries
+below until their extraction issue. All C implementations now live in modules;
+the compatibility archive only links those modules. See the [consumer migration guide](../../guides/select-components.md).
 
 Document Query declarations now live in `tlv/query/document.h`; path matching
 and batch-edit policy live in `query/document_path.c` and
@@ -488,13 +489,30 @@ BER without compiling DER and CER. Expected footprint:
   IO, Codec, Schema and Query). Size-sensitive shared deployments should link
   ASN.1 statically.
 
-For scale, a GCC 13 `MinSizeRel` static build of `main` has these ASN.1
-object sizes (text + data + bss): BER format and helpers (`ber.c`,
-`ber_internal.c`, `identifier.c`) 4.4 KiB, shared value validation 3.8 KiB,
-DER/CER identifier helpers 0.9 KiB, DER format and validation 3.7 KiB, CER
-format and validation 8.0 KiB, ASN.1 codecs 13.8 KiB, DER Schema 14.7 KiB and
-Query hooks 1.2 KiB; 50.6 KiB in total. #653 records the actual before/after
-footprint.
+Measured for #653 on Linux x86-64 with GCC 13.3.0, `MinSizeRel` (`-Os`),
+static libraries and the same BER decode probe. The reference is commit
+`070334f3b84abc20032e7e2d5d4a27c475437b75`, with all former builtin options ON;
+the candidate is the extracted implementation. Values below are GNU `size -B`
+text/data/bss byte counts, not archive file sizes or runtime resident memory.
+
+| Measurement | Before (text / data / bss) | After (text / data / bss) |
+| --- | --- | --- |
+| All 13 ASN.1 objects | 50,309 / 1,584 / 0 | 50,309 / 1,584 / 0 |
+| BER-only executable | 19,335 / 928 / 8 | 19,359 / 928 / 8 |
+
+The linker maps retain only `ber.c`, `ber_internal.c` and `identifier.c` from
+the ASN.1 family in both executable builds. DER, CER, validation, Schema, Codec
+and Query objects are absent. The observed executable text difference is 24
+bytes with the new archive/member ordering; the ASN.1 object totals are
+unchanged. Results depend on compiler, linker and flags.
+
+To reproduce, configure both revisions with `-DCMAKE_BUILD_TYPE=MinSizeRel`,
+`-DOPENTLV_BUILD_SHARED_LIBS=OFF`, tests/examples OFF, build the former `tlv`
+and the new `opentlv_asn1`, and compile a C probe that calls
+`tlv_format_decode(&tlv_format_ber, ...)` on `{2, 1, 42}`. Link the registered
+archives in a GNU linker group, emit a map with `-Wl,-Map=ber.map`, then use
+`size -B` on the probe and each ASN.1 object. This measures default static
+archive selection without section garbage collection or LTO.
 
 ## Enforcement
 

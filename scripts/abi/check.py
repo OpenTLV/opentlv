@@ -18,12 +18,14 @@ change in enforce mode, 2 the check itself failed.
 """
 
 import argparse
+import json
 import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 ABI_DIR = Path(__file__).resolve().parent
 REPO_ROOT = ABI_DIR.parent.parent
@@ -91,21 +93,67 @@ def build_candidate(candidate_dir, work_dir, name="tlv"):
     build(candidate_dir, work_dir / "candidate-build")
     headers = work_dir / "candidate-headers"
     stage_headers(candidate_dir, work_dir / "candidate-build", headers)
+    registry = work_dir / "candidate-build/modules-Debug.json"
+    if name == "tlv" and registry.is_file():
+        # Compare the union of actual module binaries with the historic C ABI.
+        # Once builtins are registered, tlv is empty. Ignore any stale legacy DSO
+        # left in a reused build directory by an older source revision.
+        entries = json.loads(registry.read_text(encoding="utf-8"))
+        extracted_builtins = any(entry["key"] == "asn1" for entry in entries)
+        libraries = ([] if extracted_builtins else
+                     sorted((work_dir / "candidate-build/tlv").glob("libtlv.so")))
+        libraries += [Path(entry["library"]) for entry in entries
+                      if "library" in entry]
+        if libraries:
+            return libraries, headers
     return find_library(work_dir / "candidate-build", name), headers
 
 
 def dump_abi(library, headers, out_file):
     """Write the public ABI of the library as an abidw dump, without machine-specific paths."""
     out_file.parent.mkdir(parents=True, exist_ok=True)
+    libraries = library if isinstance(library, list) else [library]
+    group = (["--added-binaries-dir", str(libraries[0].parent),
+              "--add-binaries", ",".join(path.name for path in libraries[1:])]
+             if len(libraries) > 1 else [])
     run("abidw", "--headers-dir", str(headers), "--drop-private-types",
-        *DUMP_OPTIONS, *suppression_args(), "--out-file", str(out_file), str(library))
+        *DUMP_OPTIONS, *suppression_args(), *group, "--out-file", str(out_file), str(libraries[0]))
+    flatten_corpus_group(out_file)
     text = out_file.read_text(encoding="utf-8")
     # abidw silently emits a symbols-only dump when debug info is missing.
-    if "<function-decl" not in text:
-        raise CheckError("the ABI dump has no function declarations; was debug info built?")
+    if "<function-decl" not in text and "<var-decl" not in text:
+        raise CheckError("the ABI dump has no public declarations; was debug info built?")
     # Translation unit paths are absolute build paths; keep them relative to the repository.
-    text = re.sub(r"path='[^']*?/((?:tlv|generated)/[^']*)'", r"path='\1'", text)
+    text = re.sub(r"""path=(['"])[^'"]*?/((?:tlv|generated)/[^'"]*)\1""", r"path='\2'", text)
     out_file.write_text(text, encoding="utf-8", newline="\n")
+
+
+def flatten_corpus_group(out_file):
+    """Compare declarations across module moves without comparing DSO names.
+
+    abidw generates the whole group in one context, so its type IDs are shared
+    across the member corpora. Preserve those IDs and declarations verbatim in
+    one corpus. Ownership and DSO exports remain the isolation gate's concern.
+    """
+    root = ET.parse(out_file).getroot()
+    if root.tag != "abi-corpus-group":
+        return
+    corpus = ET.Element("abi-corpus", version=root.get("version", "2.1"),
+                        architecture=root.get("architecture", ""))
+    for kind in ("elf-function-symbols", "elf-variable-symbols"):
+        symbols = ET.SubElement(corpus, kind)
+        seen = set()
+        for member in root.findall("abi-corpus"):
+            for symbol in member.findall(kind + "/elf-symbol"):
+                name = symbol.get("name")
+                if name in seen:
+                    raise CheckError(f"duplicate public symbol in ABI modules: {name}")
+                seen.add(name)
+                symbols.append(symbol)
+    for member in root.findall("abi-corpus"):
+        corpus.extend(member.findall("abi-instr"))
+    # libabigail detects ABIXML by its root, not an XML declaration.
+    ET.ElementTree(corpus).write(out_file, encoding="utf-8")
 
 
 def abidiff(args, baseline_file, candidate_file, *extra):
@@ -113,7 +161,7 @@ def abidiff(args, baseline_file, candidate_file, *extra):
         ("abidiff", *args, *extra, str(baseline_file), str(candidate_file)),
         capture_output=True, text=True, check=False,
     )
-    return result.returncode, result.stdout
+    return result.returncode, result.stdout + result.stderr
 
 
 def write_step_summary(summary):
@@ -182,8 +230,15 @@ def main():
     parser.add_argument("--baseline-file", type=Path, default=DEFAULT_BASELINE,
                         help="Stored ABI baseline (abidw dump)")
     parser.add_argument("--candidate-dir", type=Path, default=REPO_ROOT, help="Candidate source tree")
-    parser.add_argument("--library", choices=("tlv", "opentlv_core", "opentlv_io", "opentlv_document", "opentlv_generator", "opentlv_query", "opentlv_query_document"), default="tlv",
-                        help="Library to compare; use a matching per-library baseline")
+    parser.add_argument("--library", default="tlv",
+                        choices=("tlv", "opentlv_core", "opentlv_io", "opentlv_document",
+                                 "opentlv_generator", "opentlv_query", "opentlv_query_document",
+                                 "opentlv_codec", "opentlv_query_codec", "opentlv_schema",
+                                 "opentlv_schema_number", "opentlv_schema_query",
+                                 "opentlv_schema_query_document", "opentlv_codec_structure",
+                                 "opentlv_asn1", "opentlv_emv", "opentlv_bluetooth",
+                                 "opentlv_nfc", "opentlv_dhcp", "opentlv_lldp"),
+                        help="tlv compares the complete C module ABI; other names need a matching per-library baseline")
     parser.add_argument("--update", action="store_true",
                         help="Regenerate the baseline from the candidate instead of comparing")
     parser.add_argument("--mode", choices=("auto", "report", "enforce"), default="auto")

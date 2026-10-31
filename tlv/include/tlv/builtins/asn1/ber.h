@@ -10,7 +10,7 @@
 #include "tlv/builtins/asn1/identifier.h"
 #include "tlv/format.h"
 #include "tlv/size.h"
-#include "tlv/export.h"
+#include "tlv/asn1/export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,8 +54,8 @@ extern "C" {
  *
  * @note The destination is unchanged on failure.
  */
-TLV_API tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
-                                      uint8_t* storage, tlv_tag_t* tag);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructed,
+                                               uint64_t number, uint8_t* storage, tlv_tag_t* tag);
 
 /**
  * @brief Extracts the numeric tag number from a BER tag.
@@ -72,7 +72,7 @@ TLV_API tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructe
  *
  * @note `*number` is unchanged on failure.
  */
-TLV_API tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number);
 
 /**
  * @brief Format for raw BER-TLV.
@@ -92,7 +92,7 @@ TLV_API tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number);
  * limits are not a claim of complete X.690 conformance. The generic Variable
  * primitives do not impose any of these ASN.1 policies.
  */
-extern TLV_API const tlv_format_t tlv_format_ber;
+extern OPENTLV_ASN1_API const tlv_format_t tlv_format_ber;
 
 /**
  * @brief Maximum simultaneous constructed scopes while resolving an indefinite element.
@@ -120,7 +120,8 @@ enum { TLV_BER_MAX_DEPTH = 64 };
  * @note `*size` is unchanged on failure.
  * @see tlv_ber_write_indefinite
  */
-TLV_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length, size_t* size);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t length,
+                                                              size_t* size);
 
 /**
  * @brief Writes an explicit indefinite-length constructed element.
@@ -147,8 +148,9 @@ TLV_API tlv_result_t tlv_ber_indefinite_encoded_size(tlv_tag_t tag, size_t lengt
  * @note All outputs remain unchanged on failure.
  * @see tlv_ber_indefinite_encoded_size
  */
-TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tlv_tag_t tag,
-                                              const uint8_t* value, size_t length, size_t* written);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity,
+                                                       tlv_tag_t tag, const uint8_t* value,
+                                                       size_t length, size_t* written);
 
 /**
  * @brief Appends an explicit indefinite-length element to a writer.
@@ -166,8 +168,8 @@ TLV_API tlv_result_t tlv_ber_write_indefinite(uint8_t* data, size_t capacity, tl
  *
  * @note On failure the writer position is unchanged.
  */
-TLV_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag,
-                                                     const uint8_t* value, size_t length);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag,
+                                                              const uint8_t* value, size_t length);
 
 /*
  * The definite-length field codec below (X.690 section 8.1.3) is standalone,
@@ -219,8 +221,8 @@ enum { TLV_BER_LENGTH_MAX_ENCODED_SIZE = 9 };
  *
  * @note On any failure `*value` and `*consumed` are unchanged.
  */
-TLV_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_size_t* value,
-                                           size_t* consumed);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size,
+                                                    tlv_size_t* value, size_t* consumed);
 
 /**
  * @brief Encodes a length using the shortest BER definite form.
@@ -243,14 +245,14 @@ TLV_API tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size
  *
  * @note On any failure `*written` is unchanged.
  */
-TLV_API tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out, size_t out_capacity,
-                                           size_t* written);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_length_encode(tlv_size_t value, uint8_t* out,
+                                                    size_t out_capacity, size_t* written);
 
 /**
  * @brief BER policy writing constructed elements with indefinite length and EOC.
  * Reads all supported BER framing; rejects primitive encoding. Context is immutable.
  */
-TLV_API extern const tlv_format_t tlv_format_ber_indefinite;
+OPENTLV_ASN1_API extern const tlv_format_t tlv_format_ber_indefinite;
 
 /**
  * @brief Decode one BER identifier without requiring a following length or value.
@@ -271,8 +273,8 @@ TLV_API extern const tlv_format_t tlv_format_ber_indefinite;
  * @note Both outputs remain unchanged on failure. An invalid available first
  * payload digit is reported before later truncation or width errors.
  */
-TLV_API tlv_result_t tlv_ber_read_identifier(const uint8_t* data, size_t size, tlv_tag_t* tag,
-                                             size_t* consumed);
+OPENTLV_ASN1_API tlv_result_t tlv_ber_read_identifier(const uint8_t* data, size_t size,
+                                                      tlv_tag_t* tag, size_t* consumed);
 
 #ifdef __cplusplus
 }

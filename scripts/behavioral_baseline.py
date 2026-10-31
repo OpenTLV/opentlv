@@ -222,7 +222,8 @@ def run_probe(source, build, work, output):
     if registry.is_file():
         modules = {entry["key"]: entry for entry in read(registry)}
         libraries += [Path(modules[key]["library"])
-                      for key in ("schema-query-document", "schema-query", "schema-number",
+                      for key in ("emv", "asn1", "bluetooth", "nfc", "dhcp", "lldp",
+                                  "schema-query-document", "schema-query", "schema-number",
                                   "codec-structure", "query-document", "query-codec", "query",
                                   "document", "generator", "codec", "schema", "io", "core")
                       if key in modules]

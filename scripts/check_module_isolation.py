@@ -222,9 +222,18 @@ def verify(source, build_root, shared, generator, nm, extra=()):
         extension = "cpp" if facade else "c"
         shutil.copyfile(entry["consumer"][0], consumer / ("main." + extension))
         name = entry["export_name"][0]
+        expected = closure(modules, key)
+        component_checks = ""
+        for other, candidate in modules.items():
+            condition = "NOT TARGET" if other in expected else "TARGET"
+            target = "OpenTLV::" + candidate["export_name"][0]
+            component_checks += (f"if({condition} {target})\n"
+                                 f'  message(FATAL_ERROR "Unexpected component closure: {target}")\n'
+                                 "endif()\n")
         (consumer / "CMakeLists.txt").write_text(
             f"cmake_minimum_required(VERSION 3.16)\nproject(consumer LANGUAGES {language})\n"
             f"find_package(OpenTLV REQUIRED CONFIG COMPONENTS {name})\n"
+            f"{component_checks}"
             f"add_executable(consumer main.{extension})\n"
             f"target_link_libraries(consumer PRIVATE OpenTLV::{name})\n"
             "enable_testing()\nadd_test(NAME consumer COMMAND consumer)\n", encoding="utf-8")

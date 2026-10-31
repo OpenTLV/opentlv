@@ -8,8 +8,7 @@
 | --- | --- |
 | Format header | `tlv/builtins/asn1/ber.h` |
 | Descriptor | `tlv_format_ber` |
-| CMake option (default ON) | `OPENTLV_FORMAT_BER` |
-| Link target | `tlv` |
+| Link target | `OpenTLV::ASN1` |
 
 ## Scope and limits
 
@@ -263,7 +262,7 @@ These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](htt
 
 ### Universal-type value codecs
 
-`tlv/builtins/asn1/asn1_codec.h` (built with `OPENTLV_FORMAT_BER`) adds
+`tlv/builtins/asn1/asn1_codec.h` (provided by `OpenTLV::ASN1`) adds
 [`tlv_codec_t`](../../guides/codecs.md) descriptors that convert the raw
 value bytes of the ASN.1 primitive universal types to and from C
 representations, independent of any particular BER-family format or
