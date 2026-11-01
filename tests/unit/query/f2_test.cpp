@@ -8,7 +8,6 @@
 #include "tlv/builtins/emv/query.h"
 #include "tlv/builtins/asn1/query.h"
 #include "tlv/builtins/asn1/ber.h"
-#include "tlv/config.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -63,9 +62,7 @@ struct Evaluation {
         size_t      count;
         const auto* builtin = tlv_query_builtin_hooks(&count);
         hooks.assign(builtin, builtin + count);
-#if OPENTLV_FORMAT_BER
         hooks.push_back(tlv_asn1_query_date);
-#endif
         format.is_constructed = constructed;
         environment.format = &format;
         environment.hooks = hooks.data();
@@ -291,7 +288,6 @@ TEST(Unit_Tlv_QueryF2, NameResolutionCopiesIdentifiersAndDetectsConflicts) {
     selected.clear();
     ASSERT_EQ(TLV_OK, e.run({0x5a, 0}, &selected));
     EXPECT_EQ((std::vector<size_t>{0}), selected);
-#if OPENTLV_EMV
     e.options.resolve = tlv_emv_query_resolve;
     e.options.resolve_context = nullptr;
     ASSERT_EQ(TLV_OK, e.compile("//emv:PAN"));
@@ -299,7 +295,6 @@ TEST(Unit_Tlv_QueryF2, NameResolutionCopiesIdentifiersAndDetectsConflicts) {
     selected.clear();
     ASSERT_EQ(TLV_OK, e.run({0x5a, 0}, &selected));
     EXPECT_EQ((std::vector<size_t>{0}), selected);
-#endif
 }
 TEST(Unit_Tlv_QueryF2, EnvironmentMismatchIsRejectedBeforeInput) {
     Evaluation e;
@@ -316,7 +311,6 @@ TEST(Unit_Tlv_QueryF2, EnvironmentMismatchIsRejectedBeforeInput) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, flat.compile("value(x'00')"));
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, flat.compile("'text' = x'74657874'"));
 }
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_QueryF2, Asn1CapabilitiesAndUtcDateAdapter) {
     Evaluation e;
     e.environment.tags = &tlv_asn1_query_tags;
@@ -345,7 +339,6 @@ TEST(Unit_Tlv_QueryF2, Asn1CapabilitiesAndUtcDateAdapter) {
     EXPECT_EQ(TLV_ERR_INVALID_VALUE, e.run(wire));
     EXPECT_EQ(TLV_QUERY_ERROR_CODEC, e.diagnostic.kind);
 }
-#endif
 TEST(Unit_Tlv_QueryF2, OptimizedAndUnoptimizedAgreeAndExplainIsAtomic) {
     const std::vector<uint8_t> wire = {0x5a, 0, 0x84, 0};
     Evaluation                 optimized, plain;
@@ -598,7 +591,6 @@ TEST(Unit_Tlv_QueryF2, ConversionPreservesSharedFailuresAndRelatedExpression) {
     }
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_QueryF2, ReaderFailureReachesQueryOnlyThroughTheCodecCause) {
     // A provider delegates Value decoding to a structure codec, whose Reader rejects the
     // nested bytes: the declared length 5 exceeds the one available byte.
@@ -693,7 +685,6 @@ TEST(Unit_Tlv_QueryF2, ReaderFailureReachesQueryOnlyThroughTheCodecCause) {
     EXPECT_EQ(TLV_LOCATION_EXPRESSION, d.expression.domain);
     EXPECT_LT(d.expression.begin, d.expression.end);
 }
-#endif
 
 TEST(Unit_Tlv_QueryF2, ForeignCallbackResultsRemainReadableInCpp) {
     for (const int32_t reported : {999, -1, INT32_MIN, INT32_MAX}) {

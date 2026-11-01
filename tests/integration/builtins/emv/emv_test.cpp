@@ -9,12 +9,9 @@
 #include "tlv/reader/visitor.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/query.h"
-#include "tlv/config.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
 #include <memory>
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <set>
@@ -276,7 +273,6 @@ TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
     ASSERT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &tlv_format_emv, &query, 8, 8,
                                              visitor, &visits, nullptr));
     EXPECT_EQ(1u, visits);
-#if OPENTLV_DOCUMENT
     tlv_document_options_t options{};
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &tlv_format_emv));
     tlv_document_t* raw = nullptr;
@@ -290,7 +286,6 @@ TEST(Integration_Tlv_Emv, GenericQueryAndDocumentUseEmvFraming) {
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output, sizeof(output), &written));
     EXPECT_EQ(sizeof(wire), written);
     EXPECT_EQ(0, std::memcmp(wire, output, written));
-#endif
 }
 #endif
 

@@ -17,10 +17,9 @@ class InventoryTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
         files = {
-            "CMakeLists.txt": 'option(OPENTLV_FORMAT_BER "BER" ON)\n',
-            "tlv/resources/config.h.in": "#cmakedefine01 OPENTLV_FORMAT_BER\n",
-            "tlv/resources/query-features.h.in": "// Query feature configuration\n",
-            "docs/concepts/architecture.md": "| `OPENTLV_FORMAT_BER` | BER |\n",
+            "CMakeLists.txt": 'option(OPENTLV_QUERY_SET_OPERATIONS "BER" ON)\n',
+                        "tlv/resources/query-features.h.in": "#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS\n",
+            "docs/concepts/architecture.md": "| `OPENTLV_QUERY_SET_OPERATIONS` | BER |\n",
             "tlv/include/tlv/builtins/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
             "tlv++/include/tlv++/builtins/asn1/ber.hpp": "// fixture\n",
             "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |\n",
@@ -46,7 +45,7 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(check(self.root), [])
 
     def test_added_component_needs_option_and_documentation(self):
-        self.write("tlv/resources/config.h.in", "#cmakedefine01 OPENTLV_FORMAT_BER\n#cmakedefine01 OPENTLV_NEW\n")
+        self.write("tlv/resources/query-features.h.in", "#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS\n#cmakedefine01 OPENTLV_NEW\n")
         self.assert_drift("OPENTLV_NEW: public configuration has no root CMake option")
         self.assert_drift("OPENTLV_NEW: add a build-configuration row")
 
@@ -56,7 +55,7 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("stale tlv_format_ber")
 
     def test_new_component_option_requires_public_config(self):
-        self.write("CMakeLists.txt", 'option(OPENTLV_FORMAT_BER "BER" ON)\noption(OPENTLV_NEW "New" ON)\n')
+        self.write("CMakeLists.txt", 'option(OPENTLV_QUERY_SET_OPERATIONS "BER" ON)\noption(OPENTLV_NEW "New" ON)\n')
         self.assert_drift("public component configuration: document OPENTLV_NEW")
 
     def test_added_cxx_family(self):

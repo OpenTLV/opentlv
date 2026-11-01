@@ -80,7 +80,7 @@ Select a smaller set while investigating a failure:
 ```sh
 GTEST_FILTER='Unit_Tlv_QueryProgram.*:Unit_Tlv_Incremental.*' \
 ctest --test-dir build/valgrind -T memcheck -LE no-memcheck \
-  -R '^test-unit-tlv$' \
+  -R '^test-unit-tlv-' \
   --output-on-failure --no-tests=error
 ```
 

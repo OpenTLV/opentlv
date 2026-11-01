@@ -3,21 +3,14 @@
 
 #include "../diagnostic_assertions.h"
 #include "tlv/callback.h"
-#include "tlv/config.h"
 #include "tlv/formats/compose.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/variable.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
-#if OPENTLV_NFC
 #include "tlv/builtins/nfc/type2.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>
@@ -693,20 +686,14 @@ TEST(Unit_Tlv_Format, SuccessfulBuiltinCallbacksDoNotWriteFailureDetail) {
         {"variable", &variable_format, {0x5A, 0x02, 0x01, 0x02}},
         {"tagged", &tagged_format, {0x5A, 0x02, 0x01, 0x02}},
         {"tagged tag-only", &tagged_format, {0x00}},
-#if OPENTLV_FORMAT_BER
         {"BER definite", &tlv_format_ber, {0x9F, 0x02, 0x01, 0x07}},
         {"BER indefinite", &tlv_format_ber, {0x30, 0x80, 0x04, 0x01, 0xAA, 0x00, 0x00}},
         {"BER indefinite writer",
          &tlv_format_ber_indefinite,
          {0x30, 0x80, 0x04, 0x01, 0xAA, 0x00, 0x00}},
-#endif
-#if OPENTLV_LLDP
         {"LLDP packed", &tlv_format_lldp, {0x02, 0x03, 0x04, 0x05, 0x06}},
-#endif
-#if OPENTLV_NFC
         {"NFC escaped", &tlv_format_nfc_type2, {0x03, 0x02, 0xD1, 0x01}},
         {"NFC terminator", &tlv_format_nfc_type2, {0xFE}},
-#endif
     };
     tlv_format_error_t sentinel;
     std::memset(&sentinel, 0x5A, sizeof sentinel);

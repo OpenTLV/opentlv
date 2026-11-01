@@ -2,10 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/compose.h"
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/reader/reader.h"

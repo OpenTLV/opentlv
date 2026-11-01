@@ -1,23 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/config.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/generator.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#endif
-#if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
-#endif
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_NFC
 #include "tlv/builtins/nfc/type2.h"
-#endif
 #include <algorithm>
 #include <cstring>
 #include <fstream>
@@ -72,34 +61,24 @@ int main(int argc, char** argv) try {
         if (fixed.length.size < sizeof(size_t))
             value_limit = std::min(value_limit, (size_t(1) << (fixed.length.size * 8)) - 1);
     }
-#if OPENTLV_FORMAT_BER
     if (!std::strcmp(argv[1], "ber")) format = &tlv_format_ber;
-#endif
-#if OPENTLV_FORMAT_DER
     if (!std::strcmp(argv[1], "der")) format = &tlv_format_der;
-#endif
-#if OPENTLV_EMV
     if (!std::strcmp(argv[1], "emv")) format = &tlv_format_emv;
-#endif
     if (!std::strcmp(argv[1], "ber") || !std::strcmp(argv[1], "der") ||
         !std::strcmp(argv[1], "emv")) {
         tags = {{0x04}, {0x80}, {0x30}, {0xA0}};
         nested = true;
     }
-#if OPENTLV_BLUETOOTH
     if (!std::strcmp(argv[1], "bluetooth-ltv")) {
         format = &tlv_format_bluetooth_ltv;
         tags = {{0x09}, {0xFF}};
         value_limit = std::min(value_limit, size_t(254));
     }
-#endif
-#if OPENTLV_NFC
     if (!std::strcmp(argv[1], "nfc-type2")) {
         format = &tlv_format_nfc_type2;
         tags = {{0x03}, {0xFD}};
         value_limit = std::min(value_limit, size_t(65534));
     }
-#endif
     if (!format) return 2;
     // Stable test-owned domains preserve the former CLI-generated corpus.
     // Generation and PRNG behavior are exclusively implemented by Core.

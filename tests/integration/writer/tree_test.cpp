@@ -4,13 +4,8 @@
 #include "controlled_format.h"
 #include "tlv/reader/tree.h"
 #include "tlv/writer/tree.h"
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -68,14 +63,11 @@ TEST(Integration_Tlv_TreeWriter, ReaderTransformWriterWithoutDocument) {
     EXPECT_EQ(0, std::memcmp(output, expected, sizeof(expected)));
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Integration_Tlv_TreeWriter, DefiniteLengthBoundariesAndIndefiniteTrailers) {
     const auto                       parent = TLV_TAG(0xE1);
     const auto                       tag = TLV_TAG(0x04);
     std::vector<const tlv_format_t*> formats = {&tlv_format_ber};
-#if OPENTLV_FORMAT_CER
     formats.push_back(&tlv_format_cer);
-#endif
     for (const auto* wire_format : formats) {
         // Child encodings have exactly 127, 128, 255 and 256 bytes.
         for (size_t length : {125u, 126u, 252u, 253u}) {
@@ -126,9 +118,7 @@ TEST(Integration_Tlv_TreeWriter, BerIndefiniteKeepsFormatPolicyAndNestedTerminat
     tlv_decoded_t decoded{};
     EXPECT_EQ(TLV_OK, tlv_format_decode(&tlv_format_ber, data, sizeof(data), &decoded, nullptr));
 }
-#endif
 
-#if OPENTLV_FORMAT_BER && OPENTLV_FORMAT_CER
 TEST(Integration_Tlv_TreeWriter, EventsTransformDefiniteParentsToIndefiniteAndBack) {
     const uint8_t definite[] = {0x30, 7, 4, 1, 0xAA, 0x30, 2, 4, 0};
     const uint8_t indefinite[] = {0x30, 0x80, 4, 1, 0xAA, 0x30, 0x80, 4, 0, 0, 0, 0, 0};
@@ -161,4 +151,3 @@ TEST(Integration_Tlv_TreeWriter, EventsTransformDefiniteParentsToIndefiniteAndBa
         EXPECT_EQ(0, std::memcmp(expected, output, expected_size));
     }
 }
-#endif

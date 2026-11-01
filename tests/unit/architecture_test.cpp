@@ -7,14 +7,9 @@
 #include "tlv/writer/writer.h"
 #include "tlv/reader/visitor.h"
 #include "tlv/codec/structure.h"
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/copy.h"
-#endif
-#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -286,7 +281,6 @@ TEST(Unit_Tlv_Architecture, StructureCodecDecodesWithoutWriterAndChecksEncoderFo
     }
 }
 
-#if OPENTLV_EMV
 TEST(Unit_Tlv_Architecture, EmvDictionaryAndCodecWorkWithoutBuiltinWireFormats) {
     EXPECT_GT(tlv_emv_schema.count, 0u);
     uint64_t input = 123456, output = 0;
@@ -298,7 +292,6 @@ TEST(Unit_Tlv_Architecture, EmvDictionaryAndCodecWorkWithoutBuiltinWireFormats) 
                                        sizeof(output), NULL));
     EXPECT_EQ(input, output);
 }
-#endif
 } // namespace
 
 TEST(Unit_Tlv_Architecture, StructureCodecPreservesValidationCauses) {

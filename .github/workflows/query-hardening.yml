@@ -96,7 +96,7 @@ jobs:
           -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_INTEGRATION_TESTS=OFF
           -DOPENTLV_BUILD_EXAMPLES=OFF
-      - run: cmake --build build --target test-unit-tlv test-unit-tlvpp test-query-conformance test-query-cxx-conformance test-query-abi test-query-plan test-query-constexpr test-query-adversarial test-query-equivalence --parallel 2
+      - run: cmake --build build --parallel 2
       - name: Run exact and one-short capacities, operation budgets and x86 corpus
         run: |
           ctest --test-dir build -R 'Query|query' --output-on-failure --no-tests=error
@@ -129,19 +129,19 @@ jobs:
             -DCMAKE_EXE_LINKER_FLAGS='-fsanitize=memory -pie' \
             -DOPENTLV_BUILD_SHARED_LIBS=OFF -DOPENTLV_BUILD_CXX=OFF \
             -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
-          cmake --build build/msan --target tlv --parallel 2
+          cmake --build build/msan --target opentlv_schema_query_document opentlv_query_codec opentlv_schema_number opentlv_codec_structure --parallel 2
       - name: Compile and run the persistent shared Query corpus
         env:
           MSAN_OPTIONS: halt_on_error=1:exit_code=86
         run: |
           python3 tests/query/memory_driver.py --output build/query-memory-driver.c
-          clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
+          clang-18 -std=c99 -I tlv/include -I build/msan/generated/include \
             -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
-            build/query-memory-driver.c build/msan/tlv/libtlv.a build/msan/tlv/libopentlv_schema_query_document.a build/msan/tlv/libopentlv_schema_query.a build/msan/tlv/libopentlv_schema_number.a build/msan/tlv/libopentlv_codec_structure.a build/msan/tlv/libopentlv_query_document.a build/msan/tlv/libopentlv_query_codec.a build/msan/tlv/libopentlv_query.a build/msan/tlv/libopentlv_document.a build/msan/tlv/libopentlv_codec.a build/msan/tlv/libopentlv_schema.a build/msan/tlv/libopentlv_io.a build/msan/tlv/libopentlv_core.a -lm -o build/query-memory-driver
+            build/query-memory-driver.c build/msan/tlv/libopentlv_schema_query_document.a build/msan/tlv/libopentlv_schema_query.a build/msan/tlv/libopentlv_schema_number.a build/msan/tlv/libopentlv_codec_structure.a build/msan/tlv/libopentlv_query_document.a build/msan/tlv/libopentlv_query_codec.a build/msan/tlv/libopentlv_query.a build/msan/tlv/libopentlv_document.a build/msan/tlv/libopentlv_codec.a build/msan/tlv/libopentlv_schema.a build/msan/tlv/libopentlv_io.a build/msan/tlv/libopentlv_core.a -lm -o build/query-memory-driver
           python3 tests/query/memory_campaign.py --native build/query-memory-driver --output build/query-memory-evidence
-          clang-18 -std=c99 -DTLV_STATIC_DEFINE -I tlv/include -I build/msan/generated/include \
+          clang-18 -std=c99 -I tlv/include -I build/msan/generated/include \
             -fsanitize=memory -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -fPIE -pie \
-            tests/query/adversarial.c build/msan/tlv/libtlv.a build/msan/tlv/libopentlv_schema_query_document.a build/msan/tlv/libopentlv_schema_query.a build/msan/tlv/libopentlv_schema_number.a build/msan/tlv/libopentlv_codec_structure.a build/msan/tlv/libopentlv_query_document.a build/msan/tlv/libopentlv_query_codec.a build/msan/tlv/libopentlv_query.a build/msan/tlv/libopentlv_document.a build/msan/tlv/libopentlv_codec.a build/msan/tlv/libopentlv_schema.a build/msan/tlv/libopentlv_io.a build/msan/tlv/libopentlv_core.a -lm -o build/query-adversarial-msan
+            tests/query/adversarial.c build/msan/tlv/libopentlv_schema_query_document.a build/msan/tlv/libopentlv_schema_query.a build/msan/tlv/libopentlv_schema_number.a build/msan/tlv/libopentlv_codec_structure.a build/msan/tlv/libopentlv_query_document.a build/msan/tlv/libopentlv_query_codec.a build/msan/tlv/libopentlv_query.a build/msan/tlv/libopentlv_document.a build/msan/tlv/libopentlv_codec.a build/msan/tlv/libopentlv_schema.a build/msan/tlv/libopentlv_io.a build/msan/tlv/libopentlv_core.a -lm -o build/query-adversarial-msan
           python3 tests/query/adversarial_campaign.py --native build/query-adversarial-msan --msan --output build/query-adversarial-msan-evidence
       - uses: actions/upload-artifact@v4
         if: always()

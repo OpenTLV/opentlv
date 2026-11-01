@@ -2,10 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "visitor_input.h"
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_validation.h"
 #include "tlv/reader/reader.h"

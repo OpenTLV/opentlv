@@ -5,7 +5,6 @@
 #define OPENTLV_TLVPP_BUILTINS_ASN1_CER_HPP
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv++/format.hpp"
-#include "tlv/config.h"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/builder.hpp"
 /** @file

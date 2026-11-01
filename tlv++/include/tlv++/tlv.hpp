@@ -12,7 +12,6 @@
  */
 
 /* Core primitives and generic formats */
-#include "tlv/config.h"
 #include "tlv/tlv.h"
 #include "tlv++/format.hpp"
 #include "tlv++/diagnostic.hpp"
@@ -29,90 +28,48 @@
 #include "tlv++/writer/builder.hpp"
 #include "tlv++/generator.hpp"
 
-#if OPENTLV_DOCUMENT && OPENTLV_QUERY && OPENTLV_CODEC
 #include "tlv++/document/document.hpp"
-#endif
+#include "tlv++/document/codec.hpp"
+#include "tlv++/query/document.hpp"
 
-#if OPENTLV_QUERY
 #include "tlv++/query/query.hpp"
 #include "tlv++/query/program.hpp"
-#if OPENTLV_CODEC
 #include "tlv++/query/codec.hpp"
-#endif
 #include "tlv++/query/builder.hpp"
-#endif
 
-#if OPENTLV_SCHEMA
 #include "tlv++/schema/schema.hpp"
-#endif
 
-#if OPENTLV_CODEC
 #include "tlv++/codec/dynamic.hpp"
 #include "tlv++/codec/typed.hpp"
 #include "tlv++/codec/writer.hpp"
 #include "tlv++/codec/registry.hpp"
-#if OPENTLV_SCHEMA
 #include "tlv++/codec/structure.hpp"
-#endif
-#endif
 
 /* Builtin protocols and formats */
-#if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
-#if OPENTLV_QUERY && OPENTLV_CODEC
 #include "tlv++/builtins/asn1/query.hpp"
-#endif
-#if OPENTLV_CODEC
 #include "tlv++/builtins/asn1/codec.hpp"
-#endif
-#endif
 
-#if OPENTLV_FORMAT_DER
 #include "tlv++/builtins/asn1/der.hpp"
-#endif
 
-#if OPENTLV_FORMAT_CER
 #include "tlv++/builtins/asn1/cer.hpp"
-#endif
 
-#if OPENTLV_EMV
 #include "tlv++/builtins/emv/format.hpp"
-#if OPENTLV_QUERY && OPENTLV_SCHEMA && OPENTLV_CODEC
 #include "tlv++/builtins/emv/query.hpp"
-#endif
-#if OPENTLV_CODEC && OPENTLV_SCHEMA
 #include "tlv++/builtins/emv/codec.hpp"
 #include "tlv++/builtins/emv/dictionary.hpp"
-#endif
-#endif
 
-#if OPENTLV_BLUETOOTH
 #include "tlv++/builtins/bluetooth/ltv.hpp"
-#if OPENTLV_SCHEMA
 #include "tlv++/builtins/bluetooth/metadata.hpp"
-#endif
-#if OPENTLV_CODEC
 #include "tlv++/builtins/bluetooth/codec.hpp"
-#endif
-#endif
 
-#if OPENTLV_NFC
 #include "tlv++/builtins/nfc/type2.hpp"
-#endif
 
-#if OPENTLV_DHCP
 #include "tlv++/builtins/dhcp/dhcpv4.hpp"
-#if OPENTLV_CODEC
 #include "tlv++/builtins/dhcp/codec.hpp"
-#endif
 #include "tlv++/builtins/dhcp/container.hpp"
-#endif
 
-#if OPENTLV_LLDP
 #include "tlv++/builtins/lldp/lldp.hpp"
-#if OPENTLV_CODEC
 #include "tlv++/builtins/lldp/codec.hpp"
-#endif
-#endif
 
 #endif // OPENTLV_TLVPP_TLV_HPP

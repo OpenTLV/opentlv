@@ -88,25 +88,16 @@ int main() {
         auto number = element.decode<custom_field>();
         if (!number || *number != 42) return 6;
     }
-#if OPENTLV_FORMAT_BER
     CHECK_DOMAIN(ber, 4, 1)
     const uint8_t truth[] = {0xFF};
     auto boolean = tlv::asn1::boolean_codec::decode({reinterpret_cast<const tlv::byte*>(truth), 1});
     if (!boolean || !*boolean) return 1;
-#endif
-#if OPENTLV_FORMAT_DER
     CHECK_DOMAIN(der, 4, 1)
-#endif
-#if OPENTLV_FORMAT_CER
     CHECK_DOMAIN(cer, 4, 1)
-#endif
-#if OPENTLV_EMV
     CHECK_DOMAIN(emv, 4, 1)
     const uint8_t amount[] = {0, 0, 0, 0, 0x12, 0x34};
     auto number = tlv::emv::amount_codec::decode({reinterpret_cast<const tlv::byte*>(amount), 6});
     if (!number || *number != 1234) return 2;
-#endif
-#if OPENTLV_BLUETOOTH
     CHECK_DOMAIN(bluetooth, 2, 4)
     const uint8_t service[] = {0x0F, 0x18, 42};
     auto          value = tlv::bluetooth::service_data16_codec::decode(
@@ -114,16 +105,9 @@ int main() {
     if (!value || value->uuid != 0x180F ||
         value->payload.data() != reinterpret_cast<const tlv::byte*>(service + 2))
         return 3;
-#endif
-#if OPENTLV_LLDP
     CHECK_DOMAIN(lldp, 8, 1)
-#endif
-#if OPENTLV_DHCP
     CHECK_DOMAIN(dhcp, 4, 1)
-#endif
-#if OPENTLV_NFC
     CHECK_DOMAIN(nfc, 4, 1)
-#endif
     observe_allocations = false;
     return allocations ? 4 : 0;
 }

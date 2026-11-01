@@ -5,7 +5,6 @@
 #define OPENTLV_TLVPP_BUILTINS_ASN1_DER_HPP
 #include "tlv/builtins/asn1/der.h"
 #include "tlv++/format.hpp"
-#include "tlv/config.h"
 #include "tlv++/reader/reader.hpp"
 #include "tlv/builtins/asn1/der_validation.h"
 #include "tlv++/writer/builder.hpp"

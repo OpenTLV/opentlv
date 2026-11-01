@@ -332,9 +332,7 @@ TEST(Unit_Tlvpp, SchemaRulesComposeLengthAndGroupConstraintsInInitializerLists) 
 TEST(Unit_Tlvpp, PublicQueryConfigurationBindsTypedVariables) {
     const tlv::fixed_format<1, 1> format;
     tlv::query_environment        environment(format);
-#if OPENTLV_CODEC
     tlv::configure_query_codecs(environment);
-#endif
     tlv::query_options options(&environment);
     options.declare("minimum", tlv::query_type::integer);
     auto program = tlv::query_program::compile("count(//01[@len >= $minimum])", options);
@@ -358,7 +356,6 @@ TEST(Unit_Tlvpp, PublicQueryConfigurationBindsTypedVariables) {
 }
 #endif
 
-#if OPENTLV_EMV
 TEST(Unit_Tlvpp, RuntimeDictionaryCodecKeepsContextAndConversionErrors) {
     const tlv::emv::dictionary dictionary;
     auto                       pan = dictionary.find(tlv::tag_bytes<0x5A>());
@@ -382,4 +379,3 @@ TEST(Unit_Tlvpp, RuntimeDictionaryCodecKeepsContextAndConversionErrors) {
     ASSERT_FALSE(unsupported);
     EXPECT_EQ(tlv::errc::unsupported, unsupported.error());
 }
-#endif

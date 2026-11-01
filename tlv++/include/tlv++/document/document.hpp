@@ -11,21 +11,18 @@
 #include <utility>
 #include <vector>
 
-#include "tlv++/query/query.hpp"
-#include "tlv++/query/program.hpp"
 #include "tlv++/reader/tree.hpp"
 #include "tlv++/types.hpp"
-#include "tlv++/codec/typed.hpp"
 #include "tlv++/writer/builder.hpp"
 #include "tlv/document/document.h"
-#include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
 
 /**
  * @file document.hpp
  * @brief C++ wrapper for the optional mutable TLV document.
  *
- * Available when the library is built with `OPENTLV_DOCUMENT` (see tlv/config.h).
+ * Link OpenTLV::Document. Include query/document.hpp for Query operations and
+ * document/codec.hpp for typed Value decoding.
  * Unlike the reader and writer wrappers, the document allocates its owned tree and one shared
  * lifetime record. Node observation and handle copying do not allocate. Allocation failures in the
  * C++ layer throw std::bad_alloc; native allocation failures are returned as errors.
@@ -35,6 +32,12 @@ namespace tlv {
 class node;
 class const_node;
 class document;
+class query;
+class query_program;
+class query_execution;
+class query_capabilities;
+struct query_failure;
+struct typed_error;
 
 /** @cond INTERNAL */
 namespace detail {
@@ -86,26 +89,14 @@ public:
      * Owning codecs may allocate; allocation exceptions propagate.
      */
     template <typename Field>
-    TLV_NODISCARD expected<typename Field::value_type, typed_error> decode() const {
-        if (!*this) return unexpected<typed_error>(typed_error(typed_errc::invalid_node));
-        if (tag() != Field::tag())
-            return unexpected<typed_error>(typed_error(typed_errc::tag_mismatch));
-        if (is_constructed())
-            return unexpected<typed_error>(typed_error(typed_errc::constructed_value));
-        return element_view(tag(), value()).template decode<Field>();
-    }
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> decode() const;
     /** @brief Decode the first direct child matching a typed field; no recursive lookup.
      * @tparam Field Typed field selecting identifier, Value type and codec.
      * @return Typed value, invalid_node, missing_field, or the child's decode error.
      * @warning Borrowed results follow the child's Value lifetime. Does not validate Schema.
      */
     template <typename Field>
-    TLV_NODISCARD expected<typename Field::value_type, typed_error> get() const {
-        if (!*this) return unexpected<typed_error>(typed_error(typed_errc::invalid_node));
-        auto child = find(Field::tag());
-        if (!child) return unexpected<typed_error>(typed_error(typed_errc::missing_field));
-        return child.template decode<Field>();
-    }
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> get() const;
     /** @brief Creates an empty handle. */
     node() noexcept : pointer_(nullptr), identity_(0), retire_epoch_(0) {}
 
@@ -499,13 +490,9 @@ public:
     /** @brief Borrow read-only child traversal. */
     const_node_range children() const;
     /** @brief Decode this field; borrowed results follow Document lifetime. */
-    template <typename Field> expected<typename Field::value_type, typed_error> decode() const {
-        return value_.template decode<Field>();
-    }
+    template <typename Field> expected<typename Field::value_type, typed_error> decode() const;
     /** @brief Decode the first matching direct child. */
-    template <typename Field> expected<typename Field::value_type, typed_error> get() const {
-        return value_.template get<Field>();
-    }
+    template <typename Field> expected<typename Field::value_type, typed_error> get() const;
     /** @brief Measure this subtree using its original Format. */
     expected<size_t, error> encoded_size() const {
         return value_.encoded_size();
@@ -676,11 +663,7 @@ public:
      * This operation does not validate Schema or enforce uniqueness; owning codecs may allocate.
      */
     template <typename Field>
-    TLV_NODISCARD expected<typename Field::value_type, typed_error> get() const {
-        auto found = find(Field::tag());
-        if (!found) return unexpected<typed_error>(typed_error(typed_errc::missing_field));
-        return found.template decode<Field>();
-    }
+    TLV_NODISCARD expected<typename Field::value_type, typed_error> get() const;
     document(const document&) = delete;
     document& operator=(const document&) = delete;
 
@@ -745,33 +728,18 @@ public:
         return const_cast<document*>(this)->find(wanted);
     }
     /** @brief Read-only lookup by compiled path. */
-    const_node find(const query& path) const {
-        return const_cast<document*>(this)->find(path);
-    }
+    const_node find(const query& path) const;
     /** @brief Read-only snapshot of path matches; allocates the result vector. */
-    std::vector<const_node> select(const query& path) const {
-        auto values = const_cast<document*>(this)->select(path);
-        return std::vector<const_node>(values.begin(), values.end());
-    }
+    std::vector<const_node> select(const query& path) const;
     /** @brief Compile a path and obtain a read-only snapshot; throws query_error on syntax failure.
      */
-    std::vector<const_node> select(const char* text) const {
-        return select(query::compile(text));
-    }
+    std::vector<const_node> select(const char* text) const;
     /** @brief Evaluate a compiled query and return read-only handles; may allocate. */
-    expected<std::vector<const_node>, query_failure>
-    select(const query_program& program, query_capabilities environment = nullptr,
-           size_t max_work = 100000000) const {
-        auto values = const_cast<document*>(this)->select(program, environment, max_work);
-        if (!values) return unexpected<query_failure>(values.error());
-        return std::vector<const_node>(values->begin(), values->end());
-    }
+    expected<std::vector<const_node>, query_failure> select(const query_program& program,
+                                                            query_capabilities   environment,
+                                                            size_t max_work = 100000000) const;
     /** @brief Consume a checked read-only query result; preserves Query error and end outcomes. */
-    expected<const_node, query_failure> next(query_execution& execution) const {
-        auto value = const_cast<document*>(this)->next(execution);
-        if (!value) return unexpected<query_failure>(value.error());
-        return const_node(*value);
-    }
+    expected<const_node, query_failure> next(query_execution& execution) const;
 
     /** @brief Number of elements, including nested ones. */
     size_t size() const {
@@ -835,12 +803,7 @@ public:
      *         (`INVALID_ARG`). The error carries only the result code; its diagnostic
      *         is empty and its location unknown.
      */
-    node find(const query& path) {
-        tlv_node_t* result = nullptr;
-        const auto  rc = tlv_document_find_path(impl_->handle.get(), &path.c_query(), &result);
-        if (rc != TLV_OK) throw query_error(rc, tlv_diagnostic_t{});
-        return node(result, impl_->lifetime);
-    }
+    node find(const query& path);
 
     /** @brief Select all matching Nodes in Document order.
      * @param path Compiled Query; not retained.
@@ -852,30 +815,7 @@ public:
      *         result and common diagnostic of tlv_document_query_visit().
      * @throws std::bad_alloc If result storage or validity metadata allocation fails.
      */
-    std::vector<node> select(const query& path) {
-        struct collection {
-            const document*           owner;
-            std::vector<node>         results;
-            std::exception_ptr        failure;
-            static tlv_visit_result_t append(tlv_node_t* raw, void* context) {
-                auto& state = *static_cast<collection*>(context);
-                try {
-                    state.results.push_back(node(raw, state.owner->impl_->lifetime));
-                    return TLV_VISIT_CONTINUE;
-                } catch (...) {
-                    state.failure = std::current_exception();
-                    return TLV_VISIT_ERROR;
-                }
-            }
-        };
-        collection             state{this, {}, {}};
-        tlv_query_diagnostic_t d{};
-        auto                   rc = tlv_document_query_visit(impl_->handle.get(), &path.c_query(),
-                                                             &collection::append, &state, &d);
-        if (state.failure) std::rethrow_exception(state.failure);
-        if (rc != TLV_OK) throw query_error(rc, d.diagnostic);
-        return std::move(state.results);
-    }
+    std::vector<node> select(const query& path);
 
     /** @brief Compile a text path and select all matching Nodes.
      * @param text NUL-terminated Query text; not retained.
@@ -883,9 +823,7 @@ public:
      * @throws query_error On compilation failure, retaining the original text offset.
      * @throws std::bad_alloc On C++ result or handle allocation failure.
      */
-    std::vector<node> select(const char* text) {
-        return select(query::compile(text));
-    }
+    std::vector<node> select(const char* text);
 
     /** @brief Complete full-language selection and return checked Node snapshots.
      * @param program Immutable compiled full Query with node result kind.
@@ -896,27 +834,8 @@ public:
      * Insertions after selection are excluded; handles follow the normal granular
      * Node invalidation rules. Selection always completes before returning results. */
     expected<std::vector<node>, query_failure> select(const query_program& program,
-                                                      query_capabilities   environment = nullptr,
-                                                      size_t               max_work = 100000000) {
-        if (program.info().result_kind != TLV_QUERY_RESULT_NODES)
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
-        auto execution = query_execution::create(program, impl_->max_depth, size() ? size() : 1,
-                                                 max_work, environment);
-        if (!execution) return unexpected<query_failure>(execution.error());
-        std::vector<uint8_t> values;
-        auto                 rc = evaluate_owned(program, *execution, values);
-        if (!rc) return unexpected<query_failure>(rc.error());
-        std::vector<node>      results;
-        tlv_query_diagnostic_t d{};
-        for (;;) {
-            tlv_node_t* pointer = nullptr;
-            auto        code = tlv_document_query_next(execution->c_exec(), &pointer, &d);
-            if (code == TLV_END) break;
-            if (code != TLV_OK) return unexpected<query_failure>(detail::query_failed(code, d));
-            results.push_back(node(pointer, impl_->lifetime));
-        }
-        return results;
-    }
+                                                      query_capabilities   environment,
+                                                      size_t               max_work = 100000000);
 
     /** @brief Evaluate full Query with C++ snapshot and Writer storage views.
      * @param execution Fresh retained execution, with variables already bound.
@@ -930,18 +849,7 @@ public:
     // cppcheck-suppress-begin passedByValue
     expected<void, query_failure> evaluate(query_execution& execution, span<byte> values,
                                            const writer_workspace* staging = nullptr,
-                                           node                    context = node()) const {
-        // cppcheck-suppress-end passedByValue
-        tlv_tree_writer_workspace_t raw{};
-        if (staging) {
-            raw.frames = staging->frames.data();
-            raw.frame_capacity = staging->frames.size();
-            raw.scratch = reinterpret_cast<uint8_t*>(staging->scratch.data());
-            raw.scratch_capacity = staging->scratch.size();
-        }
-        return evaluate(execution, reinterpret_cast<uint8_t*>(values.data()), values.size(),
-                        staging ? &raw : nullptr, context);
-    }
+                                           node                    context = node()) const;
 
 private:
     /** @brief Evaluate full Query using caller-owned execution and optional Value staging.
@@ -954,19 +862,7 @@ private:
      * @warning Keep Document alive and unchanged until consuming execution results. */
     expected<void, query_failure> evaluate(query_execution& execution, uint8_t* values,
                                            size_t capacity, tlv_tree_writer_workspace_t* staging,
-                                           node context = node()) const {
-        if (context.identity_ && !context)
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
-        if (context.identity_ && context.owner_.lock() != impl_->lifetime)
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
-        tlv_query_diagnostic_t d{};
-        auto rc = tlv_document_query_evaluate(c_document(), execution.c_exec(), context.c_node(),
-                                              values, capacity, staging, &d);
-        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
-        execution.document_lifetime_ = impl_->lifetime;
-        execution.has_document_ = true;
-        return {};
-    }
+                                           node context = node()) const;
 
 public:
     /** @brief Pull a checked Document handle from a completed execution for this Document.
@@ -974,28 +870,14 @@ public:
      * @return Checked Node, TLV_END, or INVALID_STATE for missing, expired or stale
      * Document execution; INVALID_ARG for an execution owned by a different Document.
      * A native failure carries the diagnostic of tlv_document_query_next(). */
-    expected<node, query_failure> next(query_execution& execution) {
-        if (!execution.has_document_ || execution.document_lifetime_.expired())
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
-        if (execution.document_lifetime_.lock() != impl_->lifetime)
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
-        tlv_node_t*            pointer = nullptr;
-        tlv_query_diagnostic_t d{};
-        auto                   rc = tlv_document_query_next(execution.c_exec(), &pointer, &d);
-        if (rc == TLV_END) return unexpected<query_failure>(detail::query_failed(rc));
-        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
-        return node(pointer, impl_->lifetime);
-    }
+    expected<node, query_failure> next(query_execution& execution);
 
     /** @brief Remove completed selection, with ancestors dominating selected descendants.
      * @param program Immutable full node Query.
      * @return Number of removed selected roots or native selection failure.
      * @note Selection and C++ tracking allocations finish before the first edit.
      * Snapshot handles follow normal Node invalidation. No-match succeeds with zero. */
-    expected<size_t, query_failure> query_remove(const query_program& program) {
-        return edit_query(program, TLV_DOCUMENT_QUERY_REMOVE, tlv_tag(nullptr, 0), bytes(),
-                          nullptr);
-    }
+    expected<size_t, query_failure> query_remove(const query_program& program);
 
     /** @brief Replace Values selected against the initial tree; selected ancestors dominate.
      * @param program Immutable node selector.
@@ -1006,9 +888,7 @@ public:
      * replacement is atomic and respects Format/constructed parsing. Checked handles
      * detect erased descendants lazily through native retirement epoch and identity. */
     expected<size_t, query_failure> query_replace(const query_program& program, bytes value,
-                                                  size_t* applied = nullptr) {
-        return edit_query(program, TLV_DOCUMENT_QUERY_REPLACE, tlv_tag(nullptr, 0), value, applied);
-    }
+                                                  size_t* applied = nullptr);
 
     /** @brief Insert one sibling immediately after every node in the initial selection.
      * @param program Immutable node selector.
@@ -1019,10 +899,7 @@ public:
      * @note Initial preorder selection completes first. Original sibling order and
      * existing checked handles are preserved; inserted nodes never become new targets. */
     expected<size_t, query_failure> query_insert_after(const query_program& program, tlv::tag tag,
-                                                       bytes value, size_t* applied = nullptr) {
-        return edit_query(program, TLV_DOCUMENT_QUERY_INSERT_AFTER,
-                          detail::semantic_access::get(tag), value, applied);
-    }
+                                                       bytes value, size_t* applied = nullptr);
 
     /**
      * @brief Inserts a new element.
@@ -1196,57 +1073,11 @@ private:
     }
 
     std::unique_ptr<state>          impl_;
-    expected<size_t, query_failure> edit_query(const query_program&           program,
-                                               tlv_document_query_edit_kind_t edit_kind,
-                                               tlv_tag_t tag, bytes value, size_t* applied) {
-        size_t count = 0;
-        if (applied) *applied = 0;
-        if (program.info().result_kind != TLV_QUERY_RESULT_NODES)
-            return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
-        auto execution =
-            query_execution::create(program, impl_->max_depth, size() ? size() : 1, 100000000);
-        if (!execution) return unexpected<query_failure>(execution.error());
-        std::vector<uint8_t> values;
-        auto                 evaluated = evaluate_owned(program, *execution, values);
-        if (!evaluated) return unexpected<query_failure>(evaluated.error());
-        std::vector<tlv_node_t*> targets(size());
-        tlv_query_diagnostic_t   d{};
-        auto rc = tlv_document_query_edit(c_document(), execution->c_exec(), edit_kind, tag,
-                                          reinterpret_cast<const uint8_t*>(value.data()),
-                                          value.size(), targets.data(), targets.size(), &count, &d);
-        if (applied) *applied = count;
-        if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
-        return count;
-    }
-    expected<void, query_failure> evaluate_owned(const query_program&  program,
-                                                 query_execution&      execution,
-                                                 std::vector<uint8_t>& values) const {
-        if (!program.info().constructed_values_required)
-            return evaluate(execution, nullptr, 0, nullptr);
-        std::vector<tlv_tree_writer_frame_t> frames(impl_->max_depth + 1);
-        std::vector<uint8_t>                 scratch;
-        tlv_tree_writer_workspace_t          staging{};
-        staging.frames = frames.data();
-        staging.frame_capacity = frames.size();
-        size_t bytes = 0;
-        for (;;) {
-            staging.data = values.data();
-            staging.data_capacity = values.size();
-            staging.scratch = scratch.data();
-            staging.scratch_capacity = scratch.size();
-            tlv_query_diagnostic_t d{};
-            auto rc = tlv_document_query_value_size(c_document(), &staging, &bytes, &d);
-            if (rc == TLV_OK) break;
-            if (rc != TLV_ERR_BUFFER_TOO_SHORT)
-                return unexpected<query_failure>(detail::query_failed(rc, d));
-            if (staging.required_data <= values.size() &&
-                staging.required_scratch <= scratch.size())
-                return unexpected<query_failure>(detail::query_failed(rc, d));
-            if (staging.required_data > values.size()) values.resize(staging.required_data);
-            if (staging.required_scratch > scratch.size()) scratch.resize(staging.required_scratch);
-        }
-        return evaluate(execution, values.data(), values.size(), &staging);
-    }
+    expected<size_t, query_failure> edit_query(const query_program& program, int edit_kind,
+                                               tlv_tag_t tag, bytes value, size_t* applied);
+    expected<void, query_failure>   evaluate_owned(const query_program&  program,
+                                                   query_execution&      execution,
+                                                   std::vector<uint8_t>& values) const;
     friend class document_builder;
     friend struct detail::document_access;
 };

@@ -8,29 +8,16 @@
 #include "tlv/writer/writer.h"
 #include "tlv/reader/visitor.h"
 #include "tlv/codec/structure.h"
-#include "tlv/config.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/query/query.h"
-#if OPENTLV_DHCP
 #include "tlv/builtins/dhcp/dhcpv4.h"
-#endif
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#endif
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/writer/copy.h"
-#endif
-#if OPENTLV_EMV
 #include "tlv/builtins/emv/emv.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -92,7 +79,6 @@ const tlv_field_composition_t constructed_full_format_layout = {
 const tlv_format_t constructed_full_format = {&constructed_full_format_layout, tlv_fields_decode,
                                               tlv_fields_measure, tlv_fields_encode, constructed};
 
-#if OPENTLV_DOCUMENT
 struct PipelineFormat {
     mutable size_t decodes = 0, measures = 0, encodes = 0;
     tlv_format_t   descriptor;
@@ -226,7 +212,6 @@ TEST(Integration_Tlv_Pipeline, BuilderPreservesAbsoluteDiagnosticsAndReaderLimit
         }
     }
 }
-#endif
 const tlv_schema_entry_t   child_rules_fields[] = {{TLV_TAG(1), 1, 1, 0, nullptr, 0},
                                                    {TLV_TAG(2), 1, 1, 0, nullptr, 0}};
 const tlv_structure_rule_t child_rules[] = {
@@ -238,7 +223,6 @@ const tlv_structure_rule_t   parent_rules[] = {
     {&parent_rules_fields[0], 1, 1, TLV_SCHEMA_CONSTRUCTED, &children, 0}};
 const tlv_structure_schema_t schema = {parent_rules, 1, 0, nullptr, 0, TLV_SCHEMA_ORDER_ANY};
 
-#if OPENTLV_FORMAT_BER
 TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
     // Outer indefinite -> definite -> indefinite -> primitive; then siblings.
     const uint8_t wire[] = {0x30, 0x80, 0x30, 7, 0x30, 0x80, 4, 1, 42, 0, 0, 4, 0, 0, 0, 4, 0};
@@ -297,7 +281,6 @@ TEST(Integration_Tlv_Architecture, BerIndefiniteTraversalSchemaAndCopies) {
               tlv_schema_validate(empty, sizeof(empty), &tlv_format_ber, &root, 0, 1, &offset));
     EXPECT_EQ(2u, offset.diagnostic.location.begin);
 }
-#endif
 
 TEST(Integration_Tlv_Architecture, GenericVisitorUsesFormatNestingAndAbsoluteOffsets) {
     const uint8_t       wire[] = {0x80, 5, 1, 1, 42, 0x81, 0, 2, 0};
@@ -518,15 +501,9 @@ TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOp
     };
     const Case cases[] = {
         {"Fixed TLV", &fixed, {0, 0, 53, 1, 3, 127, 0}},
-#if OPENTLV_DHCP
         {"DHCP identifier-dependent", &tlv_format_dhcpv4, {0, 53, 1, 3, 127, 0}},
-#endif
-#if OPENTLV_LLDP
         {"LLDP packed", &tlv_format_lldp, {0, 0, 106, 1, 3, 254, 0}},
-#endif
-#if OPENTLV_BLUETOOTH
         {"Bluetooth LTV", &tlv_format_bluetooth_ltv, {1, 0, 2, 53, 3, 1, 127}},
-#endif
     };
     const uint8_t tags[] = {0, 53, 127};
     const size_t  lengths[] = {0, 1, 0};
@@ -579,7 +556,6 @@ TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOp
                                                  &query, 0, 3, visit, &matches, nullptr));
         ASSERT_EQ(1u, matches.size());
         EXPECT_EQ(message_offset, matches[0]);
-#if OPENTLV_DOCUMENT
         tlv_document_options_t options{};
         ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, test.format));
         tlv_document_t* raw = nullptr;
@@ -596,7 +572,6 @@ TEST(Integration_Tlv_Architecture, WireFamiliesShareCanonicalElementAndGenericOp
         ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output.data(), output.size(), &written));
         EXPECT_EQ(test.wire.size(), written);
         EXPECT_EQ(test.wire, output);
-#endif
     }
 }
 #endif

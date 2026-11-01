@@ -2,10 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/compose.h"
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"
 #include "tlv/reader/reader.h"
@@ -249,9 +246,7 @@ TEST(Integration_Tlv_Der, BerCompatibilityAndGenericFormat) {
     for (const auto& data : cases) {
         tlv_element_t element{};
         size_t        used;
-#if OPENTLV_FORMAT_BER
         ASSERT_EQ(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_ber, &element, &used));
-#endif
         EXPECT_NE(TLV_OK, tlv_read(data.data(), data.size(), &tlv_format_der, &element, &used));
     }
     // Generic I/O intentionally only validates the outer header.

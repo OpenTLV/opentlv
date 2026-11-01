@@ -156,7 +156,7 @@ class IsolationTests(unittest.TestCase):
 
     def test_test_ownership(self):
         self.configure(None, "-DOPENTLV_BUILD_TESTS=ON")
-        result = subprocess.check_output(["ctest", "--test-dir", str(self.build),
+        result = subprocess.check_output(["ctest", "--test-dir", str(self.build), "-C", "Release",
                                           "--show-only=json-v1"], text=True)
         tests = json.loads(result)["tests"]
         labels = next(p["value"] for p in tests[0]["properties"] if p["name"] == "LABELS")
@@ -209,10 +209,13 @@ class IsolationTests(unittest.TestCase):
         (self.root / "optional.c").write_text("/* Feature-disabled source. */\n", encoding="utf-8")
         contract["files"]["optional.c"] = "base"
         check_metadata(entries, contract, self.root)
-        # A not-yet-extracted C++ facade retains logical ownership, but is
-        # not part of the C module registration. Native headers still are.
-        (self.root / "future.hpp").write_text("// Future facade.\n", encoding="utf-8")
-        contract["files"]["future.hpp"] = "base"
+        # Both C and C++ public headers must be registered with their owner.
+        facade = self.root / "facade.hpp"
+        facade.write_text("// Module facade.\n", encoding="utf-8")
+        contract["files"]["facade.hpp"] = "base"
+        with self.assertRaisesRegex(ValueError, "contract file missing from registration"):
+            check_metadata(entries, contract, self.root)
+        entries[0]["cxx_headers"].append(str(facade))
         check_metadata(entries, contract, self.root)
         (self.root / "missing.h").write_text("/* Missing C header. */\n", encoding="utf-8")
         contract["files"]["missing.h"] = "base"

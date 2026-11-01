@@ -5,10 +5,7 @@
 #include "tlv++/format.hpp"
 #include "controlled_format.h"
 #include "tlv++/tlv.hpp"
-#include "tlv/config.h"
-#if OPENTLV_LLDP
 #include "tlv++/builtins/lldp/lldp.hpp"
-#endif
 
 #include <gtest/gtest.h>
 
@@ -70,7 +67,6 @@ TEST(Unit_Tlvpp, CanonicalWriterMeasuresPreservesAndCopiesIntoCallerStorage) {
     EXPECT_EQ(9U, diagnostic.diagnostic.location.begin);
 }
 
-#if OPENTLV_LLDP
 TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
     EXPECT_EQ(&tlv_format_lldp, &tlv::native::lldp_format());
     const std::array<tlv::byte, 4> wire = {tlv::byte{6}, tlv::byte{2}, tlv::byte{0},
@@ -80,7 +76,6 @@ TEST(Unit_Tlvpp, LldpPresetUsesSharedDescriptor) {
     EXPECT_TRUE((tlv::tag_bytes<3>() == result->element.tag()));
     EXPECT_EQ(2U, result->element.value().size());
 }
-#endif
 
 #if __cplusplus >= 201703L
 static_assert(std::is_same<tlv::byte, std::byte>::value, "C++17 must use std::byte");

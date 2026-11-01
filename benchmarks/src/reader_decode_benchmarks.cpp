@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/lldp/lldp.h"
 #include "tlv/formats/fixed.h"
@@ -79,11 +78,7 @@ bool prepare(input& data, workload kind) {
         if (kind == workload::variable_sparse) data.variable.length.payload_mask = 0x55;
         if (tlv_variable_format_init(&data.format, &data.variable) != TLV_OK) return false;
     } else if (kind == workload::packed_lldp) {
-#if OPENTLV_LLDP
         data.format = tlv_format_lldp;
-#else
-        return false;
-#endif
     }
     if (kind == workload::ber_large) return encode_flat(data, 128, 4096, 0x04);
     if (kind != workload::ber_definite && kind != workload::ber_indefinite)
@@ -182,7 +177,6 @@ void tree_decode(benchmark::State& state, workload kind) {
     counters(state, data, data.elements);
 }
 
-#if OPENTLV_DOCUMENT
 struct allocation_profile {
     size_t calls = 0;
     size_t releases = 0;
@@ -285,7 +279,6 @@ void document_decode(benchmark::State& state, workload kind, bool use_arena) {
     state.counters["arena_bytes/input"] =
         use_arena ? static_cast<double>(profile.aligned_bytes) : 0;
 }
-#endif
 
 bool register_decode_benchmarks() {
     struct entry {
@@ -301,23 +294,19 @@ bool register_decode_benchmarks() {
         {"fixed_ltv", workload::fixed_ltv},
         {"variable_tlv", workload::variable_tlv},
         {"variable_sparse", workload::variable_sparse},
-#if OPENTLV_LLDP
         {"packed_lldp", workload::packed_lldp},
-#endif
     };
     for (const auto& entry : entries) {
         benchmark::RegisterBenchmark((std::string("reader_decode/") + entry.name).c_str(),
                                      reader_decode, entry.kind);
         benchmark::RegisterBenchmark((std::string("tree_decode/") + entry.name).c_str(),
                                      tree_decode, entry.kind);
-#if OPENTLV_DOCUMENT
         benchmark::RegisterBenchmark(
             (std::string("document_decode/") + entry.name + "/default").c_str(), document_decode,
             entry.kind, false);
         benchmark::RegisterBenchmark(
             (std::string("document_decode/") + entry.name + "/arena").c_str(), document_decode,
             entry.kind, true);
-#endif
     }
     return true;
 }
