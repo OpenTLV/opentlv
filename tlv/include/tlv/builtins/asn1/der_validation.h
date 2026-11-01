@@ -6,7 +6,6 @@
 
 #include "tlv/result.h"
 #include "tlv/diagnostic.h"
-#include "tlv/config.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/tree.h"
 #include "tlv/asn1/export.h"

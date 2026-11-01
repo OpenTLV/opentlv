@@ -42,13 +42,11 @@ TEST(Unit_Tlv_QueryProgram, SchemaRuleImagesTypesAndAlignmentRemainDistinct) {
     ASSERT_EQ(TLV_OK, selector.compile("//5A"));
     ASSERT_EQ(TLV_OK, assertion.compile("exists(//5A)"));
     ASSERT_EQ(TLV_OK, number.compile("count(//5A)"));
-#if OPENTLV_DOCUMENT
     tlv_document_t*        raw = nullptr;
     tlv_document_options_t options;
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &controlled::format));
     ASSERT_EQ(TLV_OK, tlv_document_create(&options, &raw));
     std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> document(raw, tlv_document_free);
-#endif
     for (bool context : {false, true}) {
         for (int defect = 0; defect < 3; ++defect) {
             SCOPED_TRACE(defect);
@@ -90,14 +88,12 @@ TEST(Unit_Tlv_QueryProgram, SchemaRuleImagesTypesAndAlignmentRemainDistinct) {
                                         nullptr, 0, &controlled::format, rules, 2, 4, 8, 1000,
                                         &workspace, detailed ? &diagnostic : nullptr));
                 check();
-#if OPENTLV_DOCUMENT
                 diagnostic = {};
                 diagnostic.rule = 777;
                 EXPECT_EQ(expected, tlv_schema_query_validate_document(
                                         document.get(), rules, 2, 4, 8, 1000, &workspace, nullptr,
                                         0, nullptr, detailed ? &diagnostic : nullptr));
                 check();
-#endif
             }
         }
     }
@@ -138,7 +134,6 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
         EXPECT_EQ(depth - retained, diagnostic.query.diagnostic.path.omitted);
         for (size_t i = 0; i < retained; ++i)
             EXPECT_EQ(0x80 + i, diagnostic.query.diagnostic.path.tags[i].data[0]);
-#if OPENTLV_DOCUMENT
         tlv_document_options_t options;
         ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &nested_format));
         options.max_depth = 64;
@@ -156,6 +151,5 @@ TEST(Unit_Tlv_QueryProgram, DeepSchemaPathsMatchBetweenBufferAndDocument) {
         for (size_t i = 0; i < retained; ++i)
             EXPECT_TRUE(tlv_tag_equal(diagnostic.query.diagnostic.path.tags[i],
                                       doc_diagnostic.query.diagnostic.path.tags[i]));
-#endif
     }
 }

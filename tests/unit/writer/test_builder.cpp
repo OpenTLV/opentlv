@@ -4,12 +4,9 @@
 #include "tlv++/writer/builder.hpp"
 #include "tlv++/native.hpp"
 #include "tlv++/formats/fixed_format.hpp"
-#include "tlv/config.h"
 #include "controlled_format.h"
 #include "custom_cpp_format.hpp"
-#if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
-#endif
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
@@ -399,7 +396,6 @@ TEST(Unit_Tlvpp_WriterBuilder, LtvOrderingUsesDestinationFormat) {
     expect_wire(output, expected);
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlvpp_WriterBuilder, GenericLambdasUseScopedTemplates) {
     tlv::byte output[16]{};
     auto      result = tlv::ber::encode<16, 1>(output, [](auto& writer) {
@@ -455,4 +451,3 @@ TEST(Unit_Tlvpp_WriterBuilder, BerLengthTransitionsAndExplicitWorkspace) {
         EXPECT_EQ(0, std::memcmp(output, expected.data(), expected.size()));
     }
 }
-#endif

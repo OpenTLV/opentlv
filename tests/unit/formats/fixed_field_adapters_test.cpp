@@ -5,12 +5,8 @@
 #include "tlv/formats/variable.h"
 #include "tlv/formats/escaped.h"
 #include "tlv/tlv.h"
-#if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer.h"
-#endif
-#if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
-#endif
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
@@ -288,19 +284,7 @@ TEST(Unit_Tlv_FixedFieldAdapters, InitializersValidateFieldsBeforeCompositionPol
 
 TEST(Unit_Tlv_FixedFieldAdapters, BuiltinFieldCallbacksFollowArgumentAndPrefixContracts) {
     const tlv_format_t* formats[] = {
-        nullptr,
-#if OPENTLV_FORMAT_BER
-        &tlv_format_ber,
-#endif
-#if OPENTLV_FORMAT_DER
-        &tlv_format_der,
-#endif
-#if OPENTLV_FORMAT_CER
-        &tlv_format_cer,
-#endif
-#if OPENTLV_EMV
-        &tlv_format_emv,
-#endif
+        nullptr, &tlv_format_ber, &tlv_format_der, &tlv_format_cer, &tlv_format_emv,
     };
     for (const auto* format : formats) {
         if (!format) continue;

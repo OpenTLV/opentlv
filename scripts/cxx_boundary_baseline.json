@@ -175,7 +175,6 @@
         "TLV_BYTE_ORDER_BIG_ENDIAN": 1,
         "TLV_END": 1,
         "TLV_ERR_INVALID_TAG": 2,
-        "TLV_ERR_UNSUPPORTED": 1,
         "TLV_NEED_MORE_DATA": 1,
         "TLV_OK": 2,
         "TLV_QUERY_D": 1,

@@ -3,7 +3,6 @@
 
 #include "tlv/query/query.h"
 #include "v1_internal.h"
-#include "tlv/config.h"
 #include "match_internal.h"
 
 #if OPENTLV_QUERY_FRONTEND

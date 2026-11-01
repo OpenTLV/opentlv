@@ -217,7 +217,7 @@ def run_probe(source, build, work, output):
     executable = work / "baseline-probe"
     # The immutable reference has one archive; extracted candidates declare
     # their dependency closure in the generated module registry.
-    libraries = [build / "tlv/libtlv.a"]
+    libraries = []
     registry = build / "modules-Release.json"
     if registry.is_file():
         modules = {entry["key"]: entry for entry in read(registry)}
@@ -227,6 +227,8 @@ def run_probe(source, build, work, output):
                                   "codec-structure", "query-document", "query-codec", "query",
                                   "document", "generator", "codec", "schema", "io", "core")
                       if key in modules]
+    else:
+        libraries = [build / "tlv/libtlv.a"]
     command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE", "-I" + str(source / "tlv/include"),
              "-I" + str(build / "generated/include"), ROOT / "tests/baseline/probe.cpp",
              *libraries, "-o", executable], log=output / "logs/probe-build.txt")

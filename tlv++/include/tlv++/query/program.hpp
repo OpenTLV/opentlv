@@ -9,7 +9,6 @@
 #include <type_traits>
 #include <stdexcept>
 #include "tlv/query/plan.h"
-#include "tlv/config.h"
 #include "tlv++/reader/tree.hpp"
 #include "tlv++/query/options.hpp"
 

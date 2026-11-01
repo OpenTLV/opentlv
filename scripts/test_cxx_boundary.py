@@ -25,7 +25,7 @@ const char* quoted = "tlv_reader_t";
                          self.symbols('''#include <tlv/reader/reader.h>
 #include "tlv++/native.hpp"
 #include <tlv++/detail/visitor.hpp>
-#include <tlv/config.h>
+#include <tlv/query/features.h>
 '''))
 
     def test_include_text_inside_raw_strings_is_not_a_header(self):

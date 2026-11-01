@@ -2,7 +2,6 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/bluetooth/ad_schema.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 
 TEST(Unit_Tlv_BluetoothAdSchema, AvailableWithoutFormatOrRegistry) {
@@ -12,7 +11,6 @@ TEST(Unit_Tlv_BluetoothAdSchema, AvailableWithoutFormatOrRegistry) {
     EXPECT_EQ(TLV_SCHEMA_ORDER_ANY, tlv_bluetooth_ad_schema.order);
 }
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include <vector>
@@ -150,4 +148,3 @@ TEST(Unit_Tlv_BluetoothAdSchema, ReportsSharedGroupAndSupportsExplicitUnknownPol
                                            TLV_SCHEMA_UNKNOWN_REJECT, &report, nullptr));
     EXPECT_EQ(2u, report.count);
 }
-#endif

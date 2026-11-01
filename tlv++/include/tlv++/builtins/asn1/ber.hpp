@@ -7,7 +7,6 @@
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv++/types.hpp"
 #include "tlv++/format.hpp"
-#include "tlv/config.h"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/builder.hpp"
 

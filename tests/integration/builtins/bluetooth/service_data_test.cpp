@@ -2,10 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/bluetooth/service_data.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include <cstring>
@@ -55,4 +53,3 @@ TEST(Integration_Tlv_BluetoothServiceData, Story348AndAllServiceDataAdTypes) {
     check<tlv_bluetooth_service_data32_t>(0x20, 4, tlv_bluetooth_codec_service_data32);
     check<tlv_bluetooth_service_data128_t>(0x21, 16, tlv_bluetooth_codec_service_data128);
 }
-#endif

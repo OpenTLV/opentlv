@@ -70,7 +70,6 @@ TEST(Unit_Tlv_Element, ResultDistinguishesSuccessFromError) {
     EXPECT_NE(TLV_OK, TLV_ERR_NULL_ARG);
 }
 
-#include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "../controlled_format.h"
 #include <type_traits>
@@ -107,7 +106,6 @@ TEST(Unit_Tlv_Element, OversizedLogicalValuePreservesOutputsAndFullDiagnostic) {
     EXPECT_EQ(TLV_SIZE_MAX, diagnostic.detail.declared_length);
 }
 
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
 TEST(Unit_Tlv_Element, RetainsMultibyteTagAndNonminimalLengthExactly) {
     tlv_source_t source{};
@@ -164,9 +162,7 @@ TEST(Unit_Tlv_Element, TruncationDoesNotPublishPartialRawFields) {
         EXPECT_EQ(1u, element.value.size);
     }
 }
-#endif
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 TEST(Unit_Tlv_Element, LengthBeforeTagKeepsRawCountSeparateFromValueSize) {
     tlv_source_t source{};
@@ -183,9 +179,7 @@ TEST(Unit_Tlv_Element, LengthBeforeTagKeepsRawCountSeparateFromValueSize) {
     EXPECT_EQ(data + 2, element.value.data);
     EXPECT_EQ(2u, element.value.size);
 }
-#endif
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_Element, BerOversizedValueKeepsDecodedAndRawLengthInDiagnostic) {
     tlv_source_t source{};
     (void)source;
@@ -232,7 +226,6 @@ TEST(Unit_Tlv_Element, LogicalOverflowAndTruncatedLengthKeepAvailableRawBytes) {
     EXPECT_EQ(3u, diagnostic.detail.raw_length.size);
     EXPECT_EQ(99u, consumed);
 }
-#endif
 
 #include "tlv/formats/fixed.h"
 TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
@@ -275,7 +268,6 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
     }
 }
 
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"
 TEST(Unit_Tlv_Element, DerRejectsNonminimalLengthButPreservesItsRawFieldInDiagnostic) {
@@ -305,9 +297,7 @@ TEST(Unit_Tlv_Element, DerValidationPublishesTheSameRawFields) {
     EXPECT_EQ(1u, source.length.size);
     EXPECT_EQ(1u, element.value.size);
 }
-#endif
 
-#if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer_validation.h"
 TEST(Unit_Tlv_Element, CerValidationPreservesPrimitiveAndIndefiniteLengthFields) {
     tlv_source_t source{};
@@ -326,7 +316,6 @@ TEST(Unit_Tlv_Element, CerValidationPreservesPrimitiveAndIndefiniteLengthFields)
     EXPECT_EQ(1u, source.length.size);
     EXPECT_EQ(1u, element.value.size);
 }
-#endif
 
 #include "tlv/writer/writer.h"
 #include <cstring>
@@ -451,7 +440,6 @@ TEST(Unit_Tlv_FormatContract, EveryTruncatedRegionAndInvalidTrailerAreDiagnosedO
     EXPECT_EQ(TLV_REGION_TRAILER, error.region);
     EXPECT_EQ(5u, error.offset);
 }
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_FormatContract, BerNonminimalAndNestedIndefinitePreserveExactly) {
     for (const auto& wire : {std::vector<uint8_t>{4, 0x81, 1, 0xAA},
                              std::vector<uint8_t>{0x30, 0x80, 0x30, 0x80, 0, 0, 0, 0}}) {
@@ -473,8 +461,6 @@ TEST(Unit_Tlv_FormatContract, BerNonminimalAndNestedIndefinitePreserveExactly) {
                                  static_cast<size_t>(again.element.value.size)));
     }
 }
-#endif
-#if OPENTLV_FORMAT_CER
 TEST(Unit_Tlv_FormatContract, GenericCerConstructedWriterProducesReadableFraming) {
     const uint8_t       value[] = {2, 1, 1};
     const tlv_element_t element = {TLV_TAG(0x30), {value, sizeof(value)}};
@@ -491,7 +477,6 @@ TEST(Unit_Tlv_FormatContract, GenericCerConstructedWriterProducesReadableFraming
     EXPECT_EQ(sizeof(value), decoded.element.value.size);
     EXPECT_EQ(0, std::memcmp(value, decoded.element.value.data, sizeof(value)));
 }
-#endif
 
 TEST(Unit_Tlv_FormatContract, NoExplicitFieldsAndEmptyHeaderAreValid) {
     tlv_format_t format{};

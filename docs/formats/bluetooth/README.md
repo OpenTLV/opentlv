@@ -21,8 +21,8 @@ for equivalent TLV/LTV examples, source ranges and explicit byte preservation.
 
 Link `OpenTLV::Bluetooth` for the entire Bluetooth extension: LTV format,
 Advertising Data containers, definitions, schemas and codecs. The former
-`OPENTLV_BLUETOOTH` option is removed. `tlv_config_bluetooth()` is a legacy
-constant mirror and does not report whether the application links Bluetooth.
+`OPENTLV_BLUETOOTH` option and its `tlv_config_bluetooth()` availability
+mirror are removed. Module availability is determined by target links.
 The wire descriptor remains `tlv_format_bluetooth_ltv` and the CLI format name
 remains `bluetooth-ltv`.
 

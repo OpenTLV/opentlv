@@ -11,7 +11,6 @@
 #include "tlv/builtins/asn1/asn1_codec.h"
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv/builtins/asn1/cer.h"
-#include "tlv/config.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <cstring>
@@ -54,9 +53,7 @@ struct Evaluation {
         size_t      count;
         const auto* builtin = tlv_query_builtin_hooks(&count);
         hooks.assign(builtin, builtin + count);
-#if OPENTLV_FORMAT_BER
         hooks.push_back(tlv_asn1_query_date);
-#endif
         format.is_constructed = constructed;
         environment.format = &format;
         environment.hooks = hooks.data();
@@ -108,7 +105,6 @@ struct Evaluation {
 };
 } // namespace
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_QueryF3, AsnDateHookKeepsTheGeneralizedTimeDiagnostic) {
     struct Case {
         const char*         text;
@@ -141,7 +137,6 @@ TEST(Unit_Tlv_QueryF3, AsnDateHookKeepsTheGeneralizedTimeDiagnostic) {
         EXPECT_EQ(test.end, diagnostic.diagnostic.location.end);
     }
 }
-#endif
 
 TEST(Unit_Tlv_QueryF3, WholePlanRequirementsAndDocumentRejection) {
     for (const auto& c : std::vector<std::pair<const char*, tlv_query_level_t>>{
@@ -404,7 +399,6 @@ TEST(Unit_Tlv_QueryF3, DeepAndWideInputsHaveIndependentResourceBounds) {
     EXPECT_TRUE(e.diagnostic.kind == TLV_QUERY_ERROR_READER ||
                 e.diagnostic.kind == TLV_QUERY_ERROR_LIMIT);
 }
-#if OPENTLV_DOCUMENT
 TEST(Unit_Tlv_QueryF3, DocumentInitializationFailuresCarryDetail) {
     Evaluation e;
     ASSERT_EQ(TLV_OK, e.compile("//*"));
@@ -715,7 +709,6 @@ TEST(Unit_Tlv_QueryF3, DocumentLocationPreservesEmptyHeaderAndZeroOffset) {
     EXPECT_EQ(node, tlv_document_first(raw));
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_QueryF3, OriginalLocationsAreIndependentOfCanonicalValueSnapshot) {
     Evaluation e;
     e.format = tlv_format_ber;
@@ -745,7 +738,6 @@ TEST(Unit_Tlv_QueryF3, OriginalLocationsAreIndependentOfCanonicalValueSnapshot) 
     EXPECT_EQ(node, tlv_node_next(tlv_document_first(raw)));
     EXPECT_EQ(tlv_document_query_next(e.exec, &node, nullptr), TLV_END);
 }
-#endif
 
 TEST(Unit_Tlv_QueryF3, DocumentQueryNeverUsesOwningAllocator) {
     Evaluation             e;
@@ -877,7 +869,6 @@ TEST(Unit_Tlv_QueryF3, DocumentSnapshotSlicesAndWorkIgnoreStagingCapacity) {
     }
     tlv_document_free(document);
 }
-#if OPENTLV_FORMAT_CER
 TEST(Unit_Tlv_QueryF3, DocumentSnapshotClosesNestedIndefiniteValuesBeforeSibling) {
     Evaluation e;
     e.format = tlv_format_cer;
@@ -911,5 +902,3 @@ TEST(Unit_Tlv_QueryF3, DocumentSnapshotClosesNestedIndefiniteValuesBeforeSibling
     }
     tlv_document_free(document);
 }
-#endif
-#endif

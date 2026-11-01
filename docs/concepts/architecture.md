@@ -7,7 +7,7 @@ Format describes wire rules
 Reader/Writer use Format; Definition, Schema and Codec are optional
 ```
 
-OpenTLV provides one C library (`tlv`) and a header-only C++ interface (`tlv++`)
+OpenTLV provides functional C libraries with header-only C++ interfaces
 that links to it. Core is a logical responsibility, not a directory. Optional
 components are concrete formats and standard-specific capabilities, rather than entire layers.
 
@@ -239,7 +239,7 @@ identifier and count algorithms live in `src/field/fixed.c`; binary composition
 and the Escaped format reuse them through thin field callback adapters.
 Internal schema validation, BER helpers and EMV value codecs have dedicated
 source files. `config.h` and `version.h` are generated into the build include
-directory. The public aggregate `tlv/tlv.h` includes enabled components; generic
+directory. The public aggregate `tlv/tlv.h` includes all components; generic
 headers include only their direct contracts. Use explicit headers for small
 consumers. C++ common types are in `tlv++/types.hpp`, independent of codecs.
 
@@ -409,8 +409,7 @@ Core primitives (Tag, Value, Element, Format, Field Encoding, runtime Layout,
 diagnostics and shared utilities) and configurable Fixed/Variable formats are always available.
 Reader, Writer, Document, Query, Schema and Codec are independent optional
 capabilities, enabled by default. Their source groups are excluded when disabled;
-this does not depend on static-linker dead stripping. A single `tlv` library
-remains the distribution unit.
+this does not depend on static-linker dead stripping. Each functional module has its own library and package component.
 
 ### Generic core formats
 
@@ -451,10 +450,11 @@ Select generic modules by linking; only the Query features remain options.
 
 All compiled modules have independent static/shared libraries. The compatibility
 `OpenTLV::tlv` target links every module transitively, while component-only
-package discovery loads the requested dependency closure. The legacy feature
-macros and runtime mirrors in `tlv/config.h` remain constant 1 and do not report
-which targets the application links. Only Query frontend/set operations remain
-selectable implementation features.
+package discovery loads the requested dependency closure. `tlv/config.h`, its
+module-selection macros and runtime availability mirrors have been removed.
+Only Query frontend/set operations remain selectable implementation features.
+C and C++ share the functional targets; C++ headers are always installed.
+`OPENTLV_BUILD_CXX` controls C++ development targets and compiler enablement.
 
 ## Migration
 

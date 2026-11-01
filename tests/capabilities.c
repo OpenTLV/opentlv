@@ -1,24 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/config.h"
 #include "tlv/tlv.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/tree.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#endif
-#if OPENTLV_QUERY
 #include "tlv/query/query.h"
-#endif
-#if OPENTLV_SCHEMA
 #include "tlv/schema/schema.h"
-#endif
-#if OPENTLV_CODEC
 #include "tlv/codec/values.h"
-#endif
 #include <stdio.h>
 #include <string.h>
 
@@ -30,12 +21,10 @@
         }                                                                                          \
     } while (0)
 
-#if OPENTLV_DOCUMENT
 static int constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
     return tag->size == 1 && tag->data[0] == 2;
 }
-#endif
 
 int main(void) {
     tlv_fixed_format_t config = {
@@ -46,11 +35,6 @@ int main(void) {
     config.length.size = 1;
     config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
     CHECK(tlv_fixed_format_init(&format, &config) == TLV_OK);
-    CHECK(tlv_config_reader() == OPENTLV_READER);
-    CHECK(tlv_config_writer() == OPENTLV_WRITER);
-    CHECK(tlv_config_query() == OPENTLV_QUERY);
-    CHECK(tlv_config_schema() == OPENTLV_SCHEMA);
-    CHECK(tlv_config_codec() == OPENTLV_CODEC);
     CHECK(tlv_tag_equal(tlv_tag(wire, 1), tlv_tag(wire, 1)));
     {
         /* Field encodings are available through the umbrella even with every
@@ -94,7 +78,6 @@ int main(void) {
               TLV_OK);
         CHECK(written == sizeof wire && memcmp(output, wire, sizeof wire) == 0);
     }
-#if OPENTLV_DOCUMENT
     {
         const uint8_t          container = 2;
         tlv_document_options_t options;
@@ -109,7 +92,7 @@ int main(void) {
         CHECK(tlv_document_insert(document, parent, NULL, tlv_tag(wire, 1), wire + 2, 1, &child) ==
               TLV_OK);
         CHECK(tlv_document_count(document) == 2 && tlv_node_first_child(parent) == child);
-#if OPENTLV_QUERY && OPENTLV_QUERY_FRONTEND
+#if OPENTLV_QUERY_FRONTEND
         {
             tlv_query_t query;
             CHECK(tlv_query_parse("02/01", &query, NULL) == TLV_OK);
@@ -149,8 +132,7 @@ int main(void) {
         CHECK(!tlv_node_source_location(child).has_offset);
         tlv_document_free(document);
     }
-#endif
-#if OPENTLV_QUERY && OPENTLV_QUERY_FRONTEND
+#if OPENTLV_QUERY_FRONTEND
     {
         tlv_query_t query;
         CHECK(tlv_query_parse("01", &query, NULL) == TLV_OK);
@@ -161,7 +143,6 @@ int main(void) {
         CHECK(tlv_query_matcher_visit(&matcher, &tag, 0));
     }
 #endif
-#if OPENTLV_SCHEMA
     {
         tlv_schema_entry_t entry = {0};
         entry.min_length = 1;
@@ -169,14 +150,11 @@ int main(void) {
         CHECK(tlv_schema_validate_length(&entry, 1) == TLV_OK);
         CHECK(tlv_schema_validate_length(&entry, 2) != TLV_OK);
     }
-#endif
-#if OPENTLV_CODEC
     {
         uint8_t value = 0;
         CHECK(tlv_codec_decode(&tlv_codec_uint8, wire + 2, 1, &value, sizeof value, NULL) ==
               TLV_OK);
         CHECK(value == 42);
     }
-#endif
     return 0;
 }

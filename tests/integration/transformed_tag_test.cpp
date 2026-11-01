@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include "tlv/format.h"
 #include "tlv/writer/copy.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/query.h"
 #include "tlv/schema/schema.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
-#endif
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
@@ -248,7 +245,6 @@ TEST(Integration_Tlv_TransformedTag, ReaderQueryAndSchemaUseCanonicalIdentity) {
 }
 #endif
 
-#if OPENTLV_DOCUMENT
 TEST(Integration_Tlv_TransformedTag, DocumentCopiesTagAndRegeneratesPackedLength) {
     const uint8_t          wire[] = {2, 1, 0xAA};
     tlv_document_options_t options{};
@@ -274,5 +270,4 @@ TEST(Integration_Tlv_TransformedTag, DocumentCopiesTagAndRegeneratesPackedLength
     EXPECT_TRUE(tlv_tag_equal(TLV_TAG(1), decoded.element.tag));
     EXPECT_EQ(0, std::memcmp(decoded.element.value.data, value.data(), value.size()));
 }
-#endif
 } // namespace

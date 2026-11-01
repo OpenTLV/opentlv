@@ -22,13 +22,13 @@ add_executable(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_11)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    tlv
+    OpenTLV::Core OpenTLV::IO OpenTLV::Document OpenTLV::Schema OpenTLV::ASN1 OpenTLV::EMV OpenTLV::Bluetooth OpenTLV::LLDP
     benchmark::benchmark_main
 )
 
 if(OPENTLV_BUILD_CXX)
     target_sources(${PROJECT_NAME} PRIVATE src/cxx_facade_benchmarks.cpp)
-    target_link_libraries(${PROJECT_NAME} PRIVATE tlv++)
+    target_link_libraries(${PROJECT_NAME} PRIVATE OpenTLV::Query OpenTLV::QueryDocument OpenTLV::Codec)
 endif()
 
 opentlv_configure_compiler(${PROJECT_NAME})

@@ -5,7 +5,6 @@
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/program.h"
-#include "tlv/config.h"
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
 
@@ -425,8 +424,7 @@ void query_phase(benchmark::State& state) {
     std::vector<uint8_t> workspace(workspace_size + 15);
     void* aligned = reinterpret_cast<void*>((reinterpret_cast<uintptr_t>(workspace.data()) + 15) &
                                             ~uintptr_t(15));
-    const auto encoded = encode_stream(16, nodes);
-#if OPENTLV_DOCUMENT
+    const auto      encoded = encode_stream(16, nodes);
     tlv_document_t* document = nullptr;
     if (phase == 6) {
         tlv_document_options_t document_options;
@@ -438,12 +436,6 @@ void query_phase(benchmark::State& state) {
             return;
         }
     }
-#else
-    if (phase == 6) {
-        state.SkipWithError("Document disabled");
-        return;
-    }
-#endif
     for (auto _ : state) {
         if (phase <= 1) {
             rc = tlv_query_compile(text, std::strlen(text), &options, scratch.data(), scratch_size,
@@ -460,13 +452,10 @@ void query_phase(benchmark::State& state) {
                                                 SIZE_MAX, &exec)
                           : tlv_query_exec_init(program, aligned, workspace_size, 0, nodes,
                                                 SIZE_MAX, &exec);
-#if OPENTLV_DOCUMENT
             if (rc == TLV_OK && phase == 6)
                 rc = tlv_document_query_evaluate(document, exec, nullptr, nullptr, 0, nullptr,
                                                  nullptr);
-            else
-#endif
-                if (rc == TLV_OK) {
+            else if (rc == TLV_OK) {
                 tlv_tree_reader_t reader;
                 rc = tlv_tree_reader_init(&reader, encoded.data(), encoded.size(), &tlv_format_ber,
                                           nullptr, 0, 0, nodes);
@@ -480,9 +469,7 @@ void query_phase(benchmark::State& state) {
         }
         benchmark::ClobberMemory();
     }
-#if OPENTLV_DOCUMENT
     if (document) tlv_document_free(document);
-#endif
     state.counters["program_bytes"] = static_cast<double>(info.program_size);
     state.counters["compile_scratch_bytes"] = static_cast<double>(scratch_size);
     state.counters["validation_scratch_bytes"] = static_cast<double>(validation_size);
@@ -500,7 +487,6 @@ void query_phase(benchmark::State& state) {
 BENCHMARK(query_phase)->ArgsProduct({{0, 1, 2, 3, 4, 5, 6, 7}, {16, 256, 4096}, {0, 1}});
 #endif
 
-#if OPENTLV_DOCUMENT
 // Worst-case stale-address validation after each edit deliberately scans to the
 // last node. Keep these size series to expose the documented quadratic loop cost.
 void document_identity_edit_loop(benchmark::State& state) {
@@ -529,6 +515,5 @@ void document_identity_edit_loop(benchmark::State& state) {
     tlv_document_free(doc);
 }
 BENCHMARK(document_identity_edit_loop)->Arg(16)->Arg(256)->Arg(4096);
-#endif
 
 } // namespace

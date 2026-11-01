@@ -12,6 +12,21 @@ Document owns mutable trees and depends publicly on Core and IO.
 Generator owns deterministic wire generation, with public Core and private IO
 dependencies. IO does not build or link Generator.
 
+## C and C++ use the same targets
+
+```cmake
+project(editor LANGUAGES CXX)
+find_package(OpenTLV REQUIRED CONFIG COMPONENTS Document QueryDocument DocumentCodec)
+target_link_libraries(editor PRIVATE OpenTLV::Document OpenTLV::QueryDocument OpenTLV::DocumentCodec)
+```
+
+`OPENTLV_BUILD_CXX` controls C++ tests, examples, benchmarks and property tools.
+It does not control module availability or installed headers. A
+`project(app LANGUAGES C)` consumer can link the same targets without enabling a
+C++ compiler. Functional targets publish the required include paths and compile
+features. Use `OpenTLV::IOCodec` with `tlv++/codec/writer.hpp` for typed Writer
+overloads. No extra include directories or separate C++ target are needed.
+
 ## Core, IO and Document
 
 Select functionality by linking the target you use:
@@ -27,7 +42,7 @@ The same targets are available through `add_subdirectory()` and FetchContent.
 A Core-only package consumer can request just `COMPONENTS Core`; no IO or C++
 library is loaded. All extracted modules support static and shared builds, selected by
 `OPENTLV_BUILD_SHARED_LIBS`. A library-only build does not require a C++ compiler,
-even when the compatibility C++ facade is enabled.
+including when C++ headers are installed.
 
 Build only the required target from a checkout:
 
@@ -45,20 +60,20 @@ cmake --build build/modules --target opentlv_generator
 `OPENTLV_READER`, `OPENTLV_WRITER`, `OPENTLV_DOCUMENT`, `OPENTLV_QUERY`, `OPENTLV_SCHEMA` and `OPENTLV_CODEC` are no longer CMake
 options. Supplying any of them
 is an error; remove them from presets and existing caches (or use a fresh build
-directory). IO always includes both APIs. For transition compatibility,
-`tlv/config.h` retains the constant macros with value 1 and their runtime mirrors;
-they do not select sources or indicate which modules an application linked.
+directory). IO always includes both APIs. The corresponding preprocessor macros,
+`tlv_config_*()` availability mirrors and `tlv/config.h` have been removed.
+Query features remain in `tlv/query/features.h`.
 
-Existing CMake consumers of `OpenTLV::tlv` and `OpenTLV::tlv++` receive Core, IO,
+The optional `OpenTLV::tlv` interface aggregates Core, IO,
 Document, Generator, Query, Codec, Schema and their extracted integrations transitively. Direct library consumers must link the dependencies too (static
-link order: `tlv`, `opentlv_schema_query_document`, `opentlv_schema_query`,
+link order: `opentlv_schema_query_document`, `opentlv_schema_query`,
 `opentlv_schema_number`, `opentlv_codec_structure`, `opentlv_query_document`, `opentlv_query_codec`, `opentlv_query`, `opentlv_document`, `opentlv_generator`, `opentlv_codec`, `opentlv_schema`, `opentlv_io`, `opentlv_core`). Shared deployments must distribute
 all linked libraries. Rebuild consumers after the split; the old single-library
 binary distribution is not preserved.
 
-If every builtin is disabled, the transitional `tlv` target contains no
-implementation symbols and is an empty compatibility archive, including in a
-shared build. Its extracted dependencies remain shared; no empty DLL is required.
+`OpenTLV::tlv` is an INTERFACE target: it produces no archive or DLL.
+The separate `tlv++` target and `tlv++` package component are removed; link the
+functional target in either language.
 
 Public Reader/Writer headers and function signatures remain at their existing
 paths. `tlv_copy_element()` now belongs to `tlv/writer/copy.h`; Core `tlv/copy.h`
@@ -83,7 +98,13 @@ Include `tlv/query/document.h` explicitly for Document Query operations previous
 declared by `tlv/document/document.h`. The aggregate `tlv/tlv.h` still includes
 both. Link `OpenTLV::QueryDocument` for these operations; linking Document alone
 does not provide Query symbols.
-The existing C++ facade remains part of the compatibility target.
+Include `tlv++/document/document.hpp` and link `OpenTLV::Document` for the
+header-only C++ facade. Query methods retain their names but their definitions
+come from `tlv++/query/document.hpp` and `OpenTLV::QueryDocument`. Typed node
+`decode()` and `get()` definitions come from `tlv++/document/codec.hpp` and
+`OpenTLV::DocumentCodec`. `tlv++/document/diff.hpp` belongs to QueryDocument
+because its selection and failure contract uses Query. The umbrella
+`tlv++/tlv.hpp` includes all integrations for existing full-API source usage.
 
 `tlv/document/integration.h` defines the public integration boundary: effective
 options and allocator access, live-node ownership checks, callback activity and
@@ -182,9 +203,9 @@ generation; no Writer capability option selects it.
 
 The existing header-only `tlv++/generator.hpp` belongs to Generator. A C++11
 consumer can use it with `OpenTLV::Generator` and the installed C++ headers;
-`OPENTLV_BUILD_CXX=ON` installs them. No compiled C++ library is introduced.
-The shared C++ support headers remain in the compatibility facade until their
-own extraction. Its owned generator still allocates scratch/results, while
+C++ headers are always installed. No compiled C++ library is introduced.
+The shared C++ support headers belong to Core; the Generator target supplies their
+usage requirements. Its owned generator still allocates scratch/results, while
 native generation and the caller-buffer facade remain allocation-free.
 
 Algorithm version 2, seeds, case indices, candidate order, limits, workspace,
@@ -212,7 +233,7 @@ macros and runtime mirrors. `OPENTLV_QUERY_FRONTEND` and
 `OPENTLV_QUERY_SET_OPERATIONS` remain Query-internal CMake options.
 
 Codec adapters live in the Query-owned `query-codec` implementation, currently
-assembled into the transitional `OpenTLV::tlv` target until Codec extraction.
+provided by the explicit `OpenTLV::QueryCodec` integration.
 Include `tlv/query/adapters.h` for them. The base Query target does not compile or
 link that implementation. C++ environments start without conversion providers;
 include `tlv++/query/codec.hpp` and call `tlv::configure_query_codecs(environment)`
@@ -255,9 +276,9 @@ by linking targets. Generic modules never link a builtin.
 | Target | Component | Dependencies |
 | --- | --- | --- |
 | `OpenTLV::ASN1` | BER, DER, CER, shared identifiers, strict validation, codecs, DER Schema and Query hooks | Core, IO, Codec, Schema, Query |
-| `OpenTLV::EMV` | Framing, DOL, dictionary, codecs, Schema, presentation and Query integration | Core, Codec, Schema, Query; ASN1 and SchemaNumber privately |
+| `OpenTLV::EMV` | Framing, DOL, dictionary, codecs, Schema, presentation and Query integration | Core, Codec, Schema, Query; ASN1 and SchemaNumber privately; IO for the C++ facade |
 | `OpenTLV::Bluetooth` | LTV framing, containers, definitions, Schema and codecs | Core, IO, Codec, Schema |
-| `OpenTLV::NFC` | NFC Type 2 framing | Core |
+| `OpenTLV::NFC` | NFC Type 2 framing | Core; IO for the C++ facade |
 | `OpenTLV::DHCP` | DHCPv4 framing, options, codecs and container validation | Core, Codec, Schema; IO privately |
 | `OpenTLV::LLDP` | Framing, definitions, LLDPDU validation and codecs | Core, Codec, Schema; IO privately |
 
@@ -268,8 +289,8 @@ the existing DHCPv4 implementation; no DHCPv6 functionality is added.
 Remove `OPENTLV_FORMAT_ASN1`, `OPENTLV_FORMAT_BER`, `OPENTLV_FORMAT_DER`,
 `OPENTLV_FORMAT_CER`, `OPENTLV_EMV`, `OPENTLV_BLUETOOTH`, `OPENTLV_NFC`,
 `OPENTLV_DHCP` and `OPENTLV_LLDP` from CMake invocations and old caches.
-Supplying either ON or OFF now fails with migration guidance. The corresponding
-`tlv/config.h` macros and runtime mirrors remain constant 1 for compatibility;
+Supplying either ON or OFF now fails with migration guidance.
+The former `tlv/config.h` macros and module availability mirrors are removed;
 they do not indicate which libraries an application links.
 
 ## Recipes
@@ -310,9 +331,8 @@ cmake -S . -B build-nfc -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
 cmake --build build-nfc --target opentlv_nfc
 ```
 
-The compatibility targets `OpenTLV::tlv` and `OpenTLV::tlv++` bring all families
-transitively. The empty `tlv` compatibility archive remains static even in a
-shared-module build, because an export-free Windows DLL cannot be linked.
+The optional `OpenTLV::tlv` interface brings all families transitively in either
+language. It has no archive; the separate `tlv++` target is removed.
 Direct archive/shared-library consumers must rebuild, link and distribute the
 required `opentlv_*` libraries; builtin symbols are no longer defined by `tlv`.
 
@@ -324,6 +344,6 @@ ASN1 library and its dependencies. See the measured
 [ASN.1 footprint](../development/modules/README.md#asn1-granularity).
 
 The C++ facade remains header-only. Individual builtin C++ headers may require
-additional generic integration targets; the compatibility C++ target supplies
-them. Standalone language bindings own their pins, feature mappings and migration
+explicit integration targets; each functional target supplies its own C++
+include directories and C++11 requirement. Standalone language bindings own their pins, feature mappings and migration
 from removed Core options.

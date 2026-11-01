@@ -2,7 +2,6 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/dhcp/dhcpv4.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
@@ -10,7 +9,6 @@
 #include <vector>
 
 TEST(Unit_Tlv_Dhcpv4, EveryCodeLengthsRangesAndPreservation) {
-    EXPECT_EQ(1, tlv_config_dhcp());
     for (unsigned code = 0; code < 256; ++code) {
         const bool special = code == 0 || code == 255;
         for (size_t length = 0; length <= 255; ++length) {

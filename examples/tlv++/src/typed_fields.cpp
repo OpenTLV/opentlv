@@ -25,12 +25,10 @@ int main() {
     auto counter = element->decode<Counter>();
     if (!counter || *counter != 0x1234) return 4;
 
-#if OPENTLV_DOCUMENT
     auto document = tlv::document::parse({output, writer.size()}, tlv::document_format(Format{}));
     if (!document) return 5;
     auto owned_counter = document->get<Counter>();
     if (!owned_counter || *owned_counter != *counter) return 6;
-#endif
     std::cout << "Counter: " << *counter << '\n';
     return 0;
 }

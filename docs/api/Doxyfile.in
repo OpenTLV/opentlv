@@ -2,7 +2,7 @@ PROJECT_NAME           = "OpenTLV C API"
 PROJECT_NUMBER         = "@OPENTLV_VERSION_STRING@"
 OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/c-api"
 INPUT                  = "@PROJECT_SOURCE_DIR@/tlv/include/tlv" \
-                         "@PROJECT_BINARY_DIR@/generated/include/tlv/config.h" \
+                         "@PROJECT_BINARY_DIR@/generated/include/tlv/query/features.h" \
                          "@PROJECT_BINARY_DIR@/generated/include/tlv/version.h" \
                          "@PROJECT_SOURCE_DIR@/docs/api/c-api.dox"
 FILE_PATTERNS          = *.h *.dox

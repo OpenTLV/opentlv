@@ -3,7 +3,6 @@
 
 #include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
-#include "tlv/config.h"
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
 // Private state is used only to place the nonwrapping counters near exhaustion.
@@ -15,9 +14,7 @@
 #include <memory>
 #include <set>
 #include <vector>
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
 
 using Builder = std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)>;
 
@@ -931,7 +928,6 @@ TEST(Unit_Tlv_Document, BuildsADocumentFromScratch) {
     EXPECT_EQ((Bytes{0x6F, 0x04, 0x50, 0x02, 0xDE, 0xAD}), encode(doc.get()));
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_Document, WorksWithTheBerFormatAndNormalisesLengths) {
     // SEQUENCE with a padded long-form length, holding an INTEGER and a nested SEQUENCE.
     const Bytes            wire = {0x30, 0x81, 0x07, 0x02, 0x01, 0x05, 0x30, 0x02, 0x04, 0x00};
@@ -954,7 +950,6 @@ TEST(Unit_Tlv_Document, WorksWithTheBerFormatAndNormalisesLengths) {
     EXPECT_EQ(encoded, encode(again.get()));
     EXPECT_EQ(long_value, value_of(find(again.get(), "30/04")));
 }
-#endif
 
 TEST(Unit_Tlv_Document, RuntimeDepthBeyondDefaultParsesEncodesEditsAndFrees) {
     constexpr size_t depth = TLV_TREE_DEFAULT_DEPTH + 32;
@@ -1282,7 +1277,6 @@ TEST(Unit_Tlv_DocumentBuilder, NodeCreationUsesCanonicalConstructedClassificatio
     EXPECT_EQ(tlv_document_count(doc.get()), calls);
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlv_DocumentBuilder, SelectedIndefiniteSubtreeStopsAfterTrailers) {
     const Bytes wire = {0xE1, 0x80, 0xE2, 0x80, 0x04, 1, 0xAA, 0, 0, 0, 0, 0x04, 0};
     auto        opts = options();
@@ -1312,7 +1306,6 @@ TEST(Unit_Tlv_DocumentBuilder, SelectedIndefiniteSubtreeStopsAfterTrailers) {
     EXPECT_EQ(11u, item.offset);
     EXPECT_EQ(0u, item.depth);
 }
-#endif
 
 namespace {
 tlv_result_t document_content_measure(const void* context, const tlv_element_t* element,

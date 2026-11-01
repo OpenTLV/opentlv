@@ -29,7 +29,6 @@ template <typename Codec> void value_round_trip(tlv::bytes wire) {
 }
 } // namespace
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlvpp_BuiltinConvenience, BerIndefiniteFramingHelper) {
     const uint8_t children[] = {4, 1, 42};
     auto          size = tlv::measure(tlv::ber::indefinite_format{},
@@ -110,9 +109,7 @@ TEST(Unit_Tlvpp_BuiltinConvenience, Asn1ContentRulesAndBorrowing) {
     EXPECT_FALSE(tlv::asn1::oid_iri_codec::encode(excessive, nullptr, 0));
     EXPECT_EQ((tlv::tag_bytes<0x1F, 0x1F>()), tlv::asn1::date_field::tag());
 }
-#endif
 
-#if OPENTLV_BLUETOOTH
 TEST(Unit_Tlvpp_BuiltinConvenience, BluetoothAllValueCodecsAndTypedField) {
     const uint8_t flags[] = {6}, zero_flags[] = {0}, power[] = {0xFC}, bad_power[] = {0x80},
                   name[] = {'O', 'K'}, bad_utf8[] = {0xC0, 0x80};
@@ -155,9 +152,7 @@ TEST(Unit_Tlvpp_BuiltinConvenience, BluetoothAllValueCodecsAndTypedField) {
         EXPECT_EQ(-4, *decoded);
     }
 }
-#endif
 
-#if OPENTLV_LLDP
 TEST(Unit_Tlvpp_BuiltinConvenience, LldpBorrowingAndSubtypeSemantics) {
     const uint8_t chassis[] = {4, 1, 2, 3, 4, 5, 6}, port[] = {3, 1, 2, 3, 4, 5, 6}, ttl[] = {0, 0},
                   capabilities[] = {0, 4, 0, 4},
@@ -188,9 +183,7 @@ TEST(Unit_Tlvpp_BuiltinConvenience, LldpBorrowingAndSubtypeSemantics) {
         EXPECT_EQ(120, *value);
     }
 }
-#endif
 
-#if OPENTLV_DHCP
 TEST(Unit_Tlvpp_BuiltinConvenience, DhcpUnknownMessageTypeIsPreserved) {
     const uint8_t unknown[] = {0xFF};
     value_round_trip<tlv::dhcp::message_type_codec>(view(unknown, 1));
@@ -202,9 +195,7 @@ TEST(Unit_Tlvpp_BuiltinConvenience, DhcpUnknownMessageTypeIsPreserved) {
     const uint8_t bad_tail[] = {255, 1};
     EXPECT_FALSE(tlv::dhcp::options_validate(view(bad_tail, sizeof(bad_tail))));
 }
-#endif
 
-#if OPENTLV_EMV
 TEST(Unit_Tlvpp_BuiltinConvenience, EmvDigitsNumbersDatesAndScopedFields) {
     const uint8_t pan[] = {0, 0x12, 0x3F}, currency[] = {0x09, 0x78},
                   amount[] = {0, 0, 0, 0, 0x12, 0x34}, date[] = {0x26, 0x10, 0x01},
@@ -234,9 +225,7 @@ TEST(Unit_Tlvpp_BuiltinConvenience, EmvDigitsNumbersDatesAndScopedFields) {
         EXPECT_FALSE(element.decode<tlv::emv::transaction_currency_code_field>());
     }
 }
-#endif
 
-#if OPENTLV_EMV
 namespace {
 template <typename T> T emv_sample();
 template <> uint64_t    emv_sample<uint64_t>() {
@@ -741,4 +730,3 @@ TEST(Unit_Tlvpp_BuiltinConvenience, EveryEmvCodecBearingDictionaryField) {
             TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION, tlv::tag_bytes<0x81>());
     }
 }
-#endif

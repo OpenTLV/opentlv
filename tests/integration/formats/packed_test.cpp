@@ -4,11 +4,8 @@
 #include "tlv/formats/packed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/query/query.h"
-#include "tlv/config.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <memory>
@@ -47,7 +44,6 @@ TEST(Integration_Tlv_Packed, ReaderQueryAndOwnedDocumentUseCanonicalTags) {
     ASSERT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &format, &query, 0, 2, visit,
                                              &matches, nullptr));
     EXPECT_EQ(1u, matches);
-#if OPENTLV_DOCUMENT
     tlv_document_options_t options{};
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &format));
     tlv_document_t* raw = nullptr;
@@ -67,6 +63,5 @@ TEST(Integration_Tlv_Packed, ReaderQueryAndOwnedDocumentUseCanonicalTags) {
     const uint8_t expected[] = {0x42, 0xAA, 0x82, 0xDD};
     EXPECT_EQ(sizeof(expected), written);
     EXPECT_EQ(0, std::memcmp(expected, output, sizeof(expected)));
-#endif
 }
 #endif

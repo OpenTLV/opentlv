@@ -32,14 +32,12 @@ int main() {
                 return 2;
             ++matches;
         }
-#if OPENTLV_DOCUMENT
         auto owned = tlv::document::parse({document.data(), document.size()},
                                           tlv::document_format(tlv::ber::format{}));
         if (!owned) return 3;
         auto nodes = owned->select("6F/A5/50");
         if (nodes.size() != matches || nodes.size() != 1 || nodes[0].value()[0] != tlv::byte(0x01))
             return 3;
-#endif
     } catch (const tlv::query_error& failure) {
         const auto location = failure.location();
         std::cerr << "Query error at ";

@@ -13,8 +13,6 @@ foreach(_family IN ITEMS FORMAT_ASN1 FORMAT_BER FORMAT_DER FORMAT_CER EMV BLUETO
     if(DEFINED OPENTLV_${_family})
         message(FATAL_ERROR "OPENTLV_${_family} was removed; link OpenTLV::ASN1, OpenTLV::EMV, OpenTLV::Bluetooth, OpenTLV::NFC, OpenTLV::DHCP or OpenTLV::LLDP instead")
     endif()
-    # Transitional feature guards and config mirrors remain constant until #654.
-    set(OPENTLV_${_family} ON)
 endforeach()
 
 include(cmake/version.cmake)
@@ -31,14 +29,7 @@ endif()
 
 # Native libraries
 option(OPENTLV_BUILD_SHARED_LIBS "Build compiled modules as shared libraries instead of static" ON)
-option(OPENTLV_BUILD_CXX "Build the tlv++ header-only C++ layer and its tests" ON)
-
-# Core capabilities
-# Compatibility macro selection remains constant until aggregate cleanup.
-set(OPENTLV_DOCUMENT ON)
-set(OPENTLV_QUERY ON)
-set(OPENTLV_SCHEMA ON)
-set(OPENTLV_CODEC ON)
+option(OPENTLV_BUILD_CXX "Enable C++ tests, examples and development targets" ON)
 
 # Query features
 option(OPENTLV_QUERY_FRONTEND "Include Query text parsing and compilation" ON)
@@ -59,16 +50,11 @@ option(OPENTLV_BUILD_FUZZING "Build C API fuzz targets with libFuzzer, ASan and 
 option(OPENTLV_BUILD_MEMCHECK "Enable native Linux CTest Valgrind Memcheck runs" OFF)
 option(OPENTLV_WARNINGS_AS_ERRORS "Treat OpenTLV compiler warnings as errors" ON)
 
-configure_file(tlv/resources/config.h.in "${PROJECT_BINARY_DIR}/generated/include/tlv/config.h" @ONLY)
-configure_file(tlv/resources/config.c.in "${PROJECT_BINARY_DIR}/generated/src/config.c" @ONLY)
-
 # Only executable C++ consumers need a compiler. The header-only facade carries
 # INTERFACE requirements without enabling CXX in a C-only library configuration.
 # Enable it here for multi-config generators before configuring consumers.
-if((OPENTLV_BUILD_TESTS AND (OPENTLV_BUILD_UNIT_TESTS OR
-   OPENTLV_BUILD_INTEGRATION_TESTS OR OPENTLV_BUILD_PROPERTY_TESTS)) OR
-   (OPENTLV_BUILD_CXX AND (OPENTLV_BUILD_TESTS OR OPENTLV_BUILD_EXAMPLES)) OR
-   OPENTLV_BUILD_BENCHMARKS)
+if(OPENTLV_BUILD_CXX AND (OPENTLV_BUILD_TESTS OR OPENTLV_BUILD_EXAMPLES OR
+   OPENTLV_BUILD_BENCHMARKS))
     enable_language(CXX)
 endif()
 
@@ -95,11 +81,6 @@ if(OPENTLV_BUILD_FUZZING)
     add_subdirectory(tests/fuzz)
 endif()
 
-if(OPENTLV_BUILD_CXX)
-    add_subdirectory(tlv++)
-    add_library(OpenTLV::tlv++ ALIAS tlv++)
-endif()
-
 if(_OPENTLV_TOP_LEVEL)
     include(cmake/clang_tidy.cmake)
     opentlv_add_clang_tidy_targets()
@@ -116,7 +97,7 @@ if(OPENTLV_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
 
-if(OPENTLV_BUILD_BENCHMARKS AND OPENTLV_FORMAT_BER)
+if(OPENTLV_BUILD_CXX AND OPENTLV_BUILD_BENCHMARKS)
     add_subdirectory(benchmarks)
 endif()
 

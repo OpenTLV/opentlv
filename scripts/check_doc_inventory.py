@@ -41,8 +41,7 @@ def check(root):
             return ""
 
     architecture = read("docs/concepts/architecture.md")
-    configuration_templates = ("tlv/resources/config.h.in",
-                               "tlv/resources/query-features.h.in")
+    configuration_templates = ("tlv/resources/query-features.h.in",)
     components = set()
     for template in configuration_templates:
         components.update(re.findall(r"^#cmakedefine01 (OPENTLV_\w+)$", read(template), re.M))
@@ -53,7 +52,7 @@ def check(root):
     compare(errors, "public component configuration", capability_options, components,
             "public configuration templates")
     if not components:
-        errors.append("tlv/resources/config.h.in: no public components found")
+        errors.append("tlv/resources/query-features.h.in: no public features found")
     for component in sorted(components):
         if component not in options:
             errors.append(f"{component}: public configuration has no root CMake option")

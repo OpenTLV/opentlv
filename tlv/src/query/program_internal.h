@@ -4,7 +4,6 @@
 #define OPENTLV_QUERY_PROGRAM_INTERNAL_H
 #include "tlv/callback.h"
 #include "tlv/query/plan.h"
-#include "tlv/config.h"
 #include <stdint.h>
 #include <string.h>
 

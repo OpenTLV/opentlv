@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/plan.h"
-#include "tlv/config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -380,10 +379,8 @@ int main(int argc, char** argv) {
     CHECK(callbacks() == 0);
     CHECK(raw_reinitialization() == 0);
     CHECK(reader_aliases() == 0);
-#if OPENTLV_DOCUMENT
     CHECK(documents() == 0);
     CHECK(document_format_reinitialization() == 0);
-#endif
 #endif
     puts("adversarial: 512 seeded sequences, lifecycle regressions and storage matrix passed");
     return 0;

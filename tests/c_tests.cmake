@@ -149,7 +149,7 @@ if(test_group STREQUAL "unit")
         opentlv_configure_compiler(${target})
         opentlv_copy_shared_runtime(${target})
     endforeach()
-elseif(test_group STREQUAL "integration" AND OPENTLV_FORMAT_BER)
+elseif(test_group STREQUAL "integration")
     set(schema_sources schema/schema_checked_test.cpp schema/schema_parity_test.cpp
         schema/schema_report_test.cpp schema/schema_report_c_test.c schema/schema_test.cpp)
     list(REMOVE_ITEM SOURCES ${schema_sources})
@@ -203,35 +203,51 @@ foreach(family IN ITEMS asn1 emv bluetooth nfc dhcp lldp)
     endif()
 endforeach()
 
-add_executable(${test_target}
-    ${HEADERS}
-    ${SOURCES}
-)
+set(fixture_dependencies_core io document query query-document query-codec codec io-codec document-codec schema asn1 bluetooth emv nfc dhcp lldp)
+set(fixture_dependencies_io core document query query-document codec codec-structure schema asn1 emv bluetooth nfc dhcp lldp)
+set(fixture_dependencies_document core io query query-document codec document-codec asn1)
+set(fixture_dependencies_query core io document query-document codec codec-structure query-codec schema schema-query-document asn1 emv)
+set(fixture_dependencies_query-document core io document query codec query-codec asn1)
+set(fixture_dependencies_codec core io io-codec document document-codec)
+set(fixture_dependencies_asn1 core io emv bluetooth nfc dhcp lldp)
+set(fixture_dependencies_nfc core io document query query-document)
+set(fixture_dependencies_dhcp core io document query query-document)
 
-target_include_directories(${test_target}
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OpenTLV_SOURCE_DIR}/tests
-)
-
-target_link_libraries(${test_target} PRIVATE
-    tlv
-    GTest::gtest_main
-)
-
-if(test_group STREQUAL "integration" AND OPENTLV_NFC)
-    target_compile_definitions(${test_target} PRIVATE
-        OPENTLV_NFC_TYPE2_CORPUS="${OpenTLV_SOURCE_DIR}/examples/nfc/type2")
-endif()
-
-include(GoogleTest)
-opentlv_configure_compiler(${test_target})
-opentlv_copy_shared_runtime(${test_target})
-if(OPENTLV_BUILD_MEMCHECK)
-    # Run every GoogleTest case with one Valgrind startup per binary.
-    add_test(NAME ${test_target} COMMAND ${test_target})
-    set_tests_properties(${test_target} PROPERTIES LABELS ${test_group})
-    opentlv_memcheck_timeout(${test_target} 3600)
-else()
-    gtest_discover_tests(${test_target} DISCOVERY_TIMEOUT 30 PROPERTIES LABELS ${test_group})
-endif()
+# Preserve every scenario while assigning each source to one functional owner.
+foreach(owner IN ITEMS core io document query query-document codec asn1 nfc dhcp)
+    set(owned_sources)
+    foreach(source IN LISTS SOURCES)
+        set(source_owner core)
+        if(source MATCHES "^(reader/|writer/|copy_test|architecture_test|layers_test|test_tlvpp|test_diagnostic|transformed_tag|formats/.*io_test|formats/test_custom_format)")
+            set(source_owner io)
+        elseif(source MATCHES "^document/")
+            set(source_owner document)
+        elseif(source MATCHES "^query/f3")
+            set(source_owner query-document)
+        elseif(source MATCHES "^query/")
+            set(source_owner query)
+        elseif(source MATCHES "^codec/")
+            set(source_owner codec)
+        elseif(source MATCHES "^builtins/nfc/")
+            set(source_owner nfc)
+        elseif(source MATCHES "^builtins/dhcp/")
+            set(source_owner dhcp)
+        elseif(source MATCHES "^builtins/")
+            set(source_owner asn1)
+        endif()
+        if(source_owner STREQUAL owner)
+            list(APPEND owned_sources ${source})
+        endif()
+    endforeach()
+    if(NOT owned_sources)
+        continue()
+    endif()
+    set(owned_target ${test_target}-${owner})
+    opentlv_add_module_test(${owned_target} OWNER ${owner} SOURCES ${owned_sources}
+        DEPENDENCIES ${fixture_dependencies_${owner}})
+    target_include_directories(${owned_target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${OpenTLV_SOURCE_DIR}/tests)
+    target_link_libraries(${owned_target} PRIVATE GTest::gtest_main)
+    opentlv_configure_compiler(${owned_target})
+    opentlv_copy_shared_runtime(${owned_target})
+    set_tests_properties(${owned_target} PROPERTIES LABELS "${test_group};module:${owner}")
+endforeach()

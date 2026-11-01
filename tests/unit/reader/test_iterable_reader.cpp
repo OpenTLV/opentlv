@@ -295,7 +295,6 @@ TEST(Unit_Tlvpp_IterableReader, MovingRangeRebindsFormatAndPreservesPosition) {
     EXPECT_EQ(moved.begin(), moved.end());
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlvpp_IterableReader, BuiltinBerRangeIsFlatAndBorrowed) {
     const uint8_t data[] = {0x30, 3, 2, 1, 42, 4, 0};
     size_t        count = 0;
@@ -306,35 +305,23 @@ TEST(Unit_Tlvpp_IterableReader, BuiltinBerRangeIsFlatAndBorrowed) {
     }
     EXPECT_EQ(2u, count);
 }
-#endif
 
 TEST(Unit_Tlvpp_IterableReader, AvailableBuiltinHelpersUseTheirWireFraming) {
     const uint8_t binary[] = {4, 1, 42};
     (void)binary;
-#if OPENTLV_FORMAT_DER
     expect_single(tlv::der::parse(input(binary, sizeof(binary))), tlv::tag_bytes<4>(),
                   input(binary + 2, 1));
-#endif
-#if OPENTLV_FORMAT_CER
     expect_single(tlv::cer::parse(input(binary, sizeof(binary))), tlv::tag_bytes<4>(),
                   input(binary + 2, 1));
-#endif
-#if OPENTLV_EMV
     const uint8_t emv[] = {0x5A, 1, 42};
     expect_single(tlv::emv::parse(input(emv, sizeof(emv))), tlv::tag_bytes<0x5A>(),
                   input(emv + 2, 1));
-#endif
-#if OPENTLV_BLUETOOTH
     const uint8_t ltv[] = {2, 1, 42};
     expect_single(tlv::bluetooth::parse(input(ltv, sizeof(ltv))), tlv::tag_bytes<1>(),
                   input(ltv + 2, 1));
-#endif
-#if OPENTLV_LLDP
     const uint8_t lldp[] = {6, 2, 0, 120};
     expect_single(tlv::lldp::parse(input(lldp, sizeof(lldp))), tlv::tag_bytes<3>(),
                   input(lldp + 2, 2));
-#endif
-#if OPENTLV_DHCP
     const uint8_t dhcp[] = {53, 1, 1, 255, 0};
     const uint8_t tags[] = {53, 255, 0};
     size_t        count = 0;
@@ -345,8 +332,6 @@ TEST(Unit_Tlvpp_IterableReader, AvailableBuiltinHelpersUseTheirWireFraming) {
         ++count;
     }
     EXPECT_EQ(3u, count); // Framing continues after End; container policy stays explicit.
-#endif
-#if OPENTLV_NFC
     const uint8_t nfc[] = {0, 3, 1, 42, 0xFE, 0};
     const uint8_t nfc_tags[] = {0, 3, 0xFE, 0};
     size_t        nfc_count = 0;
@@ -357,5 +342,4 @@ TEST(Unit_Tlvpp_IterableReader, AvailableBuiltinHelpersUseTheirWireFraming) {
         ++nfc_count;
     }
     EXPECT_EQ(4u, nfc_count);
-#endif
 }

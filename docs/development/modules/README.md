@@ -17,9 +17,10 @@ infrastructure from #646. #651 extracts `OpenTLV::Codec` and the Query-owned
 integrations. #653 extracts all six builtin families: `ASN1`, `EMV`,
 `Bluetooth`, `NFC`, `DHCP` and `LLDP`. Their sources, public
 headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
-checks the compiled dependency graph. C++ facades retain the planned boundaries
-below until their extraction issue. All C implementations now live in modules;
-the compatibility archive only links those modules. See the [consumer migration guide](../../guides/select-components.md).
+checks the compiled dependency graph. #654 associates header-only C++ facades
+with those targets and registers `DocumentCodec` and `IOCodec` integrations.
+All C implementations live in modules; `OpenTLV::tlv` is an optional INTERFACE
+aggregate without an archive. See the [consumer migration guide](../../guides/select-components.md).
 
 Document Query declarations now live in `tlv/query/document.h`; path matching
 and batch-edit policy live in `query/document_path.c` and
@@ -32,7 +33,7 @@ live in `query/codec.c` and the explicit C++ `query/codec.hpp` integration,
 registered as `OpenTLV::QueryCodec`. Schema Query
 uses public plan inspection instead of private Query representations.
 The base Document target has no Query, Schema, Codec, Generator or builtin
-headers, sources or symbols. C++ facade separation remains tracked below.
+headers, sources or symbols. C++ Query and typed decoding definitions live in their explicit integration headers.
 
 Codec registers all generic Value conversions and its diagnostic vocabulary with
 only a Core dependency. `tlv_codec_detail_t` is a Codec-owned leaf; delegated
@@ -55,8 +56,7 @@ Generator registers `generator.c` and `tlv/generator.h`, with public Core and
 private IO dependencies and its own export header. Its source and algorithm
 version remain unchanged; IO never depends on Generator. The existing
 `tlv++/generator.hpp` retains Generator ownership and is checked with an
-independently linked C++11 consumer. It remains header-only and uses the current
-shared C++ support headers pending their facade separation. Generator test
+independently linked C++11 consumer. It remains header-only and receives its shared C++ support headers from Core. Generator test
 ownership includes the existing native/facade regression scenarios; builtin
 Formats in those scenarios are test fixtures, not Generator dependencies.
 
@@ -132,8 +132,9 @@ count as public modules. A *facade-only* integration target is a header-only
 The *aggregate* interface target links every public module and integration
 target. It owns the umbrella headers `tlv/tlv.h`, `tlv++/tlv.hpp` and
 `tlv++/native.hpp`, and nothing depends on it. It replaces "link everything"
-use of the former monolithic `tlv` target; [#654](https://github.com/OpenTLV/opentlv/issues/654)
-decides its final name with the #702 contract.
+use of the former monolithic `tlv` target. #654 retains the existing
+`OpenTLV::tlv` name as a convenience interface; wider naming decisions remain
+with #702.
 
 Builtins stay one module per protocol family. Their integrations with Codec,
 Schema and Query stay inside the family module: builtins may depend on any
@@ -146,11 +147,11 @@ with generic composition and then removes the dependency.
 ### C++ facades
 
 Every module and integration target owns the header-only C++ facade of its C
-API. The facade is a separate `INTERFACE` target per module that requires C++11
-and depends on its C target and on the facades of that target's dependencies.
-Pure C consumers never link a facade target, so they never need a C++
-compiler, and `OPENTLV_BUILD_CXX` keeps controlling only C++ tests, examples
-and tools. A facade may depend on more than its C target only where
+API. Its C++ include directories and C++11 feature are INTERFACE usage
+requirements of the same functional target. CMake applies C++ compile features
+only to C++ sources, so pure C consumers never need a C++ compiler.
+`OPENTLV_BUILD_CXX` controls only C++ tests, examples and development tools;
+headers and functional targets are always installed. A facade may depend on more than its C target only where
 [ownership.json](ownership.json) lists a `facade` dependency (EMV and NFC
 facades read and write through the IO facade). A facade that combines two
 modules belongs to their integration target.
@@ -222,9 +223,9 @@ shared builds keep the same graph; neither may need an extra dependency.
 
 [ownership.json](ownership.json) `files` assigns every C source, private
 header, public header, C++ facade header and resource template under `tlv/`
-and `tlv++/` (256 files) to one target. Generated headers (`tlv/config.h`,
-`tlv/export.h`, `tlv/version.h`) belong to Core until #654 removes or moves
-their module-selection parts. The inventory and symbol counts below come from
+and `tlv++/` to one target. Version headers belong to Core; each compiled
+module owns its generated export header. #654 removes `tlv/config.h`, its
+implementation and the obsolete aggregate export header. The inventory and symbol counts below come from
 the current `main` revision; exported symbols are those of the shared library,
 internal ones are global but hidden.
 
@@ -443,11 +444,9 @@ issues stop using them for their own sources.
 | `OPENTLV_BUILD_CXX` | Keep as the language switch for C++ tests, examples and tools. |
 | `OPENTLV_BUILD_DOCS`, `OPENTLV_BUILD_EXAMPLES`, `OPENTLV_BUILD_TESTS` and the other `OPENTLV_BUILD_*` test, benchmark, fuzzing and Memcheck options, `OPENTLV_WARNINGS_AS_ERRORS` | Keep. |
 
-The `tlv_config_*()` mirrors and `tlv/config.h` macros of removed options go
-with them in #654. #647 removes Reader/Writer CMake options and source conditions,
-but retains constant compatibility macros and runtime mirrors until then.
-Remaining code that checks module-selection macros, such as
-`document.c`, takes the always-available branch.
+The `tlv_config_*()` mirrors and `tlv/config.h` macros of removed options are
+removed in #654. Source and header conditions now take the always-available
+module branch. Only the Query-internal feature macros and runtime mirrors remain.
 
 ## Query features
 
@@ -542,8 +541,8 @@ are registered during extraction.
 
 [#646](https://github.com/OpenTLV/opentlv/issues/646) supplies
 [`cmake/modules.cmake`](../../../cmake/modules.cmake). It does not extract a
-functional module or replace the existing `OpenTLV::tlv` and `OpenTLV::tlv++`
-targets. The public naming decision remains with #702; explicit `EXPORT_NAME`
+functional module itself. #654 removes the separate `OpenTLV::tlv++` target
+and makes `OpenTLV::tlv` an INTERFACE aggregate. The public naming decision remains with #702; explicit `EXPORT_NAME`
 arguments keep that decision separate from internal ownership keys.
 
 | Identity | Convention |
@@ -590,9 +589,8 @@ installed component registry. Components load their dependencies transitively,
 including private archive dependencies, before importing their own targets.
 Unknown required components reject package discovery; unknown optional components
 report `OpenTLV_<name>_FOUND=FALSE`. No-component discovery preserves existing
-consumption and includes all available module targets. During the transition,
-`tlv` and, when enabled, `tlv++` are the available legacy components; names of
-unextracted modules are not advertised as working components.
+consumption and includes all available module targets plus the optional `tlv`
+aggregate. `tlv++` is no longer an available component.
 
 All compiled modules follow `OPENTLV_BUILD_SHARED_LIBS`. Shared targets use hidden
 default visibility, disable Windows automatic symbol export and export only

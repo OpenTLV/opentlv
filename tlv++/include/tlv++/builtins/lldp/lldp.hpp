@@ -7,12 +7,9 @@
 #include "tlv/builtins/lldp/lldp.h"
 
 #include "tlv++/format.hpp"
-#include "tlv/config.h"
 #include "tlv++/reader/reader.hpp"
-#if OPENTLV_SCHEMA
 #include "tlv/builtins/lldp/schema.h"
 #include "tlv++/schema/error.hpp"
-#endif
 #include "tlv++/writer/builder.hpp"
 
 /** @file
@@ -21,7 +18,6 @@
 namespace tlv {
 /** @brief LLDP wire framing presets. */
 namespace lldp {
-#if OPENTLV_SCHEMA
 /**
  * @brief Validate LLDP sequence rules and field constraints without allocation.
  * @param data Borrowed complete LLDPDU.
@@ -35,7 +31,6 @@ inline expected<void, schema_failure> validate(bytes data, size_t max_elements =
     if (rc == TLV_OK) return {};
     return unexpected<schema_failure>(schema_failure(diagnostic));
 }
-#endif
 /** @brief Built-in Format satisfying the generic C++ customization contract. */
 class format : public tlv::format {
 public:

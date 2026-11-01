@@ -105,30 +105,14 @@ static_assert(!std::is_copy_constructible<tlv::format_adapter<custom_cpp_format>
 static_assert(!std::is_move_constructible<tlv::reader<custom_cpp_format>>::value, "stable cursor");
 static_assert(tlv::format_capabilities<tlv::fixed_format<1, 1, tlv::byte_order::big_endian>>::valid,
               "fixed contract");
-#if OPENTLV_FORMAT_BER
 static_assert(tlv::format_capabilities<tlv::ber::format>::valid, "BER contract");
-#endif
-#if OPENTLV_FORMAT_DER
 static_assert(tlv::format_capabilities<tlv::der::format>::valid, "DER contract");
-#endif
-#if OPENTLV_FORMAT_CER
 static_assert(tlv::format_capabilities<tlv::cer::format>::valid, "CER contract");
-#endif
-#if OPENTLV_BLUETOOTH
 static_assert(tlv::format_capabilities<tlv::bluetooth::format>::valid, "Bluetooth contract");
-#endif
-#if OPENTLV_EMV
 static_assert(tlv::format_capabilities<tlv::emv::format>::valid, "EMV contract");
-#endif
-#if OPENTLV_LLDP
 static_assert(tlv::format_capabilities<tlv::lldp::format>::valid, "LLDP contract");
-#endif
-#if OPENTLV_DHCP
 static_assert(tlv::format_capabilities<tlv::dhcp::format>::valid, "DHCP contract");
-#endif
-#if OPENTLV_NFC
 static_assert(tlv::format_capabilities<tlv::nfc::format>::valid, "NFC contract");
-#endif
 
 TEST(Unit_Tlvpp_CustomFormat, IndependentWireAndSourcePreservation) {
     const unsigned char            wire[] = {1, 1, 0x7A, 0xA5};
@@ -225,7 +209,6 @@ TEST(Unit_Tlvpp_CustomFormat, TreeWriterAndQueryUseCanonicalMachinery) {
 }
 #endif
 
-#if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_CustomFormat, DocumentAndSelectedSubtreeKeepCustomFormat) {
     tlv::format_adapter<custom_cpp_format> format;
     const unsigned char                    wire[] = {0x81, 4, 1, 1, 0x7A, 0xA5, 0xA5};
@@ -252,9 +235,7 @@ TEST(Unit_Tlvpp_CustomFormat, DocumentAndSelectedSubtreeKeepCustomFormat) {
     ASSERT_EQ(sizeof(wire), encoded->size());
     EXPECT_EQ(0, std::memcmp(wire, encoded->data(), sizeof(wire)));
 }
-#endif
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlvpp_CustomFormat, BuiltinFormatUsesTheSameTypedReaderWriter) {
     const unsigned char           wire[] = {4, 1, 0x7A};
     tlv::reader<tlv::ber::format> reader(bytes(wire, sizeof(wire)));
@@ -265,7 +246,6 @@ TEST(Unit_Tlvpp_CustomFormat, BuiltinFormatUsesTheSameTypedReaderWriter) {
     ASSERT_TRUE(writer.write(*item));
     EXPECT_EQ(0, std::memcmp(wire, out, sizeof(wire)));
 }
-#endif
 
 TEST(Unit_Tlvpp_CustomFormat, LogicalSizeOnlyMeasurementDoesNotNarrow) {
     tlv::format_adapter<logical_format> format;
@@ -358,36 +338,20 @@ TEST(Unit_Tlvpp_CustomFormat, ConfiguredBuiltinsUseIdenticalGenericContract) {
     const unsigned char simple[] = {1, 1, 0x7A};
     builtin_round_trip<tlv::fixed_format<1, 1, tlv::byte_order::big_endian>>(simple, sizeof(simple),
                                                                              tlv::tag_bytes<1>());
-#if OPENTLV_FORMAT_BER || OPENTLV_FORMAT_DER || OPENTLV_FORMAT_CER
+#if 1 || 1 || 1
     const unsigned char asn1[] = {4, 1, 0x7A};
 #endif
-#if OPENTLV_FORMAT_BER
     builtin_round_trip<tlv::ber::format>(asn1, sizeof(asn1), tlv::tag_bytes<4>());
-#endif
-#if OPENTLV_FORMAT_DER
     builtin_round_trip<tlv::der::format>(asn1, sizeof(asn1), tlv::tag_bytes<4>());
-#endif
-#if OPENTLV_FORMAT_CER
     builtin_round_trip<tlv::cer::format>(asn1, sizeof(asn1), tlv::tag_bytes<4>());
-#endif
-#if OPENTLV_EMV
     const unsigned char emv[] = {0x5A, 1, 0x7A};
     builtin_round_trip<tlv::emv::format>(emv, sizeof(emv), tlv::tag_bytes<0x5A>());
-#endif
-#if OPENTLV_BLUETOOTH
     const unsigned char bluetooth[] = {2, 9, 0x7A};
     builtin_round_trip<tlv::bluetooth::format>(bluetooth, sizeof(bluetooth), tlv::tag_bytes<9>());
-#endif
-#if OPENTLV_LLDP
     const unsigned char lldp[] = {2, 1, 0x7A};
     builtin_round_trip<tlv::lldp::format>(lldp, sizeof(lldp), tlv::tag_bytes<1>());
-#endif
-#if OPENTLV_DHCP
     builtin_round_trip<tlv::dhcp::format>(simple, sizeof(simple), tlv::tag_bytes<1>());
-#endif
-#if OPENTLV_NFC
     builtin_round_trip<tlv::nfc::format>(simple, sizeof(simple), tlv::tag_bytes<1>());
-#endif
 }
 
 TEST(Unit_Tlvpp_CustomFormat, NativeViewAdapterPreservesRuntimeCapabilitiesAndCustomization) {

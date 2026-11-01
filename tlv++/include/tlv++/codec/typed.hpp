@@ -9,7 +9,6 @@
 #include <vector>
 #include "tlv++/types.hpp"
 #include "tlv++/codec/typed_error.hpp"
-#include "tlv/config.h"
 #include "tlv/codec/values.h"
 
 /** @file

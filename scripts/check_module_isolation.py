@@ -28,7 +28,7 @@ def run(*args):
 
 
 def dependencies(module):
-    return module["public_deps"] + module["private_deps"]
+    return module["public_deps"] + module["private_deps"] + module.get("facade_deps", [])
 
 
 def closure(modules, key):
@@ -55,8 +55,8 @@ def check_metadata(entries, contract=None, source_root=None):
     for key, entry in modules.items():
         if entry["owner"][0] not in closure(modules, key):
             raise ValueError(f"{key}: integration does not depend on its owner")
-        for kind in ("sources", "public_headers", "private_headers"):
-            for name in entry[kind]:
+        for kind in ("sources", "public_headers", "private_headers", "cxx_headers"):
+            for name in entry.get(kind, []):
                 path = Path(name).resolve()
                 if path in owned:
                     raise ValueError(f"Duplicate file ownership: {path}")
@@ -72,18 +72,19 @@ def check_metadata(entries, contract=None, source_root=None):
             for scope in ("public", "private"):
                 if sorted(entry[scope + "_deps"]) != sorted(expected.get(scope, [])):
                     raise ValueError(f"{key}: {scope} dependencies differ from contract")
+            if sorted(entry.get("facade_deps", [])) != sorted(expected.get("facade", [])):
+                raise ValueError(f"{key}: facade dependencies differ from contract")
             if entry["owner"] != [expected["module"]]:
                 raise ValueError(f"{key}: owner differs from contract")
     roots = [Path(entry["include_dir"][0]) for entry in entries]
+    if source_root is not None:
+        roots.append(source_root / "tlv++/include")
     if contract is not None and source_root is not None:
         for name, key in contract["files"].items():
             # Feature-disabled C sources remain owned by the contract but are
             # absent from this configuration's build. Installed/private headers
             # must still have a registered boundary in every configuration.
-            # C++ facades are extracted separately. Their logical ownership
-            # stays checked by check_module_contracts until a facade registers.
-            if key in modules and (name.endswith(".h") or (
-                    name.endswith(".hpp") and modules[key]["facade"] == ["TRUE"])):
+            if key in modules and name.endswith((".h", ".hpp")):
                 if owned.get((source_root / name).resolve()) != key:
                     raise ValueError(f"{key}: contract file missing from registration: {name}")
         for path, key in owned.items():
@@ -114,14 +115,16 @@ def check_metadata(entries, contract=None, source_root=None):
             if owner is None:
                 raise ValueError(f"{path}: unregistered project header {include}")
             if resolved in private:
-                if path in {Path(p).resolve() for p in modules[key]["public_headers"]}:
+                if path in {Path(p).resolve() for p in modules[key]["public_headers"] + modules[key].get("cxx_headers", [])}:
                     raise ValueError(f"{path}: public header includes private header {include}")
                 if modules[key]["owner"] != modules[owner]["owner"]:
                     raise ValueError(f"{path}: cross-module private header {include}")
             if owner != key:
                 allowed = dependencies(modules[key])
-                if path in {Path(p).resolve() for p in modules[key]["public_headers"]}:
+                if path in {Path(p).resolve() for p in modules[key]["public_headers"] + modules[key].get("cxx_headers", [])}:
                     allowed = modules[key]["public_deps"]
+                    if path.suffix == ".hpp":
+                        allowed = list(closure(modules, key))
                 if owner not in allowed:
                     raise ValueError(f"{path}: undeclared direct dependency {owner}")
     return modules
@@ -178,10 +181,14 @@ def verify(source, build_root, shared, generator, nm, extra=()):
     print(f"Module isolation evidence: {work}", flush=True)
     common = ["-G", generator, "-DCMAKE_BUILD_TYPE=Release",
               f"-DOPENTLV_BUILD_SHARED_LIBS={shared}", "-DOPENTLV_BUILD_TESTS=OFF",
-              "-DOPENTLV_BUILD_EXAMPLES=OFF", "-DCMAKE_INSTALL_LIBDIR=lib", *extra]
+              "-DOPENTLV_BUILD_EXAMPLES=OFF", "-DOPENTLV_BUILD_CXX=OFF",
+              "-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler",
+              "-DCMAKE_INSTALL_LIBDIR=lib", *extra]
 
     def configure(build):
         run("cmake", "-S", source, "-B", build, *common)
+        if list((build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
+            raise ValueError("C-only module build enabled a C++ compiler")
         return json.loads((build / "modules-Release.json").read_text(encoding="utf-8"))
 
     full = work / "complete"
@@ -214,16 +221,30 @@ def verify(source, build_root, shared, generator, nm, extra=()):
         content = path.read_text(encoding="utf-8").replace("\\", "/")
         if any(p.as_posix() in content for p in (source, full, prefix)):
             raise ValueError(f"Non-relocatable module package: {path}")
-    for key, entry in modules.items():
-        consumer = work / ("consumer-" + key)
+    cases = [(key, entry, False) for key, entry in modules.items()]
+    cases += [(key, entry, True) for key, entry in modules.items() if entry.get("cxx_consumer")]
+    for key, entry, cxx in cases:
+        consumer = work / ("consumer-" + key + ("-cxx" if cxx else ""))
         consumer.mkdir()
-        facade = entry["facade"] == ["TRUE"]
+        facade = cxx or entry["facade"] == ["TRUE"]
         language = "CXX" if facade else "C"
         extension = "cpp" if facade else "c"
-        shutil.copyfile(entry["consumer"][0], consumer / ("main." + extension))
+        shutil.copyfile(entry["cxx_consumer" if cxx else "consumer"][0], consumer / ("main." + extension))
         name = entry["export_name"][0]
         expected = closure(modules, key)
         component_checks = ""
+        if facade:
+            # Compile every installed header on its own; one umbrella TU can
+            # accidentally hide missing includes in a module-specific header.
+            headers = entry.get("cxx_headers", []) if cxx else entry["public_headers"]
+            for index, header in enumerate(headers):
+                include = Path(header).as_posix().split("/include/")[-1]
+                (consumer / f"header{index}.cpp").write_text(
+                    f'#include <{include}>\n', encoding="utf-8")
+                component_checks += (f"add_library(header{index} OBJECT header{index}.cpp)\n"
+                                     f"target_link_libraries(header{index} PRIVATE OpenTLV::{name})\n")
+        component_checks += ('if(TARGET OpenTLV::tlv++)\n'
+                             'message(FATAL_ERROR "Obsolete C++ target")\nendif()\n')
         for other, candidate in modules.items():
             condition = "NOT TARGET" if other in expected else "TARGET"
             target = "OpenTLV::" + candidate["export_name"][0]
@@ -246,7 +267,7 @@ def verify(source, build_root, shared, generator, nm, extra=()):
         run("cmake", "--build", build, "--config", "Release", "--parallel", "2")
         run("ctest", "--test-dir", build, "-C", "Release",
             "--output-on-failure", "--no-tests=error")
-    print(f"PASS {len(entries)} module/component consumers; shared={shared}")
+    print(f"PASS {len(cases)} C/C++ module/component consumers; shared={shared}")
     return work
 
 
