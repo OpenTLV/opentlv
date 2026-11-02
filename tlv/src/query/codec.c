@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/adapters.h"
-#include "tlv/config.h"
 #include "tlv/codec/values.h"
 #include "tlv/codec/number.h"
 #include "tlv/utf8.h"
 #include <string.h>
-#if OPENTLV_CODEC
 static tlv_result_t codec_decode(const void* context, const tlv_tree_event_t* event,
                                  const uint8_t* data, size_t size, void* scratch, size_t capacity,
                                  tlv_query_result_t* result, tlv_codec_diagnostic_t* diagnostic) {
@@ -97,5 +95,3 @@ const tlv_query_hook_t* tlv_query_builtin_hooks(size_t* count) {
     if (count) *count = 3;
     return builtin_hooks;
 }
-
-#endif

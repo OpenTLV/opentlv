@@ -121,7 +121,7 @@ def main():
         check_license_files(root, Path(cache["CMAKE_HOME_DIRECTORY"]), datarootdir)
         package_dir = root / libdir / "cmake/OpenTLV"
         for path in (
-            f"{includedir}/tlv/tlv.h", f"{includedir}/tlv/config.h",
+            f"{includedir}/tlv/tlv.h",
             f"{includedir}/tlv/version.h", f"{datarootdir}/doc/OpenTLV/LICENSE",
             f"{libdir}/cmake/OpenTLV/OpenTLVConfig.cmake",
             f"{libdir}/cmake/OpenTLV/OpenTLVModules.cmake",
@@ -131,8 +131,8 @@ def main():
             require(path in files, f"Required installed file missing: {path}")
         require(any(p.endswith((".a", ".lib", ".so", ".dll", ".dylib")) for p in files),
                 "No library artifact in archive")
-        require((f"{includedir}/tlv++/tlv.hpp" in files) == (args.cxx == "ON"),
-                f"C++ headers do not match --cxx {args.cxx}")
+        require(f"{includedir}/tlv++/tlv.hpp" in files,
+                "C++ headers must always be installed")
         unwanted = sorted(p for p in files if "gtest" in p or "benchmark" in p
                           or "nlohmann" in p or Path(p).name in ("otlv", "otlv.exe"))
         require(not unwanted, "Unexpected test/benchmark/CLI files: " + ", ".join(unwanted))
@@ -143,11 +143,11 @@ def main():
         consumer = work / f"consumer-{index}"
         consumer.mkdir()
         (consumer / "main.c").write_text(
-            '#include <tlv/tlv.h>\n#include <tlv/version.h>\n'
+            '#include <tlv/version.h>\n'
             'int main(void) { return tlv_version_string() == 0; }\n', encoding="utf-8")
         cmake = '''cmake_minimum_required(VERSION 3.16)
 project(package_consumer LANGUAGES @LANGUAGES@)
-find_package(OpenTLV CONFIG REQUIRED PATHS "${EXPECTED_PACKAGE_DIR}" NO_DEFAULT_PATH)
+find_package(OpenTLV CONFIG REQUIRED COMPONENTS Core PATHS "${EXPECTED_PACKAGE_DIR}" NO_DEFAULT_PATH)
 get_filename_component(actual_config "${OpenTLV_CONFIG}" REALPATH)
 get_filename_component(expected_config "${EXPECTED_PACKAGE_DIR}/OpenTLVConfig.cmake" REALPATH)
 if(NOT actual_config STREQUAL expected_config)
@@ -155,30 +155,29 @@ if(NOT actual_config STREQUAL expected_config)
 endif()
 enable_testing()
 add_executable(consumer main.c)
-target_link_libraries(consumer PRIVATE OpenTLV::tlv)
+target_link_libraries(consumer PRIVATE OpenTLV::Core)
 add_test(NAME consumer COMMAND consumer)
 '''.replace("@LANGUAGES@", " ".join(languages))
         if args.cxx == "ON":
             (consumer / "main.cpp").write_text(
-                '#include <tlv++/tlv.hpp>\n'
+                '#include <tlv++/version.hpp>\n'
                 'int main() { return tlv::version() == nullptr; }\n', encoding="utf-8")
             cmake += '''add_executable(consumer_cpp main.cpp)
-target_link_libraries(consumer_cpp PRIVATE OpenTLV::tlv++)
+target_link_libraries(consumer_cpp PRIVATE OpenTLV::Core)
 add_test(NAME consumer_cpp COMMAND consumer_cpp)
 '''
         else:
             cmake += 'if(TARGET OpenTLV::tlv++)\nmessage(FATAL_ERROR "Unexpected C++ target")\nendif()\n'
         # Windows does not search the relocated package's bin directory when
         # starting a consumer. Copy the imported DLL beside each test executable.
-        cmake += '''get_target_property(core_type OpenTLV::tlv TYPE)
+        cmake += '''get_target_property(core_type OpenTLV::Core TYPE)
 if(WIN32 AND core_type STREQUAL "SHARED_LIBRARY")
     foreach(consumer_target consumer consumer_cpp)
         if(TARGET ${consumer_target})
             add_custom_command(TARGET ${consumer_target} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                    "$<TARGET_FILE:OpenTLV::tlv>" "$<TARGET_FILE:OpenTLV::Core>"
-                    "$<TARGET_FILE:OpenTLV::IO>" "$<TARGET_FILE:OpenTLV::Document>"
-                    "$<TARGET_FILE:OpenTLV::Generator>" "$<TARGET_FILE_DIR:${consumer_target}>"
+                    "$<TARGET_FILE:OpenTLV::Core>"
+                    "$<TARGET_FILE_DIR:${consumer_target}>"
                 VERBATIM)
         endif()
     endforeach()

@@ -5,7 +5,6 @@
 #define OPENTLV_SCHEMA_H
 
 #include "tlv/result.h"
-#include "tlv/config.h"
 #include "tlv/element.h"
 #include "tlv/format.h"
 #include "tlv/diagnostic.h"

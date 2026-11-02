@@ -136,8 +136,8 @@ zero indicates a successful round trip.
 Save the example as `main.cpp`. It is
 [examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
 Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
-`project`, set `OPENTLV_BUILD_CXX` to `ON`, and link `OpenTLV::tlv++` instead of `OpenTLV::tlv`;
-this target propagates the C library and include paths. `tlv::fixed_format`
+`project` and link `OpenTLV::Core`, `OpenTLV::IO` and `OpenTLV::Codec`;
+these targets supply the C++ headers, C++11 requirement and native libraries. `tlv::fixed_format`
 selects the same Fixed configuration at compile time. The range visits one level
 and borrows input; malformed
 final input throws `tlv::parse_error`, rather than ending iteration silently.
@@ -202,7 +202,7 @@ set(OPENTLV_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/OpenTLV)
 
 add_executable(tlv_demo main.cpp)
-target_link_libraries(tlv_demo PRIVATE OpenTLV::tlv++)
+target_link_libraries(tlv_demo PRIVATE OpenTLV::Core OpenTLV::IO OpenTLV::Codec)
 ```
 
 Configure and build with the CMake commands from
@@ -279,15 +279,15 @@ installed CMake package:
 
 | Target | Public interface | Transitive requirements |
 | --- | --- | --- |
-| `OpenTLV::tlv` | C headers under `tlv/`, including generated configuration, version and export headers | C99; no third-party libraries |
-| `OpenTLV::tlv++` | C++ headers under `tlv++/` | C++11 and `OpenTLV::tlv` |
+| `OpenTLV::Core` | Generic C and C++ primitives | C99 / C++11 |
+| `OpenTLV::IO` | C and C++ Reader/Writer | Core |
+| `OpenTLV::tlv` | Optional complete C/C++ umbrella | All modules and integrations |
 
-Link only the target for your language. Its usage requirements provide the
-public include directories and language features; do not add Core source paths,
-private headers or library filenames to your application. `OpenTLV::tlv++` is
-available only when Core was built with `OPENTLV_BUILD_CXX=ON`.
-The installed C++ target was previously named `OpenTLV::tlvpp`; migrate existing
-consumers to `OpenTLV::tlv++`. No compatibility alias is provided.
+Link the functional modules your application uses in either language. Their
+usage requirements provide public include directories and language features.
+C++ headers are installed independently of `OPENTLV_BUILD_CXX`; that switch
+controls C++ development targets. The former `OpenTLV::tlv++` and
+`OpenTLV::tlvpp` targets are removed. See [module selection](../guides/select-components.md).
 
 ### Source dependency
 
@@ -300,7 +300,7 @@ include(FetchContent)
 FetchContent_Declare(opentlv_core SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/opentlv")
 FetchContent_MakeAvailable(opentlv_core)
 add_executable(my_app main.cpp)
-target_link_libraries(my_app PRIVATE OpenTLV::tlv++)
+target_link_libraries(my_app PRIVATE OpenTLV::IO)
 ```
 
 Alternatively, declare `GIT_REPOSITORY https://github.com/OpenTLV/opentlv.git`
@@ -330,7 +330,7 @@ After `cmake --install`, provide the installation prefix through
 
 ```cmake
 find_package(OpenTLV CONFIG REQUIRED)
-target_link_libraries(my_app PRIVATE OpenTLV::tlv++)
+target_link_libraries(my_app PRIVATE OpenTLV::IO)
 ```
 
 The package name is **`OpenTLV`**, even if the FetchContent dependency is named
@@ -392,7 +392,7 @@ After extracting, point `CMAKE_PREFIX_PATH` at that enclosing directory:
 ```cmake
 find_package(OpenTLV CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE OpenTLV::tlv)
-# For C++ applications, use OpenTLV::tlv++ instead.
+# The same functional targets provide the header-only C++ API.
 ```
 
 ```sh
@@ -403,7 +403,7 @@ cmake --build my-app/build --config Release
 The source checkout is unnecessary. Use a compatible compiler, architecture
 and runtime for the binary library. For shared builds, make the installed
 runtime library discoverable by the platform loader (for example, Windows `PATH`).
-`OPENTLV_BUILD_CXX=OFF` omits C++ headers and the `OpenTLV::tlv++` target.
+`OPENTLV_BUILD_CXX=OFF` disables C++ development targets; C++ headers remain installed.
 CPack only packages `install()` output; it requires neither Conan nor vcpkg.
 On version-tag pushes (for example `0.1.0` or `0.2.0-rc.1`), the standard
 GCC, Clang and MSVC Release jobs each package their tested builds. GCC and Clang
@@ -477,7 +477,7 @@ cmake --build build-integration --config Release --parallel
 ctest --test-dir build-integration -C Release --output-on-failure --no-tests=error
 ```
 
-Both groups follow the enabled format/component options and `OPENTLV_BUILD_CXX`.
+Both groups declare functional dependencies; `OPENTLV_BUILD_CXX` controls C++ test compilation.
 Generic contract tests use controlled callbacks where appropriate and remain
 available without built-in formats. Compile-time format direction checks run
 when tests are enabled. Tags have no compile-time capacity, so tag lengths are

@@ -2,7 +2,6 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/nfc/type2.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
@@ -10,7 +9,6 @@
 #include <vector>
 
 TEST(Unit_Tlv_NfcType2, EveryIdentifierLengthBoundaryRangesAndRoundtrip) {
-    EXPECT_EQ(1, tlv_config_nfc());
     for (unsigned code = 0; code <= 255; ++code) {
         for (size_t size : {0u, 1u, 254u, 255u, 256u, 65534u}) {
             const bool special = code == 0 || code == 0xFE;

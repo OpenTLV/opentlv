@@ -1,14 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include "tlv/builtins/asn1/identifier.h"
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#endif
-#if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer.h"
-#endif
 #include "tlv/formats/compose.h"
 #include "tlv/formats/variable.h"
 #include "tlv/builtins/asn1/ber.h"
@@ -517,12 +512,8 @@ struct Asn1Contract {
 };
 const Asn1Contract asn1_contracts[] = {
     {&tlv_format_ber, tlv_ber_tag_make, tlv_ber_tag_number, 0},
-#if OPENTLV_FORMAT_DER
     {&tlv_format_der, tlv_der_tag_make, tlv_der_tag_number, 1},
-#endif
-#if OPENTLV_FORMAT_CER
     {&tlv_format_cer, tlv_cer_tag_make, tlv_cer_tag_number, 2},
-#endif
 };
 } // namespace
 

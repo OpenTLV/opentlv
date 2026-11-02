@@ -6,20 +6,16 @@
 #include "tlv/defaults.h"
 #include "tlv/format.h"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
-#endif
 typedef struct callback_state {
     tlv_query_exec_t* exec;
     size_t            workspace_bytes;
     unsigned          calls, errors;
     int               fail, mutation;
-#if OPENTLV_DOCUMENT
-    tlv_document_t* document;
-    tlv_node_t*     node;
-#endif
+    tlv_document_t*   document;
+    tlv_node_t*       node;
 } callback_state;
 static int compile_plan(const char* source, const tlv_query_environment_t* environment,
                         arena* image, const tlv_query_program_t** p) {
@@ -174,7 +170,6 @@ static tlv_result_t resolve(const void* context, const char* ns, size_t ns_size,
     *tag = tlv_tag(&byte, 1);
     return TLV_OK;
 }
-#if OPENTLV_DOCUMENT
 static tlv_visit_result_t document_visitor(tlv_node_t*, void*);
 static void               mutate(callback_state* s) {
     if (!s->document) return;
@@ -219,11 +214,6 @@ static tlv_visit_result_t document_visitor(tlv_node_t* node, void* context) {
     mutate(s);
     return TLV_VISIT_STOP;
 }
-#else
-static void mutate(callback_state* s) {
-    (void)s;
-}
-#endif
 static tlv_result_t decode(const void* context, const tlv_tree_event_t* input, const uint8_t* data,
                            size_t size, void* scratch, size_t capacity, tlv_query_result_t* out,
                            tlv_diagnostic_envelope_t* query_envelope) {
@@ -683,7 +673,6 @@ static int retained_scale(void) {
     CHECK(retained_resume_scale() == 0);
     return 0;
 }
-#if OPENTLV_DOCUMENT
 typedef struct callback_format {
     tlv_fixed_format_t config;
     callback_state*    state;
@@ -876,5 +865,4 @@ static int documents(void) {
         }
     return 0;
 }
-#endif
 #endif

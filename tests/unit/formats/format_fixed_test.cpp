@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 
@@ -53,7 +50,6 @@ TEST(Unit_Tlv_Fixed, BothOrdersUseTheSameBinaryPrimitives) {
     }
 }
 
-#if OPENTLV_BLUETOOTH
 // A TLV_ELEMENT_ORDER_LTV/TLV_LENGTH_SCOPE_TAG_AND_VALUE configuration matching
 // tag_size/length_size/length_order must behave exactly like
 // tlv_format_bluetooth_ltv, since that global is this same configuration.
@@ -80,7 +76,6 @@ TEST(Unit_Tlv_Fixed, LtvTagAndValuePresetMatchesBluetoothLtv) {
     EXPECT_TRUE(tlv_reader_at_end(&from_config));
     EXPECT_TRUE(tlv_reader_at_end(&from_global));
 }
-#endif
 
 TEST(Unit_Tlv_Fixed, InitRejectsInvalidFieldOrderAndLengthScope) {
     const tlv_fixed_format_t valid = {

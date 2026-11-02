@@ -2,10 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/bluetooth/ad_codec.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include <cstring>
@@ -75,4 +73,3 @@ TEST(Integration_Tlv_BluetoothAdCodec, InvalidSemanticValueRemainsAvailableAfter
     EXPECT_EQ(0x80, element.value.data[0]);
     EXPECT_EQ(1u, element.value.size);
 }
-#endif

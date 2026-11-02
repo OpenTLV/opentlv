@@ -6,14 +6,11 @@
 #include "tlv/builtins/lldp/codec.h"
 #include "tlv/builtins/lldp/schema.h"
 #include "tlv/schema/number.h"
-#include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
 #include "tlv/query/query.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#endif
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
@@ -169,7 +166,6 @@ TEST(Integration_Tlv_Lldp, GenericSchemaReportAndValueCodecComposition) {
     EXPECT_EQ(base_lldpdu, rebuilt);
 }
 
-#if OPENTLV_DOCUMENT
 #if OPENTLV_QUERY_FRONTEND
 TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     tlv_document_options_t options{};
@@ -200,7 +196,6 @@ TEST(Integration_Tlv_Lldp, DocumentQueryCodecEditAndStructuralRevalidation) {
     EXPECT_EQ(TLV_ERR_SCHEMA, tlv_lldp_validate(wire.data(), written, 3, nullptr));
 }
 #endif
-#endif
 
 TEST(Integration_Tlv_Lldp, SchemaLengthBoundariesRemainSeparateFromFraming) {
     struct Bounds {
@@ -223,7 +218,6 @@ TEST(Integration_Tlv_Lldp, SchemaLengthBoundariesRemainSeparateFromFraming) {
 }
 
 TEST(Integration_Tlv_Lldp, EveryRepresentableTypeAndLengthRoundtrips) {
-    EXPECT_EQ(1, tlv_config_lldp());
     EXPECT_EQ(nullptr, tlv_format_lldp.is_constructed);
     std::array<uint8_t, 511> value{};
     value.fill(0xA5);
@@ -330,7 +324,6 @@ TEST(Integration_Tlv_Lldp, ReaderDefinitionsAndQueryUseTypeWithoutProtocolSemant
     EXPECT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &tlv_format_lldp, &query, 0, 2,
                                              visit, &matches, nullptr));
     EXPECT_EQ(1u, matches);
-#if OPENTLV_DOCUMENT
     tlv_document_options_t options{};
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &tlv_format_lldp));
     tlv_document_t* raw = nullptr;
@@ -344,6 +337,5 @@ TEST(Integration_Tlv_Lldp, ReaderDefinitionsAndQueryUseTypeWithoutProtocolSemant
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output, sizeof(output), &written));
     EXPECT_EQ(sizeof(wire), written);
     EXPECT_EQ(0, std::memcmp(wire, output, sizeof(wire)));
-#endif
 }
 #endif

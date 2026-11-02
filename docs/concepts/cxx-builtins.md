@@ -29,7 +29,8 @@ Every supported framing domain provides `format`, `parse(data)` and
 | `tlv::nfc` | NFC Type 2 data-area TLV | `OpenTLV::NFC` | `nfc/type2.hpp` |
 
 The table names the owning C library. Reader/Writer conveniences also need IO;
-`OpenTLV::tlv++` supplies all dependencies transitively.
+The family target supplies its C++ headers and dependencies. The optional
+`OpenTLV::tlv` interface aggregates all modules in either language.
 
 These are conveniences over the same [generic Format contracts](cxx-formats.md)
 available to user-defined Formats. For example:
@@ -92,7 +93,7 @@ headers. All codecs support the generic `tlv::field` contract: `value_type`,
 to `encode` validates and measures the Value. Storage must not overlap input.
 The original codec errors and semantic restrictions are preserved. EMV dictionary
 codecs require Codec and Schema, matching the canonical
-C package. Codec is selected by linking; `OPENTLV_CODEC` is no longer a CMake target. Generic Query environments remain usable without Codec; automatic
+C package. Codec is selected by linking; `OPENTLV_CODEC` is no longer a CMake option. Generic Query environments remain usable without Codec; automatic
 NUM/BCD/TEXT providers and ASN.1 conversions require Codec.
 
 | Namespace | Codec header under `tlv++/builtins/` | Coverage |

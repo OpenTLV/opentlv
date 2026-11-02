@@ -14,8 +14,6 @@
 #include "tlv/builtins/asn1/ber.h"
 #include "tlv++/codec/structure.hpp"
 #include <gtest/gtest.h>
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
 #include "tlv/builtins/asn1/asn1_codec.h"
 #include "tlv/schema/constraint.h"
@@ -107,7 +105,6 @@ TEST(Integration_Tlvpp, BerPathQuery) {
     ASSERT_FALSE(limited);
     EXPECT_EQ(tlv::errc::limit, limited.error().status());
 }
-#endif
 #endif
 
 TEST(Integration_Tlvpp, LayeredTraversalAndSchema) {

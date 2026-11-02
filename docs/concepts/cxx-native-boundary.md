@@ -267,8 +267,8 @@ The closure boundary is complete supported consumer workflows, not a one-to-one
 copy of every C helper. All ordinary examples and CLI sources pass
 `scripts/check_cxx_boundary.py`; the CI job also runs the scanner's regression
 tests. The scanner rejects native headers, C identifiers/constants and
-`tlv::detail`/`tlv::native` usage. The generated `tlv/config.h` capability switches
-are allowed. Native parity, malformed-native-input fixtures and the explicit
+`tlv::detail`/`tlv::native` usage. The generated `tlv/query/features.h` Query-internal switches
+are allowed; obsolete module-selection macros have been removed. Native parity, malformed-native-input fixtures and the explicit
 interoperability example have exact per-path, per-symbol occurrence baselines in
 `scripts/cxx_boundary_baseline.json`, each with a reason. These files remain
 checked: new symbols, additional occurrences and stale allowances fail the gate.

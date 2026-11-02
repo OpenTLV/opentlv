@@ -324,7 +324,7 @@ It does not select codecs, validate fields or resolve protocol context.
 
 Rust's default-enabled `document` Cargo feature exposes `Document`, immutable
 `Node`, exclusive `NodeMut`, and `DocumentBuilder`. Disable it when linking C
-without `OPENTLV_DOCUMENT`. C owns parsing, navigation, Query lookup, edits,
+without the Document module. C owns parsing, navigation, Query lookup, edits,
 measurement and destination-format encoding. Immutable node/value borrows
 prevent document mutation or destruction. Mutable navigation consumes its
 handle; temporary immutable views block mutation until they expire. Fixed

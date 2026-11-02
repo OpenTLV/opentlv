@@ -7,7 +7,6 @@
 #include "tlv/builtins/dhcp/dhcpv4.h"
 
 #include "tlv++/format.hpp"
-#include "tlv/config.h"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/builder.hpp"
 

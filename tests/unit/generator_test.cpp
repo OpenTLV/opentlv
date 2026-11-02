@@ -6,15 +6,9 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
-#if OPENTLV_BLUETOOTH
 #include <tlv/builtins/bluetooth/bluetooth_ltv.h>
-#endif
-#if OPENTLV_DHCP
 #include <tlv/builtins/dhcp/dhcpv4.h>
-#endif
-#if OPENTLV_NFC
 #include <tlv/builtins/nfc/type2.h>
-#endif
 
 namespace {
 void check_stream(const tlv_format_t& format, const uint8_t* data, size_t size, size_t depth,
@@ -86,20 +80,12 @@ TEST(Unit_Generator, FixedAndIndependentBuiltinFamilies) {
         return tag->size == 1 && tag->data[0] == 2;
     };
     exercise(fixed, candidates, 2);
-#if OPENTLV_BLUETOOTH
     exercise(tlv_format_bluetooth_ltv, candidates, 2);
-#endif
-#if OPENTLV_DHCP
     exercise(tlv_format_dhcpv4, candidates, 2);
-#endif
-#if OPENTLV_NFC
     exercise(tlv_format_nfc_type2, candidates, 2);
-#endif
-#if OPENTLV_FORMAT_BER
     const uint8_t                   ber_tags[] = {0x04, 0x30};
     const tlv_generator_candidate_t ber[] = {{{ber_tags, 1}, 0, 256}, {{ber_tags + 1, 1}, 0, 256}};
     exercise(tlv_format_ber, ber, 2);
-#endif
 }
 TEST(Unit_Generator, ValidationAndImpossibleDomain) {
     const uint8_t             tag = 1;
@@ -287,7 +273,6 @@ TEST(Unit_Generator, SamplesValueBoundariesAndChecksLimits) {
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_generator_workspace_size(&options, &size));
     EXPECT_EQ(999u, size);
 }
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Generator, EmptyConstructedRootAtZeroDepth) {
     const uint8_t                   tag = 0x30;
     const tlv_generator_candidate_t candidate{{&tag, 1}, 0, 10};
@@ -299,7 +284,6 @@ TEST(Unit_Generator, EmptyConstructedRootAtZeroDepth) {
     EXPECT_EQ(0x30, output[0]);
     EXPECT_EQ(0, output[1]);
 }
-#endif
 
 TEST(Unit_Generator, RejectsWriterOutputWithChangedSemantics) {
     const uint8_t                   tag = 1;

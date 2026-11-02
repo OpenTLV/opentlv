@@ -3,15 +3,11 @@
 
 #include "tlv++/native.hpp"
 #include "tlv++/query/program.hpp"
-#include "tlv/config.h"
 #include "tlv/query/adapters.h"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_DOCUMENT
 #include "tlv++/document/document.hpp"
-#endif
-#if OPENTLV_FORMAT_BER
+#include "tlv++/query/document.hpp"
 #include "tlv/builtins/asn1/query.h"
-#endif
 #include <cstring>
 #include <iostream>
 #include <iomanip>
@@ -70,12 +66,8 @@ void scalar(const tlv_query_result_t& result) {
 int main(int argc, char** argv) {
     if (argc == 2 && !std::strcmp(argv[1], "--language-features")) return 0;
     if (argc == 2 && !std::strcmp(argv[1], "--capabilities")) {
-#if OPENTLV_DOCUMENT
         std::cout << "document ";
-#endif
-#if OPENTLV_FORMAT_BER
         std::cout << "asn1 ";
-#endif
         return 0;
     }
     if (argc < 3) return 2;
@@ -93,10 +85,8 @@ int main(int argc, char** argv) {
     const auto*      builtin = tlv_query_builtin_hooks(&hook_count);
     tlv_query_hook_t hooks[4];
     std::memcpy(hooks, builtin, hook_count * sizeof *hooks);
-#if OPENTLV_FORMAT_BER
     environment.tags = &tlv_asn1_query_tags;
     hooks[hook_count++] = tlv_asn1_query_date;
-#endif
     environment.hooks = hooks;
     environment.hook_count = hook_count;
     struct binding {
@@ -163,7 +153,6 @@ int main(int argc, char** argv) {
         if (!status) return fail(status.error());
     }
     if (document_mode) {
-#if OPENTLV_DOCUMENT
         tlv::document_format document_options(tlv::native::borrow_format(format));
         document_options.retain_source_locations = true;
         auto document = tlv::document::parse(view(input, input.size()), document_options);
@@ -215,9 +204,6 @@ int main(int argc, char** argv) {
         if (!result) return fail(result.error());
         scalar(*result);
         return 0;
-#else
-        return fail({TLV_ERR_UNSUPPORTED, {}});
-#endif
     }
     tlv::tree_frame frames[128];
     size_t          split = argc >= 5 ? std::stoul(argv[4]) : input.size();

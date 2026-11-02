@@ -1,24 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/config.h"
 #include "tlv/formats/fixed.h"
 #include "tlv/reader/tree.h"
 #include "tlv/writer/tree.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#endif
-#if OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
-#endif
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_NFC
 #include "tlv/builtins/nfc/type2.h"
-#endif
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -43,21 +32,11 @@ int main(int argc, char** argv) try {
         if (tlv_fixed_format_init(&descriptor, &fixed) != TLV_OK) return 2;
         format = &descriptor;
     }
-#if OPENTLV_FORMAT_BER
     if (!std::strcmp(argv[1], "ber")) format = &tlv_format_ber;
-#endif
-#if OPENTLV_FORMAT_DER
     if (!std::strcmp(argv[1], "der")) format = &tlv_format_der;
-#endif
-#if OPENTLV_EMV
     if (!std::strcmp(argv[1], "emv")) format = &tlv_format_emv;
-#endif
-#if OPENTLV_BLUETOOTH
     if (!std::strcmp(argv[1], "bluetooth-ltv")) format = &tlv_format_bluetooth_ltv;
-#endif
-#if OPENTLV_NFC
     if (!std::strcmp(argv[1], "nfc-type2")) format = &tlv_format_nfc_type2;
-#endif
     if (!format) return 2;
     std::ifstream source(argv[2], std::ios::binary);
     if (!source) return 2;

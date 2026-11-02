@@ -5,7 +5,6 @@
 #define OPENTLV_TLVPP_BUILTINS_BLUETOOTH_LTV_HPP
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv++/format.hpp"
-#include "tlv/config.h"
 #include "tlv++/reader/reader.hpp"
 #include "tlv++/writer/builder.hpp"
 /** @file

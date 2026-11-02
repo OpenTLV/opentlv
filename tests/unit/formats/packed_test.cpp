@@ -2,10 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/packed.h"
-#include "tlv/config.h"
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
@@ -286,9 +283,7 @@ TEST(Unit_Tlv_Packed, NonemptyNullTagPrecedesWidthErrors) {
     auto               config = layout();
     const tlv_format_t formats[] = {
         descriptor(config),
-#if OPENTLV_LLDP
         tlv_format_lldp,
-#endif
     };
     for (const auto& format : formats) {
         for (size_t size : {size_t{0}, size_t{1}, size_t{2}, SIZE_MAX}) {
@@ -321,9 +316,7 @@ TEST(Unit_Tlv_Packed, NonemptyNullTagPrecedesWidthErrors) {
     }
 }
 
-#if OPENTLV_LLDP
 TEST(Unit_Tlv_Packed, BuiltinLldpConfigurationIsValid) {
     const auto* config = static_cast<const tlv_packed_layout_t*>(tlv_format_lldp.context);
     EXPECT_EQ(TLV_OK, tlv_packed_layout_validate(config));
 }
-#endif

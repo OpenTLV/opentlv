@@ -111,7 +111,6 @@ TEST(Unit_Tlvpp_TypedFields, ErrorDomainsAndCursorPreservation) {
     EXPECT_EQ(7, count->value);
 }
 
-#if OPENTLV_DOCUMENT
 int constructed(const void*, const tlv_tag_t* tag) {
     return tag->size == 1 && tag->data[0] == 0x6F;
 }
@@ -157,5 +156,4 @@ TEST(Unit_Tlvpp_TypedFields, DocumentScopeDuplicatesAndInvalidatedNodes) {
                                   static_cast<tlv::byte>(1),    static_cast<tlv::byte>('D')};
     EXPECT_EQ(std::vector<tlv::byte>(expected, expected + 8), *bytes);
 }
-#endif
 } // namespace

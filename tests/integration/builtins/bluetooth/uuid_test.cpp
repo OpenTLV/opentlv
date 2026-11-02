@@ -2,10 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/bluetooth/uuid.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include <cstring>
@@ -58,4 +56,3 @@ TEST(Integration_Tlv_BluetoothUuid, MalformedListRemainsAvailableAsRawValue) {
     EXPECT_EQ(wire + 2, element.value.data);
     EXPECT_EQ(3u, element.value.size);
 }
-#endif

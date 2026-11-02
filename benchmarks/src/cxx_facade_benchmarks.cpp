@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include <benchmark/benchmark.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <vector>
 
-#if OPENTLV_READER && OPENTLV_FORMAT_BER
 #include "tlv++/builtins/asn1/ber.hpp"
 #include "tlv++/formats/fixed_format.hpp"
 #include "tlv++/reader/reader.hpp"
@@ -215,11 +213,8 @@ BENCHMARK_CAPTURE(cxx_reader_resume, fixed, framing::fixed)
     ->Arg(4096);
 
 } // namespace
-#endif
 
 // Match the capability requirements of the public Document facade itself.
-#if OPENTLV_DOCUMENT && OPENTLV_READER && OPENTLV_WRITER && OPENTLV_QUERY && OPENTLV_CODEC &&      \
-    OPENTLV_FORMAT_BER
 #include "tlv++/document/document.hpp"
 
 namespace {
@@ -355,4 +350,3 @@ BENCHMARK_CAPTURE(cxx_document_snapshot, retirement, snapshot_change::retirement
     ->Arg(4096);
 
 } // namespace
-#endif

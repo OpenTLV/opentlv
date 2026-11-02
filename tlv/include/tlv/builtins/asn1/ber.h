@@ -5,7 +5,6 @@
 #define OPENTLV_BUILTINS_ASN1_BER_H
 
 #include "tlv/result.h"
-#include "tlv/config.h"
 #include "tlv/writer/writer.h"
 #include "tlv/builtins/asn1/identifier.h"
 #include "tlv/format.h"

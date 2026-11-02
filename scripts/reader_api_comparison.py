@@ -103,14 +103,16 @@ def prepare(args):
         with (directory / "build.log").open("w") as output:
             subprocess.run(["cmake", "-S", str(source), "-B", str(build), *CMAKE_FLAGS,
                             f"-DCMAKE_C_COMPILER={args.cc}"], check=True, stdout=output, stderr=subprocess.STDOUT)
-            subprocess.run(["cmake", "--build", str(build), "--target", "tlv", "--parallel", "2"],
+            subprocess.run(["cmake", "--build", str(build), "--parallel", "2"],
                            check=True, stdout=output, stderr=subprocess.STDOUT)
             flags = CPP_FLAGS + (["-DOPENTLV_LEGACY_FACADE"] if label in args.legacy_label else [])
-            libraries = [build / "tlv/libtlv.a"]
+            libraries = []
             registry = build / "modules-Release.json"
             if registry.is_file():
                 modules = {entry["key"]: entry for entry in json.loads(registry.read_text())}
-                libraries += [Path(modules[key]["library"]) for key in ("io", "core") if key in modules]
+                libraries = [Path(modules[key]["library"]) for key in ("io", "core") if key in modules]
+            else:
+                libraries = [build / "tlv/libtlv.a"]
             subprocess.run([args.cxx, *flags, "-I" + str(source / "tlv++/include"),
                             "-I" + str(source / "tlv/include"), "-I" + str(build / "generated/include"),
                             str(BENCHMARK), *map(str, libraries), "-o", str(directory / "benchmark")],
@@ -118,11 +120,12 @@ def prepare(args):
         metadata["variants"][label] = {"source_commit": source_commit,
                                         "legacy_facade": label in args.legacy_label,
                                         "source_patch": patch,
-                                        "generated_config_sha256": digest(build / "generated/include/tlv/config.h"),
-                                        "library_sha256": digest(build / "tlv/libtlv.a"),
+                                        "generated_config_sha256": (digest(build / "generated/include/tlv/config.h")
+                                            if (build / "generated/include/tlv/config.h").exists() else None),
+                                        "library_sha256": (digest(build / "tlv/libtlv.a") if (build / "tlv/libtlv.a").exists() else None),
                                         "module_libraries_sha256": {
                                             path.relative_to(build).as_posix(): digest(path)
-                                            for path in libraries[1:]},
+                                            for path in libraries},
                                         "executable_sha256": digest(directory / "benchmark")}
         print(f"Prepared {label}: {source_commit[:12]}", flush=True)
     (args.work_dir / "metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
@@ -139,7 +142,7 @@ def measure(args):
     for label, variant in metadata["variants"].items():
         if variant["executable_sha256"] != digest(args.work_dir / label / "benchmark"):
             raise ValueError(f"benchmark executable changed since preparation: {label}")
-        if variant["library_sha256"] != digest(args.work_dir / label / "build/tlv/libtlv.a"):
+        if variant["library_sha256"] is not None and variant["library_sha256"] != digest(args.work_dir / label / "build/tlv/libtlv.a"):
             raise ValueError(f"native library changed since preparation: {label}")
         for name, expected in variant.get("module_libraries_sha256", {}).items():
             if expected != digest(args.work_dir / label / "build" / name):

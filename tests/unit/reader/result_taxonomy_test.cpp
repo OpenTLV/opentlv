@@ -2,7 +2,6 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../diagnostic_assertions.h"
-#include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/tree.h"
 #include "tlv/formats/compose.h"
@@ -10,32 +9,16 @@
 #include "tlv/formats/fixed.h"
 #include "tlv/formats/packed.h"
 #include "tlv/formats/variable.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer.h"
 #include "tlv/builtins/asn1/cer_validation.h"
-#endif
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"
-#endif
-#if OPENTLV_FORMAT_BER && OPENTLV_EMV
 #include "tlv/builtins/emv/format.h"
-#endif
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_DHCP
 #include "tlv/builtins/dhcp/dhcpv4.h"
-#endif
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
-#if OPENTLV_NFC
 #include "tlv/builtins/nfc/type2.h"
-#endif
 #include <gtest/gtest.h>
 #include <string>
 #include <utility>
@@ -193,7 +176,6 @@ TEST(Unit_Tlv_ResultTaxonomy, ConfigurableFormatsSeparateEndTruncationAndCapacit
 
 TEST(Unit_Tlv_ResultTaxonomy, BuiltinFormatsSeparateEndTruncationAndCapacity) {
     std::vector<Case> cases;
-#if OPENTLV_FORMAT_BER
     cases.push_back({"ber", &tlv_format_ber, tlv_tag(two_byte_tag, sizeof two_byte_tag), octets});
     // Indefinite length frames encoded children and ends with an EOC trailer.
     static const uint8_t constructed_tag[] = {0xBF, 0x21};
@@ -201,50 +183,31 @@ TEST(Unit_Tlv_ResultTaxonomy, BuiltinFormatsSeparateEndTruncationAndCapacity) {
                      &tlv_format_ber_indefinite,
                      tlv_tag(constructed_tag, sizeof constructed_tag),
                      {0x04, 0x01, 0xAA}});
-#endif
-#if OPENTLV_FORMAT_CER
     cases.push_back({"cer", &tlv_format_cer, tlv_tag(two_byte_tag, sizeof two_byte_tag), octets});
-#endif
-#if OPENTLV_FORMAT_DER
     cases.push_back({"der", &tlv_format_der, tlv_tag(two_byte_tag, sizeof two_byte_tag), octets});
-#endif
-#if OPENTLV_FORMAT_BER && OPENTLV_EMV
     cases.push_back({"emv", &tlv_format_emv, tlv_tag(two_byte_tag, sizeof two_byte_tag), octets});
-#endif
-#if OPENTLV_BLUETOOTH
     cases.push_back({"bluetooth_ltv", &tlv_format_bluetooth_ltv, tlv_tag(short_tag, 1), octets});
-#endif
-#if OPENTLV_DHCP
     cases.push_back({"dhcpv4", &tlv_format_dhcpv4, tlv_tag(short_tag, 1), octets});
-#endif
-#if OPENTLV_LLDP
     cases.push_back({"lldp", &tlv_format_lldp, tlv_tag(short_tag, 1), octets});
-#endif
-#if OPENTLV_NFC
     static const uint8_t ndef[] = {0x03};
     cases.push_back({"nfc_type2", &tlv_format_nfc_type2, tlv_tag(ndef, 1), octets});
-#endif
     for (const auto& c : cases) check_format(c);
 }
 
-#if OPENTLV_FORMAT_DER || OPENTLV_FORMAT_CER
+#if 1 || 1
 TEST(Unit_Tlv_ResultTaxonomy, ValidatingReadersReportEndWithoutFailureSeverity) {
     const uint8_t truncated[] = {0x04, 2, 0};
     using read_fn =
         tlv_result_t (*)(const uint8_t*, size_t, tlv_element_t*, size_t*, tlv_diagnostic_t*);
     std::vector<std::pair<std::string, read_fn>> readers;
-#if OPENTLV_FORMAT_DER
     readers.push_back({"der", [](const uint8_t* data, size_t size, tlv_element_t* element,
                                  size_t* consumed, tlv_diagnostic_t* diagnostic) {
                            return tlv_der_read(data, size, nullptr, element, consumed, diagnostic);
                        }});
-#endif
-#if OPENTLV_FORMAT_CER
     readers.push_back({"cer", [](const uint8_t* data, size_t size, tlv_element_t* element,
                                  size_t* consumed, tlv_diagnostic_t* diagnostic) {
                            return tlv_cer_read(data, size, nullptr, element, consumed, diagnostic);
                        }});
-#endif
     for (const auto& reader : readers) {
         SCOPED_TRACE(reader.first);
         tlv_element_t    element{};

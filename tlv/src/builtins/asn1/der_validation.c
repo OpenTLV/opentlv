@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include "ber_internal.h"
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"

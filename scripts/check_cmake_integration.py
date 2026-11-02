@@ -22,6 +22,8 @@ def main():
     parser.add_argument("--generator")
     parser.add_argument("--shared", choices=("ON", "OFF"), default="ON")
     parser.add_argument("--cxx", choices=("ON", "OFF"), default="ON")
+    parser.add_argument("--library-cxx", choices=("ON", "OFF"),
+                        help="Library development-language switch, independent of consumer language")
     parser.add_argument("--cmake-arg", action="append", default=[])
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
@@ -33,7 +35,7 @@ def main():
         common += ["-G", args.generator]
     common += args.cmake_arg
     core_options = [f"-DOPENTLV_BUILD_SHARED_LIBS={args.shared}",
-                    f"-DOPENTLV_BUILD_CXX={args.cxx}"]
+                    f"-DOPENTLV_BUILD_CXX={args.library_cxx or args.cxx}"]
 
     def configure(source, build, *options):
         run("cmake", "-S", source, "-B", build, *common, *options)

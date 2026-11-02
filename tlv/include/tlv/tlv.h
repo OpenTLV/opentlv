@@ -11,7 +11,6 @@
  */
 
 /* Core primitives and generic formats */
-#include "tlv/config.h"
 #include "tlv/attributes.h"
 #include "tlv/compiler.h"
 #include "tlv/defaults.h"
@@ -47,51 +46,29 @@
 #include "tlv/writer/tree.h"
 #include "tlv/generator.h"
 
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#endif
 
-#if OPENTLV_QUERY
 #include "tlv/query/query.h"
-#endif
 
-#if OPENTLV_SCHEMA
 #include "tlv/schema/schema.h"
 #include "tlv/schema/constraint.h"
-#if OPENTLV_QUERY
 #include "tlv/schema/query.h"
 #include "tlv/schema/query_document.h"
-#endif
-#endif
 
-#if OPENTLV_CODEC
 #include "tlv/codec/codec.h"
-#if OPENTLV_SCHEMA
 #include "tlv/codec/structure.h"
-#endif
-#endif
 
 /* Builtin protocols and formats */
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
 
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
 #include "tlv/builtins/asn1/der_validation.h"
-#endif
 
-#if OPENTLV_EMV && OPENTLV_SCHEMA && OPENTLV_CODEC
 #include "tlv/builtins/emv/emv.h"
-#endif
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/ad_types.h"
-#endif
 
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
 
 #endif /* OPENTLV_TLV_H */

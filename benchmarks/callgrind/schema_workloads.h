@@ -11,16 +11,14 @@
 #ifndef OPENTLV_BENCHMARK_SCHEMA_WORKLOADS_H
 #define OPENTLV_BENCHMARK_SCHEMA_WORKLOADS_H
 
-#include "tlv/config.h"
 #include "tlv/tag.h"
 
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
-#define SCHEMA_WORKLOADS_GENERIC (OPENTLV_SCHEMA && OPENTLV_READER && OPENTLV_FORMAT_BER)
-#define SCHEMA_WORKLOADS_DER                                                                       \
-    (OPENTLV_FORMAT_DER && OPENTLV_SCHEMA && OPENTLV_CODEC && OPENTLV_WRITER)
+#define SCHEMA_WORKLOADS_GENERIC 1
+#define SCHEMA_WORKLOADS_DER 1
 
 #if SCHEMA_WORKLOADS_GENERIC
 #include "tlv/builtins/asn1/ber.h"

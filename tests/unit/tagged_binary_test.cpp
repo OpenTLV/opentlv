@@ -2,7 +2,6 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/formats/compose.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 #include <cstring>
 
@@ -43,7 +42,6 @@ TEST(Unit_Tlv_TaggedBinary, DifferentIdentifiersWidthsAndByteOrder) {
     invalid.value = normal.element.value;
     tlv_encoding_t sizes{};
     EXPECT_EQ(TLV_ERR_INVALID_LENGTH, tlv_format_measure(&format, &invalid, &sizes, nullptr));
-    EXPECT_EQ(OPENTLV_DHCP, tlv_config_dhcp());
 }
 
 TEST(Unit_Tlv_TaggedBinary, ValidatesConfigurationAndPreservesDescriptor) {

@@ -25,7 +25,6 @@ opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR include
         src/utf8_internal.c
         src/value.c
         ${OpenTLV_BINARY_DIR}/generated/src/version.c
-        ${OpenTLV_BINARY_DIR}/generated/src/config.c
     PUBLIC_HEADERS
         include/tlv/attributes.h
         include/tlv/callback.h
@@ -61,21 +60,6 @@ opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR include
         tlv_binary_decode
         tlv_binary_encode
         tlv_binary_measure
-        tlv_config_bluetooth
-        tlv_config_codec
-        tlv_config_dhcp
-        tlv_config_document
-        tlv_config_emv
-        tlv_config_format_asn1
-        tlv_config_format_ber
-        tlv_config_format_cer
-        tlv_config_format_der
-        tlv_config_lldp
-        tlv_config_nfc
-        tlv_config_query
-        tlv_config_reader
-        tlv_config_schema
-        tlv_config_writer
         tlv_constructed_bit_predicate
         tlv_copy_encoded
         tlv_copy_value

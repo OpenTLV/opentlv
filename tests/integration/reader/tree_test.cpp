@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/config.h"
 #include "tlv/reader/tree.h"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -36,7 +31,6 @@ TEST(Integration_Tlv_Tree, FixedLtvUsesFormatOwnedOrderAndConstruction) {
     EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Integration_Tlv_Tree, NestedTrailersAndSkippingResumeOutsideEnclosingValues) {
     const uint8_t wire[] = {0x30, 0x80, 0x30, 0x80, 4, 0, 0, 0, 4, 0, 0, 0, 4, 0};
     for (bool skip : {false, true}) {
@@ -95,9 +89,7 @@ TEST(Integration_Tlv_Tree, IncrementalIndefiniteParentWaitsForEocThenAllowsCompa
         EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
     }
 }
-#endif
 
-#if OPENTLV_LLDP
 TEST(Integration_Tlv_Tree, PackedFormatKeepsTransformedBorrowedTags) {
     const uint8_t     wire[] = {0x0A, 2, 'A', 'B'};
     tlv_tree_reader_t reader;
@@ -111,4 +103,3 @@ TEST(Integration_Tlv_Tree, PackedFormatKeepsTransformedBorrowedTags) {
     EXPECT_FALSE(item.constructed);
     EXPECT_TRUE(tlv_tree_reader_at_end(&reader));
 }
-#endif

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TLVPP_DOCUMENT_DIFF_HPP
 #define OPENTLV_TLVPP_DOCUMENT_DIFF_HPP
-#include "tlv++/document/document.hpp"
+#include "tlv++/query/document.hpp"
 #include <map>
 #include <set>
 #include <string>

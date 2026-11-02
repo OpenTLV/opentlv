@@ -4,7 +4,6 @@
 #ifndef OPENTLV_FUZZ_COMMON_H
 #define OPENTLV_FUZZ_COMMON_H
 
-#include "tlv/config.h"
 #include "tlv/size.h"
 #include "tlv/reader/reader.h"
 #include "tlv/reader/visitor.h"

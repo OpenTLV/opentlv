@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 /* Included after adversarial_callbacks.h; shares CHECK/arena/compile_plan. */
-#if OPENTLV_QUERY_FRONTEND && OPENTLV_DOCUMENT
+#if OPENTLV_QUERY_FRONTEND
 typedef struct document_format_reinit_state {
     tlv_format_t               base;
     const tlv_query_program_t* program;

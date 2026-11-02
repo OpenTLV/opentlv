@@ -2,27 +2,14 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../diagnostic_assertions.h"
-#include "tlv/config.h"
 #include "tlv/reader/reader.h"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#endif
-#if OPENTLV_FORMAT_CER
 #include "tlv/builtins/asn1/cer.h"
-#endif
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_DHCP
 #include "tlv/builtins/dhcp/dhcpv4.h"
-#endif
-#if OPENTLV_LLDP
 #include "tlv/builtins/lldp/lldp.h"
-#endif
 #include <gtest/gtest.h>
 #include <vector>
 
@@ -60,30 +47,17 @@ TEST(Integration_Tlv_Incremental, EverySplitUsesTheSelectedFormatAndBorrowedRepr
     tlv_format_t format;
     ASSERT_EQ(TLV_OK, tlv_fixed_format_init(&format, &config));
     check_splits(&format, {1, 2, 0xAA, 0xBB});
-#if OPENTLV_FORMAT_BER
     check_splits(&tlv_format_ber, {0x9F, 0x33, 0x82, 0, 2, 0xAA, 0xBB});
     check_splits(&tlv_format_ber, {0x30, 0x80, 0x30, 0x80, 4, 1, 0xAA, 0, 0, 0, 0});
-#endif
-#if OPENTLV_FORMAT_DER
     check_splits(&tlv_format_der, {4, 2, 0xAA, 0xBB});
-#endif
-#if OPENTLV_FORMAT_CER
     check_splits(&tlv_format_cer, {0x30, 0x80, 4, 1, 0xAA, 0, 0});
-#endif
-#if OPENTLV_BLUETOOTH
     check_splits(&tlv_format_bluetooth_ltv, {3, 9, 'A', 'B'});
-#endif
-#if OPENTLV_DHCP
     check_splits(&tlv_format_dhcpv4, {0});
     check_splits(&tlv_format_dhcpv4, {255});
     check_splits(&tlv_format_dhcpv4, {12, 2, 'A', 'B'});
-#endif
-#if OPENTLV_LLDP
     check_splits(&tlv_format_lldp, {0x0A, 2, 'A', 'B'});
-#endif
 }
 
-#if OPENTLV_FORMAT_BER
 TEST(Integration_Tlv_Incremental, MalformedBytesAndClosedParentBoundsDoNotRequestMoreInput) {
     const std::vector<std::vector<uint8_t>> invalid = {
         {4, 0x80},
@@ -119,4 +93,3 @@ TEST(Integration_Tlv_Incremental, MissingEocReportsTrailerExtentThenTruncationAt
         TLV_ERR_TRUNCATED,
         TLV_DIAGNOSTIC_RESULT(diagnostic, tlv_reader_next_diag(&reader, &element, &diagnostic)));
 }
-#endif

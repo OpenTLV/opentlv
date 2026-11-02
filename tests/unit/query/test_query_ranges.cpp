@@ -8,11 +8,8 @@
 #include "tlv++/query/query.hpp"
 #include "tlv++/query/program.hpp"
 #include "tlv++/query/builder.hpp"
-#include "tlv/config.h"
-#if OPENTLV_DOCUMENT
 #include "tlv++/document/document.hpp"
 #include "tlv++/document/diff.hpp"
-#endif
 #include <gtest/gtest.h>
 #include <vector>
 #include <cstdlib>
@@ -262,7 +259,6 @@ TEST(Unit_Tlvpp_FullQuery, CallerStorageAndRepeatedNeedMoreData) {
     EXPECT_FALSE(execution->visit(reader, visitor));
 }
 
-#if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_FullQuery, DocumentSnapshotsAndCompletedRemove) {
     auto doc = tlv::document::parse(bytes(input, sizeof input),
                                     tlv::document_format(tlv::native::borrow_format(format)));
@@ -908,7 +904,6 @@ TEST(Unit_Tlvpp_FullQuery, DocumentValueSizeClassifiesWriterFailures) {
     EXPECT_EQ(TLV_QUERY_ERROR_STORAGE, diagnostic.kind);
     EXPECT_NE(0u, staging.required_data);
 }
-#endif
 
 TEST(Unit_Tlvpp_QueryRanges, EmptyAndCompilationErrors) {
     tlv::tree_frame  frames[3]{};
@@ -976,7 +971,6 @@ TEST(Unit_Tlvpp_QueryRanges, LimitsApplyToUnmatchedItems) {
     EXPECT_EQ(tlv::errc::limit, result.error().status());
 }
 
-#if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_QueryRanges, DocumentSnapshotHandlesSurviveMoveAndInvalidateSafely) {
     auto parsed = tlv::document::parse(bytes(input, sizeof(input)),
                                        tlv::document_format(tlv::native::borrow_format(format)));
@@ -1025,4 +1019,3 @@ TEST(Unit_Tlvpp_QueryRanges, DocumentSnapshotExcludesInsertionAndInvalidatesRepl
     EXPECT_TRUE(parent);
     EXPECT_EQ(1u, parsed->select("6F/A5/50").size());
 }
-#endif

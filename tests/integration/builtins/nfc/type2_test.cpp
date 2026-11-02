@@ -2,14 +2,11 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "tlv/builtins/nfc/type2.h"
-#include "tlv/config.h"
 #include "tlv/query/query.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#endif
 #include <gtest/gtest.h>
 #include <cstring>
 #include <memory>
@@ -54,14 +51,12 @@ TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets
     const char*                            paths[] = {"00", "03", "FE", "E0"};
     const std::vector<std::vector<size_t>> offsets = {{0, 5}, {1}, {4}, {6}};
     const size_t                           lengths[] = {0, 1, 0, 0};
-#if OPENTLV_DOCUMENT
-    tlv_document_options_t options{};
+    tlv_document_options_t                 options{};
     ASSERT_EQ(TLV_OK, tlv_document_options_init(&options, &tlv_format_nfc_type2));
     tlv_document_t* raw = nullptr;
     ASSERT_EQ(TLV_OK, tlv_document_parse(wire, sizeof(wire), &options, &raw, nullptr));
     std::unique_ptr<tlv_document_t, decltype(&tlv_document_free)> doc(raw, tlv_document_free);
     EXPECT_EQ(5u, tlv_document_count(doc.get()));
-#endif
     for (size_t i = 0; i < 4; ++i) {
         SCOPED_TRACE(paths[i]);
         tlv_query_t query{};
@@ -75,7 +70,6 @@ TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets
         ASSERT_EQ(TLV_OK, tlv_query_visit_buffer(wire, sizeof(wire), &tlv_format_nfc_type2, &query,
                                                  0, 5, visit, &matches, nullptr));
         EXPECT_EQ(offsets[i], matches);
-#if OPENTLV_DOCUMENT
         tlv_node_t* node = nullptr;
         ASSERT_EQ(TLV_OK, tlv_document_find_path(doc.get(), &query, &node));
         ASSERT_NE(nullptr, node);
@@ -89,16 +83,11 @@ TEST(Integration_Tlv_NfcType2, QueryAndDocumentPreserveControlElementsAndOffsets
             EXPECT_EQ(0u, tlv_node_value_size(second_pad));
             EXPECT_EQ(nullptr, tlv_node_next_same_tag(second_pad));
         }
-#endif
     }
-#if OPENTLV_DOCUMENT
     uint8_t output[sizeof(wire)]{};
     size_t  written = 0;
     ASSERT_EQ(TLV_OK, tlv_document_encode(doc.get(), output, sizeof(output), &written));
     EXPECT_EQ(sizeof(wire), written);
     EXPECT_EQ(0, std::memcmp(wire, output, sizeof(wire)));
-#else
-    (void)lengths;
-#endif
 }
 #endif

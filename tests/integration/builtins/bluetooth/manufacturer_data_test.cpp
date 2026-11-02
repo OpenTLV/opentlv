@@ -4,10 +4,8 @@
 #include "tlv/builtins/bluetooth/manufacturer_data.h"
 #include "tlv/builtins/bluetooth/company_ids.h"
 #include "tlv/builtins/bluetooth/ad_types.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
 #include "tlv/reader/reader.h"
 #include "tlv/writer/writer.h"
@@ -57,4 +55,3 @@ TEST(Integration_Tlv_BluetoothManufacturerData, Story349PreservesOpaqueVendorDat
     EXPECT_EQ(short_wire + 2, element.value.data);
     EXPECT_EQ(1u, element.value.size);
 }
-#endif

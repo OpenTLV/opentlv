@@ -365,8 +365,7 @@ foreach(feature IN ITEMS TESTS UNIT_TESTS INTEGRATION_TESTS QUERY_TESTS PROPERTY
 endforeach()
 set(OPENTLV_BUILD_CXX ON CACHE BOOL "" FORCE)
 # Core/IO/Document/Query are link-selected; historical baselines enable them by default.
-foreach(feature IN ITEMS QUERY_FRONTEND QUERY_SET_OPERATIONS
-        SCHEMA CODEC FORMAT_ASN1 FORMAT_BER FORMAT_DER FORMAT_CER EMV BLUETOOTH NFC DHCP LLDP)
+foreach(feature IN ITEMS QUERY_FRONTEND QUERY_SET_OPERATIONS)
     set(OPENTLV_${feature} ON CACHE BOOL "" FORCE)
 endforeach()
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION OFF)
@@ -380,13 +379,21 @@ FetchContent_Declare(googlebenchmark
 FetchContent_MakeAvailable(googlebenchmark)
 add_executable(benchmark-tlv src/tlv_benchmarks.cpp src/reader_decode_benchmarks.cpp
     src/schema_benchmarks.cpp src/cxx_facade_benchmarks.cpp)
-target_link_libraries(benchmark-tlv PRIVATE tlv tlv++ benchmark::benchmark_main)
+if(TARGET OpenTLV::Document)
+    target_link_libraries(benchmark-tlv PRIVATE OpenTLV::Core OpenTLV::IO OpenTLV::Document OpenTLV::Schema OpenTLV::ASN1 OpenTLV::EMV OpenTLV::Bluetooth OpenTLV::LLDP OpenTLV::Query OpenTLV::QueryDocument OpenTLV::Codec benchmark::benchmark_main)
+else()
+    target_link_libraries(benchmark-tlv PRIVATE tlv tlv++ benchmark::benchmark_main)
+endif()
 add_executable(opentlv-perf-workload callgrind/workloads.c)
 target_compile_definitions(opentlv-perf-workload PRIVATE
     _POSIX_C_SOURCE=200809L OPENTLV_CALLGRIND_INSTRUMENTATION=1)
 find_path(CALLGRIND_INCLUDE_DIR valgrind/callgrind.h REQUIRED)
 target_include_directories(opentlv-perf-workload PRIVATE "${CALLGRIND_INCLUDE_DIR}")
-target_link_libraries(opentlv-perf-workload PRIVATE tlv)
+if(TARGET OpenTLV::Document)
+    target_link_libraries(opentlv-perf-workload PRIVATE OpenTLV::Core OpenTLV::IO OpenTLV::Document OpenTLV::Query OpenTLV::Schema OpenTLV::ASN1)
+else()
+    target_link_libraries(opentlv-perf-workload PRIVATE tlv)
+endif()
 '''
 
 

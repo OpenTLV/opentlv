@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "tlv/query/plan.h"
-#include "tlv/config.h"
 #include <stdio.h>
 #include <string.h>
 

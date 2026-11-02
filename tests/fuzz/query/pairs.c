@@ -5,7 +5,6 @@
 #include "tlv/formats/fixed.h"
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
-#include "tlv/config.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -174,7 +173,6 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             if (tlv_query_exec_info(failed, &status) != TLV_OK || !status.invalid) abort();
         }
     }
-#if OPENTLV_DOCUMENT
     tlv_document_options_t document_options;
     if (tlv_document_options_init(&document_options, &format) != TLV_OK) abort();
     tlv_document_t* document = NULL;
@@ -208,7 +206,6 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
         if (rc != TLV_END || count != matches[0].count) abort();
     }
     tlv_document_free(document);
-#endif
     /* Provider failure and malformed result types are independent fuzz inputs.
      * Reinitialize exactly the same workspace after failure, then prove that a
      * compatible successful provider can evaluate without stale invalid state. */
@@ -245,10 +242,10 @@ int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             const tlv_result_t expected = provider.status == TLV_OK || provider.status == TLV_END
                                               ? TLV_ERR_CALLBACK
                                               : provider.status;
-            const tlv_codec_violation_t violation =
-                provider.status == TLV_OK    ? TLV_CODEC_VIOLATION_TYPE
-                : provider.status == TLV_END ? TLV_CODEC_VIOLATION_RESULT
-                                             : TLV_CODEC_VIOLATION_NONE;
+            const tlv_query_conversion_violation_t violation =
+                provider.status == TLV_OK    ? TLV_QUERY_CONVERSION_TYPE
+                : provider.status == TLV_END ? TLV_QUERY_CONVERSION_RESULT
+                                             : TLV_QUERY_CONVERSION_NONE;
             if (rc != expected || diagnostic.diagnostic.code != expected ||
                 diagnostic.kind != (expected == TLV_ERR_CALLBACK ? TLV_QUERY_ERROR_CALLBACK
                                                                  : TLV_QUERY_ERROR_CODEC) ||

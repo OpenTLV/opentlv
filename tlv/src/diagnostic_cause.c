@@ -34,7 +34,7 @@ tlv_result_t tlv_diagnostic_cause_copy(const tlv_diagnostic_cause_t* cause,
     if (!cause || !domain || !domain->name || !detail) return TLV_ERR_NULL_ARG;
     if (!cause->domain || !cause->domain->name || !domain->id || !domain->name[0] || !type ||
         !size || size > TLV_DIAGNOSTIC_DETAIL_MAX || cause->size != size ||
-        cause->domain->id != domain->id || strcmp(cause->domain->name, domain->name) ||
+        cause->domain->id != domain->id || strcmp(cause->domain->name, domain->name) != 0 ||
         cause->type != type)
         return TLV_ERR_INVALID_ARG;
     memcpy(detail, cause->payload.bytes, size);

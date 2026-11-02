@@ -66,7 +66,7 @@ def build(source, build_dir):
         "-DOPENTLV_BUILD_BENCHMARKS=OFF", "-DOPENTLV_WARNINGS_AS_ERRORS=OFF",
         stdout=subprocess.DEVNULL,
     )
-    run("cmake", "--build", str(build_dir), "--target", "tlv", "--parallel",
+    run("cmake", "--build", str(build_dir), "--parallel",
         stdout=subprocess.DEVNULL)
 
 

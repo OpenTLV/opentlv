@@ -3,7 +3,6 @@
 
 #include "tlv/formats/escaped.h"
 #include "tlv/formats/variable.h"
-#include "tlv/config.h"
 #include <gtest/gtest.h>
 #include <cstring>
 
@@ -81,7 +80,6 @@ TEST(Unit_Tlv_Escaped, NonminimalPreservationAndCanonicalEncoding) {
 }
 
 TEST(Unit_Tlv_Escaped, IdentifierSelectionIsIndependentOfNfc) {
-    EXPECT_EQ(OPENTLV_NFC, tlv_config_nfc());
     const uint8_t              tag_bytes[] = {0xAB, 0xCD};
     const tlv_tag_t            tag = tlv_tag(tag_bytes, 2);
     const tlv_escaped_format_t config{{2},

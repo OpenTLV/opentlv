@@ -261,7 +261,6 @@ TEST(Unit_Tlvpp_NativeBoundary, SchemaPreservesNamedDiagnosticsThroughFormatView
     EXPECT_EQ(TLV_SCHEMA_ISSUE_UNEXPECTED, diagnostics[1].detail.schema.kind);
 }
 
-#if OPENTLV_DOCUMENT
 TEST(Unit_Tlvpp_NativeBoundary, DocumentCopiesDescriptorAndSurvivesMove) {
     const uint8_t data[] = {0xE1, 2, 1, 0};
     auto          create = [&]() -> tlv::expected<tlv::document, tlv::error> {
@@ -288,9 +287,7 @@ TEST(Unit_Tlvpp_NativeBoundary, DocumentCopiesDescriptorAndSurvivesMove) {
     ASSERT_TRUE(root_encoded);
     EXPECT_EQ(0, std::memcmp(data, root_encoded->data(), sizeof(data)));
 }
-#endif
 
-#if OPENTLV_FORMAT_BER
 TEST(Unit_Tlvpp_NativeBoundary, BerNamespaceSelectsCanonicalDescriptor) {
     const uint8_t data[] = {0x5A, 2, 0x12, 0x34};
     EXPECT_EQ(&tlv_format_ber, &tlv::native::descriptor(tlv::ber::format{}));
@@ -304,4 +301,3 @@ TEST(Unit_Tlvpp_NativeBoundary, BerNamespaceSelectsCanonicalDescriptor) {
     ASSERT_TRUE(writer.write(*element));
     EXPECT_EQ(0, std::memcmp(data, output, sizeof(data)));
 }
-#endif

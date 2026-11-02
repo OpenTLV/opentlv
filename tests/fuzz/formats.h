@@ -6,15 +6,9 @@
 
 #include "common.h"
 #include "tlv/formats/fixed.h"
-#if OPENTLV_BLUETOOTH
 #include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#endif
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/ber.h"
-#endif
-#if OPENTLV_FORMAT_DER
 #include "tlv/builtins/asn1/der.h"
-#endif
 
 /* Raw-byte formats have no built-in nesting rule. This test convention lets
  * the Tree Reader exercise their nested values too: bit 0x20 denotes a container. */
@@ -31,22 +25,14 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
 static const tlv_fixed_format_t fuzz_fixed_config = {
     {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
 static tlv_format_t fuzz_fixed_format;
-#if OPENTLV_BLUETOOTH
 static tlv_format_t fuzz_bluetooth_ltv_format;
-#endif
 
 static const struct {
     const tlv_format_t* format;
 } fuzz_formats[] = {{&fuzz_fixed_format},
-#if OPENTLV_BLUETOOTH
                     {&fuzz_bluetooth_ltv_format},
-#endif
-#if OPENTLV_FORMAT_BER
                     {&tlv_format_ber},
-#endif
-#if OPENTLV_FORMAT_DER
                     {&tlv_format_der},
-#endif
                     {NULL}};
 
 /* libFuzzer calls this once before any input is fuzzed. */
@@ -55,10 +41,8 @@ int LLVMFuzzerInitialize(int* argc, char*** argv) {
     (void)argv;
     tlv_fixed_format_init(&fuzz_fixed_format, &fuzz_fixed_config);
     fuzz_fixed_format.is_constructed = fuzz_constructed;
-#if OPENTLV_BLUETOOTH
     fuzz_bluetooth_ltv_format = tlv_format_bluetooth_ltv;
     fuzz_bluetooth_ltv_format.is_constructed = fuzz_constructed;
-#endif
     return 0;
 }
 

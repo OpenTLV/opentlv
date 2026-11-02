@@ -41,7 +41,7 @@ def header_source(text):
 def violations(path, text):
     # Generated capability switches are configuration, not a native execution API.
     for match in INCLUDE.finditer(header_source(text)):
-        if match[1] != "tlv/config.h":
+        if match[1] != "tlv/query/features.h":
             yield {"path": path, "line": text.count("\n", 0, match.start()) + 1,
                    "symbol": match[1], "kind": "header"}
     for match in TOKEN.finditer(masked(text)):

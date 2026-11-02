@@ -9,10 +9,8 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#if OPENTLV_DOCUMENT
 #include "tlv/document/document.h"
 #include <memory>
-#endif
 #if defined(_WIN32)
 #ifndef NOMINMAX
 #define NOMINMAX

@@ -5,6 +5,7 @@
 
 #include "controlled_format.h"
 #include "tlv++/document/document.hpp"
+#include "tlv++/query/document.hpp"
 // Override only the native allocator to force address reuse in the handle regression.
 #include "../../../tlv/src/document/document_internal.h"
 

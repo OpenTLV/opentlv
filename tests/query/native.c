@@ -9,10 +9,7 @@
 #include "tlv/document/document.h"
 #include "tlv/query/document.h"
 #include "tlv/writer/tree.h"
-#include "tlv/config.h"
-#if OPENTLV_FORMAT_BER
 #include "tlv/builtins/asn1/query.h"
-#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,7 +40,6 @@ static int hex(char c) {
     if (c >= 'a' && c <= 'f') return c - 'a' + 10;
     return -1;
 }
-#if OPENTLV_DOCUMENT
 static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_format_t* format,
                                  tlv_query_exec_t* exec, tlv_query_diagnostic_t* diagnostic) {
     tlv_document_options_t options;
@@ -126,7 +122,6 @@ static tlv_result_t document_run(const uint8_t* input, size_t size, const tlv_fo
     tlv_document_free(document);
     return rc;
 }
-#endif
 static tlv_result_t fixture_resolve(const void* context, const char* ns, size_t ns_size,
                                     const char* name, size_t name_size, tlv_tag_t* tag) {
     (void)context;
@@ -229,12 +224,8 @@ int main(int argc, char** argv) {
         return 0;
     }
     if (argc == 2 && !strcmp(argv[1], "--capabilities")) {
-#if OPENTLV_DOCUMENT
         printf("document ");
-#endif
-#if OPENTLV_FORMAT_BER
         printf("asn1 ");
-#endif
         printf("\n");
         return 0;
     }
@@ -312,10 +303,8 @@ int main(int argc, char** argv) {
     const tlv_query_hook_t* builtin = tlv_query_builtin_hooks(&hook_count);
     tlv_query_hook_t        hooks[4];
     memcpy(hooks, builtin, hook_count * sizeof *hooks);
-#if OPENTLV_FORMAT_BER
     hooks[hook_count++] = tlv_asn1_query_date;
     environment.tags = &tlv_asn1_query_tags;
-#endif
     environment.hooks = hooks;
     environment.hook_count = hook_count;
     tlv_query_compile_options_t options;
@@ -398,17 +387,10 @@ int main(int argc, char** argv) {
         }
         rc = TLV_OK;
     }
-#if OPENTLV_DOCUMENT
     if (document_mode) {
         rc = document_run(input, size, &format, exec, &diagnostic);
         goto done;
     }
-#else
-    if (document_mode) {
-        rc = TLV_ERR_UNSUPPORTED;
-        goto done;
-    }
-#endif
     tlv_tree_reader_t reader;
     tlv_tree_frame_t  frames[128];
     size_t            split = argc >= 5 ? (size_t)strtoul(argv[4], NULL, 10) : size;

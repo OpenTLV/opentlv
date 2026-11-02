@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include <string.h>
-#include <tlv/config.h>
-#include <tlv/tlv.h>
 #include <tlv/version.h>
 
 int main(int argc, char** argv) {
