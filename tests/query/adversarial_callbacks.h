@@ -791,9 +791,20 @@ static int edit_aliases(void) {
     return 0;
 }
 static int documents(void) {
-    const char* expressions[] = {
-        "//01",         "/70[child::01]",  "(//01)[last()]", "//01 | //01/following::*",
-        "num(//01[1])", "number(//01[1])", "class(//01[1])", "constructed(//01[1])"};
+    const struct {
+        const char* expression;
+        int         nodes;
+        int         constructed;
+    } cases[] = {{"//01", 1, 0},
+                 {"/70[child::01]", 1, 0},
+                 {"(//01)[last()]", 1, 0},
+#if OPENTLV_QUERY_SET_OPERATIONS
+                 {"//01 | //01/following::*", 1, 0},
+#endif
+                 {"num(//01[1])", 0, 0},
+                 {"number(//01[1])", 0, 0},
+                 {"class(//01[1])", 0, 0},
+                 {"constructed(//01[1])", 0, 1}};
     callback_format callback = {0};
     callback.config.identifier.size = callback.config.length.size = 1;
     callback.config.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
@@ -805,7 +816,7 @@ static int documents(void) {
     options.retain_source_locations = 1;
     CHECK(document_reinitialization(&options) == 0);
     CHECK(edit_aliases() == 0);
-    for (unsigned kind = 0; kind < sizeof expressions / sizeof *expressions; ++kind)
+    for (unsigned kind = 0; kind < sizeof cases / sizeof *cases; ++kind)
         for (int mutation = 0; mutation <= 9; ++mutation) {
             const uint8_t  wire[] = {0x70, 3, 1, 1, 9};
             callback_state state = {0};
@@ -813,7 +824,7 @@ static int documents(void) {
             callback.state = NULL;
             CHECK(tlv_document_parse(wire, sizeof wire, &options, &state.document, NULL) == TLV_OK);
             state.node = tlv_node_first_child(tlv_document_first(state.document));
-            if (kind == 7) callback.state = &state;
+            if (cases[kind].constructed) callback.state = &state;
             tlv_query_hook_t        hook = {73, TLV_QUERY_NUM, 0, 1, &state, decode};
             tlv_query_tag_adapter_t tags = {74, &state, tag_number, tag_number};
             tlv_query_environment_t environment = {0};
@@ -823,7 +834,7 @@ static int documents(void) {
             environment.tags = &tags;
             arena                      image, memory;
             const tlv_query_program_t* p;
-            CHECK(compile_plan(expressions[kind], &environment, &image, &p) == 0);
+            CHECK(compile_plan(cases[kind].expression, &environment, &image, &p) == 0);
             size_t bytes, alignment;
             CHECK(tlv_query_eval_size(p, 3, 8, &bytes, &alignment) == TLV_OK);
             CHECK(tlv_query_eval_init(p, &environment, aligned(&memory), bytes, 3, 8, 100000,
@@ -840,7 +851,7 @@ static int documents(void) {
             tlv_query_diagnostic_t diagnostic = {0};
             tlv_result_t rc = tlv_document_query_evaluate(state.document, state.exec, NULL, values,
                                                           sizeof values, &staging, &diagnostic);
-            if (kind < 4) {
+            if (cases[kind].nodes) {
                 CHECK(rc == TLV_OK);
                 rc = tlv_document_query_program_visit(state.exec, document_visitor, &state,
                                                       &diagnostic);
