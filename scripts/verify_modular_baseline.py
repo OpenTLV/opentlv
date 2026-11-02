@@ -52,16 +52,19 @@ def scenario_coverage(reference, current, migrations):
     names = Counter(identity(row["name"]) for row in current)
     old_names = Counter(identity(row["name"]) for row in reference)
     baseline.checked(not (migrations.keys() - old_names.keys()), "stale scenario migration")
-    missing = []
+    required = Counter()
     for name in sorted(old_names):
         replacement = migrations.get(name)
         if replacement is not None:
             baseline.checked(name not in names and replacement.get("reason")
                              and replacement.get("tests"), f"invalid scenario migration: {name}")
         expected = replacement["tests"] if replacement else [name]
-        if any(names[test] < old_names[name] for test in expected):
-            missing.append({"baseline": name, "expected_count": old_names[name],
-                            "observed": {test: names[test] for test in expected}})
+        for test in expected:
+            required[test] += old_names[name]
+    # Shared replacements must cover every contributing baseline observation,
+    # including observations required by scenarios that kept their identity.
+    missing = [{"scenario": test, "expected_count": count, "observed": names[test]}
+               for test, count in sorted(required.items()) if names[test] < count]
     baseline.checked(not missing, "baseline scenarios missing: " + json.dumps(missing))
     return {"baseline": sum(old_names.values()), "current_observations": sum(names.values()),
             "migrations": migrations}

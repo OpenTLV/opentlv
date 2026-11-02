@@ -16,10 +16,15 @@ CTest scenarios, 164 fuzz seeds, 320 Generator cases, Query observations and
 126 diagnostic codes/names in 16 families. Verification checks its checksums
 and source archive; it never updates the reference to make a comparison pass.
 
-The local candidate starts at merged commit
+The original local verification candidate started at merged commit
 `7ff1e96e00ac6cfdc189f742020ab42e5e5eec4e`, with the uncommitted verification
-changes for #655. Reports record the parent commit, working-tree status and
-hashes of the actual source/test inputs. No library functionality, algorithms,
+changes for #655, subsequently published as
+`6068395ce365b0f182f655c7c5a33158fe6ab8a2` in
+[PR #735](https://github.com/OpenTLV/opentlv/pull/735).
+The scenario migration review fix is a subsequent local change; the final
+candidate SHA and its Full CI evidence remain pending. Reports record the parent
+commit, working-tree status and hashes of the actual source/test inputs.
+No library functionality, algorithms,
 public declarations or external downstream repositories change in #655.
 
 **Epic completion remains pending.** On 2026-11-02 the epic had no comments,
@@ -35,6 +40,31 @@ commit. This is evidence for the preceding implementation, not the new #655
 verification changes. Closure requires a successful Full CI run at the final
 candidate commit and reconciliation of the missing start gate. Use `Refs #655`
 until these acceptance criteria are satisfied.
+
+PR merge requires the scenario migration fix and successful PR, documentation
+and final-commit Full CI validation. Historical start-gate reconciliation and
+the remaining naming prerequisite are separate epic follow-up work, not PR
+merge blockers; they remain relevant to closing #655 and #643.
+
+## Hosted evidence before the review fix (2026-11-02)
+
+The following runs are associated with PR head
+`6068395ce365b0f182f655c7c5a33158fe6ab8a2`. Pull-request workflows test the
+synthetic merge revision; preserve the actual checkout SHA from each report.
+These runs do not validate the subsequent scenario migration fix.
+
+| Evidence | Observed status |
+| --- | --- |
+| [Documentation validation 41456351868](https://github.com/OpenTLV/opentlv/actions/runs/41456351868) | Passed; API generation, Markdown, examples and inventory checks all executed successfully |
+| [Core Pull Request CI 41456351866](https://github.com/OpenTLV/opentlv/actions/runs/41456351866) | Passed; static analysis, Clang tests, CodeQL, consumers, static/shared isolation, behavioral baseline gate and Core quality gate succeeded |
+| [Modular verification artifact](https://github.com/OpenTLV/opentlv/actions/runs/41456351866/artifacts/13146764501) | Uploaded successfully for merge revision `f24fe657663f1bbaa206004e3bd171985cd89189`, attempt 1 |
+| Full CI including the review fix | Pending commit publication and execution |
+
+PR mode intentionally skips the Full-only MSVC, GCC, property, Query, fuzz,
+capability, ABI and memory-check jobs, the additional Clang configurations and
+performance comparison. These skips do not establish Full CI coverage. Inspect
+all required jobs and their steps in the final Full run, and require the Core
+quality gate plus the evidence artifacts before recording completion.
 
 ## Local verification results (2026-11-02)
 
@@ -126,6 +156,10 @@ The verifier therefore collects per-scenario GoogleTest XML as well as CTest
 JUnit. Increasing the total number of tests cannot hide a lost baseline
 scenario. Explicit renames require a reason and named passing replacements in
 [`scenario-migrations.json`](../../../tests/baseline/scenario-migrations.json).
+When multiple baseline scenarios name the same replacement, its required
+observation count is the sum of their original multiplicities, including any
+unchanged scenario with that identity. Each named replacement must satisfy
+that total; one passing observation cannot cover multiple original cases.
 For the old NFC parameter names that contain heap addresses, comparison ignores
 the address dump but preserves the number of cases for each test.
 

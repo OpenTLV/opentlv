@@ -52,6 +52,34 @@ class CoverageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "stale"):
             scenario_coverage([], [], {"old": {"tests": ["new"], "reason": "Moved"}})
 
+    def test_shared_replacements_require_combined_multiplicity(self):
+        old = [{"name": "first"}, {"name": "first"}, {"name": "second"}]
+        migrations = {name: {"tests": ["shared", "other"], "reason": "Moved to owning module."}
+                      for name in ("first", "second")}
+        for shared_count, other_count in ((2, 3), (3, 2), (3, 3)):
+            with self.subTest(shared=shared_count, other=other_count):
+                current = ([{"name": "shared"}] * shared_count
+                           + [{"name": "other"}] * other_count)
+                if min(shared_count, other_count) < 3:
+                    with self.assertRaisesRegex(ValueError, '"expected_count": 3'):
+                        scenario_coverage(old, current, migrations)
+                else:
+                    self.assertEqual(3, scenario_coverage(old, current, migrations)["baseline"])
+
+    def test_replacements_cannot_reuse_unchanged_scenario_observations(self):
+        old = [{"name": "renamed"}, {"name": "retained"}]
+        current = [{"name": "retained"}]
+        migrations = {"renamed": {"tests": ["retained"], "reason": "Moved to owning module."}}
+        with self.assertRaisesRegex(ValueError, '"expected_count": 2'):
+            scenario_coverage(old, current, migrations)
+        current.append({"name": "retained"})
+        self.assertEqual(2, scenario_coverage(old, current, migrations)["baseline"])
+
+    def test_migration_of_still_present_scenario_fails(self):
+        with self.assertRaisesRegex(ValueError, "invalid scenario migration"):
+            scenario_coverage([{"name": "old"}], [{"name": "old"}, {"name": "new"}], {
+                "old": {"tests": ["new"], "reason": "Moved to owning module."}})
+
     def test_fuzz_seed_paths_may_move_but_bytes_must_survive(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

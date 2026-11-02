@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Require combined observation counts when baseline scenario migrations share replacement tests, preventing lost scenario coverage from passing final modular verification. (#655)
 - Fix Query CI consumers by explicitly aligning streaming and compiler storage on MSVC x86, linking the ASN.1 adapters in the MemorySanitizer driver, and retaining callback-mutation coverage when set operations are disabled. (#733)
 - Fix MSVC x86 shared-library test failures by honoring Query workspace alignment and avoiding callback-address comparisons when selecting builtin test contexts. (#733)
 - Restore clang-tidy diagnostics for public C and C++ headers with normalized header filters and regression coverage; resolve exposed findings while preserving public signatures and ABI. (#733)
