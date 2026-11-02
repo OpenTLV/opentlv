@@ -99,6 +99,8 @@ document::select(const query_program& program, query_capabilities environment = 
     return results;
 }
 
+// Preserve the public value parameter for the checked context handle.
+// cppcheck-suppress-begin passedByValue
 inline expected<void, query_failure> document::evaluate(query_execution&        execution,
                                                         span<byte>              values,
                                                         const writer_workspace* staging,

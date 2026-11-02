@@ -845,8 +845,6 @@ public:
      * @return Complete Query failure or success; does not allocate.
      * @warning Keep the Document and snapshot unchanged while consuming results.
      */
-    // Preserve the public value parameter for the checked context handle.
-    // cppcheck-suppress-begin passedByValue
     expected<void, query_failure> evaluate(query_execution& execution, span<byte> values,
                                            const writer_workspace* staging = nullptr,
                                            node                    context = node()) const;

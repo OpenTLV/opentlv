@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Restore cppcheck and clang-tidy validation for unified C/C++ modules without changing API or runtime behavior. (#654)
 - Fix CI and release evidence generation after Schema extraction by tracking the current modular CMake configuration instead of the removed capability-options file. Rename the C++ Schema failure factory to `schema_failure::from_result()` to avoid hiding the common error factory and restore cppcheck validation. (#652)
 
 ### Changed
