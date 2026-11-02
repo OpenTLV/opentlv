@@ -12,7 +12,7 @@ single, allocation-free structure that every OpenTLV layer can share instead
 of inventing its own error-reporting shape.
 
 ```c
-#include "tlv/diagnostic.h"
+#include "opentlv/core/diagnostic.h"
 
 tlv_diagnostic_t diagnostic;
 tlv_diagnostic_init(&diagnostic, TLV_ERR_TRUNCATED, TLV_DIAGNOSTIC_SEVERITY_ERROR);
@@ -88,7 +88,7 @@ The reader is the first layer to enrich a diagnostic: `tlv_read_diag()` and
 functions remain usable without paying for diagnostics.
 
 ```c
-#include "tlv/reader/reader.h"
+#include "opentlv/io/reader/reader.h"
 
 tlv_element_t element;
 size_t     consumed;
@@ -132,7 +132,7 @@ The writer enriches a diagnostic the same way: `tlv_write_diag()` and
 `tlv_writer_diagnostic_t` when encoding fails.
 
 ```c
-#include "tlv/writer/writer.h"
+#include "opentlv/io/writer/writer.h"
 
 size_t written;
 tlv_writer_diagnostic_t diagnostic;
@@ -167,7 +167,7 @@ as a `tlv_schema_diagnostic_t`; see
 [Reporting every violation](schemas.md#reporting-every-violation).
 
 ```c
-#include "tlv/schema/schema.h"
+#include "opentlv/schema/schema.h"
 
 tlv_schema_diagnostic_t        diagnostics[16], failure;
 tlv_schema_diagnostic_report_t report = {diagnostics, 16, 0};
@@ -222,8 +222,8 @@ outermost first, that a caller builds while descending into nested
 constructed elements, for example with `tlv_tree_reader_visit()`:
 
 ```c
-#include "tlv/diagnostic.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/core/diagnostic.h"
+#include "opentlv/io/reader/visitor.h"
 
 tlv_diagnostic_path_t path;
 tlv_diagnostic_path_init(&path);

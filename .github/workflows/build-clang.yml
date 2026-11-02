@@ -109,10 +109,10 @@ jobs:
           mkdir -p coverage
           gcovr build --root . \
             --gcov-executable 'llvm-cov-18 gcov' \
-            --filter 'tlv/(src|include)/.*\.(c|h)$' \
-            --filter 'tlv\+\+/include/.*\.(h|hpp)$' \
-            --include 'tlv/(src|include)/.*\.(c|h)$' \
-            --include 'tlv\+\+/include/.*\.(h|hpp)$' \
+            --filter '(src|include)/.*\.(c|h)$' \
+            --filter 'include/.*\.(h|hpp)$' \
+            --include '(src|include)/.*\.(c|h)$' \
+            --include 'include/.*\.(h|hpp)$' \
             --html-details coverage/index.html \
             --json-summary coverage/summary.json \
             --print-summary

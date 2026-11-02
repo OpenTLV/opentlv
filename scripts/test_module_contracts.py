@@ -10,25 +10,25 @@ import unittest
 from check_module_contracts import BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check, cycles
 
 FILES = {
-    "tlv/include/tlv/result.h": "typedef enum tlv_result {\n    TLV_OK = 0, /**< ok */\n"
+    "include/opentlv/core/result.h": "typedef enum tlv_result {\n    TLV_OK = 0, /**< ok */\n"
                                 "    TLV_ERR_X\n} tlv_result_t;\n",
-    "tlv/src/result.c": '#include "tlv/result.h"\n',
-    "tlv/include/tlv/io.h": '#include "tlv/result.h"\n',
-    "tlv/src/io/io.c": '#include "tlv/io.h"\n#include "io_internal.h"\n',
-    "tlv/src/io/io_internal.h": '#include "tlv/io.h"\n',
-    "tlv/src/document/document.c": '#include "tlv/result.h"\n',
-    "tlv/src/query/query.c": 'static int f(void* d) { return query_limit(d, "work", 1, 0, 0); }\n',
-    "tlv++/include/tlv++/nfc.hpp": '#include "tlv/result.h"\n',
+    "src/core/result.c": '#include "opentlv/core/result.h"\n',
+    "include/opentlv/io/io.h": '#include "opentlv/core/result.h"\n',
+    "src/io/io.c": '#include "opentlv/io/io.h"\n#include "internal/io_internal.h"\n',
+    "src/io/internal/io_internal.h": '#include "opentlv/io/io.h"\n',
+    "src/document/document.c": '#include "opentlv/core/result.h"\n',
+    "src/query/query.c": 'static int f(void* d) { return query_limit(d, "work", 1, 0, 0); }\n',
+    "include/opentlv/builtin/nfc/nfc.hpp": '#include "opentlv/core/result.h"\n',
 }
 OWNERS = {
-    "tlv/include/tlv/result.h": "core",
-    "tlv/src/result.c": "core",
-    "tlv/include/tlv/io.h": "io",
-    "tlv/src/io/io.c": "io",
-    "tlv/src/io/io_internal.h": "io",
-    "tlv/src/document/document.c": "document",
-    "tlv/src/query/query.c": "query",
-    "tlv++/include/tlv++/nfc.hpp": "nfc",
+    "include/opentlv/core/result.h": "core",
+    "src/core/result.c": "core",
+    "include/opentlv/io/io.h": "io",
+    "src/io/io.c": "io",
+    "src/io/internal/io_internal.h": "io",
+    "src/document/document.c": "document",
+    "src/query/query.c": "query",
+    "include/opentlv/builtin/nfc/nfc.hpp": "nfc",
 }
 
 
@@ -48,7 +48,7 @@ def mapping():
         "ranges": {"generic": [1, 255], "builtin": [256, 511]},
         "domains": {"core": {"id": 1, "module": "core"}, "query": {"id": 4, "module": "query"}},
         "families": [
-            {"family": "core.result", "id": 1, "domain": "core", "header": "tlv/include/tlv/result.h",
+            {"family": "core.result", "id": 1, "domain": "core", "header": "include/opentlv/core/result.h",
              "typedef": "tlv_result", "codes": [code("TLV_OK", 0), code("TLV_ERR_X", 1)]},
             {"family": "query.limit", "id": None, "domain": "query",
              "codes": [code("work", None, "query")]},
@@ -93,45 +93,85 @@ class ModuleContractTests(unittest.TestCase):
         self.assertEqual([], self.errors())
 
     def test_every_file_needs_exactly_one_current_owner(self):
-        self.write("tlv/src/extra.c", "")
-        self.assert_error("assign an owner to tlv/src/extra.c")
-        (self.root / "tlv/src/extra.c").unlink()
-        self.contract["files"]["tlv/src/gone.c"] = "core"
-        self.assert_error("remove stale tlv/src/gone.c")
+        self.write("src/extra.c", "")
+        self.assert_error("assign an owner to src/extra.c")
+        (self.root / "src/extra.c").unlink()
+        self.contract["files"]["src/gone.c"] = "core"
+        self.assert_error("remove stale src/gone.c")
 
     def test_undeclared_dependency_needs_a_recorded_resolution(self):
-        self.write("tlv/src/document/document.c", '#include "tlv/io.h"\n')
-        self.assert_error('dependency violation including "tlv/io.h"')
+        self.write("src/document/document.c", '#include "opentlv/io/io.h"\n')
+        self.assert_error('dependency violation including "opentlv/io/io.h"')
         self.contract["resolutions"]["move"] = {"issue": 1, "summary": "Move it."}
-        self.contract["exceptions"].append({"kind": "dependency", "include": "tlv/io.h",
+        self.contract["exceptions"].append({"kind": "dependency", "include": "opentlv/io/io.h",
                                             "resolution": "move",
-                                            "files": ["tlv/src/document/document.c"]})
+                                            "files": ["src/document/document.c"]})
         self.assertEqual([], self.errors())
-        self.write("tlv/src/document/document.c", '#include "tlv/result.h"\n')
+        self.write("src/document/document.c", '#include "opentlv/core/result.h"\n')
         self.assert_error("remove resolved dependency exception")
 
     def test_declared_dependency_and_comments_are_accepted(self):
         self.contract["targets"]["document"]["public"] = ["io"]
-        self.write("tlv/src/document/document.c",
-                   '#include "tlv/io.h"\n// #include "../query/missing.h"\n'
+        self.write("src/document/document.c",
+                   '#include "opentlv/io/io.h"\n// #include "../query/missing.h"\n'
                    '/* #include "tlv/missing.h" */\n')
         self.assertEqual([], self.errors())
 
     def test_private_headers_stay_inside_their_module(self):
         self.contract["targets"]["document"]["public"] = ["io"]
-        self.write("tlv/src/document/document.c", '#include "../io/io_internal.h"\n')
-        self.assert_error('private-header violation including "../io/io_internal.h"')
-        self.write("tlv/src/document/document.c", "")
-        self.write("tlv/src/io/tools.c", '#include "io_internal.h"\n')
-        self.contract["files"]["tlv/src/io/tools.c"] = "io-tools"
+        self.write("src/document/document.c", '#include "../io/internal/io_internal.h"\n')
+        self.assert_error('private-header violation including "../io/internal/io_internal.h"')
+        self.write("src/document/document.c", "")
+        self.write("src/io/tools.c", '#include "internal/io_internal.h"\n')
+        self.contract["files"]["src/io/tools.c"] = "io-tools"
         self.assertEqual([], self.errors())
 
     def test_facade_dependencies_apply_only_to_cxx_headers(self):
-        self.write("tlv++/include/tlv++/nfc.hpp", '#include "tlv/io.h"\n')
+        self.write("include/opentlv/builtin/nfc/nfc.hpp", '#include "opentlv/io/io.h"\n')
         self.assertEqual([], self.errors())
-        self.write("tlv/src/nfc.c", '#include "tlv/io.h"\n')
-        self.contract["files"]["tlv/src/nfc.c"] = "nfc"
-        self.assert_error("tlv/src/nfc.c: dependency violation")
+        self.write("src/builtin/nfc/nfc.c", '#include "opentlv/io/io.h"\n')
+        self.contract["files"]["src/builtin/nfc/nfc.c"] = "nfc"
+        self.assert_error("src/builtin/nfc/nfc.c: dependency violation")
+
+    def test_relative_and_angle_private_header_bypasses_fail(self):
+        self.contract["targets"]["document"]["public"] = ["io"]
+        for name in ("../io/internal/io_internal.h",
+                     "../query/../io/internal/io_internal.h",
+                     "src/io/internal/io_internal.h"):
+            for opening, closing in (('"', '"'), ('<', '>')):
+                with self.subTest(name=name, delimiter=opening):
+                    self.write("src/document/document.c", f'#include {opening}{name}{closing}\n')
+                    self.assert_error("private-header violation")
+
+    def test_builtin_cannot_include_generic_private_header(self):
+        self.contract["targets"]["nfc"]["public"] = ["io"]
+        self.contract["targets"]["nfc"]["facade"] = []
+        self.write("src/builtin/nfc/nfc.c", '#include "../../io/internal/io_internal.h"\n')
+        self.contract["files"]["src/builtin/nfc/nfc.c"] = "nfc"
+        self.assert_error("private-header violation")
+
+    def test_builtins_depend_only_on_generic_modules(self):
+        self.contract["targets"]["emv"]["private"] = ["asn1"]
+        self.assert_error("a builtin depends on another builtin asn1")
+
+    def test_public_header_cannot_expose_own_private_header(self):
+        self.write("include/opentlv/io/io.h", '#include "../../../src/io/internal/io_internal.h"\n')
+        self.assert_error("private-header violation")
+
+    def test_private_header_must_live_in_owned_internal_directory(self):
+        path = "src/document/internal/foreign.h"
+        self.write(path, "")
+        self.contract["files"][path] = "io"
+        self.assert_error("must belong under src/io/internal/")
+
+    def test_historical_root_is_rejected(self):
+        self.write("tlv/include/tlv/forward.h", "")
+        self.assert_error("historical source root tlv must not exist")
+
+    def test_macro_include_cannot_bypass_ownership(self):
+        self.write("src/document/document.c", '#define HEADER "../io/internal/io_internal.h"\n'
+                   '#include HEADER\n')
+        self.assert_error("use a literal header name")
 
     def test_target_graph_must_be_acyclic_and_layered(self):
         cyclic = copy.deepcopy(self.contract)
@@ -157,12 +197,12 @@ class ModuleContractTests(unittest.TestCase):
         self.assert_error("remove move, which no exception or API move uses")
 
     def test_mapping_covers_every_enumerator_without_merging(self):
-        self.write("tlv/include/tlv/result.h",
+        self.write("include/opentlv/core/result.h",
                    "typedef enum tlv_result { TLV_OK = 0, TLV_ERR_X, TLV_ERR_Y } tlv_result_t;\n")
         self.assert_error("core.result: map TLV_ERR_Y = 2")
-        self.write("tlv/include/tlv/result.h", "typedef enum tlv_result { TLV_OK = 0 } tlv_result_t;\n")
+        self.write("include/opentlv/core/result.h", "typedef enum tlv_result { TLV_OK = 0 } tlv_result_t;\n")
         self.assert_error("core.result: remove or correct stale TLV_ERR_X = 1")
-        self.write("tlv/include/tlv/result.h", FILES["tlv/include/tlv/result.h"])
+        self.write("include/opentlv/core/result.h", FILES["include/opentlv/core/result.h"])
         self.mapping["families"][0]["codes"][1]["new"] = "TLV_OK"
         self.assert_error("TLV_ERR_X and TLV_OK merge into TLV_OK")
 
@@ -188,7 +228,7 @@ class ModuleContractTests(unittest.TestCase):
         self.assert_error("reuses family id 1")
 
     def test_limit_names_are_complete(self):
-        self.write("tlv/src/query/query.c", 'int f(void* d) { return edit_limit(d, "depth", 1); }\n')
+        self.write("src/query/query.c", 'int f(void* d) { return edit_limit(d, "depth", 1); }\n')
         self.assert_error('map limit name "depth"')
         self.assert_error('remove stale limit name "work"')
 

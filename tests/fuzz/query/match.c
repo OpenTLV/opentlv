@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/query/query.h"
+#include "opentlv/query/query.h"
 #include <string.h>
 
 int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {

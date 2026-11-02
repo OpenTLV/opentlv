@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "controlled_format.h"
-#include "tlv/writer/copy.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/io/writer/copy.h"
+#include "opentlv/io/reader/reader.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

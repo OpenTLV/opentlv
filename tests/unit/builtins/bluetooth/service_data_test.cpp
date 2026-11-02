@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/bluetooth/service_data.h"
+#include "opentlv/builtin/bluetooth/service_data.h"
 #include <gtest/gtest.h>
 #include <cstring>
 

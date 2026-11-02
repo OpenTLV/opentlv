@@ -6,8 +6,8 @@ function(opentlv_check_custom_format)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
     set(CMAKE_REQUIRED_INCLUDES
-        "${OpenTLV_SOURCE_DIR}/tlv/include"
-        "${OpenTLV_SOURCE_DIR}/tlv++/include"
+        "${OpenTLV_SOURCE_DIR}/include"
+        "${OpenTLV_SOURCE_DIR}/include"
         "${OpenTLV_SOURCE_DIR}/tests"
         "${OpenTLV_BINARY_DIR}/generated/include")
     if(MSVC)
@@ -15,7 +15,7 @@ function(opentlv_check_custom_format)
     else()
         set(CMAKE_REQUIRED_FLAGS "-std=c++11 -Wall -Wextra -Werror")
     endif()
-    set(header "#include <custom_cpp_format.hpp>\n#include <tlv++/reader/reader.hpp>\n#include <tlv++/writer/writer.hpp>\n")
+    set(header "#include <custom_cpp_format.hpp>\n#include <opentlv/io/reader/reader.hpp>\n#include <opentlv/io/writer/writer.hpp>\n")
     set(cases valid empty missing_encode wrong_decode throwing_decode nonconst_decode wrong_classifier wrong_measure wrong_encode reader_write_only writer_read_only)
     set(valid "using F = custom_cpp_format")
     set(empty "struct F {}")

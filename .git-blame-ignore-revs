@@ -1,0 +1,2 @@
+# Issue #733: append the full mechanical rewrite commit hash after committing it.
+# Keep pure file moves separate; do not ignore their commit without a reason.

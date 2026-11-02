@@ -188,12 +188,12 @@ set(OPENTLV_GIT_REPO_VERSION
 
 function(opentlv_generate_version_files)
     configure_file(
-        "${_OPENTLV_VERSION_MODULE_DIR}/../tlv/resources/version.h.in"
-        "${PROJECT_BINARY_DIR}/generated/include/tlv/version.h"
+        "${_OPENTLV_VERSION_MODULE_DIR}/../src/core/internal/version.h.in"
+        "${PROJECT_BINARY_DIR}/generated/include/opentlv/core/version.h"
         @ONLY
     )
     configure_file(
-        "${_OPENTLV_VERSION_MODULE_DIR}/../tlv/resources/version.c.in"
+        "${_OPENTLV_VERSION_MODULE_DIR}/../src/core/version.c.in"
         "${PROJECT_BINARY_DIR}/generated/src/version.c"
         @ONLY
     )

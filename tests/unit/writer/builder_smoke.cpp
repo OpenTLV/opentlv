@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 // C++11 and allocation checks independent of GoogleTest's language requirements.
-#include "tlv++/writer/builder.hpp"
+#include "opentlv/io/writer/builder.hpp"
 #include "custom_cpp_format.hpp"
 #include <cstdlib>
 #include <cstring>

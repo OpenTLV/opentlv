@@ -3,7 +3,7 @@
 # justified exception, not a blanket silence: see the comment above it.
 
 # emv_tags.def is an X-macro table re-included with a different EMV_TAG
-# definition at each use, including one in tlv/src/builtins/emv/emv.c that
+# definition at each use, including one in src/builtin/emv/emv.c that
 # dispatches per entry via token-pasting (EMV_CODEC_##kind). cppcheck's
 # preprocessor cannot resolve that pasted, per-entry macro name, which is
 # valid C the compilers (Clang/GCC/MSVC, all covered by CI) accept.
@@ -13,11 +13,12 @@ unknownMacro:*/emv_tags.def
 # intentionally mirror those standard types' implicit converting
 # constructors (e.g. so `return value;` works where `expected<T, E>` is
 # expected), so they are deliberately not explicit.
-noExplicitConstructor:*/tlv++/compat.hpp
+noExplicitConstructor:*/opentlv/core/compat.hpp
 
 # tlv++ is header-only and this target analyzes its headers directly,
 # without a translation unit that instantiates and uses every template and
 # struct; cppcheck's single-pass, no-instantiation analysis then reports
 # members that are actually used by tlv++ consumers (tests,
 # examples) as unused.
-unusedStructMember:*/tlv++/*.hpp
+# The recursive glob includes the new module and builtin subdirectories.
+unusedStructMember:*/opentlv/**.hpp

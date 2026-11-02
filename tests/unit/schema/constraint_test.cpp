@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/schema/constraint.h"
+#include "opentlv/schema/constraint.h"
 
 #include <gtest/gtest.h>
 

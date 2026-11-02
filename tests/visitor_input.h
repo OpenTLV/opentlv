@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_TEST_VISITOR_INPUT_H
 #define OPENTLV_TEST_VISITOR_INPUT_H
-#include "tlv/reader/visitor.h"
+#include "opentlv/io/reader/visitor.h"
 #include <vector>
 inline tlv_result_t visit_input(const uint8_t* data, size_t size, const tlv_format_t* format,
                                 tlv_visitor_t visitor, void* context) {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/field/escaped.h"
+#include "opentlv/core/field/escaped.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>

@@ -121,8 +121,8 @@ def main():
         check_license_files(root, Path(cache["CMAKE_HOME_DIRECTORY"]), datarootdir)
         package_dir = root / libdir / "cmake/OpenTLV"
         for path in (
-            f"{includedir}/tlv/tlv.h",
-            f"{includedir}/tlv/version.h", f"{datarootdir}/doc/OpenTLV/LICENSE",
+            f"{includedir}/opentlv/tlv.h",
+            f"{includedir}/opentlv/core/version.h", f"{datarootdir}/doc/OpenTLV/LICENSE",
             f"{libdir}/cmake/OpenTLV/OpenTLVConfig.cmake",
             f"{libdir}/cmake/OpenTLV/OpenTLVModules.cmake",
             f"{libdir}/cmake/OpenTLV/OpenTLVConfigVersion.cmake",
@@ -131,8 +131,11 @@ def main():
             require(path in files, f"Required installed file missing: {path}")
         require(any(p.endswith((".a", ".lib", ".so", ".dll", ".dylib")) for p in files),
                 "No library artifact in archive")
-        require(f"{includedir}/tlv++/tlv.hpp" in files,
+        require(f"{includedir}/opentlv/tlv.hpp" in files,
                 "C++ headers must always be installed")
+        require(not any(p.startswith((f"{includedir}/tlv/", f"{includedir}/tlv++/"))
+                        or "/internal/" in p for p in files),
+                "Legacy include paths or private headers were installed")
         unwanted = sorted(p for p in files if "gtest" in p or "benchmark" in p
                           or "nlohmann" in p or Path(p).name in ("otlv", "otlv.exe"))
         require(not unwanted, "Unexpected test/benchmark/CLI files: " + ", ".join(unwanted))
@@ -143,7 +146,7 @@ def main():
         consumer = work / f"consumer-{index}"
         consumer.mkdir()
         (consumer / "main.c").write_text(
-            '#include <tlv/version.h>\n'
+            '#include <opentlv/core/version.h>\n'
             'int main(void) { return tlv_version_string() == 0; }\n', encoding="utf-8")
         cmake = '''cmake_minimum_required(VERSION 3.16)
 project(package_consumer LANGUAGES @LANGUAGES@)
@@ -160,7 +163,7 @@ add_test(NAME consumer COMMAND consumer)
 '''.replace("@LANGUAGES@", " ".join(languages))
         if args.cxx == "ON":
             (consumer / "main.cpp").write_text(
-                '#include <tlv++/version.hpp>\n'
+                '#include <opentlv/core/version.hpp>\n'
                 'int main() { return tlv::version() == nullptr; }\n', encoding="utf-8")
             cmake += '''add_executable(consumer_cpp main.cpp)
 target_link_libraries(consumer_cpp PRIVATE OpenTLV::Core)
@@ -168,6 +171,22 @@ add_test(NAME consumer_cpp COMMAND consumer_cpp)
 '''
         else:
             cmake += 'if(TARGET OpenTLV::tlv++)\nmessage(FATAL_ERROR "Unexpected C++ target")\nendif()\n'
+        # Aggregate/interop headers have no individual module registration.
+        cmake += 'find_package(OpenTLV CONFIG REQUIRED COMPONENTS tlv)\n'
+        public_root = root / includedir
+        headers = [(header, "cpp" if header.suffix == ".hpp" else "c")
+                   for header in sorted((public_root / "opentlv").glob("*.h*"))
+                   if header.suffix != ".hpp" or args.cxx == "ON"]
+        if args.cxx == "ON":
+            # C-only integration targets have no dedicated C++ facade consumer,
+            # but their C headers still promise C++ compatibility.
+            headers += [(header, "cpp") for header in sorted((public_root / "opentlv").rglob("*.h"))]
+        for index, (header, extension) in enumerate(headers):
+            filename = f"aggregate{index}.{extension}"
+            include = header.relative_to(public_root).as_posix()
+            (consumer / filename).write_text(f'#include <{include}>\n', encoding="utf-8")
+            cmake += (f"add_library(aggregate{index} OBJECT {filename})\n"
+                      f"target_link_libraries(aggregate{index} PRIVATE OpenTLV::tlv)\n")
         # Windows does not search the relocated package's bin directory when
         # starting a consumer. Copy the imported DLL beside each test executable.
         cmake += '''get_target_property(core_type OpenTLV::Core TYPE)

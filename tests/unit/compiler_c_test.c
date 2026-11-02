@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/compiler.h"
+#include "opentlv/core/compiler.h"
 
 #if TLV_C_VERSION < TLV_C99
 #error "TLV_C_VERSION must be at least TLV_C99"

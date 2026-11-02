@@ -1,13 +1,13 @@
 PROJECT_NAME           = "OpenTLV C API"
 PROJECT_NUMBER         = "@OPENTLV_VERSION_STRING@"
 OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/c-api"
-INPUT                  = "@PROJECT_SOURCE_DIR@/tlv/include/tlv" \
-                         "@PROJECT_BINARY_DIR@/generated/include/tlv/query/features.h" \
-                         "@PROJECT_BINARY_DIR@/generated/include/tlv/version.h" \
+INPUT                  = "@PROJECT_SOURCE_DIR@/include/opentlv" \
+                         "@PROJECT_BINARY_DIR@/generated/include/opentlv/query/features.h" \
+                         "@PROJECT_BINARY_DIR@/generated/include/opentlv/core/version.h" \
                          "@PROJECT_SOURCE_DIR@/docs/api/c-api.dox"
 FILE_PATTERNS          = *.h *.dox
 RECURSIVE              = YES
-STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/tlv/include" \
+STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/include" \
                          "@PROJECT_BINARY_DIR@/generated/include"
 OPTIMIZE_OUTPUT_FOR_C  = YES
 # The input is restricted to public headers. Include macro-generated constants
@@ -23,7 +23,7 @@ PREDEFINED            = @OPENTLV_DOXYGEN_EXPORTS@
 SEARCH_INCLUDES        = YES
 INCLUDE_FILE_PATTERNS  = *.h
 SKIP_FUNCTION_MACROS   = NO
-INCLUDE_PATH           = "@PROJECT_SOURCE_DIR@/tlv/include" \
+INCLUDE_PATH           = "@PROJECT_SOURCE_DIR@/include" \
                          "@PROJECT_BINARY_DIR@/generated/include"
 @INCLUDE               = "@PROJECT_BINARY_DIR@/Doxyfile.common"
 GENERATE_TAGFILE        = "@PROJECT_BINARY_DIR@/docs/c-api/c-api.tag"

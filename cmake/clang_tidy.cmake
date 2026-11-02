@@ -3,7 +3,7 @@
 # COMMANDS must be ON). Not part of ALL, and skipped with a warning if
 # clang-tidy isn't found (or compile command export isn't enabled), so its
 # absence never breaks a regular build. Check selection lives in the
-# per-directory .clang-tidy files (repo root, tlv/, tlv++/), not here.
+# per-directory .clang-tidy files (repo root and src/), not here.
 #
 # tlv++ is header-only, so unlike tlv's .c files there is no translation
 # unit of its own for clang-tidy to attach to. A synthetic TU that merely
@@ -11,13 +11,11 @@
 # schema, the compat.hpp polyfills, ...) would never be instantiated and so
 # would never actually be analyzed. Instead this points clang-tidy at the
 # tlv++ unit test TU (tests/unit/test_tlvpp.cpp), which already
-# #includes tlv++/tlv.hpp (transitively pulling in every other tlv++
+# #includes opentlv/tlv.hpp (transitively pulling in every other tlv++
 # header) and exercises it with real instantiations; --header-filter then
-# restricts *reported* findings to tlv++/include, but the test file's own
+# restricts *reported* findings to the public include tree, but the test file's own
 # code is still analyzed as the main file (unavoidably - clang-tidy always
 # reports main-file diagnostics), so it must stay clang-tidy-clean too.
-set(_OPENTLV_CLANG_TIDY_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
-
 function(opentlv_add_clang_tidy_targets)
     find_program(OPENTLV_CLANG_TIDY_EXECUTABLE NAMES clang-tidy-18 clang-tidy)
     if(NOT OPENTLV_CLANG_TIDY_EXECUTABLE)
@@ -49,29 +47,37 @@ function(opentlv_add_clang_tidy_targets)
             continue()
         endif()
         if(NOT IS_ABSOLUTE "${_opentlv_clang_tidy_source}")
-            set(_opentlv_clang_tidy_source "${OpenTLV_SOURCE_DIR}/tlv/${_opentlv_clang_tidy_source}")
+            set(_opentlv_clang_tidy_source "${OpenTLV_SOURCE_DIR}/${_opentlv_clang_tidy_source}")
         endif()
         list(APPEND _opentlv_clang_tidy_c_sources "${_opentlv_clang_tidy_source}")
     endforeach()
 
-    add_custom_target(clang-tidy
+    # Clang reports normalized paths; escape regex metacharacters in checkout names.
+    get_filename_component(_opentlv_header_filter "${OpenTLV_SOURCE_DIR}/include" ABSOLUTE)
+    foreach(character IN ITEMS "\\" "." "^" "$" "*" "+" "?" "(" ")" "[" "]" "{" "}" "|")
+        string(REPLACE "${character}" "\\${character}" _opentlv_header_filter "${_opentlv_header_filter}")
+    endforeach()
+    add_custom_target(clang-tidy-c
         COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
             -p "${CMAKE_BINARY_DIR}"
-            "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tlv/include/.*"
+            "--header-filter=^${_opentlv_header_filter}/.*[.]h$"
             ${_opentlv_clang_tidy_c_sources}
         COMMENT "Running clang-tidy static analysis on tlv"
         VERBATIM
     )
+    add_custom_target(clang-tidy DEPENDS clang-tidy-c)
 
     if(OPENTLV_BUILD_CXX AND OPENTLV_BUILD_TESTS AND OPENTLV_BUILD_UNIT_TESTS)
-        add_custom_command(TARGET clang-tidy POST_BUILD
+        # Separate targets avoid CMake/Ninja POST_BUILD handling of anchored regexes.
+        add_custom_target(clang-tidy-cxx
             COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
                 -p "${CMAKE_BINARY_DIR}"
-                "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tlv++/include/.*"
-                "${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tests/unit/test_tlvpp.cpp"
+                "--header-filter=^${_opentlv_header_filter}/.*[.]hpp$"
+                "${OpenTLV_SOURCE_DIR}/tests/unit/test_tlvpp.cpp"
             COMMENT "Running clang-tidy static analysis on tlv++"
             VERBATIM
         )
+        add_dependencies(clang-tidy clang-tidy-cxx)
     else()
         message(WARNING
             "OPENTLV_BUILD_CXX/OPENTLV_BUILD_TESTS/OPENTLV_BUILD_UNIT_TESTS are "

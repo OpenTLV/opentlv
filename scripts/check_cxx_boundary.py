@@ -17,8 +17,8 @@ from pathlib import Path, PurePosixPath
 
 SOURCE_SUFFIXES = frozenset((".hpp", ".cpp", ".h", ".cc", ".cxx", ".inl"))
 TOKEN = re.compile(r"\btlv_[A-Za-z0-9_]+\b|\bTLV_[A-Za-z0-9_]+\b|\btlv\s*::\s*(?:native|detail)\b(?:\s*::\s*[A-Za-z_][A-Za-z0-9_]*)*")
-INCLUDE = re.compile(r'^\s*#\s*include\s*[<"]((?:tlv/|tlv\+\+/(?:detail/|native\.hpp))[^>"\n]*)[>"]', re.M)
-FACADE_INCLUDE = re.compile(r'^\s*#\s*include\s*[<"]tlv\+\+/', re.M)
+INCLUDE = re.compile(r'^\s*#\s*include\s*[<"](opentlv/(?:[^>"\n]+\.h|native\.hpp|[^>"\n]*/detail/[^>"\n]+))[>"]', re.M)
+FACADE_INCLUDE = re.compile(r'^\s*#\s*include\s*[<"]opentlv/[^>"\n]+\.hpp[>"]', re.M)
 # Preserve line breaks and character offsets when masking comments and literals.
 LEXICAL = re.compile(r'//[^\n]*|/\*[\s\S]*?\*/|R"([^ ()\\\t\r\n]{0,16})\([\s\S]*?\)\1"|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'')
 
@@ -41,7 +41,7 @@ def header_source(text):
 def violations(path, text):
     # Generated capability switches are configuration, not a native execution API.
     for match in INCLUDE.finditer(header_source(text)):
-        if match[1] != "tlv/query/features.h":
+        if match[1] != "opentlv/query/features.h":
             yield {"path": path, "line": text.count("\n", 0, match.start()) + 1,
                    "symbol": match[1], "kind": "header"}
     for match in TOKEN.finditer(masked(text)):

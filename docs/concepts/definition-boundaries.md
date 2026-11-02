@@ -54,15 +54,15 @@ outer tag an input to value codec selection inside the codec.
 
 ## Evidence across standards
 
-Public header paths below are relative to `tlv/include/`; source and test paths
+Public header paths below are relative to `include/`; source and test paths
 are relative to the repository root.
 
 | Family | Current implementation evidence | Boundary established |
 | --- | --- | --- |
-| ASN.1 BER/DER/CER | `tlv/builtins/asn1/identifier.h` shares identifier accessors; the formats retain identifier octets. `der_schema.h` separates a component's type from IMPLICIT/EXPLICIT tagging. `asn1_codec.h` explicitly assigns codec selection to the caller/schema/dictionary. | Identifier bytes do not identify a complete ASN.1 type or schema component. No generic Definition registry is needed for the implemented schema and codec operations. |
-| EMV | `tlv/src/builtins/emv/dictionary.c` assigns `80` to `response_template1` in BASE and `biometric_header_version` in BHT. `tlv_emv_find(context, tag)` selects a context with no fallback. `tlv_emv_definition_t` references generic Definition, field Schema and Codec, plus independent EMV interpretation annotations. | Meaning is context-dependent. The rich EMV entry is a domain dictionary entry, not a proposed expansion of generic Definition. Its descriptive name belongs to Definition; the diagnostic symbol belongs to Schema. |
+| ASN.1 BER/DER/CER | `opentlv/builtin/asn1/identifier.h` shares identifier accessors; the formats retain identifier octets. `der_schema.h` separates a component's type from IMPLICIT/EXPLICIT tagging. `asn1_codec.h` explicitly assigns codec selection to the caller/schema/dictionary. | Identifier bytes do not identify a complete ASN.1 type or schema component. No generic Definition registry is needed for the implemented schema and codec operations. |
+| EMV | `src/builtin/emv/dictionary.c` assigns `80` to `response_template1` in BASE and `biometric_header_version` in BHT. `tlv_emv_find(context, tag)` selects a context with no fallback. `tlv_emv_definition_t` references generic Definition, field Schema and Codec, plus independent EMV interpretation annotations. | Meaning is context-dependent. The rich EMV entry is a domain dictionary entry, not a proposed expansion of generic Definition. Its descriptive name belongs to Definition; the diagnostic symbol belongs to Schema. |
 | Bluetooth | `tlv_bluetooth_ad_types` names one-byte AD Types. `tlv_bluetooth_company_ids` names two-byte keys, least-significant octet first; `{4C, 00}` is a Company Identifier inside a Value. Codecs and AD schema are independent consumers. | A registry can name identifiers beyond an element's Tag. Explicit key representation is independent of CPU endianity; generic lookup does not decode integers or interpret vendor payloads. |
-| LLDP | `tlv/src/builtins/lldp/lldp.c` extracts the packed seven-bit Type into an immutable one-byte key used by `tlv_lldp_types`. The raw header also contains Length bits. | Format performs wire extraction. Definition uses canonical keys, not the raw header or its byte envelope. Schema and value codecs remain separate. |
+| LLDP | `src/builtin/lldp/lldp.c` extracts the packed seven-bit Type into an immutable one-byte key used by `tlv_lldp_types`. The raw header also contains Length bits. | Format performs wire extraction. Definition uses canonical keys, not the raw header or its byte envelope. Schema and value codecs remain separate. |
 | DHCP | `tlv_dhcpv4_options` names option Codes, including Pad and End. DHCP framing and container policy are separate from the registry. | A definition's presence does not validate an option, interpret Value or cause generic Reader to stop at End. |
 
 All five families can use this boundary without extending `tlv_definition_t`.
@@ -226,7 +226,7 @@ EMV entries contain only Definition, Schema and Codec references. They store no
 are not additional dictionary metadata. Actual bit assignments remain EMV domain
 constants; child-context resolution remains explicit domain behavior.
 
-The optional `tlv/builtins/emv/presentation.h` adapter supplies a display/typed
+The optional `opentlv/builtin/emv/presentation.h` adapter supplies a display/typed
 binding profile for immutable builtin entries. Its
 `tlv_emv_builtin_value_kind()` replaces `tlv_emv_value_kind()` and uses an explicit
 profile keyed by context and canonical tag objects, after checking that the entry

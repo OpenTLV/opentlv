@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include <tlv++/generator.hpp>
-#include <tlv++/formats/fixed_format.hpp>
+#include <opentlv/generator/generator.hpp>
+#include <opentlv/core/formats/fixed_format.hpp>
 #include <iostream>
 
 int main() {

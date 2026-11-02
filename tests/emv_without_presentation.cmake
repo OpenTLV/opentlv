@@ -4,7 +4,7 @@ get_target_property(_emv_isolated_sources opentlv_emv SOURCES)
 get_target_property(_emv_source_dir opentlv_emv SOURCE_DIR)
 set(_emv_isolated_absolute)
 foreach(_source IN LISTS _emv_isolated_sources)
-    if(_source MATCHES "builtins/emv/presentation\\.c$")
+    if(_source MATCHES "builtin/emv/presentation\\.c$")
         continue()
     endif()
     if(NOT IS_ABSOLUTE "${_source}")
@@ -16,21 +16,21 @@ set(_emv_poison "${CMAKE_CURRENT_BINARY_DIR}/without-presentation/include")
 # Mirror the headers so even a relative include from another public header
 # reaches the poison. configure_file tracks content changes for later rebuilds.
 file(GLOB_RECURSE _emv_headers CONFIGURE_DEPENDS
-     RELATIVE "${_emv_source_dir}/include" "${_emv_source_dir}/include/*.h")
+     RELATIVE "${OpenTLV_SOURCE_DIR}/include" "${OpenTLV_SOURCE_DIR}/include/*.h")
 foreach(_header IN LISTS _emv_headers)
-    if(NOT _header STREQUAL "tlv/builtins/emv/presentation.h")
-        configure_file("${_emv_source_dir}/include/${_header}"
+    if(NOT _header STREQUAL "opentlv/builtin/emv/presentation.h")
+        configure_file("${OpenTLV_SOURCE_DIR}/include/${_header}"
                        "${_emv_poison}/${_header}" COPYONLY)
     endif()
 endforeach()
-file(WRITE "${_emv_poison}/tlv/builtins/emv/presentation.h"
+file(WRITE "${_emv_poison}/opentlv/builtin/emv/presentation.h"
      "#error EMV domain code must not depend on the presentation adapter\n")
 add_library(test-emv-without-presentation STATIC ${_emv_isolated_absolute})
 target_compile_definitions(test-emv-without-presentation PUBLIC OPENTLV_EMV_STATIC_DEFINE)
 target_include_directories(test-emv-without-presentation PUBLIC
     "${_emv_poison}"
     "${OpenTLV_BINARY_DIR}/generated/include")
-target_link_libraries(test-emv-without-presentation PUBLIC OpenTLV::Core OpenTLV::Codec OpenTLV::Schema OpenTLV::Query OpenTLV::ASN1 OpenTLV::SchemaNumber)
+target_link_libraries(test-emv-without-presentation PUBLIC OpenTLV::Core OpenTLV::Codec OpenTLV::Schema OpenTLV::Query OpenTLV::SchemaNumber)
 target_compile_features(test-emv-without-presentation PUBLIC c_std_99)
 opentlv_configure_compiler(test-emv-without-presentation)
 add_executable(test-emv-domain-independence

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/field/fixed.h"
+#include "opentlv/core/field/fixed.h"
 #if defined(OPENTLV_FORMAT_H) || defined(OPENTLV_FORMATS_COMPOSE_H)
 #error Standalone Field Encoding must not import Format
 #endif

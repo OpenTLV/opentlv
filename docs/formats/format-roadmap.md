@@ -96,11 +96,11 @@ so a candidate's "components" show which layers stay separate.
 
 | Component | Existing implementation | Role |
 | --- | --- | --- |
-| Format adapter | `tlv_format_t` in `tlv/format.h`; the canonical `decode`, `measure` and `encode` operations handle format-defined framing | Splits bytes into tag, header, value and trailer, and writes complete framing. |
+| Format adapter | `tlv_format_t` in `opentlv/core/format.h`; the canonical `decode`, `measure` and `encode` operations handle format-defined framing | Splits bytes into tag, header, value and trailer, and writes complete framing. |
 | Nesting predicate | `tlv_format_t::is_constructed` (`tlv_is_constructed_fn`) | Says which values contain children in the same format. |
-| Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `tlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
-| DER schema | `tlv_der_schema_type_t` in `tlv/builtins/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
-| Value codecs | `tlv/codec/codec.h` and `tlv/codec/structure.h` | Decode and encode value contents. |
+| Structure schema | `tlv_schema_t` and `tlv_structure_schema_t` in `opentlv/schema/schema.h` | Length bounds, occurrence and membership rules. |
+| DER schema | `tlv_der_schema_type_t` in `opentlv/builtin/asn1/der_schema.h` | ASN.1 type rules with canonical DER semantics; a fixed, small subset. |
+| Value codecs | `opentlv/codec/codec.h` and `opentlv/codec/structure.h` | Decode and encode value contents. |
 | Dictionary | Tag tables like the [EMV module](../standards/emv/README.md) | Names and meanings for tags in one standard. |
 | Mixed-format traversal | Not implemented; see [generic processing extensions](#generic-processing-extensions) | Choose a different format per nesting level. |
 
@@ -206,7 +206,7 @@ Variants and open questions that these entries need before scoping:
 
 These are reusable requirements collected from the candidates. Not one of them is a
 commitment. The **fit** column is by inspection of the callback contract in
-[`format.h`](../../tlv/include/tlv/format.h): `decode` sees the bytes from
+[`format.h`](../../include/opentlv/core/format.h): `decode` sees the bytes from
 the start of an element and reports the tag, the header size, the value size and the
 trailer size; `encode` writes the complete Header/Value/Trailer representation. A tag is any
 number of raw bytes the format accepts. **A generic packed-header fixture and the LLDP framing adapter exercise

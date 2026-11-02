@@ -11,8 +11,8 @@ input, construction and editing choices.
 
 ## Typed C++ writing
 
-Include `<tlv++/writer/builder.hpp>` for generic construction or
-`<tlv++/builtins/asn1/ber.hpp>` for the BER helper. Both use the canonical C
+Include `<opentlv/io/writer/builder.hpp>` for generic construction or
+`<opentlv/builtin/asn1/ber.hpp>` for the BER helper. Both use the canonical C
 Writer and Tree Writer. Output remains caller-owned and is never resized.
 
 ```cpp
@@ -139,7 +139,7 @@ bytes independently, and is compiled and run by the example test suite:
 // Copyright (c) 2026 Marek Cingel
 
 // Builds the same BER document as parse.cpp using scoped, allocation-free writes.
-#include "tlv++/builtins/asn1/ber.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
 #include <array>
 #include <algorithm>
 #include <iostream>
@@ -178,8 +178,8 @@ int main() {
 `tlv_tree_writer_t` builds nested output through explicit `begin()`,
 `write_element()` and `end()` operations. It is iterative and allocation-free,
 using a destination buffer, a frame array and a separate scratch buffer supplied
-by the caller. Include `tlv/writer/tree.h`; C++ exposes `tlv::tree_writer` in
-`tlv++/writer/tree.hpp` with the same storage and operation contracts.
+by the caller. Include `opentlv/io/writer/tree.h`; C++ exposes `tlv::tree_writer` in
+`opentlv/io/writer/tree.hpp` with the same storage and operation contracts.
 
 `begin()` requires a Tag classified as constructed by the destination Format.
 It retains that borrowed Tag until the matching successful `end()`. Keep Tag
@@ -287,8 +287,8 @@ This self-checking example works without optional builtins:
 // Copyright (c) 2026 Marek Cingel
 
 /* Nested output with caller-owned frames, destination and scratch storage. */
-#include "tlv/writer/tree.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/io/writer/tree.h"
+#include "opentlv/core/formats/fixed.h"
 #include <string.h>
 
 static int constructed(const void* context, const tlv_tag_t* tag) {

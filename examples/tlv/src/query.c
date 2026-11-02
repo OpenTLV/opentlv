@@ -6,9 +6,9 @@
  * traversing the whole document by hand. See parse.c for the document itself.
  */
 #include <stdio.h>
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/size.h"
-#include "tlv/query/query.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/size.h"
+#include "opentlv/query/query.h"
 
 /* Same bytes as parse.c's document. */
 static const uint8_t document[] = {0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42,

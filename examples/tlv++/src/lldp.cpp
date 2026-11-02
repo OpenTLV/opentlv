@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/tlv.hpp"
-#include "tlv++/builtins/lldp/lldp.hpp"
+#include "opentlv/tlv.hpp"
+#include "opentlv/builtin/lldp/lldp.hpp"
 
 int main() {
     const uint8_t    wire[] = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120, 0, 0};

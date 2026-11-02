@@ -2,15 +2,15 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "visitor_input.h"
-#include "tlv/builtins/emv/presentation.h"
-#include "tlv/builtins/emv/format.h"
-#include "tlv/builtins/emv/emv.h"
-#include "tlv/reader/reader.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/writer/writer.h"
-#include "tlv/query/query.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
+#include "opentlv/builtin/emv/presentation.h"
+#include "opentlv/builtin/emv/format.h"
+#include "opentlv/builtin/emv/emv.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/query/query.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
 #include <memory>
 #include <gtest/gtest.h>
 #include <cstring>

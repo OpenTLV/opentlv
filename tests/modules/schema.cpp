@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/schema/schema.hpp"
+#include "opentlv/schema/schema.hpp"
 #include <cstring>
 
 #define CHECK(x)                                                                                   \

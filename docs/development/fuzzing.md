@@ -77,7 +77,7 @@ exceptions rather than requiring every output to remain unchanged on error.
 
 Each harness's checked-in seed corpus lives next to it, under a `corpus/`
 folder in the same subsystem or built-in directory of `tests/fuzz/`, which
-mirrors `tlv/src`'s own layout: `tests/fuzz/reader/corpus/read` and
+mirrors `src`'s own layout: `tests/fuzz/reader/corpus/read` and
 `tests/fuzz/reader/corpus/visitor` for the generic reader/visitor targets,
 `tests/fuzz/corpus/roundtrip` for the cross-cutting round-trip target,
 `tests/fuzz/corpus/utf8` for the UTF-8 agreement target,

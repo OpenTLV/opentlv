@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "visitor_input.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/writer/copy.h"
-#include "tlv/reader/reader.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/schema/schema.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/io/writer/copy.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/builtins/asn1/ber.h` |
+| Format header | `opentlv/builtin/asn1/ber.h` |
 | Descriptor | `tlv_format_ber` |
 | Link target | `OpenTLV::ASN1` |
 
@@ -62,9 +62,9 @@ the bytes after Tag and are translated by the generic field composition.
 This complete example writes and reads one opaque byte. Exit code zero means success.
 
 ```c
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 int main(void) {
     const tlv_tag_t tag = TLV_TAG(0x04);
@@ -191,7 +191,7 @@ reports insufficient capacity; use the separate size query for sizing.
 `&tlv_format_ber` and advances its position only on success.
 
 The C++ `tlv::reader<>`, traversal, and schema wrappers support indefinite input
-through the same BER descriptor. Include `tlv++/builtins/asn1/ber.hpp` for
+through the same BER descriptor. Include `opentlv/builtin/asn1/ber.hpp` for
 `tlv::ber_write_indefinite(buffer, capacity, tag, children)`, returning
 `expected<size_t, error>`. The ordinary C++ writer remains definite-length.
 The C core does not allocate; C++ error construction retains its existing
@@ -209,12 +209,12 @@ DER still rejects indefinite lengths.
 `tlv_ber_length_encode(value, out, out_capacity, &written)` inspect or produce
 one BER definite-length field on its own, independent of any tag or value
 payload and of the format callbacks above. They use `tlv_size_t` (from
-`tlv/size.h`) for the decoded value, so it has the same 64-bit range on
+`opentlv/core/size.h`) for the decoded value, so it has the same 64-bit range on
 every build regardless of the current build's `size_t` width:
 
 ```c
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/size.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/size.h"
 
 uint8_t out[TLV_BER_LENGTH_MAX_ENCODED_SIZE];
 size_t written;
@@ -262,7 +262,7 @@ These framing rules follow [ITU-T X.690 (02/2021), sections 8.1.3 and 8.1.5](htt
 
 ### Universal-type value codecs
 
-`tlv/builtins/asn1/asn1_codec.h` (provided by `OpenTLV::ASN1`) adds
+`opentlv/builtin/asn1/asn1_codec.h` (provided by `OpenTLV::ASN1`) adds
 [`tlv_codec_t`](../../guides/codecs.md) descriptors that convert the raw
 value bytes of the ASN.1 primitive universal types to and from C
 representations, independent of any particular BER-family format or
@@ -271,7 +271,7 @@ tag; callers pick the matching codec themselves, typically from a schema or
 dictionary:
 
 ```c
-#include "tlv/builtins/asn1/asn1_codec.h"
+#include "opentlv/builtin/asn1/asn1_codec.h"
 
 /* element.value already read through tlv_format_ber, DER or CER */
 int64_t number;
@@ -315,7 +315,7 @@ by position in a caller-supplied `tlv_asn1_named_bit_t` table.
 
 A further group covers types X.690 places no canonical byte-level
 restriction on, or whose ISO 8601-based syntax this scope only partly
-canonicalizes; see `tlv/builtins/asn1/asn1_codec.h` for the exact,
+canonicalizes; see `opentlv/builtin/asn1/asn1_codec.h` for the exact,
 documented scope of each: ObjectDescriptor, TeletexString, VideotexString,
 GraphicString and GeneralString (`tlv_asn1_codec_object_descriptor`,
 `tlv_asn1_codec_teletex_string`, `tlv_asn1_codec_videotex_string`,
@@ -338,7 +338,7 @@ defines for DER and CER, even when the raw value was read through the more
 permissive `tlv_format_ber`: for example a BOOLEAN of `01`, a
 non-minimal two's complement INTEGER, or a UTCTime missing its trailing `Z`,
 is rejected with `TLV_ERR_INVALID_VALUE`. See
-`tlv/builtins/asn1/asn1_codec.h` for each codec's exact content and
+`opentlv/builtin/asn1/asn1_codec.h` for each codec's exact content and
 representation rules.
 
 Malformed tags and unterminated tags on write return `TLV_ERR_INVALID_TAG`,
@@ -432,7 +432,7 @@ Use `tlv_format_ber`.
 ## Shared ASN.1 mechanisms
 
 BER, DER and CER share identifier arithmetic and the class/form accessors in
-`tlv/builtins/asn1/identifier.h`. Use `tlv_asn1_tag_class()`,
+`opentlv/builtin/asn1/identifier.h`. Use `tlv_asn1_tag_class()`,
 `tlv_asn1_tag_is_constructed()` and the Format callback
 `tlv_asn1_is_constructed()`; the former per-format accessors have been removed.
 The format headers include this common header.

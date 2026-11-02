@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/compose.h"
+#include "opentlv/core/formats/compose.h"
 #include <gtest/gtest.h>
 #include <cstring>
 

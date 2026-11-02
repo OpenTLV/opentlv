@@ -15,15 +15,15 @@ from check_module_isolation import ROOT, check_metadata, check_symbols, verify
 
 def fixture(root):
     files = {
-        "include/fixture/base.h": '#include "tlv/base/export.h"\n'
+        "include/fixture/base.h": '#include "opentlv/base/export.h"\n'
             'OPENTLV_BASE_API int tlv_fixture_base(void);\n',
-        "include/fixture/util.h": '#include "tlv/util/export.h"\n'
+        "include/fixture/util.h": '#include "opentlv/util/export.h"\n'
             'OPENTLV_UTIL_API int tlv_fixture_util(void);\n',
-        "include/fixture/addon.h": '#include "tlv/addon/export.h"\n'
+        "include/fixture/addon.h": '#include "opentlv/base/addon/export.h"\n'
             'OPENTLV_ADDON_API int tlv_fixture_addon(void);\n',
         "include/fixture/base.hpp": 'extern "C" {\n#include "fixture/base.h"\n}\n'
             'inline int fixture_value() { return tlv_fixture_base(); }\n',
-        "base/private.h": '#include "tlv/base/export.h"\n'
+        "base/private.h": '#include "opentlv/base/export.h"\n'
             'OPENTLV_BASE_API int tlv_fixture_owner(void);\n',
         "base/base.c": '#include "fixture/base.h"\n#include "private.h"\n'
             'int tlv_fixture_hidden(void) { return 40; }\n'
@@ -81,7 +81,7 @@ class IsolationTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         fixture(self.root)
         self.build = self.root / "build"
 
@@ -107,6 +107,38 @@ class IsolationTests(unittest.TestCase):
         self.assertEqual(len(check_metadata(entries)), 4)
         self.assertFalse(list(self.build.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")))
 
+    def test_new_builtin_exports_and_integrations_follow_owner(self):
+        # "base" is intentionally not one of the repository's six builtins.
+        self.change("CMakeLists.txt", "opentlv_add_module(base EXPORT_NAME",
+                    "opentlv_add_module(base BUILTIN EXPORT_NAME")
+        for path in ("include/fixture/base.h", "base/private.h", "include/fixture/addon.h"):
+            self.change(path, "opentlv/base/", "opentlv/builtin/base/")
+        for shared in ("OFF", "ON"):
+            with self.subTest(shared=shared):
+                self.build = self.root / ("build-" + shared)
+                modules = check_metadata(self.configure(None, f"-DOPENTLV_BUILD_SHARED_LIBS={shared}"))
+                for key in ("base", "addon", "base-cxx"):
+                    self.assertEqual(["TRUE"], modules[key]["builtin"])
+                self.assertNotEqual(["TRUE"], modules["util"]["builtin"])
+                subprocess.run(["cmake", "--build", str(self.build), "--config", "Release",
+                                "--target", "opentlv_addon"], check=True, capture_output=True)
+                prefix = self.root / ("installed-" + shared)
+                subprocess.run(["cmake", "--install", str(self.build), "--config", "Release",
+                                "--prefix", str(prefix)], check=True, capture_output=True)
+                for header in ("base/export.h", "base/addon/export.h"):
+                    self.assertTrue((prefix / "include/opentlv/builtin" / header).is_file())
+                    self.assertFalse((prefix / "include/opentlv" / header).exists())
+
+    def test_integration_cannot_override_builtin_classification(self):
+        self.change("CMakeLists.txt", "opentlv_add_module(addon OWNER",
+                    "opentlv_add_module(addon BUILTIN OWNER")
+        self.configure("declare BUILTIN on its owning module")
+
+    def test_integration_requires_registered_owner(self):
+        self.change("CMakeLists.txt", "opentlv_add_module(addon OWNER base",
+                    "opentlv_add_module(addon OWNER absent")
+        self.configure("register owner absent first")
+
     def test_builtin_selection_options_are_rejected(self):
         for family in ("FORMAT_ASN1", "FORMAT_BER", "FORMAT_DER", "FORMAT_CER",
                        "EMV", "BLUETOOTH", "NFC", "DHCP", "LLDP"):
@@ -130,12 +162,12 @@ class IsolationTests(unittest.TestCase):
         self.configure("Undeclared module dependency")
 
     def test_unregistered_library(self):
-        library = self.root / "tlv"
-        library.mkdir()
+        library = self.root / "cmake/library"
+        library.mkdir(parents=True)
         (library / "CMakeLists.txt").write_text(
-            "add_library(rogue STATIC ../util.c)\n", encoding="utf-8")
+            "add_library(rogue STATIC ../../util.c)\n", encoding="utf-8")
         self.change("CMakeLists.txt", "opentlv_finalize_modules()",
-                    "add_subdirectory(tlv)\nopentlv_finalize_modules()")
+                    "add_subdirectory(cmake/library)\nopentlv_finalize_modules()")
         self.configure("Unregistered module library rogue")
 
     def test_bypassed_dependency_declaration(self):
@@ -169,8 +201,8 @@ class IsolationTests(unittest.TestCase):
             check_metadata(self.configure())
 
     def test_public_header_leaks_private_dependency(self):
-        self.change("include/fixture/addon.h", '#include "tlv/addon/export.h"',
-                    '#include "tlv/addon/export.h"\n#include <fixture/util.h>')
+        self.change("include/fixture/addon.h", '#include "opentlv/base/addon/export.h"',
+                    '#include "opentlv/base/addon/export.h"\n#include <fixture/util.h>')
         with self.assertRaisesRegex(ValueError, "undeclared direct dependency"):
             check_metadata(self.configure())
 
@@ -196,7 +228,8 @@ class IsolationTests(unittest.TestCase):
 
     def test_architecture_contract_and_feature_disabled_source(self):
         entries = self.configure()
-        contract = {"targets": {}, "files": {}}
+        contract = {"targets": {}, "files": {},
+                    "modules": {"base": {"kind": "generic"}, "util": {"kind": "generic"}}}
         for entry in entries:
             key = entry["key"]
             contract["targets"][key] = {
@@ -209,6 +242,10 @@ class IsolationTests(unittest.TestCase):
         (self.root / "optional.c").write_text("/* Feature-disabled source. */\n", encoding="utf-8")
         contract["files"]["optional.c"] = "base"
         check_metadata(entries, contract, self.root)
+        contract["modules"]["base"]["kind"] = "builtin"
+        with self.assertRaisesRegex(ValueError, "builtin classification differs from contract"):
+            check_metadata(entries, contract, self.root)
+        contract["modules"]["base"]["kind"] = "generic"
         # Both C and C++ public headers must be registered with their owner.
         facade = self.root / "facade.hpp"
         facade.write_text("// Module facade.\n", encoding="utf-8")

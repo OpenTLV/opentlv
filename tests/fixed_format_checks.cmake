@@ -1,4 +1,4 @@
-# Compile tlv++/formats/fixed_format.hpp with valid and invalid template parameters.
+# Compile opentlv/core/formats/fixed_format.hpp with valid and invalid template parameters.
 # Positive controls prevent unrelated include failures from passing the negative cases.
 function(opentlv_check_fixed_format)
     if(NOT CMAKE_CXX_COMPILER_LOADED)
@@ -7,15 +7,15 @@ function(opentlv_check_fixed_format)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
     set(CMAKE_REQUIRED_INCLUDES
-        "${OpenTLV_SOURCE_DIR}/tlv/include"
-        "${OpenTLV_SOURCE_DIR}/tlv++/include"
+        "${OpenTLV_SOURCE_DIR}/include"
+        "${OpenTLV_SOURCE_DIR}/include"
         "${OpenTLV_BINARY_DIR}/generated/include")
     if(MSVC)
         set(CMAKE_REQUIRED_FLAGS "/std:c++11 /W4 /WX /EHsc")
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         set(CMAKE_REQUIRED_FLAGS "-std=c++11 -Wall -Wextra -Werror")
     endif()
-    set(header "#include <tlv++/formats/fixed_format.hpp>\n")
+    set(header "#include <opentlv/core/formats/fixed_format.hpp>\n")
     set(cases
         "valid_minimum|1, 1, tlv::byte_order::big_endian|1"
         "valid_widest|255, 8, tlv::byte_order::little_endian|1"

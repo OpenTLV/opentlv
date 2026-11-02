@@ -13,7 +13,7 @@ the borrowed traversal/construction representation.
 
 ## Canonical structural events (#402)
 
-The canonical streaming representation is `tlv_tree_event_t` from `tlv/tree.h`:
+The canonical streaming representation is `tlv_tree_event_t` from `opentlv/io/tree.h`:
 `BEGIN`, `ELEMENT`, `END`. Document remains the materialized representation.
 Tree Reader produces events with `tlv_tree_reader_next_event[_diag]`; Tree Writer
 accepts them with `tlv_tree_writer_write_event[_diag]`. Neither depends on the
@@ -138,16 +138,16 @@ aliases remain. Rebuild consumers after this source/ABI-breaking removal.
 
 | Consumer | Implementation | Processing dependency |
 | --- | --- | --- |
-| Reader | `tlv/src/reader/reader.c` | `tlv_format_decode` through one shared read implementation |
-| Tree Reader | `tlv/src/reader/tree.c` | `tlv_reader_next_source_diag`; iterative scope stack |
-| Visitor | `tlv/src/reader/visitor.c` | Reader or Tree Reader pulls |
-| Query | `tlv/src/query/query.c` | Tag/depth matcher; Tree Reader Visitor for buffer traversal |
-| Document topology | `tlv/src/document/document.c` | Owned nodes and programmatic mutation; optional Format measurement validates inserted tags |
-| Document parsing | `tlv/src/document/reader.c` | Reader + Document integration: resumable Builder consuming canonical structural events |
-| Document lookup | `tlv/src/query/document_path.c` | Query + Document integration: node preorder feeding the same Query matcher |
-| Document encoding | `tlv/src/document/writer.c` | Writer + Document integration: node events feeding `tlv_tree_writer_measure_events`, then Writer encoded copy |
-| Tree Writer | `tlv/src/writer/tree.c` | Writer measurement and encoding; iterative parent stack |
-| Writer | `tlv/src/writer/writer.c` | Format measurement and encoding |
+| Reader | `src/io/reader/reader.c` | `tlv_format_decode` through one shared read implementation |
+| Tree Reader | `src/io/reader/tree.c` | `tlv_reader_next_source_diag`; iterative scope stack |
+| Visitor | `src/io/reader/visitor.c` | Reader or Tree Reader pulls |
+| Query | `src/query/query.c` | Tag/depth matcher; Tree Reader Visitor for buffer traversal |
+| Document topology | `src/document/document.c` | Owned nodes and programmatic mutation; optional Format measurement validates inserted tags |
+| Document parsing | `src/document/reader.c` | Reader + Document integration: resumable Builder consuming canonical structural events |
+| Document lookup | `src/query/document_path.c` | Query + Document integration: node preorder feeding the same Query matcher |
+| Document encoding | `src/document/writer.c` | Writer + Document integration: node events feeding `tlv_tree_writer_measure_events`, then Writer encoded copy |
+| Tree Writer | `src/io/writer/tree.c` | Writer measurement and encoding; iterative parent stack |
+| Writer | `src/io/writer/writer.c` | Format measurement and encoding |
 
 These dependencies are acyclic. Definition registries and Schema/Codec are not
 mandatory stages. Only Format and its reusable field encoding and composition

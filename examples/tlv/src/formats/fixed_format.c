@@ -3,12 +3,12 @@
 
 /*
  * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte
- * length, then writes and reads one element. See tlv/formats/fixed.h.
+ * length, then writes and reads one element. See opentlv/core/formats/fixed.h.
  */
 #include <stdio.h>
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \

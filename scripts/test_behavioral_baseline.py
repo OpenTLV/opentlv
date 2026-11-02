@@ -11,9 +11,20 @@ import unittest
 from unittest.mock import patch
 
 import behavioral_baseline as baseline
+from library_layout import historical_header, historical_includes, public_roots
 
 
 class BaselineTests(unittest.TestCase):
+    def test_probes_adapt_to_historical_headers_without_changing_archives(self):
+        current = '#include <opentlv/core/result.h>\n#include "opentlv/io/reader/reader.hpp"\n'
+        self.assertEqual('#include <tlv/result.h>\n#include "tlv++/reader/reader.hpp"\n',
+                         historical_includes(self.root, current))
+        self.assertEqual("tlv/include/tlv/core/export.h",
+                         historical_header(self.root, "include/opentlv/core/export.h"))
+        (self.root / "include/opentlv").mkdir(parents=True)
+        self.assertEqual([self.root / "include"], public_roots(self.root))
+        self.assertEqual(current, historical_includes(self.root, current))
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -130,7 +141,7 @@ class BaselineTests(unittest.TestCase):
             files = baseline.prepare_source(self.root, self.root / "source")
         self.assertEqual(f"version=0.8.0\ncommit={baseline.COMMIT}\n".encode("ascii"),
                          files["opentlv-source.txt"])
-        header = self.root / "generated/include/tlv/version.h"
+        header = self.root / "generated/include/opentlv/core/version.h"
         header.parent.mkdir(parents=True)
         header.write_text('#define OPENTLV_VERSION_STRING "0.8.0"\n'
                           '#define OPENTLV_VERSION_REVISION 2\n')

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
 #include <string.h>
 
 #define CHECK(x)                                                                                   \

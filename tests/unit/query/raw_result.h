@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_QUERY_RAW_RESULT_H
 #define OPENTLV_TEST_QUERY_RAW_RESULT_H
-#include "tlv/query/program.h"
+#include "opentlv/query/program.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

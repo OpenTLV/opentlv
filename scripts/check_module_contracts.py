@@ -6,7 +6,7 @@
 docs/development/modules/ownership.json assigns every C/C++ source, header and
 resource template to one target and declares the acyclic target graph. An
 include is permitted within its target or along a declared dependency; a
-private header under tlv/src is permitted only within the module that owns it,
+private header under src is permitted only within the module that owns it,
 including that module's integration targets. Each existing exception names the
 approved resolution that removes it, and both new and stale exceptions fail.
 
@@ -24,16 +24,17 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = "docs/development/modules/ownership.json"
 MAPPING = "docs/development/modules/diagnostic-mapping.json"
-SOURCE_ROOTS = ("tlv", "tlv++")
+SOURCE_ROOTS = ("include", "src")
 SUFFIXES = frozenset((".c", ".h", ".hpp", ".in"))
-INCLUDE_ROOTS = ("tlv/include", "tlv++/include")
+INCLUDE_ROOTS = ("include", ".")
 GENERIC = ("core", "io", "document", "query", "schema", "codec", "generator")
 BUILTIN = ("asn1", "emv", "bluetooth", "nfc", "dhcp", "lldp")
 ROLES = frozenset(("module", "integration", "aggregate"))
 DEPENDENCY_LISTS = ("public", "private", "facade")
 KINDS = frozenset(("dependency", "private-header"))
 COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
-INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*"([^"\n]+)"', re.M)
+INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*([<"])([^>"\n]+)[>"]', re.M)
+INCLUDE_DIRECTIVE = re.compile(r'^[ \t]*#[ \t]*include\b([^\n]*)', re.M)
 ENUM = r"typedef\s+enum\s+%s\s*\{(.*?)\}\s*%s_t\s*;"
 LIMIT = re.compile(r'\b(?:query_limit|edit_limit)\s*\(\s*[^,]+,\s*"([a-z0-9-]+)"')
 MAPPING_FIELDS = frozenset(("previous", "value", "new", "module", "meaning", "change"))
@@ -122,6 +123,9 @@ def check_contract(contract, errors):
                 errors.append(f"target {name}: no target depends on the aggregate")
             elif module in GENERIC and targets[dependency]["module"] in BUILTIN:
                 errors.append(f"target {name}: a generic target depends on builtin {dependency}")
+            elif (module in BUILTIN and targets[dependency]["module"] in BUILTIN
+                  and targets[dependency]["module"] != module):
+                errors.append(f"target {name}: a builtin depends on another builtin {dependency}")
     for module in modules:
         if targets.get(module, {}).get("role") != "module":
             errors.append(f"module {module}: missing its module target")
@@ -140,31 +144,26 @@ def resolve(root, including, name):
     candidates = [PurePosixPath(including).parent / name]
     candidates += [PurePosixPath(base) / name for base in INCLUDE_ROOTS]
     for candidate in candidates:
-        parts = []
-        for part in candidate.parts:
-            if part == "..":
-                if parts:
-                    parts.pop()
-            elif part != ".":
-                parts.append(part)
-        relative = "/".join(parts)
-        if (root / relative).is_file():
-            return relative
+        resolved = (root / candidate).resolve()
+        if resolved.is_file() and resolved.is_relative_to(root.resolve()):
+            return resolved.relative_to(root.resolve()).as_posix()
     return None
 
 
 def edges(root, contract, files, errors):
-    """Yield (file, include, resolved owner target) for every quoted include."""
+    """Resolve literal includes before checking ownership, including ../ bypasses."""
     generated = contract.get("generated", {})
     for path in sorted(files):
-        if path.endswith(".in"):
-            continue
-        for name in INCLUDE.findall(COMMENT.sub("", read(root, path))):
+        source = COMMENT.sub("", read(root, path).replace("\\\n", ""))
+        for directive in INCLUDE_DIRECTIVE.finditer(source):
+            if not INCLUDE.match(directive[0]):
+                errors.append(f"{path}: use a literal header name so include ownership can be checked")
+        for delimiter, name in INCLUDE.findall(source):
             if name in generated:
                 yield path, name, generated[name], name
                 continue
             resolved = resolve(root, path, name)
-            if resolved is None:
+            if resolved is None and (delimiter == '"' or name.startswith(("opentlv/", "src/", "."))):
                 errors.append(f"{path}: cannot resolve include \"{name}\"")
             elif resolved in files:
                 yield path, name, files[resolved], resolved
@@ -182,8 +181,9 @@ def violations(root, contract, errors):
         allowed = reachable[source, path.endswith(".hpp")]
         if targets[source]["role"] != "aggregate" and owner not in allowed:
             found.add((path, name, "dependency"))
-        if (resolved.startswith("tlv/src/") and source != owner
-                and targets[source]["module"] != targets[owner]["module"]):
+        if (resolved.startswith("src/") and
+                (path.startswith("include/") or
+                 targets[source]["module"] != targets[owner]["module"])):
             found.add((path, name, "private-header"))
     return found, graph
 
@@ -191,6 +191,9 @@ def violations(root, contract, errors):
 def check_files(root, contract, errors):
     files, targets = contract.get("files", {}), contract.get("targets", {})
     actual = inventory(root)
+    for legacy in ("tlv", "tlv++"):
+        if (root / legacy).exists():
+            errors.append(f"layout: historical source root {legacy} must not exist")
     missing, stale = sorted(actual - set(files)), sorted(set(files) - actual)
     if missing:
         errors.append(f"files: assign an owner to {', '.join(missing)}")
@@ -201,6 +204,17 @@ def check_files(root, contract, errors):
             errors.append(f"files: {path} has unknown owner {owner}")
         elif targets[owner].get("facade_only") and not path.endswith(".hpp"):
             errors.append(f"files: facade-only target {owner} cannot own {path}")
+        else:
+            module = targets[owner]["module"]
+            base = f"builtin/{module}" if module in BUILTIN else module
+            if path.startswith("include/"):
+                prefix = f"include/opentlv/{base}/" if base else "include/opentlv/"
+            else:
+                prefix = f"src/{base}/"
+                if path.endswith((".h", ".h.in")):
+                    prefix += "internal/"
+            if not path.startswith(prefix):
+                errors.append(f"layout: {path} must belong under {prefix}")
     for name, owner in sorted(contract.get("generated", {}).items()):
         if owner not in targets:
             errors.append(f"generated: {name} has unknown owner {owner}")
@@ -262,7 +276,9 @@ def parse_enum(root, header, typedef):
 
 def limit_names(root):
     names = set()
-    for path in sorted((root / "tlv/src").rglob("*.c")):
+    # Baseline capture also reads immutable pre-migration release sources.
+    source = root / "src" if (root / "src").is_dir() else root / "tlv/src"
+    for path in sorted(source.rglob("*.c")):
         names.update(LIMIT.findall(path.read_text(encoding="utf-8")))
     return names
 

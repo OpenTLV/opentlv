@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/native.hpp"
-#include "tlv++/query/program.hpp"
-#include "tlv/query/adapters.h"
-#include "tlv/formats/fixed.h"
-#include "tlv++/document/document.hpp"
-#include "tlv++/query/document.hpp"
-#include "tlv/builtins/asn1/query.h"
+#include "opentlv/native.hpp"
+#include "opentlv/query/program.hpp"
+#include "opentlv/query/adapters.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/document/document.hpp"
+#include "opentlv/query/document.hpp"
+#include "opentlv/builtin/asn1/query.h"
 #include <cstring>
 #include <iostream>
 #include <iomanip>

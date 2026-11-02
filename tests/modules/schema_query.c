@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/schema/query.h"
-#include "tlv/query/plan.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/schema/query.h"
+#include "opentlv/query/plan.h"
+#include "opentlv/core/formats/fixed.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

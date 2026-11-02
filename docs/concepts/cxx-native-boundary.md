@@ -138,7 +138,7 @@ const access; read-only traversal does not supply synchronization.
 
 ## Explicit interoperability and lifetime
 
-Include `<tlv++/native.hpp>` explicitly to mix C and C++ APIs:
+Include `<opentlv/native.hpp>` explicitly to mix C and C++ APIs:
 
 ```cpp
 auto format = tlv::native::borrow_format(native_descriptor);
@@ -267,7 +267,7 @@ The closure boundary is complete supported consumer workflows, not a one-to-one
 copy of every C helper. All ordinary examples and CLI sources pass
 `scripts/check_cxx_boundary.py`; the CI job also runs the scanner's regression
 tests. The scanner rejects native headers, C identifiers/constants and
-`tlv::detail`/`tlv::native` usage. The generated `tlv/query/features.h` Query-internal switches
+`tlv::detail`/`tlv::native` usage. The generated `opentlv/query/features.h` Query-internal switches
 are allowed; obsolete module-selection macros have been removed. Native parity, malformed-native-input fixtures and the explicit
 interoperability example have exact per-path, per-symbol occurrence baselines in
 `scripts/cxx_boundary_baseline.json`, each with a reason. These files remain
@@ -277,7 +277,7 @@ fixture requires reviewing its baseline alongside the source change; no entire
 file is exempt. Mixed historical parity files are not claimed as pure public
 examples. New public acceptance tests belong in `tests/unit/public_api_test.cpp`.
 The scanner covers `.cpp`, `.hpp`, `.h`, `.cc`, `.cxx` and `.inl` under the consumer
-roots; tests enter its scope when they directly include `tlv++/` headers, so pure
+roots; tests enter its scope when they directly include `opentlv/` `.hpp` headers, so pure
 C engine harnesses remain outside this gate. Run
 `--report build/cxx-boundary.json` for the audit.
 

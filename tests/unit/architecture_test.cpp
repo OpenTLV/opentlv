@@ -2,14 +2,14 @@
 // Copyright (c) 2026 Marek Cingel
 #include "codec_diagnostic_helpers.h"
 
-#include "tlv/formats/compose.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/codec/structure.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/copy.h"
-#include "tlv/builtins/emv/emv.h"
+#include "opentlv/core/formats/compose.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/codec/structure.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/copy.h"
+#include "opentlv/builtin/emv/emv.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

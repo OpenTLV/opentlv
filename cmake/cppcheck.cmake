@@ -25,17 +25,17 @@ function(opentlv_add_cppcheck_targets)
     # are suppressed in .cppcheck-suppressions instead.
     file(GLOB_RECURSE _opentlv_cppcheck_c_sources
         LIST_DIRECTORIES false
-        "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv/*.c"
+        "${_OPENTLV_CPPCHECK_MODULE_DIR}/../src/*.c"
     )
     file(GLOB_RECURSE _opentlv_cppcheck_cxx_sources
         LIST_DIRECTORIES false
-        "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv++/*.hpp"
+        "${_OPENTLV_CPPCHECK_MODULE_DIR}/../include/*.hpp"
     )
 
     set(_opentlv_cppcheck_common_args
         "--enable=warning,style,performance,portability"
         --check-level=exhaustive
-        # tlv++/include/tlv++/compat.hpp guards a C++23-only #include behind
+        # include/opentlv/core/compat.hpp guards a C++23-only #include behind
         # a defined(__has_include) check, which is valid but which cppcheck's
         # default multi-configuration preprocessor exploration cannot
         # evaluate (a cppcheck limitation, not a code issue); --max-configs=1
@@ -50,7 +50,7 @@ function(opentlv_add_cppcheck_targets)
         COMMAND ${OPENTLV_CPPCHECK_EXECUTABLE}
             ${_opentlv_cppcheck_common_args}
             --std=c99 --language=c
-            -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv/include"
+            -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../include"
             -I "${OpenTLV_BINARY_DIR}/generated/include"
             ${_opentlv_cppcheck_c_sources}
         COMMAND ${OPENTLV_CPPCHECK_EXECUTABLE}
@@ -60,8 +60,8 @@ function(opentlv_add_cppcheck_targets)
             # tlv++ requires exceptions, as enforced by compat.hpp and the
             # C++ contract checks, so analyze that supported configuration.
             -D__cpp_exceptions=199711L
-            -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv++/include"
-            -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../tlv/include"
+            -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../include"
+            -I "${_OPENTLV_CPPCHECK_MODULE_DIR}/../include"
             -I "${OpenTLV_BINARY_DIR}/generated/include"
             ${_opentlv_cppcheck_cxx_sources}
         WORKING_DIRECTORY "${_OPENTLV_CPPCHECK_MODULE_DIR}/.."

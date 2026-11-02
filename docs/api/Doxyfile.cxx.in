@@ -2,11 +2,11 @@
 PROJECT_NAME           = "OpenTLV C++ API"
 PROJECT_NUMBER         = "@OPENTLV_VERSION_STRING@"
 OUTPUT_DIRECTORY       = "@PROJECT_BINARY_DIR@/docs/cxx-api"
-INPUT                  = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++" \
+INPUT                  = "@PROJECT_SOURCE_DIR@/include/opentlv" \
                          "@PROJECT_SOURCE_DIR@/docs/api/cxx-api.dox"
 FILE_PATTERNS          = *.hpp *.dox
 RECURSIVE              = YES
-STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/tlv++/include"
+STRIP_FROM_PATH        = "@PROJECT_SOURCE_DIR@/include"
 OPTIMIZE_OUTPUT_FOR_C  = NO
 EXTRACT_ALL            = YES
 EXTRACT_STATIC         = YES

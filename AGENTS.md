@@ -22,6 +22,6 @@ When updating `CHANGELOG.md`:
 
 ## Public API documentation
 
-Document every new or changed public declaration in `tlv/include/` and
-`tlv++/include/` with Doxygen comments, following the conventions in
+Document every new or changed public declaration in `include/` and
+`include/` with Doxygen comments, following the conventions in
 [CONTRIBUTING.md](CONTRIBUTING.md#public-api-documentation).

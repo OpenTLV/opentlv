@@ -6,7 +6,7 @@ Prerequisite: Understand Element and Value in [the basic model](../concepts/lear
 Value bytes + selected Codec --> application value
 ```
 
-`tlv/codec/codec.h` defines `tlv_codec_t`, an optional pair of decode and encode
+`opentlv/codec/codec.h` defines `tlv_codec_t`, an optional pair of decode and encode
 callbacks with a borrowed, immutable context pointer. Codecs convert raw value
 bytes and application-defined C representations. They do not receive tags,
 formats, readers, or writers. Applications choose and invoke codecs explicitly;
@@ -24,7 +24,7 @@ No heap allocation or registration is required. A missing callback reports
 For example, an application can define a zero-copy decoder:
 
 ```c
-#include "tlv/codec/codec.h"
+#include "opentlv/codec/codec.h"
 
 typedef struct { const uint8_t* data; size_t length; } byte_range_t;
 
@@ -46,7 +46,7 @@ static const tlv_codec_t bytes_codec = {NULL, decode_bytes, NULL};
 ```
 
 After a successful `tlv_read()`, convert the view's `tlv_size_t` value length with
-`tlv_size_to_native()` (from `tlv/size.h`) before passing it to a codec, which takes a
+`tlv_size_to_native()` (from `opentlv/core/size.h`) before passing it to a codec, which takes a
 native `size_t` size:
 
 ```c
@@ -118,7 +118,7 @@ cause `TLV_QUERY_CAUSE_CODEC`. C++ uses `codec_failure`, whose status is the sha
 
 ## C++11 typed fields and Value codecs
 
-Include `<tlv++/codec/typed.hpp>` (also included by `<tlv++/tlv.hpp>`).
+Include `<opentlv/codec/typed.hpp>` (also included by `<opentlv/tlv.hpp>`).
 `field<Tag, T, Codec = codec<T>>` associates a canonical byte identifier with
 a semantic C++ type and a tag-independent Value conversion. It does not add
 a Definition registry, Schema, or protocol dependency.
@@ -156,7 +156,7 @@ the other domain remains successful. Errors do not allocate.
 
 Available adapters are `uint8_codec`, `uint16_be_codec`, `uint16_le_codec`,
 `uint32_be_codec`, `uint32_le_codec`, and `int64_minimal_be_codec`. They delegate
-to the C Value codecs. `tlv::native::codec_adapter<T, &descriptor>` (include `<tlv++/native.hpp>`) supports other C codecs
+to the C Value codecs. `tlv::native::codec_adapter<T, &descriptor>` (include `<opentlv/native.hpp>`) supports other C codecs
 when `T` is exactly their documented, default-constructible C representation.
 Do not use it to reinterpret an STL object as a C representation.
 
@@ -207,7 +207,7 @@ at runtime.
 
 ## ASN.1 universal-type codecs
 
-`tlv/builtins/asn1/asn1_codec.h` provides `tlv_codec_t` descriptors for the
+`opentlv/builtin/asn1/asn1_codec.h` provides `tlv_codec_t` descriptors for the
 ASN.1 primitive universal types (BOOLEAN, INTEGER, ENUMERATED, BIT STRING,
 OCTET STRING, NULL, OBJECT IDENTIFIER and RELATIVE-OID), independent of any
 BER-family format or standard. See
@@ -215,7 +215,7 @@ BER-family format or standard. See
 
 ## Complete object mappings
 
-Bindings belong to the codec layer. Include `tlv/codec/structure.h` for
+Bindings belong to the codec layer. Include `opentlv/codec/structure.h` for
 `tlv_structure_codec_t`, which maps a complete TLV sequence to an application
 object. Its callbacks receive the selected format explicitly and may use raw
 reader/writer operations plus individual value codecs. The descriptor borrows
@@ -235,13 +235,13 @@ on failure are unspecified and failed encoding reports zero written bytes.
 Object storage and encoded storage belong to the caller.
 
 C++ `tlv::decode_structure<T>` and `tlv::encode_structure` in
-`tlv++/codec/structure.hpp` adapt this descriptor without allocating temporary output.
+`opentlv/codec/structure.hpp` adapt this descriptor without allocating temporary output.
 T must match the descriptor's representation and be default constructible.
 For a tested two-field mapping, see
 [`architecture_test.cpp`](../../tests/integration/architecture_test.cpp) and
 [`layers_test.cpp`](../../tests/integration/layers_test.cpp).
 
-Raw C++ readers and writers include only `tlv++/types.hpp` and the C I/O
+Raw C++ readers and writers include only `opentlv/core/types.hpp` and the C I/O
 contracts; they do not depend on codecs.
 
 ## Other languages
@@ -260,10 +260,10 @@ See also the [C API reference: codecs](../reference/c-api.md#codecs).
 
 ## Reusable primitive codecs
 
-Include `tlv/codec/values.h` for `tlv_codec_uint8`,
+Include `opentlv/codec/values.h` for `tlv_codec_uint8`,
 `tlv_codec_uint16_be`, `tlv_codec_uint32_be`, their `_le` equivalents,
 `tlv_codec_int64_minimal_be` and `tlv_codec_bytes`.
-Include `tlv/codec/ipv4.h` for `tlv_codec_ipv4` and
+Include `opentlv/codec/ipv4.h` for `tlv_codec_ipv4` and
 `tlv_codec_ipv4_list`. They use the same Codec
 contract and are available independently of protocol components.
 Byte sequences decode to borrowed `tlv_value_t` views; IPv4 lists decode
@@ -272,7 +272,7 @@ to `tlv_ipv4_list_t` views with checked access through
 
 ## Declarative numeric codecs
 
-`tlv/codec/number.h` describes unsigned `uint64_t` conversion using ordinary
+`opentlv/codec/number.h` describes unsigned `uint64_t` conversion using ordinary
 immutable data: binary BE/LE or unsigned BCD, representation width, and BCD
 decimal precision. Width zero encodes the shortest representation and accepts
 any supported input width. A nonzero width selects a fixed-width representation
@@ -286,7 +286,7 @@ the resulting length. For variable-width fields, domain code can choose the
 shortest schema-permitted width that fits. No codec performs tag lookup.
 
 ```c
-#include "tlv/codec/number.h"
+#include "opentlv/codec/number.h"
 
 static const tlv_number_codec_config_t amount_config = {
     TLV_NUMBER_BCD, 6, 12
@@ -310,7 +310,7 @@ and impose any additional constraints.
 
 ## Digit strings and text
 
-`tlv/codec/digits.h` packs decimal character strings high nibble first, with
+`opentlv/codec/digits.h` packs decimal character strings high nibble first, with
 trailing `F` padding. Leading zeros remain digits; this is distinct from numeric
 BCD. Decode returns a NUL-terminated string; encode takes the digit count
 **excluding** the NUL. Width zero selects the shortest encoding; nonzero width
@@ -320,7 +320,7 @@ by Schema/domain validation.
 Digits after padding and nibbles `A..E` are rejected.
 
 ```c
-#include "tlv/codec/digits.h"
+#include "opentlv/codec/digits.h"
 
 static const tlv_digits_codec_config_t identifier_config = {4};
 static const tlv_codec_t identifier_codec = {
@@ -329,7 +329,7 @@ static const tlv_codec_t identifier_codec = {
 /* "00123" encodes as 00 12 3F FF; decoding preserves both leading zeros. */
 ```
 
-`tlv/codec/text.h` converts explicitly selected ASCII text. Choose
+`opentlv/codec/text.h` converts explicitly selected ASCII text. Choose
 `TLV_TEXT_ASCII_PRINTABLE` (space through `~`) or `TLV_TEXT_ASCII_ALNUM`
 (letters and digits only). It does not infer the meaning of protocol labels
 such as AN/ANS and is not a Unicode codec. Optional zero padding strips trailing
@@ -337,7 +337,7 @@ zero bytes on decode and pads to the selected fixed width on encode. Embedded
 zeros, controls and bytes outside the selected alphabet are invalid.
 
 ```c
-#include "tlv/codec/text.h"
+#include "opentlv/codec/text.h"
 
 static const tlv_text_codec_config_t label_config = {
     TLV_TEXT_ASCII_PRINTABLE, 16, 1

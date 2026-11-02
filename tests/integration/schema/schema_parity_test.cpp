@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/schema/schema.h"
 #include <cstdio>
 #include <gtest/gtest.h>
 #include <string>

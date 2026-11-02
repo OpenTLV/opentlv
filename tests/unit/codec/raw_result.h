@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_RAW_RESULT_H
 #define OPENTLV_TEST_RAW_RESULT_H
-#include "tlv/codec/codec.h"
+#include "opentlv/codec/codec.h"
 #ifdef __cplusplus
 extern "C" {
 #endif

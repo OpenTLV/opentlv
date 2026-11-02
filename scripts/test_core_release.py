@@ -116,7 +116,7 @@ class CoreGateTests(unittest.TestCase):
     def test_changed_module_configuration_invalidates_quality_evidence(self):
         evidence = quality()
         original_digest = release.digest
-        for changed in ('cmake/modules.cmake', 'tlv/CMakeLists.txt', 'tlv/modules.cmake'):
+        for changed in ('cmake/modules.cmake', 'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake'):
             with self.subTest(changed=changed):
                 self.assertIn(changed, evidence['configuration']['configuration_sources'])
                 with patch('core_release.digest', side_effect=lambda path:

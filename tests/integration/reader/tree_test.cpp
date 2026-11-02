@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/reader/tree.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/lldp/lldp.h"
+#include "opentlv/io/reader/tree.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/lldp/lldp.h"
 #include <gtest/gtest.h>
 #include <vector>
 

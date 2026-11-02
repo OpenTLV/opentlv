@@ -1,6 +1,6 @@
 # EMV Contact Book 3 support
 
-Include `tlv/builtins/emv/emv.h` and link `tlv`. The supported set is explicitly
+Include `opentlv/builtin/emv/emv.h` and link `tlv`. The supported set is explicitly
 **EMV Contact Book 3 v4.4 (October 2022)**, exposed as `TLV_EMV_SPECIFICATION`.
 It covers all tagged data elements in Annex A Tables 37/38, including the
 context-specific biometric meanings and nested tags in Annex C Tables 48/51/52.
@@ -11,8 +11,8 @@ this implementation. Book 3 data elements without a tag are not assigned invente
 The reference is [EMVCo Book 3 v4.4](https://www.emvco.com/specifications/book-3-application-specification-2/),
 also available as a [public copy of the specification](https://www.scribd.com/document/648236969/EMV-v4-4-Book-3-Application-Specification-1).
 The builtin dictionary uses explicit typed C tables in
-`tlv/src/builtins/emv/dictionary.c`. Public tag constants are declared directly
-in `tlv/builtins/emv/emv.h`; no repeated-include X-macro or build-time dictionary
+`src/builtin/emv/dictionary.c`. Public tag constants are declared directly
+in `opentlv/builtin/emv/emv.h`; no repeated-include X-macro or build-time dictionary
 generator is required. Regression tests check all 168 context entries against
 the pre-refactoring constants and metadata.
 
@@ -35,7 +35,7 @@ AFL/CVM/UUID-like length progressions use `length_multiple`, and BIC/RSA-exponen
 alternatives use `TLV_SCHEMA_LENGTH_ENDPOINTS`. Semantic codec adapters reference the
 same schema entries, then delegate conversion to the generic primitives.
 Numeric entries use the reusable `tlv_schema_number_t` composition in
-`tlv/schema/number.h`, available equally to builtin and caller-owned tables.
+`opentlv/schema/number.h`, available equally to builtin and caller-owned tables.
 Numeric encoding chooses a fitting schema-permitted width before invoking the
 primitive. `tlv_emv_codec_amount` borrows the Amount Authorised schema.
 
@@ -55,7 +55,7 @@ for the symbol borrowed from Schema. `tlv_emv_length_step(entry)` derives the
 legacy display value; validity always comes from Schema.
 
 `tlv_emv_value_kind(entry)` is removed. For optional builtin presentation include
-`tlv/builtins/emv/presentation.h` and call `tlv_emv_builtin_value_kind(entry)`.
+`opentlv/builtin/emv/presentation.h` and call `tlv_emv_builtin_value_kind(entry)`.
 This adapter has an explicit builtin display profile; it does not discover types
 from callback addresses. It accepts only entries in the immutable builtin tables;
 copies and caller-owned entries are outside that profile. Custom codecs remain
@@ -72,12 +72,12 @@ storage. Runtime owners select codecs and validate Schema explicitly; no
 Use `&tlv_format_emv` with the reader, visitor, or writer.
 There is no separate EMV parser and the reader never interprets values.
 
-The descriptor in `tlv/builtins/emv/format.h` composes generic variable identifier
+The descriptor in `opentlv/builtin/emv/format.h` composes generic variable identifier
 and count primitives with declarative EMV policies and a constructed-bit predicate.
 It uses only generic Variable Format callbacks; see the
 [policy design note](../../concepts/field-policies.md). It calls no ASN.1 format
 or private BER helper. C++ exposes the same descriptor as `tlv::emv::format{}` from
-`tlv++/builtins/emv/format.hpp`.
+`opentlv/builtin/emv/format.hpp`.
 
 | Concern | EMV framing contract |
 | --- | --- |
@@ -131,8 +131,8 @@ and `tlv_schema_validate_length()`. `tlv_emv_find(context, tag)` returns an
 immutable entry referencing its Definition, Schema and optional Codec. Unknown tags and invalid contexts return NULL.
 
 ```c
-#include "tlv/builtins/emv/emv.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/emv/emv.h"
+#include "opentlv/io/reader/reader.h"
 
 /* Inside a function; wire contains an Amount, Authorised (Numeric) TLV. */
 tlv_element_t element;
@@ -280,7 +280,7 @@ are the same in every build.
 
 ## Structural validation
 
-`tlv_emv_structure_schema` (`tlv/builtins/emv/emv_schema.h`) is a
+`tlv_emv_structure_schema` (`opentlv/builtin/emv/emv_schema.h`) is a
 `tlv_structure_schema_t` for `tlv_schema_validate()` that fills the gap above:
 mandatory/forbidden/duplicate tags, length bounds, and required nesting, for
 the FCI Template (`6F`, including its `A5` FCI Proprietary Template child),
@@ -290,8 +290,8 @@ Format 2 (`77`). Other top-level tags, including the Read Record Template
 and issuer for a generic schema and are accepted unchecked at the root.
 
 ```c
-#include "tlv/builtins/emv/format.h"
-#include "tlv/builtins/emv/emv_schema.h"
+#include "opentlv/builtin/emv/format.h"
+#include "opentlv/builtin/emv/emv_schema.h"
 
 /* Inside a function; wire/size hold one or more concatenated EMV elements. */
 tlv_schema_diagnostic_t diagnostic;
@@ -310,7 +310,7 @@ Template (`70`) for a specific kernel, use `tlv_schema_validate_all_diag()`; see
 
 ## Data Object Lists (PDOL/CDOL/DDOL)
 
-Include `tlv/builtins/emv/dol.h`. A Data Object List is a sequence of tag/
+Include `opentlv/builtin/emv/dol.h`. A Data Object List is a sequence of tag/
 requested-length pairs with no value bytes of its own; PDOL, CDOL1, CDOL2 and
 DDOL all share this format (Book 3 section 5.4). Reading one with `tlv_read`
 or `tlv_reader_visit` would misinterpret the one-byte requested length as a BER
@@ -318,7 +318,7 @@ length field, so this is a dedicated value component rather than ordinary
 TLV structure.
 
 ```c
-#include "tlv/builtins/emv/dol.h"
+#include "opentlv/builtin/emv/dol.h"
 
 /* Inside a function; pdol holds a PDOL value's raw bytes. */
 static tlv_result_t print_entry(const tlv_dol_entry_t* entry, size_t index, void* context) {

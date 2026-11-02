@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include <gtest/gtest.h>
-#include <tlv++/tlv.hpp>
-#include <tlv++/native.hpp>
+#include <opentlv/tlv.hpp>
+#include <opentlv/native.hpp>
 #include <vector>
 #include <algorithm>
 #include <cstring>
-#include <tlv/builtins/bluetooth/bluetooth_ltv.h>
-#include <tlv/builtins/dhcp/dhcpv4.h>
-#include <tlv/builtins/nfc/type2.h>
+#include <opentlv/builtin/bluetooth/bluetooth_ltv.h>
+#include <opentlv/builtin/dhcp/dhcpv4.h>
+#include <opentlv/builtin/nfc/type2.h>
 
 namespace {
 void check_stream(const tlv_format_t& format, const uint8_t* data, size_t size, size_t depth,

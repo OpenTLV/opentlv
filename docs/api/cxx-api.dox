@@ -2,7 +2,7 @@
  * @mainpage OpenTLV C++ API reference
  *
  * Start with namespace tlv, the class index, or the public header index.
- * Include tlv++/tlv.hpp for the complete header-only wrapper API.
+ * Include opentlv/tlv.hpp for the complete header-only wrapper API.
  * C declarations are linked to the accompanying C reference and are excluded
  * from the C++ indexes. Using the wrappers still requires linking the C library.
  * This reference is part of the OpenTLV documentation site; see the
@@ -24,7 +24,7 @@
  * tlv::tag, tlv::value_view and tlv::element_view borrow immutable byte storage.
  * Copies never allocate, copy bytes or extend lifetimes. Use element.tag() and
  * element.value(); value.as_bytes() returns a validated native byte span.
- * Include tlv++/native.hpp for checked C imports and explicit descriptor exports.
+ * Include opentlv/native.hpp for checked C imports and explicit descriptor exports.
  * tlv::expected destroys its held value or error through RAII, and tlv::any
  * owns its type-erased value. Error messages, the registry and convenience
  * encoding can allocate; the C core's allocation-free guarantee does not

@@ -2,14 +2,14 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include <gtest/gtest.h>
-#include "tlv/codec/codec.h"
-#include "tlv/codec/digits.h"
-#include "tlv/codec/ipv4.h"
-#include "tlv/codec/number.h"
-#include "tlv/codec/text.h"
-#include "tlv/codec/values.h"
-#include "tlv/endian.h"
-#include "tlv/element.h"
+#include "opentlv/codec/codec.h"
+#include "opentlv/codec/digits.h"
+#include "opentlv/codec/ipv4.h"
+#include "opentlv/codec/number.h"
+#include "opentlv/codec/text.h"
+#include "opentlv/codec/values.h"
+#include "opentlv/core/endian.h"
+#include "opentlv/core/element.h"
 
 #include "../../unknown_result.h"
 #include "../codec/raw_result.h"

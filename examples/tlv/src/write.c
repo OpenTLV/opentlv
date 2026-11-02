@@ -8,8 +8,8 @@
  */
 #include <stdio.h>
 #include <string.h>
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/writer/writer.h"
 
 /* Same bytes as parse.c's document. */
 static const uint8_t expected[] = {0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42,

@@ -3,11 +3,11 @@
 
 /* Out-of-range enum values are tested in C, without invalid C++ enum loads. */
 #include "../diagnostic_invariant.h"
-#include "tlv/field/fixed.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/formats/variable.h"
-#include "tlv/formats/packed.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/core/field/fixed.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/core/formats/variable.h"
+#include "opentlv/core/formats/packed.h"
+#include "opentlv/io/reader/visitor.h"
 #include <string.h>
 
 #define CHECK(condition)                                                                           \

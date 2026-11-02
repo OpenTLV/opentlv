@@ -6,7 +6,7 @@ Prerequisite: Understand Element and Value in the [basic model](learning-model.m
 wire Length --Format--> logical Value byte count
 ```
 
-Include `tlv/size.h` (also available through `tlv/tlv.h`) for `tlv_size_t`,
+Include `opentlv/core/size.h` (also available through `opentlv/tlv.h`) for `tlv_size_t`,
 a fixed 64-bit unsigned logical TLV value length, and its checked conversions
 to and from the current build's native `size_t`.
 
@@ -27,7 +27,7 @@ current build; use the conversions below before native-size use.
 | `tlv_size_add(a, b, &sum)` | Add two lengths, detecting `tlv_size_t` overflow. |
 
 ```c
-#include "tlv/size.h"
+#include "opentlv/core/size.h"
 
 size_t native = sizeof(some_buffer);
 tlv_size_t length;
@@ -73,7 +73,7 @@ x64 without attempting any allocation or memory access, since it equals
 `SIZE_MAX` there.
 
 Raw length-field bytes are represented separately by `tlv_length_t`
-(`data`, native `size`) in `<tlv/length.h>`. They preserve the original wire
+(`data`, native `size`) in `<opentlv/core/length.h>`. They preserve the original wire
 representation; they are not the decoded value size.
 
 Readers and format callbacks decode logical value sizes into `tlv_size_t`.

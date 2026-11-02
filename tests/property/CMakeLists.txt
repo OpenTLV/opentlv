@@ -28,7 +28,7 @@ function(property_configuration name format)
         --failures "${OpenTLV_BINARY_DIR}/property-failures/$<CONFIG>/${name}"
         --format "${format}" --count "${OPENTLV_PROPERTY_COUNT}"
         --commit "${OPENTLV_PROPERTY_COMMIT}" --seed "${OPENTLV_PROPERTY_SEED}"
-        --generator-header "${OpenTLV_SOURCE_DIR}/tlv/include/tlv/generator.h" ${ARGN})
+        --generator-header "${OpenTLV_SOURCE_DIR}/include/opentlv/generator/generator.h" ${ARGN})
     # Generated matrices launch many native children; reserve them for full Memcheck.
     set_tests_properties(Property_${name} PROPERTIES LABELS "property;${format};memcheck-full" TIMEOUT 300)
     opentlv_memcheck_timeout(Property_${name} 6000)

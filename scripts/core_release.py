@@ -133,7 +133,7 @@ def configuration(tier):
     else:
         inputs = {'full': tier == 'full', 'release_tag': os.environ.get('RELEASE_TAG', '')}
     helpers = ('CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake',
-               'tlv/CMakeLists.txt', 'tlv/modules.cmake',
+               'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake',
                'scripts/check_cmake_integration.py',
                'scripts/check_capabilities.py', 'scripts/abi/check.py')
     return {'inputs': inputs, 'configuration_sources': {name: digest(source / name) for name in helpers},
@@ -320,7 +320,7 @@ def binary_record(build, output, identifier, tag, commit):
     cache = read_cache(build)
     require(cache['CMAKE_BUILD_TYPE'] == 'Release', 'Binary must use Release configuration')
     require(cache['OPENTLV_BUILD_CXX'] == 'ON', 'Release binaries must include the C++ headers')
-    header = (build / 'generated/include/tlv/version.h').read_text()
+    header = (build / 'generated/include/opentlv/core/version.h').read_text()
     require(f'#define OPENTLV_VERSION_STRING "{version(tag)}"' in header,
             'Compiled version differs from the release tag')
     compiled_commit = re.search(r'#define OPENTLV_GIT_COMMIT_HASH "([0-9a-f]+)"', header)

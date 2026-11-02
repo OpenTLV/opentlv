@@ -57,7 +57,7 @@ def main():
     if re.search(r"^(OPENTLV_BUILD_(?:CLI(?:_TESTS)?|PYTHON)|nlohmann_json_[^:]*):", cache, re.M):
         raise RuntimeError("Core still configures migrated consumer options or dependencies")
     run("cmake", "--build", core_build, "--config", "Release", "--parallel", "1")
-    reference = (core_build / "generated/include/tlv/version.h").read_bytes()
+    reference = (core_build / "generated/include/opentlv/core/version.h").read_bytes()
     version = re.search(rb'#define OPENTLV_VERSION_STRING "([^"]+)"', reference)[1].decode()
     numeric_version = re.search(rb'#define OPENTLV_VERSION_MAJOR (\d+)', reference)[1].decode()
     for component in ("MINOR", "PATCH"):
@@ -141,7 +141,7 @@ def main():
             options += core_options + [f"-DFETCHCONTENT_SOURCE_DIR_OPENTLV_CORE={root.as_posix()}"]
         configure(consumer, build, *options)
         if mode == "fetch":
-            generated = build / "_deps/opentlv_core-build/generated/include/tlv/version.h"
+            generated = build / "_deps/opentlv_core-build/generated/include/opentlv/core/version.h"
             if generated.read_bytes() != reference:
                 raise RuntimeError("Embedded Core version differs from standalone metadata")
         build_and_test(build)

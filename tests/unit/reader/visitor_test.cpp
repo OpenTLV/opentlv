@@ -4,7 +4,7 @@
 #include "../../diagnostic_assertions.h"
 #include "visitor_input.h"
 #include "controlled_format.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/io/reader/visitor.h"
 #include <gtest/gtest.h>
 #include <vector>
 

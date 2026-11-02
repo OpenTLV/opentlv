@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/builtins/asn1/cer.h` |
+| Format header | `opentlv/builtin/asn1/cer.h` |
 | Descriptor | `tlv_format_cer` |
 | Link target | `OpenTLV::ASN1` |
 
@@ -23,7 +23,7 @@ Canonical tag/length framing: a constructed value's length must be
 indefinite (EOC-terminated); a primitive value's length must be definite and
 minimally encoded. Generic I/O validates the current element's identifier and
 length and uses the shared BER scanner to resolve matching EOC boundaries.
-It does not enforce recursive CER canonicality or canonical string segmentation — use [tlv/builtins/asn1/cer_validation.h](../../standards/cer/README.md)
+It does not enforce recursive CER canonicality or canonical string segmentation — use [opentlv/builtin/asn1/cer_validation.h](../../standards/cer/README.md)
 for that.
 
 See [shared memory ownership rules](../../guides/memory.md) before retaining a
@@ -35,9 +35,9 @@ This complete example writes and reads one opaque primitive byte. Exit code
 zero means success.
 
 ```c
-#include "tlv/builtins/asn1/cer.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/asn1/cer.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 int main(void) {
     const tlv_tag_t tag = TLV_TAG(0x04);

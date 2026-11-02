@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../diagnostic_assertions.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/reader.h"
 #include <gtest/gtest.h>
 #include <limits>
 

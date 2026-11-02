@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../diagnostic_assertions.h"
-#include "tlv/format.h"
-#include "tlv/size.h"
-#include "tlv/element.h"
+#include "opentlv/core/format.h"
+#include "opentlv/core/size.h"
+#include "opentlv/core/element.h"
 
 #include <gtest/gtest.h>
 
@@ -70,7 +70,7 @@ TEST(Unit_Tlv_Element, ResultDistinguishesSuccessFromError) {
     EXPECT_NE(TLV_OK, TLV_ERR_NULL_ARG);
 }
 
-#include "tlv/reader/reader.h"
+#include "opentlv/io/reader/reader.h"
 #include "../controlled_format.h"
 #include <type_traits>
 
@@ -106,7 +106,7 @@ TEST(Unit_Tlv_Element, OversizedLogicalValuePreservesOutputsAndFullDiagnostic) {
     EXPECT_EQ(TLV_SIZE_MAX, diagnostic.detail.declared_length);
 }
 
-#include "tlv/builtins/asn1/ber.h"
+#include "opentlv/builtin/asn1/ber.h"
 TEST(Unit_Tlv_Element, RetainsMultibyteTagAndNonminimalLengthExactly) {
     tlv_source_t source{};
     (void)source;
@@ -163,7 +163,7 @@ TEST(Unit_Tlv_Element, TruncationDoesNotPublishPartialRawFields) {
     }
 }
 
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
 TEST(Unit_Tlv_Element, LengthBeforeTagKeepsRawCountSeparateFromValueSize) {
     tlv_source_t source{};
     (void)source;
@@ -227,7 +227,7 @@ TEST(Unit_Tlv_Element, LogicalOverflowAndTruncatedLengthKeepAvailableRawBytes) {
     EXPECT_EQ(99u, consumed);
 }
 
-#include "tlv/formats/fixed.h"
+#include "opentlv/core/formats/fixed.h"
 TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
     tlv_source_t source{};
     (void)source;
@@ -268,8 +268,8 @@ TEST(Unit_Tlv_Element, FixedSizeDomainIsIndependentOfFieldOrderAndByteOrder) {
     }
 }
 
-#include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/asn1/der_validation.h"
+#include "opentlv/builtin/asn1/der.h"
+#include "opentlv/builtin/asn1/der_validation.h"
 TEST(Unit_Tlv_Element, DerRejectsNonminimalLengthButPreservesItsRawFieldInDiagnostic) {
     tlv_source_t source{};
     (void)source;
@@ -298,7 +298,7 @@ TEST(Unit_Tlv_Element, DerValidationPublishesTheSameRawFields) {
     EXPECT_EQ(1u, element.value.size);
 }
 
-#include "tlv/builtins/asn1/cer_validation.h"
+#include "opentlv/builtin/asn1/cer_validation.h"
 TEST(Unit_Tlv_Element, CerValidationPreservesPrimitiveAndIndefiniteLengthFields) {
     tlv_source_t source{};
     (void)source;
@@ -317,7 +317,7 @@ TEST(Unit_Tlv_Element, CerValidationPreservesPrimitiveAndIndefiniteLengthFields)
     EXPECT_EQ(1u, element.value.size);
 }
 
-#include "tlv/writer/writer.h"
+#include "opentlv/io/writer/writer.h"
 #include <cstring>
 namespace {
 // Header A5, tag, one-byte value count, arbitrary padding; trailer XOR(value).

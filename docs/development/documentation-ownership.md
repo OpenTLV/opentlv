@@ -227,7 +227,7 @@ standalone portal repository.
 | `.github/workflows/docs-validation.yml` | Core: read-only Markdown, example/inventory and Doxygen validation with API artifacts; replaces the removed `docs.yml` publisher |
 | `docs/api/Doxyfile.in`, `Doxyfile.cxx.in`, `Doxyfile.common.in`, `c-api.dox`, `cxx-api.dox` (all under `docs/api/`) | Core: independent C/C++ extraction configuration, groups and landing pages; preserve C/C++ cross-links and `@docs` links when portal URLs change |
 | `CMakeLists.txt`, `cmake/doxygen.cmake` | Core: retain `OPENTLV_BUILD_DOCS`, `c-api-docs` and `cxx-api-docs` generation without a portal checkout; normal builds do not require Doxygen |
-| `tlv/include/`, `tlv++/include/` | Core: canonical public API declarations and Doxygen comments |
+| `include/`, `include/` | Core: canonical public API declarations and Doxygen comments |
 | `examples/tlv/`, `examples/tlv++/`, their README files and tests | Core: executable native examples and their verification |
 | `bindings/*/` documentation, examples and tests | Respective binding: Component exception; shared native helpers follow their actual implementation owner |
 | `opentlv-cli/docs/`, `src/` and `tests/` (external) | CLI: implementation, manuals, acceptance tests and frozen migration baseline; removed from Core by #622 |
@@ -248,7 +248,7 @@ an assumed single-repository base URL.
 | --- | --- |
 | Core guides and `getting-started/README.md`: language tabs, `<!-- example: PATH -->` markers and runnable-example links | `bindings/*/examples/` and language guides: binding owns source/tests; Portal integrates selected examples without requiring binding updates for a Core-only documentation change |
 | `concepts/bindings.md`, `formats/support.md`, `guides/examples.md` | Retain Core facts and current binding inventories locally; CLI registrations and acceptance tests belong to opentlv-cli; preserve portal navigation during source-pin updates |
-| `reference/c-api.md`, `reference/cxx-api.md`, format guides and native examples | `tlv/include/`, `tlv++/include/`, `examples/`: keep Core-relative source links in canonical Markdown; assembled links must target the selected Core revision |
+| `reference/c-api.md`, `reference/cxx-api.md`, format guides and native examples | `include/`, `include/`, `examples/`: keep Core-relative source links in canonical Markdown; assembled links must target the selected Core revision |
 | `docs/README.md`, root/component README files and `CONTRIBUTING.md` | Core pages and the unified landing page: preserve a Core entry point, update portal destinations and keep existing anchors where practical |
 | Doxygen `@docs` links, `OPENTLV_DOCS_URL` in `cmake/doxygen.cmake`, C++ tag-file references and reference entry pages | Hand-written guides and sibling C/C++ HTML trees: preserve both directions when generation and publication are separated |
 | Portal playground assets and the standalone JS/WASM manual | WebAssembly distribution/API and browser assets: component produces the module; Portal owns its selected-version integration |

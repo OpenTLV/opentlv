@@ -14,26 +14,26 @@ class BoundaryTests(unittest.TestCase):
         return [item["symbol"] for item in violations("consumer.cpp", source)]
 
     def test_comments_and_strings_do_not_create_dependencies(self):
-        self.assertEqual([], self.symbols('''// #include <tlv/result.h>
+        self.assertEqual([], self.symbols('''// #include <opentlv/core/result.h>
 /* tlv_reader_next(); TLV_OK; */
 const char* text = R"note(tlv::native and TLV_OK)note";
 const char* quoted = "tlv_reader_t";
 '''))
 
     def test_direct_and_internal_headers_are_rejected(self):
-        self.assertEqual(["tlv/reader/reader.h", "tlv++/native.hpp", "tlv++/detail/visitor.hpp"],
-                         self.symbols('''#include <tlv/reader/reader.h>
-#include "tlv++/native.hpp"
-#include <tlv++/detail/visitor.hpp>
-#include <tlv/query/features.h>
+        self.assertEqual(["opentlv/io/reader/reader.h", "opentlv/native.hpp", "opentlv/io/detail/visitor.hpp"],
+                         self.symbols('''#include <opentlv/io/reader/reader.h>
+#include "opentlv/native.hpp"
+#include <opentlv/io/detail/visitor.hpp>
+#include <opentlv/query/features.h>
 '''))
 
     def test_include_text_inside_raw_strings_is_not_a_header(self):
-        self.assertEqual(["tlv/result.h"], self.symbols('''const char* sample = R"sample(
-#include "tlv/reader/reader.h"
+        self.assertEqual(["opentlv/core/result.h"], self.symbols('''const char* sample = R"sample(
+#include "opentlv/io/reader/reader.h"
 )sample";
 const char* comment_text = "/*";
-#include "tlv/result.h"
+#include "opentlv/core/result.h"
 '''))
 
     def test_native_tokens_and_spaced_namespaces_are_rejected(self):
@@ -66,40 +66,40 @@ class BaselineTests(unittest.TestCase):
         return {self.relative: {"reason": "Canonical C/C++ parity test.", "symbols": symbols}}
 
     def test_existing_interop_passes_only_at_its_exact_budget(self):
-        self.source('#include <tlv++/tlv.hpp>\nTLV_OK; TLV_OK;')
+        self.source('#include <opentlv/tlv.hpp>\nTLV_OK; TLV_OK;')
         self.assertEqual([], audit(self.root, self.baseline(TLV_OK=2)))
 
     def test_existing_symbol_cannot_gain_an_occurrence(self):
-        self.source('#include <tlv++/tlv.hpp>\nTLV_OK; TLV_OK;')
+        self.source('#include <opentlv/tlv.hpp>\nTLV_OK; TLV_OK;')
         failures = audit(self.root, self.baseline(TLV_OK=1))
         self.assertEqual(["TLV_OK"], [item["symbol"] for item in failures])
         self.assertIn("allows 1 occurrences", failures[0]["message"])
 
     def test_new_symbol_in_interop_file_is_not_exempt(self):
-        self.source('#include <tlv++/tlv.hpp>\nTLV_OK; tlv_reader_next();')
+        self.source('#include <opentlv/tlv.hpp>\nTLV_OK; tlv_reader_next();')
         failures = audit(self.root, self.baseline(TLV_OK=1))
         self.assertEqual(["tlv_reader_next"], [item["symbol"] for item in failures])
 
     def test_swapping_native_members_does_not_reuse_a_namespace_budget(self):
-        self.source('#include <tlv++/tlv.hpp>\ntlv::native::descriptor(x);')
+        self.source('#include <opentlv/tlv.hpp>\ntlv::native::descriptor(x);')
         failures = audit(self.root, self.baseline(**{"tlv::native::handle": 1}))
         self.assertEqual(["tlv::native::descriptor", "tlv::native::handle"],
                          [item["symbol"] for item in failures])
 
     def test_new_native_headers_in_interop_files_are_rejected(self):
-        self.source('#include <tlv++/tlv.hpp>\n#include <tlv/result.h>\nTLV_OK;')
+        self.source('#include <opentlv/tlv.hpp>\n#include <opentlv/core/result.h>\nTLV_OK;')
         failures = audit(self.root, self.baseline(TLV_OK=1))
-        self.assertEqual(["tlv/result.h"], [item["symbol"] for item in failures])
+        self.assertEqual(["opentlv/core/result.h"], [item["symbol"] for item in failures])
 
     def test_reduced_and_removed_symbols_make_budgets_stale(self):
-        self.source('#include <tlv++/tlv.hpp>\nTLV_OK;')
+        self.source('#include <opentlv/tlv.hpp>\nTLV_OK;')
         failures = audit(self.root, self.baseline(TLV_OK=2, TLV_ERR_LIMIT=1))
         self.assertEqual(["baseline", "baseline"], [item["kind"] for item in failures])
         self.assertEqual(["TLV_OK", "TLV_ERR_LIMIT"], [item["symbol"] for item in failures])
 
     def test_missing_or_no_longer_facade_consumer_has_stale_baseline(self):
-        for source in (None, '#include <tlv/result.h>\nTLV_OK;',
-                       '// #include <tlv++/tlv.hpp>\nTLV_OK;'):
+        for source in (None, '#include <opentlv/core/result.h>\nTLV_OK;',
+                       '// #include <opentlv/tlv.hpp>\nTLV_OK;'):
             with self.subTest(source=source):
                 if source is not None:
                     self.source(source)
@@ -112,14 +112,14 @@ class BaselineTests(unittest.TestCase):
         for folder in ("examples/tlv++", "tests"):
             for extension in (".cc", ".cxx", ".inl"):
                 relative = f"{folder}/consumer{extension}"
-                self.source('#include <tlv++/tlv.hpp>\ntlv_reader_t reader;', relative)
+                self.source('#include <opentlv/tlv.hpp>\ntlv_reader_t reader;', relative)
                 paths.append(relative)
         self.assertEqual(sorted(paths), sorted(path for path, _ in consumers(self.root)))
         self.assertEqual(sorted(paths), sorted(item["path"] for item in audit(self.root, {})))
 
     def test_pure_c_harness_and_commented_facade_includes_stay_outside_scope(self):
-        self.source('#include <tlv/reader/reader.h>\ntlv_reader_t r;')
-        self.source('// #include <tlv++/tlv.hpp>\ntlv_reader_t r;', 'tests/comments.cxx')
+        self.source('#include <opentlv/io/reader/reader.h>\ntlv_reader_t r;')
+        self.source('// #include <opentlv/tlv.hpp>\ntlv_reader_t r;', 'tests/comments.cxx')
         self.assertEqual([], audit(self.root, {}))
 
     def test_baseline_requires_exact_symbols_positive_counts_and_reasons(self):

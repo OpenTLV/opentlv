@@ -6,7 +6,7 @@ Prerequisite: Read [the basic model](../concepts/learning-model.md) and use Read
 elements + Schema --> structural validation
 ```
 
-Include `tlv/schema/schema.h` to describe known tags using constant tables.
+Include `opentlv/schema/schema.h` to describe known tags using constant tables.
 This engine is format-agnostic: it expresses occurrence, ordering, mutually
 exclusive alternatives, nesting and membership using generic primitives, with
 no ASN.1-specific semantics. [Ordered, unordered and CHOICE-like
@@ -109,7 +109,7 @@ bytes long. Unknown tags are rejected. Validate the same BER input, for example
 /// tab | C
 
 ```c
-#include "tlv/schema/schema.h"
+#include "opentlv/schema/schema.h"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
 static const tlv_schema_entry_t rules_fields[] = {
@@ -135,7 +135,7 @@ document missing a required field:
 /// tab | C++
 
 ```cpp
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 static const uint8_t tag_1[] = {1};
 static const uint8_t tag_2[] = {2};
 static const tlv_schema_entry_t rules_fields[] = {
@@ -382,14 +382,14 @@ default stays a format-specific concern, as it already is for DER (see
 
 `tlv_structure_schema_t` never decodes values, so it cannot express an
 ASN.1-style constraint that depends on a value's *decoded* meaning, such as
-an INTEGER's numeric range or a fixed set of legal values. `tlv/schema/constraint.h`
+an INTEGER's numeric range or a fixed set of legal values. `opentlv/schema/constraint.h`
 adds a small, generic `tlv_value_constraint_t` for exactly that: check it
 against the C value a codec's decode produces (see
 [value codecs](codecs.md)), separately from the wire-level checks above.
 
 ```c
-#include "tlv/schema/constraint.h"
-#include "tlv/builtins/asn1/asn1_codec.h"
+#include "opentlv/schema/constraint.h"
+#include "opentlv/builtin/asn1/asn1_codec.h"
 
 /* Version ::= INTEGER (0..255) */
 static const tlv_value_constraint_t version_range = {
@@ -527,7 +527,7 @@ directly.
 
 ## Composing field Schema with numeric conversion
 
-Include `tlv/schema/number.h` for the optional `tlv_schema_number_t` adapter.
+Include `opentlv/schema/number.h` for the optional `tlv_schema_number_t` adapter.
 It borrows one authoritative Schema and a numeric representation configuration.
 Decode checks the field length before delegating to `tlv_number_decode()`.
 With representation width zero, encode selects the shortest supported width
@@ -535,7 +535,7 @@ that both fits the number and satisfies Schema. A fixed representation width
 must satisfy Schema and is never silently widened.
 
 ```c
-#include "tlv/schema/number.h"
+#include "opentlv/schema/number.h"
 
 static const uint8_t field_tag[] = {1};
 static const tlv_schema_entry_t field = {

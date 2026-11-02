@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "common.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/core/formats/fixed.h"
 
 /* Tag widths past this are not tried: wide enough to reach past every
  * built-in format's own tag limit (matching roundtrip.c's convention) while

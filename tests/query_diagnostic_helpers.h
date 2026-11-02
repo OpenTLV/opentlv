@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_QUERY_DIAGNOSTIC_HELPERS_H
 #define OPENTLV_TEST_QUERY_DIAGNOSTIC_HELPERS_H
-#include "tlv/query/program.h"
-#include "tlv/codec/diagnostic.h"
-#include "tlv/schema/detail.h"
+#include "opentlv/query/program.h"
+#include "opentlv/codec/diagnostic.h"
+#include "opentlv/schema/detail.h"
 #include <string.h>
 static inline tlv_codec_detail_t query_test_codec(tlv_query_diagnostic_t diagnostic) {
     tlv_codec_detail_t detail;

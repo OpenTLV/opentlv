@@ -94,8 +94,8 @@ LTV with Value-only length scope:
 ```
 
 For different field encodings, `tlv_field_composition_t` from
-`tlv/formats/compose.h` composes read/write tag and length callbacks with ordering
-and count scope. Reuse the standalone primitives under `tlv/field/` or binary
+`opentlv/core/formats/compose.h` composes read/write tag and length callbacks with ordering
+and count scope. Reuse the standalone primitives under `opentlv/core/field/` or binary
 field adapters where they match the wire rules. Supplying a
 field callback is implementation work, even though the composition is generic.
 
@@ -136,7 +136,7 @@ policy handled above wire mechanics.
 
 | Capability | Status | Current mechanism or boundary |
 | --- | --- | --- |
-| Standalone fixed-width Identifier and Length fields | Configuration | `tlv_fixed_identifier_t` and `tlv_fixed_length_t` in `tlv/field/fixed.h`; raw identifier bytes and unsigned counts with explicit byte order, independent of complete Format framing. |
+| Standalone fixed-width Identifier and Length fields | Configuration | `tlv_fixed_identifier_t` and `tlv_fixed_length_t` in `opentlv/core/field/fixed.h`; raw identifier bytes and unsigned counts with explicit byte order, independent of complete Format framing. |
 | Fixed-width TLV/LTV, big/little-endian counts | Configuration | `tlv_binary_composition_t`, `tlv_fixed_format_t`; Value or Tag-plus-Value scope. |
 | Inline/escaped continuation identifiers and short/long counts | Configuration | `tlv_variable_format_t` with optional identifier/length policies; ASN.1 universal semantics remain protocol-owned. |
 | Fixed identifiers with escape-prefixed counts | Configuration | `tlv_escaped_format_t`, including optional tag-only identifiers. |

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/native.hpp"
+#include "opentlv/native.hpp"
 
 #include "controlled_format.h"
-#include "tlv++/document/document.hpp"
-#include "tlv++/query/document.hpp"
+#include "opentlv/document/document.hpp"
+#include "opentlv/query/document.hpp"
 // Override only the native allocator to force address reuse in the handle regression.
-#include "../../../tlv/src/document/document_internal.h"
+#include "../../../src/document/internal/document_internal.h"
 
 #include <gtest/gtest.h>
 

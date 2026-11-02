@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "common.h"
-#include "tlv/builtins/asn1/der_validation.h"
+#include "opentlv/builtin/asn1/der_validation.h"
 
 static void check_der(const uint8_t* data, size_t size, const tlv_der_limits_t* limits) {
     const tlv_der_limits_t* actual = limits ? limits : &tlv_der_default_limits;

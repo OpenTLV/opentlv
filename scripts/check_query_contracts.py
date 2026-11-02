@@ -47,11 +47,11 @@ def main():
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     graph, roots, units = {}, set(), []
-    for source in sorted((root / "tlv/src").rglob("*.c")):
+    for source in sorted((root / "src").rglob("*.c")):
         # Disabled builtin units cannot be compiled against a minimal config.
         # CI uses the full feature configuration for this transitive audit.
         command = [args.clang, "-std=c99", "-DTLV_STATIC_DEFINE",
-                   "-I" + str(root / "tlv/include"), "-I" + str(args.generated),
+                   "-I" + str(root / "include"), "-I" + str(args.generated),
                    "-Xclang", "-analyze", "-Xclang",
                    "-analyzer-checker=debug.DumpCallGraph", "-fsyntax-only", str(source)]
         result = subprocess.run(command, text=True, capture_output=True)

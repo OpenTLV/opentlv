@@ -9,9 +9,9 @@
  * the same bytes and report the same fields.
  */
 #include <stdio.h>
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/size.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/visitor.h"
 
 /* An FCI Template (6F) holding a DF Name (84) and an FCI Proprietary
  * Template (A5) holding an Application Label (50). */

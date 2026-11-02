@@ -1,6 +1,6 @@
 # Explicit TLV copies
 
-Include `tlv/copy.h` to copy data into storage owned by the caller. These
+Include `opentlv/core/copy.h` to copy data into storage owned by the caller. These
 helpers never allocate memory. The normal reader still returns a zero-copy
 element: copying is a separate, explicit operation.
 
@@ -18,9 +18,9 @@ On failure it remains unchanged. Insufficient capacity returns
 `TLV_ERR_BUFFER_TOO_SHORT` and leaves destination bytes unchanged.
 
 ```c
-#include "tlv/formats/fixed.h"
-#include "tlv/copy.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/core/copy.h"
+#include "opentlv/io/reader/reader.h"
 #include <string.h>
 
 /* One tag byte and one length byte; config must outlive its readers. */

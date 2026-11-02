@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/compose.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/formats/variable.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/core/formats/compose.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/formats/variable.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

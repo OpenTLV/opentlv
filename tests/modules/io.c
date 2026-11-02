@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/tree.h"
-#include "tlv/writer/copy.h"
-#include "tlv/writer/tree.h"
-#include "tlv/diagnostic/cause.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/reader/tree.h"
+#include "opentlv/io/writer/copy.h"
+#include "opentlv/io/writer/tree.h"
+#include "opentlv/core/diagnostic/cause.h"
 #include <string.h>
 
 #define CHECK(condition)                                                                           \

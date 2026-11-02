@@ -11,7 +11,7 @@ The profiling example reported in #538 contains 200 roots, each with
 produce 112,200 identifier reads. These are the issue's reported counts,
 not a new measurement made for this follow-up.
 
-The current BER bounds resolver in `tlv/src/builtins/asn1/ber.c` calls
+The current BER bounds resolver in `src/builtin/asn1/ber.c` calls
 `tlv_ber_scan_contents_diag()` to locate the matching EOC before publishing
 an indefinite parent. Tree Reader later decodes each descendant through
 the same Format contract. Indefinite descendants therefore resolve boundaries

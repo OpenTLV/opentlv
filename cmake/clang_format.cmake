@@ -16,9 +16,10 @@ function(opentlv_add_clang_format_targets)
 
     file(GLOB_RECURSE _opentlv_format_sources
         LIST_DIRECTORIES false
-        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../tlv/*.c"
-        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../tlv/*.h"
-        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../tlv++/*.hpp"
+        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../src/*.c"
+        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../include/*.h"
+        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../src/*.h"
+        "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../include/*.hpp"
         "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../tools/*.c"
         "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../tools/*.h"
         "${_OPENTLV_CLANG_FORMAT_MODULE_DIR}/../tools/*.cpp"

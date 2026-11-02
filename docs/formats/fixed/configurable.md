@@ -25,7 +25,7 @@ wire representation. Both C++ forms delegate every read and write to C:
 
 | Setting | C | C++ |
 | --- | --- | --- |
-| Header | `tlv/formats/fixed.h` | `tlv++/formats/fixed_format.hpp` |
+| Header | `opentlv/core/formats/fixed.h` | `opentlv/core/formats/fixed_format.hpp` |
 | Configuration | `tlv_fixed_format_t{{tag_size}, {length_size, length_order}, element_order, length_scope}` | `tlv::fixed_format<TagWidth, LengthWidth, Order>` (TLV element order, value-only length scope) |
 | Descriptor | `tlv_fixed_format_init(&format, &config)` | `fixed_format<...>::view()` returns `tlv::format` |
 | Availability | Always built | Always available with the C++ wrapper |
@@ -44,7 +44,7 @@ performs allocation.
 
 ## Standalone Field Encoding
 
-Use `tlv/field/fixed.h` when only an individual Identifier or Length field is
+Use `opentlv/core/field/fixed.h` when only an individual Identifier or Length field is
 needed. Its allocation-free primitives are available without Format headers,
 Reader, Writer or optional builtin protocols:
 
@@ -157,12 +157,12 @@ Element (4 bytes)
 
 /*
  * Defines a fixed-width TLV format at runtime: two tag bytes and a one-byte
- * length, then writes and reads one element. See tlv/formats/fixed.h.
+ * length, then writes and reads one element. See opentlv/core/formats/fixed.h.
  */
 #include <stdio.h>
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \
@@ -207,8 +207,8 @@ int main(void) {
 #include <cstddef>
 #include <iostream>
 
-#include "tlv++/formats/fixed_format.hpp"
-#include "tlv++/tlv.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
+#include "opentlv/tlv.hpp"
 
 using format = tlv::fixed_format<2, 2, tlv::byte_order::little_endian>;
 
@@ -257,7 +257,7 @@ retained source-view uses. Copying the owner creates independent configuration.
 #include <array>
 #include <iostream>
 
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 
 int main() {
     const tlv::runtime_fixed_format format(2, 1);

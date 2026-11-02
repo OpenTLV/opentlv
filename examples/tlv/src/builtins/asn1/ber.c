@@ -6,9 +6,9 @@
  * length for a value over 127 bytes.
  */
 #include <stdio.h>
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/size.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/reader.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \

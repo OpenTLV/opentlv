@@ -6,8 +6,8 @@ function(opentlv_check_typed_fields)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
     set(CMAKE_REQUIRED_INCLUDES
-        "${OpenTLV_SOURCE_DIR}/tlv/include"
-        "${OpenTLV_SOURCE_DIR}/tlv++/include"
+        "${OpenTLV_SOURCE_DIR}/include"
+        "${OpenTLV_SOURCE_DIR}/include"
         "${OpenTLV_BINARY_DIR}/generated/include")
     if(MSVC)
         set(CMAKE_REQUIRED_FLAGS "/W4 /WX /EHsc")
@@ -22,7 +22,7 @@ function(opentlv_check_typed_fields)
     foreach(case IN ITEMS valid wrong_type missing_encode wrong_decode no_default)
         set(result "OPENTLV_TYPED_FIELD_${case}")
         unset(${result} CACHE)
-        check_cxx_source_compiles("#include <tlv++/codec/typed.hpp>\n${${case}}\nusing F = tlv::field<tlv::tag_constant<0, 1>, T, C>;\nint main() { F field; (void)field; }" ${result})
+        check_cxx_source_compiles("#include <opentlv/codec/typed.hpp>\n${${case}}\nusing F = tlv::field<tlv::tag_constant<0, 1>, T, C>;\nint main() { F field; (void)field; }" ${result})
         if(case STREQUAL "valid" AND NOT ${result})
             message(FATAL_ERROR "Valid typed field must compile")
         elseif(NOT case STREQUAL "valid" AND ${result})

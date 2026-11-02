@@ -29,7 +29,7 @@ may leave a prefix in the output buffer; do not publish that output as a success
 // Copyright (c) 2026 Marek Cingel
 
 // Write two primitive BER elements, then iterate over that sequence.
-#include <tlv++/tlv.hpp>
+#include <opentlv/tlv.hpp>
 #include <array>
 #include <iostream>
 
@@ -92,7 +92,7 @@ See [`document_edit.cpp`](../../examples/tlv++/src/document_edit.cpp) for mutati
 // Copyright (c) 2026 Marek Cingel
 
 // Parse an owning Document and traverse roots and their children.
-#include <tlv++/tlv.hpp>
+#include <opentlv/tlv.hpp>
 #include <iostream>
 
 int main() {

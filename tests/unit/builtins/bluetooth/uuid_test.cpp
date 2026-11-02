@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/bluetooth/uuid.h"
+#include "opentlv/builtin/bluetooth/uuid.h"
 #include <gtest/gtest.h>
 #include <cstring>
 

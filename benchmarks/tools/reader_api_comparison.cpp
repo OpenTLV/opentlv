@@ -2,10 +2,10 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Standalone cross-revision C/C++ Reader comparison; see scripts/reader_api_comparison.py.
-#include "tlv++/reader/reader.hpp"
-#include "tlv++/formats/fixed_format.hpp"
-#include "tlv++/builtins/asn1/ber.hpp"
-#include "tlv/reader/reader.h"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/io/reader/reader.h"
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>

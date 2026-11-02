@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/diagnostic.h"
-#include "tlv/reader/diagnostic.h"
-#include "tlv/writer/writer.h"
-#include "tlv/query/program.h"
-#include "tlv/schema/schema.h"
-#include "tlv/codec/diagnostic.h"
+#include "opentlv/core/diagnostic.h"
+#include "opentlv/io/reader/diagnostic.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/query/program.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/codec/diagnostic.h"
 #include <stdio.h>
 #include <string.h>
 

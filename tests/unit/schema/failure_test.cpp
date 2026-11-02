@@ -3,10 +3,10 @@
 #include "schema_diagnostic_helpers.h"
 #include "codec_diagnostic_helpers.h"
 
-#include "tlv/schema/schema.h"
-#include "tlv/schema/constraint.h"
-#include "tlv/codec/structure.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/schema/constraint.h"
+#include "opentlv/codec/structure.h"
+#include "opentlv/io/reader/visitor.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 

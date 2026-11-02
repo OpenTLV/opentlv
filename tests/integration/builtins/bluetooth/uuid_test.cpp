@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/bluetooth/uuid.h"
+#include "opentlv/builtin/bluetooth/uuid.h"
 #include <gtest/gtest.h>
 
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/io/reader/reader.h"
 #include <cstring>
 
 TEST(Integration_Tlv_BluetoothUuid, Story347AndAllListAdTypesPreserveRawValues) {

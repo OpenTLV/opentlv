@@ -3,11 +3,11 @@
 
 #include "controlled_format.h"
 #include <gtest/gtest.h>
-#include "tlv/codec/codec.h"
-#include "tlv/endian.h"
-#include "tlv/element.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/codec/codec.h"
+#include "opentlv/core/endian.h"
+#include "opentlv/core/element.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 namespace {
 tlv_result_t decode_u16(const void* context, const uint8_t* data, size_t size, void* value,

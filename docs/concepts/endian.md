@@ -6,7 +6,7 @@ Prerequisite: Understand [logical lengths](length.md); tags remain byte identiti
 wire integer bytes --explicit byte order--> host integer
 ```
 
-Include `tlv/endian.h` (also available through `tlv/tlv.h`) to convert raw
+Include `opentlv/core/endian.h` (also available through `opentlv/tlv.h`) to convert raw
 value bytes to and from native unsigned integers. The helpers are independent
 of TLV framing and standard semantics; the caller chooses the byte order explicitly.
 
@@ -27,7 +27,7 @@ you need a native `size_t` bound.
 These helpers do not validate pointers or lengths and require no alignment.
 
 ```c
-#include "tlv/endian.h"
+#include "opentlv/core/endian.h"
 
 uint8_t bytes[sizeof(uint32_t)];
 tlv_write_u32_be(bytes, UINT32_C(0x12345678)); /* 12 34 56 78 */

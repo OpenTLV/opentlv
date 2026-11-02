@@ -66,17 +66,17 @@ ranges. In the current C API, this source information belongs to `tlv_source_t`
 and `tlv_range_t`; `tlv_decoded_t` pairs it with `tlv_element_t`.
 
 Field Encoding has two reusable levels. Low-level bit, byte and integer
-primitives include packed fields in `tlv/field/packed.h`. Identifier and Length
-encodings use the callback contracts in `tlv/field/encoding.h` and the standalone
-fixed-width, variable-width and escape-prefixed primitives in `tlv/field/fixed.h`,
-`tlv/field/variable.h` and `tlv/field/escaped.h`. Neither level describes a
+primitives include packed fields in `opentlv/core/field/packed.h`. Identifier and Length
+encodings use the callback contracts in `opentlv/core/field/encoding.h` and the standalone
+fixed-width, variable-width and escape-prefixed primitives in `opentlv/core/field/fixed.h`,
+`opentlv/core/field/variable.h` and `opentlv/core/field/escaped.h`. Neither level describes a
 complete element. Fixed, variable and escaped Format configurations embed
 their `identifier` and `length` descriptions and use `element_order` and
 `length_scope` for composition policy. Adapters follow the shared Field Encoding
 validation and prefix-reporting contract. Codec is reserved for converting Value bytes to and from
 application values; individual wire fields use field encodings.
 
-Format composition in `tlv/formats/compose.h` combines field encodings with
+Format composition in `opentlv/core/formats/compose.h` combines field encodings with
 ordering, count scope, tag-only selection and optional boundary resolution.
 Its `tlv_field_composition_t`, `tlv_binary_composition_t`,
 `tlv_tagged_fields_composition_t` and `tlv_tagged_binary_composition_t`
@@ -184,120 +184,48 @@ retain their concrete rules and current component dependencies.
 
 ## Repository layout
 
-Public headers under `tlv/include/tlv/` and sources under `tlv/src/` use:
+The OpenTLV Library uses a module-first layout. Public C and header-only C++
+interfaces live side by side with `.h` and `.hpp` extensions.
 
 ```text
-tlv/
-  element.h, value.h, length.h, size.h, result.h, endian.h, copy.h, format.h, tlv.h
-  compiler.h, attributes.h, definition.h
-  reader/    reader.h, tree.h, visitor.h
-  query/     query.h
-  document/  document.h
-  writer/    writer.h
-  schema/    schema.h
-  codec/     codec.h, structure.h
-  field/     encoding.h, fixed.h, packed.h, variable.h, escaped.h
-  formats/
-    compose.h, fixed.h, variable.h, escaped.h, packed.h
-  builtins/
-    bluetooth/ bluetooth_ltv.h, ad_types.h
-    asn1/      ber.h, der.h, cer.h, der_validation.h, cer_validation.h, der_schema.h
-    emv/       emv.h, emv_schema.h, dol.h, emv_codec.h
+include/opentlv/
+  core/       fundamental types, Format, field/, formats/, diagnostics
+  io/         reader/, writer/, traversal
+  document/   owned tree and its Codec integration
+  query/      execution, Document and Codec integrations
+  schema/     validation and Query/number integrations
+  codec/      value codecs, structure codecs and typed Writer integration
+  generator/  deterministic generation
+  builtin/    asn1/, emv/, bluetooth/, nfc/, dhcp/, lldp/
+  tlv.h, tlv.hpp, native.hpp
+src/
+  <module>/                  C implementations and source templates
+  <module>/internal/         module-owned private headers
+  builtin/<family>/          builtin implementations
+  builtin/<family>/internal/ builtin-owned private headers
+cmake/library/               module and facade target registrations
 ```
 
-The tree shows the public layout; corresponding implementation files use `.c`.
-`definition.h` provides borrowed identifier/name entries and a generic registry
-lookup. Bluetooth AD types use this model independently of their wire format;
-definitions neither validate structure nor decode values.
-Identifier meaning is scoped to the selected registry, and descriptive names are
-not unique domain identities. Rich standard dictionaries may compose Definition,
-Schema and Codec without adding protocol fields to the generic Definition or
-requiring Definition lookup before parsing or decoding. The caller/dictionary
-selects the value codec; the codec does not resolve its enclosing tag.
-The [Definition boundary audit](definition-boundaries.md) records this contract,
-evidence across five standard families and the identifier-mapping decision.
-Small fundamental types (`tag.h`, `length.h`, `size.h`, `value.h`, `element.h`, and the
-generic `format.h` descriptor contracts) sit directly under `tlv/`, alongside
-the generic subsystem folders. `field/` contains individual-field mechanics;
-`formats/compose.h` combines them into complete Format operations.
-`formats/fixed.h`, `formats/variable.h` and `formats/escaped.h` provide complete
-generic format configurations and their adapters. These mechanisms name no
-protocol; every protocol-specific format or standard OpenTLV ships lives under
-`builtins/<protocol>/`, so all of a protocol's
-functionality is in one place instead of scattered across role-based folders: EMV's schema,
-codec, DOL and dictionary header are all under `builtins/emv/`, and
-ASN.1's wire formats and bounded DER/CER validation operations are all under
-`builtins/asn1/`. Wire-level `der.h`/`cer.h` and the bounded validation headers
-that build on them would otherwise share a name, so the validation headers are
-`der_validation.h`/`cer_validation.h`; similarly `builtins/emv/emv_codec.h` (moved
-from `codec/emv.h`) is distinct from the umbrella `builtins/emv/emv.h`.
-BER, DER and CER share the ASN.1 field adapter in
-`src/builtins/asn1/ber_internal.c` and its private header. Reusable variable-width
-identifier and definite-length algorithms live in `src/field/variable.c`;
-`src/formats/variable.c` supplies their complete-format adapter. Fixed-width
-identifier and count algorithms live in `src/field/fixed.c`; binary composition
-and the Escaped format reuse them through thin field callback adapters.
-Internal schema validation, BER helpers and EMV value codecs have dedicated
-source files. `config.h` and `version.h` are generated into the build include
-directory. The public aggregate `tlv/tlv.h` includes all components; generic
-headers include only their direct contracts. Use explicit headers for small
-consumers. C++ common types are in `tlv++/types.hpp`, independent of codecs.
+Fundamental types and generic field/format mechanisms belong to `core/`.
+Reader and Writer share `io/`. Builtins consume generic public contracts;
+they never include generic private headers. Integration targets retain their
+owning module's directory. Installed C++ `detail/` helpers support public
+templates; there is no compiled C++ implementation.
 
-Public headers under `tlv++/include/tlv++/` mirror the same layout (#280),
-grouping the C++ wrapper for each generic subsystem alongside its C
-counterpart and each protocol's wrapper under `builtins/<protocol>/`:
+Version, Query feature and visibility headers are generated under the same
+`opentlv/` namespace and installed with the public headers. The optional aggregate
+`opentlv/tlv.h` includes all C components. Module consumers include their direct
+contracts; common C++ types live in `opentlv/core/types.hpp`, independently of codecs.
 
-```text
-tlv++/
-  types.hpp, compat.hpp, diagnostic.hpp, tlv.hpp
-  format.hpp, format_traits.hpp, native.hpp
-  reader/    reader.hpp, tree.hpp
-  query/     query.hpp
-  document/  document.hpp
-  writer/    writer.hpp, tree.hpp, builder.hpp
-  schema/    schema.hpp
-  codec/     dynamic.hpp, typed.hpp, structure.hpp, registry.hpp
-  formats/
-    fixed_format.hpp
-  builtins/
-    asn1/       ber.hpp, der.hpp, cer.hpp, codec.hpp
-    bluetooth/  ltv.hpp, codec.hpp
-    emv/        format.hpp, codec.hpp
-    lldp/       lldp.hpp, codec.hpp
-    dhcp/       dhcpv4.hpp, codec.hpp, container.hpp
-    nfc/        type2.hpp
-```
+See the [layout migration guide](../development/modules/layout-migration.md)
+for the complete include-path map. The old root `tlv/` and `tlv++/` trees are
+removed, without forwarding headers.
 
-`tlv++` is header-only, so there is no separate `tlv++/src/`. `registry.hpp`
-sits under `codec/` alongside the typed and structure codecs: it maps Tags to
-decoders selected at runtime, with no C counterpart. Built-in C++ APIs now cover ASN.1, EMV, Bluetooth, LLDP, DHCP
-and NFC under `builtins/<protocol>/`, following the enabled native components.
-See [C++ built-in standards](cxx-builtins.md) for their scoped coverage.
-Every `tlv++` header keeps using full paths from the include root
-(`#include "tlv++/reader/reader.hpp"`, not a relative `#include
-"reader.hpp"`), so moving a header between folders only requires updating
-`#include` lines that name it, not every include inside sibling headers.
-
-`tests/unit/`, `tests/integration/` and `tests/fuzz/` (#281) each keep their
-own existing top-level meaning â€” component contracts, concrete wire formats
-and layer interactions, and libFuzzer harnesses, respectively (see
-[tests](../getting-started/README.md#build-and-run-tests)) â€” and each
-independently mirrors `tlv/src`'s own layout underneath: a generic
-subsystem's tests sit under its own `reader/`, `writer/`, `query/`, `schema/`,
-`codec/` or `document/` folder, and a built-in's tests sit together under
-`builtins/<protocol>/`, regardless of whether they exercise its schema, codec,
-DOL or parser. Small core-type tests and cross-cutting tests (such as
-`architecture_test.cpp`, and the `tlv++` aggregate `test_tlvpp.cpp`) stay
-directly under `tests/unit/` or `tests/integration/`, without a subsystem
-folder, the same way `tag.h` and `value.h` sit directly under `tlv/`. A
-shared folder's C and C++ files are told apart by name, not by a separate
-`tlv`/`tlv++` folder (`document_test.cpp` next to `test_document.cpp`).
-`tests/fuzz/` uses the same subsystem/`builtins/<protocol>/` split for its
-harnesses, each with its checked-in seed corpus in a sibling `corpus/` folder
-(`tests/fuzz/reader/read.c` and `tests/fuzz/reader/corpus/read/`,
-`tests/fuzz/builtins/asn1/der.c` and its `corpus/der/`); it keeps its own
-`tests/fuzz/CMakeLists.txt` since `OPENTLV_BUILD_FUZZING` is independent of
-`OPENTLV_BUILD_TESTS`. Compile/API checks stay separate from this tree.
+Tests retain their unit/integration/fuzz categories and subsystem folders.
+Module CMake helpers declare test ownership and functional dependencies.
+Examples, benchmarks and tests use the new public include paths. The
+[module contract checker](../../scripts/check_module_contracts.py) resolves
+source includes, including relative paths, to enforce private ownership.
 
 ## Mutable document
 
@@ -464,39 +392,39 @@ best-effort record of the breaking changes below, not a compatibility
 guarantee or an exhaustive migration guide.
 
 Update flat includes to the folders above (`tlv/reader.h` becomes
-`tlv/reader/reader.h`, and so on). Concrete format declarations use
-`tlv/formats/fixed.h`,
-`tlv/builtins/asn1/ber.h`, or `tlv/builtins/asn1/der.h`; the public
+`opentlv/io/reader/reader.h`, and so on). Concrete format declarations use
+`opentlv/core/formats/fixed.h`,
+`opentlv/builtin/asn1/ber.h`, or `opentlv/builtin/asn1/der.h`; the public
 aggregate includes enabled formats.
 
 `tlv/formats/` and `tlv/profiles/` (#279) no longer exist: every built-in
 protocol implementation moved under `builtins/<protocol>/`. Concrete format
 headers keep their names (`tlv/formats/asn1/der.h` becomes
-`tlv/builtins/asn1/der.h`); the bounded DER/CER validation headers are renamed
+`opentlv/builtin/asn1/der.h`); the bounded DER/CER validation headers are renamed
 to avoid colliding with the wire-format headers of the same name
-(`tlv/profiles/der.h` becomes `tlv/builtins/asn1/der_validation.h`,
-`tlv/profiles/cer.h` becomes `tlv/builtins/asn1/cer_validation.h`). EMV moves
+(`tlv/profiles/der.h` becomes `opentlv/builtin/asn1/der_validation.h`,
+`tlv/profiles/cer.h` becomes `opentlv/builtin/asn1/cer_validation.h`). EMV moves
 and consolidates under `tlv/builtins/emv/`: `tlv/profiles/emv.h` becomes
-`tlv/builtins/emv/emv.h`, `tlv/profiles/emv_schema.h`,
+`opentlv/builtin/emv/emv.h`, `tlv/profiles/emv_schema.h`,
 and `tlv/profiles/dol.h` move alongside it unchanged, and `tlv/codec/emv.h` (the semantic value codecs) becomes
-`tlv/builtins/emv/emv_codec.h` to avoid colliding with the umbrella EMV
+`opentlv/builtin/emv/emv_codec.h` to avoid colliding with the umbrella EMV
 header. The former `emv_tags.def` X-macro is subsequently removed in #381;
-EMV uses explicit domain dictionary tables. `tlv/schemas/schema.h` becomes `tlv/schema/schema.h`.
+EMV uses explicit domain dictionary tables. `tlv/schemas/schema.h` becomes `opentlv/schema/schema.h`.
 
-`tlv++`'s previously flat `tlv++/include/tlv++/*.hpp` headers (#280) move
+`tlv++`'s previously flat `include/opentlv/*.hpp` headers (#280) move
 into the same folders as their C counterparts:
 the former flat reader headers become
-`tlv++/reader/reader.hpp`/`tlv++/reader/tree.hpp`;
+`opentlv/io/reader/reader.hpp`/`opentlv/io/reader/tree.hpp`;
 `tlv++/writer.hpp`, `tlv++/query.hpp` and `tlv++/schema.hpp` become
-`tlv++/writer/writer.hpp`, `tlv++/query/query.hpp` and
-`tlv++/schema/schema.hpp`; `tlv++/codec.hpp`, `tlv++/structure.hpp` and
+`opentlv/io/writer/writer.hpp`, `opentlv/query/query.hpp` and
+`opentlv/schema/schema.hpp`; `tlv++/codec.hpp`, `tlv++/structure.hpp` and
 `tlv++/registry.hpp` become `tlv++/codec/codec.hpp`,
-`tlv++/codec/structure.hpp` and `tlv++/codec/registry.hpp`;
-`tlv++/document.hpp` becomes `tlv++/document/document.hpp`; and
+`opentlv/codec/structure.hpp` and `opentlv/codec/registry.hpp`;
+`tlv++/document.hpp` becomes `opentlv/document/document.hpp`; and
 `tlv++/ber.hpp`/`tlv++/fixed_format.hpp` become
-`tlv++/builtins/asn1/ber.hpp`/`tlv++/builtins/fixed/fixed_format.hpp`.
-`tlv++/types.hpp`, `tlv++/compat.hpp`, `tlv++/diagnostic.hpp` and the
-aggregate `tlv++/tlv.hpp` are unaffected. No type, function or namespace
+`opentlv/builtin/asn1/ber.hpp`/`tlv++/builtins/fixed/fixed_format.hpp`.
+`opentlv/core/types.hpp`, `opentlv/core/compat.hpp`, `opentlv/core/diagnostic.hpp` and the
+aggregate `opentlv/tlv.hpp` are unaffected. No type, function or namespace
 changed; only header locations did. `tlv++/codec/codec.hpp` was later removed
 together with its tag-carrying payload interface; use typed fields instead.
 
@@ -535,8 +463,8 @@ the same way, with `fixed_format<>::reader()`/`::writer()` replaced by
 
 Move the configurable fixed-width format out of `builtins/` into the new
 top-level `formats/`, since it names no protocol: `tlv/builtins/fixed/fixed.h`
-becomes `tlv/formats/fixed.h`, and `tlv++/builtins/fixed/fixed_format.hpp`
-becomes `tlv++/formats/fixed_format.hpp`. This is a narrower, second
+becomes `opentlv/core/formats/fixed.h`, and `tlv++/builtins/fixed/fixed_format.hpp`
+becomes `opentlv/core/formats/fixed_format.hpp`. This is a narrower, second
 reintroduction of a `formats/` folder than the one #279 removed (see above):
 it holds only mechanisms that are themselves protocol-agnostic, not every
 concrete format regardless of protocol. `tlv_fixed_config_t` is renamed to `tlv_fixed_format_t`
@@ -581,8 +509,8 @@ optional implementations that work without the future `.otlv` interpreter.
 | --- | --- |
 | `OPENTLV_PROFILE_EMV` | `OpenTLV::EMV` target (builtin selection options were removed in #653) |
 | `tlv_config_profile_emv()` | `tlv_config_emv()` |
-| `tlv/builtins/asn1/der_profile.h` | `tlv/builtins/asn1/der_validation.h` |
-| `tlv/builtins/asn1/cer_profile.h` | `tlv/builtins/asn1/cer_validation.h` |
+| `tlv/builtins/asn1/der_profile.h` | `opentlv/builtin/asn1/der_validation.h` |
+| `tlv/builtins/asn1/cer_profile.h` | `opentlv/builtin/asn1/cer_validation.h` |
 | CLI `--profile emv` | `--module emv` |
 | CLI JSON `profile` | `module` |
 | Rust `Profile::Der`, `Profile::Cer` | `Format::Der`, `Format::Cer` |

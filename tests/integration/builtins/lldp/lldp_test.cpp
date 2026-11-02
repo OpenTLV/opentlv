@@ -2,15 +2,15 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../../diagnostic_assertions.h"
-#include "tlv/builtins/lldp/lldp.h"
-#include "tlv/builtins/lldp/codec.h"
-#include "tlv/builtins/lldp/schema.h"
-#include "tlv/schema/number.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/query/query.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
+#include "opentlv/builtin/lldp/lldp.h"
+#include "opentlv/builtin/lldp/codec.h"
+#include "opentlv/builtin/lldp/schema.h"
+#include "opentlv/schema/number.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/query/query.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>

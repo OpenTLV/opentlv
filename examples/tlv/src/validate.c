@@ -8,9 +8,9 @@
  */
 #include <stdint.h>
 #include <stdio.h>
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/schema/schema.h"
 
 /* Same bytes as parse.c's document. */
 static const uint8_t document[] = {0x6F, 0x0A, 0x84, 0x03, 0x41, 0x42,

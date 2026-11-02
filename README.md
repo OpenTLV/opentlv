@@ -76,6 +76,11 @@ Build and install Lua separately from [opentlv-lua](https://github.com/OpenTLV/o
 See [integration and installation](docs/getting-started/README.md) for CMake
 consumer targets, runtime libraries and binding-specific setup.
 
+Public C and C++ headers now share `opentlv/<module>/` and
+`opentlv/builtin/<family>/`. Existing source consumers must follow the
+[header-path migration guide](docs/development/modules/layout-migration.md);
+the former `tlv/` and `tlv++/` include paths have no compatibility headers.
+
 ## Documentation
 
 Read the [documentation portal](https://opentlv.github.io/opentlv-docs/) for

@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 /* A caller-owned stack and input window; no allocation or recursion in Tree Reader. */
-#include "tlv/reader/tree.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/io/reader/tree.h"
+#include "opentlv/core/formats/fixed.h"
 #include <stdio.h>
 
 static int constructed(const void* context, const tlv_tag_t* tag) {

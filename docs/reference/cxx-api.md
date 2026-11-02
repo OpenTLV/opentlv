@@ -1,15 +1,15 @@
 # C++ API reference
 
 The C++ API reference is generated from the public
-[tlv++](../../tlv++/include/tlv++) headers with Doxygen and published with this
+[tlv++](../../include/opentlv) headers with Doxygen and published with this
 site. Open the [generated C++ API reference](api/cxx-api/html/index.html) for
-the `tlv` namespace, classes and public headers. Include `tlv++/tlv.hpp` for
+the `tlv` namespace, classes and public headers. Include `opentlv/tlv.hpp` for
 the complete configured header-only C++ API; using it still requires linking the C
 library.
 
 The [C++ public/native boundary](../concepts/cxx-native-boundary.md) describes
 the current public facade, borrowed `tlv::format` views and explicit native
-interoperability. Include `tlv++/native.hpp` separately for that interoperability API.
+interoperability. Include `opentlv/native.hpp` separately for that interoperability API.
 The [Format customization contract](../concepts/cxx-formats.md) defines application
 Formats, traits, capability checks and shared adapters for higher-level consumers.
 The [typed field and Value codec guide](../guides/codecs.md#c11-typed-fields-and-value-codecs)
@@ -17,7 +17,7 @@ describes C++11 field definitions, codec customization, typed lookup and writing
 The [built-in standards guide](../concepts/cxx-builtins.md) covers domain namespaces,
 framing conveniences, shared ASN.1 codecs and standard-specific typed fields.
 
-The `<tlv++/generator.hpp>` facade exposes `tlv::generate()`,
+The `<opentlv/generator/generator.hpp>` facade exposes `tlv::generate()`,
 `generator_workspace_size()` and `make_generator_candidate()` using borrowed
 Formats and caller-owned byte spans. See the
 [deterministic wire generation contract](c-api.md#deterministic-wire-generation)
@@ -48,8 +48,8 @@ output capacity or workspace:
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include <tlv++/generator.hpp>
-#include <tlv++/formats/fixed_format.hpp>
+#include <opentlv/generator/generator.hpp>
+#include <opentlv/core/formats/fixed_format.hpp>
 #include <iostream>
 
 int main() {

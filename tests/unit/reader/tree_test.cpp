@@ -3,8 +3,8 @@
 
 #include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
-#include "tlv/reader/tree.h"
-#include "tlv/writer/tree.h"
+#include "opentlv/io/reader/tree.h"
+#include "opentlv/io/writer/tree.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

@@ -7,7 +7,7 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_CROSSCOMPILING)
 endif()
 
 set(OPENTLV_SOURCE_DIR "" CACHE PATH "OpenTLV checkout to measure")
-if(NOT EXISTS "${OPENTLV_SOURCE_DIR}/tlv/CMakeLists.txt")
+if(NOT EXISTS "${OPENTLV_SOURCE_DIR}/cmake/library/CMakeLists.txt")
     message(FATAL_ERROR "Set OPENTLV_SOURCE_DIR to the OpenTLV checkout to measure.")
 endif()
 option(OPENTLV_CALLGRIND_INSTRUMENTATION "Enable explicit Callgrind measurement regions" OFF)

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/tag.h"
-#include "tlv/builtins/emv/emv.h"
+#include "opentlv/core/tag.h"
+#include "opentlv/builtin/emv/emv.h"
 
 /* Compiled as C: enum constants must be valid integer constant expressions. */
 int tlv_test_c_tag_switch(void) {

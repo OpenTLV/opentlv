@@ -4,10 +4,10 @@
 #include "visitor_input.h"
 // Conformance tests for the Bluetooth LTV (Length | Type | Value) format. Every case goes through
 // the generic reader, writer and Tree Reader; there is no Bluetooth-specific parsing path here.
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/reader/reader.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <cstring>

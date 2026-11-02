@@ -3,8 +3,8 @@
 
 #include "visitor_input.h"
 #include "controlled_format.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/visitor.h"
 #include <gtest/gtest.h>
 
 namespace {

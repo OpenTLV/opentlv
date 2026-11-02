@@ -4,7 +4,7 @@ function(opentlv_check_tag_layout)
     include(CheckCSourceCompiles)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-    set(CMAKE_REQUIRED_INCLUDES "${OpenTLV_SOURCE_DIR}/tlv/include" "${OpenTLV_BINARY_DIR}/generated/include")
+    set(CMAKE_REQUIRED_INCLUDES "${OpenTLV_SOURCE_DIR}/include" "${OpenTLV_BINARY_DIR}/generated/include")
     set(languages C)
     if(CMAKE_CXX_COMPILER_LOADED)
         list(APPEND languages CXX)
@@ -21,7 +21,7 @@ function(opentlv_check_tag_layout)
             set(source "${definitions}
                 #include <stddef.h>
                 #include <stdint.h>
-                #include <tlv/tag.h>
+                #include <opentlv/core/tag.h>
                 #ifdef TLV_TAG_MAX_SUPPORTED_SIZE
                 #error tag_size_limit_must_not_be_exposed
                 #endif

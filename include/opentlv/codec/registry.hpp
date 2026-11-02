@@ -1,0 +1,106 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
+#ifndef OPENTLV_TLVPP_REGISTRY_HPP
+#define OPENTLV_TLVPP_REGISTRY_HPP
+
+#include <cstddef>
+#include <functional>
+#include <cstdint>
+#include <map>
+#include <vector>
+
+#include "opentlv/core/types.hpp"
+
+namespace tlv {
+
+/**
+ * @file registry.hpp
+ * @brief Runtime registry mapping tags to decoders.
+ */
+
+/**
+ * @brief Registry for types that must be decoded at runtime.
+ *
+ * Maps Tags to decoders selected at runtime. Useful, for example, for
+ * pluggable formats whose types are not all known at compile time.
+ *
+ * @note Registering and decoding may allocate. The registry copies the bytes
+ *       of every registered tag, so the tag passed to register_decoder() only
+ *       has to stay valid for the duration of the call.
+ */
+class codec_registry {
+public:
+    /** @brief Callable that decodes a value into a type-erased result. */
+    using decoder_fn = std::function<expected<any, error>(bytes)>;
+
+    /**
+     * @brief Registers a decoder for a tag.
+     *
+     * Replaces any previous registration for the same tag.
+     *
+     * @param tag     Tag to register.
+     * @param decoder Decoder called with the element's value bytes.
+     */
+    void register_decoder(tlv::tag tag, decoder_fn decoder) {
+        decoders_[key(tag)] = std::move(decoder);
+    }
+
+    /**
+     * @brief Decodes a value with the decoder registered for a tag.
+     *
+     * @param tag  Tag identifying the decoder.
+     * @param data Value bytes.
+     *
+     * @return The decoded value, the decoder's error, or an error with code
+     *         #TLV_ERR_UNSUPPORTED and message `"unregistered tag"` if no
+     *         decoder is registered for `tag`.
+     */
+    TLV_NODISCARD expected<any, error> decode(tlv::tag tag, bytes data) const {
+        const auto found = decoders_.find(key(tag));
+        if (found == decoders_.end()) {
+            return unexpected<error>(error{TLV_ERR_UNSUPPORTED, "unregistered tag"});
+        }
+        return found->second(data);
+    }
+
+    /**
+     * @brief Reports whether a decoder is registered for a tag.
+     *
+     * @param tag Tag to check.
+     *
+     * @return `true` if a decoder is registered.
+     */
+    TLV_NODISCARD bool has_decoder(tlv::tag tag) const {
+        return decoders_.find(key(tag)) != decoders_.end();
+    }
+
+private:
+    /** Owning copy of a tag's bytes; ordered lexicographically like tlv_tag_compare(). */
+    using tag_key = std::vector<std::uint8_t>;
+
+    /**
+     * Compares keys byte by byte instead of through std::vector's operator<,
+     * whose memcmp GCC 12 and 13 reject with a false -Wstringop-overread at -O2
+     * and above in C++20 and newer.
+     */
+    struct tag_key_less {
+        bool operator()(const tag_key& a, const tag_key& b) const {
+            const std::size_t common = a.size() < b.size() ? a.size() : b.size();
+            for (std::size_t i = 0; i < common; ++i)
+                if (a[i] != b[i]) return a[i] < b[i];
+            return a.size() < b.size();
+        }
+    };
+
+    static tag_key key(tlv::tag tag) {
+        const auto raw = detail::semantic_access::get(tag);
+        return (raw.data != nullptr) ? tag_key(raw.data, raw.data + raw.size) : tag_key();
+    }
+
+    std::map<tag_key, decoder_fn, tag_key_less> decoders_;
+};
+
+} // namespace tlv
+
+#endif // OPENTLV_TLVPP_REGISTRY_HPP

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/fixed.h"
-#include "tlv/formats/variable.h"
-#include "tlv/formats/escaped.h"
-#include "tlv/tlv.h"
-#include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/emv/format.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/core/formats/variable.h"
+#include "opentlv/core/formats/escaped.h"
+#include "opentlv/tlv.h"
+#include "opentlv/builtin/asn1/cer.h"
+#include "opentlv/builtin/emv/format.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>
@@ -283,14 +283,21 @@ TEST(Unit_Tlv_FixedFieldAdapters, InitializersValidateFieldsBeforeCompositionPol
 }
 
 TEST(Unit_Tlv_FixedFieldAdapters, BuiltinFieldCallbacksFollowArgumentAndPrefixContracts) {
-    const tlv_format_t* formats[] = {
-        nullptr, &tlv_format_ber, &tlv_format_der, &tlv_format_cer, &tlv_format_emv,
-    };
-    for (const auto* format : formats) {
-        if (!format) continue;
+    const struct {
+        const char*         name;
+        const tlv_format_t* format;
+        bool                variable;
+    } formats[] = {{"BER", &tlv_format_ber, false},
+                   {"DER", &tlv_format_der, false},
+                   {"CER", &tlv_format_cer, false},
+                   {"EMV", &tlv_format_emv, true}};
+    for (const auto& fixture : formats) {
+        SCOPED_TRACE(fixture.name);
+        const auto*                    format = fixture.format;
         tlv_field_composition_t        variable_fields{};
         const tlv_field_composition_t* fields;
-        if (format->decode == tlv_variable_decode) {
+        // Context types are explicit fixtures, not inferred from callback addresses across DLLs.
+        if (fixture.variable) {
             ASSERT_EQ(TLV_OK, tlv_variable_fields_init(
                                   &variable_fields,
                                   static_cast<const tlv_variable_format_t*>(format->context)));

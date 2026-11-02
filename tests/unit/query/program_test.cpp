@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "../../diagnostic_assertions.h"
-#include "tlv/query/program.h"
-#include "tlv/schema/query_document.h"
-#include "../../../tlv/src/query/program_internal.h"
+#include "opentlv/query/program.h"
+#include "opentlv/schema/query_document.h"
+#include "../../../src/query/internal/program_internal.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <string>
 #include <vector>
-#include "tlv/document/document.h"
+#include "opentlv/document/document.h"
 #include <memory>
 #if defined(_WIN32)
 #ifndef NOMINMAX

@@ -2,11 +2,11 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Observation only: compile against the reference library, never into it.
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/document/document.h"
-#include "tlv/reader/reader.h"
-#include "tlv/schema/number.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/document/document.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/schema/number.h"
+#include "opentlv/schema/schema.h"
 #include <iomanip>
 #include <iostream>
 #include <stdexcept>

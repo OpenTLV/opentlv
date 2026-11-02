@@ -102,7 +102,7 @@ def main():
             inventory_errors.append(f"incomplete feature conformance: {feature}")
         features[feature] = [case["id"] for case in cases]
     symbols = set()
-    for header in (root / "tlv/include/tlv").rglob("*.h"):
+    for header in (root / "include/opentlv").rglob("*.h"):
         for name in re.findall(r"TLV_API\s+[\w\s*]+?\b(tlv_\w+)\s*\(", header.read_text()):
             if "query" in name:
                 symbols.add(name)

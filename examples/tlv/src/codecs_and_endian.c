@@ -8,12 +8,12 @@
  */
 #include <inttypes.h>
 #include <stdio.h>
-#include "tlv/formats/fixed.h"
-#include "tlv/codec/codec.h"
-#include "tlv/endian.h"
-#include "tlv/size.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/codec/codec.h"
+#include "opentlv/core/endian.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \

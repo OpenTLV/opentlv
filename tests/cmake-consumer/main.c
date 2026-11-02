@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include <string.h>
-#include <tlv/version.h>
+#include <opentlv/core/version.h>
 
 int main(int argc, char** argv) {
     if (argc != 2) return 1;

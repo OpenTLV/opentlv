@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_CODEC_DIAGNOSTIC_HELPERS_H
 #define OPENTLV_TEST_CODEC_DIAGNOSTIC_HELPERS_H
-#include "tlv/codec/diagnostic.h"
-#include "tlv/reader/diagnostic.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/codec/diagnostic.h"
+#include "opentlv/io/reader/diagnostic.h"
+#include "opentlv/schema/schema.h"
 #include <string.h>
 static inline tlv_codec_cause_t codec_test_cause(const tlv_codec_diagnostic_t* diagnostic) {
     if (!diagnostic->causes.count) return TLV_CODEC_CAUSE_NONE;

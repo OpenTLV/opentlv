@@ -11,7 +11,7 @@
 #ifndef OPENTLV_BENCHMARK_SCHEMA_WORKLOADS_H
 #define OPENTLV_BENCHMARK_SCHEMA_WORKLOADS_H
 
-#include "tlv/tag.h"
+#include "opentlv/core/tag.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -21,11 +21,11 @@
 #define SCHEMA_WORKLOADS_DER 1
 
 #if SCHEMA_WORKLOADS_GENERIC
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/schema/schema.h"
 #endif
 #if SCHEMA_WORKLOADS_DER
-#include "tlv/builtins/asn1/der_schema.h"
+#include "opentlv/builtin/asn1/der_schema.h"
 #endif
 
 enum {

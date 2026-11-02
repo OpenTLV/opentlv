@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/codec/diagnostic.h"
+#include "opentlv/codec/diagnostic.h"
 #include <gtest/gtest.h>
 #include <cstring>
 

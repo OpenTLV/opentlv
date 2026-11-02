@@ -7,9 +7,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "tlv++/builtins/asn1/ber.hpp"
-#include "tlv++/formats/fixed_format.hpp"
-#include "tlv++/reader/reader.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
+#include "opentlv/io/reader/reader.hpp"
 
 namespace {
 
@@ -215,7 +215,7 @@ BENCHMARK_CAPTURE(cxx_reader_resume, fixed, framing::fixed)
 } // namespace
 
 // Match the capability requirements of the public Document facade itself.
-#include "tlv++/document/document.hpp"
+#include "opentlv/document/document.hpp"
 
 namespace {
 

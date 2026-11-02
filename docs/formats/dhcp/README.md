@@ -1,7 +1,7 @@
 # DHCPv4 option framing
 
-Include `tlv/builtins/dhcp/dhcpv4.h` and select `tlv_format_dhcpv4`.
-C++ callers can include `tlv++/builtins/dhcp/dhcpv4.hpp` and use
+Include `opentlv/builtin/dhcp/dhcpv4.h` and select `tlv_format_dhcpv4`.
+C++ callers can include `opentlv/builtin/dhcp/dhcpv4.hpp` and use
 the typed `tlv::dhcp::format` with Reader/Writer or `tlv::dhcp::parse`.
 Native descriptor access is explicit through `tlv::native::descriptor`.
 Link `OpenTLV::DHCP` for the DHCPv4 family. `tlv_config_dhcp()` remains a
@@ -41,7 +41,7 @@ only when the supplied element remains semantically unchanged.
 
 ## Option definitions
 
-Include `tlv/builtins/dhcp/options.h` to use `tlv_dhcpv4_options` with the
+Include `opentlv/builtin/dhcp/options.h` to use `tlv_dhcpv4_options` with the
 generic Definition API:
 
 ```c
@@ -67,9 +67,9 @@ option lengths or control Pad/End handling. Framing does not consult the registr
 
 ## Value codecs
 
-Include `tlv/builtins/dhcp/codec.h` for the DHCP Message Type codec and
-`tlv/codec/values.h` for fundamental integer and byte representations.
-Include `tlv/codec/ipv4.h` for IPv4 addresses and address lists:
+Include `opentlv/builtin/dhcp/codec.h` for the DHCP Message Type codec and
+`opentlv/codec/values.h` for fundamental integer and byte representations.
+Include `opentlv/codec/ipv4.h` for IPv4 addresses and address lists:
 
 | Value | Codec | C representation |
 | --- | --- | --- |

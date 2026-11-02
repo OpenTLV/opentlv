@@ -5,10 +5,10 @@
 #define OPENTLV_FUZZ_FORMATS_H
 
 #include "common.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/asn1/der.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/asn1/der.h"
 
 /* Raw-byte formats have no built-in nesting rule. This test convention lets
  * the Tree Reader exercise their nested values too: bit 0x20 denotes a container. */

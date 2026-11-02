@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/dhcp/options.h"
+#include "opentlv/builtin/dhcp/options.h"
 #include <gtest/gtest.h>
 
 TEST(Unit_Tlv_Dhcpv4, OptionDefinitionsMapUniqueOneByteCodes) {

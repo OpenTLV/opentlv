@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/query/adapters.h"
-#include "../../../tlv/src/query/program_internal.h"
+#include "opentlv/query/adapters.h"
+#include "../../../src/query/internal/program_internal.h"
 #include <stdlib.h>
 #include <string.h>
 

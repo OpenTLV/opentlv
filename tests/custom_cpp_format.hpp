@@ -3,7 +3,7 @@
 
 #ifndef OPENTLV_TEST_CUSTOM_CPP_FORMAT_HPP
 #define OPENTLV_TEST_CUSTOM_CPP_FORMAT_HPP
-#include "tlv++/format.hpp"
+#include "opentlv/core/format.hpp"
 #include <cstring>
 
 // Independent application Format: one-byte Tag/Length and a required trailer.

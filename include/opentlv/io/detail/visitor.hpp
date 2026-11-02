@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+
+#ifndef OPENTLV_TLVPP_DETAIL_VISITOR_HPP
+#define OPENTLV_TLVPP_DETAIL_VISITOR_HPP
+
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/core/types.hpp"
+#include "opentlv/io/visitor.hpp"
+#include <type_traits>
+
+/** @file
+ * @brief Internal synchronous visitor trampolines for the canonical C engine.
+ */
+namespace tlv {
+/// @cond INTERNAL
+namespace detail {
+
+template <typename Visitor> struct element_visitor {
+    using callable = typename std::remove_reference<Visitor>::type;
+    callable* function;
+
+    static tlv_visit_result_t call(const tlv_element_t* value, void* context) {
+        return static_cast<tlv_visit_result_t>(
+            (*static_cast<element_visitor*>(context)->function)(semantic_access::borrow(*value)));
+    }
+};
+
+template <typename Visitor> struct tree_visitor {
+    using callable = typename std::remove_reference<Visitor>::type;
+    callable* function;
+
+    static tlv_visit_result_t call(const tlv_element_t* value, size_t depth, size_t offset,
+                                   void* context) {
+        return static_cast<tlv_visit_result_t>((*static_cast<tree_visitor*>(context)->function)(
+            semantic_access::borrow(*value), depth, offset));
+    }
+};
+
+} // namespace detail
+/// @endcond
+} // namespace tlv
+#endif

@@ -17,6 +17,7 @@ import sys
 import tarfile
 import tempfile
 import xml.etree.ElementTree as ET
+from library_layout import historical_header, historical_includes, public_roots
 
 ROOT = Path(__file__).resolve().parents[1]
 TAG = "v0.8.0"
@@ -143,7 +144,10 @@ def collect_ctest(xml):
 
 
 def check_version(build):
-    header = (build / "generated/include/tlv/version.h").read_text()
+    path = build / "generated/include/opentlv/core/version.h"
+    if not path.is_file():
+        path = build / "generated/include/tlv/version.h"
+    header = path.read_text()
     for definition in ('OPENTLV_VERSION_STRING "0.8.0"', 'OPENTLV_VERSION_REVISION 0',
                        f'OPENTLV_GIT_COMMIT_HASH "{COMMIT}"', 'OPENTLV_GIT_BRANCH "archive"'):
         checked(f"#define {definition}\n" in header, f"incorrect generated reference version: {definition}")
@@ -204,11 +208,12 @@ def collect_diagnostics(source, output):
         # but were not declarations in the immutable v0.8.0 reference.
         if family.get("baseline") is False:
             continue
-        codes = (contracts.parse_enum(source, family["header"], family["typedef"])
+        header = historical_header(source, family["header"]) if "header" in family else None
+        codes = (contracts.parse_enum(source, header, family["typedef"])
                  if "typedef" in family else [(name, None) for name in sorted(contracts.limit_names(source))])
         checked(dict(codes) == {c["previous"]: c["value"] for c in family["codes"]},
                 f"#644 mapping differs from release: {family['family']}")
-        families.append({"family": family["family"], "header": family.get("header"),
+        families.append({"family": family["family"], "header": header,
                          "codes": dict(codes)})
     write(output / "diagnostic-codes.json", families)
 
@@ -229,8 +234,11 @@ def run_probe(source, build, work, output):
                       if key in modules]
     else:
         libraries = [build / "tlv/libtlv.a"]
-    command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE", "-I" + str(source / "tlv/include"),
-             "-I" + str(build / "generated/include"), ROOT / "tests/baseline/probe.cpp",
+    probe = work / "probe.cpp"
+    probe.write_text(historical_includes(source, (ROOT / "tests/baseline/probe.cpp").read_text()))
+    command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE",
+             *("-I" + str(path) for path in public_roots(source)),
+             "-I" + str(build / "generated/include"), probe,
              *libraries, "-o", executable], log=output / "logs/probe-build.txt")
     return json.loads(command([executable]))
 

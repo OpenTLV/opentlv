@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/nfc/type2.h"
+#include "opentlv/builtin/nfc/type2.h"
 #include <string.h>
 
 #define CHECK(x)                                                                                   \

@@ -1,7 +1,7 @@
 # C ABI compatibility
 
 The C modules export public functions and data through their
-`OPENTLV_<MODULE>_API` macros, with public type layouts in `tlv/include/`.
+`OPENTLV_<MODULE>_API` macros, with public type layouts in `include/`.
 The **ABI Compatibility** CI job compares their combined ABI with the stored
 baseline using [libabigail](https://sourceware.org/libabigail/) (`abidw` and
 `abidiff`). The `tlv` compatibility archive contains no implementation symbols.

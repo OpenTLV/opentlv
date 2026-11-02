@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/codec/values.h"
-#include "tlv/codec/number.h"
-#include "tlv/codec/digits.h"
-#include "tlv/codec/text.h"
-#include "tlv/codec/ipv4.h"
+#include "opentlv/codec/values.h"
+#include "opentlv/codec/number.h"
+#include "opentlv/codec/digits.h"
+#include "opentlv/codec/text.h"
+#include "opentlv/codec/ipv4.h"
 #include <string.h>
 
 #define CHECK(x)                                                                                   \

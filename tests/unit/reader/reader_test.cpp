@@ -3,7 +3,7 @@
 
 #include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/io/reader/reader.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

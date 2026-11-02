@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/query/program.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/query/program.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
 
 #include <benchmark/benchmark.h>
 
@@ -15,7 +15,7 @@
 #include <vector>
 #include <cstring>
 #include <string>
-#include "tlv/formats/fixed.h"
+#include "opentlv/core/formats/fixed.h"
 
 namespace {
 
