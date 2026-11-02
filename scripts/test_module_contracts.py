@@ -7,7 +7,8 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
-from check_module_contracts import BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check, cycles
+from check_module_contracts import (BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check,
+                                    check_baseline_mapping, cycles)
 
 FILES = {
     "include/opentlv/core/result.h": "typedef enum tlv_result {\n    TLV_OK = 0, /**< ok */\n"
@@ -62,6 +63,27 @@ def code(name, value, module="core", new=None):
 
 
 class ModuleContractTests(unittest.TestCase):
+    def test_removed_baseline_family_cannot_disappear_with_its_header(self):
+        errors = []
+        check_baseline_mapping([{"family": "removed", "codes": {"OLD": 7}}], mapping(), errors)
+        self.assertTrue(any("removed/OLD" in error for error in errors))
+
+    def test_baseline_rejects_value_drift_duplicates_and_opt_out(self):
+        for mutation in ("value", "duplicate", "opt-out"):
+            with self.subTest(mutation=mutation):
+                current = mapping()
+                family = current["families"][0]
+                if mutation == "value":
+                    family["codes"][0]["value"] = 99
+                elif mutation == "duplicate":
+                    family["codes"].append(copy.deepcopy(family["codes"][0]))
+                else:
+                    family["baseline"] = False
+                errors = []
+                check_baseline_mapping([{"family": "core.result", "codes": {"TLV_OK": 0}}],
+                                       current, errors)
+                self.assertTrue(errors)
+
     def setUp(self):
         self.directory = tempfile.TemporaryDirectory()
         self.root = Path(self.directory.name)

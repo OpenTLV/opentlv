@@ -355,6 +355,31 @@ def check_mapping(root, contract, mapping, errors):
             new_codes[key] = name
 
 
+def check_baseline_mapping(baseline, mapping, errors):
+    """Require the immutable old vocabulary even if a current enum disappears."""
+    families = {}
+    for family in mapping.get("families", []):
+        name = family["family"]
+        if name in families:
+            errors.append(f"baseline: duplicate family {name}")
+        families[name] = family
+    coverage = []
+    for previous in baseline:
+        name = previous["family"]
+        family = families.get(name, {})
+        codes = family.get("codes", [])
+        for old, value in previous["codes"].items():
+            matches = [code for code in codes if code.get("previous") == old]
+            if len(matches) != 1 or matches[0].get("value") != value:
+                errors.append(f"baseline: missing or changed mapping {name}/{old} = {value}")
+                continue
+            code = matches[0]
+            if family.get("baseline") is False:
+                errors.append(f"baseline: {name} cannot opt out of reference coverage")
+            coverage.append({"family": name, **code})
+    return coverage
+
+
 def check(root):
     errors = []
     try:
@@ -368,6 +393,9 @@ def check(root):
     check_files(root, contract, errors)
     graph = check_exceptions(root, contract, errors) if not errors else {}
     check_mapping(root, contract, mapping, errors)
+    baseline = root / "tests/baseline/v0.8.0/diagnostic-codes.json"
+    if baseline.is_file():
+        check_baseline_mapping(json.loads(baseline.read_text(encoding="utf-8")), mapping, errors)
     return errors, graph
 
 

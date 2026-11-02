@@ -228,6 +228,11 @@ def verify(source, build_root, shared, generator, nm, extra=()):
             raise ValueError(f"Non-relocatable module package: {path}")
     cases = [(key, entry, False) for key, entry in modules.items()]
     cases += [(key, entry, True) for key, entry in modules.items() if entry.get("cxx_consumer")]
+    if {"generator", "codec"} <= modules.keys():
+        combined = dict(modules["generator"])
+        combined["export_name"] = ["Generator Codec"]
+        combined["public_headers"] = []
+        cases.append(("multiple", combined, False))
     for key, entry, cxx in cases:
         consumer = work / ("consumer-" + key + ("-cxx" if cxx else ""))
         consumer.mkdir()
@@ -236,7 +241,9 @@ def verify(source, build_root, shared, generator, nm, extra=()):
         extension = "cpp" if facade else "c"
         shutil.copyfile(entry["cxx_consumer" if cxx else "consumer"][0], consumer / ("main." + extension))
         name = entry["export_name"][0]
-        expected = closure(modules, key)
+        links = " ".join("OpenTLV::" + component for component in name.split())
+        expected = (closure(modules, "generator") | closure(modules, "codec")
+                    if key == "multiple" else closure(modules, key))
         component_checks = ""
         # Compile each installed header alone in this consumer's language.
         # Facade cases also compile their C headers as C++; check_package.py
@@ -254,6 +261,13 @@ def verify(source, build_root, shared, generator, nm, extra=()):
                                  f"target_link_libraries(header{index} PRIVATE OpenTLV::{name})\n")
         component_checks += ('if(TARGET OpenTLV::tlv++)\n'
                              'message(FATAL_ERROR "Obsolete C++ target")\nendif()\n')
+        component_checks += ('if(TARGET OpenTLV::tlv)\n'
+                             'message(FATAL_ERROR "Hidden aggregate dependency")\nendif()\n')
+        if key == "multiple":
+            shutil.copyfile(modules["codec"]["consumer"][0], consumer / "codec.c")
+            component_checks += ("add_executable(codec codec.c)\n"
+                                 f"target_link_libraries(codec PRIVATE {links})\n"
+                                 "add_test(NAME codec COMMAND codec)\n")
         for other, candidate in modules.items():
             condition = "NOT TARGET" if other in expected else "TARGET"
             target = "OpenTLV::" + candidate["export_name"][0]
@@ -265,18 +279,27 @@ def verify(source, build_root, shared, generator, nm, extra=()):
             f"find_package(OpenTLV REQUIRED CONFIG COMPONENTS {name})\n"
             f"{component_checks}"
             f"add_executable(consumer main.{extension})\n"
-            f"target_link_libraries(consumer PRIVATE OpenTLV::{name})\n"
+            f"target_link_libraries(consumer PRIVATE {links})\n"
             "enable_testing()\nadd_test(NAME consumer COMMAND consumer)\n", encoding="utf-8")
         build = consumer / "build"
         run("cmake", "-S", consumer, "-B", build, "-G", generator,
             "-DCMAKE_BUILD_TYPE=Release",
             *(["-DCMAKE_CXX_STANDARD=98"] if facade else []),
             f"-DCMAKE_PREFIX_PATH={relocated}", "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF",
-            "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF")
+            "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF",
+            *([] if facade else ["-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler"]))
         run("cmake", "--build", build, "--config", "Release", "--parallel", "2")
         run("ctest", "--test-dir", build, "-C", "Release",
             "--output-on-failure", "--no-tests=error")
     print(f"PASS {len(cases)} C/C++ module/component consumers; shared={shared}")
+    (work / "report.json").write_text(json.dumps({
+        "status": "passed", "shared": shared, "platform": "ELF", "modules": entries,
+        "consumers": [{"module": key, "cxx": cxx or entry["facade"] == ["TRUE"]}
+                      for key, entry, cxx in cases],
+        "checks": ["isolated-builds", "direct-and-transitive-dependencies", "acyclic-graph",
+                   "private-headers", "symbol-ownership", "symbol-dependencies", "relocation",
+                   "component-closures", "standalone-headers", "c-without-cxx", "cxx-facades"]
+    }, indent=2) + "\n", encoding="utf-8")
     return work
 
 

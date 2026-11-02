@@ -53,3 +53,31 @@ jobs:
           python -B scripts/test_module_isolation.py --integration
           python -B scripts/check_module_isolation.py --shared ON
           python -B scripts/check_module_isolation.py --shared OFF
+      - name: Compare modular behavior with the immutable reference
+        if: runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        run: >-
+          python -B scripts/verify_modular_baseline.py
+          --build build/modular-baseline --output build/modular-evidence
+      - name: Preserve modular verification evidence
+        if: always() && runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        uses: actions/upload-artifact@v4
+        with:
+          name: modular-verification-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            build/modular-evidence/
+            build/module-isolation/**/report.json
+          if-no-files-found: error
+      - name: Record informational modular performance comparison
+        if: inputs.full && runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        run: python -B scripts/modular_performance.py --output build/modular-performance
+      - name: Preserve informational performance evidence
+        if: always() && inputs.full && runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        uses: actions/upload-artifact@v4
+        with:
+          name: modular-performance-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            build/modular-performance/performance.json
+            build/modular-performance/candidate-files.json
+            build/modular-performance/baseline/*.log
+            build/modular-performance/candidate/*.log
+          if-no-files-found: error
