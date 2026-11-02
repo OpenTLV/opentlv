@@ -156,6 +156,9 @@ jobs:
       - name: Install Clang and Ninja
         run: sudo apt-get update && sudo apt-get install -y clang-18 clang-tidy-18 ninja-build
 
+      - name: Verify clang-tidy public header coverage
+        run: python3 scripts/test_clang_tidy.py --require-tools
+
       # Only configures the project (compile_commands.json is written at
       # generate time); this never needs a full build, matching the cppcheck
       # job above. C++23 matches the standard build-clang.yml tests with, so

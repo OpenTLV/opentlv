@@ -30,8 +30,8 @@ extern "C" {
  *          misinterpret the one raw length byte as a BER length field and
  *          then look for value bytes that were never encoded.
  *
- * Tags are ordinary BER tags (opentlv/builtin/asn1/ber.h), read generically up to
- * #TLV_ASN1_TAG_MAX_SIZE bytes; every currently assigned EMV tag is one or two bytes,
+ * Tags use BER encoding, parsed by Core's generic variable-identifier primitive up to
+ * #TLV_DOL_TAG_MAX_SIZE bytes; every currently assigned EMV tag is one or two bytes,
  * but this component itself imposes no such restriction. Each requested
  * length is exactly one raw unsigned byte (0..255): there is no BER long
  * form and no value bytes follow it. No allocation and no recursion are used.
@@ -40,6 +40,9 @@ extern "C" {
 /** @addtogroup builtins
  * @{
  */
+
+/** @brief Maximum encoded tag size accepted by the DOL reader, in bytes. */
+enum { TLV_DOL_TAG_MAX_SIZE = 8 };
 
 /**
  * @brief One DOL entry in wire order.

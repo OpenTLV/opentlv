@@ -95,7 +95,7 @@ private:
 
     static tag_key key(tlv::tag tag) {
         const auto raw = detail::semantic_access::get(tag);
-        return raw.data ? tag_key(raw.data, raw.data + raw.size) : tag_key();
+        return (raw.data != nullptr) ? tag_key(raw.data, raw.data + raw.size) : tag_key();
     }
 
     std::map<tag_key, decoder_fn, tag_key_less> decoders_;

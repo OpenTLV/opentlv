@@ -81,7 +81,7 @@ document::select(const query_program& program, query_capabilities environment = 
                  size_t max_work) {
     if (program.info().result_kind != TLV_QUERY_RESULT_NODES)
         return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
-    auto execution = query_execution::create(program, impl_->max_depth, size() ? size() : 1,
+    auto execution = query_execution::create(program, impl_->max_depth, (size() != 0U) ? size() : 1,
                                              max_work, environment);
     if (!execution) return unexpected<query_failure>(execution.error());
     std::vector<uint8_t> values;
@@ -107,23 +107,26 @@ inline expected<void, query_failure> document::evaluate(query_execution&        
                                                         node                    context) const {
     // cppcheck-suppress-end passedByValue
     tlv_tree_writer_workspace_t raw{};
-    if (staging) {
+    if (staging != nullptr) {
         raw.frames = staging->frames.data();
         raw.frame_capacity = staging->frames.size();
         raw.scratch = reinterpret_cast<uint8_t*>(staging->scratch.data());
         raw.scratch_capacity = staging->scratch.size();
     }
     return evaluate(execution, reinterpret_cast<uint8_t*>(values.data()), values.size(),
-                    staging ? &raw : nullptr, context);
+                    (staging != nullptr) ? &raw : nullptr, std::move(context));
 }
 
+// Preserve the public value parameter for the checked context handle.
+// NOLINTBEGIN(performance-unnecessary-value-param)
 inline expected<void, query_failure> document::evaluate(query_execution& execution, uint8_t* values,
                                                         size_t                       capacity,
                                                         tlv_tree_writer_workspace_t* staging,
                                                         node context) const {
-    if (context.identity_ && !context)
+    // NOLINTEND(performance-unnecessary-value-param)
+    if ((context.identity_ != 0U) && !context)
         return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_STATE));
-    if (context.identity_ && context.owner_.lock() != impl_->lifetime)
+    if ((context.identity_ != 0U) && context.owner_.lock() != impl_->lifetime)
         return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
     tlv_query_diagnostic_t d{};
     auto rc = tlv_document_query_evaluate(c_document(), execution.c_exec(), context.c_node(),
@@ -167,11 +170,11 @@ inline expected<size_t, query_failure> document::edit_query(const query_program&
                                                             int edit_kind, tlv_tag_t tag,
                                                             bytes value, size_t* applied) {
     size_t count = 0;
-    if (applied) *applied = 0;
+    if (applied != nullptr) *applied = 0;
     if (program.info().result_kind != TLV_QUERY_RESULT_NODES)
         return unexpected<query_failure>(detail::query_failed(TLV_ERR_INVALID_ARG));
     auto execution =
-        query_execution::create(program, impl_->max_depth, size() ? size() : 1, 100000000);
+        query_execution::create(program, impl_->max_depth, (size() != 0U) ? size() : 1, 100000000);
     if (!execution) return unexpected<query_failure>(execution.error());
     std::vector<uint8_t> values;
     auto                 evaluated = evaluate_owned(program, *execution, values);
@@ -182,7 +185,7 @@ inline expected<size_t, query_failure> document::edit_query(const query_program&
                                       static_cast<tlv_document_query_edit_kind_t>(edit_kind), tag,
                                       reinterpret_cast<const uint8_t*>(value.data()), value.size(),
                                       targets.data(), targets.size(), &count, &d);
-    if (applied) *applied = count;
+    if (applied != nullptr) *applied = count;
     if (rc != TLV_OK) return unexpected<query_failure>(detail::query_failed(rc, d));
     return count;
 }
@@ -190,7 +193,7 @@ inline expected<size_t, query_failure> document::edit_query(const query_program&
 inline expected<void, query_failure> document::evaluate_owned(const query_program&  program,
                                                               query_execution&      execution,
                                                               std::vector<uint8_t>& values) const {
-    if (!program.info().constructed_values_required)
+    if (program.info().constructed_values_required == 0)
         return evaluate(execution, nullptr, 0, nullptr);
     std::vector<tlv_tree_writer_frame_t> frames(impl_->max_depth + 1);
     std::vector<uint8_t>                 scratch;

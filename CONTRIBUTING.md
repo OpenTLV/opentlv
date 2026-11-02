@@ -342,11 +342,12 @@ each one; prefer fixing a finding over suppressing it.
 [static-analysis.yml](.github/workflows/static-analysis.yml) also runs
 [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) 18 over `tlv` (C) and
 `tlv++` (C++) in PR and Full CI. Check selection lives in [.clang-tidy](.clang-tidy) at the
-repository root (the shared baseline for both languages) plus
-[src/.clang-tidy](src/.clang-tidy) and [cmake/clang-tidy-cxx.yaml](cmake/clang-tidy-cxx.yaml),
-which layer C- and C++-specific checks on top of it; clang-tidy resolves the
-config for a given file by merging every `.clang-tidy` it finds walking up
-from that file's own directory, so both apply automatically. Reproduce it
+repository root (the shared baseline for both languages) and
+[src/.clang-tidy](src/.clang-tidy), which adjusts checks for C implementations.
+clang-tidy resolves the config by walking up from the analyzed translation unit.
+The C++ test translation unit uses the root baseline;
+[cmake/clang-tidy-cxx.yaml](cmake/clang-tidy-cxx.yaml) is an optional profile for
+explicit `--config-file` use and is not loaded automatically. Reproduce CI
 locally by installing clang-tidy, configuring a build directory with
 `CMAKE_EXPORT_COMPILE_COMMANDS` enabled (clang-tidy needs the resulting
 `compile_commands.json` to know each file's include paths and language
@@ -368,7 +369,12 @@ every tlv++ header with real instantiations (a synthetic TU that just
 `#include`s the headers would compile but never instantiate their
 templates, so clang-tidy would have nothing to analyze inside them).
 Findings are still reported for that test file itself, so it has to stay
-clang-tidy-clean too. Justified exceptions (for example a Clang Static
+clang-tidy-clean too. The aggregate target depends on `clang-tidy-c` and, when
+C++ unit tests are enabled, `clang-tidy-cxx`. Their header filters use normalized,
+regex-escaped public include paths. Run
+`python3 scripts/test_clang_tidy.py --require-tools` to verify that both C and
+C++ header findings fail the aggregate target; CI requires this regression test.
+Justified exceptions (for example a Clang Static
 Analyzer false positive through an indirect function-pointer call it can't
 resolve) are fixed with a
 `NOLINT`/`NOLINTNEXTLINE`/`NOLINTBEGIN`-`NOLINTEND` comment explaining why,

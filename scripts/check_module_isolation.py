@@ -76,6 +76,9 @@ def check_metadata(entries, contract=None, source_root=None):
                 raise ValueError(f"{key}: facade dependencies differ from contract")
             if entry["owner"] != [expected["module"]]:
                 raise ValueError(f"{key}: owner differs from contract")
+            builtin = contract["modules"][expected["module"]]["kind"] == "builtin"
+            if (entry.get("builtin") == ["TRUE"]) != builtin:
+                raise ValueError(f"{key}: builtin classification differs from contract")
     roots = list(dict.fromkeys(Path(entry["include_dir"][0]) for entry in entries))
     if source_root is not None:
         roots.append(source_root / "include")
@@ -235,8 +238,9 @@ def verify(source, build_root, shared, generator, nm, extra=()):
         name = entry["export_name"][0]
         expected = closure(modules, key)
         component_checks = ""
-        # Compile each installed header alone in its supported languages. C
-        # headers must also work from C++, without another header masking gaps.
+        # Compile each installed header alone in this consumer's language.
+        # Facade cases also compile their C headers as C++; check_package.py
+        # covers all installed C headers in C++, including C-only integrations.
         headers = entry["public_headers"] + (entry.get("cxx_headers", []) if cxx else [])
         if contract is not None:
             headers += [str(relocated / "include" / header)

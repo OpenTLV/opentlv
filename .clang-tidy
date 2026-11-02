@@ -39,6 +39,8 @@
 #   suggestion to reorder public struct fields for cache-line padding;
 #   reordering public API struct layout for a marginal size saving is out of
 #   scope and unrelated to correctness.
+# - performance-enum-size: public enum widths are part of the C++ ABI; changing
+#   their underlying types solely to reduce storage is not a lint repair.
 Checks: >
   clang-diagnostic-*,
   clang-analyzer-*,
@@ -46,6 +48,7 @@ Checks: >
   bugprone-*,
   -bugprone-easily-swappable-parameters,
   performance-*,
+  -performance-enum-size,
   portability-*,
   readability-*,
   -readability-braces-around-statements,

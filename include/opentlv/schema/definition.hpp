@@ -170,7 +170,7 @@ public:
             fields_[i] = {detail::semantic_access::get(rule.identifier),
                           rule.length.minimum,
                           rule.length.maximum,
-                          rule.endpoints_only ? uint32_t(TLV_SCHEMA_LENGTH_ENDPOINTS) : 0u,
+                          rule.endpoints_only ? uint32_t(TLV_SCHEMA_LENGTH_ENDPOINTS) : 0U,
                           rule.name,
                           rule.length_multiple};
             rules_[i] = {&fields_[i],

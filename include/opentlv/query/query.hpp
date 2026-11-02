@@ -96,7 +96,7 @@ public:
     TLV_NODISCARD static expected<query, error> parse(const char*       text,
                                                       tlv_diagnostic_t* diagnostic = nullptr) {
         tlv_diagnostic_t local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         query        result;
         tlv_result_t rc = tlv_query_parse(text, &result.query_, diagnostic);
         if (rc != TLV_OK) {
@@ -120,7 +120,9 @@ public:
         size_t required = 0;
         tlv_query_format(&query_, nullptr, 0, &required);
         std::string result(required, '\0');
-        if (required) {
+        if (required != 0U) {
+            // C++11 string::data() is const; the formatter needs writable storage.
+            // NOLINTNEXTLINE(readability-container-data-pointer)
             tlv_query_format(&query_, &result[0], required, &required);
             result.resize(required - 1);
         }
@@ -270,7 +272,7 @@ public:
         }
         /** @brief Pull the next match; throw parse_error except at final EOF. */
         iterator& operator++() {
-            if (active())
+            if (active() != nullptr)
                 advance();
             else
                 range_ = nullptr;
@@ -296,15 +298,15 @@ public:
             advance();
         }
         query_range* active() const {
-            return range_ && generation_ == range_->generation_ ? range_ : nullptr;
+            return (range_ != nullptr) && generation_ == range_->generation_ ? range_ : nullptr;
         }
         void advance() {
-            if (!range_) return;
+            if (range_ == nullptr) return;
             reader_diagnostic diagnostic{};
             auto              code = range_->pull(current_, &diagnostic);
             generation_ = range_->generation_;
             if (code != TLV_OK) {
-                auto offset = range_->reader_ ? range_->reader_->offset() : 0;
+                auto offset = (range_->reader_ != nullptr) ? range_->reader_->offset() : 0;
                 range_ = nullptr;
                 if (code != TLV_END) throw parse_error(code, offset, diagnostic);
                 return;
@@ -322,6 +324,7 @@ public:
     /** @brief Return end without consuming input. */
     // Preserve the public member endpoint alongside begin() for range consumers.
     // cppcheck-suppress functionStatic
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     iterator end() const noexcept {
         return iterator();
     }
@@ -329,12 +332,12 @@ public:
 private:
     tlv_result_t pull(tree_item& item, reader_diagnostic* diagnostic) {
         ++generation_;
-        if (!reader_) return TLV_ERR_INVALID_ARG;
+        if (reader_ == nullptr) return TLV_ERR_INVALID_ARG;
         for (;;) {
             auto rc = reader_->next_item(item, diagnostic);
             if (rc != TLV_OK) return rc;
             auto tag = detail::semantic_access::get(item.element.tag());
-            if (tlv_query_matcher_visit(&matcher_, &tag, item.depth)) return TLV_OK;
+            if (tlv_query_matcher_visit(&matcher_, &tag, item.depth) != 0) return TLV_OK;
         }
     }
     tree_reader*        reader_;

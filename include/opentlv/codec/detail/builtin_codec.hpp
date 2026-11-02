@@ -50,7 +50,7 @@ struct builtin_string_codec {
             bytes(reinterpret_cast<const byte*>(result->data), result->length * Width));
     }
     static expected<size_t, codec_failure> encode(value_view value, byte* output, size_t capacity) {
-        if (value.size() % Width) return unexpected<codec_failure>(errc::invalid_value);
+        if ((value.size() % Width) != 0U) return unexpected<codec_failure>(errc::invalid_value);
         Native native{reinterpret_cast<const uint8_t*>(value.data()), value.size() / Width};
         return codec_adapter<Native, Descriptor>::encode(native, output, capacity);
     }

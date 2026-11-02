@@ -20,7 +20,7 @@ namespace bluetooth {
 inline const char* ad_name(tlv::tag identifier) noexcept {
     const auto  raw = detail::semantic_access::get(identifier);
     const auto* entry = tlv_definition_find(&tlv_bluetooth_ad_types, &raw);
-    return entry ? entry->name : nullptr;
+    return (entry != nullptr) ? entry->name : nullptr;
 }
 /** @brief Program-lifetime company name, or nullptr for an unknown identifier. */
 inline const char* company_name(uint16_t identifier) noexcept {
@@ -28,7 +28,7 @@ inline const char* company_name(uint16_t identifier) noexcept {
                                static_cast<uint8_t>(identifier >> 8)};
     const tlv_tag_t raw = {bytes, 2};
     const auto*     entry = tlv_definition_find(&tlv_bluetooth_company_ids, &raw);
-    return entry ? entry->name : nullptr;
+    return (entry != nullptr) ? entry->name : nullptr;
 }
 /** @brief Program-lifetime Advertising Data structural Schema. */
 inline tlv::schema structural_schema() noexcept {
@@ -43,7 +43,7 @@ inline expected<size_t, error> validate_container(bytes              input,
                                                   reader_diagnostic* diagnostic = nullptr) {
     size_t            significant = 0;
     reader_diagnostic local{};
-    if (!diagnostic) diagnostic = &local;
+    if (diagnostic == nullptr) diagnostic = &local;
     const auto rc = tlv_bluetooth_ad_data_validate(reinterpret_cast<const uint8_t*>(input.data()),
                                                    input.size(), &significant, diagnostic);
     if (rc != TLV_OK)

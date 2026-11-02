@@ -321,7 +321,7 @@ than from raw C pointers.
 `tlv::ber::parse()` remains the borrowed Reader range API. Owning parsing uses
 `tlv::document::parse(data, tlv::document_format(tlv::ber::format{}))` and returns
 `expected<document, error>`. A runnable traversal and mutation example is
-[`document.cpp`](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/document.cpp).
+[`document.cpp`](../../examples/tlv++/src/document.cpp).
 
 ///
 

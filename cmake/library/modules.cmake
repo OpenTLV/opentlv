@@ -1,61 +1,61 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
 
-opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/core.c
+opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/core.c"
     SOURCES
-        ../../src/core/copy.c
-        ../../src/core/definition.c
-        ../../src/core/diagnostic.c
-        ../../src/core/diagnostic_cause.c
-        ../../src/core/endian.c
-        ../../src/core/field/escaped.c
-        ../../src/core/field/fixed.c
-        ../../src/core/field/packed.c
-        ../../src/core/field/variable.c
-        ../../src/core/format.c
-        ../../src/core/formats/compose.c
-        ../../src/core/formats/escaped.c
-        ../../src/core/formats/fixed.c
-        ../../src/core/formats/packed.c
-        ../../src/core/formats/variable.c
-        ../../src/core/result.c
-        ../../src/core/size.c
-        ../../src/core/tag.c
-        ../../src/core/utf8_internal.c
-        ../../src/core/value.c
+        "${OpenTLV_SOURCE_DIR}/src/core/copy.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/definition.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/diagnostic.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/diagnostic_cause.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/endian.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/field/escaped.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/field/fixed.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/field/packed.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/field/variable.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/format.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/formats/compose.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/formats/escaped.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/formats/fixed.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/formats/packed.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/formats/variable.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/result.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/size.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/tag.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/utf8_internal.c"
+        "${OpenTLV_SOURCE_DIR}/src/core/value.c"
         ${OpenTLV_BINARY_DIR}/generated/src/version.c
     PUBLIC_HEADERS
-        ../../include/opentlv/core/attributes.h
-        ../../include/opentlv/core/callback.h
-        ../../include/opentlv/core/compiler.h
-        ../../include/opentlv/core/copy.h
-        ../../include/opentlv/core/definition.h
-        ../../include/opentlv/core/diagnostic.h
-        ../../include/opentlv/core/diagnostic/cause.h
-        ../../include/opentlv/core/element.h
-        ../../include/opentlv/core/endian.h
-        ../../include/opentlv/core/field/encoding.h
-        ../../include/opentlv/core/field/escaped.h
-        ../../include/opentlv/core/field/fixed.h
-        ../../include/opentlv/core/field/packed.h
-        ../../include/opentlv/core/field/variable.h
-        ../../include/opentlv/core/format.h
-        ../../include/opentlv/core/formats/compose.h
-        ../../include/opentlv/core/formats/escaped.h
-        ../../include/opentlv/core/formats/fixed.h
-        ../../include/opentlv/core/formats/packed.h
-        ../../include/opentlv/core/formats/variable.h
-        ../../include/opentlv/core/length.h
-        ../../include/opentlv/core/result.h
-        ../../include/opentlv/core/size.h
-        ../../include/opentlv/core/tag.h
-        ../../include/opentlv/core/utf8.h
-        ../../include/opentlv/core/value.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/attributes.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/callback.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/compiler.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/copy.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/definition.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/diagnostic.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/diagnostic/cause.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/element.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/endian.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/field/encoding.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/field/escaped.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/field/fixed.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/field/packed.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/field/variable.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/format.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/formats/compose.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/formats/escaped.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/formats/fixed.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/formats/packed.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/formats/variable.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/length.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/result.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/size.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/tag.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/utf8.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/core/value.h"
     PRIVATE_HEADERS
-        ../../src/core/internal/field/escaped_internal.h
-        ../../src/core/internal/field/fixed_internal.h
-        ../../src/core/internal/field/variable_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/core/internal/field/escaped_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/core/internal/field/fixed_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/core/internal/field/variable_internal.h"
     PUBLIC_SYMBOLS
         tlv_binary_decode
         tlv_binary_encode
@@ -176,26 +176,26 @@ opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR ../../include
         tlv_write_uint
 )
 
-opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/io.c
+opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/io.c"
     SOURCES
-        ../../src/io/reader/diagnostic_strings.c
-        ../../src/io/reader/reader.c
-        ../../src/io/reader/tree.c
-        ../../src/io/reader/visitor.c
-        ../../src/io/writer/copy.c
-        ../../src/io/writer/tree.c
-        ../../src/io/writer/writer.c
+        "${OpenTLV_SOURCE_DIR}/src/io/reader/diagnostic_strings.c"
+        "${OpenTLV_SOURCE_DIR}/src/io/reader/reader.c"
+        "${OpenTLV_SOURCE_DIR}/src/io/reader/tree.c"
+        "${OpenTLV_SOURCE_DIR}/src/io/reader/visitor.c"
+        "${OpenTLV_SOURCE_DIR}/src/io/writer/copy.c"
+        "${OpenTLV_SOURCE_DIR}/src/io/writer/tree.c"
+        "${OpenTLV_SOURCE_DIR}/src/io/writer/writer.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/io/defaults.h
-        ../../include/opentlv/io/reader/diagnostic.h
-        ../../include/opentlv/io/reader/reader.h
-        ../../include/opentlv/io/reader/tree.h
-        ../../include/opentlv/io/reader/visitor.h
-        ../../include/opentlv/io/tree.h
-        ../../include/opentlv/io/writer/copy.h
-        ../../include/opentlv/io/writer/tree.h
-        ../../include/opentlv/io/writer/writer.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/defaults.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/reader/diagnostic.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/reader/reader.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/reader/tree.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/reader/visitor.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/tree.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/writer/copy.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/writer/tree.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/io/writer/writer.h"
     PUBLIC_DEPS core
     PUBLIC_SYMBOLS
         tlv_copy_element
@@ -267,26 +267,26 @@ opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR ../../include
         tlv_writer_write_element_diag
 )
 
-opentlv_add_module(generator EXPORT_NAME Generator INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/generator.c
-    SOURCES ../../src/generator/generator.c
-    PUBLIC_HEADERS ../../include/opentlv/generator/generator.h
+opentlv_add_module(generator EXPORT_NAME Generator INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/generator.c"
+    SOURCES "${OpenTLV_SOURCE_DIR}/src/generator/generator.c"
+    PUBLIC_HEADERS "${OpenTLV_SOURCE_DIR}/include/opentlv/generator/generator.h"
     PUBLIC_DEPS core
     PRIVATE_DEPS io
     PUBLIC_SYMBOLS tlv_generate tlv_generator_workspace_size
 )
 
-opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/document.c
+opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/document.c"
     SOURCES
-        ../../src/document/document.c
-        ../../src/document/reader.c
-        ../../src/document/writer.c
+        "${OpenTLV_SOURCE_DIR}/src/document/document.c"
+        "${OpenTLV_SOURCE_DIR}/src/document/reader.c"
+        "${OpenTLV_SOURCE_DIR}/src/document/writer.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/document/document.h
-        ../../include/opentlv/document/integration.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/document/document.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/document/integration.h"
     PRIVATE_HEADERS
-        ../../src/document/internal/document_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/document/internal/document_internal.h"
     PUBLIC_DEPS core io
     PUBLIC_SYMBOLS
         tlv_document_builder_consume
@@ -329,35 +329,35 @@ opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR ../../include
         tlv_node_value_size
 )
 
-configure_file(../../src/query/internal/query-features.h.in "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" @ONLY)
+configure_file("${OpenTLV_SOURCE_DIR}/src/query/internal/query-features.h.in" "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" @ONLY)
 install(FILES "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/opentlv/query")
 set(_query_sources)
 set(_query_frontend_symbols)
 if(OPENTLV_QUERY_FRONTEND)
-    list(APPEND _query_sources ../../src/query/compiler.c)
+    list(APPEND _query_sources "${OpenTLV_SOURCE_DIR}/src/query/compiler.c")
     list(APPEND _query_frontend_symbols tlv_query_compile tlv_query_compile_commit tlv_query_compile_options_init tlv_query_compile_prepare tlv_query_compile_prepare_size tlv_query_compile_scratch tlv_query_program_format tlv_query_program_load tlv_query_program_load_scratch tlv_query_parse tlv_query_parse_n)
 endif()
-opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/query.c
+opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/query.c"
     SOURCES
-        ../../src/query/query.c
-        ../../src/query/plan.c
-        ../../src/query/execute.c
-        ../../src/query/evaluation.c
-        ../../src/query/diagnostic_strings.c
-        ../../src/query/adapters.c
-        ../../src/query/features.c
+        "${OpenTLV_SOURCE_DIR}/src/query/query.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/plan.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/execute.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/evaluation.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/diagnostic_strings.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/adapters.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/features.c"
         ${_query_sources}
     PUBLIC_HEADERS
-        ../../include/opentlv/query/query.h
-        ../../include/opentlv/query/program.h
-        ../../include/opentlv/query/plan.h
-        ../../include/opentlv/query/definition.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/query/query.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/query/program.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/query/plan.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/query/definition.h"
     PRIVATE_HEADERS
-        ../../src/query/internal/program_internal.h
-        ../../src/query/internal/frontend_internal.h
-        ../../src/query/internal/match_internal.h
-        ../../src/query/internal/v1_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/query/internal/program_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/query/internal/frontend_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/query/internal/match_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/query/internal/v1_internal.h"
     PUBLIC_DEPS core io
     PUBLIC_SYMBOLS
         tlv_query_conversion_violation_string
@@ -411,13 +411,13 @@ opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR ../../include
         query_candidate_alignment
         query_s1_filter
 )
-opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/query_document.c
+opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/query_document.c"
     SOURCES
-        ../../src/query/document_path.c
-        ../../src/query/document_backend.c
+        "${OpenTLV_SOURCE_DIR}/src/query/document_path.c"
+        "${OpenTLV_SOURCE_DIR}/src/query/document_backend.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/query/document.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/query/document.h"
     PUBLIC_DEPS core io document query
     PUBLIC_SYMBOLS
         tlv_document_find_path
@@ -429,27 +429,27 @@ opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_
         tlv_document_query_visit
 )
 
-opentlv_add_module(codec EXPORT_NAME Codec INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/codec.c
+opentlv_add_module(codec EXPORT_NAME Codec INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/codec.c"
     SOURCES
-        ../../src/codec/codec.c
-        ../../src/codec/diagnostic.c
-        ../../src/codec/diagnostic_strings.c
-        ../../src/codec/digits.c
-        ../../src/codec/ipv4.c
-        ../../src/codec/number.c
-        ../../src/codec/text.c
-        ../../src/codec/values.c
+        "${OpenTLV_SOURCE_DIR}/src/codec/codec.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/diagnostic.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/diagnostic_strings.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/digits.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/ipv4.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/number.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/text.c"
+        "${OpenTLV_SOURCE_DIR}/src/codec/values.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/codec/codec.h
-        ../../include/opentlv/codec/diagnostic.h
-        ../../include/opentlv/codec/digits.h
-        ../../include/opentlv/codec/ipv4.h
-        ../../include/opentlv/codec/number.h
-        ../../include/opentlv/codec/text.h
-        ../../include/opentlv/codec/values.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/codec.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/diagnostic.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/digits.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/ipv4.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/number.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/text.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/values.h"
     PRIVATE_HEADERS
-        ../../src/codec/internal/result_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/codec/internal/result_internal.h"
     PUBLIC_DEPS
         core
     PUBLIC_SYMBOLS
@@ -482,12 +482,12 @@ opentlv_add_module(codec EXPORT_NAME Codec INCLUDE_DIR ../../include
         tlv_text_encode
 )
 
-opentlv_add_module(query-codec OWNER query EXPORT_NAME QueryCodec INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/query_codec.c
+opentlv_add_module(query-codec OWNER query EXPORT_NAME QueryCodec INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/query_codec.c"
     SOURCES
-        ../../src/query/codec.c
+        "${OpenTLV_SOURCE_DIR}/src/query/codec.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/query/adapters.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/query/adapters.h"
     PUBLIC_DEPS
         core
         io
@@ -498,21 +498,21 @@ opentlv_add_module(query-codec OWNER query EXPORT_NAME QueryCodec INCLUDE_DIR ..
         tlv_query_codec_decode
 )
 
-opentlv_add_module(schema EXPORT_NAME Schema INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/schema.c
+opentlv_add_module(schema EXPORT_NAME Schema INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/schema.c"
     SOURCES
-        ../../src/schema/constraint.c
-        ../../src/schema/diagnostic_strings.c
-        ../../src/schema/report.c
-        ../../src/schema/schema.c
-        ../../src/schema/structure.c
+        "${OpenTLV_SOURCE_DIR}/src/schema/constraint.c"
+        "${OpenTLV_SOURCE_DIR}/src/schema/diagnostic_strings.c"
+        "${OpenTLV_SOURCE_DIR}/src/schema/report.c"
+        "${OpenTLV_SOURCE_DIR}/src/schema/schema.c"
+        "${OpenTLV_SOURCE_DIR}/src/schema/structure.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/schema/constraint.h
-        ../../include/opentlv/schema/detail.h
-        ../../include/opentlv/schema/schema.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/schema/constraint.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/schema/detail.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/schema/schema.h"
     PRIVATE_HEADERS
-        ../../src/schema/internal/diagnostic_internal.h
-        ../../src/schema/internal/traversal_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/schema/internal/diagnostic_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/schema/internal/traversal_internal.h"
     PUBLIC_DEPS core io
     PUBLIC_SYMBOLS
         tlv_schema_cause_string
@@ -534,12 +534,12 @@ opentlv_add_module(schema EXPORT_NAME Schema INCLUDE_DIR ../../include
         tlv_value_constraint_validate
 )
 
-opentlv_add_module(schema-number EXPORT_NAME SchemaNumber OWNER schema INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/schema_number.c
+opentlv_add_module(schema-number EXPORT_NAME SchemaNumber OWNER schema INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/schema_number.c"
     SOURCES
-        ../../src/schema/number.c
+        "${OpenTLV_SOURCE_DIR}/src/schema/number.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/schema/number.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/schema/number.h"
     PUBLIC_DEPS schema codec
     PRIVATE_DEPS core
     PUBLIC_SYMBOLS
@@ -548,38 +548,38 @@ opentlv_add_module(schema-number EXPORT_NAME SchemaNumber OWNER schema INCLUDE_D
         tlv_schema_number_validate_length
 )
 
-opentlv_add_module(schema-query EXPORT_NAME SchemaQuery OWNER schema INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/schema_query.c
+opentlv_add_module(schema-query EXPORT_NAME SchemaQuery OWNER schema INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/schema_query.c"
     SOURCES
-        ../../src/schema/query.c
+        "${OpenTLV_SOURCE_DIR}/src/schema/query.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/schema/query.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/schema/query.h"
     PRIVATE_HEADERS
-        ../../src/schema/internal/query_diagnostic_internal.h
-        ../../src/schema/internal/query_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/schema/internal/query_diagnostic_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/schema/internal/query_internal.h"
     PUBLIC_DEPS core io schema query
     PUBLIC_SYMBOLS
         tlv_schema_query_size
         tlv_schema_query_validate_buffer
 )
 
-opentlv_add_module(schema-query-document EXPORT_NAME SchemaQueryDocument OWNER schema INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/schema_query_document.c
+opentlv_add_module(schema-query-document EXPORT_NAME SchemaQueryDocument OWNER schema INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/schema_query_document.c"
     SOURCES
-        ../../src/schema/query_document.c
+        "${OpenTLV_SOURCE_DIR}/src/schema/query_document.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/schema/query_document.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/schema/query_document.h"
     PUBLIC_DEPS core io schema document schema-query query query-document
     PUBLIC_SYMBOLS
         tlv_schema_query_validate_document
 )
 
-opentlv_add_module(codec-structure EXPORT_NAME CodecStructure OWNER codec INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/codec_structure.c
+opentlv_add_module(codec-structure EXPORT_NAME CodecStructure OWNER codec INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/codec_structure.c"
     SOURCES
-        ../../src/codec/structure.c
+        "${OpenTLV_SOURCE_DIR}/src/codec/structure.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/codec/structure.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/structure.h"
     PUBLIC_DEPS core codec schema
     PRIVATE_DEPS io
     PUBLIC_SYMBOLS
@@ -587,38 +587,38 @@ opentlv_add_module(codec-structure EXPORT_NAME CodecStructure OWNER codec INCLUD
         tlv_structure_encode
 )
 
-opentlv_add_module(asn1 EXPORT_NAME ASN1 INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/asn1.c
+opentlv_add_module(asn1 BUILTIN EXPORT_NAME ASN1 INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/asn1.c"
     SOURCES
-        ../../src/builtin/asn1/asn1_codec.c
-        ../../src/builtin/asn1/asn1_internal.c
-        ../../src/builtin/asn1/asn1_values_internal.c
-        ../../src/builtin/asn1/ber.c
-        ../../src/builtin/asn1/ber_internal.c
-        ../../src/builtin/asn1/cer.c
-        ../../src/builtin/asn1/cer_validation.c
-        ../../src/builtin/asn1/cer_values_internal.c
-        ../../src/builtin/asn1/der.c
-        ../../src/builtin/asn1/der_schema.c
-        ../../src/builtin/asn1/der_validation.c
-        ../../src/builtin/asn1/identifier.c
-        ../../src/builtin/asn1/query.c
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/asn1_codec.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/asn1_internal.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/asn1_values_internal.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/ber.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/ber_internal.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/cer.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/cer_validation.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/cer_values_internal.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/der.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/der_schema.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/der_validation.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/identifier.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/query.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/builtin/asn1/asn1_codec.h
-        ../../include/opentlv/builtin/asn1/ber.h
-        ../../include/opentlv/builtin/asn1/cer.h
-        ../../include/opentlv/builtin/asn1/cer_validation.h
-        ../../include/opentlv/builtin/asn1/der.h
-        ../../include/opentlv/builtin/asn1/der_schema.h
-        ../../include/opentlv/builtin/asn1/der_validation.h
-        ../../include/opentlv/builtin/asn1/identifier.h
-        ../../include/opentlv/builtin/asn1/query.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/asn1_codec.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/ber.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/cer.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/cer_validation.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/der.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/der_schema.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/der_validation.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/identifier.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/asn1/query.h"
     PRIVATE_HEADERS
-        ../../src/builtin/asn1/internal/asn1_internal.h
-        ../../src/builtin/asn1/internal/asn1_values_internal.h
-        ../../src/builtin/asn1/internal/ber_internal.h
-        ../../src/builtin/asn1/internal/cer_values_internal.h
-        ../../src/builtin/asn1/internal/der_validation_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/internal/asn1_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/internal/asn1_values_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/internal/ber_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/internal/cer_values_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/asn1/internal/der_validation_internal.h"
     PUBLIC_DEPS core io codec schema query
     PUBLIC_SYMBOLS
         tlv_asn1_bit_string_test
@@ -695,28 +695,28 @@ opentlv_add_module(asn1 EXPORT_NAME ASN1 INCLUDE_DIR ../../include
         tlv_format_der
 )
 
-opentlv_add_module(emv EXPORT_NAME EMV INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/emv.c
+opentlv_add_module(emv BUILTIN EXPORT_NAME EMV INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/emv.c"
     SOURCES
-        ../../src/builtin/emv/dictionary.c
-        ../../src/builtin/emv/dol.c
-        ../../src/builtin/emv/emv.c
-        ../../src/builtin/emv/emv_codec.c
-        ../../src/builtin/emv/emv_schema.c
-        ../../src/builtin/emv/format.c
-        ../../src/builtin/emv/presentation.c
-        ../../src/builtin/emv/query.c
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/dictionary.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/dol.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/emv.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/emv_codec.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/emv_schema.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/format.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/presentation.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/query.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/builtin/emv/dol.h
-        ../../include/opentlv/builtin/emv/emv.h
-        ../../include/opentlv/builtin/emv/emv_codec.h
-        ../../include/opentlv/builtin/emv/emv_schema.h
-        ../../include/opentlv/builtin/emv/format.h
-        ../../include/opentlv/builtin/emv/presentation.h
-        ../../include/opentlv/builtin/emv/query.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/dol.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/emv.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/emv_codec.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/emv_schema.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/format.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/presentation.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/emv/query.h"
     PRIVATE_HEADERS
-        ../../src/builtin/emv/internal/dictionary_internal.h
-        ../../src/builtin/emv/internal/emv_codec_internal.h
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/internal/dictionary_internal.h"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/emv/internal/emv_codec_internal.h"
     PUBLIC_DEPS core codec schema query
     PRIVATE_DEPS schema-number
     PUBLIC_SYMBOLS
@@ -910,28 +910,28 @@ opentlv_add_module(emv EXPORT_NAME EMV INCLUDE_DIR ../../include
         tlv_format_emv
 )
 
-opentlv_add_module(bluetooth EXPORT_NAME Bluetooth INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/bluetooth.c
+opentlv_add_module(bluetooth BUILTIN EXPORT_NAME Bluetooth INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/bluetooth.c"
     SOURCES
-        ../../src/builtin/bluetooth/ad_codec.c
-        ../../src/builtin/bluetooth/ad_data.c
-        ../../src/builtin/bluetooth/ad_schema.c
-        ../../src/builtin/bluetooth/ad_types.c
-        ../../src/builtin/bluetooth/bluetooth_ltv.c
-        ../../src/builtin/bluetooth/company_ids.c
-        ../../src/builtin/bluetooth/manufacturer_data.c
-        ../../src/builtin/bluetooth/service_data.c
-        ../../src/builtin/bluetooth/uuid.c
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/ad_codec.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/ad_data.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/ad_schema.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/ad_types.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/bluetooth_ltv.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/company_ids.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/manufacturer_data.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/service_data.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/bluetooth/uuid.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/builtin/bluetooth/ad_codec.h
-        ../../include/opentlv/builtin/bluetooth/ad_data.h
-        ../../include/opentlv/builtin/bluetooth/ad_schema.h
-        ../../include/opentlv/builtin/bluetooth/ad_types.h
-        ../../include/opentlv/builtin/bluetooth/bluetooth_ltv.h
-        ../../include/opentlv/builtin/bluetooth/company_ids.h
-        ../../include/opentlv/builtin/bluetooth/manufacturer_data.h
-        ../../include/opentlv/builtin/bluetooth/service_data.h
-        ../../include/opentlv/builtin/bluetooth/uuid.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/ad_codec.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/ad_data.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/ad_schema.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/ad_types.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/bluetooth_ltv.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/company_ids.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/manufacturer_data.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/service_data.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/bluetooth/uuid.h"
     PUBLIC_DEPS core io codec schema
     PUBLIC_SYMBOLS
         tlv_bluetooth_ad_codec_flags
@@ -954,28 +954,28 @@ opentlv_add_module(bluetooth EXPORT_NAME Bluetooth INCLUDE_DIR ../../include
         tlv_format_bluetooth_ltv
 )
 
-opentlv_add_module(nfc EXPORT_NAME NFC INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/nfc.c
+opentlv_add_module(nfc BUILTIN EXPORT_NAME NFC INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/nfc.c"
     SOURCES
-        ../../src/builtin/nfc/type2.c
+        "${OpenTLV_SOURCE_DIR}/src/builtin/nfc/type2.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/builtin/nfc/type2.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/nfc/type2.h"
     PUBLIC_DEPS core
     PUBLIC_SYMBOLS
         tlv_format_nfc_type2
 )
 
-opentlv_add_module(dhcp EXPORT_NAME DHCP INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/dhcp.c
+opentlv_add_module(dhcp BUILTIN EXPORT_NAME DHCP INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/dhcp.c"
     SOURCES
-        ../../src/builtin/dhcp/container.c
-        ../../src/builtin/dhcp/dhcpv4.c
-        ../../src/builtin/dhcp/options.c
+        "${OpenTLV_SOURCE_DIR}/src/builtin/dhcp/container.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/dhcp/dhcpv4.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/dhcp/options.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/builtin/dhcp/codec.h
-        ../../include/opentlv/builtin/dhcp/container.h
-        ../../include/opentlv/builtin/dhcp/dhcpv4.h
-        ../../include/opentlv/builtin/dhcp/options.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/dhcp/codec.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/dhcp/container.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/dhcp/dhcpv4.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/dhcp/options.h"
     PUBLIC_DEPS core codec schema
     PRIVATE_DEPS io
     PUBLIC_SYMBOLS
@@ -984,16 +984,16 @@ opentlv_add_module(dhcp EXPORT_NAME DHCP INCLUDE_DIR ../../include
         tlv_format_dhcpv4
 )
 
-opentlv_add_module(lldp EXPORT_NAME LLDP INCLUDE_DIR ../../include
-    CONSUMER ../../tests/modules/lldp.c
+opentlv_add_module(lldp BUILTIN EXPORT_NAME LLDP INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
+    CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/lldp.c"
     SOURCES
-        ../../src/builtin/lldp/codec.c
-        ../../src/builtin/lldp/lldp.c
-        ../../src/builtin/lldp/schema.c
+        "${OpenTLV_SOURCE_DIR}/src/builtin/lldp/codec.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/lldp/lldp.c"
+        "${OpenTLV_SOURCE_DIR}/src/builtin/lldp/schema.c"
     PUBLIC_HEADERS
-        ../../include/opentlv/builtin/lldp/codec.h
-        ../../include/opentlv/builtin/lldp/lldp.h
-        ../../include/opentlv/builtin/lldp/schema.h
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/lldp/codec.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/lldp/lldp.h"
+        "${OpenTLV_SOURCE_DIR}/include/opentlv/builtin/lldp/schema.h"
     PUBLIC_DEPS core codec schema
     PRIVATE_DEPS io
     PUBLIC_SYMBOLS

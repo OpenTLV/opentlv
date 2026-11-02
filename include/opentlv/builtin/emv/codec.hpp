@@ -103,7 +103,8 @@ template <typename T, typename Provider> struct emv_dictionary_value_codec {
 template <typename Provider> struct emv_dictionary_value_codec<std::string, Provider> {
     using value_type = std::string;
     static expected<std::string, codec_failure> decode(bytes input) {
-        if (!input.data() && input.size()) return unexpected<codec_failure>(errc::null_argument);
+        if ((input.data() == nullptr) && !input.empty())
+            return unexpected<codec_failure>(errc::null_argument);
         if (input.size() > (std::numeric_limits<size_t>::max() - 1) / 2)
             return unexpected<codec_failure>(errc::invalid_value);
         std::vector<char>      storage(input.size() * 2 + 1);

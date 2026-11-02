@@ -47,6 +47,11 @@ cmake/library/                    target and facade registrations
 ```
 
 There is no shared internal target or cross-module private-header exception.
+Register each builtin owner with `opentlv_add_module(... BUILTIN ...)`; integrations
+inherit this classification from their already registered `OWNER`. Generic owners
+omit `BUILTIN`. The isolation checker compares this metadata with `ownership.json`,
+so a missing or incorrect classification fails validation rather than silently
+selecting the wrong export-header directory.
 All six builtin targets depend only on generic module targets. EMV DOL's
 identifier parser now configures the existing Core variable-identifier primitive
 with its historical BER acceptance rules, removing the former ASN.1 dependency.
@@ -65,11 +70,14 @@ dependency. The Static Analysis job runs the checker and its negative tests.
 boundaries, isolated builds, relocatable installations and individual installed
 C/C++ headers for static and shared builds.
 
-This migration preserves the existing clang-tidy configuration selection and
-header-filter path spelling. Normalizing the historical `cmake/../` filter and
-enabling the optional C++ modernize profile exposes existing header findings;
-that broader analysis needs a separate cleanup. Standalone header compilation
-and cppcheck's direct C++ header scan remain separate checks.
+The clang-tidy header filters use normalized, regex-escaped paths to the public
+include tree. Both language targets feed the aggregate `clang-tidy` target.
+`scripts/test_clang_tidy.py --require-tools` verifies that real diagnostics in
+C and C++ public headers fail that target, including in checkout paths containing
+spaces and regex metacharacters. The existing check configuration is retained;
+the optional C++ modernize profile is not enabled automatically. Header cleanup
+preserves public signatures and enum widths. Standalone header compilation and
+cppcheck's direct C++ header scan remain separate checks.
 
 ## Review and final verification
 

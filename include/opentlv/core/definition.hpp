@@ -52,7 +52,7 @@ public:
             const tlv_definition_t          entry{detail::semantic_access::get(entries_[i].tag()),
                                                   entries_[i].name()};
             const tlv_definition_registry_t registry{&entry, 1};
-            if (tlv_definition_find(&registry, &wanted)) return &entries_[i];
+            if (tlv_definition_find(&registry, &wanted) != nullptr) return &entries_[i];
         }
         return nullptr;
     }

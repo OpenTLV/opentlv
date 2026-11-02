@@ -80,11 +80,11 @@ private:
     static tlv::error project(const tlv_schema_diagnostic_t& value) noexcept {
         const tlv_tag_t*    tag = nullptr;
         tlv_reader_detail_t reader{};
-        if (value.cause == TLV_SCHEMA_CAUSE_SCHEMA && value.detail.schema.tag.size)
+        if (value.cause == TLV_SCHEMA_CAUSE_SCHEMA && (value.detail.schema.tag.size != 0U))
             tag = &value.detail.schema.tag;
-        else if (value.cause == TLV_SCHEMA_CAUSE_READER && value.detail.causes.count &&
+        else if (value.cause == TLV_SCHEMA_CAUSE_READER && (value.detail.causes.count != 0U) &&
                  tlv_reader_detail_copy(&value.detail.causes.frames[0], &reader) == TLV_OK &&
-                 reader.has_tag)
+                 (reader.has_tag != 0))
             tag = &reader.tag;
         return detail::error_access::diagnostic(value.diagnostic, operation::schema, tag,
                                                 &value.diagnostic.path);

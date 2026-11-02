@@ -8,7 +8,7 @@ include(GenerateExportHeader)
 # Internal keys are stable; EXPORT_NAME is an explicit public naming decision.
 # This helper is for extracted modules, not aliases to the legacy monolith.
 function(opentlv_add_module key)
-    cmake_parse_arguments(M "FACADE" "OWNER;EXPORT_NAME;INCLUDE_DIR;CONSUMER"
+    cmake_parse_arguments(M "FACADE;BUILTIN" "OWNER;EXPORT_NAME;INCLUDE_DIR;CONSUMER"
         "SOURCES;PUBLIC_HEADERS;PRIVATE_HEADERS;PUBLIC_DEPS;PRIVATE_DEPS;PUBLIC_SYMBOLS;OWNER_SYMBOLS" ${ARGN})
     if(M_UNPARSED_ARGUMENTS OR NOT key MATCHES "^[a-z][a-z0-9-]*$" OR
        NOT M_EXPORT_NAME MATCHES "^[A-Za-z][A-Za-z0-9_+-]*$" OR NOT M_CONSUMER OR
@@ -21,6 +21,16 @@ function(opentlv_add_module key)
     endif()
     if(NOT M_OWNER)
         set(M_OWNER "${key}")
+    endif()
+    if(NOT key STREQUAL M_OWNER)
+        if(M_BUILTIN)
+            message(FATAL_ERROR "Integration ${key}: declare BUILTIN on its owning module")
+        endif()
+        get_property(owner_target GLOBAL PROPERTY OPENTLV_MODULE_${M_OWNER})
+        if(NOT owner_target)
+            message(FATAL_ERROR "Integration ${key}: register owner ${M_OWNER} first")
+        endif()
+        get_target_property(M_BUILTIN ${owner_target} INTERFACE_OPENTLV_BUILTIN)
     endif()
     string(REPLACE "-" "_" target "opentlv_${key}")
     string(TOUPPER "${target}" prefix)
@@ -65,7 +75,7 @@ function(opentlv_add_module key)
         endif()
         target_compile_features(${target} PUBLIC c_std_99)
         set(header_dir "opentlv/${M_OWNER}")
-        if(M_OWNER MATCHES "^(asn1|emv|bluetooth|nfc|dhcp|lldp)$")
+        if(M_BUILTIN)
             set(header_dir "opentlv/builtin/${M_OWNER}")
         endif()
         if(NOT key STREQUAL M_OWNER)
@@ -92,7 +102,7 @@ function(opentlv_add_module key)
     set_property(GLOBAL APPEND PROPERTY OPENTLV_MODULES "${key}")
     set_property(GLOBAL PROPERTY OPENTLV_MODULE_${key} "${target}")
     foreach(field IN ITEMS OWNER EXPORT_NAME INCLUDE_DIR CONSUMER SOURCES PUBLIC_HEADERS
-            PRIVATE_HEADERS PUBLIC_DEPS PRIVATE_DEPS PUBLIC_SYMBOLS OWNER_SYMBOLS FACADE)
+            PRIVATE_HEADERS PUBLIC_DEPS PRIVATE_DEPS PUBLIC_SYMBOLS OWNER_SYMBOLS FACADE BUILTIN)
         # INTERFACE_ custom properties also work on interface targets in CMake 3.16.
         set_property(TARGET ${target} PROPERTY INTERFACE_OPENTLV_${field} "${M_${field}}")
     endforeach()
@@ -244,7 +254,7 @@ function(opentlv_finalize_modules)
         set(entry "\"key\":\"${key}\",\"target\":\"${target}\"")
         foreach(field IN ITEMS OWNER EXPORT_NAME INCLUDE_DIR CONSUMER SOURCES PUBLIC_HEADERS
                 PRIVATE_HEADERS PUBLIC_DEPS PRIVATE_DEPS PUBLIC_SYMBOLS OWNER_SYMBOLS FACADE
-                CXX_HEADERS CXX_CONSUMER FACADE_DEPS)
+                CXX_HEADERS CXX_CONSUMER FACADE_DEPS BUILTIN)
             get_target_property(value ${target} INTERFACE_OPENTLV_${field})
             if(NOT value)
                 set(value)

@@ -45,7 +45,7 @@ namespace detail {
 inline error writer_failed(tlv_result_t code, const writer_diagnostic& diagnostic) noexcept {
     return diagnostic.diagnostic.code == code
                ? error_access::diagnostic(diagnostic.diagnostic, operation::writer,
-                                          diagnostic.has_tag ? &diagnostic.tag : nullptr)
+                                          (diagnostic.has_tag != 0) ? &diagnostic.tag : nullptr)
                : error::from_c(code).during(operation::writer);
 }
 } // namespace detail
@@ -62,7 +62,7 @@ TLV_NODISCARD inline expected<size_t, error> encoded_size(const element_view& va
                                                           tlv::format         format,
                                                           writer_diagnostic* diagnostic = nullptr) {
     writer_diagnostic local{};
-    if (!diagnostic) diagnostic = &local;
+    if (diagnostic == nullptr) diagnostic = &local;
     size_t     size = 0;
     const auto raw = detail::semantic_access::get(value);
     const auto rc =
@@ -101,7 +101,7 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, 
                                                    const element_view& value,
                                                    writer_diagnostic*  diagnostic = nullptr) {
     writer_diagnostic local{};
-    if (!diagnostic) diagnostic = &local;
+    if (diagnostic == nullptr) diagnostic = &local;
     size_t     written = 0;
     const auto raw = detail::semantic_access::get(value);
     const auto rc =
@@ -126,7 +126,7 @@ TLV_NODISCARD inline expected<size_t, error> write(byte* data, size_t capacity, 
                                                    tlv::tag tag, bytes value,
                                                    writer_diagnostic* diagnostic = nullptr) {
     writer_diagnostic local{};
-    if (!diagnostic) diagnostic = &local;
+    if (diagnostic == nullptr) diagnostic = &local;
     size_t     written = 0;
     const auto rc = tlv_write_diag(
         reinterpret_cast<uint8_t*>(data), capacity, &detail::format_access::get(format),
@@ -312,7 +312,7 @@ public:
     TLV_NODISCARD expected<void, error> write(const element_view& value,
                                               writer_diagnostic*  diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         const auto raw = detail::semantic_access::get(value);
         const auto rc = tlv_writer_write_element_diag(&impl_, &raw, diagnostic);
         if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
@@ -328,7 +328,7 @@ public:
     TLV_NODISCARD expected<void, error> copy_encoded(bytes              encoded,
                                                      writer_diagnostic* diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         const auto rc = tlv_writer_copy_encoded_diag(
             &impl_, reinterpret_cast<const uint8_t*>(encoded.data()), encoded.size(), diagnostic);
         if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));
@@ -347,7 +347,7 @@ public:
                                                  const element_view& value,
                                                  writer_diagnostic*  diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         const auto raw = detail::semantic_access::get(value);
         const auto rc = tlv_writer_preserve_diag(&impl_, &original, &raw, diagnostic);
         if (rc != TLV_OK) return unexpected<error>(detail::writer_failed(rc, *diagnostic));

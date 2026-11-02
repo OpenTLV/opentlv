@@ -116,8 +116,8 @@ struct query_memory {
         blocks.resize(bytes + 15);
     }
     void* data() {
-        return reinterpret_cast<void*>((reinterpret_cast<uintptr_t>(blocks.data()) + 15) &
-                                       ~uintptr_t(15));
+        const auto offset = (16 - (reinterpret_cast<uintptr_t>(blocks.data()) & 15)) & 15;
+        return blocks.data() + offset;
     }
 };
 inline query_failure query_failed(tlv_result_t rc, tlv_query_diagnostic_t d = {}) {
@@ -192,7 +192,8 @@ public:
                                                                void* scratch, size_t scratch_size,
                                                                void* storage, size_t capacity) {
         const auto* native_options = detail::query_options_access::get(options);
-        if (!storage) return unexpected<query_failure>(detail::query_failed(TLV_ERR_NULL_ARG));
+        if (storage == nullptr)
+            return unexpected<query_failure>(detail::query_failed(TLV_ERR_NULL_ARG));
         query_program          result;
         tlv_query_diagnostic_t d{};
         result.info_.struct_size = sizeof result.info_;
@@ -323,7 +324,6 @@ private:
         return program_;
     }
 
-private:
     query_program() = default;
     std::string render(bool show_plan) const {
         size_t size = 0;
@@ -336,6 +336,8 @@ private:
         auto rc = fn(program_, nullptr, 0, &size);
         if (rc != TLV_OK) throw std::runtime_error(tlv_result_string(rc));
         std::string out(size, '\0');
+        // C++11 string::data() is const; the formatter needs writable storage.
+        // NOLINTNEXTLINE(readability-container-data-pointer)
         rc = fn(program_, &out[0], size, &size);
         if (rc != TLV_OK) throw std::runtime_error(tlv_result_string(rc));
         out.resize(size - 1);
@@ -598,7 +600,6 @@ private:
         return exec_;
     }
 
-private:
     explicit query_execution(const query_program& p) : program_(p) {}
     expected<void, query_failure> bind_span(const char* variable_name, tlv_query_result_kind_t type,
                                             int64_t number, const uint8_t* data, size_t size) {

@@ -107,6 +107,38 @@ class IsolationTests(unittest.TestCase):
         self.assertEqual(len(check_metadata(entries)), 4)
         self.assertFalse(list(self.build.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")))
 
+    def test_new_builtin_exports_and_integrations_follow_owner(self):
+        # "base" is intentionally not one of the repository's six builtins.
+        self.change("CMakeLists.txt", "opentlv_add_module(base EXPORT_NAME",
+                    "opentlv_add_module(base BUILTIN EXPORT_NAME")
+        for path in ("include/fixture/base.h", "base/private.h", "include/fixture/addon.h"):
+            self.change(path, "opentlv/base/", "opentlv/builtin/base/")
+        for shared in ("OFF", "ON"):
+            with self.subTest(shared=shared):
+                self.build = self.root / ("build-" + shared)
+                modules = check_metadata(self.configure(None, f"-DOPENTLV_BUILD_SHARED_LIBS={shared}"))
+                for key in ("base", "addon", "base-cxx"):
+                    self.assertEqual(["TRUE"], modules[key]["builtin"])
+                self.assertNotEqual(["TRUE"], modules["util"]["builtin"])
+                subprocess.run(["cmake", "--build", str(self.build), "--config", "Release",
+                                "--target", "opentlv_addon"], check=True, capture_output=True)
+                prefix = self.root / ("installed-" + shared)
+                subprocess.run(["cmake", "--install", str(self.build), "--config", "Release",
+                                "--prefix", str(prefix)], check=True, capture_output=True)
+                for header in ("base/export.h", "base/addon/export.h"):
+                    self.assertTrue((prefix / "include/opentlv/builtin" / header).is_file())
+                    self.assertFalse((prefix / "include/opentlv" / header).exists())
+
+    def test_integration_cannot_override_builtin_classification(self):
+        self.change("CMakeLists.txt", "opentlv_add_module(addon OWNER",
+                    "opentlv_add_module(addon BUILTIN OWNER")
+        self.configure("declare BUILTIN on its owning module")
+
+    def test_integration_requires_registered_owner(self):
+        self.change("CMakeLists.txt", "opentlv_add_module(addon OWNER base",
+                    "opentlv_add_module(addon OWNER absent")
+        self.configure("register owner absent first")
+
     def test_builtin_selection_options_are_rejected(self):
         for family in ("FORMAT_ASN1", "FORMAT_BER", "FORMAT_DER", "FORMAT_CER",
                        "EMV", "BLUETOOTH", "NFC", "DHCP", "LLDP"):
@@ -196,7 +228,8 @@ class IsolationTests(unittest.TestCase):
 
     def test_architecture_contract_and_feature_disabled_source(self):
         entries = self.configure()
-        contract = {"targets": {}, "files": {}}
+        contract = {"targets": {}, "files": {},
+                    "modules": {"base": {"kind": "generic"}, "util": {"kind": "generic"}}}
         for entry in entries:
             key = entry["key"]
             contract["targets"][key] = {
@@ -209,6 +242,10 @@ class IsolationTests(unittest.TestCase):
         (self.root / "optional.c").write_text("/* Feature-disabled source. */\n", encoding="utf-8")
         contract["files"]["optional.c"] = "base"
         check_metadata(entries, contract, self.root)
+        contract["modules"]["base"]["kind"] = "builtin"
+        with self.assertRaisesRegex(ValueError, "builtin classification differs from contract"):
+            check_metadata(entries, contract, self.root)
+        contract["modules"]["base"]["kind"] = "generic"
         # Both C and C++ public headers must be registered with their owner.
         facade = self.root / "facade.hpp"
         facade.write_text("// Module facade.\n", encoding="utf-8")

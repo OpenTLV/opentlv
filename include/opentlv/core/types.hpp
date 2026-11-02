@@ -55,7 +55,8 @@ public:
      * @throws std::invalid_argument If data is null with nonzero size.
      */
     explicit tag(bytes data) : raw_{reinterpret_cast<const uint8_t*>(data.data()), data.size()} {
-        if (!data.data() && data.size()) throw std::invalid_argument("null tag storage");
+        if ((data.data() == nullptr) && !data.empty())
+            throw std::invalid_argument("null tag storage");
     }
     /** @brief Borrowed byte pointer, possibly null for an absent tag. */
     const byte* data() const noexcept {
@@ -135,6 +136,8 @@ private:
  * @return A tag safe to retain or return without allocation or byte copying.
  * @note Available in C++11 and later; byte arguments are checked by the template type.
  */
+// Nonempty static storage cannot trigger the tag constructor's null-storage exception.
+// NOLINTNEXTLINE(bugprone-exception-escape)
 template <uint8_t... Bytes> tlv::tag tag_bytes() noexcept {
     static_assert(sizeof...(Bytes) != 0, "Use tag() for an absent identifier");
     static const uint8_t storage[] = {Bytes...};
@@ -159,7 +162,8 @@ public:
      */
     explicit value_view(bytes data)
         : raw_{reinterpret_cast<const uint8_t*>(data.data()), data.size()} {
-        if (!data.data() && data.size()) throw std::invalid_argument("null value storage");
+        if ((data.data() == nullptr) && !data.empty())
+            throw std::invalid_argument("null value storage");
     }
     /** @brief Borrowed byte pointer; may be null for an empty Value. */
     const byte* data() const noexcept {

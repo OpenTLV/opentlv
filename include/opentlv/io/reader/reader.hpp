@@ -48,7 +48,7 @@ inline const char* message(reader_phase value) noexcept {
 }
 /** @brief Borrow a Reader diagnostic's identifier, or an absent identifier. */
 inline tlv::tag diagnostic_tag(const reader_detail& value) noexcept {
-    return value.has_tag ? detail::semantic_access::borrow(value.tag) : tlv::tag{};
+    return (value.has_tag != 0) ? detail::semantic_access::borrow(value.tag) : tlv::tag{};
 }
 /** @brief Apply diagnostic_tag to the Reader-specific part of a complete diagnostic. */
 inline tlv::tag diagnostic_tag(const reader_diagnostic& value) noexcept {
@@ -65,7 +65,7 @@ inline void set_tag(reader_diagnostic& value, tlv::tag identifier) noexcept {
 }
 /** @brief Borrow original Length octets, or an empty view when unavailable. */
 inline bytes raw_length(const reader_detail& value) noexcept {
-    return value.has_raw_length
+    return (value.has_raw_length != 0)
                ? bytes(reinterpret_cast<const byte*>(value.raw_length.data), value.raw_length.size)
                : bytes{};
 }
@@ -79,8 +79,8 @@ inline error reader_failed(tlv_result_t code, const reader_diagnostic& diagnosti
                            size_t /*offset*/) noexcept {
     return diagnostic.diagnostic.code == code
                ? error_access::diagnostic(diagnostic.diagnostic, operation::reader,
-                                          diagnostic.detail.has_tag ? &diagnostic.detail.tag
-                                                                    : nullptr)
+                                          (diagnostic.detail.has_tag != 0) ? &diagnostic.detail.tag
+                                                                           : nullptr)
                : error::from_c(code).during(operation::reader);
 }
 } // namespace detail
@@ -148,7 +148,7 @@ TLV_NODISCARD inline expected<decoded, error> read(bytes data, tlv::format forma
                                                    reader_diagnostic* diagnostic = nullptr) {
     tlv_decoded_t     result{};
     reader_diagnostic local{};
-    auto*             report = diagnostic ? diagnostic : &local;
+    auto*             report = (diagnostic != nullptr) ? diagnostic : &local;
     auto rc = tlv_read_source_diag(reinterpret_cast<const uint8_t*>(data.data()), data.size(),
                                    &detail::format_access::get(format), &result.element, &consumed,
                                    &result.source, report);
@@ -278,7 +278,7 @@ public:
         if (!init_ok_) return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
         tlv_decoded_t     result{};
         reader_diagnostic local{};
-        auto*             report = diagnostic ? diagnostic : &local;
+        auto*             report = (diagnostic != nullptr) ? diagnostic : &local;
         auto rc = tlv_reader_next_source_diag(&impl_, &result.element, &result.source, report);
         if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, offset()));
         return decoded{detail::semantic_access::borrow(result.element), result.source};
@@ -296,7 +296,8 @@ public:
     TLV_NODISCARD expected<void, error> set_input(bytes data, size_t discard, input_mode mode) {
         auto rc = init_ok_
                       ? tlv_reader_set_input(&impl_, reinterpret_cast<const uint8_t*>(data.data()),
-                                             data.size(), discard, mode == input_mode::final)
+                                             data.size(), discard,
+                                             static_cast<int>(mode == input_mode::final))
                       : TLV_ERR_NULL_ARG;
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc));
         return {};
@@ -389,7 +390,8 @@ public:
         return previous;
     }
     friend bool operator==(const reader_iterator& lhs, const reader_iterator& rhs) noexcept {
-        return lhs.cursor_ == rhs.cursor_ && (!lhs.cursor_ || lhs.position_ == rhs.position_);
+        return lhs.cursor_ == rhs.cursor_ &&
+               ((lhs.cursor_ == nullptr) || lhs.position_ == rhs.position_);
     }
     friend bool operator!=(const reader_iterator& lhs, const reader_iterator& rhs) noexcept {
         return !(lhs == rhs);
@@ -405,7 +407,7 @@ private:
         }
     }
     reader_base* cursor_ = nullptr;
-    element_view element_{};
+    element_view element_;
     size_t       position_ = 0;
 };
 
@@ -414,6 +416,7 @@ inline reader_base::iterator reader_base::begin() {
 }
 // Keep the public const member signature used by range and member-function callers.
 // cppcheck-suppress functionStatic
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 inline reader_base::iterator reader_base::end() const noexcept {
     return iterator();
 }
@@ -429,6 +432,8 @@ public:
     parsing_range(bytes data, F value)
         : value_(std::move(value)), descriptor_(descriptor_bridge<F>::make(value_)),
           cursor_(data, descriptor_) {}
+    // Moving a user Format or rebuilding its descriptor can throw.
+    // NOLINTNEXTLINE(performance-noexcept-move-constructor)
     parsing_range(parsing_range&& other)
         : value_(std::move(other.value_)), descriptor_(descriptor_bridge<F>::make(value_)),
           cursor_(other.cursor_) {

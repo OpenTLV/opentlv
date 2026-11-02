@@ -2,12 +2,12 @@
 # Copyright (c) 2026 Marek Cingel
 
 opentlv_add_module(document-codec FACADE OWNER document EXPORT_NAME DocumentCodec
-    INCLUDE_DIR ../../include CONSUMER ../../tests/modules/document_codec.cpp
-    PUBLIC_HEADERS ../../include/opentlv/document/codec.hpp
+    INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include" CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/document_codec.cpp"
+    PUBLIC_HEADERS "${OpenTLV_SOURCE_DIR}/include/opentlv/document/codec.hpp"
     PUBLIC_DEPS document codec)
 opentlv_add_module(io-codec FACADE OWNER codec EXPORT_NAME IOCodec
-    INCLUDE_DIR ../../include CONSUMER ../../tests/modules/io_codec.cpp
-    PUBLIC_HEADERS ../../include/opentlv/codec/writer.hpp
+    INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include" CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/io_codec.cpp"
+    PUBLIC_HEADERS "${OpenTLV_SOURCE_DIR}/include/opentlv/codec/writer.hpp"
     PUBLIC_DEPS io codec)
 
 opentlv_module_cxx(core CONSUMER tests/modules/core.cpp

@@ -163,7 +163,8 @@ struct query_options_access {
 /// @endcond
 inline query_options::query_options(const query_environment* environment) {
     tlv_query_compile_options_init(&raw_);
-    raw_.environment = environment ? detail::query_options_access::get(*environment) : nullptr;
+    raw_.environment =
+        (environment != nullptr) ? detail::query_options_access::get(*environment) : nullptr;
 }
 } // namespace tlv
 #endif

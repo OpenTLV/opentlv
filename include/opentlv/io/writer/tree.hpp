@@ -48,6 +48,8 @@ measure_tree(tlv::format format, Source&& next, tree_writer_workspace& workspace
     struct state {
         callable* function;
     } context{&next};
+    // The C callback signature and producers that update depth require a mutable pointer.
+    // NOLINTNEXTLINE(readability-non-const-parameter)
     auto callback = [](void* context, tlv_element_t* value, size_t* depth,
                        int* constructed) -> tlv_result_t {
         bool         parent = false;
@@ -125,6 +127,8 @@ public:
     tree_writer(byte* data, size_t capacity, tlv::format format, tree_writer_frame* frames,
                 size_t frame_capacity, byte* scratch, size_t scratch_capacity,
                 size_t max_depth = TLV_TREE_DEFAULT_DEPTH, size_t max_elements = SIZE_MAX)
+        // Output byte capacity and frame count occupy distinct C API arguments.
+        // NOLINTNEXTLINE(readability-suspicious-call-argument)
         : init_result_(tlv_tree_writer_init(&impl_, reinterpret_cast<uint8_t*>(data), capacity,
                                             &detail::format_access::get(format), frames,
                                             frame_capacity, reinterpret_cast<uint8_t*>(scratch),
@@ -151,7 +155,7 @@ public:
     TLV_NODISCARD expected<void, error> write_event(const tree_event&  event,
                                                     writer_diagnostic* diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         const auto raw = detail::tree_access::get(event);
         return result(init_result_ == TLV_OK
                           ? tlv_tree_writer_write_event_diag(&impl_, &raw, diagnostic)
@@ -168,7 +172,7 @@ public:
     TLV_NODISCARD expected<void, error> begin(tlv::tag           tag,
                                               writer_diagnostic* diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         return result(
             init_result_ == TLV_OK
                 ? tlv_tree_writer_begin_diag(&impl_, detail::semantic_access::get(tag), diagnostic)
@@ -185,7 +189,7 @@ public:
     TLV_NODISCARD expected<void, error> write(const element_view& value,
                                               writer_diagnostic*  diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         const auto raw = detail::semantic_access::get(value);
         return result(init_result_ == TLV_OK
                           ? tlv_tree_writer_write_element_diag(&impl_, &raw, diagnostic)
@@ -200,7 +204,7 @@ public:
      */
     TLV_NODISCARD expected<void, error> end(writer_diagnostic* diagnostic = nullptr) {
         writer_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         return result(init_result_ == TLV_OK ? tlv_tree_writer_end_diag(&impl_, diagnostic)
                                              : init_result_,
                       diagnostic);
@@ -222,7 +226,7 @@ public:
 private:
     static expected<void, error> result(tlv_result_t             rc,
                                         const writer_diagnostic* diagnostic = nullptr) {
-        if (rc != TLV_OK && diagnostic)
+        if (rc != TLV_OK && (diagnostic != nullptr))
             return unexpected<error>(detail::writer_failed(rc, *diagnostic));
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::writer));
         return {};

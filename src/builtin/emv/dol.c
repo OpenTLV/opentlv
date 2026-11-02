@@ -13,8 +13,8 @@ const tlv_dol_limits_t tlv_dol_default_limits = {1000, TLV_DOL_MAX_VALUE_LENGTH}
 static const uint8_t dol_forbidden_tags[] = {0x00, 0x20};
 static const tlv_identifier_policy_t dol_tag_policy = {dol_forbidden_tags,
                                                        sizeof(dol_forbidden_tags), 1, 0};
-static const tlv_variable_identifier_t dol_identifier = {0x1F, 0x1F, 0x80,
-                                                         0x7F, 8,    &dol_tag_policy};
+static const tlv_variable_identifier_t dol_identifier = {
+    0x1F, 0x1F, 0x80, 0x7F, TLV_DOL_TAG_MAX_SIZE, &dol_tag_policy};
 
 static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* diagnostic) {
     if (diagnostic) {

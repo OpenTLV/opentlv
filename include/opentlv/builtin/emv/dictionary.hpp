@@ -70,11 +70,12 @@ public:
     }
     /** @brief Identifier or an absent identifier for an empty result. */
     tlv::tag tag() const noexcept {
-        return entry_ ? detail::semantic_access::borrow(entry_->definition->tag) : tlv::tag{};
+        return (entry_ != nullptr) ? detail::semantic_access::borrow(entry_->definition->tag)
+                                   : tlv::tag{};
     }
     /** @brief Descriptive name, or nullptr for an empty result. */
     const char* name() const noexcept {
-        return entry_ ? entry_->definition->name : nullptr;
+        return (entry_ != nullptr) ? entry_->definition->name : nullptr;
     }
     /** @brief Optional symbolic field name. */
     const char* symbol() const noexcept {
@@ -82,11 +83,12 @@ public:
     }
     /** @brief Inclusive length bounds; default unbounded for an empty result. */
     bounds length() const noexcept {
-        return entry_ ? bounds(entry_->schema->min_length, entry_->schema->max_length) : bounds{};
+        return (entry_ != nullptr) ? bounds(entry_->schema->min_length, entry_->schema->max_length)
+                                   : bounds{};
     }
     /** @brief Length step used by the built-in metadata profile, zero when unavailable. */
     size_t length_step() const noexcept {
-        return entry_ ? tlv_emv_length_step(entry_) : 0;
+        return (entry_ != nullptr) ? tlv_emv_length_step(entry_) : 0;
     }
     /** @brief Validate a Value length through the shared Schema engine. */
     expected<void, error> validate_length(size_t size) const {
@@ -96,7 +98,7 @@ public:
     }
     /** @brief Runtime Value codec; absent when the entry retains opaque Value bytes. */
     dynamic_codec codec() const noexcept {
-        return detail::codec_access::borrow(entry_ ? entry_->codec : nullptr);
+        return detail::codec_access::borrow((entry_ != nullptr) ? entry_->codec : nullptr);
     }
     /** @brief Built-in representation; selecting a codec never examines the enclosing tag. */
     value_kind kind() const noexcept {
@@ -116,7 +118,7 @@ public:
         : entries_(tlv_emv_dictionary_for(static_cast<tlv_emv_context_t>(value))) {}
     /** @brief Number of immutable entries. */
     size_t size() const noexcept {
-        return entries_ ? entries_->count : 0;
+        return (entries_ != nullptr) ? entries_->count : 0;
     }
     /** @brief Entry at index, or an empty result if out of range. */
     dictionary_entry at(size_t index) const noexcept {

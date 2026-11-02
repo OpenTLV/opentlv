@@ -112,12 +112,15 @@ private:
     }
 };
 
+// Out-of-class definitions are needed for ODR-use before inline variables in C++17.
+#if __cplusplus < 201703L
 template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order>
 constexpr std::size_t fixed_format<TagWidth, LengthWidth, Order>::tag_width;
 template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order>
 constexpr std::size_t fixed_format<TagWidth, LengthWidth, Order>::length_width;
 template <std::size_t TagWidth, std::size_t LengthWidth, byte_order Order>
 constexpr std::uint64_t fixed_format<TagWidth, LengthWidth, Order>::max_length;
+#endif
 
 } // namespace tlv
 

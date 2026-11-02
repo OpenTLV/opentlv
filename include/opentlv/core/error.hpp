@@ -169,7 +169,8 @@ struct error {
         : code_(static_cast<tlv_result_t>(value)), message_(tlv::message(value)), stage_(stage) {}
     /** @brief Construct an interoperability error with borrowed description. */
     error(tlv_result_t value, const char* description) noexcept
-        : code_(value), message_(description ? description : tlv_result_string(value)) {}
+        : code_(value),
+          message_((description != nullptr) ? description : tlv_result_string(value)) {}
     /** @brief Translate a native code without allocating. */
     static error from_c(tlv_result_t value) noexcept {
         return error(static_cast<errc>(value));
@@ -275,12 +276,12 @@ struct error_access {
         error result(static_cast<errc>(value.code), stage);
         result.location_ = value.location;
         result.has_path_ = value.has_path != 0;
-        if (path)
+        if (path != nullptr)
             result.path_ = *path;
-        else if (value.has_path)
+        else if (value.has_path != 0)
             result.path_ = value.path;
         result.severity_ = static_cast<tlv::severity>(value.severity);
-        if (tag) {
+        if (tag != nullptr) {
             result.tag_ = *tag;
             result.has_tag_ = true;
         }

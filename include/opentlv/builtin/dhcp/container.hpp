@@ -71,7 +71,7 @@ options_validate(bytes data, options_rules rules = {}, size_t max_elements = SIZ
     const tlv_dhcpv4_options_rules_t raw{rules.require_end ? 1 : 0,
                                          static_cast<tlv_dhcpv4_options_tail_t>(rules.tail)};
     tlv_schema_diagnostic_t          local{};
-    if (!diagnostic) diagnostic = &local;
+    if (diagnostic == nullptr) diagnostic = &local;
     size_t     significant_size = 0;
     const auto rc =
         tlv_dhcpv4_options_validate(reinterpret_cast<const uint8_t*>(data.data()), data.size(),

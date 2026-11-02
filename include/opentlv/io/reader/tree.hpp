@@ -77,7 +77,7 @@ public:
     TLV_NODISCARD expected<tree_item, error> next(reader_diagnostic* diagnostic = nullptr) {
         tree_item         result{};
         reader_diagnostic local{};
-        auto*             report = diagnostic ? diagnostic : &local;
+        auto*             report = (diagnostic != nullptr) ? diagnostic : &local;
         auto              rc = next_item(result, report);
         if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, offset()));
         return result;
@@ -93,7 +93,7 @@ public:
         has_current_ = false;
         tlv_tree_event_t  event{};
         reader_diagnostic local{};
-        auto*             report = diagnostic ? diagnostic : &local;
+        auto*             report = (diagnostic != nullptr) ? diagnostic : &local;
         auto rc = init_result_ == TLV_OK ? tlv_tree_reader_next_event_diag(&impl_, &event, report)
                                          : init_result_;
         if (rc != TLV_OK) return unexpected<error>(detail::reader_failed(rc, *report, offset()));
@@ -120,11 +120,11 @@ public:
      */
     TLV_NODISCARD expected<void, error> set_input(bytes data, size_t discard, input_mode mode) {
         has_current_ = false;
-        return result(
-            init_result_ == TLV_OK
-                ? tlv_tree_reader_set_input(&impl_, reinterpret_cast<const uint8_t*>(data.data()),
-                                            data.size(), discard, mode == input_mode::final)
-                : init_result_);
+        return result(init_result_ == TLV_OK
+                          ? tlv_tree_reader_set_input(
+                                &impl_, reinterpret_cast<const uint8_t*>(data.data()), data.size(),
+                                discard, static_cast<int>(mode == input_mode::final))
+                          : init_result_);
     }
 
     /** @brief Prefix bytes discardable by the cursor; retained views may still borrow them. */
@@ -153,7 +153,7 @@ public:
     TLV_NODISCARD expected<void, error> validate(reader_diagnostic* diagnostic = nullptr) {
         has_current_ = false;
         reader_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         const auto rc = init_result_ == TLV_OK
                             ? tlv_tree_reader_visit(&impl_, nullptr, nullptr, diagnostic)
                             : init_result_;

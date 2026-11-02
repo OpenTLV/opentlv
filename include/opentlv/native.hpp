@@ -137,7 +137,8 @@ inline const tlv_format_t& descriptor(tlv::format view) noexcept {
  * @note The caller remains responsible for the actual storage extent.
  */
 TLV_NODISCARD inline expected<tlv::tag, error> borrow_tag(tlv_tag_t raw) {
-    if (!raw.data && raw.size) return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
+    if ((raw.data == nullptr) && (raw.size != 0U))
+        return unexpected<error>(error::from_c(TLV_ERR_NULL_ARG));
     return detail::semantic_access::borrow(raw);
 }
 

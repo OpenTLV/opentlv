@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Restore clang-tidy diagnostics for public C and C++ headers with normalized header filters and regression coverage; resolve exposed findings while preserving public signatures and ABI. (#733)
 - Restore cppcheck and clang-tidy validation for unified C/C++ modules without changing API or runtime behavior. (#654)
 - Fix CI and release evidence generation after Schema extraction by tracking the current modular CMake configuration instead of the removed capability-options file. Rename the C++ Schema failure factory to `schema_failure::from_result()` to avoid hiding the common error factory and restore cppcheck validation. (#652)
 
 ### Changed
 
+- Declare builtin module ownership explicitly when generating export headers, with inherited integration paths and validation against the architecture contract. Expose the unchanged DOL tag-size limit as `TLV_DOL_TAG_MAX_SIZE`. (#733)
 - **Breaking:** Move public C and C++ headers to `opentlv/<module>/` and `opentlv/builtin/<family>/`, with implementations under `src/<module>/` and module-owned private headers under `internal/`. Remove the historical `tlv/` and `tlv++/` include paths without forwarding headers. Remove EMV DOL's ASN.1 dependency through existing generic field primitives, preserving its identifier policy. Preserve public symbols and behavior; enforce source-level private-header isolation and standalone installed C/C++ header compilation. See the [header migration guide](docs/development/modules/layout-migration.md). (#733)
 - **Breaking:** Expose header-only C++ facades through their functional module targets and remove the separate `tlv++` target. Install C++ headers even with `OPENTLV_BUILD_CXX=OFF`, which now disables C++ development targets. Remove obsolete module-selection macros, runtime availability mirrors and `tlv/config.h`; retain Query frontend/set-operation features. Use explicit `QueryDocument`, `DocumentCodec` and `IOCodec` integrations for combined C++ operations. Migrate in-tree tests, examples, fuzzers and benchmarks to functional dependencies; `OpenTLV::tlv` is now an INTERFACE aggregate with no archive. (#654)
 - **Breaking:** Extract independently linkable `OpenTLV::ASN1`, `OpenTLV::EMV`, `OpenTLV::Bluetooth`, `OpenTLV::NFC`, `OpenTLV::DHCP` and `OpenTLV::LLDP` libraries; remove builtin module-selection CMake options. ASN1 groups BER, DER and CER. Existing aggregate targets link all families transitively; direct library consumers must rebuild, link and distribute the required `opentlv_*` libraries. Preserve protocol behavior, diagnostics and DHCPv4 scope. Add family-owned regression tests and independent static/shared package consumers. (#653)

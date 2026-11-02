@@ -50,7 +50,7 @@ public:
      * @note This is wire classification, not semantic Schema validation. */
     bool is_constructed(tlv::tag identifier) const noexcept {
         const auto raw = detail::semantic_access::get(identifier);
-        return descriptor_->is_constructed &&
+        return (descriptor_->is_constructed != nullptr) &&
                descriptor_->is_constructed(descriptor_->context, &raw) != 0;
     }
 
@@ -111,7 +111,7 @@ TLV_NODISCARD inline expected<decoded, error> decode(tlv::format format, bytes d
                                 &failure_detail);
     if (rc != TLV_OK) {
         auto failure = error::from_c(rc).during(operation::format);
-        if (failure_detail.has_offset)
+        if (failure_detail.has_offset != 0)
             failure = failure.at(failure_detail.offset, operation::format);
         return unexpected<error>(failure);
     }
@@ -135,7 +135,7 @@ TLV_NODISCARD inline expected<encoding, error> measure(tlv::format         forma
         tlv_format_measure(&detail::format_access::get(format), &raw, &result, &failure_detail);
     if (rc != TLV_OK) {
         auto failure = error::from_c(rc).during(operation::format);
-        if (failure_detail.has_offset)
+        if (failure_detail.has_offset != 0)
             failure = failure.at(failure_detail.offset, operation::format);
         return unexpected<error>(failure);
     }
@@ -162,7 +162,7 @@ TLV_NODISCARD inline expected<size_t, error> encode(tlv::format format, const el
                           reinterpret_cast<uint8_t*>(data), capacity, &written, &failure_detail);
     if (rc != TLV_OK) {
         auto failure = error::from_c(rc).during(operation::format);
-        if (failure_detail.has_offset)
+        if (failure_detail.has_offset != 0)
             failure = failure.at(failure_detail.offset, operation::format);
         return unexpected<error>(failure);
     }

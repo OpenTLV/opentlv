@@ -50,7 +50,7 @@ struct format_failure {
     /** @brief Copy common metadata; relative framing details remain available on this failure. */
     tlv::error failure() const noexcept {
         auto value = tlv::error(status(), operation::format);
-        return detail.has_offset ? value.at(detail.offset, operation::format) : value;
+        return (detail.has_offset != 0) ? value.at(detail.offset, operation::format) : value;
     }
     /** @brief Return a copy with element-relative offset and required input/output extent.
      * @param region Failed wire field.
@@ -271,7 +271,7 @@ template <typename F> struct write_bridge<F, true> {
     static tlv_result_t measure_call(const void* context, const tlv_element_t* value,
                                      tlv_encoding_t* out, tlv_format_error_t* error) noexcept {
         size_t size = 0;
-        if (value->value.data) {
+        if (value->value.data != nullptr) {
             auto rc = tlv_size_to_native(value->value.size, &size);
             if (rc != TLV_OK) return rc;
         }
@@ -344,7 +344,7 @@ struct native_format_operations {
     static expected<encoding, format_failure> measure(const F&               f,
                                                       const measure_request& value) noexcept {
         if ((value.content.data() && value.content.size() != value.value_size) ||
-            (!value.content.data() && value.content.size()))
+            (!value.content.data() && !value.content.empty()))
             return unexpected<format_failure>(format_failure(TLV_ERR_INVALID_ARG));
         encoding            out{};
         tlv_format_error_t  error{};

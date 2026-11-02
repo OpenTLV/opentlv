@@ -7,6 +7,9 @@
 #include <cstring>
 #include <vector>
 
+static_assert(static_cast<size_t>(TLV_DOL_TAG_MAX_SIZE) == TLV_ASN1_TAG_MAX_SIZE,
+              "DOL must retain the historical BER identifier size limit");
+
 namespace {
 
 tlv_result_t CollectVisitor(const tlv_dol_entry_t* entry, size_t index, void* context) {

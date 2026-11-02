@@ -156,11 +156,11 @@ public:
     dynamic_codec() noexcept = default;
     /** @brief Whether a decoder is available. */
     bool readable() const noexcept {
-        return descriptor_ && descriptor_->decode;
+        return (descriptor_ != nullptr) && (descriptor_->decode != nullptr);
     }
     /** @brief Whether an encoder is available. */
     bool writable() const noexcept {
-        return descriptor_ && descriptor_->encode;
+        return (descriptor_ != nullptr) && (descriptor_->encode != nullptr);
     }
     /**
      * @brief Decode into the descriptor's exact representation type.
@@ -287,13 +287,13 @@ private:
     static tlv_result_t decode(const void* context, const uint8_t* data, size_t size, void* output,
                                size_t capacity, tlv_codec_diagnostic_t* diagnostic) noexcept {
         tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
-        if (!output) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+        if (output == nullptr) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
         if (capacity < sizeof(value_type))
             return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_BUFFER_TOO_SHORT);
         const auto& self = *static_cast<const codec_owner*>(context);
         auto        value = self.codec_.decode({reinterpret_cast<const byte*>(data), size});
         if (!value) {
-            if (diagnostic) *diagnostic = value.error().diagnostic;
+            if (diagnostic != nullptr) *diagnostic = value.error().diagnostic;
             return tlv_codec_diagnostic_result(diagnostic, value.error().code);
         }
         *static_cast<value_type*>(output) = std::move(*value);
@@ -303,14 +303,15 @@ private:
                                size_t capacity, size_t* written,
                                tlv_codec_diagnostic_t* diagnostic) noexcept {
         tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_ENCODE);
-        if (!input || !written) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
+        if ((input == nullptr) || (written == nullptr))
+            return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
         if (size != sizeof(value_type))
             return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
         const auto& self = *static_cast<const codec_owner*>(context);
         auto        value = self.codec_.encode(*static_cast<const value_type*>(input),
                                                reinterpret_cast<byte*>(output), capacity);
         if (!value) {
-            if (diagnostic) *diagnostic = value.error().diagnostic;
+            if (diagnostic != nullptr) *diagnostic = value.error().diagnostic;
             return tlv_codec_diagnostic_result(diagnostic, value.error().code);
         }
         *written = *value;

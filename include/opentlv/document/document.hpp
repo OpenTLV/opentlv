@@ -112,7 +112,7 @@ private:
      */
     tlv_node_t* c_node() const {
         auto owner = owner_.lock();
-        if (!owner || !pointer_) return nullptr;
+        if (!owner || (pointer_ == nullptr)) return nullptr;
         const auto epoch = tlv_document_retire_epoch(owner->document);
         if (retire_epoch_ != epoch) {
             // Membership is checked before dereferencing a potentially retired pointer.
@@ -194,12 +194,14 @@ public:
      * @note Existing handles and iterators remain valid. Failed insertion changes nothing.
      */
     // Preserve the public value parameter for the checked node handle.
+    // NOLINTBEGIN(performance-unnecessary-value-param)
     // cppcheck-suppress-begin passedByValue
     TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes content,
                                                node before = node()) {
         // cppcheck-suppress-end passedByValue
+        // NOLINTEND(performance-unnecessary-value-param)
         auto owner = owner_.lock();
-        if (!c_node() || (before.identity_ && !before))
+        if ((c_node() == nullptr) || ((before.identity_ != 0U) && !before))
             return unexpected<error>(
                 error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         tlv_node_t* created = nullptr;
@@ -230,7 +232,7 @@ public:
      */
     TLV_NODISCARD expected<void, error> set(bytes content) {
         auto owner = owner_.lock();
-        if (!c_node())
+        if (c_node() == nullptr)
             return unexpected<error>(
                 error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         tlv_result_t rc = tlv_node_set_value(
@@ -246,14 +248,14 @@ public:
      */
     void erase() {
         auto owner = owner_.lock();
-        if (!c_node()) return;
+        if (c_node() == nullptr) return;
         tlv_node_erase(c_node());
     }
 
     /** @brief Computes the encoded size of the element with its descendants; see
      * tlv_node_encoded_size(). */
     TLV_NODISCARD expected<size_t, error> encoded_size() const {
-        if (!c_node())
+        if (c_node() == nullptr)
             return unexpected<error>(
                 error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         size_t       size = 0;
@@ -282,7 +284,7 @@ public:
      * @note Stages encoded children using the Document allocator; never changes the tree.
      */
     TLV_NODISCARD expected<size_t, error> encoded_size(tlv::format format) const {
-        if (!c_node())
+        if (c_node() == nullptr)
             return unexpected<error>(
                 error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         size_t     size = 0;
@@ -356,7 +358,7 @@ public:
     /** @brief Creates an iterator at a sibling; an empty handle is the end. */
     // Preserve the public value parameter for the checked iterator handle.
     // cppcheck-suppress passedByValue
-    explicit node_iterator(node current = node()) : current_(current) {}
+    explicit node_iterator(node current = node()) : current_(std::move(current)) {}
 
     /** @brief The current element. */
     reference operator*() const {
@@ -404,7 +406,7 @@ public:
     /** @brief Creates the range that starts at `first` and ends after the last sibling. */
     // Preserve the public value parameter for the checked range handle.
     // cppcheck-suppress passedByValue
-    explicit node_range(node first = node()) : first_(first) {}
+    explicit node_range(node first = node()) : first_(std::move(first)) {}
 
     /** @brief Iterator at the first element. */
     node_iterator begin() const {
@@ -414,6 +416,7 @@ public:
     /** @brief The end iterator. */
     // Keep the public const member signature used by range and member-function callers.
     // cppcheck-suppress functionStatic
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     node_iterator end() const {
         return node_iterator();
     }
@@ -536,7 +539,7 @@ public:
     /** @brief Begin at a sibling; an empty handle is end. */
     // Preserve the public value parameter for the checked iterator handle.
     // cppcheck-suppress passedByValue
-    explicit const_node_iterator(const_node current = {}) : current_(current) {}
+    explicit const_node_iterator(const_node current = {}) : current_(std::move(current)) {}
     /** @brief Observe the current handle. */
     reference operator*() const {
         return current_;
@@ -574,7 +577,7 @@ public:
     /** @brief Begin at the supplied read-only handle. */
     // Preserve the public value parameter for the checked range handle.
     // cppcheck-suppress passedByValue
-    explicit const_node_range(const_node first = {}) : first_(first) {}
+    explicit const_node_range(const_node first = {}) : first_(std::move(first)) {}
     /** @brief First sibling. */
     const_node_iterator begin() const {
         return const_node_iterator(first_);
@@ -582,6 +585,7 @@ public:
     /** @brief End position. */
     // Keep the public const member signature used by range and member-function callers.
     // cppcheck-suppress functionStatic
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     const_node_iterator end() const {
         return const_node_iterator();
     }
@@ -720,6 +724,8 @@ public:
         return children().begin();
     }
     /** @brief End read-only traversal. */
+    // Keep the public const member signature used by range and member-function callers.
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     const_node_iterator end() const {
         return const_node_iterator();
     }
@@ -773,6 +779,7 @@ public:
     /** @brief End of top-level iteration. */
     // Keep the public member signature used by range and member-function callers.
     // cppcheck-suppress functionStatic
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     node_iterator end() {
         return node_iterator();
     }
@@ -914,11 +921,13 @@ public:
      * @return The new element, or the error of tlv_document_insert(). On error nothing changed.
      */
     // Preserve the public value parameters for the checked placement handles.
+    // NOLINTBEGIN(performance-unnecessary-value-param)
     // cppcheck-suppress-begin passedByValue
     TLV_NODISCARD expected<node, error> insert(tlv::tag wanted, bytes value, node parent = node(),
                                                node before = node()) {
         // cppcheck-suppress-end passedByValue
-        if ((parent.identity_ && !parent) || (before.identity_ && !before))
+        // NOLINTEND(performance-unnecessary-value-param)
+        if (((parent.identity_ != 0U) && !parent) || ((before.identity_ != 0U) && !before))
             return unexpected<error>(
                 error::from_c(TLV_ERR_INVALID_STATE).during(operation::document));
         tlv_node_t*  created = nullptr;
@@ -1018,7 +1027,6 @@ private:
         return impl_->handle.get();
     }
 
-private:
     struct deleter {
         void operator()(tlv_document_t* handle) const {
             tlv_document_free(handle);
@@ -1049,12 +1057,12 @@ private:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         options.max_depth = format.max_depth;
         options.max_elements = format.max_elements;
-        options.retain_source_locations = format.retain_source_locations;
+        options.retain_source_locations = static_cast<int>(format.retain_source_locations);
 
         tlv_document_t*         raw = nullptr;
         tlv_reader_diagnostic_t local{};
-        if (!failure_detail) failure_detail = &local;
-        if (data) {
+        if (failure_detail == nullptr) failure_detail = &local;
+        if (data != nullptr) {
             rc = tlv_document_parse(reinterpret_cast<const uint8_t*>(data->data()), data->size(),
                                     &options, &raw, failure_detail);
         } else {
@@ -1158,7 +1166,7 @@ public:
      */
     TLV_NODISCARD expected<document, error> consume(reader_diagnostic* diagnostic = nullptr) {
         reader_diagnostic local{};
-        if (!diagnostic) diagnostic = &local;
+        if (diagnostic == nullptr) diagnostic = &local;
         std::unique_ptr<document::state> state(new document::state());
         tlv_document_t*                  raw = nullptr;
         auto rc = tlv_document_builder_consume(handle_.get(), &raw, diagnostic);
@@ -1186,7 +1194,7 @@ private:
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));
         options.max_depth = max_depth;
         options.max_elements = max_elements;
-        options.retain_source_locations = retain_source_locations;
+        options.retain_source_locations = static_cast<int>(retain_source_locations);
         tlv_document_builder_t* raw = nullptr;
         rc = tlv_document_builder_create(&options, &reader.impl_, root, &raw);
         if (rc != TLV_OK) return unexpected<error>(error::from_c(rc).during(operation::document));

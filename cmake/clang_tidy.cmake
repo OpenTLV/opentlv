@@ -16,8 +16,6 @@
 # restricts *reported* findings to the public include tree, but the test file's own
 # code is still analyzed as the main file (unavoidably - clang-tidy always
 # reports main-file diagnostics), so it must stay clang-tidy-clean too.
-set(_OPENTLV_CLANG_TIDY_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
-
 function(opentlv_add_clang_tidy_targets)
     find_program(OPENTLV_CLANG_TIDY_EXECUTABLE NAMES clang-tidy-18 clang-tidy)
     if(NOT OPENTLV_CLANG_TIDY_EXECUTABLE)
@@ -54,26 +52,32 @@ function(opentlv_add_clang_tidy_targets)
         list(APPEND _opentlv_clang_tidy_c_sources "${_opentlv_clang_tidy_source}")
     endforeach()
 
-    # Preserve the historical filter path spelling during this layout migration;
-    # normalizing cmake/../ changes header coverage (see layout-migration.md).
-    add_custom_target(clang-tidy
+    # Clang reports normalized paths; escape regex metacharacters in checkout names.
+    get_filename_component(_opentlv_header_filter "${OpenTLV_SOURCE_DIR}/include" ABSOLUTE)
+    foreach(character IN ITEMS "\\" "." "^" "$" "*" "+" "?" "(" ")" "[" "]" "{" "}" "|")
+        string(REPLACE "${character}" "\\${character}" _opentlv_header_filter "${_opentlv_header_filter}")
+    endforeach()
+    add_custom_target(clang-tidy-c
         COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
             -p "${CMAKE_BINARY_DIR}"
-            "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../include/.*[.]h"
+            "--header-filter=^${_opentlv_header_filter}/.*[.]h$"
             ${_opentlv_clang_tidy_c_sources}
         COMMENT "Running clang-tidy static analysis on tlv"
         VERBATIM
     )
+    add_custom_target(clang-tidy DEPENDS clang-tidy-c)
 
     if(OPENTLV_BUILD_CXX AND OPENTLV_BUILD_TESTS AND OPENTLV_BUILD_UNIT_TESTS)
-        add_custom_command(TARGET clang-tidy POST_BUILD
+        # Separate targets avoid CMake/Ninja POST_BUILD handling of anchored regexes.
+        add_custom_target(clang-tidy-cxx
             COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
                 -p "${CMAKE_BINARY_DIR}"
-                "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../include/.*[.]hpp"
-                "${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tests/unit/test_tlvpp.cpp"
+                "--header-filter=^${_opentlv_header_filter}/.*[.]hpp$"
+                "${OpenTLV_SOURCE_DIR}/tests/unit/test_tlvpp.cpp"
             COMMENT "Running clang-tidy static analysis on tlv++"
             VERBATIM
         )
+        add_dependencies(clang-tidy clang-tidy-cxx)
     else()
         message(WARNING
             "OPENTLV_BUILD_CXX/OPENTLV_BUILD_TESTS/OPENTLV_BUILD_UNIT_TESTS are "

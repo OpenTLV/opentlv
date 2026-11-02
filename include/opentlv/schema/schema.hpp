@@ -125,7 +125,7 @@ validate_all_diag(bytes data, const tlv_format_t& format, const tlv_structure_sc
                   tlv_schema_diagnostic_t*    diagnostic = nullptr) {
     tlv_schema_diagnostic_report_t report = {diagnostics, capacity, 0};
     tlv_schema_diagnostic_t        local{};
-    auto*                          failure = diagnostic ? diagnostic : &local;
+    auto*                          failure = (diagnostic != nullptr) ? diagnostic : &local;
     tlv_result_t rc = tlv_schema_validate_all_diag(reinterpret_cast<const uint8_t*>(data.data()),
                                                    data.size(), &format, &schema, max_depth,
                                                    max_elements, unknown, &report, failure);
