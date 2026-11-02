@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 // C++11, namespace entry points and allocation guarantees, without GoogleTest.
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 #include <cstdlib>
 #include <cstring>
 #include <new>

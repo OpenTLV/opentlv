@@ -2,21 +2,21 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Keep this translation unit separate: low-level headers must not import codecs.
-#include "tlv++/reader/reader.hpp"
-#include "tlv++/writer/writer.hpp"
-#include "tlv++/reader/tree.hpp"
-#include "tlv++/schema/schema.hpp"
-#include "tlv++/query/query.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
+#include "opentlv/io/reader/tree.hpp"
+#include "opentlv/schema/schema.hpp"
+#include "opentlv/query/query.hpp"
 #if defined(OPENTLV_TLVPP_CODEC_HPP) || defined(OPENTLV_CODEC_H)
 #error Low-level APIs must not depend on the codec layer
 #endif
-#include "tlv++/native.hpp"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv++/codec/structure.hpp"
+#include "opentlv/native.hpp"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/codec/structure.hpp"
 #include <gtest/gtest.h>
-#include "tlv++/builtins/asn1/ber.hpp"
-#include "tlv/builtins/asn1/asn1_codec.h"
-#include "tlv/schema/constraint.h"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/builtin/asn1/asn1_codec.h"
+#include "opentlv/schema/constraint.h"
 
 TEST(Integration_Tlvpp, Asn1IntegerCodecComposesWithValueRangeConstraint) {
     // Version ::= INTEGER (0..255)

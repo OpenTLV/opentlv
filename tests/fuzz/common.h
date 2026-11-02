@@ -4,10 +4,10 @@
 #ifndef OPENTLV_FUZZ_COMMON_H
 #define OPENTLV_FUZZ_COMMON_H
 
-#include "tlv/size.h"
-#include "tlv/reader/reader.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/io/writer/writer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

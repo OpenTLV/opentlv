@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "codec_diagnostic_helpers.h"
-#include "tlv/schema/number.h"
+#include "opentlv/schema/number.h"
 #include <gtest/gtest.h>
 
 TEST(Unit_Tlv_Schema, NumberCompositionSelectsSchemaWidthsWithoutCopyingPolicy) {

@@ -2,10 +2,10 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_DIAGNOSTIC_INVARIANT_H
 #define OPENTLV_TEST_DIAGNOSTIC_INVARIANT_H
-#include "tlv/diagnostic.h"
-#include "tlv/query/program.h"
-#include "tlv/schema/schema.h"
-#include "tlv/codec/diagnostic.h"
+#include "opentlv/core/diagnostic.h"
+#include "opentlv/query/program.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/codec/diagnostic.h"
 #include <string.h>
 static inline int test_diagnostic_matches(tlv_result_t rc, const tlv_diagnostic_t* diagnostic) {
     return rc == TLV_OK || diagnostic->code == rc;

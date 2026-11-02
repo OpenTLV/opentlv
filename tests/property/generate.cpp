@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/formats/fixed.h"
-#include "tlv/generator.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/emv/format.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/builtins/nfc/type2.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/generator/generator.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/asn1/der.h"
+#include "opentlv/builtin/emv/format.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/builtin/nfc/type2.h"
 #include <algorithm>
 #include <cstring>
 #include <fstream>

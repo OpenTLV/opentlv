@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/size.h"
+#include "opentlv/core/size.h"
 
 #include <gtest/gtest.h>
 #include <limits>

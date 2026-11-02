@@ -6,10 +6,10 @@
  * Parsing never applies a schema automatically; the visitor below does.
  */
 #include <stdio.h>
-#include "tlv/formats/fixed.h"
-#include "tlv/size.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/schema/schema.h"
 
 static void print_element(const tlv_element_t* element) {
     size_t i, length;

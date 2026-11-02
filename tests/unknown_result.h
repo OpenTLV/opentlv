@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_UNKNOWN_RESULT_H
 #define OPENTLV_TEST_UNKNOWN_RESULT_H
-#include "tlv/result.h"
+#include "opentlv/core/result.h"
 
 // Unassigned but inside the C++ enum range (0..31). Both Codec and Query tests
 // assert tlv_result_string(unknown_result) == "unknown error" to detect reassignment.

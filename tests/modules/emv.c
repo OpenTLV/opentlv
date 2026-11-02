@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/format.h"
+#include "opentlv/builtin/emv/format.h"
+#include "opentlv/builtin/emv/dol.h"
 #include <string.h>
 
 #define CHECK(x)                                                                                   \
@@ -29,6 +30,12 @@ int main(void) {
         CHECK(written == sizeof wire && memcmp(output, wire, written) == 0);
         CHECK(tlv_format_decode(formats[i], truncated, sizeof truncated, &decoded, &error) ==
               TLV_ERR_TRUNCATED);
+    }
+    {
+        const uint8_t dol[] = {0x9f, 0x02, 0x06, 0x5a, 0x08};
+        size_t        written = 0;
+        CHECK(tlv_dol_write(dol, sizeof dol, NULL, 0, NULL, NULL, NULL, &written, NULL) == TLV_OK);
+        CHECK(written == 14);
     }
     return 0;
 }

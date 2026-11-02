@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/compose.h"
+#include "opentlv/core/formats/compose.h"
 #ifndef OPENTLV_TEST_CONTROLLED_FORMAT_H
 #define OPENTLV_TEST_CONTROLLED_FORMAT_H
 
-#include "tlv/format.h"
+#include "opentlv/core/format.h"
 
 // Small callbacks for generic component contracts, independent of optional formats.
 namespace controlled {

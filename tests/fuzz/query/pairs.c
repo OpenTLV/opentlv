@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "../../query_diagnostic_helpers.h"
-#include "tlv/query/program.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
+#include "opentlv/query/program.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
 #include <stdlib.h>
 #include <string.h>
 

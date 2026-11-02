@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/generator.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/generator/generator.h"
+#include "opentlv/core/formats/fixed.h"
 #include <string.h>
 
 #define CHECK(condition)                                                                           \

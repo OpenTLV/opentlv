@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "common.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/emv/dol.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/emv/dol.h"
 
 static tlv_result_t visit_count(const tlv_dol_entry_t* entry, size_t index, void* context) {
     (void)index;

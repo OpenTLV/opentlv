@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/codec/dynamic.hpp"
-#include "tlv++/codec/registry.hpp"
-#include "tlv++/codec/typed.hpp"
-#include "tlv++/codec/typed_error.hpp"
+#include "opentlv/codec/dynamic.hpp"
+#include "opentlv/codec/registry.hpp"
+#include "opentlv/codec/typed.hpp"
+#include "opentlv/codec/typed_error.hpp"
 
 int main() {
     return 0;

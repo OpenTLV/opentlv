@@ -14,7 +14,7 @@ for equivalent TLV/LTV examples, source ranges and explicit byte preservation.
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/builtins/bluetooth/bluetooth_ltv.h` |
+| Format header | `opentlv/builtin/bluetooth/bluetooth_ltv.h` |
 | Descriptor | `tlv_format_bluetooth_ltv` |
 | `otlv` format name | `bluetooth-ltv` |
 | Link target | `OpenTLV::Bluetooth` |
@@ -34,7 +34,7 @@ Bluetooth-specific parser or writer underneath it.
 
 ## Advertising Data Type definitions
 
-Include `tlv/builtins/bluetooth/ad_types.h` to resolve AD type names with
+Include `opentlv/builtin/bluetooth/ad_types.h` to resolve AD type names with
 `tlv_definition_find(&tlv_bluetooth_ad_types, &element.tag)`. The result is a
 borrowed `const tlv_definition_t*`: `tag` preserves the one-byte identifier and
 `name` provides its official Bluetooth SIG name. For `02 01 06`, lookup resolves
@@ -46,7 +46,7 @@ It is not exhaustive. Lookup returns `NULL` for an unlisted type such as `FE`;
 that does not prevent the format from reading or writing the element.
 
 The registry uses the generic `tlv_definition_t` and
-`tlv_definition_registry_t` model from `tlv/definition.h`. Applications can
+`tlv_definition_registry_t` model from `opentlv/core/definition.h`. Applications can
 provide their own immutable tables and use the same lookup, which compares tag
 size and bytes, returns the first match, and never allocates. Definition
 metadata does not impose schema constraints or interpret values. The Bluetooth
@@ -54,7 +54,7 @@ registry requires linking `OpenTLV::Bluetooth`; the generic Definition API is al
 
 ## Basic Advertising Data value codecs
 
-Include `tlv/builtins/bluetooth/ad_codec.h` and call the generic
+Include `opentlv/builtin/bluetooth/ad_codec.h` and call the generic
 `tlv_codec_decode()` / `tlv_codec_encode()` functions on an element's value.
 The codecs are allocation-free and require linking `OpenTLV::Bluetooth`. They do not select or invoke a format,
 schema or registry.
@@ -88,7 +88,7 @@ values as Flags `06`, Tx Power `-4 dBm` and Complete Local Name `Sensor`.
 After reading the Tx Power element, for example:
 
 ```c
-#include "tlv/builtins/bluetooth/ad_codec.h"
+#include "opentlv/builtin/bluetooth/ad_codec.h"
 
 /* element is the AD Type 0x0A element returned by the reader. */
 size_t length;
@@ -120,7 +120,7 @@ codecs described below.
 
 ## Advertising Data schema
 
-Include `tlv/builtins/bluetooth/ad_schema.h` and pass
+Include `opentlv/builtin/bluetooth/ad_schema.h` and pass
 `&tlv_bluetooth_ad_schema` to `tlv_schema_validate()` with
 `&tlv_format_bluetooth_ltv`. The immutable schema requires linking `OpenTLV::Bluetooth`; it has no dependency on codecs or the registry.
 
@@ -153,7 +153,7 @@ to validate padding and obtain the significant prefix first.
 
 ## Advertising Data containers and padding
 
-Include `tlv/builtins/bluetooth/ad_data.h` and call
+Include `opentlv/builtin/bluetooth/ad_data.h` and call
 `tlv_bluetooth_ad_data_validate(data, size, &significant_size, &diagnostic)`
 before processing a padded Advertising Data buffer. This helper is available
 by linking `OpenTLV::Bluetooth` and uses the generic reader with the
@@ -241,9 +241,9 @@ Select the format by passing `tlv_format_bluetooth_ltv` to
 `element.value`.
 
 ```c
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/size.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/reader.h"
 
 #include <stdio.h>
 
@@ -293,7 +293,7 @@ offset=3 tag=09 length=2 value=4869
 
 ## UUID values and lists
 
-Include `tlv/builtins/bluetooth/uuid.h` for reusable value codecs. UUID16/32
+Include `opentlv/builtin/bluetooth/uuid.h` for reusable value codecs. UUID16/32
 names are source aliases of `tlv_codec_uint16_le` / `tlv_codec_uint32_le`. They interpret
 Bluetooth little-endian byte order independently of the AD Type and format.
 
@@ -319,7 +319,7 @@ For `05 03 0F 18 0A 18`, the reader returns AD Type `0x03` and raw value
 `0F 18 0A 18`. Decode and iterate that value as follows:
 
 ```c
-#include <tlv/builtins/bluetooth/uuid.h>
+#include <opentlv/builtin/bluetooth/uuid.h>
 
 int decode_service_uuids(void) {
     const uint8_t raw[] = {0x0F, 0x18, 0x0A, 0x18};
@@ -345,7 +345,7 @@ Byte-order interpretation stays in Codec; Element continues to expose opaque byt
 
 ## Service Data
 
-Include `tlv/builtins/bluetooth/service_data.h` to decode a service UUID prefix
+Include `opentlv/builtin/bluetooth/service_data.h` to decode a service UUID prefix
 and an opaque service-specific payload.
 
 | AD Type | Codec | C representation |
@@ -373,7 +373,7 @@ impose the AD framing size limit.
 
 ## Manufacturer Specific Data and Company Identifiers
 
-Include `tlv/builtins/bluetooth/manufacturer_data.h` and use
+Include `opentlv/builtin/bluetooth/manufacturer_data.h` and use
 `tlv_bluetooth_codec_manufacturer_data` for AD Type `0xFF`.
 Its `tlv_bluetooth_manufacturer_data_t` representation contains:
 
@@ -390,7 +390,7 @@ Encoding uses `company_id` and `payload`, ignores `raw`, and regenerates the
 little-endian prefix. Both directions are allocation-free and available by
 linking `OpenTLV::Bluetooth`, without an AD framing size limit.
 
-The independent `tlv/builtins/bluetooth/company_ids.h` header exposes
+The independent `opentlv/builtin/bluetooth/company_ids.h` header exposes
 `tlv_bluetooth_company_ids`, a Definition registry for `tlv_definition_find()`.
 Its keys are the two identifier octets, least-significant octet first: Apple's
 key is `{0x4C, 0x00}`. A decoded value's first two `raw` bytes can be used
@@ -468,7 +468,7 @@ Element (4 bytes)
 ## How it fits the format architecture
 
 Bluetooth is a configuration of the public binary-field composition primitives
-in `tlv/formats/compose.h`: one-byte Tag and Length, Length before Tag, Length
+in `opentlv/core/formats/compose.h`: one-byte Tag and Length, Length before Tag, Length
 counting Tag and Value. It has no dependency on Fixed-private code or the Fixed build option.
 Both formats expose the same canonical decode/measure/encode contract.
 

@@ -2,11 +2,11 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "visitor_input.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_validation.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/asn1/cer.h"
+#include "opentlv/builtin/asn1/cer_validation.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

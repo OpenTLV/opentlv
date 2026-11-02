@@ -230,7 +230,7 @@ def main():
                         help='header defining TEST_QUERY_KIND_PAIRS')
     args = parser.parse_args()
     pairs = query_kind_pairs(args.contract.read_text(encoding='utf-8'))
-    paths = args.paths or [root / 'tlv/src']
+    paths = args.paths or [root / 'src']
     files = sorted({p for path in paths for p in (path.rglob('*.c') if path.is_dir() else [path])})
     if not files:
         raise SystemExit('No C source files found')

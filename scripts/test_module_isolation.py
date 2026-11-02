@@ -15,15 +15,15 @@ from check_module_isolation import ROOT, check_metadata, check_symbols, verify
 
 def fixture(root):
     files = {
-        "include/fixture/base.h": '#include "tlv/base/export.h"\n'
+        "include/fixture/base.h": '#include "opentlv/base/export.h"\n'
             'OPENTLV_BASE_API int tlv_fixture_base(void);\n',
-        "include/fixture/util.h": '#include "tlv/util/export.h"\n'
+        "include/fixture/util.h": '#include "opentlv/util/export.h"\n'
             'OPENTLV_UTIL_API int tlv_fixture_util(void);\n',
-        "include/fixture/addon.h": '#include "tlv/addon/export.h"\n'
+        "include/fixture/addon.h": '#include "opentlv/base/addon/export.h"\n'
             'OPENTLV_ADDON_API int tlv_fixture_addon(void);\n',
         "include/fixture/base.hpp": 'extern "C" {\n#include "fixture/base.h"\n}\n'
             'inline int fixture_value() { return tlv_fixture_base(); }\n',
-        "base/private.h": '#include "tlv/base/export.h"\n'
+        "base/private.h": '#include "opentlv/base/export.h"\n'
             'OPENTLV_BASE_API int tlv_fixture_owner(void);\n',
         "base/base.c": '#include "fixture/base.h"\n#include "private.h"\n'
             'int tlv_fixture_hidden(void) { return 40; }\n'
@@ -81,7 +81,7 @@ class IsolationTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         fixture(self.root)
         self.build = self.root / "build"
 
@@ -130,12 +130,12 @@ class IsolationTests(unittest.TestCase):
         self.configure("Undeclared module dependency")
 
     def test_unregistered_library(self):
-        library = self.root / "tlv"
-        library.mkdir()
+        library = self.root / "cmake/library"
+        library.mkdir(parents=True)
         (library / "CMakeLists.txt").write_text(
-            "add_library(rogue STATIC ../util.c)\n", encoding="utf-8")
+            "add_library(rogue STATIC ../../util.c)\n", encoding="utf-8")
         self.change("CMakeLists.txt", "opentlv_finalize_modules()",
-                    "add_subdirectory(tlv)\nopentlv_finalize_modules()")
+                    "add_subdirectory(cmake/library)\nopentlv_finalize_modules()")
         self.configure("Unregistered module library rogue")
 
     def test_bypassed_dependency_declaration(self):
@@ -169,8 +169,8 @@ class IsolationTests(unittest.TestCase):
             check_metadata(self.configure())
 
     def test_public_header_leaks_private_dependency(self):
-        self.change("include/fixture/addon.h", '#include "tlv/addon/export.h"',
-                    '#include "tlv/addon/export.h"\n#include <fixture/util.h>')
+        self.change("include/fixture/addon.h", '#include "opentlv/base/addon/export.h"',
+                    '#include "opentlv/base/addon/export.h"\n#include <fixture/util.h>')
         with self.assertRaisesRegex(ValueError, "undeclared direct dependency"):
             check_metadata(self.configure())
 

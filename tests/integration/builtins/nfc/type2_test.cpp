@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/nfc/type2.h"
-#include "tlv/query/query.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
+#include "opentlv/builtin/nfc/type2.h"
+#include "opentlv/query/query.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <memory>

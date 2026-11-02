@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "diagnostic_assertions.h"
-#include "tlv/schema/query_document.h"
-#include "tlv/query/plan.h"
+#include "opentlv/schema/query_document.h"
+#include "opentlv/query/plan.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <string>

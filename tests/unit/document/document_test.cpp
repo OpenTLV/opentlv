@@ -3,18 +3,18 @@
 
 #include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
 // Private state is used only to place the nonwrapping counters near exhaustion.
-#include "../../../tlv/src/document/document_internal.h"
-#include "../../../tlv/src/query/v1_internal.h"
+#include "../../../src/document/internal/document_internal.h"
+#include "../../../src/query/internal/v1_internal.h"
 #include <gtest/gtest.h>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <set>
 #include <vector>
-#include "tlv/builtins/asn1/ber.h"
+#include "opentlv/builtin/asn1/ber.h"
 
 using Builder = std::unique_ptr<tlv_document_builder_t, decltype(&tlv_document_builder_free)>;
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/schema/schema.h"
-#include "tlv/schema/constraint.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/schema/constraint.h"
+#include "opentlv/core/formats/fixed.h"
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x)                                                                                   \

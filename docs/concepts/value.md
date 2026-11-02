@@ -6,7 +6,7 @@ Prerequisite: Read the [basic model](learning-model.md) first.
 input storage <--- borrowed Value { data, size }
 ```
 
-Include `tlv/value.h` (also available through `tlv/tlv.h`) for `tlv_value_t`,
+Include `opentlv/core/value.h` (also available through `opentlv/tlv.h`) for `tlv_value_t`,
 a read-only, non-owning TLV value, and its checked construction and
 validation. See [logical TLV value lengths](length.md) for the `tlv_size_t`
 type it uses, and [core types](core-types.md) for how it fits into
@@ -36,7 +36,7 @@ can address; validate with `tlv_size_validate_native()` or convert with
 | `tlv_value_copy(value, data, capacity, &written)` | Checked copy into caller-owned storage. |
 
 ```c
-#include "tlv/value.h"
+#include "opentlv/core/value.h"
 
 uint8_t storage[] = {0x12, 0x34, 0x56};
 tlv_value_t value;

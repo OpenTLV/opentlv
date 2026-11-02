@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/schema/schema.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/io/reader/reader.h"
 #include <gtest/gtest.h>
 
 namespace {

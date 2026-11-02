@@ -2,14 +2,14 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../diagnostic_assertions.h"
-#include "tlv/reader/reader.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/builtins/dhcp/dhcpv4.h"
-#include "tlv/builtins/lldp/lldp.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/asn1/der.h"
+#include "opentlv/builtin/asn1/cer.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/builtin/dhcp/dhcpv4.h"
+#include "opentlv/builtin/lldp/lldp.h"
 #include <gtest/gtest.h>
 #include <vector>
 

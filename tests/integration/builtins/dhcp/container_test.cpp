@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../../diagnostic_assertions.h"
-#include "tlv/builtins/dhcp/container.h"
-#include "tlv/builtins/dhcp/dhcpv4.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/dhcp/container.h"
+#include "opentlv/builtin/dhcp/dhcpv4.h"
+#include "opentlv/io/reader/reader.h"
 #include <gtest/gtest.h>
 
 TEST(Integration_Tlv_DhcpContainer, SignificantPrefixPreservesPadAndEnd) {

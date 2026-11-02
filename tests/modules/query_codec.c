@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/query/adapters.h"
-#include "tlv/codec/values.h"
+#include "opentlv/query/adapters.h"
+#include "opentlv/codec/values.h"
 #include <string.h>
 
 #define CHECK(x)                                                                                   \

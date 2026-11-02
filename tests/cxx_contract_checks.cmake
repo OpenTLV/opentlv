@@ -6,15 +6,15 @@ function(opentlv_check_cxx_contracts)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
     set(CMAKE_REQUIRED_INCLUDES
-        "${OpenTLV_SOURCE_DIR}/tlv/include"
-        "${OpenTLV_SOURCE_DIR}/tlv++/include"
+        "${OpenTLV_SOURCE_DIR}/include"
+        "${OpenTLV_SOURCE_DIR}/include"
         "${OpenTLV_BINARY_DIR}/generated/include")
     if(MSVC)
         set(CMAKE_REQUIRED_FLAGS "/W4 /WX /EHsc")
     else()
         set(CMAKE_REQUIRED_FLAGS "-std=c++11 -Wall -Wextra -Werror")
     endif()
-    set(header "#include <tlv++/formats/runtime_fixed.hpp>\n#include <tlv++/schema/definition.hpp>\n#include <tlv++/query/options.hpp>\n#include <tlv++/writer/builder.hpp>\n")
+    set(header "#include <opentlv/core/formats/runtime_fixed.hpp>\n#include <opentlv/schema/definition.hpp>\n#include <opentlv/query/options.hpp>\n#include <opentlv/io/writer/builder.hpp>\n")
     set(valid "tlv::runtime_fixed_format f(1, 1); auto v = f.view(); tlv::schema_storage<0> s({}); auto sv = s.view(); tlv::query_options q; auto qv = q.view(); tlv::writer_storage<4> w; auto wv = w.view(); (void)v; (void)sv; (void)qv; (void)wv;")
     set(format_temporary "auto v = tlv::runtime_fixed_format(1, 1).view(); (void)v;")
     set(schema_temporary "auto v = tlv::schema_storage<0>({}).view(); (void)v;")
@@ -36,7 +36,7 @@ function(opentlv_check_cxx_contracts)
         set(CMAKE_REQUIRED_FLAGS "-std=c++11 -fno-exceptions")
     endif()
     unset(OPENTLV_CXX_WITHOUT_EXCEPTIONS CACHE)
-    check_cxx_source_compiles("#include <tlv++/compat.hpp>\nint main() {}" OPENTLV_CXX_WITHOUT_EXCEPTIONS)
+    check_cxx_source_compiles("#include <opentlv/core/compat.hpp>\nint main() {}" OPENTLV_CXX_WITHOUT_EXCEPTIONS)
     if(OPENTLV_CXX_WITHOUT_EXCEPTIONS)
         message(FATAL_ERROR "tlv++ must explicitly reject exception-disabled compilation")
     endif()

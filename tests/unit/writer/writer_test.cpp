@@ -3,9 +3,9 @@
 
 #include "../../diagnostic_assertions.h"
 #include "controlled_format.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/writer/copy.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/io/writer/copy.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

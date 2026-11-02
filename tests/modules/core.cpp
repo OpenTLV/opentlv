@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/compat.hpp"
-#include "tlv++/definition.hpp"
-#include "tlv++/diagnostic.hpp"
-#include "tlv++/error.hpp"
-#include "tlv++/format.hpp"
-#include "tlv++/format_traits.hpp"
-#include "tlv++/formats/fixed_format.hpp"
-#include "tlv++/formats/options.hpp"
-#include "tlv++/formats/runtime_fixed.hpp"
-#include "tlv++/types.hpp"
-#include "tlv++/version.hpp"
+#include "opentlv/core/compat.hpp"
+#include "opentlv/core/definition.hpp"
+#include "opentlv/core/diagnostic.hpp"
+#include "opentlv/core/error.hpp"
+#include "opentlv/core/format.hpp"
+#include "opentlv/core/format_traits.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
+#include "opentlv/core/formats/options.hpp"
+#include "opentlv/core/formats/runtime_fixed.hpp"
+#include "opentlv/core/types.hpp"
+#include "opentlv/core/version.hpp"
 
 int main() {
     return 0;

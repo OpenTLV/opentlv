@@ -17,7 +17,7 @@ Every supported framing domain provides `format`, `parse(data)` and
 `encode(output, callback)`, plus an encoding overload accepting an explicit
 `writer_workspace` before the callback:
 
-| Domain | Framing | CMake target | Header under `tlv++/builtins/` |
+| Domain | Framing | CMake target | Header under `opentlv/builtin/` |
 | --- | --- | --- | --- |
 | `tlv::ber` | BER | `OpenTLV::ASN1` | `asn1/ber.hpp` |
 | `tlv::der` | DER | `OpenTLV::ASN1` | `asn1/der.hpp` |
@@ -36,7 +36,7 @@ These are conveniences over the same [generic Format contracts](cxx-formats.md)
 available to user-defined Formats. For example:
 
 ```cpp
-#include <tlv++/builtins/asn1/ber.hpp>
+#include <opentlv/builtin/asn1/ber.hpp>
 
 void inspect(tlv::bytes data) {
     for (auto element : tlv::ber::parse(data)) {
@@ -55,7 +55,7 @@ Input must outlive the range and retained Elements. Iteration raises
 `parse_error` on a failure rather than treating it as end-of-input.
 
 ```cpp
-#include <tlv++/builtins/asn1/der.hpp>
+#include <opentlv/builtin/asn1/der.hpp>
 
 auto encode_answer(tlv::span<tlv::byte> output)
     -> tlv::expected<size_t, tlv::writer_failure> {
@@ -86,7 +86,7 @@ encoding helpers report insufficient capacity for an empty output buffer.
 
 ## Value codecs and fields
 
-Include the domain's `codec.hpp` separately, or use `<tlv++/tlv.hpp>` to
+Include the domain's `codec.hpp` separately, or use `<opentlv/tlv.hpp>` to
 aggregate all enabled domains. Framing headers do not require their codec
 headers. All codecs support the generic `tlv::field` contract: `value_type`,
 `decode(bytes)` and `encode(value, output, capacity)`. Passing `nullptr, 0`
@@ -96,7 +96,7 @@ codecs require Codec and Schema, matching the canonical
 C package. Codec is selected by linking; `OPENTLV_CODEC` is no longer a CMake option. Generic Query environments remain usable without Codec; automatic
 NUM/BCD/TEXT providers and ASN.1 conversions require Codec.
 
-| Namespace | Codec header under `tlv++/builtins/` | Coverage |
+| Namespace | Codec header under `opentlv/builtin/` | Coverage |
 | --- | --- | --- |
 | `tlv::asn1` | `asn1/codec.hpp` | All existing ASN.1 Value codecs and their primitive universal fields |
 | `tlv::bluetooth` | `bluetooth/codec.hpp` | Flags, local name, Tx Power, UUID16/32/128, UUID lists, Service Data and Manufacturer Data |
@@ -118,8 +118,8 @@ can still be read as borrowed raw Value bytes. Primitive universal fields do
 not assemble constructed or fragmented strings.
 
 ```cpp
-#include <tlv++/builtins/asn1/der.hpp>
-#include <tlv++/builtins/asn1/codec.hpp>
+#include <opentlv/builtin/asn1/der.hpp>
+#include <opentlv/builtin/asn1/codec.hpp>
 
 void decode_integers(tlv::bytes data) {
     for (auto element : tlv::der::parse(data)) {
@@ -152,8 +152,8 @@ Existing EMV dictionary codec constraints remain in force. Entries without a
 codec do not acquire an invented semantic representation.
 
 ```cpp
-#include <tlv++/builtins/emv/format.hpp>
-#include <tlv++/builtins/emv/codec.hpp>
+#include <opentlv/builtin/emv/format.hpp>
+#include <opentlv/builtin/emv/codec.hpp>
 
 void write_pan(tlv::span<tlv::byte> output, const std::string& digits) {
     tlv::writer<tlv::emv::format> writer(output);

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/schema/number.h"
+#include "opentlv/schema/number.h"
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x)                                                                                   \

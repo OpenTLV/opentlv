@@ -31,7 +31,7 @@ the compiled program APIs; the V1 helpers retain their smaller grammar.
 ## Static C plans and frontend-free execution
 
 Runtime compilation and static C plans share the native representation in
-`<tlv/query/plan.h>` and the same S0/S1/S2/Document execution backends. Instructions
+`<opentlv/query/plan.h>` and the same S0/S1/S2/Document execution backends. Instructions
 contain resolved function selectors, metadata selectors, integer magnitudes,
 tag bytes/masks and parameter names. Execution never interprets query source.
 Source text is optional and used only for diagnostics and frontend formatting.
@@ -76,14 +76,14 @@ facades require a frontend-enabled library.
 `OPENTLV_QUERY_SET_OPERATIONS=OFF` omits union/intersection/difference execution
 from both backends. Compilation and static-plan validation reject these operations
 with `TLV_ERR_UNSUPPORTED`; enabled operations preserve the same semantics.
-Document-only navigation uses the Query-owned `tlv/query/document.h` integration
+Document-only navigation uses the Query-owned `opentlv/query/document.h` integration
 and the independently linked Document module. These are
 capability choices within the same plan and execution architecture. Further
 operation-family switches and automatic `.otlv` code generation are future work.
 
 ## C++11 constexpr plans
 
-`<tlv++/query/static.hpp>` adds a typed compile-time builder over the same C plan:
+`<opentlv/query/static.hpp>` adds a typed compile-time builder over the same C plan:
 
 ```cpp
 namespace q = tlv::static_query;
@@ -118,7 +118,7 @@ and frontend-disabled builds. C-only static plans remain independently supported
 
 ## Full programs and integration
 
-C++ applications include `tlv++/query/program.hpp` for `tlv::query_program` and
+C++ applications include `opentlv/query/program.hpp` for `tlv::query_program` and
 `tlv::query_execution`. `query_program::compile(std::string, options)` preserves
 the text byte length, including embedded NUL diagnostics, and owns immutable
 program storage shared by copies. `compile_into` borrows explicit aligned caller
@@ -145,7 +145,7 @@ publication and reports NEED_MORE_DATA independently of final exhaustion. Scalar
 programs are rejected before reading input. Copy borrowed payloads explicitly
 when they must outlive the input or workspace.
 
-`tlv++/query/builder.hpp` provides typed `query_nodes`, `query_boolean`,
+`opentlv/query/builder.hpp` provides typed `query_nodes`, `query_boolean`,
 `query_integer`, `query_bytes` and `query_string` expressions. Compose `where`,
 `count`, `exists`, boolean operations and numeric comparisons, then call
 `compile(options)`. The helper builds text and delegates all validation and
@@ -215,7 +215,7 @@ changes. Repeated edits followed by checks can consequently cost O(n squared).
 The `document_identity_edit_loop` benchmark tracks this worst case at increasing
 node counts; no constant-time stale-handle validation is claimed.
 
-Contextual Schema assertions are defined in `tlv/schema/query.h`. Each rule
+Contextual Schema assertions are defined in `opentlv/schema/query.h`. Each rule
 contains a compiled node context selector, a compiled boolean assertion and an
 optional borrowed environment. `assert(...)` describes the Schema wrapper and
 is not a new Query function. Empty context selection succeeds. `query_size`
@@ -227,7 +227,7 @@ assertions report SCHEMA with rule, selected tag and expected boolean context.
 No rules explicitly skips assertion validation. Existing structural rules and
 protocol/domain policies remain independent and optional.
 
-Semantic diff is available from `tlv++/document/diff.hpp`. Correspondence is the
+Semantic diff is available from `opentlv/query/diff.hpp`. Correspondence is the
 sequence of ancestor raw tags and one-based same-tag sibling occurrences.
 Repeated-tag insertions can shift correspondence; there is no alignment heuristic.
 The optional compiled selector runs once on each original complete Document.
@@ -283,8 +283,8 @@ their cursor/storage choices and error handling differ.
 /// tab | C
 
 ```c
-#include "tlv/query/query.h"
-#include "tlv/builtins/asn1/ber.h"
+#include "opentlv/query/query.h"
+#include "opentlv/builtin/asn1/ber.h"
 #include <stdio.h>
 
 static tlv_visit_result_t print_match(const tlv_element_t* element, size_t depth,
@@ -340,7 +340,7 @@ if (tlv_query_matcher_visit(&matcher, &element->tag, depth)) {
 /// tab | C++
 
 ```cpp
-#include "tlv++/query/query.hpp"
+#include "opentlv/query/query.hpp"
 #include <iostream>
 
 size_t text_offset;
@@ -385,7 +385,7 @@ Document was destroyed become invalid according to the normal Node contract.
 The result does not own the Document. `document.find(query)` still returns
 only the first match.
 
-For borrowed traversal, include `tlv++/query/query.hpp` and use:
+For borrowed traversal, include `opentlv/query/query.hpp` and use:
 
 ```cpp
 auto matches = reader.select("6F/A5/50"); // reader is a tlv::tree_reader

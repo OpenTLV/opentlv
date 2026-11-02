@@ -95,8 +95,8 @@ tags, and how to cut a release, see the
 
 ## Module contracts
 
-Every C source, header, C++ facade header and resource template under `tlv/`
-and `tlv++/` has one owning module or integration target in
+Every C source, header, C++ facade header and resource template under `include/`
+and `src/` has one owning module or integration target in
 [ownership.json](docs/development/modules/ownership.json), and every public
 diagnostic code has an entry in
 [diagnostic-mapping.json](docs/development/modules/diagnostic-mapping.json).
@@ -123,8 +123,8 @@ and `python scripts/test_doc_inventory.py`; see the
 [inventory maintenance rules](docs/development/documentation-layout.md#documentation-inventory-checks)
 for sources of truth and the limits of automated checking.
 
-The public headers ([tlv/include/tlv](tlv/include/tlv) and
-[tlv++/include/tlv++](tlv++/include/tlv++)) are the authoritative source for
+The public headers ([include/opentlv](include/opentlv) and
+[include/opentlv](include/opentlv)) are the authoritative source for
 API contracts and are written as Doxygen comments, so a generated API
 reference can be built from them. Every new or changed public declaration
 follows the conventions below. The C and C++ API comments are rendered by
@@ -211,7 +211,7 @@ required for this target. `OPENTLV_BUILD_DOCS` defaults to `OFF`, so normal
 builds do not require Doxygen; enabling it requires Doxygen at configure time.
 Generated files stay in the build directory and must not be committed.
 
-The reference covers `tlv/include/tlv` and the generated public configuration
+The reference covers `include/opentlv` and the generated public configuration
 and version headers. It includes all shipped C formats and standard-specific capabilities, even
 when disabled in the configured library; configuration/version values describe
 that build. Implementation sources and C++ headers are outside the input set.
@@ -241,7 +241,7 @@ Open `build/docs/docs/cxx-api/html/index.html`. This target also generates the
 C reference for cross-links; no C++ compiler or library compilation is needed,
 and `OPENTLV_BUILD_CXX=OFF` does not disable reference generation.
 
-The C++ namespace, class and header indexes cover only `tlv++/include/tlv++`.
+The C++ namespace, class and header indexes cover only `include/opentlv`.
 Private members and implementation helpers are excluded. The reference shows
 the C++11 fallback interfaces; its landing
 page explains the standard-library aliases selected by newer language modes.
@@ -294,7 +294,7 @@ config in CI, so a clone with the hooks installed won't be surprised by CI.
 The `tlv` (C) and `tlv++` (C++) code, along with `tools/`, `tests/`,
 `benchmarks/` and `examples/`, follows the style defined in
 [.clang-format](.clang-format) (the root file, for tlv++ and everything built
-on it) and [tlv/.clang-format](tlv/.clang-format) (an override for the pure C
+on it) and [src/.clang-format](src/.clang-format) (an override for the pure C
 layer). clang-format applies whichever of the two is nearest to a given file,
 so both apply automatically; there's no `Language:`-based split in one shared
 file because clang-format versions disagree on how to classify an ambiguous
@@ -343,7 +343,7 @@ each one; prefer fixing a finding over suppressing it.
 [clang-tidy](https://clang.llvm.org/extra/clang-tidy/) 18 over `tlv` (C) and
 `tlv++` (C++) in PR and Full CI. Check selection lives in [.clang-tidy](.clang-tidy) at the
 repository root (the shared baseline for both languages) plus
-[tlv/.clang-tidy](tlv/.clang-tidy) and [tlv++/.clang-tidy](tlv++/.clang-tidy),
+[src/.clang-tidy](src/.clang-tidy) and [cmake/clang-tidy-cxx.yaml](cmake/clang-tidy-cxx.yaml),
 which layer C- and C++-specific checks on top of it; clang-tidy resolves the
 config for a given file by merging every `.clang-tidy` it finds walking up
 from that file's own directory, so both apply automatically. Reproduce it

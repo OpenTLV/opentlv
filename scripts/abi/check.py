@@ -80,7 +80,9 @@ def find_library(build_dir, name="tlv"):
 def stage_headers(source, build_dir, dest):
     """Public headers of one build: source headers plus generated ones."""
     shutil.rmtree(dest, ignore_errors=True)
-    shutil.copytree(Path(source) / "tlv" / "include", dest)
+    source = Path(source)
+    public = source / "include" if (source / "include/opentlv").is_dir() else source / "tlv/include"
+    shutil.copytree(public, dest)
     shutil.copytree(Path(build_dir) / "generated" / "include", dest, dirs_exist_ok=True)
 
 
@@ -124,7 +126,7 @@ def dump_abi(library, headers, out_file):
     if "<function-decl" not in text and "<var-decl" not in text:
         raise CheckError("the ABI dump has no public declarations; was debug info built?")
     # Translation unit paths are absolute build paths; keep them relative to the repository.
-    text = re.sub(r"""path=(['"])[^'"]*?/((?:tlv|generated)/[^'"]*)\1""", r"path='\2'", text)
+    text = re.sub(r"""path=(['"])[^'"]*?/((?:tlv|src|include|generated)/[^'"]*)\1""", r"path='\2'", text)
     out_file.write_text(text, encoding="utf-8", newline="\n")
 
 

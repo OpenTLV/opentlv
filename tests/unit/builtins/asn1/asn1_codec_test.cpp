@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/asn1/asn1_codec.h"
+#include "opentlv/builtin/asn1/asn1_codec.h"
 #include <cstdint>
 #include <cstring>
 #include <gtest/gtest.h>

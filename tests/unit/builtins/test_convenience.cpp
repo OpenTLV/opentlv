@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>

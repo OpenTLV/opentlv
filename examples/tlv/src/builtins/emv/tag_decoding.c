@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/presentation.h"
+#include "opentlv/builtin/emv/presentation.h"
 /*
  * Practical EMV workflow: parse a TLV record, look up each tag in the Book 3
  * dictionary, validate its value length, and decode the value into a C
@@ -13,12 +13,12 @@
  * response template purely to exercise one decoded value per TLV_EMV_VALUE_*
  * kind in one place; it is not a literal capture of any single response.
  */
-#include "tlv/builtins/emv/format.h"
-#include "tlv/size.h"
-#include "tlv/builtins/emv/emv.h"
-#include "tlv/reader/reader.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/emv/format.h"
+#include "opentlv/core/size.h"
+#include "opentlv/builtin/emv/emv.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/io/writer/writer.h"
 
 #include <inttypes.h>
 #include <stdio.h>

@@ -40,6 +40,7 @@ path = [
     ".github/workflows/static-analysis.yml",
     ".github/workflows/valgrind.yml",
     ".gitignore",
+    ".git-blame-ignore-revs",
     ".markdownlint.json",
     ".pre-commit-config.yaml",
     ".vscode/tasks.json",
@@ -117,6 +118,8 @@ path = [
     "docs/development/fuzzing.md",
     "docs/development/indefinite-boundary-reuse.md",
     "docs/development/modules/README.md",
+    "docs/development/modules/header-paths.json",
+    "docs/development/modules/layout-migration.md",
     "docs/development/modules/diagnostic-mapping.json",
     "docs/development/modules/diagnostics.md",
     "docs/development/modules/ownership.json",
@@ -421,11 +424,11 @@ path = [
     "tests/tag_layout_checks.cmake",
     "tests/typed_field_checks.cmake",
     "tests/unit/CMakeLists.txt",
-    "tlv++/.clang-tidy",
+    "cmake/clang-tidy-cxx.yaml",
     "tlv++/CMakeLists.txt",
-    "tlv/.clang-format",
-    "tlv/.clang-tidy",
-    "tlv/CMakeLists.txt",
+    "src/.clang-format",
+    "src/.clang-tidy",
+    "cmake/library/CMakeLists.txt",
 ]
 precedence = "aggregate"
 SPDX-FileCopyrightText = "2026 Marek Cingel"

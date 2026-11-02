@@ -15,8 +15,8 @@ it. Format alone interprets wire representation. Reader performs no I/O,
 buffering, recovery, schema validation or semantic Value decoding.
 
 ```c
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/reader/reader.h"
 
 const tlv_fixed_format_t config = {.identifier = {1}, .length = {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
 tlv_format_t format;
@@ -129,7 +129,7 @@ or copying Value contents on successful reads. Iteration is flat: constructed
 Values remain opaque. Use Tree Reader for nested traversal.
 
 ```cpp
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 
 tlv::reader<tlv::ber::format> reader(data); // data is a borrowed tlv::bytes
 for (auto element : reader) {
@@ -202,10 +202,10 @@ See the compiled [basic example](../../examples/tlv++/src/basic_usage.cpp),
 ## Pull-based tree traversal
 
 `tlv_tree_reader_t` is the canonical iterative structural cursor. Include
-`tlv/reader/tree.h`, supply caller-owned `tlv_tree_frame_t` storage, and initialize
+`opentlv/io/reader/tree.h`, supply caller-owned `tlv_tree_frame_t` storage, and initialize
 with `tlv_tree_reader_init()` or `tlv_tree_reader_init_incremental()`.
 `tlv_tree_reader_next_event()` returns `tlv_tree_event_t` from the shared
-`tlv/tree.h` contract:
+`opentlv/io/tree.h` contract:
 
 - `BEGIN` carries a complete constructed Element and opens its children.
 - `ELEMENT` carries a complete primitive Element.
@@ -287,7 +287,7 @@ and EOF.
 
 ### Resumable Visitor adapters
 
-Include `tlv/reader/visitor.h` and use `tlv_reader_visit()` or
+Include `opentlv/io/reader/visitor.h` and use `tlv_reader_visit()` or
 `tlv_tree_reader_visit()` with an initialized cursor. Their `_diag` variants
 preserve the original Reader diagnostics without another decode. The tree
 adapter accepts a NULL callback for validation only; the sequential adapter

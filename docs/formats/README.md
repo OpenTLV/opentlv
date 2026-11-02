@@ -1,12 +1,12 @@
 # C library formats
 
 Each page includes a byte example. Standard-specific semantics are documented separately.
-Concrete C implementations live under `tlv/builtins/<protocol>/` (grouped by
+Concrete C implementations live under `opentlv/builtin/<protocol>/` (grouped by
 protocol) or, for protocol-agnostic mechanisms like the configurable fixed-width
-format, `tlv/formats/`; see [architecture](../concepts/architecture.md#repository-layout).
+format, `opentlv/core/formats/`; see [architecture](../concepts/architecture.md#repository-layout).
 
-Generic formats in `tlv/formats/` are part of the core and always available.
-Built-ins in `tlv/builtins/<protocol>/` implement specific standards and are
+Generic formats in `opentlv/core/formats/` are part of the core and always available.
+Built-ins in `opentlv/builtin/<protocol>/` implement specific standards and are
 optional. Both use the same Format, Reader and Writer contracts.
 
 For proprietary formats, start with the [generic Format capability space](../concepts/format-capabilities.md)
@@ -99,7 +99,7 @@ For canonical ASN.1 framing, nested validation, limits and error offsets, see
 
 ## Reading one element
 
-Include `tlv/reader/reader.h` and call `tlv_read` to parse one element from the
+Include `opentlv/io/reader/reader.h` and call `tlv_read` to parse one element from the
 beginning of a buffer:
 
 ```c
@@ -128,7 +128,7 @@ Custom format callback errors propagate unchanged. The stateful
 
 ## Traversing multiple elements
 
-Include `tlv/reader/visitor.h` to visit concatenated elements with the generic reader:
+Include `opentlv/io/reader/visitor.h` to visit concatenated elements with the generic reader:
 
 ```c
 static tlv_visit_result_t count_element(const tlv_element_t* element, void* context) {
@@ -161,7 +161,7 @@ even when they contain nested TLVs.
 
 ## Writing one element
 
-Include `tlv/writer/writer.h`. Query the complete encoded size without providing value
+Include `opentlv/io/writer/writer.h`. Query the complete encoded size without providing value
 bytes, then write into a caller-owned buffer:
 
 ```c
@@ -220,7 +220,7 @@ of silently reusing stale Length or Trailer bytes. Ordinary encoding does not
 preserve BER nonminimal lengths or arbitrary header padding.
 
 Field-based custom formats can compose `tlv_field_composition_t` from
-`tlv/formats/compose.h` and initialize a descriptor with `tlv_fields_format_init()`.
+`opentlv/core/formats/compose.h` and initialize a descriptor with `tlv_fields_format_init()`.
 Fixed TLV, Fixed
 LTV and Bluetooth use the same public binary-field primitives. Formats with
 other framing implement the same canonical operations directly.
@@ -233,8 +233,8 @@ mutation, preservation, diagnostics and size invariants.
 ## Nested traversal
 
 Concrete descriptors are declared in
-`tlv/formats/fixed.h`, `tlv/builtins/asn1/ber.h`,
-`tlv/builtins/asn1/der.h`, and `tlv/builtins/asn1/cer.h`. The generic `format.h`
+`opentlv/core/formats/fixed.h`, `opentlv/builtin/asn1/ber.h`,
+`opentlv/builtin/asn1/der.h`, and `opentlv/builtin/asn1/cer.h`. The generic `format.h`
 declares only the contract.
 
 The optional `tlv_format_t::is_constructed` field identifies values containing

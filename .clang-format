@@ -1,14 +1,8 @@
 # clang-format configuration for OpenTLV's C++ layer (tlv++) and everything
 # built on top of it: tools/, tests/, benchmarks/, examples/.
 #
-# tlv/ (pure C) has its own tlv/.clang-format instead of a `Language: C`
-# section here: clang-format resolves the nearest .clang-format by walking up
-# from each file's directory, so this stays the effective style everywhere
-# except tlv/. A `Language:`-keyed, single-file split was tried first and
-# dropped - clang-format 18 (pinned in CI and .pre-commit-config.yaml) fails
-# to parse `Language: C` at all, and even versions that do accept it disagree
-# on whether an ambiguous `.h` file counts as C or C++. Per-directory config
-# files sidestep that entirely: no language guessing is involved.
+# C implementations under src/ use src/.clang-format. Colocated public C
+# and C++ headers share this root style; no extension-dependent config is needed.
 #
 # Apply it to the whole tree with `cmake --build <build-dir> --target format`,
 # or check formatting without modifying files with `--target format-check`.

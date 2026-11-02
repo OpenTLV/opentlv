@@ -1,6 +1,6 @@
 # C API reference
 
-The C API reference is generated from the public [tlv](../../tlv/include/tlv)
+The C API reference is generated from the public [tlv](../../include/opentlv)
 headers with Doxygen and published with this site. Open the
 [generated C API reference](api/c-api/html/index.html) for exact signatures,
 ownership, lifetime and error contracts. It covers all shipped formats and
@@ -34,8 +34,8 @@ and [memory ownership](../guides/memory.md).
 
 ## Deterministic wire generation
 
-The native `<tlv/generator.h>` API generates complete nonempty TLV streams
-through Writer, with no allocation. The C++ facade is `<tlv++/generator.hpp>`.
+The native `<opentlv/generator/generator.h>` API generates complete nonempty TLV streams
+through Writer, with no allocation. The C++ facade is `<opentlv/generator/generator.hpp>`.
 Link the independent `OpenTLV::Generator` target (package component `Generator`),
 which depends only on Core and IO. The aggregate targets also include it; see
 [component selection](../guides/select-components.md#independent-generator).
@@ -79,13 +79,13 @@ language bindings and a dedicated property suite are separate work.
 [pull-based Tree Reader](../guides/reader.md#pull-based-tree-traversal),
 including caller-owned frame storage and Visitor adapters.
 
-V1 paths use `<tlv/query/query.h>` with copyable opaque storage, bounded parsing
+V1 paths use `<opentlv/query/query.h>` with copyable opaque storage, bounded parsing
 and canonical formatting. Full-language compilation and S0/S1/S2 execution use
-`<tlv/query/plan.h>`: versioned native static C plans and bounded frontend-free
+`<opentlv/query/plan.h>`: versioned native static C plans and bounded frontend-free
 validation. Runtime and generated plans use the same execution APIs and caller
 workspace; see [static plans](../guides/queries.md#static-c-plans-and-frontend-free-execution).
 
-`<tlv/query/program.h>`: discover scratch, immutable program and runtime workspace
+`<opentlv/query/program.h>`: discover scratch, immutable program and runtime workspace
 requirements independently, then retain the execution across STOP/NEED_MORE_DATA.
 S1 publishes proven root-scope decisions at END. S2 uses explicit candidate
 capacity and stable borrowed input until finalized ordered publication. Compiled

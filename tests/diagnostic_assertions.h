@@ -4,8 +4,8 @@
 #define OPENTLV_TEST_DIAGNOSTIC_ASSERTIONS_H
 
 #include "diagnostic_invariant.h"
-#include "tlv/query/program.h"
-#include "tlv/schema/query.h"
+#include "opentlv/query/program.h"
+#include "opentlv/schema/query.h"
 #include <gtest/gtest.h>
 
 namespace diagnostic_test {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/query/static.hpp"
+#include "opentlv/query/static.hpp"
 #include <cstdio>
 #include <cstring>
 namespace q = tlv::static_query;

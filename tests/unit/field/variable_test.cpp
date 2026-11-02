@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/field/variable.h"
+#include "opentlv/core/field/variable.h"
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>

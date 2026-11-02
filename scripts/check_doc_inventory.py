@@ -41,7 +41,7 @@ def check(root):
             return ""
 
     architecture = read("docs/concepts/architecture.md")
-    configuration_templates = ("tlv/resources/query-features.h.in",)
+    configuration_templates = ("src/query/internal/query-features.h.in",)
     components = set()
     for template in configuration_templates:
         components.update(re.findall(r"^#cmakedefine01 (OPENTLV_\w+)$", read(template), re.M))
@@ -52,7 +52,7 @@ def check(root):
     compare(errors, "public component configuration", capability_options, components,
             "public configuration templates")
     if not components:
-        errors.append("tlv/resources/query-features.h.in: no public features found")
+        errors.append("src/query/internal/query-features.h.in: no public features found")
     for component in sorted(components):
         if component not in options:
             errors.append(f"{component}: public configuration has no root CMake option")
@@ -61,19 +61,19 @@ def check(root):
 
     support = read("docs/formats/support.md")
     native = set()
-    for header in (root / "tlv/include/tlv/builtins").rglob("*.h"):
+    for header in (root / "include/opentlv/builtin").rglob("*.h"):
         native.update(re.findall(r"\bconst\s+tlv_format_t\s+(tlv_format_\w+)\s*;",
                                 header.read_text(encoding="utf-8")))
     if not native:
-        errors.append("tlv/include/tlv/builtins: no public Format descriptors found")
+        errors.append("include/opentlv/builtin: no public Format descriptors found")
     # Limit tokens to backtick declarations, not links or discussion of types.
     documented = set(re.findall(r"`(tlv_format_\w+)`", support))
     compare(errors, "native Format descriptors", native, documented, "docs/formats/support.md")
 
-    builtin_root = root / "tlv++/include/tlv++/builtins"
+    builtin_root = root / "include/opentlv/builtin"
     cxx = {directory.name for directory in builtin_root.iterdir() if directory.is_dir()} \
         if builtin_root.is_dir() else set()
-    documented_cxx = set(re.findall(r"tlv\+\+/include/tlv\+\+/builtins/([^/]+)/", support))
+    documented_cxx = set(re.findall(r"include/opentlv/builtin/([^/]+)/", support))
     compare(errors, "C++ built-in families", cxx, documented_cxx, "docs/formats/support.md")
 
     bindings_root = root / "bindings"
@@ -102,8 +102,8 @@ def check(root):
     compare(errors, "executable examples", examples, documented_examples, "docs/guides/examples.md")
 
     for template, public_root, extension in (
-        ("docs/api/Doxyfile.in", "tlv/include/tlv", "h"),
-        ("docs/api/Doxyfile.cxx.in", "tlv++/include/tlv++", "hpp"),
+        ("docs/api/Doxyfile.in", "include/opentlv", "h"),
+        ("docs/api/Doxyfile.cxx.in", "include/opentlv", "hpp"),
     ):
         config = read(template)
         # Require the root in INPUT, not just in STRIP_FROM_PATH or a comment.

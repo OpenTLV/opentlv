@@ -4,7 +4,7 @@
 #ifndef OPENTLV_TEST_FIXED_VALUE_CHECKS_H
 #define OPENTLV_TEST_FIXED_VALUE_CHECKS_H
 
-#include "tlv/codec/codec.h"
+#include "opentlv/codec/codec.h"
 #include <gtest/gtest.h>
 #include <cstring>
 

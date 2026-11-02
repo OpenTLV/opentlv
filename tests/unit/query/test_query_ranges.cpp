@@ -3,13 +3,13 @@
 #include "../../query_diagnostic_helpers.h"
 
 #include "../../diagnostic_assertions.h"
-#include "tlv++/native.hpp"
+#include "opentlv/native.hpp"
 #include "controlled_format.h"
-#include "tlv++/query/query.hpp"
-#include "tlv++/query/program.hpp"
-#include "tlv++/query/builder.hpp"
-#include "tlv++/document/document.hpp"
-#include "tlv++/document/diff.hpp"
+#include "opentlv/query/query.hpp"
+#include "opentlv/query/program.hpp"
+#include "opentlv/query/builder.hpp"
+#include "opentlv/document/document.hpp"
+#include "opentlv/query/diff.hpp"
 #include <gtest/gtest.h>
 #include <vector>
 #include <cstdlib>

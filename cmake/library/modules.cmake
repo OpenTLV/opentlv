@@ -1,0 +1,1009 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+
+opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/core.c
+    SOURCES
+        ../../src/core/copy.c
+        ../../src/core/definition.c
+        ../../src/core/diagnostic.c
+        ../../src/core/diagnostic_cause.c
+        ../../src/core/endian.c
+        ../../src/core/field/escaped.c
+        ../../src/core/field/fixed.c
+        ../../src/core/field/packed.c
+        ../../src/core/field/variable.c
+        ../../src/core/format.c
+        ../../src/core/formats/compose.c
+        ../../src/core/formats/escaped.c
+        ../../src/core/formats/fixed.c
+        ../../src/core/formats/packed.c
+        ../../src/core/formats/variable.c
+        ../../src/core/result.c
+        ../../src/core/size.c
+        ../../src/core/tag.c
+        ../../src/core/utf8_internal.c
+        ../../src/core/value.c
+        ${OpenTLV_BINARY_DIR}/generated/src/version.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/core/attributes.h
+        ../../include/opentlv/core/callback.h
+        ../../include/opentlv/core/compiler.h
+        ../../include/opentlv/core/copy.h
+        ../../include/opentlv/core/definition.h
+        ../../include/opentlv/core/diagnostic.h
+        ../../include/opentlv/core/diagnostic/cause.h
+        ../../include/opentlv/core/element.h
+        ../../include/opentlv/core/endian.h
+        ../../include/opentlv/core/field/encoding.h
+        ../../include/opentlv/core/field/escaped.h
+        ../../include/opentlv/core/field/fixed.h
+        ../../include/opentlv/core/field/packed.h
+        ../../include/opentlv/core/field/variable.h
+        ../../include/opentlv/core/format.h
+        ../../include/opentlv/core/formats/compose.h
+        ../../include/opentlv/core/formats/escaped.h
+        ../../include/opentlv/core/formats/fixed.h
+        ../../include/opentlv/core/formats/packed.h
+        ../../include/opentlv/core/formats/variable.h
+        ../../include/opentlv/core/length.h
+        ../../include/opentlv/core/result.h
+        ../../include/opentlv/core/size.h
+        ../../include/opentlv/core/tag.h
+        ../../include/opentlv/core/utf8.h
+        ../../include/opentlv/core/value.h
+    PRIVATE_HEADERS
+        ../../src/core/internal/field/escaped_internal.h
+        ../../src/core/internal/field/fixed_internal.h
+        ../../src/core/internal/field/variable_internal.h
+    PUBLIC_SYMBOLS
+        tlv_binary_decode
+        tlv_binary_encode
+        tlv_binary_measure
+        tlv_constructed_bit_predicate
+        tlv_copy_encoded
+        tlv_copy_value
+        tlv_definition_find
+        tlv_diagnostic_add_context
+        tlv_diagnostic_causes_init
+        tlv_diagnostic_causes_append
+        tlv_diagnostic_cause_copy
+        tlv_diagnostic_init
+        tlv_diagnostic_path_init
+        tlv_diagnostic_path_pop
+        tlv_diagnostic_path_push
+        tlv_diagnostic_path_string
+        tlv_diagnostic_set_location
+        tlv_diagnostic_set_path
+        tlv_diagnostic_severity_string
+        tlv_endian_native
+        tlv_escaped_decode
+        tlv_escaped_encode
+        tlv_escaped_format_init
+        tlv_escaped_length_read
+        tlv_escaped_length_write
+        tlv_escaped_measure
+        tlv_fields_decode
+        tlv_fields_encode
+        tlv_fields_format_init
+        tlv_fields_measure
+        tlv_fixed_format_init
+        tlv_fixed_identifier_read
+        tlv_fixed_identifier_write
+        tlv_fixed_length_read
+        tlv_fixed_length_write
+        tlv_format_can_read
+        tlv_format_can_write
+        tlv_format_decode
+        tlv_format_encode
+        tlv_format_init
+        tlv_format_measure
+        tlv_location_domain_string
+        tlv_location_kind_string
+        tlv_location_resolve
+        tlv_location_set
+        tlv_location_translate
+        tlv_packed_decode
+        tlv_packed_encode
+        tlv_packed_field_read
+        tlv_packed_field_write
+        tlv_packed_layout_validate
+        tlv_packed_measure
+        tlv_read_u16_be
+        tlv_read_u16_le
+        tlv_read_u32_be
+        tlv_read_u32_le
+        tlv_read_u64_be
+        tlv_read_u64_le
+        tlv_read_uint
+        tlv_result_string
+        tlv_size_add
+        tlv_size_from_native
+        tlv_size_to_native
+        tlv_size_validate_native
+        tlv_source_preserve
+        tlv_tag_compare
+        tlv_tag_copy
+        tlv_tag_equal
+        tlv_tag_hash
+        tlv_tag_is_empty
+        tlv_tagged_binary_decode
+        tlv_tagged_binary_encode
+        tlv_tagged_binary_format_init
+        tlv_tagged_binary_measure
+        tlv_tagged_fields_decode
+        tlv_tagged_fields_encode
+        tlv_tagged_fields_format_init
+        tlv_tagged_fields_measure
+        tlv_utf8_find_invalid
+        tlv_utf8_stream_finish
+        tlv_utf8_stream_init
+        tlv_utf8_stream_update
+        tlv_utf8_validate
+        tlv_value_compare
+        tlv_value_copy
+        tlv_value_equal
+        tlv_value_init
+        tlv_value_is_empty
+        tlv_value_slice
+        tlv_value_validate
+        tlv_variable_decode
+        tlv_variable_encode
+        tlv_variable_fields_init
+        tlv_variable_format_init
+        tlv_variable_identifier_read
+        tlv_variable_identifier_write
+        tlv_variable_is_constructed
+        tlv_variable_length_read
+        tlv_variable_length_write
+        tlv_variable_measure
+        tlv_version_git_branch
+        tlv_version_git_commit_hash
+        tlv_version_git_repo
+        tlv_version_git_tag
+        tlv_version_major
+        tlv_version_minor
+        tlv_version_patch
+        tlv_version_prerelease
+        tlv_version_revision
+        tlv_version_string
+        tlv_write_u16_be
+        tlv_write_u16_le
+        tlv_write_u32_be
+        tlv_write_u32_le
+        tlv_write_u64_be
+        tlv_write_u64_le
+        tlv_write_uint
+)
+
+opentlv_add_module(io EXPORT_NAME IO INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/io.c
+    SOURCES
+        ../../src/io/reader/diagnostic_strings.c
+        ../../src/io/reader/reader.c
+        ../../src/io/reader/tree.c
+        ../../src/io/reader/visitor.c
+        ../../src/io/writer/copy.c
+        ../../src/io/writer/tree.c
+        ../../src/io/writer/writer.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/io/defaults.h
+        ../../include/opentlv/io/reader/diagnostic.h
+        ../../include/opentlv/io/reader/reader.h
+        ../../include/opentlv/io/reader/tree.h
+        ../../include/opentlv/io/reader/visitor.h
+        ../../include/opentlv/io/tree.h
+        ../../include/opentlv/io/writer/copy.h
+        ../../include/opentlv/io/writer/tree.h
+        ../../include/opentlv/io/writer/writer.h
+    PUBLIC_DEPS core
+    PUBLIC_SYMBOLS
+        tlv_copy_element
+        tlv_element_encoded_size
+        tlv_element_encoded_size_diag
+        tlv_encoded_size
+        tlv_read
+        tlv_read_diag
+        tlv_read_source_diag
+        tlv_reader_at_end
+        tlv_reader_consumed
+        tlv_reader_diagnostic_init
+        tlv_reader_init
+        tlv_reader_init_incremental
+        tlv_reader_next
+        tlv_reader_next_diag
+        tlv_reader_next_source_diag
+        tlv_reader_offset
+        tlv_reader_detail_attach
+        tlv_reader_detail_copy
+        tlv_reader_operation_string
+        tlv_reader_set_input
+        tlv_reader_visit
+        tlv_reader_visit_diag
+        tlv_tree_reader_at_end
+        tlv_tree_reader_consumed
+        tlv_tree_reader_init
+        tlv_tree_reader_init_incremental
+        tlv_tree_reader_next
+        tlv_tree_reader_next_diag
+        tlv_tree_reader_next_event
+        tlv_tree_reader_next_event_diag
+        tlv_tree_reader_offset
+        tlv_tree_reader_set_input
+        tlv_tree_reader_skip_subtree
+        tlv_tree_reader_visit
+        tlv_tree_writer_begin
+        tlv_tree_writer_begin_diag
+        tlv_tree_writer_end
+        tlv_tree_writer_end_diag
+        tlv_tree_writer_finish
+        tlv_tree_writer_init
+        tlv_tree_writer_measure
+        tlv_tree_writer_measure_events
+        tlv_tree_writer_measure_events_observed
+        tlv_tree_writer_set_tag_storage
+        tlv_tree_writer_size
+        tlv_tree_writer_write_element
+        tlv_tree_writer_write_element_diag
+        tlv_tree_writer_write_event
+        tlv_tree_writer_write_event_diag
+        tlv_write
+        tlv_write_diag
+        tlv_write_element
+        tlv_write_element_diag
+        tlv_writer_copy_element
+        tlv_writer_copy_encoded
+        tlv_writer_copy_encoded_diag
+        tlv_writer_diagnostic_init
+        tlv_writer_init
+        tlv_writer_operation_string
+        tlv_writer_preserve
+        tlv_writer_preserve_diag
+        tlv_writer_remaining
+        tlv_writer_size
+        tlv_writer_write
+        tlv_writer_write_diag
+        tlv_writer_write_element
+        tlv_writer_write_element_diag
+)
+
+opentlv_add_module(generator EXPORT_NAME Generator INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/generator.c
+    SOURCES ../../src/generator/generator.c
+    PUBLIC_HEADERS ../../include/opentlv/generator/generator.h
+    PUBLIC_DEPS core
+    PRIVATE_DEPS io
+    PUBLIC_SYMBOLS tlv_generate tlv_generator_workspace_size
+)
+
+opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/document.c
+    SOURCES
+        ../../src/document/document.c
+        ../../src/document/reader.c
+        ../../src/document/writer.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/document/document.h
+        ../../include/opentlv/document/integration.h
+    PRIVATE_HEADERS
+        ../../src/document/internal/document_internal.h
+    PUBLIC_DEPS core io
+    PUBLIC_SYMBOLS
+        tlv_document_builder_consume
+        tlv_document_builder_create
+        tlv_document_builder_free
+        tlv_document_callback
+        tlv_document_callbacks_active
+        tlv_document_contains
+        tlv_document_count
+        tlv_document_create
+        tlv_document_encode
+        tlv_document_encode_as
+        tlv_document_encoded_size
+        tlv_document_encoded_size_as
+        tlv_document_find
+        tlv_document_first
+        tlv_document_free
+        tlv_document_insert
+        tlv_document_node_identity
+        tlv_document_options
+        tlv_document_options_init
+        tlv_document_parse
+        tlv_document_retire_epoch
+        tlv_document_revision
+        tlv_node_encode
+        tlv_node_encode_as
+        tlv_node_encoded_size
+        tlv_node_encoded_size_as
+        tlv_node_erase
+        tlv_node_first_child
+        tlv_node_identity
+        tlv_node_is_constructed
+        tlv_node_next
+        tlv_node_next_same_tag
+        tlv_node_parent
+        tlv_node_set_value
+        tlv_node_source_location
+        tlv_node_tag
+        tlv_node_value_data
+        tlv_node_value_size
+)
+
+configure_file(../../src/query/internal/query-features.h.in "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" @ONLY)
+install(FILES "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/opentlv/query")
+set(_query_sources)
+set(_query_frontend_symbols)
+if(OPENTLV_QUERY_FRONTEND)
+    list(APPEND _query_sources ../../src/query/compiler.c)
+    list(APPEND _query_frontend_symbols tlv_query_compile tlv_query_compile_commit tlv_query_compile_options_init tlv_query_compile_prepare tlv_query_compile_prepare_size tlv_query_compile_scratch tlv_query_program_format tlv_query_program_load tlv_query_program_load_scratch tlv_query_parse tlv_query_parse_n)
+endif()
+opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/query.c
+    SOURCES
+        ../../src/query/query.c
+        ../../src/query/plan.c
+        ../../src/query/execute.c
+        ../../src/query/evaluation.c
+        ../../src/query/diagnostic_strings.c
+        ../../src/query/adapters.c
+        ../../src/query/features.c
+        ${_query_sources}
+    PUBLIC_HEADERS
+        ../../include/opentlv/query/query.h
+        ../../include/opentlv/query/program.h
+        ../../include/opentlv/query/plan.h
+        ../../include/opentlv/query/definition.h
+    PRIVATE_HEADERS
+        ../../src/query/internal/program_internal.h
+        ../../src/query/internal/frontend_internal.h
+        ../../src/query/internal/match_internal.h
+        ../../src/query/internal/v1_internal.h
+    PUBLIC_DEPS core io
+    PUBLIC_SYMBOLS
+        tlv_query_conversion_violation_string
+        tlv_query_cause_string
+        tlv_query_count
+        tlv_query_definition_resolve
+        tlv_query_error_kind_string
+        tlv_query_eval_init
+        tlv_query_eval_size
+        tlv_query_exec_bind
+        tlv_query_exec_context
+        tlv_query_exec_feed
+        tlv_query_exec_finish
+        tlv_query_exec_info
+        tlv_query_exec_init
+        tlv_query_exec_pruning
+        tlv_query_exec_reset
+        tlv_query_exec_result
+        tlv_query_exec_selected
+        tlv_query_exec_size
+        tlv_query_format
+        tlv_query_matcher_init
+        tlv_query_matcher_rebind
+        tlv_query_matcher_visit
+        tlv_query_plan_info
+        tlv_query_plan_open
+        tlv_query_program_exists
+        tlv_query_program_explain
+        tlv_query_program_variable
+        tlv_query_program_variable_count
+        tlv_query_program_visit
+        tlv_query_result_next
+        tlv_query_result_next_ordinal
+        tlv_query_step
+        tlv_query_visit
+        tlv_query_visit_buffer
+        tlv_config_query_frontend
+        tlv_config_query_set_operations
+        ${_query_frontend_symbols}
+    OWNER_SYMBOLS
+        query_retained_overlap
+        query_live_overlap
+        query_function_eval
+        query_retained_finish
+        query_retained_feed
+        query_document_handle
+        query_document_end
+        query_document_next
+        query_document_result_count
+        query_candidate_size
+        query_candidate_alignment
+        query_s1_filter
+)
+opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/query_document.c
+    SOURCES
+        ../../src/query/document_path.c
+        ../../src/query/document_backend.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/query/document.h
+    PUBLIC_DEPS core io document query
+    PUBLIC_SYMBOLS
+        tlv_document_find_path
+        tlv_document_query_edit
+        tlv_document_query_evaluate
+        tlv_document_query_next
+        tlv_document_query_program_visit
+        tlv_document_query_value_size
+        tlv_document_query_visit
+)
+
+opentlv_add_module(codec EXPORT_NAME Codec INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/codec.c
+    SOURCES
+        ../../src/codec/codec.c
+        ../../src/codec/diagnostic.c
+        ../../src/codec/diagnostic_strings.c
+        ../../src/codec/digits.c
+        ../../src/codec/ipv4.c
+        ../../src/codec/number.c
+        ../../src/codec/text.c
+        ../../src/codec/values.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/codec/codec.h
+        ../../include/opentlv/codec/diagnostic.h
+        ../../include/opentlv/codec/digits.h
+        ../../include/opentlv/codec/ipv4.h
+        ../../include/opentlv/codec/number.h
+        ../../include/opentlv/codec/text.h
+        ../../include/opentlv/codec/values.h
+    PRIVATE_HEADERS
+        ../../src/codec/internal/result_internal.h
+    PUBLIC_DEPS
+        core
+    PUBLIC_SYMBOLS
+        tlv_codec_bytes
+        tlv_codec_cause_string
+        tlv_codec_decode
+        tlv_codec_detail_attach
+        tlv_codec_detail_copy
+        tlv_codec_detail_import
+        tlv_codec_diagnostic_export
+        tlv_codec_diagnostic_init
+        tlv_codec_encode
+        tlv_codec_int64_minimal_be
+        tlv_codec_ipv4
+        tlv_codec_ipv4_list
+        tlv_codec_operation_string
+        tlv_codec_reason_string
+        tlv_codec_uint16_be
+        tlv_codec_uint16_le
+        tlv_codec_uint32_be
+        tlv_codec_uint32_le
+        tlv_codec_uint8
+        tlv_codec_violation_string
+        tlv_digits_decode
+        tlv_digits_encode
+        tlv_ipv4_list_at
+        tlv_number_decode
+        tlv_number_encode
+        tlv_text_decode
+        tlv_text_encode
+)
+
+opentlv_add_module(query-codec OWNER query EXPORT_NAME QueryCodec INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/query_codec.c
+    SOURCES
+        ../../src/query/codec.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/query/adapters.h
+    PUBLIC_DEPS
+        core
+        io
+        query
+        codec
+    PUBLIC_SYMBOLS
+        tlv_query_builtin_hooks
+        tlv_query_codec_decode
+)
+
+opentlv_add_module(schema EXPORT_NAME Schema INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/schema.c
+    SOURCES
+        ../../src/schema/constraint.c
+        ../../src/schema/diagnostic_strings.c
+        ../../src/schema/report.c
+        ../../src/schema/schema.c
+        ../../src/schema/structure.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/schema/constraint.h
+        ../../include/opentlv/schema/detail.h
+        ../../include/opentlv/schema/schema.h
+    PRIVATE_HEADERS
+        ../../src/schema/internal/diagnostic_internal.h
+        ../../src/schema/internal/traversal_internal.h
+    PUBLIC_DEPS core io
+    PUBLIC_SYMBOLS
+        tlv_schema_cause_string
+        tlv_schema_check
+        tlv_schema_definition_kind_string
+        tlv_schema_detail_attach
+        tlv_schema_detail_copy
+        tlv_schema_diagnostic_init
+        tlv_schema_find
+        tlv_schema_issue_kind_string
+        tlv_schema_prepare
+        tlv_schema_validate
+        tlv_schema_validate_all_checked
+        tlv_schema_validate_all_diag
+        tlv_schema_validate_checked
+        tlv_schema_validate_length
+        tlv_value_constraint_check
+        tlv_value_constraint_name
+        tlv_value_constraint_validate
+)
+
+opentlv_add_module(schema-number EXPORT_NAME SchemaNumber OWNER schema INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/schema_number.c
+    SOURCES
+        ../../src/schema/number.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/schema/number.h
+    PUBLIC_DEPS schema codec
+    PRIVATE_DEPS core
+    PUBLIC_SYMBOLS
+        tlv_schema_number_decode
+        tlv_schema_number_encode
+        tlv_schema_number_validate_length
+)
+
+opentlv_add_module(schema-query EXPORT_NAME SchemaQuery OWNER schema INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/schema_query.c
+    SOURCES
+        ../../src/schema/query.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/schema/query.h
+    PRIVATE_HEADERS
+        ../../src/schema/internal/query_diagnostic_internal.h
+        ../../src/schema/internal/query_internal.h
+    PUBLIC_DEPS core io schema query
+    PUBLIC_SYMBOLS
+        tlv_schema_query_size
+        tlv_schema_query_validate_buffer
+)
+
+opentlv_add_module(schema-query-document EXPORT_NAME SchemaQueryDocument OWNER schema INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/schema_query_document.c
+    SOURCES
+        ../../src/schema/query_document.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/schema/query_document.h
+    PUBLIC_DEPS core io schema document schema-query query query-document
+    PUBLIC_SYMBOLS
+        tlv_schema_query_validate_document
+)
+
+opentlv_add_module(codec-structure EXPORT_NAME CodecStructure OWNER codec INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/codec_structure.c
+    SOURCES
+        ../../src/codec/structure.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/codec/structure.h
+    PUBLIC_DEPS core codec schema
+    PRIVATE_DEPS io
+    PUBLIC_SYMBOLS
+        tlv_structure_decode
+        tlv_structure_encode
+)
+
+opentlv_add_module(asn1 EXPORT_NAME ASN1 INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/asn1.c
+    SOURCES
+        ../../src/builtin/asn1/asn1_codec.c
+        ../../src/builtin/asn1/asn1_internal.c
+        ../../src/builtin/asn1/asn1_values_internal.c
+        ../../src/builtin/asn1/ber.c
+        ../../src/builtin/asn1/ber_internal.c
+        ../../src/builtin/asn1/cer.c
+        ../../src/builtin/asn1/cer_validation.c
+        ../../src/builtin/asn1/cer_values_internal.c
+        ../../src/builtin/asn1/der.c
+        ../../src/builtin/asn1/der_schema.c
+        ../../src/builtin/asn1/der_validation.c
+        ../../src/builtin/asn1/identifier.c
+        ../../src/builtin/asn1/query.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/builtin/asn1/asn1_codec.h
+        ../../include/opentlv/builtin/asn1/ber.h
+        ../../include/opentlv/builtin/asn1/cer.h
+        ../../include/opentlv/builtin/asn1/cer_validation.h
+        ../../include/opentlv/builtin/asn1/der.h
+        ../../include/opentlv/builtin/asn1/der_schema.h
+        ../../include/opentlv/builtin/asn1/der_validation.h
+        ../../include/opentlv/builtin/asn1/identifier.h
+        ../../include/opentlv/builtin/asn1/query.h
+    PRIVATE_HEADERS
+        ../../src/builtin/asn1/internal/asn1_internal.h
+        ../../src/builtin/asn1/internal/asn1_values_internal.h
+        ../../src/builtin/asn1/internal/ber_internal.h
+        ../../src/builtin/asn1/internal/cer_values_internal.h
+        ../../src/builtin/asn1/internal/der_validation_internal.h
+    PUBLIC_DEPS core io codec schema query
+    PUBLIC_SYMBOLS
+        tlv_asn1_bit_string_test
+        tlv_asn1_codec_bit_string
+        tlv_asn1_codec_bmp_string
+        tlv_asn1_codec_boolean
+        tlv_asn1_codec_date
+        tlv_asn1_codec_date_time
+        tlv_asn1_codec_duration
+        tlv_asn1_codec_enumerated
+        tlv_asn1_codec_general_string
+        tlv_asn1_codec_generalized_time
+        tlv_asn1_codec_graphic_string
+        tlv_asn1_codec_ia5_string
+        tlv_asn1_codec_integer
+        tlv_asn1_codec_null
+        tlv_asn1_codec_numeric_string
+        tlv_asn1_codec_object_descriptor
+        tlv_asn1_codec_octet_string
+        tlv_asn1_codec_oid
+        tlv_asn1_codec_oid_iri
+        tlv_asn1_codec_printable_string
+        tlv_asn1_codec_relative_oid
+        tlv_asn1_codec_relative_oid_iri
+        tlv_asn1_codec_teletex_string
+        tlv_asn1_codec_time
+        tlv_asn1_codec_time_of_day
+        tlv_asn1_codec_universal_string
+        tlv_asn1_codec_utc_time
+        tlv_asn1_codec_utf8_string
+        tlv_asn1_codec_videotex_string
+        tlv_asn1_codec_visible_string
+        tlv_asn1_is_constructed
+        tlv_asn1_named_bit_find
+        tlv_asn1_query_date
+        tlv_asn1_query_tags
+        tlv_ber_indefinite_encoded_size
+        tlv_ber_length_decode
+        tlv_ber_length_encode
+        tlv_ber_read_identifier
+        tlv_ber_tag_make
+        tlv_ber_tag_number
+        tlv_ber_write_indefinite
+        tlv_ber_writer_write_indefinite
+        tlv_cer_default_limits
+        tlv_cer_read
+        tlv_cer_read_strict
+        tlv_cer_tag_make
+        tlv_cer_tag_number
+        tlv_cer_visit
+        tlv_cer_visit_strict
+        tlv_cer_write
+        tlv_cer_write_segmented_string
+        tlv_cer_write_strict
+        tlv_der_default_limits
+        tlv_der_read
+        tlv_der_read_strict
+        tlv_der_schema_check
+        tlv_der_schema_default_limits
+        tlv_der_schema_prepare
+        tlv_der_schema_read
+        tlv_der_schema_read_checked
+        tlv_der_schema_write
+        tlv_der_schema_write_checked
+        tlv_der_tag_make
+        tlv_der_tag_number
+        tlv_der_visit
+        tlv_der_visit_strict
+        tlv_der_write
+        tlv_der_write_strict
+        tlv_format_ber
+        tlv_format_ber_indefinite
+        tlv_format_cer
+        tlv_format_der
+)
+
+opentlv_add_module(emv EXPORT_NAME EMV INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/emv.c
+    SOURCES
+        ../../src/builtin/emv/dictionary.c
+        ../../src/builtin/emv/dol.c
+        ../../src/builtin/emv/emv.c
+        ../../src/builtin/emv/emv_codec.c
+        ../../src/builtin/emv/emv_schema.c
+        ../../src/builtin/emv/format.c
+        ../../src/builtin/emv/presentation.c
+        ../../src/builtin/emv/query.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/builtin/emv/dol.h
+        ../../include/opentlv/builtin/emv/emv.h
+        ../../include/opentlv/builtin/emv/emv_codec.h
+        ../../include/opentlv/builtin/emv/emv_schema.h
+        ../../include/opentlv/builtin/emv/format.h
+        ../../include/opentlv/builtin/emv/presentation.h
+        ../../include/opentlv/builtin/emv/query.h
+    PRIVATE_HEADERS
+        ../../src/builtin/emv/internal/dictionary_internal.h
+        ../../src/builtin/emv/internal/emv_codec_internal.h
+    PUBLIC_DEPS core codec schema query
+    PRIVATE_DEPS schema-number
+    PUBLIC_SYMBOLS
+        tlv_dol_default_limits
+        tlv_dol_read
+        tlv_dol_write
+        tlv_emv_builtin_value_kind
+        tlv_emv_child_context
+        tlv_emv_codec_amount
+        tlv_emv_dictionary_find
+        tlv_emv_dictionary_for
+        tlv_emv_display_label
+        tlv_emv_find
+        tlv_emv_length_step
+        tlv_emv_query_resolve
+        tlv_emv_schema
+        tlv_emv_schema_for
+        tlv_emv_structure_schema
+        tlv_emv_symbol
+        tlv_emv_tag_account_type
+        tlv_emv_tag_acquirer_identifier
+        tlv_emv_tag_additional_terminal_capabilities
+        tlv_emv_tag_adf_name
+        tlv_emv_tag_afl
+        tlv_emv_tag_aid_terminal
+        tlv_emv_tag_aip
+        tlv_emv_tag_amount_authorised
+        tlv_emv_tag_amount_authorised_binary
+        tlv_emv_tag_amount_other
+        tlv_emv_tag_amount_other_binary
+        tlv_emv_tag_amount_reference_currency
+        tlv_emv_tag_application_cryptogram
+        tlv_emv_tag_application_currency_code
+        tlv_emv_tag_application_currency_exponent
+        tlv_emv_tag_application_discretionary_data
+        tlv_emv_tag_application_effective_date
+        tlv_emv_tag_application_expiration_date
+        tlv_emv_tag_application_label
+        tlv_emv_tag_application_preferred_name
+        tlv_emv_tag_application_priority_indicator
+        tlv_emv_tag_application_reference_currency
+        tlv_emv_tag_application_reference_currency_exponent
+        tlv_emv_tag_application_template
+        tlv_emv_tag_application_usage_control
+        tlv_emv_tag_application_version_card
+        tlv_emv_tag_application_version_terminal
+        tlv_emv_tag_asrpd
+        tlv_emv_tag_atc
+        tlv_emv_tag_authorisation_code
+        tlv_emv_tag_authorisation_response_code
+        tlv_emv_tag_bht1
+        tlv_emv_tag_bht2
+        tlv_emv_tag_bht_format_owner
+        tlv_emv_tag_bht_format_type
+        tlv_emv_tag_bic
+        tlv_emv_tag_biometric_creation_datetime
+        tlv_emv_tag_biometric_creator
+        tlv_emv_tag_biometric_data_mac
+        tlv_emv_tag_biometric_format_owner
+        tlv_emv_tag_biometric_format_type
+        tlv_emv_tag_biometric_header_template
+        tlv_emv_tag_biometric_header_version
+        tlv_emv_tag_biometric_information_template
+        tlv_emv_tag_biometric_matching_parameters
+        tlv_emv_tag_biometric_matching_parameters_template
+        tlv_emv_tag_biometric_product_id
+        tlv_emv_tag_biometric_solution_id
+        tlv_emv_tag_biometric_subtype
+        tlv_emv_tag_biometric_terminal_capabilities
+        tlv_emv_tag_biometric_try_counters_template
+        tlv_emv_tag_biometric_type
+        tlv_emv_tag_biometric_validity_period
+        tlv_emv_tag_biometric_verification_data_template
+        tlv_emv_tag_bit_count
+        tlv_emv_tag_ca_public_key_index
+        tlv_emv_tag_ca_public_key_index_terminal
+        tlv_emv_tag_card_bit_group_template
+        tlv_emv_tag_cardholder_name
+        tlv_emv_tag_cardholder_name_extended
+        tlv_emv_tag_cdol1
+        tlv_emv_tag_cdol2
+        tlv_emv_tag_command_template
+        tlv_emv_tag_cryptogram_information_data
+        tlv_emv_tag_cvm_list
+        tlv_emv_tag_cvm_results
+        tlv_emv_tag_data_authentication_code
+        tlv_emv_tag_ddf_name
+        tlv_emv_tag_ddol
+        tlv_emv_tag_df_name
+        tlv_emv_tag_directory_discretionary_template
+        tlv_emv_tag_enciphered_biometric_data
+        tlv_emv_tag_enciphered_biometric_key_seed
+        tlv_emv_tag_facial_try_counter
+        tlv_emv_tag_fci_issuer_discretionary_data
+        tlv_emv_tag_fci_proprietary_template
+        tlv_emv_tag_fci_template
+        tlv_emv_tag_finger_try_counter
+        tlv_emv_tag_group_bit
+        tlv_emv_tag_iban
+        tlv_emv_tag_icc_dynamic_number
+        tlv_emv_tag_icc_pin_public_key_certificate
+        tlv_emv_tag_icc_pin_public_key_exponent
+        tlv_emv_tag_icc_pin_public_key_remainder
+        tlv_emv_tag_icc_public_key_certificate
+        tlv_emv_tag_icc_public_key_exponent
+        tlv_emv_tag_icc_public_key_remainder
+        tlv_emv_tag_ifd_serial_number
+        tlv_emv_tag_iin
+        tlv_emv_tag_iin_extended
+        tlv_emv_tag_iris_try_counter
+        tlv_emv_tag_issuer_action_code_default
+        tlv_emv_tag_issuer_action_code_denial
+        tlv_emv_tag_issuer_action_code_online
+        tlv_emv_tag_issuer_application_data
+        tlv_emv_tag_issuer_authentication_data
+        tlv_emv_tag_issuer_code_table_index
+        tlv_emv_tag_issuer_country_alpha2
+        tlv_emv_tag_issuer_country_alpha3
+        tlv_emv_tag_issuer_country_code
+        tlv_emv_tag_issuer_public_key_certificate
+        tlv_emv_tag_issuer_public_key_exponent
+        tlv_emv_tag_issuer_public_key_remainder
+        tlv_emv_tag_issuer_script_command
+        tlv_emv_tag_issuer_script_identifier
+        tlv_emv_tag_issuer_script_template1
+        tlv_emv_tag_issuer_script_template2
+        tlv_emv_tag_issuer_url
+        tlv_emv_tag_language_preference
+        tlv_emv_tag_last4_pan
+        tlv_emv_tag_last_online_atc
+        tlv_emv_tag_log_entry
+        tlv_emv_tag_log_format
+        tlv_emv_tag_lower_consecutive_offline_limit
+        tlv_emv_tag_merchant_category_code
+        tlv_emv_tag_merchant_identifier
+        tlv_emv_tag_merchant_name_and_location
+        tlv_emv_tag_offline_bit_group_template
+        tlv_emv_tag_online_bit_group_template
+        tlv_emv_tag_palm_try_counter
+        tlv_emv_tag_pan
+        tlv_emv_tag_pan_sequence_number
+        tlv_emv_tag_payment_account_reference
+        tlv_emv_tag_pdol
+        tlv_emv_tag_pin_try_counter
+        tlv_emv_tag_pos_entry_mode
+        tlv_emv_tag_preferred_attempts_template
+        tlv_emv_tag_preferred_facial_attempts
+        tlv_emv_tag_preferred_finger_attempts
+        tlv_emv_tag_preferred_iris_attempts
+        tlv_emv_tag_preferred_palm_attempts
+        tlv_emv_tag_preferred_voice_attempts
+        tlv_emv_tag_read_record_template
+        tlv_emv_tag_response_template1
+        tlv_emv_tag_response_template2
+        tlv_emv_tag_sda_tag_list
+        tlv_emv_tag_service_code
+        tlv_emv_tag_sfi
+        tlv_emv_tag_signed_dynamic_application_data
+        tlv_emv_tag_signed_static_application_data
+        tlv_emv_tag_tc_hash_value
+        tlv_emv_tag_tdol
+        tlv_emv_tag_terminal_capabilities
+        tlv_emv_tag_terminal_country_code
+        tlv_emv_tag_terminal_floor_limit
+        tlv_emv_tag_terminal_identification
+        tlv_emv_tag_terminal_risk_management_data
+        tlv_emv_tag_terminal_type
+        tlv_emv_tag_token_requestor_id
+        tlv_emv_tag_track1_discretionary_data
+        tlv_emv_tag_track2_discretionary_data
+        tlv_emv_tag_track2_equivalent_data
+        tlv_emv_tag_transaction_currency_code
+        tlv_emv_tag_transaction_currency_exponent
+        tlv_emv_tag_transaction_date
+        tlv_emv_tag_transaction_pin_data
+        tlv_emv_tag_transaction_reference_currency_code
+        tlv_emv_tag_transaction_reference_currency_exponent
+        tlv_emv_tag_transaction_sequence_counter
+        tlv_emv_tag_transaction_time
+        tlv_emv_tag_transaction_type
+        tlv_emv_tag_tsi
+        tlv_emv_tag_tvr
+        tlv_emv_tag_unpredictable_number
+        tlv_emv_tag_upper_consecutive_offline_limit
+        tlv_emv_tag_verification_biometric_solution_id
+        tlv_emv_tag_verification_biometric_type
+        tlv_emv_tag_voice_try_counter
+        tlv_emv_titlecase_name
+        tlv_emv_validate_length
+        tlv_emv_value_kind_description
+        tlv_format_emv
+)
+
+opentlv_add_module(bluetooth EXPORT_NAME Bluetooth INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/bluetooth.c
+    SOURCES
+        ../../src/builtin/bluetooth/ad_codec.c
+        ../../src/builtin/bluetooth/ad_data.c
+        ../../src/builtin/bluetooth/ad_schema.c
+        ../../src/builtin/bluetooth/ad_types.c
+        ../../src/builtin/bluetooth/bluetooth_ltv.c
+        ../../src/builtin/bluetooth/company_ids.c
+        ../../src/builtin/bluetooth/manufacturer_data.c
+        ../../src/builtin/bluetooth/service_data.c
+        ../../src/builtin/bluetooth/uuid.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/builtin/bluetooth/ad_codec.h
+        ../../include/opentlv/builtin/bluetooth/ad_data.h
+        ../../include/opentlv/builtin/bluetooth/ad_schema.h
+        ../../include/opentlv/builtin/bluetooth/ad_types.h
+        ../../include/opentlv/builtin/bluetooth/bluetooth_ltv.h
+        ../../include/opentlv/builtin/bluetooth/company_ids.h
+        ../../include/opentlv/builtin/bluetooth/manufacturer_data.h
+        ../../include/opentlv/builtin/bluetooth/service_data.h
+        ../../include/opentlv/builtin/bluetooth/uuid.h
+    PUBLIC_DEPS core io codec schema
+    PUBLIC_SYMBOLS
+        tlv_bluetooth_ad_codec_flags
+        tlv_bluetooth_ad_codec_local_name
+        tlv_bluetooth_ad_codec_tx_power
+        tlv_bluetooth_ad_data_validate
+        tlv_bluetooth_ad_flags_test
+        tlv_bluetooth_ad_schema
+        tlv_bluetooth_ad_types
+        tlv_bluetooth_codec_manufacturer_data
+        tlv_bluetooth_codec_service_data128
+        tlv_bluetooth_codec_service_data16
+        tlv_bluetooth_codec_service_data32
+        tlv_bluetooth_codec_uuid128
+        tlv_bluetooth_codec_uuid128_list
+        tlv_bluetooth_codec_uuid16_list
+        tlv_bluetooth_codec_uuid32_list
+        tlv_bluetooth_company_ids
+        tlv_bluetooth_uuid_list_at
+        tlv_format_bluetooth_ltv
+)
+
+opentlv_add_module(nfc EXPORT_NAME NFC INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/nfc.c
+    SOURCES
+        ../../src/builtin/nfc/type2.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/builtin/nfc/type2.h
+    PUBLIC_DEPS core
+    PUBLIC_SYMBOLS
+        tlv_format_nfc_type2
+)
+
+opentlv_add_module(dhcp EXPORT_NAME DHCP INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/dhcp.c
+    SOURCES
+        ../../src/builtin/dhcp/container.c
+        ../../src/builtin/dhcp/dhcpv4.c
+        ../../src/builtin/dhcp/options.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/builtin/dhcp/codec.h
+        ../../include/opentlv/builtin/dhcp/container.h
+        ../../include/opentlv/builtin/dhcp/dhcpv4.h
+        ../../include/opentlv/builtin/dhcp/options.h
+    PUBLIC_DEPS core codec schema
+    PRIVATE_DEPS io
+    PUBLIC_SYMBOLS
+        tlv_dhcpv4_options
+        tlv_dhcpv4_options_validate
+        tlv_format_dhcpv4
+)
+
+opentlv_add_module(lldp EXPORT_NAME LLDP INCLUDE_DIR ../../include
+    CONSUMER ../../tests/modules/lldp.c
+    SOURCES
+        ../../src/builtin/lldp/codec.c
+        ../../src/builtin/lldp/lldp.c
+        ../../src/builtin/lldp/schema.c
+    PUBLIC_HEADERS
+        ../../include/opentlv/builtin/lldp/codec.h
+        ../../include/opentlv/builtin/lldp/lldp.h
+        ../../include/opentlv/builtin/lldp/schema.h
+    PUBLIC_DEPS core codec schema
+    PRIVATE_DEPS io
+    PUBLIC_SYMBOLS
+        tlv_format_lldp
+        tlv_lldp_codec_capabilities
+        tlv_lldp_codec_chassis_id
+        tlv_lldp_codec_management_address
+        tlv_lldp_codec_organisation
+        tlv_lldp_codec_port_id
+        tlv_lldp_schema
+        tlv_lldp_types
+        tlv_lldp_validate
+)

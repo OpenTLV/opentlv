@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #include "codec_diagnostic_helpers.h"
 
-#include "tlv/builtins/asn1/der_schema.h"
+#include "opentlv/builtin/asn1/der_schema.h"
 #include "../../../diagnostic_assertions.h"
 #include <gtest/gtest.h>
 #include <cstring>

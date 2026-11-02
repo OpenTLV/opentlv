@@ -6,7 +6,7 @@ contract and why each failure has its class; this page names the values that
 implement it. Epic #547 completed the migration through breaking API and ABI
 changes, with no aliases for removed names.
 
-Core and Codec operations return the shared `tlv_result_t` from `tlv/result.h`. Zero is success. `TLV_END` (normal end
+Core and Codec operations return the shared `tlv_result_t` from `opentlv/core/result.h`. Zero is success. `TLV_END` (normal end
 of iteration) and `TLV_NEED_MORE_DATA` (resumable non-final input) are control
 statuses, not failures; every other nonzero result is a failure. `tlv_result_string` returns a static, readable
 description of any code and `"unknown error"` for an unrecognized one; never free or
@@ -342,14 +342,14 @@ byte location; `definition.kind`, `owner` and `index` identify native definition
 
 The Schema diagnostic layout and affected signatures changed in #553, #555 and #652.
 Rebuild native clients and use the matching binding version. C++
-`schema_failure` in `tlv++/schema/error.hpp` exposes
+`schema_failure` in `opentlv/schema/error.hpp` exposes
 `schema_kind()`, `location()` and `definition()`; Python uses `InvalidSchemaError` for definitions
 and `SchemaError` with `kind="missing"` for required absence.
 
 Custom Format callback failures permitted by the callback contract propagate
 unchanged through the generic Reader and Writer. Unknown results, forbidden
 control statuses and invalid successful payloads become `TLV_ERR_CALLBACK`;
-see the public callback contracts in `tlv/format.h`.
+see the public callback contracts in `opentlv/core/format.h`.
 
 ## Diagnostic enum names
 

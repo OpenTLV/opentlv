@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "controlled_format.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 TEST(Unit_Tlv_FormatInit, IndependentCapabilitiesAndAtomicFailure) {

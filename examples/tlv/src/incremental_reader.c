@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 /* Caller-owned sliding storage; Reader performs no I/O or buffering. */
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/reader/reader.h"
 #include <stdio.h>
 #include <string.h>
 

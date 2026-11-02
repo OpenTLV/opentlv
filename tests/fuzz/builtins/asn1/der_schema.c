@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "common.h"
-#include "tlv/builtins/asn1/der_schema.h"
+#include "opentlv/builtin/asn1/der_schema.h"
 
 /* A fixed representative schema exercising every construct issue #63 added:
  * IMPLICIT and EXPLICIT tagging, a DEFAULT component, SET, SET OF and

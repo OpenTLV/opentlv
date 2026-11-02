@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/format.h"
-#include "tlv/builtins/emv/emv_schema.h"
-#include "tlv/builtins/emv/emv.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/builtin/emv/format.h"
+#include "opentlv/builtin/emv/emv_schema.h"
+#include "opentlv/builtin/emv/emv.h"
+#include "opentlv/io/reader/visitor.h"
 #include <gtest/gtest.h>
 #include <vector>
 

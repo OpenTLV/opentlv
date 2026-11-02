@@ -2,10 +2,10 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "controlled_format.h"
-#include "tlv/reader/tree.h"
-#include "tlv/writer/tree.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/asn1/cer.h"
+#include "opentlv/io/reader/tree.h"
+#include "opentlv/io/writer/tree.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/asn1/cer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>

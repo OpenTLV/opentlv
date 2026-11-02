@@ -3,9 +3,9 @@
 
 // Independent of GoogleTest's minimum C++ standard: exercises C++11 range returns
 // with copy elision disabled and observes allocations across successful processing.
-#include "tlv++/reader/reader.hpp"
-#include "tlv++/query/query.hpp"
-#include "tlv++/formats/fixed_format.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/query/query.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
 #include "custom_cpp_format.hpp"
 #include <cstdlib>
 #include <new>

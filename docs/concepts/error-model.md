@@ -534,7 +534,7 @@ invariant, DER output-position and path work (#548, #549, #550):
 | #556 | Shared Codec result domain and lossless propagation across Codec, Structure Codec and Query |
 | #557, #558, #559 | Diagnostic name functions, failure channels and binding and CLI adoption |
 | #561 | Lazy diagnostic materialization and minimal successful-path work |
-| #578, #580 | `END`, `TRUNCATED` and `SYNTAX`; `tlv/result.h` and `tlv_result_string()` |
+| #578, #580 | `END`, `TRUNCATED` and `SYNTAX`; `opentlv/core/result.h` and `tlv_result_string()` |
 | #579 | One source of truth per diagnostic field |
 | #587, #588 | Query kind `ARGUMENT` and Query diagnostics for Document Query entry points |
 | #589, #590 | Remaining core producer gaps; location-aware facades and single-source binding projections |

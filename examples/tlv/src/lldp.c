@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/lldp/lldp.h"
-#include "tlv/builtins/lldp/schema.h"
-#include "tlv/builtins/lldp/codec.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/lldp/lldp.h"
+#include "opentlv/builtin/lldp/schema.h"
+#include "opentlv/builtin/lldp/codec.h"
+#include "opentlv/io/reader/reader.h"
 
 int main(void) {
     /* Local IDs "c"/"p", TTL 120 seconds, optional End. No Ethernet padding. */

@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Header | `tlv/format.h`, `tlv/field/encoding.h`, `tlv/formats/compose.h` |
+| Header | `opentlv/core/format.h`, `opentlv/core/field/encoding.h`, `opentlv/core/formats/compose.h` |
 | Setup | `tlv_format_init` or `tlv_fields_format_init` |
 | CMake option | None; generic callbacks are always available |
 | Link target | `tlv` |

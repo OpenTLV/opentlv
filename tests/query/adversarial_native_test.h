@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 #include "adversarial_native.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/writer/tree.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/writer/tree.h"
 static int native_constructed(const void* context, const tlv_tag_t* tag) {
     (void)context;
     return tag->size == 1 && tag->data[0] == 0x70;

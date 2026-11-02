@@ -3,12 +3,12 @@
 #include "../query_diagnostic_helpers.h"
 /* Included by the C-only adversarial driver; intentionally shares CHECK/arena. */
 #if OPENTLV_QUERY_FRONTEND
-#include "tlv/defaults.h"
-#include "tlv/format.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
-#include "tlv/writer/tree.h"
+#include "opentlv/io/defaults.h"
+#include "opentlv/core/format.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
+#include "opentlv/io/writer/tree.h"
 typedef struct callback_state {
     tlv_query_exec_t* exec;
     size_t            workspace_bytes;

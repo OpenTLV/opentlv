@@ -1,0 +1,100 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Marek Cingel
+#ifndef OPENTLV_SCHEMA_QUERY_H
+#define OPENTLV_SCHEMA_QUERY_H
+#include "opentlv/schema/query/export.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/query/program.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+/** @file
+ * @ingroup schemas
+ * @brief Optional contextual assertions composed from compiled Query programs. */
+/** @brief Schema wrapper: select contexts, then require a boolean assertion in each context.
+ * Programs and environment are immutable and borrowed. assert(...) is a Schema concept,
+ * not Query grammar. Empty context selection succeeds. Rules execute in table order. */
+typedef struct tlv_schema_query_rule {
+    const tlv_query_program_t* context; /**< Node selector evaluated against the original root. */
+    const tlv_query_program_t*
+        assertion; /**< Boolean program, relative to each selected context. */
+    const tlv_query_environment_t* environment; /**< Optional compatible codec providers. */
+    const char*                    name;        /**< Borrowed rule name for diagnostics. */
+} tlv_schema_query_rule_t;
+/** @brief One caller-stored selected context, retaining original identity and metadata. */
+typedef struct tlv_schema_query_context {
+    size_t           ordinal; /**< Original preorder identity. */
+    tlv_tree_event_t event;   /**< Borrowed context metadata, valid while input stays immutable. */
+    void*            node;    /**< Document context identity; unused for Tree evaluation. */
+} tlv_schema_query_context_t;
+/** @brief Reusable sequential workspace for all rules; no hidden candidate allocations. */
+typedef struct tlv_schema_query_workspace {
+    void*  selector;       /**< Aligned exclusive retained selector execution storage. */
+    size_t selector_size;  /**< Selector storage bytes. */
+    void*  assertion;      /**< Aligned exclusive assertion execution storage. */
+    size_t assertion_size; /**< Assertion storage bytes. */
+    tlv_schema_query_context_t* contexts; /**< Explicit selected-context array. */
+    size_t            context_capacity;   /**< Maximum selected contexts, including overlaps. */
+    tlv_tree_frame_t* frames;         /**< Borrowed Reader stack, at least max_depth+1 entries. */
+    size_t            frame_capacity; /**< Reader stack entries. */
+} tlv_schema_query_workspace_t;
+/** @brief Rule-aware failure preserving native Query/Reader/codec diagnostics.
+ * @note After initialization, every failure is described once by `query`. A
+ * failed assertion sets `query.diagnostic.code` to #TLV_ERR_SCHEMA, `query.kind`
+ * to #TLV_QUERY_ERROR_SCHEMA and `query.cause` to #TLV_QUERY_CAUSE_SCHEMA, with
+ * ASSERTION detail (tag, field=name) in `query.detail.causes`. An execution failure
+ * keeps its own result, kind and cause. Invalid program contents initialize
+ * `query.kind` to IMAGE; incompatible rule result types initialize it to TYPE,
+ * both with #TLV_ERR_INVALID_VALUE. Other preflight rejection before
+ * initialization leaves the object untouched. */
+typedef struct tlv_schema_query_diagnostic {
+    size_t                 rule;  /**< Zero-based failing rule. */
+    tlv_query_diagnostic_t query; /**< Assertion or original engine/Reader/codec failure. */
+} tlv_schema_query_diagnostic_t;
+/** @brief Discover aggregate sequential execution requirements and validate result types.
+ * @param rules Immutable borrowed descriptors.
+ * @param count Descriptor count; zero permits NULL.
+ * @param depth Maximum traversal depth.
+ * @param nodes Retained-node capacity including nonmatches.
+ * @param selector Required largest selector workspace bytes among all rules.
+ * @param assertion Required largest assertion workspace bytes among all rules.
+ * @param alignment Required common alignment for both workspaces.
+ * @return #TLV_ERR_INVALID_ARG for misaligned programs; #TLV_ERR_INVALID_VALUE for
+ * malformed program contents or a non-node selector/non-boolean assertion.
+ * @return Other native sizing/capacity error or OK; outputs unchanged on failure.
+ * @note This sizing function has no diagnostic output. Only
+ * tlv_schema_query_validate_buffer() and, in SchemaQueryDocument,
+ * tlv_schema_query_validate_document() report Query kind IMAGE or TYPE and the
+ * failing rule index through their optional diagnostic output.
+ * @note Context arrays and Reader frames are additional explicit storage. Rules reuse
+ * the two workspaces sequentially; Document Value snapshot and owning tree are separate. */
+OPENTLV_SCHEMA_QUERY_API tlv_result_t tlv_schema_query_size(const tlv_schema_query_rule_t* rules,
+                                                            size_t count, size_t depth,
+                                                            size_t nodes, size_t* selector,
+                                                            size_t* assertion, size_t* alignment);
+/** @brief Validate contextual boolean assertions over immutable complete input.
+ * @param data Stable input bytes, alive through the call.
+ * @param size Input byte count.
+ * @param format Borrowed Format/context.
+ * @param rules Compiled rules, composing with existing structural validation separately.
+ * @param count Rule count; zero skips assertion validation explicitly.
+ * @param depth Maximum depth.
+ * @param nodes Explicit retained-node capacity.
+ * @param work Charged budget per execution (selector and each assertion context).
+ * @param workspace Caller storage, disjoint from input/programs.
+ * @param diagnostic Optional structured failure; Reader failures remain their original codes.
+ * @return OK, SCHEMA for false assertion, or native storage/Reader/Query failure.
+ * Invalid program contents and rule result types return #TLV_ERR_INVALID_VALUE
+ * with Query kind IMAGE or TYPE and the failing rule index.
+ * @note Rejects all D rules before input traversal. Every context uses the original
+ * whole input and normal Query relative-context semantics. Full structural coverage;
+ * no subtree pruning. Work is O(sum of selector and per-context assertion executions).
+ * No allocation or independent path/expression evaluator. */
+OPENTLV_SCHEMA_QUERY_API tlv_result_t tlv_schema_query_validate_buffer(
+    const uint8_t* data, size_t size, const tlv_format_t* format,
+    const tlv_schema_query_rule_t* rules, size_t count, size_t depth, size_t nodes, size_t work,
+    tlv_schema_query_workspace_t* workspace, tlv_schema_query_diagnostic_t* diagnostic);
+#ifdef __cplusplus
+}
+#endif
+#endif

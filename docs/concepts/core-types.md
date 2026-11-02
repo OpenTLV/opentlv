@@ -6,11 +6,11 @@ Prerequisite: Recognize Element, Tag and Value in the [basic model](learning-mod
 Element = Tag + Value bytes (logical length = Value size)
 ```
 
-Include `<tlv/element.h>` for `tlv_element_t`, `<tlv/value.h>` for `tlv_value_t`, and
-`<tlv/size.h>` for `tlv_size_t`, or `<tlv/tlv.h>` to pull in all of them
+Include `<opentlv/core/element.h>` for `tlv_element_t`, `<opentlv/core/value.h>` for `tlv_value_t`, and
+`<opentlv/core/size.h>` for `tlv_size_t`, or `<opentlv/tlv.h>` to pull in all of them
 along with the rest of the public API. The common `tlv_result_t` error codes
-come from `<tlv/result.h>`. Tags and their configuration are declared in
-`<tlv/tag.h>`, which can also be included directly.
+come from `<opentlv/core/result.h>`. Tags and their configuration are declared in
+`<opentlv/core/tag.h>`, which can also be included directly.
 
 - `tlv_size_t` is a fixed 64-bit unsigned logical TLV value length, with
   the same numeric range on every platform regardless of the current build's
@@ -26,10 +26,10 @@ come from `<tlv/result.h>`. Tags and their configuration are declared in
   a `size_t size`. It represents arbitrary raw tag bytes in wire order and
   nothing else. It owns no memory, allocates none, has no storage capacity or
   maximum length, and carries no format-specific metadata.
-- `tlv_length_t` (in `<tlv/length.h>`) borrows the original encoded length
+- `tlv_length_t` (in `<opentlv/core/length.h>`) borrows the original encoded length
   field through `const uint8_t* data` and native `size_t size`. It preserves
   nonminimal encodings and termination markers without numeric interpretation.
-- `tlv_element_t` (in `<tlv/element.h>`) has exactly two fields: `tag` and
+- `tlv_element_t` (in `<opentlv/core/element.h>`) has exactly two fields: `tag` and
   `value`. All bytes are borrowed. `value.size` is the resolved
   logical value byte count (`tlv_size_t`), excluding header and trailer framing.
   The format defines how the raw length maps to this count: Bluetooth's length
@@ -174,7 +174,7 @@ See also the [C API reference: core types](../reference/c-api.md#core-types-and-
 
 ### C++ semantic views
 
-Include `<tlv++/types.hpp>` for the allocation-free semantic types:
+Include `<opentlv/core/types.hpp>` for the allocation-free semantic types:
 
 | Type | Storage and operations |
 | --- | --- |
@@ -216,7 +216,7 @@ exact source preservation rejects changing presence.
 
 The previous `tlv::tag_t`, `tlv::element` and `tlv::as_bytes(tlv_value_t)` APIs are
 replaced by these strong types. C structures cannot convert implicitly. For
-mixed C/C++ code, include `<tlv++/native.hpp>` and use `native::borrow_tag()`,
+mixed C/C++ code, include `<opentlv/native.hpp>` and use `native::borrow_tag()`,
 `native::borrow_value()` or `native::borrow_element()`, returning `expected`.
 Native Value imports validate null-pointer requirements and reject logical sizes
 above `SIZE_MAX` before iteration or narrowing. `native::descriptor(view)` exports

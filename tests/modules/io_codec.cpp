@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/codec/writer.hpp"
-#include "tlv++/formats/fixed_format.hpp"
+#include "opentlv/codec/writer.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
 
 int main() {
     using field = tlv::field<tlv::tag_constant<1>, uint8_t, tlv::uint8_codec>;

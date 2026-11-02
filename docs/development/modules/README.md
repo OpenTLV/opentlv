@@ -16,15 +16,16 @@ infrastructure from #646. #651 extracts `OpenTLV::Codec` and the Query-owned
 `SchemaNumber`, `SchemaQuery`, `SchemaQueryDocument` and `CodecStructure`
 integrations. #653 extracts all six builtin families: `ASN1`, `EMV`,
 `Bluetooth`, `NFC`, `DHCP` and `LLDP`. Their sources, public
-headers and symbols are registered in `tlv/modules.cmake`; the isolation gate
+headers and symbols are registered in `cmake/library/modules.cmake`; the isolation gate
 checks the compiled dependency graph. #654 associates header-only C++ facades
 with those targets and registers `DocumentCodec` and `IOCodec` integrations.
+The [module-first layout and header migration](layout-migration.md) implements #733.
 All C implementations live in modules; `OpenTLV::tlv` is an optional INTERFACE
 aggregate without an archive. See the [consumer migration guide](../../guides/select-components.md).
 
-Document Query declarations now live in `tlv/query/document.h`; path matching
+Document Query declarations now live in `opentlv/query/document.h`; path matching
 and batch-edit policy live in `query/document_path.c` and
-`query/document_backend.c`. Both use `tlv/document/integration.h` and public node
+`query/document_backend.c`. Both use `opentlv/document/integration.h` and public node
 APIs, with no Document or Writer private-header access. The integration is
 registered as Query-owned `OpenTLV::QueryDocument`; only Query owner-private
 helpers cross its shared-library boundary. Base Query has only Core and IO
@@ -41,7 +42,7 @@ Reader and Schema details travel as producer-owned cause frames in
 `tlv_codec_diagnostic_t`. The `codec-structure` integration retains its explicit
 ownership and is independently linkable as `OpenTLV::CodecStructure`.
 Its Reader and Schema validation behavior is preserved. The typed writer
-implementation now lives in the `io-codec` header `tlv++/codec/writer.hpp`.
+implementation now lives in the `io-codec` header `opentlv/codec/writer.hpp`.
 
 Schema registers length, structure, constraint, checking/preparation and report
 implementations with public Core and IO dependencies only. Number conversions
@@ -50,12 +51,12 @@ assertions live in `SchemaQueryDocument`. Shared Schema-owned helpers use only
 public Query APIs. EMV calls the public SchemaNumber length integration.
 Schema diagnostic names and cause payloads belong to Schema; delegated Reader
 and Codec evidence uses producer-owned frames. Common C++ errors have no Schema
-header dependency; `tlv++/schema/error.hpp` owns `schema_failure`.
+header dependency; `opentlv/schema/error.hpp` owns `schema_failure`.
 
-Generator registers `generator.c` and `tlv/generator.h`, with public Core and
+Generator registers `generator.c` and `opentlv/generator/generator.h`, with public Core and
 private IO dependencies and its own export header. Its source and algorithm
 version remain unchanged; IO never depends on Generator. The existing
-`tlv++/generator.hpp` retains Generator ownership and is checked with an
+`opentlv/generator/generator.hpp` retains Generator ownership and is checked with an
 independently linked C++11 consumer. It remains header-only and receives its shared C++ support headers from Core. Generator test
 ownership includes the existing native/facade regression scenarios; builtin
 Formats in those scenarios are test fixtures, not Generator dependencies.
@@ -130,8 +131,8 @@ count as public modules. A *facade-only* integration target is a header-only
 | `io-codec` (facade only) | Codec | IO, Codec | Typed `writer_base::write()` overloads in C++ | [#651](https://github.com/OpenTLV/opentlv/issues/651) |
 
 The *aggregate* interface target links every public module and integration
-target. It owns the umbrella headers `tlv/tlv.h`, `tlv++/tlv.hpp` and
-`tlv++/native.hpp`, and nothing depends on it. It replaces "link everything"
+target. It owns the umbrella headers `opentlv/tlv.h`, `opentlv/tlv.hpp` and
+`opentlv/native.hpp`, and nothing depends on it. It replaces "link everything"
 use of the former monolithic `tlv` target. #654 retains the existing
 `OpenTLV::tlv` name as a convenience interface; wider naming decisions remain
 with #702.
@@ -187,7 +188,7 @@ Builtins depend on generic modules and integration targets, never the reverse:
 
 ```text
 asn1      -> core, io, codec, schema, query
-emv       -> core, codec, schema, query; asn1, schema-number (private)
+emv       -> core, codec, schema, query; schema-number (private)
 bluetooth -> core, io, codec, schema
 nfc       -> core
 dhcp      -> core, codec, schema; io (private)
@@ -222,8 +223,8 @@ shared builds keep the same graph; neither may need an extra dependency.
 ## Ownership inventory
 
 [ownership.json](ownership.json) `files` assigns every C source, private
-header, public header, C++ facade header and resource template under `tlv/`
-and `tlv++/` to one target. Version headers belong to Core; each compiled
+header, public header, C++ facade header and resource template under `include/`
+and `src/` to one target. Version headers belong to Core; each compiled
 module owns its generated export header. #654 removes `tlv/config.h`, its
 implementation and the obsolete aggregate export header. The inventory and symbol counts below come from
 the current `main` revision; exported symbols are those of the shared library,
@@ -254,8 +255,10 @@ internal ones are global but hidden.
 | removed (`tlv_config_*`) | | | | | 15 | |
 | **Total** | **87** | **22** | **84** | **59** | **615** | **78** |
 
-The four resource templates (`tlv/resources/*.in`) belong to Core and are not
-counted above. Symbol counts assign each symbol to its target after the `api`
+This table records the #644 baseline inventory, before extraction. Current
+source and header ownership is authoritative in `ownership.json`. Version
+templates now belong to Core under `src/core/`; the Query feature template
+belongs to Query under `src/query/internal/`. Templates are not counted above. Symbol counts assign each symbol to its target after the `api`
 moves below; Query and Document files that implement `query-document` stay in
 their current directories until #650 moves them. The symbols were collected
 from a GCC build of `main` with `nm` (static objects for definitions and
@@ -310,11 +313,11 @@ facade still needs Schema, and the remaining facade cycles are scheduled below. 
 | Cycle | Evidence | Resolution | Issue |
 | --- | --- | --- | --- |
 | Core ↔ IO | `copy.c` calls `tlv_write_element()` and `tlv_element_encoded_size()`; `writer.c` calls `tlv_copy_encoded()`; `diagnostic_strings.c` includes Reader and Writer headers | `core-copy-element`, `io-diagnostic-names` | #647 |
-| Core ↔ Query | `diagnostic_strings.c` includes `tlv/query/program.h` | `query-diagnostic-names` | #650 |
-| Core ↔ Codec | `diagnostic.c` defines `tlv_codec_diagnostic_init()`; both diagnostic files include `tlv/codec/diagnostic.h` | `codec-diagnostic-vocabulary` | #651 |
-| Core ↔ Schema | `diagnostic_strings.c` and `tlv++/error.hpp` include `tlv/schema/schema.h` | `schema-diagnostic-causes` | #652 |
+| Core ↔ Query | `diagnostic_strings.c` includes `opentlv/query/program.h` | `query-diagnostic-names` | #650 |
+| Core ↔ Codec | `diagnostic.c` defines `tlv_codec_diagnostic_init()`; both diagnostic files include `opentlv/codec/diagnostic.h` | `codec-diagnostic-vocabulary` | #651 |
+| Core ↔ Schema | `diagnostic_strings.c` and `opentlv/core/error.hpp` include `opentlv/schema/schema.h` | `schema-diagnostic-causes` | #652 |
 | Codec ↔ Schema | `tlv_codec_detail_t` embeds `tlv_schema_detail_t`; `tlv_schema_diagnostic_t` embeds `tlv_codec_detail_t` | `codec-diagnostic-vocabulary`, `schema-diagnostic-causes` | #651, #652 |
-| Query ↔ `query-codec` | `tlv++/query/options.hpp` includes `tlv/query/adapters.h` for codec hooks | `query-codec-hooks` | #650 |
+| Query ↔ `query-codec` | `opentlv/query/options.hpp` includes `opentlv/query/adapters.h` for codec hooks | `query-codec-hooks` | #650 |
 | Document ↔ Query (modules) | C boundary resolved in #648; Query-owned implementations use public Document APIs. Query target extraction and C++ facade separation remain | `document-query-boundary`, `query-document-integration` | #648, #650 |
 | Query ↔ Schema (modules) | `tlv_query_diagnostic_t` embeds Schema and Codec detail; `schema/query.c` includes `query/program_internal.h` | `query-codec-hooks`, `schema-query-integration` | #650, #652 |
 
@@ -330,21 +333,21 @@ its entries when it applies the resolution:
 
 | Resolution | Includes it removes |
 | --- | --- |
-| `core-copy-element` | `copy.c` → `tlv/writer/writer.h` |
+| `core-copy-element` | `copy.c` → `opentlv/io/writer/writer.h` |
 | `core-utf8-api` | `utf8_internal.h` from ASN.1 `asn1_values_internal.h`, Bluetooth `ad_codec.c` and Query `adapters.c`, `compiler.c`, `evaluation.c`, `execute.c` |
 | `core-callback-api` | `callback_internal.h` from IO `writer/tree.c`, Codec `result_internal.h`, Query `program_internal.h` and ASN.1 `der_schema.c` |
 | `io-diagnostic-names` | `diagnostic_strings.c` → Reader and Writer headers |
 | `io-tree-measure` | `query/document_backend.c` → `writer/tree_internal.h` |
-| `document-query-boundary` | `document.h` → `tlv/query/query.h`; `document.hpp` → Query facades |
-| `document-codec-facade` | `document.hpp` → `tlv++/codec/typed.hpp` |
+| `document-query-boundary` | `document.h` → `opentlv/query/query.h`; `document.hpp` → Query facades |
+| `document-codec-facade` | `document.hpp` → `opentlv/codec/typed.hpp` |
 | `query-document-integration` | Document private-header access resolved in #648; Query owner-internal exports remain for #650 |
-| `query-codec-hooks` | `tlv/query/program.h` → `tlv/codec/codec.h`; `query/evaluation.c` → `codec/result_internal.h`; `tlv++/query/options.hpp` → `tlv/query/adapters.h` |
-| `query-diagnostic-names` | `diagnostic_strings.c` → `tlv/query/program.h` |
-| `codec-diagnostic-vocabulary` | `diagnostic.c`, `diagnostic_strings.c` → `tlv/codec/diagnostic.h`; `tlv/codec/diagnostic.h` → Reader and Schema detail headers |
-| `io-codec-facade` | `tlv++/codec/typed.hpp` → `tlv++/writer/writer.hpp` |
-| `schema-diagnostic-causes` | `tlv/schema/schema.h` → `tlv/codec/diagnostic.h`; `diagnostic_strings.c` and `tlv++/error.hpp` → `tlv/schema/schema.h` |
+| `query-codec-hooks` | `opentlv/query/program.h` → `opentlv/codec/codec.h`; `query/evaluation.c` → `codec/result_internal.h`; `opentlv/query/options.hpp` → `opentlv/query/adapters.h` |
+| `query-diagnostic-names` | `diagnostic_strings.c` → `opentlv/query/program.h` |
+| `codec-diagnostic-vocabulary` | `diagnostic.c`, `diagnostic_strings.c` → `opentlv/codec/diagnostic.h`; `opentlv/codec/diagnostic.h` → Reader and Schema detail headers |
+| `io-codec-facade` | `opentlv/codec/typed.hpp` → `opentlv/io/writer/writer.hpp` |
+| `schema-diagnostic-causes` | `opentlv/schema/schema.h` → `opentlv/codec/diagnostic.h`; `diagnostic_strings.c` and `opentlv/core/error.hpp` → `opentlv/schema/schema.h` |
 | `schema-number-api` | EMV `emv_codec.c` → `schema/codec_internal.h` |
-| `schema-query-integration` | `schema/query.c` → `query/program_internal.h`; `tlv/schema/query.h` → `tlv/document/document.h` |
+| `schema-query-integration` | `schema/query.c` → `query/program_internal.h`; `opentlv/schema/query.h` → `opentlv/document/document.h` |
 
 `core-diagnostic-causes` (#647) has no include of its own: it adds the Core
 cause infrastructure that `query-codec-hooks`, `codec-diagnostic-vocabulary`
@@ -369,7 +372,7 @@ symbol lacks a public declaration.
 
 ## Private-header boundaries
 
-- A header under `tlv/src/` is private to the module that owns it. Files of
+- A header under `src/` is private to the module that owns it. Files of
   that module, including its integration targets, may include it; no other
   module may.
 - An integration target may use its owner's private headers, but only the
@@ -403,10 +406,10 @@ symbol lacks a public declaration.
 The repository stays buildable and testable between the two issues:
 
 1. #648 creates the Document target with Core and IO only. Document Query
-   declarations move to `tlv/query/document.h`. Path matching and selection-edit
+   declarations move to `opentlv/query/document.h`. Path matching and selection-edit
    helpers move to Query-owned sources in the compatibility library. Generic
    callback lifetime protection stays with Document and is exposed through
-   `tlv/document/integration.h`, alongside effective options and ownership checks.
+   `opentlv/document/integration.h`, alongside effective options and ownership checks.
    Query uses this boundary without accessing Document private headers.
 2. #650 creates the Query target, completes `query-document` on public
    Document and IO APIs and the Query owner-internal interface, and removes
@@ -459,7 +462,7 @@ Both Query features stay, as options of the Query target only:
 
 Retained features must not change dependencies or what other modules see:
 
-- Their macros and runtime mirrors live in `tlv/query/features.h`; Core no
+- Their macros and runtime mirrors live in `opentlv/query/features.h`; Core no
   longer owns or reads Query feature configuration.
 - They no longer turn off unrelated tests, examples, benchmarks or fuzzers
   globally; the Query test targets select what they need (#646, #650).
@@ -521,9 +524,9 @@ of every Core pull request, with its tests in
 
 - the seven generic and six builtin modules, valid targets and an acyclic
   dependency graph including facade dependencies;
-- that every `.c`, `.h`, `.hpp` and `.in` file under `tlv/` and `tlv++/` has
+- that every `.c`, `.h`, `.hpp` and `.in` file under `include/` and `src/` has
   one owner, with no stale entries;
-- that every quoted include stays within its target or a declared
+- that every quoted or angle include stays within its target or a declared
   dependency, and never reaches another module's private header, except for
   the recorded exceptions; new and resolved-but-recorded exceptions both fail;
 - that every `api` move and resolution is still current;
@@ -553,7 +556,7 @@ arguments keep that decision separate from internal ownership keys.
 | Public target | `OpenTLV::<EXPORT_NAME>`; the component has the same name |
 | Compiled export macro | `OPENTLV_<KEY>_API`, uppercase with underscores |
 | Static usage requirement | `OPENTLV_<KEY>_STATIC_DEFINE`, propagated to consumers |
-| Generated export header | `tlv/<key>/export.h` |
+| Generated export header | `opentlv/<module>/export.h` (builtin families and integrations follow the [layout contract](layout-migration.md)) |
 | Module test build target | `test-module-<key>` |
 | CTest ownership label | `module:<key>` |
 
@@ -665,8 +668,8 @@ the existing native suite to demonstrate that no scenarios disappeared.
 4. The resolution of every cycle and exception listed above, including
    publishing the Core UTF-8 and callback helpers.
 5. Owner-internal interfaces as the only non-public exported API.
-6. Builtin integrations inside their family modules; EMV's private ASN.1
-   dependency until #695.
+6. Builtin integrations inside their family modules. #733 removes EMV's
+   ASN.1 dependency using Core field primitives; broader DOL composition remains #695.
 7. Separate C++ facade targets per module, with `facade` dependencies.
 8. The diagnostic architecture and code ownership mechanism in
    [Module diagnostics](diagnostics.md).

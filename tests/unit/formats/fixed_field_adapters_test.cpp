@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/fixed.h"
-#include "tlv/formats/variable.h"
-#include "tlv/formats/escaped.h"
-#include "tlv/tlv.h"
-#include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/emv/format.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/core/formats/variable.h"
+#include "opentlv/core/formats/escaped.h"
+#include "opentlv/tlv.h"
+#include "opentlv/builtin/asn1/cer.h"
+#include "opentlv/builtin/emv/format.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>

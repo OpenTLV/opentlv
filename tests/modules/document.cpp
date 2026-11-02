@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/document/document.hpp"
-#include "tlv++/formats/fixed_format.hpp"
+#include "opentlv/document/document.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
 
 int main() {
     const tlv::byte wire[] = {static_cast<tlv::byte>(1), static_cast<tlv::byte>(1),

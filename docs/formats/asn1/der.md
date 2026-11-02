@@ -6,7 +6,7 @@
 
 | Setting | Value |
 | --- | --- |
-| Format header | `tlv/builtins/asn1/der.h` |
+| Format header | `opentlv/builtin/asn1/der.h` |
 | Descriptor | `tlv_format_der` |
 | Link target | `OpenTLV::ASN1` |
 
@@ -24,9 +24,9 @@ See [shared memory ownership rules](../../guides/memory.md) before retaining a p
 This complete example writes and reads one opaque byte. Exit code zero means success.
 
 ```c
-#include "tlv/builtins/asn1/der.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/asn1/der.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 int main(void) {
     const tlv_tag_t tag = TLV_TAG(0x04);

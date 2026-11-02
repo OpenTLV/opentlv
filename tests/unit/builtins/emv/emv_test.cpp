@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/presentation.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/emv/emv.h"
-#include "tlv/reader/reader.h"
-#include "tlv/codec/number.h"
-#include "tlv/schema/number.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/emv/presentation.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/emv/emv.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/codec/number.h"
+#include "opentlv/schema/number.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <set>

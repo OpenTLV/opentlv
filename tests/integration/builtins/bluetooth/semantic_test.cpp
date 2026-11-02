@@ -3,12 +3,12 @@
 
 #include <gtest/gtest.h>
 #include <vector>
-#include "tlv/builtins/bluetooth/ad_data.h"
-#include "tlv/builtins/bluetooth/ad_types.h"
-#include "tlv/builtins/bluetooth/ad_schema.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/builtins/bluetooth/uuid.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/bluetooth/ad_data.h"
+#include "opentlv/builtin/bluetooth/ad_types.h"
+#include "opentlv/builtin/bluetooth/ad_schema.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/builtin/bluetooth/uuid.h"
+#include "opentlv/io/reader/reader.h"
 
 TEST(Integration_Tlv_BluetoothSemantic, EveryUuidLengthThroughContainerReaderSchemaAndCodec) {
     for (uint8_t type = 2; type <= 7; ++type) {

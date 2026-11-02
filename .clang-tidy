@@ -1,11 +1,9 @@
 # Shared clang-tidy baseline for tlv (C) and tlv++ (C++), run by the opt-in
 # 'clang-tidy' CMake target (cmake/clang_tidy.cmake) and the Static Analysis
-# CI job (.github/workflows/static-analysis.yml). tlv/.clang-tidy and
-# tlv++/.clang-tidy layer on top of this file: clang-tidy resolves the
-# config for a given file by walking up from that file's own directory and
-# merging every .clang-tidy it finds (nearest first), so tlv/ can keep
-# C++-only groups off and tlv++/ can add a curated C++-only subset without
-# duplicating this baseline.
+# CI job (.github/workflows/static-analysis.yml). src/.clang-tidy disables
+# C++ checks for C implementations. The former tlv++ profile is retained as
+# cmake/clang-tidy-cxx.yaml for explicit --config-file use; the CMake test-TU
+# analysis keeps its existing root configuration selection.
 #
 # clang-diagnostic-*/clang-analyzer-* surface compiler warnings and the
 # Clang Static Analyzer's semantic bug-finding; bugprone-*/performance-*/
@@ -33,7 +31,7 @@
 #   classification); rewriting them as if/else is a style preference, not a
 #   correctness fix.
 # - readability-math-missing-parentheses: fires pervasively on well-known,
-#   already-correct bit-shift/BCD arithmetic (e.g. tlv/src/endian.c); adding
+#   already-correct bit-shift/BCD arithmetic (e.g. src/core/endian.c); adding
 #   parentheses everywhere would be pure churn.
 # - bugprone-easily-swappable-parameters: extremely noisy for a byte-buffer
 #   API built on (data, size) parameter pairs; not a real defect signal here.

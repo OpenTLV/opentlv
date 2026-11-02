@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/dhcp/dhcpv4.h"
+#include "opentlv/builtin/dhcp/dhcpv4.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <array>

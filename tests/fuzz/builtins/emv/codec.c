@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/presentation.h"
+#include "opentlv/builtin/emv/presentation.h"
 #include "common.h"
-#include "tlv/builtins/emv/emv.h"
+#include "opentlv/builtin/emv/emv.h"
 #include <string.h>
 
 #define FUZZ_CODEC_DIGITS_CAPACITY 4096

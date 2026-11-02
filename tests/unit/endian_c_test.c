@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/endian.h"
+#include "opentlv/core/endian.h"
 
 /* Standalone public header and exact function types compiled as C. */
 int tlv_test_c_endian(void) {

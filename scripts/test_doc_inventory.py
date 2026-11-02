@@ -18,16 +18,16 @@ class InventoryTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         files = {
             "CMakeLists.txt": 'option(OPENTLV_QUERY_SET_OPERATIONS "BER" ON)\n',
-                        "tlv/resources/query-features.h.in": "#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS\n",
+                        "src/query/internal/query-features.h.in": "#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS\n",
             "docs/concepts/architecture.md": "| `OPENTLV_QUERY_SET_OPERATIONS` | BER |\n",
-            "tlv/include/tlv/builtins/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
-            "tlv++/include/tlv++/builtins/asn1/ber.hpp": "// fixture\n",
-            "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |\n",
+            "include/opentlv/builtin/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
+            "include/opentlv/builtin/asn1/ber.hpp": "// fixture\n",
+            "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../include/opentlv/builtin/asn1/ber.hpp) |\n",
             "examples/tlv/src/parse.c": "// example\n",
             "docs/guides/cxx-examples.md": "# C++ examples\n",
             "docs/guides/examples.md": "<!-- example-inventory:start -->\n[C](../../examples/tlv/src/parse.c)\n<!-- example-inventory:end -->\n",
-            "docs/api/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv/include/tlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
-            "docs/api/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
+            "docs/api/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/include/opentlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
+            "docs/api/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/include/opentlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
         }
         for path, text in files.items():
             self.write(path, text)
@@ -45,12 +45,12 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(check(self.root), [])
 
     def test_added_component_needs_option_and_documentation(self):
-        self.write("tlv/resources/query-features.h.in", "#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS\n#cmakedefine01 OPENTLV_NEW\n")
+        self.write("src/query/internal/query-features.h.in", "#cmakedefine01 OPENTLV_QUERY_SET_OPERATIONS\n#cmakedefine01 OPENTLV_NEW\n")
         self.assert_drift("OPENTLV_NEW: public configuration has no root CMake option")
         self.assert_drift("OPENTLV_NEW: add a build-configuration row")
 
     def test_added_and_removed_native_descriptors(self):
-        self.write("tlv/include/tlv/builtins/asn1/ber.h", "TLV_API extern const tlv_format_t tlv_format_new;\n")
+        self.write("include/opentlv/builtin/asn1/ber.h", "TLV_API extern const tlv_format_t tlv_format_new;\n")
         self.assert_drift("document tlv_format_new")
         self.assert_drift("stale tlv_format_ber")
 
@@ -59,11 +59,11 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("public component configuration: document OPENTLV_NEW")
 
     def test_added_cxx_family(self):
-        self.write("tlv++/include/tlv++/builtins/new/format.hpp", "// fixture\n")
+        self.write("include/opentlv/builtin/new/format.hpp", "// fixture\n")
         self.assert_drift("C++ built-in families: document new")
 
     def test_query_owned_feature_needs_option_and_documentation(self):
-        self.write("tlv/resources/query-features.h.in", "#cmakedefine01 OPENTLV_QUERY_FRONTEND\n")
+        self.write("src/query/internal/query-features.h.in", "#cmakedefine01 OPENTLV_QUERY_FRONTEND\n")
         self.assert_drift("OPENTLV_QUERY_FRONTEND: public configuration has no root CMake option")
         self.assert_drift("OPENTLV_QUERY_FRONTEND: add a build-configuration row")
 
@@ -86,8 +86,8 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("missing example-inventory markers")
 
     def test_api_input_must_be_recursive_and_include_header_extension(self):
-        self.write("docs/api/Doxyfile.cxx.in", 'INPUT = "other"\nSTRIP_FROM_PATH = "@PROJECT_SOURCE_DIR@/tlv++/include/tlv++"\nRECURSIVE = NO\nFILE_PATTERNS = *.dox\n')
-        self.assert_drift("INPUT must include tlv++/include/tlv++")
+        self.write("docs/api/Doxyfile.cxx.in", 'INPUT = "other"\nSTRIP_FROM_PATH = "@PROJECT_SOURCE_DIR@/include/opentlv"\nRECURSIVE = NO\nFILE_PATTERNS = *.dox\n')
+        self.assert_drift("INPUT must include include/opentlv")
         self.assert_drift("enable recursive public-header discovery")
         self.assert_drift("FILE_PATTERNS must include *.hpp")
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/schema/schema.h"
-#include "tlv/reader/tree.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/io/reader/tree.h"
 
 /* Construct unknown enum values in C rather than loading them in a C++ lambda. */
 tlv_result_t tlv_test_schema_unknown_policy(const uint8_t* data, size_t size,

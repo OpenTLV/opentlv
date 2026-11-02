@@ -23,7 +23,7 @@ editing needs no parsing, encoding or Query operation. Wire import and encoding
 use IO, which always provides Reader and Writer; path matching requires Query.
 The compiled Query adapter also uses IO for Value snapshots. Link
 `OpenTLV::Document` for the independent C Document API, with Core and IO supplied
-transitively. Include `tlv/query/document.h` and link the compatibility target
+transitively. Include `opentlv/query/document.h` and link the compatibility target
 for Query operations until its integration target is extracted in #650.
 Borrowed C processing retains its allocation-free buffer/workspace contracts.
 Merely enabling Document does not allocate a tree. See
@@ -76,8 +76,8 @@ opaque byte string. Without a predicate (BER's own descriptor already sets
 one) the document is a flat list.
 
 ```c
-#include "tlv/document/document.h"
-#include "tlv/builtins/asn1/ber.h"
+#include "opentlv/document/document.h"
+#include "opentlv/builtin/asn1/ber.h"
 
 tlv_document_options_t options;
 tlv_document_options_init(&options, &tlv_format_ber);
@@ -246,8 +246,8 @@ language's error handling; the detailed C operations above apply to all bindings
 /// tab | C
 
 ```c
-#include "tlv/document/document.h"
-#include "tlv/builtins/asn1/ber.h"
+#include "opentlv/document/document.h"
+#include "opentlv/builtin/asn1/ber.h"
 
 const uint8_t data[] = {0x50, 1, 'A'};
 const uint8_t value[] = {'N', 'E', 'W'};
@@ -272,11 +272,11 @@ C returns status codes and writes into caller-owned output. Free the Document on
 
 /// tab | C++
 
-`tlv++/document/document.hpp` wraps the same API. `tlv::document` owns the tree and is
+`opentlv/document/document.hpp` wraps the same API. `tlv::document` owns the tree and is
 move-only; `tlv::node` is a cheap non-owning handle.
 
 ```cpp
-#include <tlv++/tlv.hpp>
+#include <opentlv/tlv.hpp>
 
 const tlv::byte data[] = {tlv::byte(0x50), tlv::byte(1), tlv::byte('A')};
 tlv::document_format format(tlv_format_ber);

@@ -15,9 +15,9 @@ import sys
 import check
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-ENDIAN_H = "tlv/include/tlv/endian.h"
-ENDIAN_C = "tlv/src/endian.c"
-VALUE_H = "tlv/include/tlv/value.h"
+ENDIAN_H = "include/opentlv/core/endian.h"
+ENDIAN_C = "src/core/endian.c"
+VALUE_H = "include/opentlv/core/value.h"
 
 
 def copy_tree(dest):

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/asn1/der.h"
-#include "tlv/builtins/asn1/der_validation.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/asn1/der.h"
+#include "opentlv/builtin/asn1/der_validation.h"
 #include <gtest/gtest.h>
 #include <vector>
 

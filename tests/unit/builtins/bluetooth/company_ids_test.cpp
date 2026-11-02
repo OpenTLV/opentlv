@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/bluetooth/company_ids.h"
+#include "opentlv/builtin/bluetooth/company_ids.h"
 #include <gtest/gtest.h>
 
 TEST(Unit_Tlv_BluetoothCompanyIds, IndependentDefinitionsAndByteIdentity) {

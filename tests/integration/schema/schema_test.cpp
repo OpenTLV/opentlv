@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "controlled_format.h"
-#include "tlv/schema/schema.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/io/reader/reader.h"
 #include <gtest/gtest.h>
 
 namespace {

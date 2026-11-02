@@ -70,7 +70,7 @@ if(_OPENTLV_TOP_LEVEL)
     opentlv_add_cppcheck_targets()
 endif()
 
-add_subdirectory(tlv)
+add_subdirectory(cmake/library tlv)
 add_library(OpenTLV::tlv ALIAS tlv)
 
 if(OPENTLV_BUILD_DOCS)

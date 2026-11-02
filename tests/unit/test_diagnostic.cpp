@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/diagnostic.hpp"
-#include "tlv++/schema/error.hpp"
-#include "tlv++/reader/reader.hpp"
-#include "tlv++/writer/writer.hpp"
-#include "tlv++/query/program.hpp"
-#include "tlv++/codec/dynamic.hpp"
+#include "opentlv/core/diagnostic.hpp"
+#include "opentlv/schema/error.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
+#include "opentlv/query/program.hpp"
+#include "opentlv/codec/dynamic.hpp"
 
 #include <gtest/gtest.h>
 

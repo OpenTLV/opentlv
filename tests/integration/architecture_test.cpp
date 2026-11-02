@@ -3,26 +3,26 @@
 
 #include "../diagnostic_assertions.h"
 #include "visitor_input.h"
-#include "tlv/formats/compose.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/codec/structure.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/query/query.h"
-#include "tlv/builtins/dhcp/dhcpv4.h"
-#include "tlv/builtins/lldp/lldp.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/writer/copy.h"
-#include "tlv/builtins/emv/emv.h"
+#include "opentlv/core/formats/compose.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/codec/structure.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/query/query.h"
+#include "opentlv/builtin/dhcp/dhcpv4.h"
+#include "opentlv/builtin/lldp/lldp.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/writer/copy.h"
+#include "opentlv/builtin/emv/emv.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
 #include <memory>
-#include "tlv/writer/tree.h"
+#include "opentlv/io/writer/tree.h"
 
 namespace {
 // Deliberately different from BER: bit 7 identifies a container.

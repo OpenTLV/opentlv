@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Allocation regression and reproducible traversal evidence, independent of GoogleTest.
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>

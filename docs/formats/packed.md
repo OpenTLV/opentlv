@@ -1,12 +1,12 @@
 # Packed Tag/Length configuration
 
-`tlv/formats/packed.h` supplies a generic definite Format for unsigned Tag and
+`opentlv/core/formats/packed.h` supplies a generic definite Format for unsigned Tag and
 Length fields sharing a 1–8-byte header. It is always built, independently of
 LLDP and other protocol options. Reader, Writer, Document and Query consume its
 ordinary `tlv_format_t` descriptor.
 
 ```c
-#include <tlv/formats/packed.h>
+#include <opentlv/core/formats/packed.h>
 
 static const uint8_t tags[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15

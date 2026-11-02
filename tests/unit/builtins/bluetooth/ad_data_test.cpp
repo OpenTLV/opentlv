@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/bluetooth/ad_data.h"
-#include "tlv/builtins/bluetooth/ad_schema.h"
-#include "tlv/builtins/bluetooth/bluetooth_ltv.h"
-#include "tlv/reader/reader.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/builtin/bluetooth/ad_data.h"
+#include "opentlv/builtin/bluetooth/ad_schema.h"
+#include "opentlv/builtin/bluetooth/bluetooth_ltv.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/schema/schema.h"
 #include <gtest/gtest.h>
 #include <vector>
 

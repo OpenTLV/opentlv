@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 /* Nested output with caller-owned frames, destination and scratch storage. */
-#include "tlv/writer/tree.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/io/writer/tree.h"
+#include "opentlv/core/formats/fixed.h"
 #include <string.h>
 
 static int constructed(const void* context, const tlv_tag_t* tag) {

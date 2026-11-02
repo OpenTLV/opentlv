@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv/codec/structure.h"
-#include "tlv/reader/diagnostic.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/codec/structure.h"
+#include "opentlv/io/reader/diagnostic.h"
+#include "opentlv/core/formats/fixed.h"
 #include <stdio.h>
 #include <string.h>
 #define CHECK(x)                                                                                   \

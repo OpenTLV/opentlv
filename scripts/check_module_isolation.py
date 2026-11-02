@@ -76,9 +76,9 @@ def check_metadata(entries, contract=None, source_root=None):
                 raise ValueError(f"{key}: facade dependencies differ from contract")
             if entry["owner"] != [expected["module"]]:
                 raise ValueError(f"{key}: owner differs from contract")
-    roots = [Path(entry["include_dir"][0]) for entry in entries]
+    roots = list(dict.fromkeys(Path(entry["include_dir"][0]) for entry in entries))
     if source_root is not None:
-        roots.append(source_root / "tlv++/include")
+        roots.append(source_root / "include")
     if contract is not None and source_root is not None:
         for name, key in contract["files"].items():
             # Feature-disabled C sources remain owned by the contract but are
@@ -95,6 +95,8 @@ def check_metadata(entries, contract=None, source_root=None):
                                    if len(generated) == 2 else None)
                 if contract["files"].get(name) != key and generated_owner != key:
                     raise ValueError(f"{key}: file ownership differs from contract: {name}")
+    public = {key: {Path(p).resolve() for p in entry["public_headers"] + entry.get("cxx_headers", [])}
+              for key, entry in modules.items()}
     for path, key in owned.items():
         for include in INCLUDE.findall(COMMENT.sub("", path.read_text(encoding="utf-8"))):
             candidates = [path.parent / include] + [root / include for root in roots]
@@ -115,13 +117,13 @@ def check_metadata(entries, contract=None, source_root=None):
             if owner is None:
                 raise ValueError(f"{path}: unregistered project header {include}")
             if resolved in private:
-                if path in {Path(p).resolve() for p in modules[key]["public_headers"] + modules[key].get("cxx_headers", [])}:
+                if path in public[key]:
                     raise ValueError(f"{path}: public header includes private header {include}")
                 if modules[key]["owner"] != modules[owner]["owner"]:
                     raise ValueError(f"{path}: cross-module private header {include}")
             if owner != key:
                 allowed = dependencies(modules[key])
-                if path in {Path(p).resolve() for p in modules[key]["public_headers"] + modules[key].get("cxx_headers", [])}:
+                if path in public[key]:
                     allowed = modules[key]["public_deps"]
                     if path.suffix == ".hpp":
                         allowed = list(closure(modules, key))
@@ -233,16 +235,19 @@ def verify(source, build_root, shared, generator, nm, extra=()):
         name = entry["export_name"][0]
         expected = closure(modules, key)
         component_checks = ""
-        if facade:
-            # Compile every installed header on its own; one umbrella TU can
-            # accidentally hide missing includes in a module-specific header.
-            headers = entry.get("cxx_headers", []) if cxx else entry["public_headers"]
-            for index, header in enumerate(headers):
-                include = Path(header).as_posix().split("/include/")[-1]
-                (consumer / f"header{index}.cpp").write_text(
-                    f'#include <{include}>\n', encoding="utf-8")
-                component_checks += (f"add_library(header{index} OBJECT header{index}.cpp)\n"
-                                     f"target_link_libraries(header{index} PRIVATE OpenTLV::{name})\n")
+        # Compile each installed header alone in its supported languages. C
+        # headers must also work from C++, without another header masking gaps.
+        headers = entry["public_headers"] + (entry.get("cxx_headers", []) if cxx else [])
+        if contract is not None:
+            headers += [str(relocated / "include" / header)
+                        for header, owner in contract.get("generated", {}).items()
+                        if owner == key and header.endswith(".h")]
+        for index, header in enumerate(headers):
+            include = Path(header).as_posix().split("/include/")[-1]
+            (consumer / f"header{index}.{extension}").write_text(
+                f'#include <{include}>\n', encoding="utf-8")
+            component_checks += (f"add_library(header{index} OBJECT header{index}.{extension})\n"
+                                 f"target_link_libraries(header{index} PRIVATE OpenTLV::{name})\n")
         component_checks += ('if(TARGET OpenTLV::tlv++)\n'
                              'message(FATAL_ERROR "Obsolete C++ target")\nendif()\n')
         for other, candidate in modules.items():

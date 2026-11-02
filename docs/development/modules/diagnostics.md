@@ -10,7 +10,7 @@ of [#647](https://github.com/OpenTLV/opentlv/issues/647),
 [#651](https://github.com/OpenTLV/opentlv/issues/651) and
 [#652](https://github.com/OpenTLV/opentlv/issues/652).
 
-**Implementation status:** #647 publishes `tlv/diagnostic/cause.h` with static
+**Implementation status:** #647 publishes `opentlv/core/diagnostic/cause.h` with static
 domain descriptors, two inline 160-byte payload slots, saturating omission counts,
 a delegation envelope and validated append/copy helpers. Payloads are copied out
 to typed objects, avoiding alignment and C aliasing assumptions. Descriptors and

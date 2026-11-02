@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Marek Cingel
 #include "../../query_diagnostic_helpers.h"
 #include "../../diagnostic_assertions.h"
-#include "tlv/query/adapters.h"
-#include "tlv/codec/structure.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/builtins/emv/query.h"
-#include "tlv/builtins/asn1/query.h"
-#include "tlv/builtins/asn1/ber.h"
+#include "opentlv/query/adapters.h"
+#include "opentlv/codec/structure.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/builtin/emv/query.h"
+#include "opentlv/builtin/asn1/query.h"
+#include "opentlv/builtin/asn1/ber.h"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <cstring>

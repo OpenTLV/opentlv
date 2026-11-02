@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/tag.h"
+#include "opentlv/core/tag.h"
 #include <gtest/gtest.h>
 #include <cstddef>
 #include <cstdint>

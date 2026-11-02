@@ -3,7 +3,7 @@
 # COMMANDS must be ON). Not part of ALL, and skipped with a warning if
 # clang-tidy isn't found (or compile command export isn't enabled), so its
 # absence never breaks a regular build. Check selection lives in the
-# per-directory .clang-tidy files (repo root, tlv/, tlv++/), not here.
+# per-directory .clang-tidy files (repo root and src/), not here.
 #
 # tlv++ is header-only, so unlike tlv's .c files there is no translation
 # unit of its own for clang-tidy to attach to. A synthetic TU that merely
@@ -11,9 +11,9 @@
 # schema, the compat.hpp polyfills, ...) would never be instantiated and so
 # would never actually be analyzed. Instead this points clang-tidy at the
 # tlv++ unit test TU (tests/unit/test_tlvpp.cpp), which already
-# #includes tlv++/tlv.hpp (transitively pulling in every other tlv++
+# #includes opentlv/tlv.hpp (transitively pulling in every other tlv++
 # header) and exercises it with real instantiations; --header-filter then
-# restricts *reported* findings to tlv++/include, but the test file's own
+# restricts *reported* findings to the public include tree, but the test file's own
 # code is still analyzed as the main file (unavoidably - clang-tidy always
 # reports main-file diagnostics), so it must stay clang-tidy-clean too.
 set(_OPENTLV_CLANG_TIDY_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
@@ -49,15 +49,17 @@ function(opentlv_add_clang_tidy_targets)
             continue()
         endif()
         if(NOT IS_ABSOLUTE "${_opentlv_clang_tidy_source}")
-            set(_opentlv_clang_tidy_source "${OpenTLV_SOURCE_DIR}/tlv/${_opentlv_clang_tidy_source}")
+            set(_opentlv_clang_tidy_source "${OpenTLV_SOURCE_DIR}/${_opentlv_clang_tidy_source}")
         endif()
         list(APPEND _opentlv_clang_tidy_c_sources "${_opentlv_clang_tidy_source}")
     endforeach()
 
+    # Preserve the historical filter path spelling during this layout migration;
+    # normalizing cmake/../ changes header coverage (see layout-migration.md).
     add_custom_target(clang-tidy
         COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
             -p "${CMAKE_BINARY_DIR}"
-            "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tlv/include/.*"
+            "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../include/.*[.]h"
             ${_opentlv_clang_tidy_c_sources}
         COMMENT "Running clang-tidy static analysis on tlv"
         VERBATIM
@@ -67,7 +69,7 @@ function(opentlv_add_clang_tidy_targets)
         add_custom_command(TARGET clang-tidy POST_BUILD
             COMMAND ${OPENTLV_CLANG_TIDY_EXECUTABLE}
                 -p "${CMAKE_BINARY_DIR}"
-                "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tlv++/include/.*"
+                "--header-filter=${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../include/.*[.]hpp"
                 "${_OPENTLV_CLANG_TIDY_MODULE_DIR}/../tests/unit/test_tlvpp.cpp"
             COMMENT "Running clang-tidy static analysis on tlv++"
             VERBATIM

@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 #ifndef OPENTLV_TEST_SCHEMA_DIAGNOSTIC_HELPERS_H
 #define OPENTLV_TEST_SCHEMA_DIAGNOSTIC_HELPERS_H
-#include "tlv/schema/schema.h"
+#include "opentlv/schema/schema.h"
 #include <string.h>
 static inline tlv_reader_detail_t schema_test_reader(const tlv_schema_diagnostic_t* diagnostic) {
     tlv_reader_detail_t result;

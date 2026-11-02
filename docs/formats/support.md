@@ -16,17 +16,17 @@ semantic modules are documented by [opentlv-cli](https://github.com/OpenTLV/open
 
 | Format / scope | C descriptor or initializer | Component | C++ framing header |
 | --- | --- | --- | --- |
-| [Fixed](fixed/configurable.md) | `tlv_fixed_format_init` | Always built | [fixed_format.hpp](../../tlv++/include/tlv++/formats/fixed_format.hpp) |
+| [Fixed](fixed/configurable.md) | `tlv_fixed_format_init` | Always built | [fixed_format.hpp](../../include/opentlv/core/formats/fixed_format.hpp) |
 | [Variable with optional field policies](variable.md) | `tlv_variable_format_init` | Always built | Native interop/custom Format |
 | [Packed](packed.md) | `tlv_packed_layout_t` with `tlv_packed_decode` / `tlv_packed_measure` / `tlv_packed_encode` | Always built | Native interop/custom Format |
-| [BER](asn1/ber.md) | `tlv_format_ber`, `tlv_format_ber_indefinite` | `OpenTLV::ASN1` | [ber.hpp](../../tlv++/include/tlv++/builtins/asn1/ber.hpp) |
-| [DER](../standards/der/README.md) | `tlv_format_der` | `OpenTLV::ASN1` | [der.hpp](../../tlv++/include/tlv++/builtins/asn1/der.hpp) |
-| [CER](../standards/cer/README.md) | `tlv_format_cer` | `OpenTLV::ASN1` | [cer.hpp](../../tlv++/include/tlv++/builtins/asn1/cer.hpp) |
-| [EMV](../standards/emv/README.md) | `tlv_format_emv` | `OpenTLV::EMV` | [format.hpp](../../tlv++/include/tlv++/builtins/emv/format.hpp) |
-| [Bluetooth](bluetooth/README.md) | `tlv_format_bluetooth_ltv` | `OpenTLV::Bluetooth` | [ltv.hpp](../../tlv++/include/tlv++/builtins/bluetooth/ltv.hpp) |
-| [LLDP](lldp/README.md) | `tlv_format_lldp` | `OpenTLV::LLDP` | [lldp.hpp](../../tlv++/include/tlv++/builtins/lldp/lldp.hpp) |
-| [DHCPv4](dhcp/README.md) | `tlv_format_dhcpv4` | `OpenTLV::DHCP` | [dhcpv4.hpp](../../tlv++/include/tlv++/builtins/dhcp/dhcpv4.hpp) |
-| [NFC Type 2](nfc/README.md) | `tlv_format_nfc_type2` | `OpenTLV::NFC` | [type2.hpp](../../tlv++/include/tlv++/builtins/nfc/type2.hpp) |
+| [BER](asn1/ber.md) | `tlv_format_ber`, `tlv_format_ber_indefinite` | `OpenTLV::ASN1` | [ber.hpp](../../include/opentlv/builtin/asn1/ber.hpp) |
+| [DER](../standards/der/README.md) | `tlv_format_der` | `OpenTLV::ASN1` | [der.hpp](../../include/opentlv/builtin/asn1/der.hpp) |
+| [CER](../standards/cer/README.md) | `tlv_format_cer` | `OpenTLV::ASN1` | [cer.hpp](../../include/opentlv/builtin/asn1/cer.hpp) |
+| [EMV](../standards/emv/README.md) | `tlv_format_emv` | `OpenTLV::EMV` | [format.hpp](../../include/opentlv/builtin/emv/format.hpp) |
+| [Bluetooth](bluetooth/README.md) | `tlv_format_bluetooth_ltv` | `OpenTLV::Bluetooth` | [ltv.hpp](../../include/opentlv/builtin/bluetooth/ltv.hpp) |
+| [LLDP](lldp/README.md) | `tlv_format_lldp` | `OpenTLV::LLDP` | [lldp.hpp](../../include/opentlv/builtin/lldp/lldp.hpp) |
+| [DHCPv4](dhcp/README.md) | `tlv_format_dhcpv4` | `OpenTLV::DHCP` | [dhcpv4.hpp](../../include/opentlv/builtin/dhcp/dhcpv4.hpp) |
+| [NFC Type 2](nfc/README.md) | `tlv_format_nfc_type2` | `OpenTLV::NFC` | [type2.hpp](../../include/opentlv/builtin/nfc/type2.hpp) |
 
 ASN.1 Value codecs and shared identifier/validation implementations belong to
 `OpenTLV::ASN1`, together with BER, DER and CER. EMV privately depends on ASN1

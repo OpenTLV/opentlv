@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "custom_cpp_format.hpp"
-#include "tlv++/tlv.hpp"
+#include "opentlv/tlv.hpp"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

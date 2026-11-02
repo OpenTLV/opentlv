@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include <stdio.h>
-#include "tlv/formats/fixed.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 int main(void) {
     /* One tag byte and one length byte; config must outlive its readers and writers. */

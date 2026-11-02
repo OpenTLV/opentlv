@@ -1,7 +1,7 @@
 # NFC Forum Type 2 Tag TLV framing
 
-Select `tlv_format_nfc_type2` from `tlv/builtins/nfc/type2.h`, or
-`tlv::nfc::format{}` from `tlv++/builtins/nfc/type2.hpp`.
+Select `tlv_format_nfc_type2` from `opentlv/builtin/nfc/type2.h`, or
+`tlv::nfc::format{}` from `opentlv/builtin/nfc/type2.hpp`.
 Link `OpenTLV::NFC` for framing and add `OpenTLV::IO` for Reader/Writer.
 `tlv_config_nfc()` remains a legacy constant mirror, not a linked-module query.
 
@@ -105,18 +105,18 @@ or automatically stops traversal at Terminator.
 ## Generic composition
 
 The NFC implementation is immutable configuration over
-`tlv_escaped_format_t` from `tlv/formats/escaped.h`. This reusable format
+`tlv_escaped_format_t` from `opentlv/core/formats/escaped.h`. This reusable format
 combines fixed-width identifiers, configurable escape-prefixed lengths,
 field ordering, count scope and an optional tag-only identifier table.
 The standalone `tlv_escaped_length_read()` / `tlv_escaped_length_write()`
-primitives in `tlv/field/escaped.h` also support different markers, count widths
+primitives in `opentlv/core/field/escaped.h` also support different markers, count widths
 and byte orders.
 The minimum extended count and maximum count are configuration, not NFC
 branches in the generic code.
 
 `tlv_tagged_fields_composition_t` composes tag-only selection with arbitrary field
 encodings. The Escaped format reuses the fixed identifier primitive from
-`tlv/field/fixed.h`. The existing DHCP binary composition delegates tag-only
+`opentlv/core/field/fixed.h`. The existing DHCP binary composition delegates tag-only
 selection to the same generic mechanism.
 Neither mechanism imposes protocol termination or padding policy. These
 generic capabilities belong to Core and do not depend on NFC.

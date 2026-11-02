@@ -2,9 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 #include "schema_diagnostic_helpers.h"
 
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/reader/visitor.h"
-#include "tlv/schema/schema.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/schema/schema.h"
 #include <gtest/gtest.h>
 #include <vector>
 

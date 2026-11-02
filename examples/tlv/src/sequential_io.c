@@ -7,11 +7,11 @@
  * All storage belongs to the caller; nothing here allocates.
  */
 #include <stdio.h>
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/size.h"
-#include "tlv/reader/reader.h"
-#include "tlv/value.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/core/value.h"
+#include "opentlv/io/writer/writer.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \

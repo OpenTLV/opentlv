@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/version.h"
+#include "opentlv/core/version.h"
 
 #include <gtest/gtest.h>
 

@@ -24,7 +24,7 @@ target_link_libraries(editor PRIVATE OpenTLV::Document OpenTLV::QueryDocument Op
 It does not control module availability or installed headers. A
 `project(app LANGUAGES C)` consumer can link the same targets without enabling a
 C++ compiler. Functional targets publish the required include paths and compile
-features. Use `OpenTLV::IOCodec` with `tlv++/codec/writer.hpp` for typed Writer
+features. Use `OpenTLV::IOCodec` with `opentlv/codec/writer.hpp` for typed Writer
 overloads. No extra include directories or separate C++ target are needed.
 
 ## Core, IO and Document
@@ -62,7 +62,7 @@ options. Supplying any of them
 is an error; remove them from presets and existing caches (or use a fresh build
 directory). IO always includes both APIs. The corresponding preprocessor macros,
 `tlv_config_*()` availability mirrors and `tlv/config.h` have been removed.
-Query features remain in `tlv/query/features.h`.
+Query features remain in `opentlv/query/features.h`.
 
 The optional `OpenTLV::tlv` interface aggregates Core, IO,
 Document, Generator, Query, Codec, Schema and their extracted integrations transitively. Direct library consumers must link the dependencies too (static
@@ -76,9 +76,9 @@ The separate `tlv++` target and `tlv++` package component are removed; link the
 functional target in either language.
 
 Public Reader/Writer headers and function signatures remain at their existing
-paths. `tlv_copy_element()` now belongs to `tlv/writer/copy.h`; Core `tlv/copy.h`
-contains raw byte/value copies only. `tlv/tlv.h` includes both. New public utility
-headers are `tlv/utf8.h`, `tlv/callback.h` and `tlv/diagnostic/cause.h`. Module
+paths. `tlv_copy_element()` now belongs to `opentlv/io/writer/copy.h`; Core `opentlv/core/copy.h`
+contains raw byte/value copies only. `opentlv/tlv.h` includes both. New public utility
+headers are `opentlv/core/utf8.h`, `opentlv/core/callback.h` and `opentlv/core/diagnostic/cause.h`. Module
 exports use `OPENTLV_CORE_API`, `OPENTLV_IO_API`, `OPENTLV_DOCUMENT_API` and
 `OPENTLV_GENERATOR_API`; CMake propagates the matching
 static-build definitions automatically.
@@ -90,23 +90,23 @@ find_package(OpenTLV REQUIRED CONFIG COMPONENTS Document)
 target_link_libraries(my_editor PRIVATE OpenTLV::Document)
 ```
 
-This loads only Document, IO and Core. Include `tlv/document/document.h` for
+This loads only Document, IO and Core. Include `opentlv/document/document.h` for
 ownership, topology, mutation, parsing and serialization. Document requires no
 Query, Schema, Codec, Generator or builtin implementation; supply a Format.
 
-Include `tlv/query/document.h` explicitly for Document Query operations previously
-declared by `tlv/document/document.h`. The aggregate `tlv/tlv.h` still includes
+Include `opentlv/query/document.h` explicitly for Document Query operations previously
+declared by `opentlv/document/document.h`. The aggregate `opentlv/tlv.h` still includes
 both. Link `OpenTLV::QueryDocument` for these operations; linking Document alone
 does not provide Query symbols.
-Include `tlv++/document/document.hpp` and link `OpenTLV::Document` for the
+Include `opentlv/document/document.hpp` and link `OpenTLV::Document` for the
 header-only C++ facade. Query methods retain their names but their definitions
-come from `tlv++/query/document.hpp` and `OpenTLV::QueryDocument`. Typed node
-`decode()` and `get()` definitions come from `tlv++/document/codec.hpp` and
-`OpenTLV::DocumentCodec`. `tlv++/document/diff.hpp` belongs to QueryDocument
+come from `opentlv/query/document.hpp` and `OpenTLV::QueryDocument`. Typed node
+`decode()` and `get()` definitions come from `opentlv/document/codec.hpp` and
+`OpenTLV::DocumentCodec`. `opentlv/query/diff.hpp` belongs to QueryDocument
 because its selection and failure contract uses Query. The umbrella
-`tlv++/tlv.hpp` includes all integrations for existing full-API source usage.
+`opentlv/tlv.hpp` includes all integrations for existing full-API source usage.
 
-`tlv/document/integration.h` defines the public integration boundary: effective
+`opentlv/document/integration.h` defines the public integration boundary: effective
 options and allocator access, live-node ownership checks, callback activity and
 nested callback lifetime guards. Integrations use existing node traversal,
 identity, retirement epoch, revision and mutation APIs. Guarded fallible edits
@@ -124,13 +124,13 @@ This loads only Codec and Core. A target-only source build with
 `cmake --build build/modules --target opentlv_codec` compiles no Reader, Schema,
 Query, Document, Generator or builtin implementation. All generic numeric,
 digit, text, IPv4 and byte conversions, callbacks and measurement remain available.
-Public headers retain their `tlv/codec/` paths and use `OPENTLV_CODEC_API`.
+Public headers retain their `opentlv/codec/` paths and use `OPENTLV_CODEC_API`.
 
-Link `OpenTLV::QueryCodec` and include `tlv/query/adapters.h` for generic Query
+Link `OpenTLV::QueryCodec` and include `opentlv/query/adapters.h` for generic Query
 conversion providers. This integration depends explicitly on Core, IO, Query
 and Codec. Neither base module links the integration.
 
-`tlv/codec/structure.h` belongs to the Codec-owned `codec-structure` integration,
+`opentlv/codec/structure.h` belongs to the Codec-owned `codec-structure` integration,
 which composes Codec, Schema and IO. Link `OpenTLV::CodecStructure`; the aggregate
 continues to provide structured validation and conversion without changing
 wire behavior. No base Codec dependency points back to Schema or the aggregate.
@@ -145,8 +145,8 @@ the Codec frame while preserving delegated frames and bounded omission counts;
 names remain available for the approved baseline mapping. Rebuild binary consumers.
 C++ `codec_failure::causes()` exposes the retained chain.
 
-Include `tlv++/codec/writer.hpp` for typed `writer_base::write()` overloads.
-`tlv++/codec/typed.hpp` no longer includes Writer. The aggregate `tlv++/tlv.hpp`
+Include `opentlv/codec/writer.hpp` for typed `writer_base::write()` overloads.
+`opentlv/codec/typed.hpp` no longer includes Writer. The aggregate `opentlv/tlv.hpp`
 includes both. Common C++ error support no longer includes Schema headers.
 
 ## Independent Schema
@@ -166,10 +166,10 @@ Select integrations explicitly:
 
 | Target | Header | Behavior |
 | --- | --- | --- |
-| `OpenTLV::SchemaNumber` | `tlv/schema/number.h` | Schema-backed numeric conversion and length diagnostic composition |
-| `OpenTLV::SchemaQuery` | `tlv/schema/query.h` | Contextual assertions over buffers |
-| `OpenTLV::SchemaQueryDocument` | `tlv/schema/query_document.h` | Contextual assertions over Document, including D plans |
-| `OpenTLV::CodecStructure` | `tlv/codec/structure.h` | Object conversion with structural validation |
+| `OpenTLV::SchemaNumber` | `opentlv/schema/number.h` | Schema-backed numeric conversion and length diagnostic composition |
+| `OpenTLV::SchemaQuery` | `opentlv/schema/query.h` | Contextual assertions over buffers |
+| `OpenTLV::SchemaQueryDocument` | `opentlv/schema/query_document.h` | Contextual assertions over Document, including D plans |
+| `OpenTLV::CodecStructure` | `opentlv/codec/structure.h` | Object conversion with structural validation |
 
 Base modules do not depend on these integrations. Rules retain their order,
 context selection and execution semantics; assertion failures retain the rule
@@ -184,7 +184,7 @@ retain their external borrows; codes, classifications and evidence are unchanged
 The cause discriminator keeps its existing numeric vocabulary for compatibility.
 
 C++ Schema validation, reports and preparation return `schema_failure`, declared
-in `tlv++/schema/error.hpp`. It retains `schema_kind()`, `definition()` and
+in `opentlv/schema/error.hpp`. It retains `schema_kind()`, `definition()` and
 `definition_kind()`, exposes the complete diagnostic with `native()`, and provides
 `failure()` / `to_error()` for common status, location and path. Those
 Schema-specific accessors no longer belong to `tlv::error`.
@@ -196,12 +196,12 @@ find_package(OpenTLV REQUIRED CONFIG COMPONENTS Generator)
 target_link_libraries(my_generator PRIVATE OpenTLV::Generator)
 ```
 
-This loads only Generator, IO and Core. Include `tlv/generator.h`; Generator has
+This loads only Generator, IO and Core. Include `opentlv/generator/generator.h`; Generator has
 no Document, Query, Schema, Codec or builtin library dependency. Supply a readable,
 writable Format and caller-owned output and workspace. The module always provides
 generation; no Writer capability option selects it.
 
-The existing header-only `tlv++/generator.hpp` belongs to Generator. A C++11
+The existing header-only `opentlv/generator/generator.hpp` belongs to Generator. A C++11
 consumer can use it with `OpenTLV::Generator` and the installed C++ headers;
 C++ headers are always installed. No compiled C++ library is introduced.
 The shared C++ support headers belong to Core; the Generator target supplies their
@@ -227,16 +227,16 @@ static plans, streaming and retained execution. Build `opentlv_query` to compile
 only that dependency closure. `QueryDocument` adds Document through public
 traversal, mutation and callback interfaces; Document never links Query.
 
-Include `tlv/query/definition.h` for name resolution, `tlv/query/program.h` for
-programs and execution, and `tlv/query/features.h` for the frontend/set-operation
+Include `opentlv/query/definition.h` for name resolution, `opentlv/query/program.h` for
+programs and execution, and `opentlv/query/features.h` for the frontend/set-operation
 macros and runtime mirrors. `OPENTLV_QUERY_FRONTEND` and
 `OPENTLV_QUERY_SET_OPERATIONS` remain Query-internal CMake options.
 
 Codec adapters live in the Query-owned `query-codec` implementation, currently
 provided by the explicit `OpenTLV::QueryCodec` integration.
-Include `tlv/query/adapters.h` for them. The base Query target does not compile or
+Include `opentlv/query/adapters.h` for them. The base Query target does not compile or
 link that implementation. C++ environments start without conversion providers;
-include `tlv++/query/codec.hpp` and call `tlv::configure_query_codecs(environment)`
+include `opentlv/query/codec.hpp` and call `tlv::configure_query_codecs(environment)`
 before compilation to add NUM, BCD and TEXT. Existing builtin configuration
 functions still add their own providers explicitly.
 

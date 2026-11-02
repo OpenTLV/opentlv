@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/format.h"
-#include "tlv/writer/copy.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/query/query.h"
-#include "tlv/schema/schema.h"
-#include "tlv/document/document.h"
+#include "opentlv/core/format.h"
+#include "opentlv/io/writer/copy.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/query/query.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/document/document.h"
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>

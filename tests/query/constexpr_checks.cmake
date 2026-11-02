@@ -3,8 +3,8 @@ function(opentlv_check_constexpr_query)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
     set(CMAKE_REQUIRED_INCLUDES
-        "${OpenTLV_SOURCE_DIR}/tlv/include"
-        "${OpenTLV_SOURCE_DIR}/tlv++/include"
+        "${OpenTLV_SOURCE_DIR}/include"
+        "${OpenTLV_SOURCE_DIR}/include"
         "${OpenTLV_BINARY_DIR}/generated/include")
     if(MSVC)
         set(CMAKE_REQUIRED_FLAGS "/W4 /WX /EHsc")
@@ -18,7 +18,7 @@ function(opentlv_check_constexpr_query)
     foreach(case IN ITEMS valid bad_name conflicting_types temporary_borrow)
         set(result "OPENTLV_CONSTEXPR_QUERY_${case}")
         unset(${result} CACHE)
-        check_cxx_source_compiles("#include <tlv++/query/static.hpp>\nnamespace q = tlv::static_query;\n${${case}}\nint main() {}" ${result}
+        check_cxx_source_compiles("#include <opentlv/query/static.hpp>\nnamespace q = tlv::static_query;\n${${case}}\nint main() {}" ${result}
             OUTPUT_VARIABLE compile_output)
         if(case STREQUAL "valid" AND NOT ${result})
             message(FATAL_ERROR "Valid constexpr Query must compile:\n${compile_output}")

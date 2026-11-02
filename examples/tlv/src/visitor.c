@@ -2,8 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 /* Resumable push processing uses the same caller-owned Tree Reader as pull. */
-#include "tlv/reader/visitor.h"
-#include "tlv/formats/fixed.h"
+#include "opentlv/io/reader/visitor.h"
+#include "opentlv/core/formats/fixed.h"
 #include <stdio.h>
 
 static int constructed(const void* context, const tlv_tag_t* tag) {

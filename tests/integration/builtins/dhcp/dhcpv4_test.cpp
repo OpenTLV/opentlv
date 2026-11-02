@@ -2,15 +2,15 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../../../diagnostic_assertions.h"
-#include "tlv/builtins/dhcp/dhcpv4.h"
-#include "tlv/builtins/dhcp/options.h"
-#include "tlv/builtins/dhcp/container.h"
-#include "tlv/query/query.h"
-#include "tlv/schema/schema.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
+#include "opentlv/builtin/dhcp/dhcpv4.h"
+#include "opentlv/builtin/dhcp/options.h"
+#include "opentlv/builtin/dhcp/container.h"
+#include "opentlv/query/query.h"
+#include "opentlv/schema/schema.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <memory>

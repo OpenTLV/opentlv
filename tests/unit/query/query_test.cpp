@@ -2,7 +2,7 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "controlled_format.h"
-#include "tlv/query/query.h"
+#include "opentlv/query/query.h"
 #include <gtest/gtest.h>
 #include <string>
 
@@ -20,7 +20,7 @@ TEST(Unit_Tlv_Query, LocationsDistinguishSyntaxEvidenceAndEmptyEof) {
     EXPECT_EQ(3u, diagnostic.location.end);
     EXPECT_EQ(TLV_ERR_SYNTAX, tlv_query_parse_n("01/", 3, &query, nullptr));
 }
-#include "../../../tlv/src/query/v1_internal.h"
+#include "../../../src/query/internal/v1_internal.h"
 #include <vector>
 
 namespace {

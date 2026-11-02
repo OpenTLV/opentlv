@@ -2,15 +2,15 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "../diagnostic_assertions.h"
-#include "tlv/callback.h"
-#include "tlv/formats/compose.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/formats/variable.h"
-#include "tlv/reader/reader.h"
-#include "tlv/writer/writer.h"
-#include "tlv/builtins/asn1/ber.h"
-#include "tlv/builtins/lldp/lldp.h"
-#include "tlv/builtins/nfc/type2.h"
+#include "opentlv/core/callback.h"
+#include "opentlv/core/formats/compose.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/core/formats/variable.h"
+#include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
+#include "opentlv/builtin/asn1/ber.h"
+#include "opentlv/builtin/lldp/lldp.h"
+#include "opentlv/builtin/nfc/type2.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <limits>

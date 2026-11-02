@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/native.hpp"
-#include "tlv++/reader/reader.hpp"
-#include "tlv++/writer/writer.hpp"
+#include "opentlv/native.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
 #include "controlled_format.h"
 #include <gtest/gtest.h>
 #include <cstring>

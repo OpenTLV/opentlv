@@ -5,7 +5,7 @@ the same C Reader, Writer and higher-level engines as the built-in Formats.
 An application implements operations in C++, without constructing a
 `tlv_format_t`, inheriting a base class, or using virtual dispatch.
 
-Include `<tlv++/format.hpp>` for the contract, or `<tlv++/tlv.hpp>` for the
+Include `<opentlv/core/format.hpp>` for the contract, or `<opentlv/tlv.hpp>` for the
 complete configured facade. C++11 remains supported.
 
 See the [current C++ facade overview](cxx-native-boundary.md#public-facade) for

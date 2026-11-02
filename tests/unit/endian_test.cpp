@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/endian.h"
-#include "tlv/tlv.h"
+#include "opentlv/core/endian.h"
+#include "opentlv/tlv.h"
 
 #include <gtest/gtest.h>
 #include <cstring>
-#include "tlv/tag.h"
+#include "opentlv/core/tag.h"
 
 extern "C" int tlv_test_c_endian(void);
 

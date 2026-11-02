@@ -32,6 +32,7 @@ import re
 import statistics
 import subprocess
 import zipfile
+from library_layout import historical_includes, public_roots
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -113,9 +114,11 @@ def prepare(args):
                 libraries = [Path(modules[key]["library"]) for key in ("io", "core") if key in modules]
             else:
                 libraries = [build / "tlv/libtlv.a"]
-            subprocess.run([args.cxx, *flags, "-I" + str(source / "tlv++/include"),
-                            "-I" + str(source / "tlv/include"), "-I" + str(build / "generated/include"),
-                            str(BENCHMARK), *map(str, libraries), "-o", str(directory / "benchmark")],
+            benchmark = directory / "benchmark.cpp"
+            benchmark.write_text(historical_includes(source, BENCHMARK.read_text()))
+            subprocess.run([args.cxx, *flags, *("-I" + str(path) for path in public_roots(source)),
+                            "-I" + str(build / "generated/include"),
+                            str(benchmark), *map(str, libraries), "-o", str(directory / "benchmark")],
                            check=True, stdout=output, stderr=subprocess.STDOUT)
         metadata["variants"][label] = {"source_commit": source_commit,
                                         "legacy_facade": label in args.legacy_label,

@@ -8,10 +8,10 @@
  * copying or concatenating them.
  */
 #include <stdio.h>
-#include "tlv/builtins/asn1/cer.h"
-#include "tlv/builtins/asn1/cer_validation.h"
-#include "tlv/size.h"
-#include "tlv/reader/visitor.h"
+#include "opentlv/builtin/asn1/cer.h"
+#include "opentlv/builtin/asn1/cer_validation.h"
+#include "opentlv/core/size.h"
+#include "opentlv/io/reader/visitor.h"
 
 #define CHECK(call)                                                                                \
     do {                                                                                           \

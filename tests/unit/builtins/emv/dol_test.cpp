@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/emv/dol.h"
+#include "opentlv/builtin/emv/dol.h"
+#include "opentlv/builtin/asn1/ber.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <vector>
@@ -62,6 +63,48 @@ tlv_result_t Write(const std::vector<uint8_t>& dol, const std::vector<ScriptValu
 }
 
 } // namespace
+
+TEST(Unit_Tlv_Dol, IdentifierPolicyMatchesHistoricalBerReader) {
+    const auto check = [](const std::vector<uint8_t>& bytes) {
+        tlv_tag_t    tag{};
+        size_t       used = 0;
+        tlv_result_t expected = tlv_ber_read_identifier(bytes.data(), bytes.size(), &tag, &used);
+        if (expected == TLV_OK && used == bytes.size()) expected = TLV_ERR_TRUNCATED;
+        std::vector<tlv_dol_entry_t> entries;
+        tlv_diagnostic_t             diagnostic{};
+        // Stop after the first entry, so arbitrary suffix bytes are not another DOL.
+        const auto visit = [](const tlv_dol_entry_t* entry, size_t, void* context) -> tlv_result_t {
+            static_cast<std::vector<tlv_dol_entry_t>*>(context)->push_back(*entry);
+            return TLV_ERR_VISITOR;
+        };
+        const auto actual =
+            tlv_dol_read(bytes.data(), bytes.size(), nullptr, visit, &entries, &diagnostic);
+        ASSERT_EQ(expected == TLV_OK ? TLV_ERR_VISITOR : expected, actual);
+        EXPECT_EQ(0u, diagnostic.location.begin);
+        if (expected == TLV_OK) {
+            ASSERT_EQ(1u, entries.size());
+            EXPECT_EQ(tag.size, entries[0].tag.size);
+            EXPECT_EQ(0, std::memcmp(tag.data, entries[0].tag.data, tag.size));
+            EXPECT_EQ(bytes[used], entries[0].requested_length);
+        } else {
+            EXPECT_TRUE(entries.empty());
+        }
+    };
+    for (unsigned first = 0; first <= 255; ++first) {
+        check({static_cast<uint8_t>(first)});
+        for (unsigned second = 0; second <= 255; ++second)
+            check({static_cast<uint8_t>(first), static_cast<uint8_t>(second), 0x01, 0x02});
+    }
+    for (size_t size = 2; size <= 10; ++size) {
+        std::vector<uint8_t> identifier(size, 0x81);
+        identifier[0] = 0x9f;
+        check(identifier);
+        identifier.back() = 1;
+        check(identifier);
+        identifier.push_back(0xff);
+        check(identifier);
+    }
+}
 
 TEST(Unit_Tlv_Dol, ReadParsesEntriesInOrder) {
     const std::vector<uint8_t>   data = {0x9F, 0x02, 0x06, 0x5A, 0x08};

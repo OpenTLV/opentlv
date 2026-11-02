@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
-#include "tlv++/query/static.hpp"
-#include "tlv++/native.hpp"
+#include "opentlv/query/static.hpp"
+#include "opentlv/native.hpp"
 #include <cstdio>
 #include <cstdlib>
 #include <new>

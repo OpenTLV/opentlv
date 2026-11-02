@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/builtins/asn1/ber.hpp"
-#include "tlv++/tlv.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/tlv.hpp"
 
 #include <gtest/gtest.h>
 

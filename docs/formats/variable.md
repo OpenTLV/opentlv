@@ -1,7 +1,7 @@
 # Configurable variable-width TLV
 
-`tlv/field/variable.h` provides allocation-free identifier and length primitives.
-`tlv/formats/variable.h` provides the definite-length format and adapters composed
+`opentlv/core/field/variable.h` provides allocation-free identifier and length primitives.
+`opentlv/core/formats/variable.h` provides the definite-length format and adapters composed
 from them. Both are always available, even when all builtins are disabled, and
 do not require a runtime `.otlv` engine. They describe wire mechanics, not a
 protocol or an ASN.1 encoding rule.
@@ -59,7 +59,7 @@ For example, this deliberately non-ASN.1 configuration uses identifier bits 4–
 escape pattern `0x20`, continuation bit 0, and payload bits 4–7:
 
 ```c
-#include "tlv/formats/variable.h"
+#include "opentlv/core/formats/variable.h"
 
 static const tlv_variable_format_t config = {
     {0x70, 0x20, 0x01, 0xF0, 8, NULL},
@@ -128,8 +128,8 @@ all configuration members.
 
 ## Concrete rules and terminated framing
 
-`tlv_variable_fields_init()` from `tlv/formats/variable.h` creates a caller-owned
-`tlv_field_composition_t` from `tlv/formats/compose.h` with
+`tlv_variable_fields_init()` from `opentlv/core/formats/variable.h` creates a caller-owned
+`tlv_field_composition_t` from `opentlv/core/formats/compose.h` with
 variable field callbacks and a borrowed configuration context. A definite
 composition can be used through `tlv_fields_format_init()`. For more specialized
 composition, the standalone identifier and length helpers can be called from

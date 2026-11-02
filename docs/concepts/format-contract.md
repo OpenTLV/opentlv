@@ -137,17 +137,17 @@ validation scope.
 
 ## Field Encoding and Format composition
 
-Field Encoding provides individual-field mechanics under `tlv/field/`:
+Field Encoding provides individual-field mechanics under `opentlv/core/field/`:
 
 | Level | Public headers and responsibility |
 | --- | --- |
-| Low-level bit, byte and integer primitives | `tlv/field/packed.h` extracts and inserts unsigned fields within backing integers. Shared byte-order primitives remain in `tlv/endian.h`. |
-| Identifier and Length encodings | `tlv/field/encoding.h` defines the read/write callback contracts; `tlv/field/fixed.h`, `tlv/field/variable.h` and `tlv/field/escaped.h` provide standalone encoding primitives. |
+| Low-level bit, byte and integer primitives | `opentlv/core/field/packed.h` extracts and inserts unsigned fields within backing integers. Shared byte-order primitives remain in `opentlv/core/endian.h`. |
+| Identifier and Length encodings | `opentlv/core/field/encoding.h` defines the read/write callback contracts; `opentlv/core/field/fixed.h`, `opentlv/core/field/variable.h` and `opentlv/core/field/escaped.h` provide standalone encoding primitives. |
 
 Format composition owns ordering, count scope, tag-only selection and optional
 boundary resolution. Its types, callbacks and initializers live in
-`tlv/formats/compose.h`. The complete Fixed, Variable and Escaped configurations
-and their adapters remain under `tlv/formats/`. Field primitives do not depend
+`opentlv/core/formats/compose.h`. The complete Fixed, Variable and Escaped configurations
+and their adapters remain under `opentlv/core/formats/`. Field primitives do not depend
 on these complete formats, Reader, Writer, Document, Schema, Codec or builtins.
 Generic composition helpers are optional; an implementation may supply the same
 complete Format contract directly. Reader and Writer use that contract without
@@ -176,7 +176,7 @@ fields use `tlv_binary_composition_t`. Identifier-selected tag-only framing uses
 TLV and LTV use the same composition with explicit order and count scope.
 Bluetooth does not depend on Fixed internals.
 
-Packed fields sharing a wire integer use `tlv_packed_field_t` from `tlv/field/packed.h`.
+Packed fields sharing a wire integer use `tlv_packed_field_t` from `opentlv/core/field/packed.h`.
 It describes 1..8 backing bytes, explicit byte order, bit offset counted from
 the decoded integer's least significant bit, and bit width. The read/write
 helpers operate on unsigned `uint64_t` values and require the complete backing
@@ -242,8 +242,8 @@ accepted logical range must not silently change between 32-bit and 64-bit builds
 ## Migration
 
 For the Field Encoding / Format composition split (#423), replace
-`tlv/layout.h` with `tlv/formats/compose.h` for composition and the appropriate
-`tlv/field/` header for individual-field operations. Rename the four configuration
+`tlv/layout.h` with `opentlv/core/formats/compose.h` for composition and the appropriate
+`opentlv/core/field/` header for individual-field operations. Rename the four configuration
 types ending in `_layout_t` to `_composition_t`: `tlv_field_composition_t`,
 `tlv_binary_composition_t`, `tlv_tagged_fields_composition_t` and
 `tlv_tagged_binary_composition_t`. There are no compatibility headers or aliases.
@@ -283,7 +283,7 @@ with its descriptor, header and build option. Select a named standard such as
 BER, or configure Fixed explicitly for a protocol with fixed-width fields.
 These formats are not wire-compatible replacements for every legacy input.
 
-C++ provides `tlv::decode`, `measure`, `encode` and `preserve` in `tlv++/format.hpp`.
+C++ provides `tlv::decode`, `measure`, `encode` and `preserve` in `opentlv/core/format.hpp`.
 Rust separates semantic `Element` from `Decoded`, available through `decode()`
 and `decode_fixed()`; raw Length belongs to `Decoded::raw_length()`.
 Lua semantic visitor records no longer expose raw Length. Python's existing

@@ -19,7 +19,7 @@ architecture review. This scope decision does not establish IEEE conformance.
 | Issue | Current coverage |
 | --- | --- |
 | [#360: requirements review](https://github.com/OpenTLV/opentlv/issues/360) | Architecture assessment, layer mapping and generic Tag storage support are complete. Normative verification is tracked separately and does not block closure. |
-| [#361: packed Field Encoding primitive](https://github.com/OpenTLV/opentlv/issues/361) | Implemented as `tlv_packed_field_t` in `tlv/field/packed.h` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
+| [#361: packed Field Encoding primitive](https://github.com/OpenTLV/opentlv/issues/361) | Implemented as `tlv_packed_field_t` in `opentlv/core/field/packed.h` with bounded unsigned extraction/insertion. LLDP uses it within its complete Format callbacks. |
 | [#362: LLDP format and definitions](https://github.com/OpenTLV/opentlv/issues/362) | Implemented with #363; see [combined coverage](lldp/README.md#coverage-of-362-and-363). Full normative verification remains separate. |
 | [#363: schemas, codecs and conformance](https://github.com/OpenTLV/opentlv/issues/363) | Base structural validator, value codecs, reference tests and C/C++ examples implemented. See the [conformance boundary](lldp/conformance.md); full IEEE conformance is not established. |
 
@@ -98,7 +98,7 @@ selects a child format and payload boundary.
 | Layer | LLDP mapping and current fit |
 | --- | --- |
 | Definition | Describe the Type namespace; describe OUI/subtype namespaces separately. No wire packing in definitions. |
-| Format | Full `decode`, `measure`, `encode` callbacks unpack/pack the two-byte header with `tlv/field/packed.h` and validate bounds. Canonical decoded Tags use `TLV_TAG_BINDING_FORMAT` as described below. The helpers in `tlv/formats/compose.h` compose sequential byte fields; LLDP supplies complete callbacks for its shared packed header. |
+| Format | Full `decode`, `measure`, `encode` callbacks unpack/pack the two-byte header with `opentlv/core/field/packed.h` and validate bounds. Canonical decoded Tags use `TLV_TAG_BINDING_FORMAT` as described below. The helpers in `opentlv/core/formats/compose.h` compose sequential byte fields; LLDP supplies complete callbacks for its shared packed header. |
 | Layout | Header `[0,2)`, Value `[2,2+L)`, empty Trailer at `2+L`. Runtime byte ranges cannot express individual bits; Header retains all original bits. |
 | Element | Proposed Tag is one stable byte `{type}` in 0..127; Value borrows the complete information string. Logical Length is `element.value.size`; there is no separate `element.length` member. |
 | Schema | Existing length and occurrence bounds are useful after Tag identity is resolved. Current sequence ordering alone cannot express the complete LLDP grammar. |
@@ -107,7 +107,7 @@ selects a child format and payload boundary.
 ### Original restriction: canonical Tag versus source range
 
 The [decoded identifier contract](../concepts/format-contract.md#decoded-identifier-consistency)
-and `tlv_format_decode()` in `tlv/src/format.c` originally required a present `source.tag`
+and `tlv_format_decode()` in `src/core/format.c` originally required a present `source.tag`
 to have exactly the same pointer and size as `element.tag`. An absent source
 Tag required an absent semantic Tag. A successful callback result was rejected
 with `TLV_ERR_INVALID_ARG` otherwise.

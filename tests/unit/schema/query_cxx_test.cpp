@@ -2,11 +2,11 @@
 // Copyright (c) 2026 Marek Cingel
 #include "diagnostic_assertions.h"
 #include "query_diagnostic_helpers.h"
-#include "tlv++/native.hpp"
+#include "opentlv/native.hpp"
 #include "controlled_format.h"
-#include "tlv++/query/program.hpp"
-#include "tlv++/document/document.hpp"
-#include "tlv/schema/query_document.h"
+#include "opentlv/query/program.hpp"
+#include "opentlv/document/document.hpp"
+#include "opentlv/schema/query_document.h"
 #include <gtest/gtest.h>
 #include <vector>
 #include <cstring>

@@ -15,14 +15,14 @@ contracts from the remaining full-edition normative audit.
 
 | Setting | Value |
 | --- | --- |
-| C header | `tlv/builtins/lldp/lldp.h` |
+| C header | `opentlv/builtin/lldp/lldp.h` |
 | Descriptor | `tlv_format_lldp` |
 | Definitions | `tlv_lldp_types`, lookup with `tlv_definition_find()` |
-| C++ header/preset | `tlv++/builtins/lldp/lldp.hpp`, `tlv::lldp::format{}` |
+| C++ header/preset | `opentlv/builtin/lldp/lldp.hpp`, `tlv::lldp::format{}` |
 | CMake target | `OpenTLV::LLDP` (independent of ASN1 and Bluetooth) |
 | Availability query | `tlv_config_lldp()` |
-| Structural API | `tlv/builtins/lldp/schema.h`: `tlv_lldp_schema`, `tlv_lldp_validate()` |
-| Value codecs | `tlv/builtins/lldp/codec.h` |
+| Structural API | `opentlv/builtin/lldp/schema.h`: `tlv_lldp_schema`, `tlv_lldp_validate()` |
+| Value codecs | `opentlv/builtin/lldp/codec.h` |
 
 <!-- markdownlint-disable-next-line MD033 -->
 <a id="wire-layout-and-logical-model"></a>
@@ -51,7 +51,7 @@ checks and inner-length consistency. Rebuild consumers of the former symbols.
 For example, `06 02 00 78` becomes Tag `03` and Value `00 78`.
 
 The descriptor uses a [generic packed layout](../packed.md) from
-`tlv/formats/packed.h` with two `tlv_packed_field_t` configurations:
+`opentlv/core/formats/packed.h` with two `tlv_packed_field_t` configurations:
 Type uses offset 9 and width 7; Length uses offset 0 and width 9. Both use
 two-byte big-endian storage. The primitive handles unsigned extraction and
 insertion; the generic Format callbacks map Type to canonical Tag bytes and
@@ -185,10 +185,10 @@ new writing API.
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/builtins/lldp/lldp.h"
-#include "tlv/builtins/lldp/schema.h"
-#include "tlv/builtins/lldp/codec.h"
-#include "tlv/reader/reader.h"
+#include "opentlv/builtin/lldp/lldp.h"
+#include "opentlv/builtin/lldp/schema.h"
+#include "opentlv/builtin/lldp/codec.h"
+#include "opentlv/io/reader/reader.h"
 
 int main(void) {
     /* Local IDs "c"/"p", TTL 120 seconds, optional End. No Ethernet padding. */
@@ -225,8 +225,8 @@ Format preset for traversal.
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv++/tlv.hpp"
-#include "tlv++/builtins/lldp/lldp.hpp"
+#include "opentlv/tlv.hpp"
+#include "opentlv/builtin/lldp/lldp.hpp"
 
 int main() {
     const uint8_t    wire[] = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120, 0, 0};

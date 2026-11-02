@@ -3,13 +3,13 @@
 #if !defined(_WIN32) && !defined(_POSIX_C_SOURCE)
 #define _POSIX_C_SOURCE 200809L /* open() and fdopen() for image output in strict C99 */
 #endif
-#include "tlv/query/adapters.h"
-#include "../../tlv/src/query/frontend_internal.h"
-#include "tlv/formats/fixed.h"
-#include "tlv/document/document.h"
-#include "tlv/query/document.h"
-#include "tlv/writer/tree.h"
-#include "tlv/builtins/asn1/query.h"
+#include "opentlv/query/adapters.h"
+#include "../../src/query/internal/frontend_internal.h"
+#include "opentlv/core/formats/fixed.h"
+#include "opentlv/document/document.h"
+#include "opentlv/query/document.h"
+#include "opentlv/io/writer/tree.h"
+#include "opentlv/builtin/asn1/query.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

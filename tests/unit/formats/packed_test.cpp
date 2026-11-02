@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "tlv/formats/packed.h"
-#include "tlv/builtins/lldp/lldp.h"
+#include "opentlv/core/formats/packed.h"
+#include "opentlv/builtin/lldp/lldp.h"
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
