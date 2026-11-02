@@ -20,6 +20,7 @@ headers and symbols are registered in `cmake/library/modules.cmake`; the isolati
 checks the compiled dependency graph. #654 associates header-only C++ facades
 with those targets and registers `DocumentCodec` and `IOCodec` integrations.
 The [module-first layout and header migration](layout-migration.md) implements #733.
+The [final verification report and procedure](final-verification.md) covers #655.
 All C implementations live in modules; `OpenTLV::tlv` is an optional INTERFACE
 aggregate without an archive. See the [consumer migration guide](../../guides/select-components.md).
 

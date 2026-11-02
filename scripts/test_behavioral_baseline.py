@@ -9,12 +9,47 @@ import tarfile
 import tempfile
 import unittest
 from unittest.mock import patch
+from types import SimpleNamespace
 
 import behavioral_baseline as baseline
 from library_layout import historical_header, historical_includes, public_roots
 
 
 class BaselineTests(unittest.TestCase):
+    def test_generator_metadata_drift_fails_even_with_identical_bytes(self):
+        reference, output = self.root / "reference", self.root / "output"
+        fixture = {"metadata": {"generator": {"version": 2}, "seed": "42"},
+                   "cases": [{"index": 0, "hex": "0100"}]}
+        baseline.write(reference / "generator/fixed.json", fixture)
+        for field in ("version", "seed"):
+            with self.subTest(field=field):
+                changed = copy.deepcopy(fixture)
+                if field == "version":
+                    changed["metadata"]["generator"]["version"] = 3
+                else:
+                    changed["metadata"]["seed"] = "43"
+                output = self.root / ("output-" + field)
+                args = SimpleNamespace(baseline=reference, repository=self.root,
+                                       build=self.root, source=self.root, output=output)
+                with patch.object(baseline, "verify"), patch.object(baseline, "collect_generator",
+                        side_effect=lambda build, destination: baseline.write(
+                            destination / "generator/fixed.json", changed)):
+                    with self.assertRaisesRegex(ValueError, "metadata or corpus drift"):
+                        baseline.replay(args)
+
+    def test_fuzz_replay_preserves_bytes_and_includes_query_pairs(self):
+        reference = self.root / "reference"
+        data = b"\x00\xff\r\n"
+        baseline.write(reference / "fuzz-corpus.json", {
+            "tests/fuzz/query/corpus/match/seed": {"hex": data.hex(), "sha256": baseline.digest(data)}})
+        args = SimpleNamespace(baseline=reference, repository=self.root,
+                               build=self.root / "build", output=self.root / "fuzz")
+        with patch.object(baseline, "verify"), patch.object(baseline, "command") as command:
+            baseline.replay_fuzz(args)
+        self.assertEqual(2, command.call_count)
+        self.assertEqual(data, next((args.output / "corpus/query_match").iterdir()).read_bytes())
+        self.assertEqual(["query_match", "query_pairs"], baseline.read(args.output / "report.json")["targets"])
+
     def test_probes_adapt_to_historical_headers_without_changing_archives(self):
         current = '#include <opentlv/core/result.h>\n#include "opentlv/io/reader/reader.hpp"\n'
         self.assertEqual('#include <tlv/result.h>\n#include "tlv++/reader/reader.hpp"\n',

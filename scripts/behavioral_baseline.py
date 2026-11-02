@@ -49,10 +49,10 @@ def checked(condition, message):
         raise ValueError(message)
 
 
-def command(args, *, cwd=None, log=None):
+def command(args, *, cwd=None, log=None, env=None):
     result = subprocess.run([str(arg) for arg in args], cwd=cwd, stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT, check=False,
-                            env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1"))
+                            env=dict(os.environ, PYTHONDONTWRITEBYTECODE="1", **(env or {})))
     if log:
         log.parent.mkdir(parents=True, exist_ok=True)
         log.write_bytes(result.stdout)
@@ -104,6 +104,15 @@ def archive(repository):
 
 def inventory(files):
     return {name: {"sha256": digest(data), "size": len(data)} for name, data in sorted(files.items())}
+
+
+def candidate_inventory(source):
+    """Identify the actual build/test inputs, including an uncommitted candidate."""
+    paths = [p for directory in ("src", "include", "cmake", "scripts", "tests", "benchmarks")
+             for p in (source / directory).rglob("*")
+             if p.is_file() and "__pycache__" not in p.parts]
+    paths += [source / "CMakeLists.txt", source / "VERSION"]
+    return inventory({p.relative_to(source).as_posix(): p.read_bytes() for p in paths if p.is_file()})
 
 
 def reference_files(repository):
@@ -218,8 +227,7 @@ def collect_diagnostics(source, output):
     write(output / "diagnostic-codes.json", families)
 
 
-def run_probe(source, build, work, output):
-    executable = work / "baseline-probe"
+def static_libraries(build):
     # The immutable reference has one archive; extracted candidates declare
     # their dependency closure in the generated module registry.
     libraries = []
@@ -234,6 +242,12 @@ def run_probe(source, build, work, output):
                       if key in modules]
     else:
         libraries = [build / "tlv/libtlv.a"]
+    return libraries
+
+
+def run_probe(source, build, work, output):
+    executable = work / "baseline-probe"
+    libraries = static_libraries(build)
     probe = work / "probe.cpp"
     probe.write_text(historical_includes(source, (ROOT / "tests/baseline/probe.cpp").read_text()))
     command(["g++", "-std=c++23", "-DTLV_STATIC_DEFINE",
@@ -317,7 +331,17 @@ def verify(baseline, repository):
 def replay(args):
     verify(args.baseline, args.repository)
     with tempfile.TemporaryDirectory(prefix="opentlv-baseline-") as temporary:
-        work = Path(temporary)
+        output = getattr(args, "output", None)
+        if output:
+            checked(not output.exists(), "replay requires a new evidence directory")
+            output.mkdir(parents=True)
+        work = output or Path(temporary)
+        # CTest generates metadata from the current adapter and public algorithm
+        # version. Comparing bytes alone would miss changed version/configuration.
+        collect_generator(args.build, work)
+        for path in sorted((args.baseline / "generator").glob("*.json")):
+            checked(read(work / "generator" / path.name) == read(path),
+                    f"Generator metadata or corpus drift: {path.stem}")
         for path in sorted((args.baseline / "generator").glob("*.json")):
             fixture = read(path)
             metadata = fixture["metadata"]
@@ -326,20 +350,49 @@ def replay(args):
             argv = metadata["generation_command"][:]
             argv[0] = str(args.build / "tests/property/property-generate")
             argv[2] = str(target)
-            command(argv)
+            command(argv, log=work / "logs" / ("generator-" + path.stem + ".txt"))
             for case in fixture["cases"]:
                 wire = (target / f"{case['index']:06d}.bin").read_bytes()
                 if metadata["transform"] == "nfc-null-prefix-terminator-suffix-v1":
                     wire = b"\0" + wire + b"\xfe"
                 checked(wire.hex() == case["hex"], f"generator drift: {path.stem}/{case['index']}")
         observed = run_probe(args.source, args.build, work, work)
+        write(work / "behavior.json", observed)
         checked(observed == read(args.baseline / "behavior.json"), "behavior or diagnostic drift")
         command([sys.executable, args.source / "tests/query/run.py", "--native",
                  args.build / "tests/query/test-query-conformance", "--property-cases", "32",
-                 "--commit", COMMIT, "--evidence", work / "query"])
+                 "--commit", COMMIT, "--evidence", work / "query"], log=work / "logs/query.txt")
         for name in ("manifest.json", "wire.json", "expected.json"):
             checked(read(work / "query" / name) == read(args.baseline / "query" / name), "Query fixture drift")
+        write(work / "replay.json", {"status": "passed", "reference_commit": COMMIT,
+                                    "generator_cases": 320, "generator_domains": 10,
+                                    "generator_metadata": "equal", "behavior": "equal",
+                                    "query": "equal"})
     print("All 320 Generator cases, Query fixtures and behavioral observations match.")
+
+
+def replay_fuzz(args):
+    verify(args.baseline, args.repository)
+    checked(not args.output.exists(), "fuzz replay requires a new evidence directory")
+    corpus = read(args.baseline / "fuzz-corpus.json")
+    targets = {}
+    for name, entry in corpus.items():
+        target = Path(name).parent.name
+        if "/query/" in name:
+            target = "query_" + target
+        data = bytes.fromhex(entry["hex"])
+        checked(digest(data) == entry["sha256"], f"corrupt fuzz reference: {name}")
+        path = args.output / "corpus" / target / entry["sha256"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        targets[target] = path.parent
+    targets["query_pairs"] = targets["query_match"]
+    for target, directory in sorted(targets.items()):
+        command([args.build / "tests/fuzz" / ("fuzz_" + target), directory, "-runs=0"],
+                log=args.output / "logs" / (target + ".log"))
+    write(args.output / "report.json", {"status": "passed", "reference_commit": COMMIT,
+                                       "seeds": len(corpus), "targets": sorted(targets)})
+    print(f"All {len(corpus)} baseline fuzz seeds replayed through {len(targets)} sanitizer targets.")
 
 
 def main():
@@ -354,9 +407,13 @@ def main():
     replay_parser = commands.add_parser("replay")
     replay_parser.add_argument("--source", type=Path, required=True)
     replay_parser.add_argument("--build", type=Path, required=True)
-    for sub in (capture_parser, verify_parser, replay_parser):
+    replay_parser.add_argument("--output", type=Path, help="Preserve comparison observations and logs")
+    fuzz_parser = commands.add_parser("fuzz")
+    fuzz_parser.add_argument("--build", type=Path, required=True)
+    fuzz_parser.add_argument("--output", type=Path, required=True)
+    for sub in (capture_parser, verify_parser, replay_parser, fuzz_parser):
         sub.add_argument("--repository", type=Path, default=ROOT)
-    for sub in (verify_parser, replay_parser):
+    for sub in (verify_parser, replay_parser, fuzz_parser):
         sub.add_argument("--baseline", type=Path, default=DEFAULT)
     args = parser.parse_args()
     for key, value in vars(args).items():
@@ -367,6 +424,8 @@ def main():
             capture(args)
         elif args.command == "verify":
             verify(args.baseline, args.repository)
+        elif args.command == "fuzz":
+            replay_fuzz(args)
         else:
             replay(args)
     except (OSError, ValueError, KeyError, ET.ParseError) as error:

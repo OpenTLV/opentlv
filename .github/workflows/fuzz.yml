@@ -61,6 +61,10 @@ jobs:
           -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
       - name: Build C API fuzz targets
         run: cmake --build build/fuzz --parallel
+      - name: Replay the immutable pre-refactor fuzz corpus
+        run: >-
+          python -B scripts/behavioral_baseline.py fuzz
+          --build build/fuzz --output build/fuzz/baseline
       - name: Fuzz each target for 60 seconds
         timeout-minutes: 20
         env:
@@ -105,5 +109,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: c-fuzz-findings-${{ github.run_id }}-${{ github.run_attempt }}
-          path: build/fuzz/findings/
+          path: |
+            build/fuzz/findings/
+            build/fuzz/baseline/
           if-no-files-found: warn
