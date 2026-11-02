@@ -6,11 +6,15 @@
 #include "opentlv/query/plan.h"
 #include "opentlv/core/formats/fixed.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #define CHECK(condition)                                                                           \
     do {                                                                                           \
-        if (!(condition)) return __LINE__;                                                         \
+        if (!(condition)) {                                                                        \
+            fprintf(stderr, "line %d: %s\n", __LINE__, #condition);                                \
+            return 1;                                                                              \
+        }                                                                                          \
     } while (0)
 
 /* A source-free /80 plan exercises the executor with the frontend disabled. */
@@ -105,8 +109,14 @@ int main(void) {
     uint64_t                   workspace[8192];
     tlv_query_exec_t*          exec = NULL;
     CHECK(tlv_query_plan_open(&plan, plan.header.reserved, &program, &query_diagnostic) == TLV_OK);
-    CHECK(tlv_query_eval_init(program, NULL, workspace, sizeof workspace, 4, 16, 1000, &exec) ==
-          TLV_OK);
+    /* uint64_t storage need not satisfy the retained evaluator's stronger alignment. */
+    size_t workspace_size, workspace_alignment;
+    CHECK(tlv_query_eval_size(program, 4, 16, &workspace_size, &workspace_alignment) == TLV_OK);
+    const size_t padding =
+        (workspace_alignment - (uintptr_t)workspace % workspace_alignment) % workspace_alignment;
+    CHECK(padding <= sizeof workspace && workspace_size <= sizeof workspace - padding);
+    CHECK(tlv_query_eval_init(program, NULL, (uint8_t*)workspace + padding, workspace_size, 4, 16,
+                              1000, &exec) == TLV_OK);
     CHECK(tlv_document_query_evaluate(document, exec, NULL, NULL, 0, NULL, &query_diagnostic) ==
           TLV_OK);
     tlv_node_t* selected = NULL;

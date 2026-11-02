@@ -136,8 +136,14 @@ int main(void) {
     CHECK(tlv_query_compile("num(x'01')", 10, &options, scratch, sizeof scratch, image,
                             sizeof image, &info, &diagnostic) == TLV_OK);
     program = (const tlv_query_program_t*)image;
-    CHECK(tlv_query_eval_init(program, &environment, workspace, sizeof workspace, 4, 4, 1000,
-                              &exec) == TLV_OK);
+    /* uint64_t storage need not satisfy the retained evaluator's stronger alignment. */
+    size_t workspace_size, workspace_alignment;
+    CHECK(tlv_query_eval_size(program, 4, 4, &workspace_size, &workspace_alignment) == TLV_OK);
+    const size_t padding =
+        (workspace_alignment - (uintptr_t)workspace % workspace_alignment) % workspace_alignment;
+    CHECK(padding <= sizeof workspace && workspace_size <= sizeof workspace - padding);
+    CHECK(tlv_query_eval_init(program, &environment, (uint8_t*)workspace + padding, workspace_size,
+                              4, 4, 1000, &exec) == TLV_OK);
     CHECK(tlv_query_exec_finish(exec, &diagnostic) == TLV_ERR_INVALID_VALUE);
     CHECK(diagnostic.kind == TLV_QUERY_ERROR_CODEC);
     CHECK(diagnostic.reported == TLV_ERR_INVALID_VALUE);
