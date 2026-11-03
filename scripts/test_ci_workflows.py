@@ -358,6 +358,57 @@ class WorkflowContracts(unittest.TestCase):
         self.assert_unconditional(publication[0])
         self.assertLess(steps.index(preflight[0]), steps.index(publication[0]))
 
+    def test_release_artifact_names_signer_and_title_follow_the_artifact_contract(self):
+        # Binding verifiers pin these identities: docs/development/naming.md#release-artifact-audit.
+        from core_release import BINARY_IDS
+        jobs = workflow('core-release.yml')['jobs'].mapping()
+        ids = {'linux-x64-static', 'linux-x64-shared', 'windows-x64-static', 'windows-x64-shared'}
+        self.assertEqual(BINARY_IDS, ids)
+        matrix = jobs['binaries'].mapping()['strategy'].mapping()['matrix'].mapping()['include'].steps()
+        self.assertEqual(sorted(item['id'].text() for item in matrix), sorted(ids))
+        uploads = {
+            'candidate': ('release-candidate-${{ github.run_attempt }}', None),
+            'performance': ('release-performance-${{ github.run_attempt }}', None),
+            'source': ('release-source-${{ github.run_attempt }}', 'build/release-source/*'),
+            'binaries': ('release-${{ matrix.id }}-${{ github.run_attempt }}', 'build/release-binary/*'),
+        }
+        for job, (artifact, attested) in uploads.items():
+            with self.subTest(job=job):
+                steps = jobs[job].mapping()['steps'].steps()
+                found = [step['with'].mapping() for step in steps if 'uses' in step
+                         and step['uses'].text().startswith('actions/upload-artifact@')]
+                self.assertEqual(len(found), 1)
+                self.assertEqual(found[0]['name'].text(), artifact)
+                if attested is not None:
+                    attests = [step['with'].mapping() for step in steps if 'uses' in step
+                               and step['uses'].text().startswith('actions/attest@')]
+                    self.assertEqual(len(attests), 1)
+                    self.assertEqual(attests[0]['subject-path'].text(), attested)
+                    self.assertEqual(found[0]['path'].text(), attested)
+        publish = jobs['publish'].mapping()['steps'].steps()
+        downloads = [step['with'].mapping() for step in publish if 'uses' in step
+                     and step['uses'].text().startswith('actions/download-artifact@')]
+        self.assertEqual([(item.get('pattern') or item['name']).text() for item in downloads],
+                         ['release-*-${{ github.run_attempt }}',
+                          'core-quality-full-${{ github.sha }}-${{ github.run_attempt }}'])
+        runs = {step['name'].text(): step['run'].text() for step in publish if 'run' in step}
+        collected = re.search(r'^\s*for id in ([^;]+); do$', runs['Collect only the approved artifact set'], re.M)
+        self.assertIsNotNone(collected)
+        self.assertEqual(sorted(collected[1].split()), sorted(ids))
+        attests = [step['with'].mapping() for step in publish if 'uses' in step
+                   and step['uses'].text().startswith('actions/attest@')]
+        self.assertEqual(len(attests), 1)
+        self.assertEqual(attests[0]['subject-path'].text().splitlines(),
+                         ['build/publish/release-manifest.json', 'build/publish/SHA256SUMS'])
+        verify = runs['Verify producer attestations before publication']
+        self.assertIn('--signer-workflow "$GITHUB_REPOSITORY/.github/workflows/core-release.yml"', verify)
+        self.assertIn('--source-digest "$RELEASE_SHA"', verify)
+        publication = runs['Publish once, without replacing existing release assets']
+        self.assertIn('git push origin "$GITHUB_SHA:refs/tags/$RELEASE_TAG"', publication)
+        self.assertIn('gh release create "$RELEASE_TAG" build/publish/* --verify-tag', publication)
+        # The title omits the tag's v, as on every published Library release.
+        self.assertIn('--title "OpenTLV ${RELEASE_TAG#v}"', publication)
+
     def test_core_quality_gate_covers_the_entire_check_inventory(self):
         jobs = workflow('core-checks.yml')['jobs'].mapping()
         self.assertEqual(set(jobs), CORE_CHECKS | {'gate', 'timings'})

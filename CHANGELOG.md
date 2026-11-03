@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Title new Library releases `OpenTLV X.Y.Z`, as the naming contract and the published v0.8.0 release do, instead of `OpenTLV vX.Y.Z`. No verifier reads the title. (#748)
 - Keep C-only installed consumers usable with CMake 3.16 by applying exported C++11 requirements only when the consuming project enables C++. (#736)
 - Require combined observation counts when baseline scenario migrations share replacement tests, preventing lost scenario coverage from passing final modular verification. (#655)
 - Fix Query CI consumers by explicitly aligning streaming and compiler storage on MSVC x86, linking the ASN.1 adapters in the MemorySanitizer driver, and retaining callback-mutation coverage when set operations are disabled. (#733)
@@ -35,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Audit the release artifact identities against the published v0.8.0 release and record version 1 of the [artifact contract](docs/development/naming.md#release-artifact-audit) without renaming anything: tag, title, source and binary archive names and top directories, binary records, manifest schema 2 fields, `SHA256SUMS`, attestation signer and the fields binding verifiers read. Release and workflow tests now pin these names, the CI artifact names and the recorded Full CI evidence files. Record four findings for the post-v0.9.0 step, including release evidence that the current binding verifiers will reject. (#748)
 - Audit the CMake package, dependency and target identities against the [naming contract](docs/development/naming.md#cmake-identity-audit) without renaming anything. Consumer checks now pin the installed package files, component registry, `ExactVersion` policy, documentation path and removed-option rejections. They resolve every contract target in installed, `add_subdirectory()` and FetchContent consumers under the legacy `opentlv_core` and canonical `opentlv` names, and reject uninventoried targets or cache entries in embedding builds. Record five audit findings for the post-v0.9.0 step. (#747)
 - Check explicitly that the `COMPONENTS Core` package consumer imports `OpenTLV::Core`, cover the per-configuration export files of the Debug, Release, RelWithDebInfo and MinSizeRel configurations, and name the consumer mode or installed package in CMake identity failures. (#747)
 - Distinguish the `OpenTLV::tlv` INTERFACE aggregate from the removed monolithic `tlv` library, `tlv++` target and `tlv/` and `tlv++/` include paths in the [naming contract](docs/development/naming.md), and inventory the nested `tlv` CMake project for #747. (#746)

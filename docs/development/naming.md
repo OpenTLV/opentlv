@@ -83,7 +83,7 @@ Core. It does not make Core a synonym for the Library.
 | Release title | `OpenTLV X.Y.Z` | Library | Keep | #748 |
 | Assets | `OpenTLV-X.Y.Z-source.tar.gz`, `OpenTLV-X.Y.Z-<os>-x64-<linkage>.{tar.gz,zip}`, `<id>.json`, `release-manifest.json`, `SHA256SUMS`, `performance*` | Library | Keep | #748 |
 | Archive contents | Prefix `OpenTLV-X.Y.Z/`, metadata `opentlv-source.txt` | Library | Keep | #748 |
-| CPack package | `OpenTLV-<version>-<system>-<processor>-<compiler>` | Library | Keep | #748 |
+| CPack package | `OpenTLV-<version>-<system>-<processor>-<compiler>`, also the top directory inside each binary asset | Library | Keep for v0.9.0; see the [artifact findings](#findings-for-release-artifacts) | #748 |
 | Workflow files | `core-pr.yml`, `core-main.yml`, `core-full.yml`, `core-checks.yml`, `core-release.yml` | **Ambiguous** | Keep: binding verifiers pin `core-release.yml` as the attestation signer and expect these file names in release evidence | #748 |
 | Workflow and artifact names | `Core Pull Request CI`, `Core Release`, `core-quality-full-*`, `core-release-timings-*` | **Ambiguous** | Display names may change in #748; artifact names that verifiers read follow the alias rules | #748 |
 | Release scripts | `scripts/core_release.py`, `scripts/core_performance.py` | **Ambiguous** | Internal; rename only together with their workflows | #748 |
@@ -207,6 +207,136 @@ rule 6 keeps separate, and the sequence above schedules it after v0.9.0.
    build target `opentlv_tlv` with `EXPORT_NAME tlv`, which keeps `OpenTLV::tlv`
    and `OpenTLVTargets.cmake`, together with removing the nested project. Both
    identities are inventoried, so the breaking-change policy applies.
+
+## Release artifact audit
+
+The first part of #748 audits the release identities against the published
+Library v0.8.0 and the current `core-release.yml`, before v0.9.0. It renames
+nothing. `scripts/test_core_release.py` and `scripts/test_ci_workflows.py` now
+fail when any identity in the contract below changes.
+
+### Artifact contract
+
+This is version 1 of the artifact contract. It describes v0.8.0, the first
+release published by `core-release.yml`, and every later release until a change
+under the [breaking-change policy](#breaking-change-policy). `X.Y.Z` is the
+version without the tag's `v`, including any prerelease suffix such as `-rc.1`.
+`<id>` is one of `linux-x64-static`, `linux-x64-shared`, `windows-x64-static`
+and `windows-x64-shared`.
+
+| Artifact | Name | Identity and contents |
+| --- | --- | --- |
+| Tag | `vX.Y.Z` | Lightweight tag on the release commit, pushed by the publish job |
+| Release | Title `OpenTLV X.Y.Z` | Generated notes; a prerelease when the version has a suffix |
+| Source archive | `OpenTLV-X.Y.Z-source.tar.gz` | Top directory `OpenTLV-X.Y.Z/`, with `opentlv-source.txt` holding `version=X.Y.Z` and `commit=<sha>` |
+| Binary archives | `OpenTLV-X.Y.Z-<id>.tar.gz` on Linux, `.zip` on Windows | The verified CPack archive, unchanged: top directory `OpenTLV-X.Y.Z-<system>-<processor>-<compiler>/`, e.g. `OpenTLV-0.8.0-Linux-x86_64-GNU/` |
+| Binary records | `<id>.json` | Schema 1: `kind`, `id`, `version`, `commit`, `filename`, `sha256`, `os`, `architecture`, `linkage`, `build_type`, `compiler`, `msvc_runtime`, `libc`, `runner_image`, `options` |
+| Performance | `performance.json`, `performance.md`, `performance-data.tar.gz` | Advisory comparison with the previous stable release |
+| Manifest | `release-manifest.json` | Schema 2: `version` (no `v`), `commit`, `candidate`, `quality`, `performance` and one `artifacts` record per archive and performance file |
+| Checksums | `SHA256SUMS` | `<sha256>  <name>` for every other asset |
+| Attestations | One per asset | Signer workflow `OpenTLV/opentlv/.github/workflows/core-release.yml`, source digest = release commit |
+
+The verifiers in opentlv-cli, opentlv-python, opentlv-rust and opentlv-lua
+(`verified_core.py`) read only part of this contract, but that part must not
+change without the breaking-change policy:
+
+- the signer workflow path and the release commit as source digest;
+- `release-manifest.json` and `SHA256SUMS` by their exact names; every other
+  asset by the `filename` its manifest record gives;
+- in the manifest: `schema`, `version`, `commit`, the `candidate` identity, the
+  `quality` identity and checks, and `quality.configuration`, whose workflow and
+  configuration file sets opentlv-python and opentlv-rust require exactly and
+  compare file by file with the Verified Source;
+- in each artifact record: `kind`, `filename`, `sha256`, `version`, `commit`,
+  and for binaries `id`, `os`, `architecture`, `linkage`, `build_type`,
+  `compiler`, `msvc_runtime`, `libc` and `options`;
+- the source archive's top directory and `opentlv-source.txt`.
+
+No verifier reads the release title or the binary archives' top directory: they
+locate package files by searching the extracted archive. Workflow display names
+(`Core Release`), CI artifact names (`release-*-<attempt>`,
+`core-quality-<tier>-<sha>-<attempt>`, `core-timings-*`,
+`core-release-timings-*`) and the run-local `core-quality.json` and
+`release-candidate.json` file names are internal. They are pinned so that a
+change is deliberate, and may change without an alias.
+
+### Historical releases
+
+Releases before v0.8.0 use unprefixed tags (`0.0.1` to `0.7.1`), and only
+`0.3.0` has assets: CPack archives named `OpenTLV-0.3.0-Linux-x86_64-GNU.tar.gz`,
+`OpenTLV-0.3.0-Linux-x86_64-Clang.tar.gz` and
+`OpenTLV-0.3.0-Windows-AMD64-MSVC.zip`, without checksums, manifest or
+attestations. The `0.4.0` title contains two spaces. These are published
+identities: rule 5 keeps them as they are. The performance baseline already
+accepts both tag forms.
+
+### Decisions from the audit
+
+- **Keep every name in the contract.** Asset, archive and record names already
+  use the Library identity or none; nothing in them says "core".
+- **Release title, fixed now.** The publish job created the title
+  `OpenTLV vX.Y.Z`, while this contract and the published v0.8.0 release read
+  `OpenTLV 0.8.0`. The job now removes the tag's `v`. No verifier reads the
+  title, so this is not a breaking change.
+- **New assets.** Any later asset, including amalgamation (#701), is named
+  `OpenTLV-X.Y.Z-<name>`, gets its own manifest record `kind`, a `SHA256SUMS`
+  line and an attestation from the same signer. Unprefixed names such as
+  `<id>.json` are not extended.
+
+### Findings for release artifacts
+
+The audit fixed none of these except the release title above. Each one changes
+a published identity or verifier-visible evidence, so it follows v0.9.0 or the
+binding issues named.
+
+1. **Binary archives carry a second identity.** The top directory inside each
+   binary asset is the CPack name: CMake's processor spelling (`x86_64`,
+   `AMD64`) and compiler ID, and no linkage. The asset name says `x64` and the
+   linkage, so the static and shared archives of one system share a top
+   directory and merge silently when extracted into one directory. A top
+   directory `OpenTLV-X.Y.Z-<id>/` would remove the second identity. Verifiers
+   do not depend on it, but it is an inventoried archive prefix, so the
+   breaking-change policy applies.
+2. **The next release's evidence fails today's verifiers.** The manifest
+   schema is still 2, but its content no longer matches what the verifiers
+   expect from v0.8.0:
+   - v0.8.0 records the configuration files `CMakeLists.txt`,
+     `cmake/compiler.cmake`, `cmake/capability_options.cmake`,
+     `cmake/format_options.cmake` and three scripts. Since the module
+     extraction (#652, #654) the producer records `cmake/modules.cmake`,
+     `cmake/library/CMakeLists.txt` and `cmake/library/modules.cmake` instead.
+     opentlv-python and opentlv-rust require the v0.8.0 set exactly and reject
+     the manifest.
+   - Binary records copy the `OPENTLV_*` cache entries into `options`.
+     opentlv-python and opentlv-lua require the removed options
+     `OPENTLV_READER`, `OPENTLV_QUERY` and the other module and family options
+     to be `ON` (`core-features.json`), so no new binary matches them.
+   - opentlv-python, opentlv-rust and opentlv-lua select a static Linux binary
+     only when its record has `position_independent_code: true`. No record has
+     ever contained that field.
+   - The opentlv-rust binary mode looks for `tlv.lib` or `libtlv.a`,
+     `tlv/version.h` and `tlv/config.h`, which #654 and #733 removed.
+
+   The module and header changes behind the configuration, option and layout
+   mismatches are already **Breaking:** entries; their effect on release
+   verification is not recorded anywhere else. The binding
+   issues (opentlv-python#58, opentlv-rust#49, opentlv-lua#58) must update
+   their verifiers before moving their pins. For the Library,
+   decide whether a changed configuration set requires a new manifest schema,
+   whether verifiers should accept any set whose files all match the Verified
+   Source (they compare each file already), and whether binary records should
+   describe the modules they contain and their position independence.
+3. **Generic asset names.** `<id>.json`, `performance.*`,
+   `release-manifest.json` and `SHA256SUMS` name neither the Library nor the
+   version, and every binding release publishes its own `release-manifest.json`
+   and `SHA256SUMS`. Assets of two releases downloaded into one directory
+   overwrite each other. Verifiers read the manifest and checksums by these
+   names, so they stay; prefixed names could only be added beside them.
+4. **The manifest does not state the contract.** The Library identity appears
+   only as `candidate.repository` and `quality.repository`, and no field names
+   the artifact contract version. A verifier cannot tell a renamed artifact set
+   from an unknown one. Top-level fields such as `library` and
+   `artifact_contract` would be additions, which no current verifier rejects.
 
 ## Compatibility rules
 
