@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Keep C-only installed consumers usable with CMake 3.16 by applying exported C++11 requirements only when the consuming project enables C++. (#736)
 - Require combined observation counts when baseline scenario migrations share replacement tests, preventing lost scenario coverage from passing final modular verification. (#655)
 - Fix Query CI consumers by explicitly aligning streaming and compiler storage on MSVC x86, linking the ASN.1 adapters in the MemorySanitizer driver, and retaining callback-mutation coverage when set operations are disabled. (#733)
 - Fix MSVC x86 shared-library test failures by honoring Query workspace alignment and avoiding callback-address comparisons when selecting builtin test contexts. (#733)
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Build the existing examples as standalone CMake 3.16 consumers of an installed OpenTLV package, with explicit optional-feature skips and Windows shared-library test lookup. Validate copied examples against relocated installations in consumer CI, and allow the NFC Type 2 example to read a supplied fixture path. (#736)
 - Use explicit public module headers and direct dependencies in native examples, with checked ownership from the CMake example registry. Validate the examples under the public C99/C++11 contract while preserving the intentional quick-start umbrella and native interoperability demonstration. (#736)
 - Group existing C and C++ examples by public module and builtin family, with consistent `example-<lang>-<module>-<name>` targets and `example.<lang>.<module>.<name>` CTest names. Update documentation and CI paths while preserving example behavior and NFC fixtures. (#736)
 - Declare builtin module ownership explicitly when generating export headers, with inherited integration paths and validation against the architecture contract. Expose the unchanged DOL tag-size limit as `TLV_DOL_TAG_MAX_SIZE`. (#733)

@@ -126,6 +126,29 @@ def workflow(name):
 
 
 class WorkflowContracts(unittest.TestCase):
+    def test_installed_examples_use_minimum_cmake_and_full_frontend_off_coverage(self):
+        job = workflow('cmake-consumers.yml')['jobs'].mapping()['consumers'].mapping()
+        steps = job['steps'].steps()
+        matrix = job['strategy'].mapping()['matrix'].mapping()
+        for axis, required in (('os', 'windows-2022'), ('shared', 'ON'), ('cxx', 'ON')):
+            full = re.search(r"inputs\.full && '([^']*)'", matrix[axis].text())
+            self.assertIsNotNone(full)
+            self.assertIn(required, json.loads(full[1]), 'Full/release must test Windows shared C++ consumers')
+        builds = [step for step in steps if 'run' in step and
+                  'scripts/check_cmake_integration.py' in step['run'].text()]
+        self.assertEqual(2, len(builds))
+        self.assert_unconditional(builds[0])
+        self.assertIn('--examples-cmake', builds[0]['run'].text())
+        self.assertIn("runner.os == 'Linux'", builds[0]['run'].text())
+        self.assertIn("|| 'cmake'", builds[0]['run'].text())
+        self.assertEqual("inputs.full && runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'",
+                         builds[1]['if'].text())
+        self.assertIn('--query-frontend OFF', builds[1]['run'].text())
+        self.assertNotIn('continue-on-error', builds[1])
+        installs = [step for step in steps if 'run' in step and 'cmake==3.16.8' in step['run'].text()]
+        self.assertEqual(1, len(installs))
+        self.assertEqual("runner.os == 'Linux'", installs[0]['if'].text())
+
     def test_module_isolation_remains_required_in_consumer_job(self):
         job = workflow('cmake-consumers.yml')['jobs'].mapping()['consumers'].mapping()
         steps = job['steps'].steps()

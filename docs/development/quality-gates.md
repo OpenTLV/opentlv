@@ -44,7 +44,7 @@ substitute for this evidence.
 | Native builds | Clang Debug/Release and C-only examples; GCC C++11 Debug/C++23 Release; MSVC x64/x86 C++11 Debug/C++23 Release |
 | Coverage | Clang Debug unit and integration tests |
 | Source checks | Formatting/contract checks, clang-tidy 18, cppcheck 2.21.0 and security-extended CodeQL |
-| Public consumers | Linux/Windows, shared/static, C-only/C++ through FetchContent and relocated installations |
+| Public consumers | Linux/Windows, shared/static, C-only/C++ through FetchContent and relocated installations; copied standalone examples with CMake 3.16 on Linux, Windows DLL lookup, and Query frontend disabled |
 | Capability contracts | Shared and static profiles |
 | Properties | Default and minimal capabilities, 1,000 deterministic cases |
 | Sanitizers and Query | ASan/UBSan Core suites, Query conformance/adversarial evidence, native x86 boundaries, MSan campaigns, eight frontend/set/C++ plan configurations |

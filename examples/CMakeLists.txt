@@ -1,5 +1,19 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(OPENTLV_EXAMPLES_STANDALONE OFF)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    project(OpenTLVExamples LANGUAGES C)
+    set(OPENTLV_EXAMPLES_STANDALONE ON)
+    option(OPENTLV_BUILD_CXX "Build C++ examples" ON)
+    if(OPENTLV_BUILD_CXX)
+        enable_language(CXX)
+    endif()
+    enable_testing()
+    # Recheck installed feature headers if the package prefix changes.
+    unset(OPENTLV_EXAMPLES_QUERY_FRONTEND CACHE)
+    unset(OPENTLV_EXAMPLES_QUERY_FEATURES CACHE)
+endif()
+
 include(cmake/Example.cmake)
 
 set(OPENTLV_EXAMPLE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")

@@ -42,10 +42,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Install minimum CMake for standalone examples
+        if: runner.os == 'Linux'
+        run: python -m pip install --target build/cmake-3.16 cmake==3.16.8
       - name: Build and run external consumers
         run: >-
           python scripts/check_cmake_integration.py
           --shared ${{ matrix.shared }} --cxx ${{ matrix.cxx }}
+          --examples-cmake ${{ runner.os == 'Linux' && 'build/cmake-3.16/cmake/data/bin/cmake' || 'cmake' }}
+      - name: Check installed examples without the Query frontend
+        if: inputs.full && runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        run: >-
+          python scripts/check_cmake_integration.py --shared ON --cxx ON --query-frontend OFF
+          --examples-cmake build/cmake-3.16/cmake/data/bin/cmake
       - name: Verify modular CMake infrastructure and isolation
         if: runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
         run: |

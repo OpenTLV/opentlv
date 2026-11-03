@@ -430,5 +430,62 @@ opentlv_example(c query skipped SOURCES io/main.c LINK OpenTLV::query QUERY_FRON
             self.assertIn("OPENTLV_QUERY_FRONTEND=OFF", result.stdout)
 
 
+@unittest.skipUnless(shutil.which("cmake"), "CMake is required for standalone package checks")
+class StandaloneExampleTests(unittest.TestCase):
+    def configure(self, package, declaration):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "OpenTLVConfig.cmake").write_text(package, encoding="utf-8")
+            helper = (ROOT / "examples/cmake/Example.cmake").as_posix()
+            (root / "CMakeLists.txt").write_text(f'''cmake_minimum_required(VERSION 3.16)
+project(Consumer LANGUAGES NONE)
+set(OPENTLV_EXAMPLES_STANDALONE ON)
+set(OPENTLV_BUILD_CXX ON)
+set(OPENTLV_EXAMPLE_SOURCE_DIR "${{CMAKE_CURRENT_SOURCE_DIR}}")
+set(OPENTLV_EXAMPLE_REGISTRY "${{CMAKE_CURRENT_BINARY_DIR}}/examples.jsonl")
+include("{helper}")
+{declaration}
+''', encoding="utf-8")
+            result = subprocess.run(["cmake", "-S", str(root), "-B", str(root / "build"),
+                                     f"-DOpenTLV_DIR={root.as_posix()}",
+                                     "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF",
+                                     "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"],
+                                    text=True, capture_output=True, check=False)
+            return result.returncode, result.stdout + result.stderr
+
+    def test_unavailable_optional_aggregate_skips_explicitly(self):
+        code, output = self.configure("set(OpenTLV_tlv_FOUND FALSE)\n",
+                                     "opentlv_example(cpp io quick-start SOURCES main.cpp LINK OpenTLV::tlv UMBRELLA)")
+        self.assertEqual(0, code, output)
+        self.assertIn("Skipping example-cpp-io-quick-start: optional OpenTLV::tlv component is unavailable", output)
+
+    def test_advertised_optional_component_must_export_its_target(self):
+        code, output = self.configure("set(OpenTLV_tlv_FOUND TRUE)\n",
+                                     "opentlv_example(cpp io quick-start SOURCES main.cpp LINK OpenTLV::tlv UMBRELLA)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("missing expected exported target OpenTLV::tlv", output)
+
+    def test_required_component_cannot_skip(self):
+        code, output = self.configure("set(OpenTLV_FOUND FALSE)\n",
+                                     "opentlv_example(c io main SOURCES main.c LINK OpenTLV::IO)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("OpenTLV_FOUND", output)
+        self.assertNotIn("Skipping", output)
+
+    def test_missing_required_export_fails_even_when_package_reports_success(self):
+        code, output = self.configure("set(OpenTLV_IO_FOUND TRUE)\n",
+                                     "opentlv_example(c io main SOURCES main.c LINK OpenTLV::IO)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("missing expected exported target OpenTLV::IO", output)
+
+    def test_missing_export_fails_before_a_frontend_feature_probe_or_skip(self):
+        code, output = self.configure("set(OpenTLV_QueryDocument_FOUND TRUE)\n",
+                                     "opentlv_example(c query main SOURCES main.c LINK OpenTLV::QueryDocument QUERY_FRONTEND)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("missing expected exported target", output)
+        self.assertIn("OpenTLV::QueryDocument", output)
+        self.assertNotIn("Skipping", output)
+
+
 if __name__ == "__main__":
     unittest.main()

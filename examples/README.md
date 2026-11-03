@@ -26,6 +26,54 @@ files; optional `ARGS` and `PASS_REGULAR_EXPRESSION` preserve runtime checks.
 The [complete source inventory](../docs/guides/examples.md#source-inventory)
 lists the runnable programs.
 
+## Standalone installed-package build
+
+The same directory is a standalone CMake 3.16 project. It can be copied outside
+the checkout, including `cmake/` and the binary fixtures, and built against an
+installed OpenTLV package. For example, from the repository root:
+
+```sh
+cmake -S . -B build/core -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF
+cmake --build build/core --config Release
+cmake --install build/core --config Release --prefix "$PWD/build/install"
+cmake -S examples -B build/examples-installed -DCMAKE_PREFIX_PATH="$PWD/build/install"
+cmake --build build/examples-installed --config Release
+cmake -E chdir build/examples-installed ctest -C Release -L examples --output-on-failure
+```
+
+Pass `-DOPENTLV_BUILD_CXX=OFF` to the examples configuration to enable only C.
+The installed Query feature header controls whether the text Query examples
+are built; a package built with `OPENTLV_QUERY_FRONTEND=OFF` skips them explicitly.
+The umbrella quick start is also skipped explicitly if the optional `tlv`
+component is unavailable. All other declared components and targets are required;
+broken exports fail configuration rather than silently removing examples.
+
+For a single C program, copy `io/quick_start.c` next to this `CMakeLists.txt`:
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(HelloTLV LANGUAGES C)
+find_package(OpenTLV CONFIG REQUIRED COMPONENTS Core IO)
+add_executable(hello_tlv quick_start.c)
+target_link_libraries(hello_tlv PRIVATE OpenTLV::Core OpenTLV::IO)
+```
+
+Configure with `-DCMAKE_PREFIX_PATH=/path/to/opentlv-install`. Public targets
+supply include paths, language requirements and transitive dependencies.
+CTest sets the DLL search path automatically for Windows shared builds. When
+running executables manually on Windows, add the package's `bin` directory
+(or the in-tree Core DLL directory) to `PATH`.
+
+The NFC Type 2 program accepts a file path as its first argument (up to 1024
+bytes); without arguments it uses its original embedded sample. CTest supplies
+the copied `sample.bin` by absolute path, independent of the working directory.
+The binary fixtures are unchanged.
+
+`scripts/check_cmake_integration.py` builds and runs a copied examples tree
+against a relocated installation. CI exercises CMake 3.16 on Linux; Full/release
+also covers Windows shared/static, C-only consumers and a frontend-disabled
+package. PR validation keeps the existing Linux-only consumer selection.
+
 ## Public dependencies
 
 Include the public headers for the APIs the example uses and declare their

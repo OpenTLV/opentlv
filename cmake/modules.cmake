@@ -50,7 +50,7 @@ function(opentlv_add_module key)
         endif()
         add_library(${target} INTERFACE)
         set(scope INTERFACE)
-        target_compile_features(${target} INTERFACE cxx_std_11)
+        target_compile_features(${target} INTERFACE "$<$<BOOL:$<CXX_COMPILER_ID>>:cxx_std_11>")
     else()
         if(NOT M_SOURCES OR NOT M_PUBLIC_SYMBOLS)
             message(FATAL_ERROR "Module ${key}: declare sources and public symbols")
@@ -137,9 +137,10 @@ function(opentlv_module_cxx key)
     endforeach()
     target_include_directories(${target} INTERFACE
         "$<BUILD_INTERFACE:${OpenTLV_SOURCE_DIR}/include>")
-    # CMake applies language-specific features only to matching source files;
-    # a C-only consumer does not need CXX enabled to use this target.
-    target_compile_features(${target} INTERFACE cxx_std_11)
+    # CMake 3.16 validates even a C consumer's transitive C++ features. Defer
+    # this requirement until the consuming project has a C++ compiler; this
+    # expression is evaluated in the consumer, not the library-only build.
+    target_compile_features(${target} INTERFACE "$<$<BOOL:$<CXX_COMPILER_ID>>:cxx_std_11>")
     set_property(TARGET ${target} PROPERTY INTERFACE_OPENTLV_CXX_HEADERS "${headers}")
     set_property(TARGET ${target} PROPERTY INTERFACE_OPENTLV_CXX_CONSUMER
         "${OpenTLV_SOURCE_DIR}/${C_CONSUMER}")
