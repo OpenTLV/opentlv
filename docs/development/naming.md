@@ -49,13 +49,15 @@ candidates. Owner is the issue that decides any change.
 | Cache options | `OPENTLV_BUILD_*`, `OPENTLV_QUERY_*`, `OPENTLV_WARNINGS_AS_ERRORS` | Library | Keep | #747 |
 | Removed options | `OPENTLV_READER`, `OPENTLV_<FAMILY>` and the other rejected options | Library | Keep the configure-time rejection messages | #747 |
 | Documentation install path | `share/doc/OpenTLV` | Library | Keep | #747 |
+| Nested CMake project | `project(tlv)` in `cmake/library/`, which also creates `tlv_SOURCE_DIR` and `tlv_BINARY_DIR` cache entries in embedding builds | Build tree | Keep; #747 decides whether the nested project is still needed | #747 |
 
 ### Modules, headers and API
 
 | Identifier | Current value | Scope | Decision | Owner |
 | --- | --- | --- | --- | --- |
 | Module targets | `OpenTLV::Core`, `IO`, `Document`, `Query`, `Schema`, `Codec`, `Generator`, `ASN1`, `EMV`, `Bluetooth`, `NFC`, `DHCP`, `LLDP` and integrations | Module | Keep; `OpenTLV::Core` is the Core module only | #747 |
-| Aggregate target | `OpenTLV::tlv` (INTERFACE, no archive) | Library | Keep | #747 |
+| Aggregate target | `OpenTLV::tlv` (INTERFACE, no archive) | Library | Keep; see below | #747 |
+| Removed targets and paths | Monolithic `tlv` library, `tlv++` target, `tlv/` and `tlv++/` include paths | — | Removed in #654 and #733; never reused | — |
 | Build targets and binaries | `opentlv_<key>`, e.g. `libopentlv_core.so`, `opentlv_core.dll` | Module | Keep; direct consumers link these file names | #747, #748 |
 | Export macros | `OPENTLV_<KEY>_API`, `OPENTLV_<KEY>_STATIC_DEFINE`, e.g. `OPENTLV_CORE_API` | Module | Keep | — |
 | Include root | `opentlv/<module>/`, `opentlv/builtin/<family>/` | Library / module | Keep; changed in #733 | — |
@@ -64,6 +66,11 @@ candidates. Owner is the issue that decides any change.
 | C++ API | namespace `tlv` | Library | Keep | — |
 | Header guards | `OPENTLV_*_H`, `OPENTLV_*_HPP` | Header | Keep; not an interface | — |
 | Library version | `opentlv/core/version.h`: `OPENTLV_VERSION_*`, `OPENTLV_GIT_*`, `tlv_version_*()` | Library version owned by the Core module | Keep; the values identify the Library release | — |
+
+`OpenTLV::tlv` is an INTERFACE aggregate that links the functional modules. It
+is not the former monolithic `tlv` library, which no longer exists: the aggregate
+has no archive or shared library of its own. The separate `tlv++` target and the
+historical `tlv/` and `tlv++/` include paths were removed without aliases.
 
 The Core module providing the Library version is deliberate: every consumer links
 Core. It does not make Core a synonym for the Library.
