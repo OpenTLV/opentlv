@@ -103,9 +103,10 @@ def check_embedded_identity(report, identities, dependency):
     return errors
 
 
-def require_no_errors(errors):
+def require_no_errors(errors, context):
+    """Fail with every error, naming the checked package or consumer mode."""
     if errors:
-        raise RuntimeError("CMake identity check failed:\n  " + "\n  ".join(errors))
+        raise RuntimeError(f"CMake identity check failed ({context}):\n  " + "\n  ".join(errors))
 
 
 def expected_example_tests(entries, *, cxx, query_frontend, aggregate=True):
@@ -282,7 +283,8 @@ def main():
     package_dir = relocated / "lib/cmake/OpenTLV"
     require_no_errors(check_package_identity(
         [path.name for path in package_dir.iterdir()],
-        (package_dir / "OpenTLVModules.cmake").read_text(encoding="utf-8"), identities))
+        (package_dir / "OpenTLVModules.cmake").read_text(encoding="utf-8"), identities),
+        "installed package")
     if not (relocated / "share/doc/OpenTLV/LICENSE").is_file():
         raise RuntimeError("Documentation is not installed under share/doc/OpenTLV")
     major, minor, patch = numeric_version.split(".")
@@ -386,7 +388,8 @@ def main():
             if generated.read_bytes() != reference:
                 raise RuntimeError("Embedded Core version differs from standalone metadata")
             require_no_errors(check_embedded_identity(
-                read_embedded_report(build / "opentlv-embedded.txt"), identities, dependency))
+                read_embedded_report(build / "opentlv-embedded.txt"), identities, dependency),
+                f"{mode} consumer")
         build_and_test(build, () if mode == "fetch" else applications)
         print(f"PASS {mode}: shared={args.shared}, cxx={args.cxx}", flush=True)
 

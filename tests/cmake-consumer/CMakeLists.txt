@@ -84,8 +84,9 @@ endif()
 # The same contract names resolve in every mode: aliases of the unnamespaced
 # build targets from source, imported targets from an installed package.
 foreach(name IN LISTS expected_names)
-    if(CONSUMER_MODE STREQUAL "package")
-        if(NOT name STREQUAL "Core" AND TARGET OpenTLV::${name})
+    # COMPONENTS Core imports Core, checked below, and no other contract target.
+    if(CONSUMER_MODE STREQUAL "package" AND NOT name STREQUAL "Core")
+        if(TARGET OpenTLV::${name})
             message(FATAL_ERROR "COMPONENTS Core also loaded OpenTLV::${name}")
         endif()
         continue()
