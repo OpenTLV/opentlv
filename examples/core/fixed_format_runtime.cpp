@@ -5,7 +5,9 @@
 #include <array>
 #include <iostream>
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/core/formats/runtime_fixed.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
 
 int main() {
     const tlv::runtime_fixed_format format(2, 1);

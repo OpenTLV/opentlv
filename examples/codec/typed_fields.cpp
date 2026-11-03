@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/core/formats/fixed_format.hpp"
+#include "opentlv/codec/typed.hpp"
+#include "opentlv/codec/writer.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
+#include "opentlv/document/document.hpp"
+#include "opentlv/document/codec.hpp"
 #include <algorithm>
 #include <iostream>
 

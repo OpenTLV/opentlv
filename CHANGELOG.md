@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Use explicit public module headers and direct dependencies in native examples, with checked ownership from the CMake example registry. Validate the examples under the public C99/C++11 contract while preserving the intentional quick-start umbrella and native interoperability demonstration. (#736)
 - Group existing C and C++ examples by public module and builtin family, with consistent `example-<lang>-<module>-<name>` targets and `example.<lang>.<module>.<name>` CTest names. Update documentation and CI paths while preserving example behavior and NFC fixtures. (#736)
 - Declare builtin module ownership explicitly when generating export headers, with inherited integration paths and validation against the architecture contract. Expose the unchanged DOL tag-size limit as `TLV_DOL_TAG_MAX_SIZE`. (#733)
 - **Breaking:** Move public C and C++ headers to `opentlv/<module>/` and `opentlv/builtin/<family>/`, with implementations under `src/<module>/` and module-owned private headers under `internal/`. Remove the historical `tlv/` and `tlv++/` include paths without forwarding headers. Remove EMV DOL's ASN.1 dependency through existing generic field primitives, preserving its identifier policy. Preserve public symbols and behavior; enforce source-level private-header isolation and standalone installed C/C++ header compilation. See the [header migration guide](docs/development/modules/layout-migration.md). (#733)

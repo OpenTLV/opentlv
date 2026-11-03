@@ -535,6 +535,14 @@ of every Core pull request, with its tests in
   of the public diagnostic vocabularies and every Query limit name, with
   unique domains and no merged codes.
 
+The same ownership contract records public target names for modules, integrations
+and the aggregate. With `--examples <build>/examples/examples.jsonl`, the checker
+compares public includes with the direct `LINK` declarations emitted by the
+example helper, including composite headers and skipped examples. See
+[example dependencies](../../../examples/README.md#public-dependencies) for the
+intentional umbrella and native interop cases. The static-analysis job builds and
+runs the examples in C99/C++11 mode after this audit.
+
 An extraction PR updates [ownership.json](ownership.json) with the code it
 moves: new files get an owner, applied resolutions lose their exceptions and
 `api` entries, and a resolution without remaining entries is removed.

@@ -9,8 +9,10 @@
 #include <cstddef>
 #include <iomanip>
 #include <iostream>
+#include <string>
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/io/reader/tree.hpp"
 
 // An FCI Template (6F) holding a DF Name (84) and an FCI Proprietary
 // Template (A5) holding an Application Label (50).

@@ -3,6 +3,7 @@
 
 // Builds the same BER document as parse.cpp using scoped, allocation-free writes.
 #include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/io/writer/builder.hpp"
 #include <array>
 #include <algorithm>
 #include <iostream>

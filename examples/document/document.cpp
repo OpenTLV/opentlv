@@ -2,7 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Parse an owning Document and traverse roots and their children.
-#include <opentlv/tlv.hpp>
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/document/document.hpp"
 #include <iostream>
 
 int main() {

@@ -1,6 +1,6 @@
 opentlv_example(c query query
     SOURCES query.c
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::Query OpenTLV::QueryDocument OpenTLV::Document OpenTLV::ASN1
+    LINK OpenTLV::Core OpenTLV::Query OpenTLV::ASN1
     QUERY_FRONTEND
 )
 

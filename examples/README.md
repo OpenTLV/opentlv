@@ -26,6 +26,32 @@ files; optional `ARGS` and `PASS_REGULAR_EXPRESSION` preserve runtime checks.
 The [complete source inventory](../docs/guides/examples.md#source-inventory)
 lists the runnable programs.
 
+## Public dependencies
+
+Include the public headers for the APIs the example uses and declare their
+owning targets in `LINK`. Each integration header requires its own target,
+such as `OpenTLV::DocumentCodec`. Dependencies used only inside those headers
+come from the exported targets and should not be repeated in `LINK`.
+Examples use the public C99/C++11 requirements without per-example overrides.
+
+The C++ quick start intentionally demonstrates `<opentlv/tlv.hpp>` and links
+`OpenTLV::tlv`, with `UMBRELLA` marking that choice. The existing
+`io/advanced_control.cpp` interop demonstration retains public `native.hpp`
+with `NATIVE_INTEROP`: there is no module-specific replacement for it yet.
+Its composite dependencies are derived from that header's public includes.
+
+The helper writes `examples.jsonl` in the examples build directory, including
+declarations skipped by C++ or Query feature switches. After configuring, check
+direct includes and links against the existing module ownership contract:
+
+```sh
+python scripts/check_module_contracts.py --examples build/examples/examples.jsonl
+```
+
+The check rejects private headers, missing direct links, unused links and
+unregistered sources. Static Analysis CI also builds and runs the examples
+with C99 and C++11 explicitly selected.
+
 ## C examples
 
 - **Start here:** [`quick_start.c`](io/quick_start.c) -- the smallest possible round

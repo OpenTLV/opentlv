@@ -15,6 +15,7 @@
  */
 #include "opentlv/builtin/emv/format.h"
 #include "opentlv/core/size.h"
+#include "opentlv/codec/codec.h"
 #include "opentlv/builtin/emv/emv.h"
 #include "opentlv/io/reader/reader.h"
 #include "opentlv/io/reader/visitor.h"

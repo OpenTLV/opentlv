@@ -208,7 +208,8 @@ int main(void) {
 #include <iostream>
 
 #include "opentlv/core/formats/fixed_format.hpp"
-#include "opentlv/tlv.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
 
 using format = tlv::fixed_format<2, 2, tlv::byte_order::little_endian>;
 
@@ -257,7 +258,9 @@ retained source-view uses. Copying the owner creates independent configuration.
 #include <array>
 #include <iostream>
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/core/formats/runtime_fixed.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
 
 int main() {
     const tlv::runtime_fixed_format format(2, 1);

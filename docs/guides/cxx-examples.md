@@ -29,7 +29,9 @@ may leave a prefix in the output buffer; do not publish that output as a success
 // Copyright (c) 2026 Marek Cingel
 
 // Write two primitive BER elements, then iterate over that sequence.
-#include <opentlv/tlv.hpp>
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/builder.hpp"
 #include <array>
 #include <iostream>
 
@@ -92,7 +94,8 @@ See [`document_edit.cpp`](../../examples/document/document_edit.cpp) for mutatio
 // Copyright (c) 2026 Marek Cingel
 
 // Parse an owning Document and traverse roots and their children.
-#include <opentlv/tlv.hpp>
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/document/document.hpp"
 #include <iostream>
 
 int main() {

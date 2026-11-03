@@ -1,6 +1,18 @@
+# JSON metadata uses only CMake 3.16 facilities, also usable by standalone examples.
+function(opentlv_example_json_list output)
+    set(items)
+    foreach(value IN LISTS ARGN)
+        string(REPLACE "\\" "\\\\" value "${value}")
+        string(REPLACE "\"" "\\\"" value "${value}")
+        list(APPEND items "\"${value}\"")
+    endforeach()
+    string(JOIN "," items ${items})
+    set(${output} "[${items}]" PARENT_SCOPE)
+endfunction()
+
 # Create one runnable example; callers own the sources and direct module links.
 function(opentlv_example language module name)
-    cmake_parse_arguments(EXAMPLE "QUERY_FRONTEND" "PASS_REGULAR_EXPRESSION"
+    cmake_parse_arguments(EXAMPLE "QUERY_FRONTEND;UMBRELLA;NATIVE_INTEROP" "PASS_REGULAR_EXPRESSION"
         "SOURCES;LINK;ARGS" ${ARGN})
     if(EXAMPLE_UNPARSED_ARGUMENTS OR EXAMPLE_KEYWORDS_MISSING_VALUES
        OR NOT EXAMPLE_SOURCES OR NOT EXAMPLE_LINK)
@@ -12,6 +24,26 @@ function(opentlv_example language module name)
 
     set(target "example-${language}-${module}-${name}")
     set(test "example.${language}.${module}.${name}")
+
+    # Record declarations before skips so C-only/feature-off audits cover all sources.
+    set(sources)
+    foreach(source IN LISTS EXAMPLE_SOURCES)
+        get_filename_component(source "${source}" ABSOLUTE)
+        file(RELATIVE_PATH source "${OPENTLV_EXAMPLE_SOURCE_DIR}" "${source}")
+        list(APPEND sources "${source}")
+    endforeach()
+    opentlv_example_json_list(sources ${sources})
+    opentlv_example_json_list(links ${EXAMPLE_LINK})
+    foreach(flag IN ITEMS UMBRELLA NATIVE_INTEROP)
+        if(EXAMPLE_${flag})
+            set(${flag} true)
+        else()
+            set(${flag} false)
+        endif()
+    endforeach()
+    file(APPEND "${OPENTLV_EXAMPLE_REGISTRY}"
+        "{\"target\":\"${target}\",\"language\":\"${language}\",\"sources\":${sources},\"link\":${links},\"umbrella\":${UMBRELLA},\"native_interop\":${NATIVE_INTEROP}}\n")
+
     if(language STREQUAL "cpp" AND NOT OPENTLV_BUILD_CXX)
         message(STATUS "Skipping ${target}: OPENTLV_BUILD_CXX=OFF")
         return()

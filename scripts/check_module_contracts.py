@@ -12,7 +12,9 @@ approved resolution that removes it, and both new and stale exceptions fail.
 
 docs/development/modules/diagnostic-mapping.json must cover every enumerator
 of the public diagnostic vocabularies and every Query limit name, without
-merging distinct codes. No native build is required.
+merging distinct codes. No native build is required. The optional example audit
+uses a registry emitted by CMake configuration to check public includes against
+direct public target links, including composite headers.
 """
 
 import argparse
@@ -20,6 +22,8 @@ import json
 import re
 import sys
 from pathlib import Path, PurePosixPath
+
+from check_cxx_boundary import header_source
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = "docs/development/modules/ownership.json"
@@ -99,6 +103,7 @@ def cycles(graph):
 
 def check_contract(contract, errors):
     modules, targets = contract.get("modules", {}), contract.get("targets", {})
+    public_targets(contract, errors)
     kinds = {kind: sorted(name for name, entry in modules.items() if entry.get("kind") == kind)
              for kind in ("generic", "builtin")}
     if kinds["generic"] != sorted(GENERIC) or kinds["builtin"] != sorted(BUILTIN):
@@ -399,13 +404,148 @@ def check(root):
     return errors, graph
 
 
+def public_targets(contract, errors):
+    """Public target identities live alongside the existing ownership contract."""
+    names = {}
+    for key, entry in contract.get("targets", {}).items():
+        name = entry.get("public_target", contract.get("modules", {}).get(key, {}).get("public_target"))
+        if not isinstance(name, str) or not re.fullmatch(r"OpenTLV::[A-Za-z][A-Za-z0-9_+-]*", name):
+            errors.append(f"target {key}: declare its public_target in ownership.json")
+        elif name in names.values():
+            errors.append(f"target {key}: duplicate public target {name}")
+        else:
+            names[key] = name
+    return names
+
+
+def example_includes(root, path, contract, errors):
+    """Classify literal public and example-local includes without following library internals."""
+    source = header_source(read(root, path).replace("\\\n", ""))
+    for directive in INCLUDE_DIRECTIVE.finditer(source):
+        if not INCLUDE.match(directive[0]):
+            errors.append(f"{path}: use a literal header name so example dependencies can be checked")
+    for delimiter, name in INCLUDE.findall(source):
+        resolved = resolve(root, path, name)
+        owner = contract.get("generated", {}).get(name)
+        if owner is not None and name.startswith("opentlv/"):
+            yield owner, name
+        elif resolved and resolved.startswith("examples/"):
+            yield None, resolved
+        elif (resolved and resolved.startswith("include/opentlv/")
+              and not any(part in PurePosixPath(resolved).parts for part in ("detail", "internal"))):
+            if name != resolved.removeprefix("include/"):
+                errors.append(f"{path}: use the public include spelling {resolved.removeprefix('include/')}")
+            owner = contract["files"].get(resolved)
+            if owner is None:
+                errors.append(f"{path}: public header {name} has no owner")
+            else:
+                yield owner, resolved
+        elif resolved:
+            errors.append(f"{path}: private or non-public example include {name}")
+        elif delimiter == '"' or name.startswith(("opentlv/", "src/", ".", "/")):
+            errors.append(f"{path}: cannot resolve example include {name}")
+
+
+def check_examples(root, registry, contract):
+    """Require exact direct owners, including composite headers, from CMake declarations."""
+    errors = []
+    public = public_targets(contract, errors)
+    if errors:
+        return errors
+    try:
+        entries = [json.loads(line) for line in registry.read_text(encoding="utf-8").splitlines() if line.strip()]
+    except (OSError, ValueError) as error:
+        return [f"cannot load example registry {registry}: {error}"]
+    registered, targets = set(), set()
+    fields = {"target", "language", "sources", "link", "umbrella", "native_interop"}
+    for entry in entries:
+        if (not isinstance(entry, dict) or set(entry) != fields
+                or not isinstance(entry["target"], str) or not entry["target"].startswith("example-")
+                or entry["language"] not in ("c", "cpp")
+                or any(type(entry[key]) is not bool for key in ("umbrella", "native_interop"))
+                or any(not isinstance(entry[key], list) or not entry[key]
+                       or any(not isinstance(item, str) or not item for item in entry[key])
+                       for key in ("sources", "link"))):
+            errors.append("examples: malformed CMake registry entry")
+            continue
+        target = entry["target"]
+        if target in targets:
+            errors.append(f"examples: duplicate target {target}")
+        targets.add(target)
+        required, pending, visited, composites = set(), [], set(), set()
+        for source in entry["sources"]:
+            path = PurePosixPath(source)
+            if (path.is_absolute() or ".." in path.parts or "\\" in source or ":" in source
+                    or path.as_posix() != source):
+                errors.append(f"{target}: source must stay inside examples/: {source}")
+                continue
+            relative = "examples/" + source
+            resolved = (root / relative).resolve()
+            if not resolved.is_relative_to((root / "examples").resolve()) or not resolved.is_file():
+                errors.append(f"{target}: missing example source {source}")
+                continue
+            if relative in registered:
+                errors.append(f"{target}: duplicate example source {source}")
+            registered.add(relative)
+            if path.suffix in (".c", ".cpp"):
+                expected = ".c" if entry["language"] == "c" else ".cpp"
+                if path.suffix != expected:
+                    errors.append(f"{target}: {source} does not match language {entry['language']}")
+            pending.append(relative)
+        while pending:
+            path = pending.pop()
+            if path in visited:
+                continue
+            visited.add(path)
+            for owner, included in example_includes(root, path, contract, errors):
+                if owner is None:
+                    pending.append(included)
+                elif contract["targets"][owner]["role"] != "aggregate":
+                    required.add(owner)
+                elif included == "include/opentlv/tlv.hpp" and entry["umbrella"]:
+                    required.add(owner)
+                    composites.add("umbrella")
+                elif included == "include/opentlv/native.hpp" and entry["native_interop"]:
+                    # native.hpp has no module-specific replacement. Derive its
+                    # composite owners from its public includes, never a second map.
+                    pending.append(included)
+                    composites.add("native_interop")
+                else:
+                    errors.append(f"{target}: use module-specific headers instead of {included}")
+        for flag in ("umbrella", "native_interop"):
+            if entry[flag] and flag not in composites:
+                errors.append(f"{target}: stale {flag} declaration")
+        declared = set(entry["link"])
+        if len(declared) != len(entry["link"]):
+            errors.append(f"{target}: duplicate LINK target")
+        for name in sorted(declared - set(public.values())):
+            errors.append(f"{target}: unknown public LINK target {name}")
+        expected = {public[owner] for owner in required}
+        for name in sorted(expected - declared):
+            errors.append(f"{target}: direct public includes require LINK {name}")
+        for name in sorted(declared - expected):
+            errors.append(f"{target}: unused LINK {name}; rely on exported transitive dependencies")
+    sources = {path.relative_to(root).as_posix() for path in (root / "examples").rglob("*")
+               if path.is_file() and path.suffix in (".c", ".cpp")}
+    for source in sorted(sources - registered):
+        errors.append(f"examples: source is absent from the CMake registry: {source}")
+    if not entries:
+        errors.append("examples: empty CMake registry")
+    return errors
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--report", action="store_true",
                         help="print current target-level include cycles")
+    parser.add_argument("--examples", type=Path,
+                        help="audit direct example includes/LINK targets using helper-emitted examples.jsonl")
     args = parser.parse_args()
     errors, graph = check(args.root.resolve())
+    if args.examples and not errors:
+        contract = json.loads(read(args.root, CONTRACT))
+        errors.extend(check_examples(args.root.resolve(), args.examples, contract))
     if args.report:
         for component in cycles(graph):
             print("current cycle: " + " <-> ".join(component))
@@ -414,6 +554,8 @@ def main():
     if errors:
         return 1
     print("Module contracts match the source tree.")
+    if args.examples:
+        print("Example public includes match their direct CMake LINK targets.")
     return 0
 
 

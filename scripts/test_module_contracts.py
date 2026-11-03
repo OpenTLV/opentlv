@@ -7,8 +7,10 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import shutil
+import subprocess
 from check_module_contracts import (BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check,
-                                    check_baseline_mapping, cycles)
+                                    check_baseline_mapping, check_examples, cycles)
 
 FILES = {
     "include/opentlv/core/result.h": "typedef enum tlv_result {\n    TLV_OK = 0, /**< ok */\n"
@@ -34,11 +36,11 @@ OWNERS = {
 
 
 def contract():
-    modules = {name: {"kind": "generic" if name in GENERIC else "builtin"}
+    modules = {name: {"kind": "generic" if name in GENERIC else "builtin", "public_target": f"OpenTLV::{name}"}
                for name in GENERIC + BUILTIN}
     targets = {name: {"module": name, "role": "module", "public": [] if name == "core" else ["core"]}
                for name in modules}
-    targets["io-tools"] = {"module": "io", "role": "integration", "public": ["io"]}
+    targets["io-tools"] = {"module": "io", "role": "integration", "public": ["io"], "public_target": "OpenTLV::IOTools"}
     targets["nfc"]["facade"] = ["io"]
     return {"modules": modules, "targets": targets, "generated": {}, "files": dict(OWNERS),
             "api": {}, "resolutions": {}, "exceptions": []}
@@ -257,6 +259,175 @@ class ModuleContractTests(unittest.TestCase):
     def test_cycles_report_strongly_connected_components(self):
         self.assertEqual([["a", "b"], ["c"]],
                          cycles({"a": {"b"}, "b": {"a", "c"}, "c": {"c"}, "d": {"a"}}))
+
+
+class ExampleContractTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.contract = contract()
+        for path, text in FILES.items():
+            self.write(path, text)
+        self.write("examples/io/main.c", '#include <opentlv/io/io.h>\n')
+        self.entry = {"target": "example-c-io-main", "language": "c", "sources": ["io/main.c"],
+                      "link": ["OpenTLV::io"], "umbrella": False, "native_interop": False}
+
+    def write(self, relative, text):
+        path = self.root / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+
+    def errors(self, entries=None):
+        registry = self.root / "examples.jsonl"
+        registry.write_text("\n".join(json.dumps(entry) for entry in
+                                     ([self.entry] if entries is None else entries)), encoding="utf-8")
+        return check_examples(self.root, registry, self.contract)
+
+    def assert_error(self, fragment):
+        errors = self.errors()
+        self.assertTrue(any(fragment in error for error in errors), errors)
+
+    def test_only_direct_includes_need_links(self):
+        # io.h includes Core; that exported dependency is deliberately not repeated.
+        self.assertEqual([], self.errors())
+        self.entry["link"].append("OpenTLV::core")
+        self.assert_error("unused LINK OpenTLV::core")
+
+    def test_transitive_link_cannot_hide_a_missing_direct_owner(self):
+        self.contract["targets"]["document"]["public"].append("io")
+        self.entry["link"] = ["OpenTLV::document"]
+        self.assert_error("direct public includes require LINK OpenTLV::io")
+
+    def test_integration_uses_its_own_public_target(self):
+        self.contract["files"]["include/opentlv/io/tools.hpp"] = "io-tools"
+        self.write("include/opentlv/io/tools.hpp", '#include <opentlv/io/io.h>\n')
+        self.write("examples/io/main.c", '#include <opentlv/io/tools.hpp>\n')
+        self.assert_error("require LINK OpenTLV::IOTools")
+        self.entry["link"] = ["OpenTLV::IOTools"]
+        self.assertEqual([], self.errors())
+
+    def test_multiple_sources_and_local_header_dependencies(self):
+        self.write("examples/io/extra.c", '#include "local.h"\n')
+        self.write("examples/io/local.h", '#include "opentlv/core/result.h"\n')
+        self.entry["sources"].append("io/extra.c")
+        self.assert_error("require LINK OpenTLV::core")
+        self.entry["link"].append("OpenTLV::core")
+        self.assertEqual([], self.errors())
+
+    def test_generated_public_headers_use_existing_ownership(self):
+        self.contract["generated"]["opentlv/io/export.h"] = "io"
+        self.write("examples/io/main.c", '#include <opentlv/io/export.h>\n')
+        self.assertEqual([], self.errors())
+
+    def test_public_headers_cannot_use_build_tree_relative_paths(self):
+        self.write("examples/io/main.c", '#include "../../include/opentlv/io/io.h"\n')
+        self.assert_error("public include spelling opentlv/io/io.h")
+
+    def test_public_target_names_must_be_complete_and_unique(self):
+        del self.contract["modules"]["io"]["public_target"]
+        self.assert_error("declare its public_target")
+        self.contract["modules"]["io"]["public_target"] = "OpenTLV::core"
+        self.assert_error("duplicate public target")
+
+    def test_comments_and_string_literals_do_not_add_dependencies(self):
+        self.write("examples/io/main.c", '#include <opentlv/io/io.h>\n'
+                   '// #include "opentlv/core/result.h"\n'
+                   'const char* example = R"(\n#include "opentlv/core/result.h"\n)";\n')
+        self.assertEqual([], self.errors())
+
+    def test_private_missing_and_dynamic_includes_fail(self):
+        self.contract["files"]["include/opentlv/io/detail/hidden.hpp"] = "io"
+        self.write("include/opentlv/io/detail/hidden.hpp", "")
+        for header, fragment in (("../../src/io/internal/io_internal.h", "private or non-public"),
+                                 ("opentlv/io/detail/hidden.hpp", "private or non-public"),
+                                 ("opentlv/missing.h", "cannot resolve")):
+            with self.subTest(header=header):
+                self.write("examples/io/main.c", f'#include "{header}"\n')
+                self.assert_error(fragment)
+        self.write("examples/io/main.c", '#include HEADER\n')
+        self.assert_error("literal header")
+
+    def test_registry_must_cover_every_source_once(self):
+        self.write("examples/io/unregistered.cpp", "")
+        self.assert_error("absent from the CMake registry")
+        (self.root / "examples/io/unregistered.cpp").unlink()
+        errors = self.errors([self.entry, self.entry])
+        self.assertTrue(any("duplicate target" in error for error in errors))
+        self.assertTrue(any("duplicate example source" in error for error in errors))
+        self.entry["sources"] = ["../src/io/io.c"]
+        self.assert_error("stay inside examples/")
+
+    def test_unknown_duplicate_and_stale_declarations_fail(self):
+        self.entry["link"] = ["OpenTLV::Typo"]
+        self.assert_error("unknown public LINK")
+        self.entry["link"] = ["OpenTLV::io", "OpenTLV::io"]
+        self.assert_error("duplicate LINK")
+        self.entry["link"] = ["OpenTLV::io"]
+        self.entry["umbrella"] = True
+        self.assert_error("stale umbrella")
+        self.entry["umbrella"] = False
+        self.entry["language"] = "cpp"
+        self.assert_error("does not match language")
+
+    def test_composite_header_owners_come_from_public_includes(self):
+        self.contract["targets"]["aggregate"] = {"module": None, "role": "aggregate",
+                                                  "public_target": "OpenTLV::tlv", "public": ["io", "core"]}
+        for header in ("native.hpp", "tlv.hpp"):
+            self.contract["files"]["include/opentlv/" + header] = "aggregate"
+            self.write("include/opentlv/" + header,
+                       '#include <opentlv/io/io.h>\n#include <opentlv/core/result.h>\n')
+        self.write("examples/io/main.c", '#include <opentlv/native.hpp>\n')
+        self.assert_error("module-specific headers")
+        self.entry["native_interop"] = True
+        self.assert_error("require LINK OpenTLV::core")
+        self.entry["link"].append("OpenTLV::core")
+        self.assertEqual([], self.errors())
+        self.write("examples/io/main.c", '#include <opentlv/tlv.hpp>\n')
+        self.entry["native_interop"] = False
+        self.assert_error("module-specific headers")
+        self.entry["umbrella"] = True
+        self.entry["link"] = ["OpenTLV::tlv"]
+        self.assertEqual([], self.errors())
+
+    def test_empty_malformed_and_missing_registries_fail(self):
+        self.assertTrue(any("empty" in error for error in self.errors([])))
+        self.assertTrue(any("malformed" in error for error in self.errors([{}])))
+        self.assertTrue(any("cannot load" in error for error in
+                            check_examples(self.root, self.root / "missing.jsonl", self.contract)))
+        self.write("bad.jsonl", "not JSON")
+        self.assertTrue(any("cannot load" in error for error in
+                            check_examples(self.root, self.root / "bad.jsonl", self.contract)))
+
+    @unittest.skipUnless(shutil.which("cmake"), "CMake is required for registry emission")
+    def test_cmake_emits_skipped_declarations_and_resets_registry(self):
+        # No compiler is needed: both declarations must be recorded before their skip.
+        self.write("examples/io/part.cpp", "")
+        self.write("examples/io/main.cpp", "")
+        helper = (ROOT / "examples/cmake/Example.cmake").as_posix()
+        self.write("examples/CMakeLists.txt", f'''cmake_minimum_required(VERSION 3.16)
+project(RegistryTest LANGUAGES NONE)
+include("{helper}")
+set(OPENTLV_EXAMPLE_SOURCE_DIR "${{CMAKE_CURRENT_SOURCE_DIR}}")
+set(OPENTLV_EXAMPLE_REGISTRY "${{CMAKE_CURRENT_BINARY_DIR}}/examples.jsonl")
+file(WRITE "${{OPENTLV_EXAMPLE_REGISTRY}}" "")
+set(OPENTLV_BUILD_CXX OFF)
+set(OPENTLV_QUERY_FRONTEND OFF)
+set(public_links OpenTLV::io OpenTLV::core)
+opentlv_example(cpp io skipped SOURCES io/main.cpp io/part.cpp LINK ${{public_links}})
+opentlv_example(c query skipped SOURCES io/main.c LINK OpenTLV::query QUERY_FRONTEND)
+''')
+        build = self.root / "build with spaces"
+        command = ["cmake", "-S", str(self.root / "examples"), "-B", str(build)]
+        for _ in range(2):
+            result = subprocess.run(command, text=True, capture_output=True, check=False)
+            self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+            entries = [json.loads(line) for line in (build / "examples.jsonl").read_text().splitlines()]
+            self.assertEqual(2, len(entries))
+            self.assertEqual(["io/main.cpp", "io/part.cpp"], entries[0]["sources"])
+            self.assertEqual(["OpenTLV::io", "OpenTLV::core"], entries[0]["link"])
+            self.assertIn("OPENTLV_BUILD_CXX=OFF", result.stdout)
+            self.assertIn("OPENTLV_QUERY_FRONTEND=OFF", result.stdout)
 
 
 if __name__ == "__main__":

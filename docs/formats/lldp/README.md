@@ -188,6 +188,9 @@ new writing API.
 #include "opentlv/builtin/lldp/lldp.h"
 #include "opentlv/builtin/lldp/schema.h"
 #include "opentlv/builtin/lldp/codec.h"
+#include "opentlv/codec/codec.h"
+#include "opentlv/core/definition.h"
+#include "opentlv/core/size.h"
 #include "opentlv/io/reader/reader.h"
 
 int main(void) {
@@ -225,8 +228,9 @@ Format preset for traversal.
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "opentlv/tlv.hpp"
 #include "opentlv/builtin/lldp/lldp.hpp"
+#include "opentlv/builtin/lldp/codec.hpp"
+#include "opentlv/codec/typed.hpp"
 
 int main() {
     const uint8_t    wire[] = {2, 2, 7, 'c', 4, 2, 7, 'p', 6, 2, 0, 120, 0, 0};
