@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Define the [Library and Core naming contract](docs/development/naming.md): a glossary separating the OpenTLV Library from the Core module, an inventory of current CMake, API, release, CI and downstream identifiers with their scope and owning issue, recorded decisions for the CMake package, dependencies, exports, release artifacts and amalgamation, and alias, breaking-change, migration and review-gate rules. No identifier is renamed. (#746)
 - Add final modular verification against the immutable v0.8.0 reference: baseline diagnostic and scenario coverage, exact Generator and behavioral replay, frozen fuzz-corpus replay, static/shared component evidence and informational performance comparison in Full CI. (#655)
 - Prepare modular CMake targets with explicit dependencies, per-module exports, package components and test ownership. Add incremental isolation gates for independent static/shared builds, private headers, symbol ownership and relocated C/C++ consumers. Library-only configuration can expose the header-only C++ facade without requiring a C++ compiler. (#646)
 - Capture the pre-refactor Core v0.8.0 behavioral baseline with exact release and Full CI provenance, reproducible test and regression corpora, deterministic Generator bytes, diagnostic reference data and informational Reader performance measurements. Add capture, replay and integrity checks for future module changes. (#645)

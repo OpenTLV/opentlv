@@ -156,6 +156,7 @@ structure; this table records ownership rather than replacing that audit.
 | [development/modules/README.md](modules/README.md) | Core | Keep: functional module contracts and machine-readable ownership for #643 |
 | [development/modules/diagnostics.md](modules/diagnostics.md) | Core | Keep: module diagnostic ownership and code mapping |
 | [development/modules/reader-format-field.md](modules/reader-format-field.md) | Core | Keep: Reader, Format and Field module boundary |
+| [development/naming.md](naming.md) | Core | Keep: Library/Core glossary, identifier inventory and rename policy for #702 |
 | [Lua implementation notes](https://github.com/OpenTLV/opentlv-lua/blob/main/docs/implementation.md) | Lua | Moved to opentlv-lua/docs/implementation.md |
 | [development/python.md](python.md) | Python / Core | Transitional landing page and Core integration notes |
 | [development/query-adversarial.md](query-adversarial.md) | Core | Mixed: native verification and facade evidence |
