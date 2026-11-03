@@ -252,6 +252,10 @@ change without the breaking-change policy:
   `compiler`, `msvc_runtime`, `libc` and `options`;
 - the source archive's top directory and `opentlv-source.txt`.
 
+Adding a manifest or record field is not breaking, because no verifier rejects
+unknown fields. The tests therefore require every field listed above but accept
+additions. The published file set stays exact.
+
 No verifier reads the release title or the binary archives' top directory: they
 locate package files by searching the extracted archive. Workflow display names
 (`Core Release`), CI artifact names (`release-*-<attempt>`,
@@ -321,7 +325,10 @@ binding issues named.
    mismatches are already **Breaking:** entries; their effect on release
    verification is not recorded anywhere else. The binding
    issues (opentlv-python#58, opentlv-rust#49, opentlv-lua#58) must update
-   their verifiers before moving their pins. For the Library,
+   their verifiers before moving their pins. Before a binding publishes against
+   v0.9.0, its verifier must pass in that binding's CI against the actual
+   v0.9.0 assets, not against fixtures. The Library CI does not run the binding
+   verifiers. For the Library,
    decide whether a changed configuration set requires a new manifest schema,
    whether verifiers should accept any set whose files all match the Verified
    Source (they compare each file already), and whether binary records should

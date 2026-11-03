@@ -565,6 +565,7 @@ class ArchiveTests(unittest.TestCase):
     @patch.dict(os.environ, ENV)
     def test_published_names_and_manifest_fields_follow_the_artifact_contract(self):
         # Binding verifiers read these names and fields: docs/development/naming.md#release-artifact-audit.
+        # The file set is exact. Fields may be added but never removed (breaking-change policy).
         destination, evidence = self.fixture()
         release.manifest(destination, evidence, '0.8.0', SHA)
         binaries = {'OpenTLV-0.8.0-linux-x64-static.tar.gz', 'OpenTLV-0.8.0-linux-x64-shared.tar.gz',
@@ -576,15 +577,15 @@ class ArchiveTests(unittest.TestCase):
         names = binaries | records | performance | {source, 'release-manifest.json', 'SHA256SUMS'}
         self.assertEqual({path.name for path in destination.iterdir()}, names)
         manifest = json.loads((destination / 'release-manifest.json').read_text())
-        self.assertEqual(set(manifest),
-                         {'schema', 'version', 'commit', 'candidate', 'quality', 'performance', 'artifacts'})
+        self.assertEqual({'schema', 'version', 'commit', 'candidate', 'quality', 'performance', 'artifacts'}
+                         - set(manifest), set())
         self.assertEqual((manifest['schema'], manifest['version'], manifest['commit']), (2, '0.8.0', SHA))
         self.assertEqual(manifest['candidate'], candidate())
         kinds = {}
         for record in manifest['artifacts']:
             kinds.setdefault(record['kind'], set()).add(record['filename'])
             if record['kind'] != 'binary':
-                self.assertEqual(set(record), {'kind', 'filename', 'sha256', 'version', 'commit'})
+                self.assertEqual({'kind', 'filename', 'sha256', 'version', 'commit'} - set(record), set())
         self.assertEqual(kinds, {'binary': binaries, 'source': {source}, 'performance': performance})
         lines = (destination / 'SHA256SUMS').read_text().splitlines()
         self.assertEqual(len(lines), len(names) - 1)
@@ -619,9 +620,9 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual({path.name for path in output.iterdir()}, {asset, 'windows-x64-shared.json'})
         self.assertEqual((output / asset).read_bytes(), b'verified archive')
         record = json.loads((output / 'windows-x64-shared.json').read_text())
-        self.assertEqual(set(record), {'schema', 'kind', 'id', 'version', 'commit', 'filename', 'sha256',
-                                       'os', 'architecture', 'linkage', 'build_type', 'compiler',
-                                       'msvc_runtime', 'libc', 'runner_image', 'options'})
+        self.assertEqual({'schema', 'kind', 'id', 'version', 'commit', 'filename', 'sha256', 'os',
+                          'architecture', 'linkage', 'build_type', 'compiler', 'msvc_runtime', 'libc',
+                          'runner_image', 'options'} - set(record), set())
         self.assertEqual({key: record[key] for key in ('schema', 'kind', 'id', 'version', 'filename', 'os',
                                                        'architecture', 'linkage', 'build_type', 'libc')},
                          {'schema': 1, 'kind': 'binary', 'id': 'windows-x64-shared', 'version': '0.9.0-rc.1',
