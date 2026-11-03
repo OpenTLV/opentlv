@@ -136,8 +136,10 @@ zero indicates a successful round trip.
 Save the example as `main.cpp`. It is
 [examples/io/quick_start.cpp](../../examples/io/quick_start.cpp).
 Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
-`project` and link `OpenTLV::Core`, `OpenTLV::IO` and `OpenTLV::Codec`;
-these targets supply the C++ headers, C++11 requirement and native libraries. `tlv::fixed_format`
+`project` and link `OpenTLV::tlv`: this quick start intentionally demonstrates
+the complete umbrella header and target. For explicit module headers and minimal
+direct dependencies, see the [module examples](../../examples/README.md#public-dependencies).
+The public targets supply the C++11 requirement and native libraries. `tlv::fixed_format`
 selects the same Fixed configuration at compile time. The range visits one level
 and borrows input; malformed
 final input throws `tlv::parse_error`, rather than ending iteration silently.
@@ -202,7 +204,7 @@ set(OPENTLV_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
 add_subdirectory(external/OpenTLV)
 
 add_executable(tlv_demo main.cpp)
-target_link_libraries(tlv_demo PRIVATE OpenTLV::Core OpenTLV::IO OpenTLV::Codec)
+target_link_libraries(tlv_demo PRIVATE OpenTLV::tlv)
 ```
 
 Configure and build with the CMake commands from

@@ -8,7 +8,8 @@
 #include <iostream>
 
 #include "opentlv/core/formats/fixed_format.hpp"
-#include "opentlv/tlv.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
 
 using format = tlv::fixed_format<2, 2, tlv::byte_order::little_endian>;
 

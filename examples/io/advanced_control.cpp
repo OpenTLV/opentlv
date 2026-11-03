@@ -2,8 +2,12 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Explicit allocation-free typed encoding, incremental Reader, and C interoperability.
-#include <opentlv/tlv.hpp>
-#include <opentlv/native.hpp>
+#include "opentlv/core/formats/fixed_format.hpp"
+#include "opentlv/codec/typed.hpp"
+#include "opentlv/codec/writer.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
+#include "opentlv/native.hpp"
 #include <iostream>
 
 using Counter = tlv::field<tlv::tag_constant<0x9F, 0x36>, uint16_t, tlv::uint16_be_codec>;

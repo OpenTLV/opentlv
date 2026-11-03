@@ -1,6 +1,6 @@
 opentlv_example(c io copies
     SOURCES copies.c
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::ASN1
+    LINK OpenTLV::Core OpenTLV::IO
 )
 
 opentlv_example(c io incremental-reader
@@ -41,31 +41,33 @@ opentlv_example(c io visitor
 
 opentlv_example(c io write
     SOURCES write.c
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::ASN1
+    LINK OpenTLV::IO OpenTLV::ASN1
 )
 
 opentlv_example(cpp io advanced-control
     SOURCES advanced_control.cpp
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::Codec OpenTLV::IOCodec
+    LINK OpenTLV::Core OpenTLV::IO OpenTLV::Document OpenTLV::Query OpenTLV::Schema OpenTLV::Codec OpenTLV::IOCodec
+    NATIVE_INTEROP
 )
 
 opentlv_example(cpp io basic-usage
     SOURCES basic_usage.cpp
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::ASN1
+    LINK OpenTLV::IO OpenTLV::ASN1
 )
 
 opentlv_example(cpp io parse
     SOURCES parse.cpp
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::ASN1
+    LINK OpenTLV::IO OpenTLV::ASN1
 )
 
 opentlv_example(cpp io quick-start
     SOURCES quick_start.cpp
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::Codec
+    LINK OpenTLV::tlv
+    UMBRELLA
     PASS_REGULAR_EXPRESSION "Hello, world!"
 )
 
 opentlv_example(cpp io write
     SOURCES write.cpp
-    LINK OpenTLV::Core OpenTLV::IO OpenTLV::ASN1
+    LINK OpenTLV::IO OpenTLV::ASN1
 )

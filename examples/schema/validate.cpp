@@ -8,7 +8,8 @@
 #include <cstdint>
 #include <iostream>
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/schema/schema.hpp"
 
 // Same bytes as parse.cpp's document.
 static const std::array<tlv::byte, 12> document = {

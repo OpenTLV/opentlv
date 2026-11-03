@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/core/format.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/writer.hpp"
 #include <cstring>
 
 // Application framing: one-byte Tag, two-byte little-endian Length, opaque Value.

@@ -4,6 +4,9 @@
 #include "opentlv/builtin/lldp/lldp.h"
 #include "opentlv/builtin/lldp/schema.h"
 #include "opentlv/builtin/lldp/codec.h"
+#include "opentlv/codec/codec.h"
+#include "opentlv/core/definition.h"
+#include "opentlv/core/size.h"
 #include "opentlv/io/reader/reader.h"
 
 int main(void) {

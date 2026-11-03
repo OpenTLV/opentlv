@@ -2,7 +2,9 @@
 // Copyright (c) 2026 Marek Cingel
 
 // Write two primitive BER elements, then iterate over that sequence.
-#include <opentlv/tlv.hpp>
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/io/reader/reader.hpp"
+#include "opentlv/io/writer/builder.hpp"
 #include <array>
 #include <iostream>
 

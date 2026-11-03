@@ -7,7 +7,12 @@
 #include <iomanip>
 #include <iostream>
 
-#include "opentlv/tlv.hpp"
+#include "opentlv/builtin/asn1/ber.hpp"
+#include "opentlv/core/diagnostic.hpp"
+#include "opentlv/io/reader/tree.hpp"
+#include "opentlv/document/document.hpp"
+#include "opentlv/query/query.hpp"
+#include "opentlv/query/document.hpp"
 
 // Same bytes as parse.cpp's document.
 static const std::array<tlv::byte, 12> document = {

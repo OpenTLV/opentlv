@@ -57,6 +57,16 @@ jobs:
         run: |
           python -B scripts/test_module_contracts.py
           python -B scripts/check_module_contracts.py
+      - name: Check example dependencies and public language standards
+        run: |
+          cmake -S . -B build/example-contracts \
+            -DCMAKE_BUILD_TYPE=Debug -DOPENTLV_BUILD_TESTS=OFF \
+            -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_SHARED_LIBS=OFF \
+            -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF \
+            -DCMAKE_CXX_STANDARD=11 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_CXX_EXTENSIONS=OFF
+          python -B scripts/check_module_contracts.py --examples build/example-contracts/examples/examples.jsonl
+          cmake --build build/example-contracts --parallel 2
+          ctest --test-dir build/example-contracts -L examples --output-on-failure --no-tests=error
       - name: Verify immutable behavioral baseline
         run: |
           python -B scripts/test_behavioral_baseline.py
