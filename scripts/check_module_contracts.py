@@ -456,13 +456,14 @@ def check_examples(root, registry, contract):
         entries = [json.loads(line) for line in registry.read_text(encoding="utf-8").splitlines() if line.strip()]
     except (OSError, ValueError) as error:
         return [f"cannot load example registry {registry}: {error}"]
-    registered, targets = set(), set()
-    fields = {"target", "language", "sources", "link", "umbrella", "native_interop"}
+    registered, targets, tests = set(), set(), set()
+    fields = {"target", "test", "language", "sources", "link", "umbrella", "native_interop", "query_frontend"}
     for entry in entries:
         if (not isinstance(entry, dict) or set(entry) != fields
                 or not isinstance(entry["target"], str) or not entry["target"].startswith("example-")
+                or not isinstance(entry["test"], str) or not entry["test"].startswith("example.")
                 or entry["language"] not in ("c", "cpp")
-                or any(type(entry[key]) is not bool for key in ("umbrella", "native_interop"))
+                or any(type(entry[key]) is not bool for key in ("umbrella", "native_interop", "query_frontend"))
                 or any(not isinstance(entry[key], list) or not entry[key]
                        or any(not isinstance(item, str) or not item for item in entry[key])
                        for key in ("sources", "link"))):
@@ -472,6 +473,9 @@ def check_examples(root, registry, contract):
         if target in targets:
             errors.append(f"examples: duplicate target {target}")
         targets.add(target)
+        if entry["test"] in tests:
+            errors.append(f"examples: duplicate test {entry['test']}")
+        tests.add(entry["test"])
         required, pending, visited, composites = set(), [], set(), set()
         for source in entry["sources"]:
             path = PurePosixPath(source)

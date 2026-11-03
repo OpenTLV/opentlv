@@ -9,6 +9,7 @@ import tempfile
 import unittest
 import shutil
 import subprocess
+from check_cmake_integration import check_example_tests, expected_example_tests
 from check_module_contracts import (BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check,
                                     check_baseline_mapping, check_examples, cycles)
 
@@ -271,6 +272,7 @@ class ExampleContractTests(unittest.TestCase):
             self.write(path, text)
         self.write("examples/io/main.c", '#include <opentlv/io/io.h>\n')
         self.entry = {"target": "example-c-io-main", "language": "c", "sources": ["io/main.c"],
+                      "test": "example.c.io.main", "query_frontend": False,
                       "link": ["OpenTLV::io"], "umbrella": False, "native_interop": False}
 
     def write(self, relative, text):
@@ -354,6 +356,7 @@ class ExampleContractTests(unittest.TestCase):
         (self.root / "examples/io/unregistered.cpp").unlink()
         errors = self.errors([self.entry, self.entry])
         self.assertTrue(any("duplicate target" in error for error in errors))
+        self.assertTrue(any("duplicate test" in error for error in errors))
         self.assertTrue(any("duplicate example source" in error for error in errors))
         self.entry["sources"] = ["../src/io/io.c"]
         self.assert_error("stay inside examples/")
@@ -399,6 +402,12 @@ class ExampleContractTests(unittest.TestCase):
         self.assertTrue(any("cannot load" in error for error in
                             check_examples(self.root, self.root / "bad.jsonl", self.contract)))
 
+    def test_test_metadata_is_required_and_typed(self):
+        for key, value in (("test", None), ("test", ""), ("query_frontend", "OFF")):
+            with self.subTest(key=key, value=value):
+                entry = dict(self.entry, **{key: value})
+                self.assertTrue(any("malformed" in error for error in self.errors([entry])))
+
     @unittest.skipUnless(shutil.which("cmake"), "CMake is required for registry emission")
     def test_cmake_emits_skipped_declarations_and_resets_registry(self):
         # No compiler is needed: both declarations must be recorded before their skip.
@@ -426,8 +435,56 @@ opentlv_example(c query skipped SOURCES io/main.c LINK OpenTLV::query QUERY_FRON
             self.assertEqual(2, len(entries))
             self.assertEqual(["io/main.cpp", "io/part.cpp"], entries[0]["sources"])
             self.assertEqual(["OpenTLV::io", "OpenTLV::core"], entries[0]["link"])
+            self.assertEqual("example.cpp.io.skipped", entries[0]["test"])
+            self.assertFalse(entries[0]["query_frontend"])
+            self.assertEqual("example.c.query.skipped", entries[1]["test"])
+            self.assertTrue(entries[1]["query_frontend"])
             self.assertIn("OPENTLV_BUILD_CXX=OFF", result.stdout)
             self.assertIn("OPENTLV_QUERY_FRONTEND=OFF", result.stdout)
+
+
+class ExampleInventoryTests(unittest.TestCase):
+    def setUp(self):
+        self.entries = [
+            {"test": "example.c.io.write", "language": "c", "query_frontend": False, "umbrella": False},
+            {"test": "example.cpp.io.quick-start", "language": "cpp", "query_frontend": False, "umbrella": True},
+            {"test": "example.c.query.compile", "language": "c", "query_frontend": True, "umbrella": False},
+            {"test": "example.cpp.query.compile", "language": "cpp", "query_frontend": True, "umbrella": False},
+        ]
+
+    def test_configuration_selects_declared_tests(self):
+        for cxx in (False, True):
+            for frontend in (False, True):
+                for aggregate in (False, True):
+                    with self.subTest(cxx=cxx, frontend=frontend, aggregate=aggregate):
+                        expected = {"example.c.io.write"}
+                        if cxx and aggregate:
+                            expected.add("example.cpp.io.quick-start")
+                        if frontend:
+                            expected.add("example.c.query.compile")
+                            if cxx:
+                                expected.add("example.cpp.query.compile")
+                        self.assertEqual(expected, expected_example_tests(
+                            self.entries, cxx=cxx, query_frontend=frontend, aggregate=aggregate))
+
+    def test_new_declaration_is_automatically_expected(self):
+        self.entries.append({"test": "example.c.future.new-name", "language": "c",
+                             "query_frontend": False, "umbrella": False})
+        self.assertIn("example.c.future.new-name", expected_example_tests(
+            self.entries, cxx=False, query_frontend=False, aggregate=False))
+
+    def test_exact_inventory_accepts_different_order(self):
+        check_example_tests({"tests": [{"name": "second"}, {"name": "first"}]}, {"first", "second"})
+
+    def test_missing_unexpected_renamed_and_duplicate_tests_fail(self):
+        for names, message in ((["first"], "missing=['second']"),
+                               (["first", "second", "extra"], "unexpected=['extra']"),
+                               (["first", "renamed"], "missing=['second'], unexpected=['renamed']"),
+                               (["first", "second", "second"], "duplicates=['second']")):
+            with self.subTest(names=names):
+                with self.assertRaises(RuntimeError) as raised:
+                    check_example_tests({"tests": [{"name": name} for name in names]}, {"first", "second"})
+                self.assertIn(message, str(raised.exception))
 
 
 @unittest.skipUnless(shutil.which("cmake"), "CMake is required for standalone package checks")

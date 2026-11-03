@@ -70,7 +70,10 @@ the copied `sample.bin` by absolute path, independent of the working directory.
 The binary fixtures are unchanged.
 
 `scripts/check_cmake_integration.py` builds and runs a copied examples tree
-against a relocated installation. CI exercises CMake 3.16 on Linux; Full/release
+against a relocated installation, both with and without the optional aggregate.
+It checks exact CTest names against `examples.jsonl`, filtered by the consumer
+language and installed Query frontend, before running all available examples.
+CI exercises CMake 3.16 on Linux; Full/release
 also covers Windows shared/static, C-only consumers and a frontend-disabled
 package. PR validation keeps the existing Linux-only consumer selection.
 

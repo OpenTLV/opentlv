@@ -19,6 +19,24 @@ def run(*args, cwd=None):
     subprocess.run(list(map(str, args)), check=True, cwd=cwd)
 
 
+def expected_example_tests(entries, *, cxx, query_frontend, aggregate=True):
+    """Select declared tests using the consumer language and installed features."""
+    return {entry["test"] for entry in entries
+            if (entry["language"] != "cpp" or cxx)
+            and (not entry["query_frontend"] or query_frontend)
+            and (not entry["umbrella"] or aggregate)}
+
+
+def check_example_tests(listing, expected):
+    """Reject missing, unexpected or duplicated CTest names, even at equal counts."""
+    names = [test["name"] for test in listing["tests"]]
+    actual = set(names)
+    if actual != expected or len(names) != len(actual):
+        duplicates = sorted(name for name in actual if names.count(name) > 1)
+        raise RuntimeError(f"Installed example test mismatch: missing={sorted(expected - actual)}, "
+                           f"unexpected={sorted(actual - expected)}, duplicates={duplicates}")
+
+
 def installed_examples(root, work, prefix, args):
     """Build the copied examples without access to repository CMake helpers."""
     source = work / "copied examples"
@@ -36,20 +54,24 @@ def installed_examples(root, work, prefix, args):
     if args.cxx == "OFF":
         options += ["-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler"]
     run(cmake, "-S", source, "-B", build, *options, f"-DCMAKE_PREFIX_PATH={prefix.as_posix()}")
-    if args.cxx == "OFF" and list((build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
-        raise RuntimeError("C-only examples enabled a C++ compiler")
-    run(sys.executable, "-B", root / "scripts/check_module_contracts.py", "--examples", build / "examples.jsonl")
-    run(cmake, "--build", build, "--config", "Release", "--parallel", "1")
-    # CTest 3.16 has no --test-dir. Run from the build directory and explicitly
-    # guard the test inventory before executing it (including the fixture path).
-    listing = json.loads(subprocess.check_output(
-        [str(ctest), "-C", "Release", "--show-only=json-v1"], cwd=build, text=True))
-    expected = 36 if args.cxx == "ON" else 21
-    if args.query_frontend == "OFF":
-        expected -= 2 if args.cxx == "ON" else 1
-    if len(listing["tests"]) != expected:
-        raise RuntimeError(f"Expected {expected} installed example tests, got {len(listing['tests'])}")
-    run(ctest, "-C", "Release", "-L", "examples", "--output-on-failure", cwd=build)
+
+    def build_and_test(build, *, aggregate=True):
+        if args.cxx == "OFF" and list((build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
+            raise RuntimeError("C-only examples enabled a C++ compiler")
+        registry = build / "examples.jsonl"
+        run(sys.executable, "-B", root / "scripts/check_module_contracts.py", "--examples", registry)
+        entries = [json.loads(line) for line in registry.read_text(encoding="utf-8").splitlines() if line.strip()]
+        expected = expected_example_tests(entries, cxx=args.cxx == "ON",
+                                          query_frontend=args.query_frontend == "ON", aggregate=aggregate)
+        run(cmake, "--build", build, "--config", "Release", "--parallel", "1")
+        # CTest 3.16 has no --test-dir. Audit and execute the same complete inventory.
+        listing = json.loads(subprocess.check_output(
+            [str(ctest), "-C", "Release", "--show-only=json-v1"], cwd=build, text=True))
+        check_example_tests(listing, expected)
+        run(ctest, "-C", "Release", "--output-on-failure", cwd=build)
+        return listing, entries
+
+    listing, entries = build_and_test(build)
     nfc = next(test for test in listing["tests"] if test["name"] == "example.c.nfc.type2")
     command = nfc["command"]
     default = subprocess.check_output(command[:1], cwd=build, env=example_environment(nfc), text=True)
@@ -67,17 +89,23 @@ def installed_examples(root, work, prefix, args):
     if result.returncode == 0:
         raise RuntimeError("NFC example accepted a missing file")
 
-    if args.cxx == "ON":
-        # The aggregate is optional; a component-only package must configure all
-        # other examples. Do not modify the installation used by earlier tests.
-        component_prefix = work / "component-only installation"
-        shutil.copytree(prefix, component_prefix)
-        (component_prefix / "lib/cmake/OpenTLV/OpenTLVTargets.cmake").unlink()
-        result = subprocess.run([str(cmake), "-S", str(source), "-B", str(work / "examples-components"),
-                                 *options, f"-DCMAKE_PREFIX_PATH={component_prefix.as_posix()}"],
-                                text=True, capture_output=True, check=True)
-        if "Skipping example-cpp-io-quick-start: optional OpenTLV::tlv component is unavailable" not in result.stdout:
+    # Build and run every available example without the optional aggregate,
+    # using a separate installation so earlier consumers remain unaffected.
+    component_prefix = work / "component-only installation"
+    shutil.copytree(prefix, component_prefix)
+    (component_prefix / "lib/cmake/OpenTLV/OpenTLVTargets.cmake").unlink()
+    component_build = work / "examples-components"
+    result = subprocess.run([str(cmake), "-S", str(source), "-B", str(component_build),
+                             *options, f"-DCMAKE_PREFIX_PATH={component_prefix.as_posix()}"],
+                            text=True, capture_output=True, check=True)
+    print(result.stdout, end="", flush=True)
+    for entry in entries:
+        if not entry["umbrella"] or (entry["language"] == "cpp" and args.cxx == "OFF"):
+            continue
+        skip = f"Skipping {entry['target']}: optional OpenTLV::tlv component is unavailable"
+        if skip not in result.stdout:
             raise RuntimeError("Missing optional aggregate did not produce an explicit skip")
+    build_and_test(component_build, aggregate=False)
     print(f"PASS installed examples: shared={args.shared}, cxx={args.cxx}, frontend={args.query_frontend}", flush=True)
 
 
