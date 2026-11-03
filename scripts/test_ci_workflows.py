@@ -136,7 +136,7 @@ class WorkflowContracts(unittest.TestCase):
             self.assertIn(required, json.loads(full[1]), 'Full/release must test Windows shared C++ consumers')
         builds = [step for step in steps if 'run' in step and
                   'scripts/check_cmake_integration.py' in step['run'].text()]
-        self.assertEqual(2, len(builds))
+        self.assertEqual(3, len(builds))
         self.assert_unconditional(builds[0])
         self.assertIn('--examples-cmake', builds[0]['run'].text())
         self.assertIn("runner.os == 'Linux'", builds[0]['run'].text())
@@ -145,6 +145,11 @@ class WorkflowContracts(unittest.TestCase):
                          builds[1]['if'].text())
         self.assertIn('--query-frontend OFF', builds[1]['run'].text())
         self.assertNotIn('continue-on-error', builds[1])
+        self.assertEqual("runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'",
+                         builds[2]['if'].text())
+        self.assertIn('export PATH="$PWD/build/cmake-3.16/cmake/data/bin:$PATH"', builds[2]['run'].text())
+        self.assertIn('--shared ON --cxx ON', builds[2]['run'].text())
+        self.assertNotIn('continue-on-error', builds[2])
         installs = [step for step in steps if 'run' in step and 'cmake==3.16.8' in step['run'].text()]
         self.assertEqual(1, len(installs))
         self.assertEqual("runner.os == 'Linux'", installs[0]['if'].text())

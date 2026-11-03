@@ -335,11 +335,18 @@ find_package(OpenTLV CONFIG REQUIRED)
 target_link_libraries(my_app PRIVATE OpenTLV::IO)
 ```
 
-The package name is **`OpenTLV`**, even if the FetchContent dependency is named
-`opentlv_core`. On CMake 3.24+, a consumer combining package discovery with
-FetchContent can use `FIND_PACKAGE_ARGS CONFIG NAMES OpenTLV` in its declaration.
-An explicit `FETCHCONTENT_SOURCE_DIR_OPENTLV_CORE` override takes precedence
-over package discovery and avoids downloading Core. See the
+The package name is **`OpenTLV`**. The canonical FetchContent dependency name is
+`opentlv`; the legacy `opentlv_core` name is also supported. On CMake 3.24+, a
+consumer combining package discovery with FetchContent can use
+`FIND_PACKAGE_ARGS CONFIG NAMES OpenTLV COMPONENTS Core OPTIONAL_COMPONENTS IO`.
+Both names honor required and optional components. An unknown required component
+rejects the package; an unknown optional component is reported as unavailable.
+As with other FetchContent dependencies, a rejected package lookup can fall back
+to source population; add `REQUIRED` to `FIND_PACKAGE_ARGS` only when failure to
+find the requested package must stop configuration rather than fetch sources.
+An explicit `FETCHCONTENT_SOURCE_DIR_OPENTLV` (or legacy
+`FETCHCONTENT_SOURCE_DIR_OPENTLV_CORE`) override takes precedence over package
+discovery. See the
 [CMake FetchContent documentation](https://cmake.org/cmake/help/latest/module/FetchContent.html#integrating-with-find-package)
 for this resolution mechanism.
 
@@ -347,13 +354,36 @@ The existing package version policy is exact numeric version matching: use
 `find_package(OpenTLV <major.minor.patch> EXACT CONFIG REQUIRED)` when requesting
 a particular version. An unversioned request imposes no version constraint.
 The package does not promise compatibility with arbitrary newer Core releases.
+`OpenTLV_VERSION` reports the numeric Library version even for unversioned
+discovery. With `NAMES OpenTLV`, the requested package spelling also receives
+its own `<name>_VERSION`, `<name>_FOUND` and `<name>_<component>_FOUND` metadata.
+
+A configured and built Library can be consumed directly with
+`-DOpenTLV_DIR=<library-build-directory>`. Its exported targets refer to that
+build and source tree; use an installed package when relocating the Library.
+After embedding the Library, CMake 3.24+ redirects subsequent package discovery
+for both dependency names and `OpenTLV` to the embedded package, including version
+and component checks. On CMake 3.16, embedding supplies package directory hints
+to forwarding configs with the same checks.
+A package configuration rejects pre-existing OpenTLV targets from another build
+or installation instead of reporting metadata for the wrong Library. Use one
+Library instance per consuming build.
+
+The aggregate is always `OpenTLV::tlv`. Its internal source target is
+`opentlv_tlv`; a deprecated `tlv` alias exists only when the application has no
+target with that name. Migrate direct links to `OpenTLV::tlv`. The Library no
+longer creates a nested `project(tlv)` or its `tlv_*` cache variables; use
+`OpenTLV_SOURCE_DIR` and `OpenTLV_BINARY_DIR` for Library paths.
+
 For shared builds, the application must also arrange runtime library discovery;
 on Windows, for example, place the Core DLL beside the executable or add its
 directory to `PATH`. This requirement applies to both source and installed modes.
 
 The integration check builds and runs external C and optional C++ applications
-against a source override and a relocated installation, and also exercises
-FetchContent package discovery on CMake 3.24+:
+against a source override, build-tree exports and a relocated installation, and
+also exercises FetchContent package discovery on CMake 3.24+. It rejects missing
+required components, incompatible versions and conflicting Library identities,
+and checks application-owned `tlv` targets:
 
 ```sh
 python scripts/check_cmake_integration.py --shared ON --cxx ON

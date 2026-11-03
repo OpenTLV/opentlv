@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix build-tree package discovery and enforce required/optional components, exact versions and Library identity for installed, `add_subdirectory()` and legacy/canonical FetchContent consumers. CMake 3.24+ redirects now report the embedded Library version and reject conflicting installed targets. Keep pure C++ consumers usable with CMake 3.16 without enabling a C compiler. (#753)
 - Title new Library releases `OpenTLV X.Y.Z`, as the naming contract and the published v0.8.0 release do, instead of `OpenTLV vX.Y.Z`. No verifier reads the title. (#748)
 - Keep C-only installed consumers usable with CMake 3.16 by applying exported C++11 requirements only when the consuming project enables C++. (#736)
 - Require combined observation counts when baseline scenario migrations share replacement tests, preventing lost scenario coverage from passing final modular verification. (#655)
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Remove the nested CMake `project(tlv)` and its `tlv_SOURCE_DIR`, `tlv_BINARY_DIR` and `tlv_IS_TOP_LEVEL` cache entries. Use `OpenTLV_SOURCE_DIR`, `OpenTLV_BINARY_DIR` and the embedding application's own project variables instead. The aggregate build target is now `opentlv_tlv`, exported unchanged as `OpenTLV::tlv`; the old source-only `tlv` spelling remains a deprecated alias when the application does not own that name. Link `OpenTLV::tlv` to avoid embedding collisions. (#753)
 - Build the existing examples as standalone CMake 3.16 consumers of an installed OpenTLV package, with explicit optional-feature skips and Windows shared-library test lookup. Validate copied examples against relocated installations with and without the aggregate in consumer CI, checking exact CTest names against the example registry, and allow the NFC Type 2 example to read a supplied fixture path. (#736)
 - Use explicit public module headers and direct dependencies in native examples, with checked ownership from the CMake example registry. Validate the examples under the public C99/C++11 contract while preserving the intentional quick-start umbrella and native interoperability demonstration. (#736)
 - Group existing C and C++ examples by public module and builtin family, with consistent `example-<lang>-<module>-<name>` targets and `example.<lang>.<module>.<name>` CTest names. Update documentation and CI paths while preserving example behavior and NFC fixtures. (#736)

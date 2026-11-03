@@ -2,10 +2,11 @@
 
 This contract defines what **OpenTLV Library** and **Core** mean, records every
 current public identifier with its scope, and sets the compatibility, breaking-change
-and migration rules for later renames (#746, epic #702). It renames nothing: every
-identifier listed below keeps working unchanged. Implementation belongs to the
-issues named in each decision, after the Library v0.9.0 distribution milestone
-(#716).
+and migration rules (#746, epic #702). The initial contract introduced no renames;
+the inventory now records the subsequent implementation decisions. CMake fixes
+(#753) and Library release-contract fixes (#754) precede the Library v0.9.0
+distribution milestone (#716). Binding and tool migrations follow independently
+against an approved, verified Library release.
 
 Audience: maintainers of the Library, bindings, tools, Workspace and the portal.
 Read the [functional module contracts](modules/README.md) first for the target
@@ -49,7 +50,7 @@ candidates. Owner is the issue that decides any change.
 | Cache options | `OPENTLV_BUILD_*`, `OPENTLV_QUERY_*`, `OPENTLV_WARNINGS_AS_ERRORS` | Library | Keep | #747 |
 | Removed options | `OPENTLV_READER`, `OPENTLV_<FAMILY>` and the other rejected options | Library | Keep the configure-time rejection messages | #747 |
 | Documentation install path | `share/doc/OpenTLV` | Library | Keep | #747 |
-| Nested CMake project | `project(tlv)` in `cmake/library/`, which also creates `tlv_SOURCE_DIR` and `tlv_BINARY_DIR` cache entries in embedding builds | Build tree | Keep for v0.9.0; the [audit](#cmake-identity-audit) found no build logic that needs it | #747 |
+| Nested CMake project | Removed `project(tlv)` and its `tlv_SOURCE_DIR`, `tlv_BINARY_DIR`, `tlv_IS_TOP_LEVEL` cache entries | Build tree | Breaking embedding fix; use the `OpenTLV_*` project paths | #753 |
 
 ### Modules, headers and API
 
@@ -57,6 +58,7 @@ candidates. Owner is the issue that decides any change.
 | --- | --- | --- | --- | --- |
 | Module targets | `OpenTLV::Core`, `IO`, `Document`, `Query`, `Schema`, `Codec`, `Generator`, `ASN1`, `EMV`, `Bluetooth`, `NFC`, `DHCP`, `LLDP` and integrations | Module | Keep; `OpenTLV::Core` is the Core module only | #747 |
 | Aggregate target | `OpenTLV::tlv` (INTERFACE, no archive) | Library | Keep; see below | #747 |
+| Aggregate build target | `opentlv_tlv`, `EXPORT_NAME tlv`; deprecated source-only `tlv` alias when the application has no such target | Build tree | Link `OpenTLV::tlv`; keep the alias under the deprecation rules below | #753 |
 | Removed targets and paths | Monolithic `tlv` library, `tlv++` target, `tlv/` and `tlv++/` include paths | — | Removed in #654 and #733; never reused | — |
 | Build targets and binaries | `opentlv_<key>`, e.g. `libopentlv_core.so`, `opentlv_core.dll` | Module | Keep; direct consumers link these file names | #747, #748 |
 | Export macros | `OPENTLV_<KEY>_API`, `OPENTLV_<KEY>_STATIC_DEFINE`, e.g. `OPENTLV_CORE_API` | Module | Keep | — |
@@ -83,7 +85,7 @@ Core. It does not make Core a synonym for the Library.
 | Release title | `OpenTLV X.Y.Z` | Library | Keep | #748 |
 | Assets | `OpenTLV-X.Y.Z-source.tar.gz`, `OpenTLV-X.Y.Z-<os>-x64-<linkage>.{tar.gz,zip}`, `<id>.json`, `release-manifest.json`, `SHA256SUMS`, `performance*` | Library | Keep | #748 |
 | Archive contents | Prefix `OpenTLV-X.Y.Z/`, metadata `opentlv-source.txt` | Library | Keep | #748 |
-| CPack package | `OpenTLV-<version>-<system>-<processor>-<compiler>`, also the top directory inside each binary asset | Library | Keep for v0.9.0; see the [artifact findings](#findings-for-release-artifacts) | #748 |
+| CPack package | `OpenTLV-<version>-<system>-<processor>-<compiler>`, also the top directory inside each binary asset | Library | Resolve archive identity before v0.9.0; see the [artifact findings](#findings-for-release-artifacts) | #748, #754 |
 | Workflow files | `core-pr.yml`, `core-main.yml`, `core-full.yml`, `core-checks.yml`, `core-release.yml` | **Ambiguous** | Keep: binding verifiers pin `core-release.yml` as the attestation signer and expect these file names in release evidence | #748 |
 | Workflow and artifact names | `Core Pull Request CI`, `Core Release`, `core-quality-full-*`, `core-release-timings-*` | **Ambiguous** | Display names may change in #748; artifact names that verifiers read follow the alias rules | #748 |
 | Release scripts | `scripts/core_release.py`, `scripts/core_performance.py` | **Ambiguous** | Internal; rename only together with their workflows | #748 |
@@ -141,13 +143,16 @@ changes, in every consumer mode:
 | `package` | `find_package(OpenTLV <x.y.z> EXACT CONFIG REQUIRED COMPONENTS Core)` | Imported from the relocated prefix; no other contract target is loaded |
 | `package-all` | `find_package(OpenTLV <x.y.z> EXACT CONFIG REQUIRED)` | Every contract target is imported and its `OpenTLV_<name>_FOUND` is set |
 | `fetch` | `FetchContent_Declare(opentlv_core ...)`, `FETCHCONTENT_SOURCE_DIR_OPENTLV_CORE` | Complete embedded build; aliases and embedded footprint |
-| `fetch-canonical` | `FetchContent_Declare(opentlv ...)`, `FETCHCONTENT_SOURCE_DIR_OPENTLV` | Aliases and embedded footprint; on CMake 3.24+, a later `find_package(OpenTLV)` resolves to the embedded Library |
+| `fetch-canonical` | `FetchContent_Declare(opentlv ...)`, `FETCHCONTENT_SOURCE_DIR_OPENTLV` | Aliases and embedded footprint; subsequent discovery resolves to the embedded Library |
 | `subdirectory` | `add_subdirectory(<checkout> opentlv)` | Aliases and embedded footprint |
 | `fetch-package` | `opentlv_core` with `FIND_PACKAGE_ARGS <x.y.z> EXACT CONFIG NAMES OpenTLV` (CMake 3.24+) | Every contract target is imported |
+| `fetch-package-canonical` | `opentlv` with the same package arguments | Every contract target is imported |
+| `build-tree` | `OpenTLV_DIR=<build>` | Every contract target is imported from build-tree exports |
+| `fetch-collision` | Legacy FetchContent with an application-owned `tlv` target | Application target is preserved; `OpenTLV::tlv` aliases `opentlv_tlv` |
 
 In every mode, each public target from the
 [module contract](modules/ownership.json) resolves to the same `OpenTLV::` name:
-an alias of `opentlv_<key>` (or `tlv` for the aggregate) from source, an imported
+an alias of `opentlv_<key>` (or `opentlv_tlv` for the aggregate) from source, an imported
 target from the package. The check also pins:
 
 - The package directory holds exactly `OpenTLVConfig.cmake`,
@@ -157,8 +162,9 @@ target from the package. The check also pins:
 - `ExactVersion` rejects another patch version, and documentation is installed
   under `share/doc/OpenTLV`.
 - Every removed option still fails at configure time with its message.
-- An embedding build creates only the `tlv` and `opentlv_<key>` targets. It adds
-  only these cache entries: the `OPENTLV_*` options, the `OpenTLV_*` and `tlv_*`
+- An embedding build creates only the `opentlv_tlv` and `opentlv_<key>` targets,
+  plus the conditional deprecated `tlv` alias. It adds
+  only these cache entries: the `OPENTLV_*` options, the `OpenTLV_*`
   project variables, and entries owned by CMake's GNUInstallDirs,
   GenerateExportHeader and FetchContent modules.
 
@@ -169,44 +175,49 @@ Both FetchContent names work with the current Library. The Library, v0.8.0
 included, never reads the dependency name, so the rename itself needs no Library
 change.
 
-### Findings for the post-v0.9.0 step
+<!-- markdownlint-disable-next-line MD033 -->
+<a id="findings-for-the-post-v090-step"></a>
 
-The audit fixed none of these. Each one is a behavior or naming change, which
-rule 6 keeps separate, and the sequence above schedules it after v0.9.0.
+### CMake discovery and embedding fixes for v0.9.0
 
-1. **The build tree looks like a package but is not one.** Configuration writes
-   `OpenTLVConfig.cmake` to the top of the build tree, and the Library has no
-   `export()`. `OpenTLV_DIR=<build>`, or `CMAKE_PREFIX_PATH=<build>` on Windows,
-   finds the file and fails with
-   `include could not find requested file: .../OpenTLV-coreTargets.cmake`.
-   Either configure the file outside the package search path, or add a build-tree
-   export.
-2. **FetchContent `FIND_PACKAGE_ARGS` ignores components.** FetchContent calls
-   `find_package(<dependency> ... NAMES OpenTLV)`, so requested components arrive
-   in `<dependency>_FIND_COMPONENTS`. `OpenTLVConfig.cmake` reads only
-   `OpenTLV_FIND_COMPONENTS`. With `opentlv_core` or `opentlv`, every component is
-   loaded and an unknown required component is accepted. Reading
-   `CMAKE_FIND_PACKAGE_NAME` in the configuration file would fix this.
-3. **The legacy name can mix two Libraries.** After
-   `FetchContent_MakeAvailable(opentlv_core)` builds from source, a later
-   `find_package(OpenTLV)` with an installed Library on the prefix path succeeds.
-   It reports the installed `OpenTLV_DIR` and version, while every target stays
-   the embedded alias. With `opentlv`, CMake 3.24+ redirects that call to the
-   embedded Library, which `fetch-canonical` checks. The redirect exists only when
-   the declaration uses `FIND_PACKAGE_ARGS` or `OVERRIDE_FIND_PACKAGE`. This
-   supports the canonical-name decision.
-4. **A redirect carries no version.** CMake's generated redirect accepts any
-   requested version and leaves `OpenTLV_VERSION` empty. The redirect includes an
-   optional `opentlv-extra.cmake`; evaluate whether the Library should provide it.
-5. **Unnamespaced names in embedding builds.** The aggregate's build target is
-   named `tlv`, the name of the removed monolithic library. The nested
-   `project(tlv)` adds `tlv_SOURCE_DIR`, `tlv_BINARY_DIR` and `tlv_IS_TOP_LEVEL`
-   to the application's cache. Nothing in the build reads them: the module
-   helpers use `OpenTLV_SOURCE_DIR` and `OpenTLV_BINARY_DIR`. An application
-   that already has a target named `tlv` fails to configure. One candidate is a
-   build target `opentlv_tlv` with `EXPORT_NAME tlv`, which keeps `OpenTLV::tlv`
-   and `OpenTLVTargets.cmake`, together with removing the nested project. Both
-   identities are inventoried, so the breaking-change policy applies.
+The #747 audit recorded these five findings without changing behavior. #753
+resolves them before v0.9.0 as release-preparation work under #702, including the
+necessary embedding migration below. Verified downstream v0.8.0 pins remain
+unchanged until each consumer deliberately migrates.
+
+1. **Build-tree discovery:** `export(EXPORT ...)` now supplies the module and
+   aggregate exports beside the build-tree config. Installed exports keep their
+   names and relocation behavior. Build-tree exports require the original source
+   and build directories.
+2. **Components:** the config reads `CMAKE_FIND_PACKAGE_NAME` and checks that
+   spelling's required/optional flags before importing targets. It exposes
+   metadata under both that spelling and `OpenTLV`. Unknown required components
+   reject the package; optional unknown components stay unavailable even if an
+   unrelated target happens to use that name. A failed package probe imports no
+   partial target set before FetchContent can fall back to source population.
+3. **One Library identity:** targets record their package directory. Configs
+   reject targets from another installation or embedded build. Embedding supplies
+   package directory hints to forwarding configs on CMake 3.16 and redirects for
+   both FetchContent names on CMake 3.24+, including plain declarations and
+   `OVERRIDE_FIND_PACKAGE`.
+4. **Versioned redirects:** redirects use the same `ExactVersion` file and
+   component-aware config as the package. `OpenTLV_VERSION` and the dependency
+   spelling's version identify the selected Library, including unversioned calls.
+5. **Embedding names:** the build target is `opentlv_tlv` with `EXPORT_NAME tlv`.
+   Public `OpenTLV::tlv` and `OpenTLVTargets.cmake` are unchanged. The old source
+   spelling `tlv` is a deprecated alias only when the application does not own it;
+   it still means the aggregate. Migrate links to `OpenTLV::tlv`. Alias removal
+   follows the two-minor-release rule below, measured from the first Library
+   release containing this change, after downstream migrations or waivers.
+   Removing `project(tlv)` and its cache variables is an intentional breaking
+   change: use `OpenTLV_SOURCE_DIR` and `OpenTLV_BINARY_DIR` for Library paths and
+   the application's own project identity for top-level decisions.
+
+`scripts/check_cmake_discovery.py`, run by the consumer gate, covers positive and
+negative component/version requests, repeated discovery, conflicting installed
+and embedded versions, and both dependency spellings. The gate also runs source,
+build-tree and relocated consumers on CMake 3.16; CMake 3.24+ adds redirects and
+FetchContent package lookup. Local results do not replace required hosted CI.
 
 ## Release artifact audit
 
@@ -289,9 +300,11 @@ accepts both tag forms.
 
 ### Findings for release artifacts
 
-The audit fixed none of these except the release title above. Each one changes
-a published identity or verifier-visible evidence, so it follows v0.9.0 or the
-binding issues named.
+The audit fixed none of these except the release title above. Library-owned
+remediation is tracked in #754 and must be completed before v0.9.0, or explicitly
+waived with documented release-risk approval in #702. Binding verifier changes
+remain owned by the binding issues named; moving their pins requires validation
+against the approved Library release assets.
 
 1. **Binary archives carry a second identity.** The top directory inside each
    binary asset is the CPack name: CMake's processor spelling (`x86_64`,
@@ -361,8 +374,11 @@ binding issues named.
 5. **Published identities are immutable.** Tags, release assets, checksums,
    attestations, archive prefixes and historical documentation are never
    renamed, rebuilt or re-uploaded. New names apply to new releases only.
-6. **Separate changes.** A naming change contains no behavior, API, ABI or
-   build-option change, and a behavior change contains no rename.
+6. **Separate changes.** Naming-only changes contain no behavior, API, ABI or
+   build-option change. Keep discovery and embedding fixes distinct from
+   unrelated renames. A build-identifier migration needed to resolve an audited
+   collision must preserve exported identities and document its compatibility
+   and breaking-change impact.
 
 ## Breaking-change policy
 
@@ -384,17 +400,19 @@ correction is not breaking.
 ## Migration sequence
 
 ```text
-#746 contract -> v0.9.0 (#716) -> #747 CMake -> #748 artifacts
-  -> Library release with aliases -> bindings and tools
+#746 contract -> #747 / #748 audits -> #753 CMake / #754 artifacts
+  -> v0.9.0 (#716) -> bindings and tools
   -> Workspace -> documentation -> alias removal
 ```
 
 1. Approve this contract (#746). No identifier changes.
-2. Release Library v0.9.0 (#716) with the current identifiers. Naming work
-   does not block package publication.
-3. Implement #747, then #748, in the Library, adding aliases only.
-4. Publish a Library release containing the new names and their aliases.
-5. Migrate each binding and tool separately, pinned to that release, through its
+2. Audit CMake identities (#747) and release artifact identities (#748).
+3. Resolve the Library findings in #753 and #754 before v0.9.0, preserving public
+   identities or applying the documented alias and breaking-change rules.
+4. Run the required PR, Full and release gates, then publish verified Library
+   v0.9.0 artifacts (#716). Unresolved #753 or #754 acceptance work requires an
+   explicit release-risk waiver in #702; audit completion alone is insufficient.
+5. Migrate each binding and tool separately, pinned to the approved release, through its
    own CI. Bindings keep their verified v0.8.0 pins until they deliberately move.
 6. Update Workspace checkout and override names (opentlv-workspace#56).
 7. Update current documentation (opentlv-docs#174 and each repository).

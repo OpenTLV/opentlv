@@ -14,6 +14,8 @@ import subprocess
 import sys
 import tempfile
 
+from check_cmake_discovery import check_discovery
+
 
 # Current CMake identities from the naming contract inventory (#746, #747). A
 # change to any of them is a naming change under docs/development/naming.md.
@@ -25,15 +27,16 @@ CACHE_OPTIONS = frozenset(f"OPENTLV_{name}" for name in (
 REMOVED_OPTIONS = tuple(f"OPENTLV_{name}" for name in (
     "READER", "WRITER", "DOCUMENT", "QUERY", "CODEC", "SCHEMA", "FORMAT_ASN1", "FORMAT_BER",
     "FORMAT_DER", "FORMAT_CER", "EMV", "BLUETOOTH", "NFC", "DHCP", "LLDP"))
-# project(OpenTLV) and the nested project(tlv); IS_TOP_LEVEL exists from CMake 3.21.
-PROJECT_VARIABLES = frozenset(f"{project}_{name}" for project in ("OpenTLV", "tlv")
+# Only project(OpenTLV); IS_TOP_LEVEL exists from CMake 3.21.
+PROJECT_VARIABLES = frozenset(f"{project}_{name}" for project in ("OpenTLV",)
                               for name in ("SOURCE_DIR", "BINARY_DIR", "IS_TOP_LEVEL"))
 # Entries owned by CMake: GNUInstallDirs, GenerateExportHeader and FetchContent.
 CMAKE_OWNED = re.compile(r"^(?:CMAKE_|_GNUInstallDirs_|FETCHCONTENT_|COMPILER_HAS_)")
 PACKAGE_FILES = frozenset(("OpenTLVConfig.cmake", "OpenTLVConfigVersion.cmake",
                            "OpenTLVModules.cmake", "OpenTLVTargets.cmake"))
 # Consumer-side FetchContent names: the legacy spelling and the contract's canonical one.
-DEPENDENCIES = {"fetch": "opentlv_core", "fetch-package": "opentlv_core", "fetch-canonical": "opentlv"}
+DEPENDENCIES = {"fetch": "opentlv_core", "fetch-package": "opentlv_core", "fetch-canonical": "opentlv",
+                "fetch-package-canonical": "opentlv", "fetch-collision": "opentlv_core"}
 
 
 def run(*args, cwd=None):
@@ -49,7 +52,7 @@ def contract_identities(contract):
         aggregate = entry["role"] == "aggregate"
         identities[public.split("::", 1)[1]] = {
             "key": key, "aggregate": aggregate,
-            "target": "tlv" if aggregate else "opentlv_" + key.replace("-", "_")}
+            "target": "opentlv_tlv" if aggregate else "opentlv_" + key.replace("-", "_")}
     return identities
 
 
@@ -241,8 +244,12 @@ def main():
     def build_and_test(build, targets=()):
         selected = [argument for target in targets for argument in ("--target", target)]
         run("cmake", "--build", build, "--config", "Release", "--parallel", "1", *selected)
-        run("ctest", "--test-dir", build, "-C", "Release",
-            "--output-on-failure", "--no-tests=error")
+        # CTest 3.16 has no --test-dir. Reject empty suites explicitly.
+        listing = json.loads(subprocess.check_output(
+            ["ctest", "-C", "Release", "--show-only=json-v1"], cwd=build, text=True))
+        if not listing["tests"]:
+            raise RuntimeError(f"No consumer tests registered in {build}")
+        run("ctest", "-C", "Release", "--output-on-failure", cwd=build)
 
     # A standalone build supplies the reference metadata and installed package.
     core_build = work / "core"
@@ -362,10 +369,11 @@ def main():
         f"{name}:{value['target']}" for name, value in sorted(identities.items())))
     # The full fetch build compiles every embedded module; the other source modes
     # check identity and build only the application against Core.
-    modes = ["package", "package-all", "fetch", "fetch-canonical", "subdirectory"]
+    modes = ["package", "package-all", "build-tree", "fetch", "fetch-canonical",
+             "fetch-collision", "subdirectory"]
     cmake_version = subprocess.check_output(["cmake", "--version"], text=True)
     if tuple(map(int, re.search(r"version (\d+)\.(\d+)", cmake_version).groups())) >= (3, 24):
-        modes.append("fetch-package")
+        modes.extend(("fetch-package", "fetch-package-canonical"))
     applications = ["consumer_c", "consumer_cpp"] if args.cxx == "ON" else ["consumer_c"]
     for mode in modes:
         build = work / mode
@@ -376,13 +384,16 @@ def main():
                    "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"]
         if dependency:
             options.append(f"-DCONSUMER_DEPENDENCY={dependency}")
-        if mode in ("fetch", "fetch-canonical"):
+        if mode == "build-tree":
+            options += [f"-DOpenTLV_DIR={core_build.as_posix()}",
+                        f"-DEXPECTED_PREFIX={core_build.as_posix()}"]
+        if mode in ("fetch", "fetch-canonical", "fetch-collision"):
             options += core_options + [
                 f"-DFETCHCONTENT_SOURCE_DIR_{dependency.upper()}={root.as_posix()}"]
         elif mode == "subdirectory":
             options += core_options + [f"-DCONSUMER_SOURCE_DIR={root.as_posix()}"]
         configure(consumer, build, *options)
-        if mode in ("fetch", "fetch-canonical", "subdirectory"):
+        if mode in ("fetch", "fetch-canonical", "fetch-collision", "subdirectory"):
             embedded = build / ("opentlv" if mode == "subdirectory" else f"_deps/{dependency}-build")
             generated = embedded / "generated/include/opentlv/core/version.h"
             if generated.read_bytes() != reference:
@@ -393,6 +404,8 @@ def main():
         build_and_test(build, () if mode == "fetch" else applications)
         print(f"PASS {mode}: shared={args.shared}, cxx={args.cxx}", flush=True)
 
+    check_discovery(root, work, core_build, relocated, numeric_version,
+                    common, core_options)
     installed_examples(root, work, relocated, args)
 
 

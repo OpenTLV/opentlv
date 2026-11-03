@@ -73,7 +73,9 @@ function(opentlv_add_module key)
                 set_property(TARGET ${target} PROPERTY INSTALL_RPATH "$ORIGIN")
             endif()
         endif()
-        target_compile_features(${target} PUBLIC c_std_99)
+        # CMake 3.16 also validates transitive features for disabled languages.
+        # Pure C++ consumers need no C compiler to link the compiled modules.
+        target_compile_features(${target} PUBLIC "$<$<BOOL:$<C_COMPILER_ID>>:c_std_99>")
         set(header_dir "opentlv/${M_OWNER}")
         if(M_BUILTIN)
             set(header_dir "opentlv/builtin/${M_OWNER}")
@@ -120,6 +122,8 @@ function(opentlv_add_module key)
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
     install(EXPORT OpenTLV-${key}Targets NAMESPACE OpenTLV::
         DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/OpenTLV")
+    export(EXPORT OpenTLV-${key}Targets NAMESPACE OpenTLV::
+        FILE "${OpenTLV_BINARY_DIR}/OpenTLV-${key}Targets.cmake")
 endfunction()
 
 function(opentlv_module_cxx key)
@@ -184,7 +188,7 @@ function(_opentlv_check_registered_libraries directory)
         get_target_property(type ${target} TYPE)
         get_target_property(key ${target} INTERFACE_OPENTLV_OWNER)
         if(type MATCHES "^(STATIC|SHARED|OBJECT|INTERFACE)_LIBRARY$" AND NOT key AND
-           NOT target STREQUAL "tlv")
+           NOT target STREQUAL "opentlv_tlv")
             message(FATAL_ERROR "Unregistered module library ${target}; use opentlv_add_module")
         endif()
     endforeach()
