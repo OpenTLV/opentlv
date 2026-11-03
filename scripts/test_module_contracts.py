@@ -4,12 +4,16 @@
 """Regression cases for the functional module contract check."""
 import copy
 import json
+import re
 from pathlib import Path
 import tempfile
 import unittest
 import shutil
 import subprocess
-from check_cmake_integration import check_example_tests, expected_example_tests
+from check_cmake_integration import (CACHE_OPTIONS, PACKAGE_FILES, check_embedded_identity,
+                                     check_example_tests, check_package_identity,
+                                     contract_identities, expected_example_tests,
+                                     read_embedded_report)
 from check_module_contracts import (BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check,
                                     check_baseline_mapping, check_examples, cycles)
 
@@ -542,6 +546,92 @@ include("{helper}")
         self.assertIn("missing expected exported target", output)
         self.assertIn("OpenTLV::QueryDocument", output)
         self.assertNotIn("Skipping", output)
+
+
+class CMakeIdentityTests(unittest.TestCase):
+    """The #747 audit pins current package, target and cache identities."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.identities = contract_identities(json.loads((ROOT / CONTRACT).read_text(encoding="utf-8")))
+        cls.components = {name: value["key"] for name, value in cls.identities.items()
+                          if not value["aggregate"]}
+
+    def registry(self, components=None):
+        lines = []
+        for name, key in (components or self.components).items():
+            lines += [f'list(APPEND _OpenTLV_components "{name}")', f'set(_OpenTLV_key_{name} "{key}")']
+        return "\n".join(lines) + "\n"
+
+    def package_files(self):
+        files = set(PACKAGE_FILES) | {"OpenTLVTargets-release.cmake"}
+        for key in self.components.values():
+            files |= {f"OpenTLV-{key}Targets.cmake", f"OpenTLV-{key}Targets-release.cmake"}
+        return files
+
+    def report(self):
+        before = {"CMAKE_BUILD_TYPE", "OPENTLV_BUILD_SHARED_LIBS", "FETCHCONTENT_SOURCE_DIR_OPENTLV"}
+        after = before | CACHE_OPTIONS | {"OpenTLV_SOURCE_DIR", "tlv_BINARY_DIR", "opentlv_DIR",
+                                          "CMAKE_INSTALL_LIBDIR", "COMPILER_HAS_DEPRECATED"}
+        return {"target": {value["target"]: "STATIC_LIBRARY" for value in self.identities.values()},
+                "before": before, "after": after}
+
+    def test_contract_names_public_and_build_targets(self):
+        self.assertEqual({"key": "core", "aggregate": False, "target": "opentlv_core"},
+                         self.identities["Core"])
+        self.assertEqual("opentlv_query_document", self.identities["QueryDocument"]["target"])
+        self.assertEqual({"key": "aggregate", "aggregate": True, "target": "tlv"}, self.identities["tlv"])
+        targets = [value["target"] for value in self.identities.values()]
+        self.assertEqual(len(targets), len(set(targets)))
+
+    def test_cache_options_match_the_declared_options(self):
+        declared = set(re.findall(r"^option\((OPENTLV_\w+)", (ROOT / "CMakeLists.txt").read_text(
+            encoding="utf-8"), re.M))
+        self.assertEqual(CACHE_OPTIONS, declared)
+
+    def test_complete_package_passes(self):
+        self.assertEqual([], check_package_identity(self.package_files(), self.registry(), self.identities))
+
+    def test_package_file_and_registry_drift_fail(self):
+        renamed = self.package_files() - {"OpenTLV-coreTargets.cmake"} | {"OpenTLV-CoreTargets.cmake"}
+        errors = check_package_identity(renamed, self.registry(), self.identities)
+        self.assertIn("OpenTLV-coreTargets.cmake", errors[0])
+        self.assertIn("OpenTLV-CoreTargets.cmake", errors[0])
+        extra = self.package_files() | {"opentlv-config.cmake"}
+        self.assertTrue(check_package_identity(extra, self.registry(), self.identities))
+        drifted = dict(self.components, Core="opentlv-core")
+        self.assertIn("component registry",
+                      check_package_identity(self.package_files(), self.registry(drifted),
+                                             self.identities)[0])
+        missing = {name: key for name, key in self.components.items() if name != "IOCodec"}
+        self.assertTrue(check_package_identity(self.package_files(), self.registry(missing),
+                                               self.identities))
+
+    def test_inventoried_embedded_footprint_passes(self):
+        self.assertEqual([], check_embedded_identity(self.report(), self.identities, "opentlv"))
+
+    def test_new_unnamespaced_target_or_cache_entry_fails(self):
+        report = self.report()
+        report["target"]["format"] = "UTILITY"
+        self.assertIn("format", check_embedded_identity(report, self.identities, "opentlv")[0])
+        report = self.report()
+        report["after"] |= {"OPENTLV_CORE_SOURCE", "TLV_FEATURE"}
+        errors = "\n".join(check_embedded_identity(report, self.identities, "opentlv"))
+        self.assertIn("OPENTLV_CORE_SOURCE", errors)
+        self.assertIn("TLV_FEATURE", errors)
+        report = self.report()
+        report["after"].discard("OPENTLV_WARNINGS_AS_ERRORS")
+        self.assertIn("OPENTLV_WARNINGS_AS_ERRORS",
+                      check_embedded_identity(report, self.identities, "opentlv")[0])
+        # A dependency's own package variable is CMake's, but only for that name.
+        self.assertTrue(check_embedded_identity(self.report(), self.identities, "opentlv_core"))
+
+    def test_embedded_report_parses_targets_and_snapshots(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "opentlv-embedded.txt"
+            path.write_text("target tlv INTERFACE_LIBRARY\nbefore A\nafter A\nafter B\n", encoding="utf-8")
+            self.assertEqual({"target": {"tlv": "INTERFACE_LIBRARY"}, "before": {"A"},
+                              "after": {"A", "B"}}, read_embedded_report(path))
 
 
 if __name__ == "__main__":
