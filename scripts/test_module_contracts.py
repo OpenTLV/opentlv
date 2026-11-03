@@ -571,7 +571,7 @@ class CMakeIdentityTests(unittest.TestCase):
 
     def report(self):
         before = {"CMAKE_BUILD_TYPE", "OPENTLV_BUILD_SHARED_LIBS", "FETCHCONTENT_SOURCE_DIR_OPENTLV"}
-        after = before | CACHE_OPTIONS | {"OpenTLV_SOURCE_DIR", "tlv_BINARY_DIR", "opentlv_DIR",
+        after = before | CACHE_OPTIONS | {"OpenTLV_SOURCE_DIR", "OpenTLV_BINARY_DIR", "opentlv_DIR",
                                           "CMAKE_INSTALL_LIBDIR", "COMPILER_HAS_DEPRECATED"}
         return {"target": {value["target"]: "STATIC_LIBRARY" for value in self.identities.values()},
                 "before": before, "after": after}
@@ -580,7 +580,7 @@ class CMakeIdentityTests(unittest.TestCase):
         self.assertEqual({"key": "core", "aggregate": False, "target": "opentlv_core"},
                          self.identities["Core"])
         self.assertEqual("opentlv_query_document", self.identities["QueryDocument"]["target"])
-        self.assertEqual({"key": "aggregate", "aggregate": True, "target": "tlv"}, self.identities["tlv"])
+        self.assertEqual({"key": "aggregate", "aggregate": True, "target": "opentlv_tlv"}, self.identities["tlv"])
         targets = [value["target"] for value in self.identities.values()]
         self.assertEqual(len(targets), len(set(targets)))
 

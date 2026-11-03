@@ -55,6 +55,12 @@ jobs:
         run: >-
           python scripts/check_cmake_integration.py --shared ON --cxx ON --query-frontend OFF
           --examples-cmake build/cmake-3.16/cmake/data/bin/cmake
+      - name: Check all consumer modes with minimum CMake
+        if: runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
+        shell: bash
+        run: |
+          export PATH="$PWD/build/cmake-3.16/cmake/data/bin:$PATH"
+          python scripts/check_cmake_integration.py --shared ON --cxx ON --build-root build/consumers-cmake-3.16
       - name: Verify modular CMake infrastructure and isolation
         if: runner.os == 'Linux' && matrix.cxx == 'ON' && matrix.shared == 'ON'
         run: |

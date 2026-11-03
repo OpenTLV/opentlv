@@ -71,7 +71,11 @@ if(_OPENTLV_TOP_LEVEL)
 endif()
 
 add_subdirectory(cmake/library tlv)
-add_library(OpenTLV::tlv ALIAS tlv)
+add_library(OpenTLV::tlv ALIAS opentlv_tlv)
+# Deprecated source-only spelling. An application's target always owns its name.
+if(NOT TARGET tlv)
+    add_library(tlv ALIAS opentlv_tlv)
+endif()
 
 if(OPENTLV_BUILD_DOCS)
     include(cmake/doxygen.cmake)
