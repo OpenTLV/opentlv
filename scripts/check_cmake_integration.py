@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 Marek Cingel
-"""Build external consumers through FetchContent and a relocated Core installation."""
+"""Build external consumers through FetchContent, add_subdirectory() and a relocated
+installation, and check their CMake package and target identities (#747)."""
 
 import argparse
 import json
@@ -14,9 +15,97 @@ import sys
 import tempfile
 
 
+# Current CMake identities from the naming contract inventory (#746, #747). A
+# change to any of them is a naming change under docs/development/naming.md.
+CACHE_OPTIONS = frozenset(f"OPENTLV_{name}" for name in (
+    "BUILD_SHARED_LIBS", "BUILD_CXX", "QUERY_FRONTEND", "QUERY_SET_OPERATIONS",
+    "BUILD_EXAMPLES", "BUILD_DOCS", "BUILD_TESTS", "BUILD_UNIT_TESTS",
+    "BUILD_INTEGRATION_TESTS", "BUILD_QUERY_TESTS", "BUILD_PROPERTY_TESTS",
+    "BUILD_BENCHMARKS", "BUILD_FUZZING", "BUILD_MEMCHECK", "WARNINGS_AS_ERRORS"))
+REMOVED_OPTIONS = tuple(f"OPENTLV_{name}" for name in (
+    "READER", "WRITER", "DOCUMENT", "QUERY", "CODEC", "SCHEMA", "FORMAT_ASN1", "FORMAT_BER",
+    "FORMAT_DER", "FORMAT_CER", "EMV", "BLUETOOTH", "NFC", "DHCP", "LLDP"))
+# project(OpenTLV) and the nested project(tlv); IS_TOP_LEVEL exists from CMake 3.21.
+PROJECT_VARIABLES = frozenset(f"{project}_{name}" for project in ("OpenTLV", "tlv")
+                              for name in ("SOURCE_DIR", "BINARY_DIR", "IS_TOP_LEVEL"))
+# Entries owned by CMake: GNUInstallDirs, GenerateExportHeader and FetchContent.
+CMAKE_OWNED = re.compile(r"^(?:CMAKE_|_GNUInstallDirs_|FETCHCONTENT_|COMPILER_HAS_)")
+PACKAGE_FILES = frozenset(("OpenTLVConfig.cmake", "OpenTLVConfigVersion.cmake",
+                           "OpenTLVModules.cmake", "OpenTLVTargets.cmake"))
+# Consumer-side FetchContent names: the legacy spelling and the contract's canonical one.
+DEPENDENCIES = {"fetch": "opentlv_core", "fetch-package": "opentlv_core", "fetch-canonical": "opentlv"}
+
+
 def run(*args, cwd=None):
     print("+ " + " ".join(map(str, args)), flush=True)
     subprocess.run(list(map(str, args)), check=True, cwd=cwd)
+
+
+def contract_identities(contract):
+    """Map each public target suffix to its contract key and unnamespaced build target."""
+    identities = {}
+    for key, entry in contract["targets"].items():
+        public = entry.get("public_target") or contract["modules"][key]["public_target"]
+        aggregate = entry["role"] == "aggregate"
+        identities[public.split("::", 1)[1]] = {
+            "key": key, "aggregate": aggregate,
+            "target": "tlv" if aggregate else "opentlv_" + key.replace("-", "_")}
+    return identities
+
+
+def check_package_identity(files, registry, identities):
+    """Compare installed package files and the component registry with the contract."""
+    errors = []
+    components = {name: value["key"] for name, value in identities.items() if not value["aggregate"]}
+    listed = re.findall(r'^list\(APPEND _OpenTLV_components "([^"]+)"\)$', registry, re.M)
+    keys = dict(re.findall(r'^set\(_OpenTLV_key_(\S+) "([^"]+)"\)$', registry, re.M))
+    if sorted(listed) != sorted(components) or len(listed) != len(set(listed)) or keys != components:
+        errors.append(f"component registry differs from the contract: {sorted(listed)}, {keys}")
+    exports = {"OpenTLVTargets"} | {f"OpenTLV-{key}Targets" for key in components.values()}
+    required = PACKAGE_FILES | {f"{export}.cmake" for export in exports}
+    configured = re.compile(r"^(" + "|".join(map(re.escape, sorted(exports))) + r")-[a-z]+\.cmake$")
+    missing = sorted(required - set(files))
+    unexpected = sorted(name for name in set(files) - required if not configured.match(name))
+    if missing or unexpected:
+        errors.append(f"package files differ: missing={missing}, unexpected={unexpected}")
+    return errors
+
+
+def read_embedded_report(path):
+    """Parse the consumer's 'kind name [type]' lines into targets and cache snapshots."""
+    report = {"target": {}, "before": set(), "after": set()}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        kind, name, *rest = line.split()
+        if kind == "target":
+            report["target"][name] = rest[0]
+        else:
+            report[kind].add(name)
+    return report
+
+
+def check_embedded_identity(report, identities, dependency):
+    """Reject unnamespaced targets and cache entries beyond the inventoried identities."""
+    errors = []
+    expected = {value["target"] for value in identities.values()}
+    actual = set(report["target"])
+    if actual != expected:
+        errors.append(f"embedded build targets differ: missing={sorted(expected - actual)}, "
+                      f"unexpected={sorted(actual - expected)}")
+    options = {name for name in report["after"] if name.startswith("OPENTLV_")}
+    if options != CACHE_OPTIONS:
+        errors.append(f"embedded cache options differ: missing={sorted(CACHE_OPTIONS - options)}, "
+                      f"unexpected={sorted(options - CACHE_OPTIONS)}")
+    allowed = PROJECT_VARIABLES | CACHE_OPTIONS | {f"{dependency}_DIR"}
+    unknown = sorted(name for name in report["after"] - report["before"]
+                     if name not in allowed and not CMAKE_OWNED.match(name))
+    if unknown:
+        errors.append(f"embedded build added uninventoried cache entries: {unknown}")
+    return errors
+
+
+def require_no_errors(errors):
+    if errors:
+        raise RuntimeError("CMake identity check failed:\n  " + "\n  ".join(errors))
 
 
 def expected_example_tests(entries, *, cxx, query_frontend, aggregate=True):
@@ -148,8 +237,9 @@ def main():
     def configure(source, build, *options):
         run("cmake", "-S", source, "-B", build, *common, *options)
 
-    def build_and_test(build):
-        run("cmake", "--build", build, "--config", "Release", "--parallel", "1")
+    def build_and_test(build, targets=()):
+        selected = [argument for target in targets for argument in ("--target", target)]
+        run("cmake", "--build", build, "--config", "Release", "--parallel", "1", *selected)
         run("ctest", "--test-dir", build, "-C", "Release",
             "--output-on-failure", "--no-tests=error")
 
@@ -185,6 +275,36 @@ def main():
                             capture_output=True, text=True)
     if result.returncode == 0 or "OpenTLV_FOUND" not in result.stdout + result.stderr:
         raise RuntimeError("Missing required component did not reject the installed package")
+
+    # Installed package identity: file names, components and exact versions.
+    identities = contract_identities(json.loads(
+        (root / "docs/development/modules/ownership.json").read_text(encoding="utf-8")))
+    package_dir = relocated / "lib/cmake/OpenTLV"
+    require_no_errors(check_package_identity(
+        [path.name for path in package_dir.iterdir()],
+        (package_dir / "OpenTLVModules.cmake").read_text(encoding="utf-8"), identities))
+    if not (relocated / "share/doc/OpenTLV/LICENSE").is_file():
+        raise RuntimeError("Documentation is not installed under share/doc/OpenTLV")
+    major, minor, patch = numeric_version.split(".")
+    other = work / "other-version"
+    other.mkdir()
+    (other / "CMakeLists.txt").write_text(
+        "cmake_minimum_required(VERSION 3.16)\nproject(other LANGUAGES NONE)\n"
+        f"find_package(OpenTLV {major}.{minor}.{int(patch) + 1} EXACT CONFIG REQUIRED)\n",
+        encoding="utf-8")
+    result = subprocess.run(["cmake", "-S", str(other), "-B", str(other / "build"),
+                             f"-DCMAKE_PREFIX_PATH={relocated.as_posix()}"],
+                            capture_output=True, text=True)
+    if result.returncode == 0 or "requested version" not in result.stdout + result.stderr:
+        raise RuntimeError("ExactVersion package accepted a different patch version")
+    for option in REMOVED_OPTIONS:
+        result = subprocess.run(["cmake", "-S", str(root), "-B", str(work / "removed" / option),
+                                 f"-D{option}=ON"], capture_output=True, text=True)
+        if result.returncode == 0 or f"{option} was removed" not in result.stdout + result.stderr:
+            raise RuntimeError(f"Removed option {option} is no longer rejected")
+    print(f"PASS package identity: {len(identities)} targets, {len(REMOVED_OPTIONS)} removed options",
+          flush=True)
+
     for path in relocated.rglob("*.cmake"):
         content = path.read_text(encoding="utf-8").replace("\\", "/")
         for private_path in (root, core_build, prefix):
@@ -236,24 +356,38 @@ def main():
     # Runtime version can include a prerelease suffix; package matching uses the
     # numeric CMake project version, consistent with the existing package policy.
     consumer_options.append(f"-DEXPECTED_RUNTIME_VERSION={version}")
-    modes = ["package", "fetch"]
+    consumer_options.append("-DEXPECTED_TARGETS=" + ";".join(
+        f"{name}:{value['target']}" for name, value in sorted(identities.items())))
+    # The full fetch build compiles every embedded module; the other source modes
+    # check identity and build only the application against Core.
+    modes = ["package", "package-all", "fetch", "fetch-canonical", "subdirectory"]
     cmake_version = subprocess.check_output(["cmake", "--version"], text=True)
     if tuple(map(int, re.search(r"version (\d+)\.(\d+)", cmake_version).groups())) >= (3, 24):
         modes.append("fetch-package")
+    applications = ["consumer_c", "consumer_cpp"] if args.cxx == "ON" else ["consumer_c"]
     for mode in modes:
         build = work / mode
+        dependency = DEPENDENCIES.get(mode, "")
         options = [*consumer_options, f"-DCONSUMER_MODE={mode}",
                    f"-DCMAKE_PREFIX_PATH={relocated.as_posix()}",
                    "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF",
                    "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"]
-        if mode == "fetch":
-            options += core_options + [f"-DFETCHCONTENT_SOURCE_DIR_OPENTLV_CORE={root.as_posix()}"]
+        if dependency:
+            options.append(f"-DCONSUMER_DEPENDENCY={dependency}")
+        if mode in ("fetch", "fetch-canonical"):
+            options += core_options + [
+                f"-DFETCHCONTENT_SOURCE_DIR_{dependency.upper()}={root.as_posix()}"]
+        elif mode == "subdirectory":
+            options += core_options + [f"-DCONSUMER_SOURCE_DIR={root.as_posix()}"]
         configure(consumer, build, *options)
-        if mode == "fetch":
-            generated = build / "_deps/opentlv_core-build/generated/include/opentlv/core/version.h"
+        if mode in ("fetch", "fetch-canonical", "subdirectory"):
+            embedded = build / ("opentlv" if mode == "subdirectory" else f"_deps/{dependency}-build")
+            generated = embedded / "generated/include/opentlv/core/version.h"
             if generated.read_bytes() != reference:
                 raise RuntimeError("Embedded Core version differs from standalone metadata")
-        build_and_test(build)
+            require_no_errors(check_embedded_identity(
+                read_embedded_report(build / "opentlv-embedded.txt"), identities, dependency))
+        build_and_test(build, () if mode == "fetch" else applications)
         print(f"PASS {mode}: shared={args.shared}, cxx={args.cxx}", flush=True)
 
     installed_examples(root, work, relocated, args)
