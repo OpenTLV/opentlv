@@ -166,7 +166,7 @@ after its destruction. Query path descriptors use `native::descriptor(query)`; c
 mutable continuations use `native::handle()`. Temporary owning objects cannot
 export retained pointers.
 
-The [runtime Fixed example](../../examples/tlv++/src/formats/fixed_format_runtime.cpp)
+The [runtime Fixed example](../../examples/core/fixed_format_runtime.cpp)
 demonstrates `runtime_fixed_format` with caller-owned configuration. A copied
 owner rebinds its descriptor to its own configuration; existing views continue
 to borrow the original owner. Reader/Writer construction from a C descriptor now

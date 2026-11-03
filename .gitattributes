@@ -1,7 +1,7 @@
 # Fuzz seeds are binary input, including files that happen to resemble text.
 tests/fuzz/**/corpus/** binary
-examples/nfc/type2/*.bin binary
-examples/nfc/type2/invalid/*.bin binary
+examples/builtins/nfc/type2/*.bin binary
+examples/builtins/nfc/type2/invalid/*.bin binary
 
 # Sealed reference evidence must retain its captured bytes on every platform.
 tests/baseline/v0.8.0/** -text

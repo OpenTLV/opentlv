@@ -228,7 +228,7 @@ standalone portal repository.
 | `docs/api/Doxyfile.in`, `Doxyfile.cxx.in`, `Doxyfile.common.in`, `c-api.dox`, `cxx-api.dox` (all under `docs/api/`) | Core: independent C/C++ extraction configuration, groups and landing pages; preserve C/C++ cross-links and `@docs` links when portal URLs change |
 | `CMakeLists.txt`, `cmake/doxygen.cmake` | Core: retain `OPENTLV_BUILD_DOCS`, `c-api-docs` and `cxx-api-docs` generation without a portal checkout; normal builds do not require Doxygen |
 | `include/`, `include/` | Core: canonical public API declarations and Doxygen comments |
-| `examples/tlv/`, `examples/tlv++/`, their README files and tests | Core: executable native examples and their verification |
+| `examples/`, its module directories, README files and tests | Core: executable native examples and their verification |
 | `bindings/*/` documentation, examples and tests | Respective binding: Component exception; shared native helpers follow their actual implementation owner |
 | `opentlv-cli/docs/`, `src/` and `tests/` (external) | CLI: implementation, manuals, acceptance tests and frozen migration baseline; removed from Core by #622 |
 | `scripts/check_doc_examples.py` | Mixed: owners check snippets against their own tested sources; portal integration checks assembled examples against the selected component revisions |

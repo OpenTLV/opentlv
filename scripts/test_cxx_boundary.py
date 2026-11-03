@@ -109,7 +109,7 @@ class BaselineTests(unittest.TestCase):
 
     def test_additional_cpp_extensions_are_scanned_in_all_consumer_roots(self):
         paths = []
-        for folder in ("examples/tlv++", "tests"):
+        for folder in ("examples/io", "examples/builtins/nfc/type2", "tests"):
             for extension in (".cc", ".cxx", ".inl"):
                 relative = f"{folder}/consumer{extension}"
                 self.source('#include <opentlv/tlv.hpp>\ntlv_reader_t reader;', relative)
@@ -121,6 +121,13 @@ class BaselineTests(unittest.TestCase):
         self.source('#include <opentlv/io/reader/reader.h>\ntlv_reader_t r;')
         self.source('// #include <opentlv/tlv.hpp>\ntlv_reader_t r;', 'tests/comments.cxx')
         self.assertEqual([], audit(self.root, {}))
+
+    def test_c_examples_can_share_directories_with_cpp_consumers(self):
+        self.source('#include <opentlv/io/reader/reader.h>\ntlv_reader_t r;', 'examples/io/reader.c')
+        self.source('tlv_reader_t r;', 'examples/io/native.h')
+        self.source('tlv_reader_t r;', 'examples/io/reader.cpp')
+        failures = audit(self.root, {})
+        self.assertEqual(["examples/io/reader.cpp"], [item["path"] for item in failures])
 
     def test_baseline_requires_exact_symbols_positive_counts_and_reasons(self):
         path = self.root / "baseline.json"

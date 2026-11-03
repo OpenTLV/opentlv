@@ -9,6 +9,7 @@ on:
     paths:
       - 'docs/**'
       - 'scripts/check_doc_examples.py'
+      - 'scripts/test_doc_examples.py'
       - 'scripts/check_doc_inventory.py'
       - 'scripts/test_doc_inventory.py'
       - 'CMakeLists.txt'
@@ -89,7 +90,9 @@ jobs:
         run: git ls-files -z -- '*.md' | xargs -0 markdownlint --config .markdownlint.json
 
       - name: Check documented examples match their sources
-        run: python scripts/check_doc_examples.py
+        run: |
+          python scripts/test_doc_examples.py
+          python scripts/check_doc_examples.py
 
       - name: Check documentation inventories against implementation
         run: |

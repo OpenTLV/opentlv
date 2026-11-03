@@ -5,13 +5,13 @@
       "feature": "fixed.roundtrip",
       "language": "c",
       "status": "supported",
-      "path": "examples/tlv/src/quick_start.c"
+      "path": "examples/io/quick_start.c"
     },
     {
       "feature": "fixed.roundtrip",
       "language": "cpp",
       "status": "supported",
-      "path": "examples/tlv++/src/quick_start.cpp"
+      "path": "examples/io/quick_start.cpp"
     }
   ]
 }

@@ -75,11 +75,14 @@ def load_baseline(path):
 
 
 def consumers(root):
-    for folder in ("examples/tlv++", "tests"):
+    for folder in ("examples", "tests"):
         for path in sorted((root / folder).rglob("*")):
             if path.suffix not in SOURCE_SUFFIXES or not path.is_file():
                 continue
             content = path.read_text(encoding="utf-8")
+            # C examples now share module directories with the C++ consumers.
+            if folder == "examples" and path.suffix == ".h" and not FACADE_INCLUDE.search(header_source(content)):
+                continue
             # C engine tests using a C++ harness are not facade consumers.
             if folder == "tests" and not FACADE_INCLUDE.search(header_source(content)):
                 continue

@@ -3,7 +3,7 @@
 # end-of-file-fixer can silently corrupt them by adding/removing bytes.
 # Sealed baseline evidence also retains raw logs and byte-sensitive checksums.
 # Its dedicated integrity check validates it without rewriting captured bytes.
-exclude: (^tests/fuzz/(.*/)?corpus/|^examples/nfc/type2/.*\.bin$|^tests/baseline/v0\.8\.0/|^(vendor|third_party|generated)/)
+exclude: (^tests/fuzz/(.*/)?corpus/|^examples/builtins/nfc/type2/.*\.bin$|^tests/baseline/v0\.8\.0/|^(vendor|third_party|generated)/)
 
 repos:
   - repo: local

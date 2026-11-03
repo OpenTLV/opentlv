@@ -200,7 +200,7 @@ Writer failures also preserve it under the usual Writer contract, though bytes
 past the cursor may change. Custom codecs may allocate even with caller-owned
 scratch. The selected Format still generates all element framing.
 
-The [compiled typed-field example](../../examples/tlv++/src/typed_fields.cpp)
+The [compiled typed-field example](../../examples/codec/typed_fields.cpp)
 uses C++11 with no optional protocol component and exercises Document lookup
 when Document is enabled. `tlv::codec_registry` maps Tags to decoders selected
 at runtime.

@@ -33,7 +33,7 @@ struct my_format {
 
 These declarations illustrate the signatures; an application supplies their
 implementations. A complete compiled example is
-[custom_format.cpp](../../examples/tlv++/src/formats/custom_format.cpp).
+[custom_format.cpp](../../examples/core/custom_format.cpp).
 
 | Operation | Requirement and result |
 |---|---|

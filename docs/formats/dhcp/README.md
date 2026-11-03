@@ -134,5 +134,5 @@ The table, its identifier bytes and the composition are borrowed immutable stora
 when applications initialize their own descriptors with
 `tlv_tagged_binary_format_init()`.
 
-See the [compiled C example](../../../examples/tlv/src/dhcpv4.c) for reading
+See the [compiled C example](../../../examples/builtins/dhcp/dhcpv4.c) for reading
 options, writing them back and applying caller-controlled End handling.

@@ -150,7 +150,7 @@ Element (4 bytes)
 
 ## Example (C)
 
-<!-- example: examples/tlv/src/formats/fixed_format.c -->
+<!-- example: examples/core/fixed_format.c -->
 ```c
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -196,7 +196,7 @@ int main(void) {
 
 ## Example (C++)
 
-<!-- example: examples/tlv++/src/formats/fixed_format.cpp -->
+<!-- example: examples/core/fixed_format.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -248,7 +248,7 @@ scope are chosen at runtime. Its `view()` reports invalid configuration and
 borrows the named owner. Keep that owner alive through all Reader, Writer and
 retained source-view uses. Copying the owner creates independent configuration.
 
-<!-- example: examples/tlv++/src/formats/fixed_format_runtime.cpp -->
+<!-- example: examples/core/fixed_format_runtime.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel

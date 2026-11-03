@@ -72,10 +72,10 @@ the same order as the tabs.
 /// tab | C
 
 Save the example as `main.c`. It is
-[examples/tlv/src/quick_start.c](../../examples/tlv/src/quick_start.c). Place
+[examples/io/quick_start.c](../../examples/io/quick_start.c). Place
 the checkout at `external/OpenTLV` in your application.
 
-<!-- example: examples/tlv/src/quick_start.c -->
+<!-- example: examples/io/quick_start.c -->
 ```c
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -134,7 +134,7 @@ zero indicates a successful round trip.
 /// tab | C++
 
 Save the example as `main.cpp`. It is
-[examples/tlv++/src/quick_start.cpp](../../examples/tlv++/src/quick_start.cpp).
+[examples/io/quick_start.cpp](../../examples/io/quick_start.cpp).
 Place the checkout at `external/OpenTLV` in your application. Enable `CXX` in
 `project` and link `OpenTLV::Core`, `OpenTLV::IO` and `OpenTLV::Codec`;
 these targets supply the C++ headers, C++11 requirement and native libraries. `tlv::fixed_format`
@@ -149,7 +149,7 @@ decoding may allocate.
 See the [C++ examples](../guides/cxx-examples.md) for writing, nested traversal,
 Document, typed fields, Query and explicit control.
 
-<!-- example: examples/tlv++/src/quick_start.cpp -->
+<!-- example: examples/io/quick_start.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -256,17 +256,17 @@ repository root (`python` on Windows). Applications import
 
 ///
 
-Both C and C++ programs are built by the `example-tlv-quick-start` and
-`example-tlv++-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
+Both C and C++ programs are built by the `example-c-io-quick-start` and
+`example-cpp-io-quick-start` targets whenever `OPENTLV_BUILD_EXAMPLES` is `ON`
 (the default) and run in CI; the Rust program is built and run by the
 standalone Rust CI workflow, and the Python
 program is run against installed packages in the standalone Python CI workflow. Lua CI runs the
 Lua quick start, and standalone Go CI runs its quick start in both default and minimal
 configurations. The
-[C examples](../../examples/tlv/src/), one topic per file (sequential I/O,
+[C examples](../../examples/), one topic per file (sequential I/O,
 explicit copies, schema validation, codecs, a custom format, and the BER and
-CER builtins), the [C++ example](../../examples/tlv++/src/basic_usage.cpp)
-with BER, the [EMV example](../../examples/tlv/src/builtins/emv/tag_decoding.c),
+CER builtins), the [C++ example](../../examples/io/basic_usage.cpp)
+with BER, the [EMV example](../../examples/builtins/emv/tag_decoding.c),
 the further [Rust examples](https://github.com/OpenTLV/opentlv-rust/blob/main/docs/guides/rust.md) (reading, writing, and the
 `parse`, `write` and `validate` use cases), and the further
 [Python examples](https://github.com/OpenTLV/opentlv-python/blob/main/docs/guides/python.md) (reading, writing, validating, codecs

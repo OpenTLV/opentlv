@@ -2,7 +2,7 @@
 
 The C++ facade delegates parsing, traversal, Query and encoding to the canonical
 C engine. The common examples below use C++11; no generic lambdas are required.
-The [source index](../../examples/tlv++/src/README.md) lists all runnable examples.
+The [source index](../../examples/README.md) lists all runnable examples.
 
 ## Borrowed parsing and sequential iteration
 
@@ -18,12 +18,12 @@ whose Values are still encoded child bytes. It does not recursively flatten
 the tree. Input must remain immutable and alive for the range and retained
 Elements. Iteration throws `tlv::parse_error` on malformed final input.
 
-The same rule applies to [`basic_usage.cpp`](../../examples/tlv++/src/basic_usage.cpp),
+The same rule applies to [`basic_usage.cpp`](../../examples/io/basic_usage.cpp),
 which writes two primitive elements and reads only the written output prefix.
 Writing returns a result; check it before reading output. A failed scoped write
 may leave a prefix in the output buffer; do not publish that output as a success.
 
-<!-- example: examples/tlv++/src/basic_usage.cpp -->
+<!-- example: examples/io/basic_usage.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -62,7 +62,7 @@ int main() {
 
 ## Nested writing and traversal
 
-[`write.cpp`](../../examples/tlv++/src/write.cpp) expresses nesting with
+[`write.cpp`](../../examples/io/write.cpp) expresses nesting with
 `writer.constructed<Tag>(callback)` and writes Values directly from text or byte
 arrays. Its `encode<12, 2>` uses bounded local storage: 12 scratch bytes and two
 frames. No storage grows or allocates; insufficient output, scratch or depth
@@ -71,7 +71,7 @@ tree depth. Select capacities for your data, or pass caller-owned
 `writer_storage<Scratch, Depth>::view()` as described in the [Writer guide](writer.md).
 Scoped callbacks collect the first failure; check the outer result.
 
-[`parse.cpp`](../../examples/tlv++/src/parse.cpp) visits all four Elements in the
+[`parse.cpp`](../../examples/io/parse.cpp) visits all four Elements in the
 same nested document through the canonical Tree Reader Visitor. It supplies two
 caller-owned frames, a depth limit of two and an element limit of 16. Those
 frames and input must outlive traversal. The callback supplies a C++ Element,
@@ -84,9 +84,9 @@ example. Use Document children for common owning traversal. See the [Reader guid
 Document parsing returns a checked result and owns the parsed data. Iteration
 visits roots; `node.children()` visits immediate children. Nodes borrow their
 Document and become invalid when the Document dies or their node is erased.
-See [`document_edit.cpp`](../../examples/tlv++/src/document_edit.cpp) for mutation.
+See [`document_edit.cpp`](../../examples/document/document_edit.cpp) for mutation.
 
-<!-- example: examples/tlv++/src/document.cpp -->
+<!-- example: examples/document/document.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -120,7 +120,7 @@ int main() {
 
 For an owning Document, `document.select("6F/A5/50")` returns matching Node
 handles. For borrowed streaming traversal, `reader.select("6F/A5/50")` returns
-a lazy range. [`query.cpp`](../../examples/tlv++/src/query.cpp) executes both
+a lazy range. [`query.cpp`](../../examples/query/query.cpp) executes both
 forms when Document is enabled. Invalid Query text throws `query_error`;
 streaming parse failures throw `parse_error`. Document parsing itself uses a
 result that must be checked before selection. Document and its selection
@@ -128,20 +128,20 @@ snapshot may allocate; streaming selection does not allocate on success.
 
 ## Typed Values and custom Formats
 
-[`typed_fields.cpp`](../../examples/tlv++/src/typed_fields.cpp) defines an
+[`typed_fields.cpp`](../../examples/codec/typed_fields.cpp) defines an
 application `Counter` field with byte Tag `9F36`, `uint16_t` and an explicit
 big-endian codec. It uses `writer.write<Counter>(value)`,
 `element.decode<Counter>()` and optional `document.get<Counter>()`.
 Typed results preserve codec and framing failures. The short Writer overload
-allocates temporary Value storage; [`advanced_control.cpp`](../../examples/tlv++/src/advanced_control.cpp)
+allocates temporary Value storage; [`advanced_control.cpp`](../../examples/io/advanced_control.cpp)
 instead supplies two caller-owned scratch bytes.
 
-[`formats/fixed_format.cpp`](../../examples/tlv++/src/formats/fixed_format.cpp)
+[`core/fixed_format.cpp`](../../examples/core/fixed_format.cpp)
 uses a compile-time Format with typed Reader and Writer; it needs no native
 descriptor access. Its byte-order template argument still uses
 `TLV_BYTE_ORDER_LITTLE_ENDIAN`: that is an existing public API requirement.
 A completely application-defined Format is shown separately in
-[`formats/custom_format.cpp`](../../examples/tlv++/src/formats/custom_format.cpp).
+[`core/custom_format.cpp`](../../examples/core/custom_format.cpp).
 It implements decode, measure and encode contracts and source ranges, while
 generic Reader and Writer still execute the canonical engine.
 
@@ -173,7 +173,7 @@ with the former BER parsing-only program because they perform different operatio
 parsing retains explicit Format selection, and borrowed input still requires a
 byte span. These remaining setup requirements are visible rather than hidden in
 example-only adapters. Allocation-free native control and explicit C structure
-access belong in the [advanced examples](../../examples/tlv++/src/README.md#advanced-control).
+access belong in the [advanced examples](../../examples/README.md#advanced-control).
 
 ## Equivalent CLI operations
 

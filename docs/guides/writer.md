@@ -133,7 +133,7 @@ size; retrying requires a fresh callback invocation and suitable storage.
 This example produces the same document as the parsing example, checks its
 bytes independently, and is compiled and run by the example test suite:
 
-<!-- example: examples/tlv++/src/write.cpp -->
+<!-- example: examples/io/write.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -281,7 +281,7 @@ reject destination identifiers or content. See the [event contract](../concepts/
 
 This self-checking example works without optional builtins:
 
-<!-- example: examples/tlv/src/tree_writer.c -->
+<!-- example: examples/io/tree_writer.c -->
 ```c
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel

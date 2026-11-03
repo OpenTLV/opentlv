@@ -403,7 +403,7 @@ object does not represent a complete or validated transaction.
 
 ## Example
 
-[examples/tlv/src/builtins/emv/tag_decoding.c](../../../examples/tlv/src/builtins/emv/tag_decoding.c) traverses
+[examples/builtins/emv/tag_decoding.c](../../../examples/builtins/emv/tag_decoding.c) traverses
 a whole record instead of one element: it looks up every child tag with
 `tlv_emv_find()`, checks its length with `tlv_emv_validate_length()`, decodes it
 using the explicit builtin presentation profile, and leaves a tag that is unknown or has an invalid

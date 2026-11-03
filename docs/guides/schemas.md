@@ -128,7 +128,7 @@ if (rc != TLV_OK) return 1;
 
 Runnable version, validating a two-level nested schema and rejecting a
 document missing a required field:
-[validate.c](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/validate.c).
+[validate.c](https://github.com/marekcingel/OpenTLV/blob/main/examples/schema/validate.c).
 
 ///
 
@@ -153,7 +153,7 @@ if (!result) return 1;
 
 `tlv::validate` wraps `tlv_schema_validate` and returns an `expected<void, error>`
 with the Schema reason and optional byte position. Runnable version:
-[validate.cpp](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv++/src/validate.cpp).
+[validate.cpp](https://github.com/marekcingel/OpenTLV/blob/main/examples/schema/validate.cpp).
 
 ///
 
