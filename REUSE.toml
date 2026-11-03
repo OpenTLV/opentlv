@@ -125,6 +125,7 @@ path = [
     "docs/development/modules/diagnostics.md",
     "docs/development/modules/ownership.json",
     "docs/development/modules/reader-format-field.md",
+    "docs/development/naming.md",
     "docs/development/python.md",
     "docs/development/quality-gates.md",
     "docs/development/query-adversarial.md",

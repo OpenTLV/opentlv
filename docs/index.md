@@ -55,6 +55,7 @@ The [roadmap](../ROADMAP.md) owns future plans.
 Developer onboarding is separate: start with [Contributing](../CONTRIBUTING.md),
 then [development workflow](development/workflow.md),
 [functional module contracts](development/modules/README.md),
+[Library and Core naming contract](development/naming.md),
 [documentation conventions](development/documentation-layout.md) and
 [the documentation audit](development/documentation-audit.md).
 
