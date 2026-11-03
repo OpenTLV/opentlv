@@ -9,6 +9,7 @@ import tempfile
 import unittest
 import shutil
 import subprocess
+from check_cmake_integration import check_example_tests, expected_example_tests
 from check_module_contracts import (BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check,
                                     check_baseline_mapping, check_examples, cycles)
 
@@ -271,6 +272,7 @@ class ExampleContractTests(unittest.TestCase):
             self.write(path, text)
         self.write("examples/io/main.c", '#include <opentlv/io/io.h>\n')
         self.entry = {"target": "example-c-io-main", "language": "c", "sources": ["io/main.c"],
+                      "test": "example.c.io.main", "query_frontend": False,
                       "link": ["OpenTLV::io"], "umbrella": False, "native_interop": False}
 
     def write(self, relative, text):
@@ -354,6 +356,7 @@ class ExampleContractTests(unittest.TestCase):
         (self.root / "examples/io/unregistered.cpp").unlink()
         errors = self.errors([self.entry, self.entry])
         self.assertTrue(any("duplicate target" in error for error in errors))
+        self.assertTrue(any("duplicate test" in error for error in errors))
         self.assertTrue(any("duplicate example source" in error for error in errors))
         self.entry["sources"] = ["../src/io/io.c"]
         self.assert_error("stay inside examples/")
@@ -399,6 +402,12 @@ class ExampleContractTests(unittest.TestCase):
         self.assertTrue(any("cannot load" in error for error in
                             check_examples(self.root, self.root / "bad.jsonl", self.contract)))
 
+    def test_test_metadata_is_required_and_typed(self):
+        for key, value in (("test", None), ("test", ""), ("query_frontend", "OFF")):
+            with self.subTest(key=key, value=value):
+                entry = dict(self.entry, **{key: value})
+                self.assertTrue(any("malformed" in error for error in self.errors([entry])))
+
     @unittest.skipUnless(shutil.which("cmake"), "CMake is required for registry emission")
     def test_cmake_emits_skipped_declarations_and_resets_registry(self):
         # No compiler is needed: both declarations must be recorded before their skip.
@@ -426,8 +435,113 @@ opentlv_example(c query skipped SOURCES io/main.c LINK OpenTLV::query QUERY_FRON
             self.assertEqual(2, len(entries))
             self.assertEqual(["io/main.cpp", "io/part.cpp"], entries[0]["sources"])
             self.assertEqual(["OpenTLV::io", "OpenTLV::core"], entries[0]["link"])
+            self.assertEqual("example.cpp.io.skipped", entries[0]["test"])
+            self.assertFalse(entries[0]["query_frontend"])
+            self.assertEqual("example.c.query.skipped", entries[1]["test"])
+            self.assertTrue(entries[1]["query_frontend"])
             self.assertIn("OPENTLV_BUILD_CXX=OFF", result.stdout)
             self.assertIn("OPENTLV_QUERY_FRONTEND=OFF", result.stdout)
+
+
+class ExampleInventoryTests(unittest.TestCase):
+    def setUp(self):
+        self.entries = [
+            {"test": "example.c.io.write", "language": "c", "query_frontend": False, "umbrella": False},
+            {"test": "example.cpp.io.quick-start", "language": "cpp", "query_frontend": False, "umbrella": True},
+            {"test": "example.c.query.compile", "language": "c", "query_frontend": True, "umbrella": False},
+            {"test": "example.cpp.query.compile", "language": "cpp", "query_frontend": True, "umbrella": False},
+        ]
+
+    def test_configuration_selects_declared_tests(self):
+        for cxx in (False, True):
+            for frontend in (False, True):
+                for aggregate in (False, True):
+                    with self.subTest(cxx=cxx, frontend=frontend, aggregate=aggregate):
+                        expected = {"example.c.io.write"}
+                        if cxx and aggregate:
+                            expected.add("example.cpp.io.quick-start")
+                        if frontend:
+                            expected.add("example.c.query.compile")
+                            if cxx:
+                                expected.add("example.cpp.query.compile")
+                        self.assertEqual(expected, expected_example_tests(
+                            self.entries, cxx=cxx, query_frontend=frontend, aggregate=aggregate))
+
+    def test_new_declaration_is_automatically_expected(self):
+        self.entries.append({"test": "example.c.future.new-name", "language": "c",
+                             "query_frontend": False, "umbrella": False})
+        self.assertIn("example.c.future.new-name", expected_example_tests(
+            self.entries, cxx=False, query_frontend=False, aggregate=False))
+
+    def test_exact_inventory_accepts_different_order(self):
+        check_example_tests({"tests": [{"name": "second"}, {"name": "first"}]}, {"first", "second"})
+
+    def test_missing_unexpected_renamed_and_duplicate_tests_fail(self):
+        for names, message in ((["first"], "missing=['second']"),
+                               (["first", "second", "extra"], "unexpected=['extra']"),
+                               (["first", "renamed"], "missing=['second'], unexpected=['renamed']"),
+                               (["first", "second", "second"], "duplicates=['second']")):
+            with self.subTest(names=names):
+                with self.assertRaises(RuntimeError) as raised:
+                    check_example_tests({"tests": [{"name": name} for name in names]}, {"first", "second"})
+                self.assertIn(message, str(raised.exception))
+
+
+@unittest.skipUnless(shutil.which("cmake"), "CMake is required for standalone package checks")
+class StandaloneExampleTests(unittest.TestCase):
+    def configure(self, package, declaration):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "OpenTLVConfig.cmake").write_text(package, encoding="utf-8")
+            helper = (ROOT / "examples/cmake/Example.cmake").as_posix()
+            (root / "CMakeLists.txt").write_text(f'''cmake_minimum_required(VERSION 3.16)
+project(Consumer LANGUAGES NONE)
+set(OPENTLV_EXAMPLES_STANDALONE ON)
+set(OPENTLV_BUILD_CXX ON)
+set(OPENTLV_EXAMPLE_SOURCE_DIR "${{CMAKE_CURRENT_SOURCE_DIR}}")
+set(OPENTLV_EXAMPLE_REGISTRY "${{CMAKE_CURRENT_BINARY_DIR}}/examples.jsonl")
+include("{helper}")
+{declaration}
+''', encoding="utf-8")
+            result = subprocess.run(["cmake", "-S", str(root), "-B", str(root / "build"),
+                                     f"-DOpenTLV_DIR={root.as_posix()}",
+                                     "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF",
+                                     "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"],
+                                    text=True, capture_output=True, check=False)
+            return result.returncode, result.stdout + result.stderr
+
+    def test_unavailable_optional_aggregate_skips_explicitly(self):
+        code, output = self.configure("set(OpenTLV_tlv_FOUND FALSE)\n",
+                                     "opentlv_example(cpp io quick-start SOURCES main.cpp LINK OpenTLV::tlv UMBRELLA)")
+        self.assertEqual(0, code, output)
+        self.assertIn("Skipping example-cpp-io-quick-start: optional OpenTLV::tlv component is unavailable", output)
+
+    def test_advertised_optional_component_must_export_its_target(self):
+        code, output = self.configure("set(OpenTLV_tlv_FOUND TRUE)\n",
+                                     "opentlv_example(cpp io quick-start SOURCES main.cpp LINK OpenTLV::tlv UMBRELLA)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("missing expected exported target OpenTLV::tlv", output)
+
+    def test_required_component_cannot_skip(self):
+        code, output = self.configure("set(OpenTLV_FOUND FALSE)\n",
+                                     "opentlv_example(c io main SOURCES main.c LINK OpenTLV::IO)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("OpenTLV_FOUND", output)
+        self.assertNotIn("Skipping", output)
+
+    def test_missing_required_export_fails_even_when_package_reports_success(self):
+        code, output = self.configure("set(OpenTLV_IO_FOUND TRUE)\n",
+                                     "opentlv_example(c io main SOURCES main.c LINK OpenTLV::IO)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("missing expected exported target OpenTLV::IO", output)
+
+    def test_missing_export_fails_before_a_frontend_feature_probe_or_skip(self):
+        code, output = self.configure("set(OpenTLV_QueryDocument_FOUND TRUE)\n",
+                                     "opentlv_example(c query main SOURCES main.c LINK OpenTLV::QueryDocument QUERY_FRONTEND)")
+        self.assertNotEqual(0, code, output)
+        self.assertIn("missing expected exported target", output)
+        self.assertIn("OpenTLV::QueryDocument", output)
+        self.assertNotIn("Skipping", output)
 
 
 if __name__ == "__main__":

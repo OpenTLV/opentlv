@@ -4,16 +4,120 @@
 """Build external consumers through FetchContent and a relocated Core installation."""
 
 import argparse
+import json
+import os
 from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 
 
-def run(*args):
+def run(*args, cwd=None):
     print("+ " + " ".join(map(str, args)), flush=True)
-    subprocess.run(list(map(str, args)), check=True)
+    subprocess.run(list(map(str, args)), check=True, cwd=cwd)
+
+
+def expected_example_tests(entries, *, cxx, query_frontend, aggregate=True):
+    """Select declared tests using the consumer language and installed features."""
+    return {entry["test"] for entry in entries
+            if (entry["language"] != "cpp" or cxx)
+            and (not entry["query_frontend"] or query_frontend)
+            and (not entry["umbrella"] or aggregate)}
+
+
+def check_example_tests(listing, expected):
+    """Reject missing, unexpected or duplicated CTest names, even at equal counts."""
+    names = [test["name"] for test in listing["tests"]]
+    actual = set(names)
+    if actual != expected or len(names) != len(actual):
+        duplicates = sorted(name for name in actual if names.count(name) > 1)
+        raise RuntimeError(f"Installed example test mismatch: missing={sorted(expected - actual)}, "
+                           f"unexpected={sorted(actual - expected)}, duplicates={duplicates}")
+
+
+def installed_examples(root, work, prefix, args):
+    """Build the copied examples without access to repository CMake helpers."""
+    source = work / "copied examples"
+    shutil.copytree(root / "examples", source)
+    cmake = Path(shutil.which(args.examples_cmake) or args.examples_cmake).resolve()
+    ctest = cmake.with_name("ctest.exe" if cmake.suffix == ".exe" else "ctest")
+    build = work / "examples"
+    options = ["-DCMAKE_BUILD_TYPE=Release", f"-DOPENTLV_BUILD_CXX={args.cxx}",
+               "-DCMAKE_C_STANDARD=99", "-DCMAKE_C_STANDARD_REQUIRED=ON", "-DCMAKE_C_EXTENSIONS=OFF",
+               "-DCMAKE_CXX_STANDARD=11", "-DCMAKE_CXX_STANDARD_REQUIRED=ON", "-DCMAKE_CXX_EXTENSIONS=OFF",
+               "-DCMAKE_FIND_USE_PACKAGE_REGISTRY=OFF", "-DCMAKE_FIND_USE_SYSTEM_PACKAGE_REGISTRY=OFF"]
+    if args.generator:
+        options += ["-G", args.generator]
+    options += args.cmake_arg
+    if args.cxx == "OFF":
+        options += ["-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler"]
+    run(cmake, "-S", source, "-B", build, *options, f"-DCMAKE_PREFIX_PATH={prefix.as_posix()}")
+
+    def build_and_test(build, *, aggregate=True):
+        if args.cxx == "OFF" and list((build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
+            raise RuntimeError("C-only examples enabled a C++ compiler")
+        registry = build / "examples.jsonl"
+        run(sys.executable, "-B", root / "scripts/check_module_contracts.py", "--examples", registry)
+        entries = [json.loads(line) for line in registry.read_text(encoding="utf-8").splitlines() if line.strip()]
+        expected = expected_example_tests(entries, cxx=args.cxx == "ON",
+                                          query_frontend=args.query_frontend == "ON", aggregate=aggregate)
+        run(cmake, "--build", build, "--config", "Release", "--parallel", "1")
+        # CTest 3.16 has no --test-dir. Audit and execute the same complete inventory.
+        listing = json.loads(subprocess.check_output(
+            [str(ctest), "-C", "Release", "--show-only=json-v1"], cwd=build, text=True))
+        check_example_tests(listing, expected)
+        run(ctest, "-C", "Release", "--output-on-failure", cwd=build)
+        return listing, entries
+
+    listing, entries = build_and_test(build)
+    nfc = next(test for test in listing["tests"] if test["name"] == "example.c.nfc.type2")
+    command = nfc["command"]
+    default = subprocess.check_output(command[:1], cwd=build, env=example_environment(nfc), text=True)
+    fixture = subprocess.check_output(command, cwd=build, env=example_environment(nfc), text=True)
+    if default != fixture:
+        raise RuntimeError("NFC embedded default differs from the copied sample.bin fixture")
+    for name, content in (("empty.bin", b""), ("oversized.bin", b"\0" * 1025), ("truncated.bin", b"\x03")):
+        path = work / name
+        path.write_bytes(content)
+        result = subprocess.run([command[0], str(path)], cwd=build, env=example_environment(nfc), check=False)
+        if result.returncode == 0:
+            raise RuntimeError(f"NFC example accepted {name}")
+    result = subprocess.run([command[0], str(work / "missing.bin")], cwd=build,
+                            env=example_environment(nfc), check=False)
+    if result.returncode == 0:
+        raise RuntimeError("NFC example accepted a missing file")
+
+    # Build and run every available example without the optional aggregate,
+    # using a separate installation so earlier consumers remain unaffected.
+    component_prefix = work / "component-only installation"
+    shutil.copytree(prefix, component_prefix)
+    (component_prefix / "lib/cmake/OpenTLV/OpenTLVTargets.cmake").unlink()
+    component_build = work / "examples-components"
+    result = subprocess.run([str(cmake), "-S", str(source), "-B", str(component_build),
+                             *options, f"-DCMAKE_PREFIX_PATH={component_prefix.as_posix()}"],
+                            text=True, capture_output=True, check=True)
+    print(result.stdout, end="", flush=True)
+    for entry in entries:
+        if not entry["umbrella"] or (entry["language"] == "cpp" and args.cxx == "OFF"):
+            continue
+        skip = f"Skipping {entry['target']}: optional OpenTLV::tlv component is unavailable"
+        if skip not in result.stdout:
+            raise RuntimeError("Missing optional aggregate did not produce an explicit skip")
+    build_and_test(component_build, aggregate=False)
+    print(f"PASS installed examples: shared={args.shared}, cxx={args.cxx}, frontend={args.query_frontend}", flush=True)
+
+
+def example_environment(test):
+    """Use the same DLL search path as CTest for direct fixture/error checks."""
+    environment = os.environ.copy()
+    for prop in test.get("properties", []):
+        if prop["name"] == "ENVIRONMENT":
+            for assignment in prop["value"]:
+                key, value = assignment.split("=", 1)
+                environment[key] = value
+    return environment
 
 
 def main():
@@ -22,6 +126,9 @@ def main():
     parser.add_argument("--generator")
     parser.add_argument("--shared", choices=("ON", "OFF"), default="ON")
     parser.add_argument("--cxx", choices=("ON", "OFF"), default="ON")
+    parser.add_argument("--query-frontend", choices=("ON", "OFF"), default="ON")
+    parser.add_argument("--examples-cmake", default="cmake",
+                        help="CMake executable for standalone examples (CI also exercises 3.16)")
     parser.add_argument("--library-cxx", choices=("ON", "OFF"),
                         help="Library development-language switch, independent of consumer language")
     parser.add_argument("--cmake-arg", action="append", default=[])
@@ -35,7 +142,8 @@ def main():
         common += ["-G", args.generator]
     common += args.cmake_arg
     core_options = [f"-DOPENTLV_BUILD_SHARED_LIBS={args.shared}",
-                    f"-DOPENTLV_BUILD_CXX={args.library_cxx or args.cxx}"]
+                    f"-DOPENTLV_BUILD_CXX={args.library_cxx or args.cxx}",
+                    f"-DOPENTLV_QUERY_FRONTEND={args.query_frontend}"]
 
     def configure(source, build, *options):
         run("cmake", "-S", source, "-B", build, *common, *options)
@@ -107,7 +215,8 @@ def main():
             "      $<TARGET_FILE:OpenTLV::Generator> $<TARGET_FILE:OpenTLV::IO>\n"
             "      $<TARGET_FILE:OpenTLV::Core> $<TARGET_FILE_DIR:consumer> VERBATIM)\n"
             "endif()\n"
-            "set_target_properties(consumer PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)\n"
+            # The public target must raise an older requested standard to C++11.
+            "set_target_properties(consumer PROPERTIES CXX_STANDARD 98 CXX_STANDARD_REQUIRED ON)\n"
             "enable_testing()\nadd_test(NAME generator COMMAND consumer)\n",
             encoding="utf-8")
         configure(generator_consumer, generator_consumer / "build",
@@ -146,6 +255,8 @@ def main():
                 raise RuntimeError("Embedded Core version differs from standalone metadata")
         build_and_test(build)
         print(f"PASS {mode}: shared={args.shared}, cxx={args.cxx}", flush=True)
+
+    installed_examples(root, work, relocated, args)
 
 
 if __name__ == "__main__":
