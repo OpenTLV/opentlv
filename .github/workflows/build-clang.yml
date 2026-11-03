@@ -136,7 +136,7 @@ jobs:
       - name: Run the C quick-start embedded in the documentation
         if: env.EXAMPLES == 'true'
         run: |
-          ./build/examples/tlv/example-tlv-quick-start
+          ./build/examples/io/example-c-io-quick-start
           # The C++ examples and other C examples are exercised
           # by the "ctest -L integration" step above instead.
 
@@ -169,11 +169,11 @@ jobs:
         run: |
           cmake -S . -B build-c -G Ninja -DCMAKE_C_COMPILER=clang-18 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_C_STANDARD=99 -DCMAKE_C_STANDARD_REQUIRED=ON -DCMAKE_C_EXTENSIONS=OFF -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=ON -DOPENTLV_BUILD_BENCHMARKS=OFF -DOPENTLV_WARNINGS_AS_ERRORS=ON
           cmake --build build-c --parallel
-          ./build-c/examples/tlv/example-tlv-quick-start
-          ./build-c/examples/tlv/example-tlv-sequential-io
-          ./build-c/examples/tlv/example-tlv-copies
-          ./build-c/examples/tlv/example-tlv-schema-visitor
-          ./build-c/examples/tlv/example-tlv-codecs-and-endian
-          ./build-c/examples/tlv/example-tlv-custom-format
-          ./build-c/examples/tlv/example-tlv-builtins-asn1-ber
-          ./build-c/examples/tlv/example-tlv-builtins-asn1-cer
+          ./build-c/examples/io/example-c-io-quick-start
+          ./build-c/examples/io/example-c-io-sequential-io
+          ./build-c/examples/io/example-c-io-copies
+          ./build-c/examples/schema/example-c-schema-schema-visitor
+          ./build-c/examples/codec/example-c-codec-codecs-and-endian
+          ./build-c/examples/core/example-c-core-custom-format
+          ./build-c/examples/builtins/asn1/example-c-asn1-ber
+          ./build-c/examples/builtins/asn1/example-c-asn1-cer

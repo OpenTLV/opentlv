@@ -180,7 +180,7 @@ new writing API.
 
 ### C
 
-<!-- example: examples/tlv/src/lldp.c -->
+<!-- example: examples/builtins/lldp/lldp.c -->
 ```c
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel
@@ -220,7 +220,7 @@ int main(void) {
 The C++ layer reuses the C semantic types and codecs, with the shared LLDP
 Format preset for traversal.
 
-<!-- example: examples/tlv++/src/lldp.cpp -->
+<!-- example: examples/builtins/lldp/lldp.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel

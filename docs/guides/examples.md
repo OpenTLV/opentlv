@@ -16,8 +16,8 @@ for setup, ownership notes and expected output.
 
 <!-- opentlv-examples: fixed.roundtrip -->
 
-Native executable sources: [C quick start](../../examples/tlv/src/quick_start.c)
-and [C++ quick start](../../examples/tlv++/src/quick_start.cpp).
+Native executable sources: [C quick start](../../examples/io/quick_start.c)
+and [C++ quick start](../../examples/io/quick_start.cpp).
 The documentation portal can add examples from independently selected bindings.
 
 <!-- /opentlv-examples -->
@@ -72,42 +72,42 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 
 | Language | Executable source | Demonstrates |
 | --- | --- | --- |
-| C | [builtins/asn1/ber.c](../../examples/tlv/src/builtins/asn1/ber.c) | BER framing / construction |
-| C | [builtins/asn1/cer.c](../../examples/tlv/src/builtins/asn1/cer.c) | CER framing |
-| C | [builtins/emv/tag_decoding.c](../../examples/tlv/src/builtins/emv/tag_decoding.c) | EMV definitions / codecs |
-| C | [codecs_and_endian.c](../../examples/tlv/src/codecs_and_endian.c) | Value codecs and byte order |
-| C | [copies.c](../../examples/tlv/src/copies.c) | Explicit copy / preservation |
-| C | [custom_format.c](../../examples/tlv/src/custom_format.c) | Application Format |
-| C | [dhcpv4.c](../../examples/tlv/src/dhcpv4.c) | DHCPv4 framing / End policy |
-| C | [formats/fixed_format.c](../../examples/tlv/src/formats/fixed_format.c) | Generic Fixed Format |
-| C | [incremental_reader.c](../../examples/tlv/src/incremental_reader.c) | Resumable input |
-| C | [lldp.c](../../examples/tlv/src/lldp.c) | LLDP validation / codecs |
-| C | [nfc_type2.c](../../examples/tlv/src/nfc_type2.c) | NFC Type 2 framing |
-| C | [parse.c](../../examples/tlv/src/parse.c) | Nested parsing / traversal |
-| C | [query.c](../../examples/tlv/src/query.c) | Path Query |
-| C | [quick_start.c](../../examples/tlv/src/quick_start.c) | Quick start / round trip |
-| C | [schema_visitor.c](../../examples/tlv/src/schema_visitor.c) | Schema and Visitor |
-| C | [sequential_io.c](../../examples/tlv/src/sequential_io.c) | Sequential Reader / Writer |
-| C | [tree_reader.c](../../examples/tlv/src/tree_reader.c) | Pull Tree Reader |
-| C | [tree_writer.c](../../examples/tlv/src/tree_writer.c) | Tree Writer |
-| C | [validate.c](../../examples/tlv/src/validate.c) | Schema / validation |
-| C | [visitor.c](../../examples/tlv/src/visitor.c) | Visitor traversal |
-| C | [write.c](../../examples/tlv/src/write.c) | Nested construction |
-| C++ | [advanced_control.cpp](../../examples/tlv++/src/advanced_control.cpp) | Input control, scratch and explicit native interop |
-| C++ | [basic_usage.cpp](../../examples/tlv++/src/basic_usage.cpp) | Reader / Writer / codecs |
-| C++ | [document.cpp](../../examples/tlv++/src/document.cpp) | Owned Document / traversal |
-| C++ | [document_edit.cpp](../../examples/tlv++/src/document_edit.cpp) | Document mutation |
-| C++ | [formats/custom_format.cpp](../../examples/tlv++/src/formats/custom_format.cpp) | Application Format |
-| C++ | [formats/fixed_format.cpp](../../examples/tlv++/src/formats/fixed_format.cpp) | Generic Fixed Format |
-| C++ | [formats/fixed_format_runtime.cpp](../../examples/tlv++/src/formats/fixed_format_runtime.cpp) | Runtime Fixed / explicit native interop |
-| C++ | [generate.cpp](../../examples/tlv++/src/generate.cpp) | Deterministic wire generation / owned cases |
-| C++ | [lldp.cpp](../../examples/tlv++/src/lldp.cpp) | LLDP validation / codecs |
-| C++ | [parse.cpp](../../examples/tlv++/src/parse.cpp) | Nested parsing / traversal |
-| C++ | [query.cpp](../../examples/tlv++/src/query.cpp) | Path Query |
-| C++ | [quick_start.cpp](../../examples/tlv++/src/quick_start.cpp) | Quick start / round trip |
-| C++ | [typed_fields.cpp](../../examples/tlv++/src/typed_fields.cpp) | Typed fields / Values |
-| C++ | [validate.cpp](../../examples/tlv++/src/validate.cpp) | Schema / validation |
-| C++ | [write.cpp](../../examples/tlv++/src/write.cpp) | Nested construction |
+| C | [builtins/asn1/ber.c](../../examples/builtins/asn1/ber.c) | BER framing / construction |
+| C | [builtins/asn1/cer.c](../../examples/builtins/asn1/cer.c) | CER framing |
+| C | [builtins/emv/tag_decoding.c](../../examples/builtins/emv/tag_decoding.c) | EMV definitions / codecs |
+| C | [codecs_and_endian.c](../../examples/codec/codecs_and_endian.c) | Value codecs and byte order |
+| C | [copies.c](../../examples/io/copies.c) | Explicit copy / preservation |
+| C | [custom_format.c](../../examples/core/custom_format.c) | Application Format |
+| C | [dhcpv4.c](../../examples/builtins/dhcp/dhcpv4.c) | DHCPv4 framing / End policy |
+| C | [core/fixed_format.c](../../examples/core/fixed_format.c) | Generic Fixed Format |
+| C | [incremental_reader.c](../../examples/io/incremental_reader.c) | Resumable input |
+| C | [lldp.c](../../examples/builtins/lldp/lldp.c) | LLDP validation / codecs |
+| C | [nfc_type2.c](../../examples/builtins/nfc/type2/type2.c) | NFC Type 2 framing |
+| C | [parse.c](../../examples/io/parse.c) | Nested parsing / traversal |
+| C | [query.c](../../examples/query/query.c) | Path Query |
+| C | [quick_start.c](../../examples/io/quick_start.c) | Quick start / round trip |
+| C | [schema_visitor.c](../../examples/schema/schema_visitor.c) | Schema and Visitor |
+| C | [sequential_io.c](../../examples/io/sequential_io.c) | Sequential Reader / Writer |
+| C | [tree_reader.c](../../examples/io/tree_reader.c) | Pull Tree Reader |
+| C | [tree_writer.c](../../examples/io/tree_writer.c) | Tree Writer |
+| C | [validate.c](../../examples/schema/validate.c) | Schema / validation |
+| C | [visitor.c](../../examples/io/visitor.c) | Visitor traversal |
+| C | [write.c](../../examples/io/write.c) | Nested construction |
+| C++ | [advanced_control.cpp](../../examples/io/advanced_control.cpp) | Input control, scratch and explicit native interop |
+| C++ | [basic_usage.cpp](../../examples/io/basic_usage.cpp) | Reader / Writer / codecs |
+| C++ | [document.cpp](../../examples/document/document.cpp) | Owned Document / traversal |
+| C++ | [document_edit.cpp](../../examples/document/document_edit.cpp) | Document mutation |
+| C++ | [core/custom_format.cpp](../../examples/core/custom_format.cpp) | Application Format |
+| C++ | [core/fixed_format.cpp](../../examples/core/fixed_format.cpp) | Generic Fixed Format |
+| C++ | [core/fixed_format_runtime.cpp](../../examples/core/fixed_format_runtime.cpp) | Runtime Fixed / explicit native interop |
+| C++ | [generate.cpp](../../examples/generator/generate.cpp) | Deterministic wire generation / owned cases |
+| C++ | [lldp.cpp](../../examples/builtins/lldp/lldp.cpp) | LLDP validation / codecs |
+| C++ | [parse.cpp](../../examples/io/parse.cpp) | Nested parsing / traversal |
+| C++ | [query.cpp](../../examples/query/query.cpp) | Path Query |
+| C++ | [quick_start.cpp](../../examples/io/quick_start.cpp) | Quick start / round trip |
+| C++ | [typed_fields.cpp](../../examples/codec/typed_fields.cpp) | Typed fields / Values |
+| C++ | [validate.cpp](../../examples/schema/validate.cpp) | Schema / validation |
+| C++ | [write.cpp](../../examples/io/write.cpp) | Nested construction |
 | Rust | [parse.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/parse.rs) | Nested parsing / traversal |
 | Rust | [query_conformance.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/query_conformance.rs) | Common compiled Query corpus runner |
 | Rust | [quick_start.rs](https://github.com/OpenTLV/opentlv-rust/blob/main/opentlv/examples/quick_start.rs) | Quick start / round trip |

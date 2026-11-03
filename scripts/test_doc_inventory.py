@@ -23,9 +23,9 @@ class InventoryTests(unittest.TestCase):
             "include/opentlv/builtin/asn1/ber.h": "extern TLV_API const tlv_format_t tlv_format_ber;\n",
             "include/opentlv/builtin/asn1/ber.hpp": "// fixture\n",
             "docs/formats/support.md": "| BER | `tlv_format_ber` | component | [ber.hpp](../../include/opentlv/builtin/asn1/ber.hpp) |\n",
-            "examples/tlv/src/parse.c": "// example\n",
+            "examples/io/parse.c": "// example\n",
             "docs/guides/cxx-examples.md": "# C++ examples\n",
-            "docs/guides/examples.md": "<!-- example-inventory:start -->\n[C](../../examples/tlv/src/parse.c)\n<!-- example-inventory:end -->\n",
+            "docs/guides/examples.md": "<!-- example-inventory:start -->\n[C](../../examples/io/parse.c)\n<!-- example-inventory:end -->\n",
             "docs/api/Doxyfile.in": 'INPUT = "@PROJECT_SOURCE_DIR@/include/opentlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.h *.dox\n',
             "docs/api/Doxyfile.cxx.in": 'INPUT = "@PROJECT_SOURCE_DIR@/include/opentlv"\nRECURSIVE = YES\nFILE_PATTERNS = *.hpp *.dox\n',
         }
@@ -76,10 +76,10 @@ class InventoryTests(unittest.TestCase):
         self.assert_drift("C++: add docs/guides/cxx-examples.md")
 
     def test_example_addition_and_removal(self):
-        (self.root / "examples/tlv/src/parse.c").unlink()
-        self.write("examples/tlv/src/new.c", "// example\n")
-        self.assert_drift("document examples/tlv/src/new.c")
-        self.assert_drift("stale examples/tlv/src/parse.c")
+        (self.root / "examples/io/parse.c").unlink()
+        self.write("examples/new.c", "// example\n")
+        self.assert_drift("document examples/new.c")
+        self.assert_drift("stale examples/io/parse.c")
 
     def test_missing_example_markers(self):
         self.write("docs/guides/examples.md", "# Examples\n")

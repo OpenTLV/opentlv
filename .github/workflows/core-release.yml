@@ -115,7 +115,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release -DOPENTLV_BUILD_TESTS=OFF \
             -DOPENTLV_BUILD_CXX=OFF -DOPENTLV_BUILD_EXAMPLES=ON
           cmake --build "$RUNNER_TEMP/source-build" --parallel 2
-          "$RUNNER_TEMP/source-build/examples/tlv/example-tlv-quick-start"
+          "$RUNNER_TEMP/source-build/examples/io/example-c-io-quick-start"
       - uses: actions/attest@v4
         with:
           subject-path: build/release-source/*

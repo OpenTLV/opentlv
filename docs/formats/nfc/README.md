@@ -59,8 +59,8 @@ Retain NULL elements if the desired result must preserve padding.
 
 ## Example
 
-Build and run `example-tlv-nfc_type2`; its source is
-[`examples/tlv/src/nfc_type2.c`](https://github.com/marekcingel/OpenTLV/blob/main/examples/tlv/src/nfc_type2.c).
+Build and run `example-c-nfc-type2`; its source is
+[`examples/builtins/nfc/type2/type2.c`](https://github.com/marekcingel/OpenTLV/blob/main/examples/builtins/nfc/type2/type2.c).
 The example reads and re-encodes `00 03 09 D1 01 05 54 02 65 6E 48 69 FE` byte-for-byte, retains
 NULL in the encoded result, hides it in the display, and stops after Terminator:
 
@@ -72,7 +72,7 @@ TERMINATOR
 The Value is opaque: this example demonstrates TLV framing, not NDEF validation.
 
 The supported file corpus lives in
-[`examples/nfc/type2`](https://github.com/marekcingel/OpenTLV/tree/main/examples/nfc/type2).
+[`examples/builtins/nfc/type2`](https://github.com/marekcingel/OpenTLV/tree/main/examples/builtins/nfc/type2).
 It includes this sample, control TLVs, empty Values, short/extended length
 boundaries, reserved identifiers, and malformed inputs. The corpus README
 documents the bytes, expected Elements, and synthetic provenance. Integration
@@ -82,7 +82,7 @@ from expected Elements, and Reader -> Element -> Writer byte equality.
 With [standalone otlv](https://github.com/OpenTLV/opentlv-cli) linked with `OpenTLV::NFC`, run from the Core repository root:
 
 ```sh
-otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin
+otlv decode --format nfc-type2 --input examples/builtins/nfc/type2/sample.bin
 ```
 
 The JSON contains `00` and `FE` as empty Values and the `03` Value as

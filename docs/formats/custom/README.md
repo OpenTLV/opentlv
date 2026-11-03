@@ -36,7 +36,7 @@ the supplied [Packed configuration](../packed.md) and its complete callbacks.
 ## C usage
 
 Use the complete custom-format implementation in the
-[C example](../../../examples/tlv/src/custom_format.c), which includes callback
+[C example](../../../examples/core/custom_format.c), which includes callback
 implementations, descriptor initialization, writing, and reading.
 The [generic contract](../README.md#generic-interface) documents each callback.
 
@@ -61,7 +61,7 @@ Element (4 bytes)
 ```
 
 See the custom-format implementation in the
-[C example](../../../examples/tlv/src/custom_format.c) and the
+[C example](../../../examples/core/custom_format.c) and the
 [callback contracts](../README.md#generic-interface). This particular shape -
 a fixed-width tag and length - could also be built with the
 [configurable fixed-width format](../fixed/configurable.md)

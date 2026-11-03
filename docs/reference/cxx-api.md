@@ -43,7 +43,7 @@ separate instances or external synchronization for concurrent generation.
 The following C++11 example generates three independent cases without managing
 output capacity or workspace:
 
-<!-- example: examples/tlv++/src/generate.cpp -->
+<!-- example: examples/generator/generate.cpp -->
 ```cpp
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Marek Cingel

@@ -6,7 +6,7 @@
 
 A Markdown code block preceded by a marker comment
 
-    <!-- example: examples/tlv/src/quick_start.c -->
+    <!-- example: examples/io/quick_start.c -->
 
 must contain exactly the contents of that file, and the file must be registered
 with its package's build: listed in a CMakeLists.txt under examples/ so CI
@@ -42,11 +42,12 @@ def is_built(source):
     rel = source.relative_to(ROOT)
     parts = rel.parts
     if parts[0] == "examples" and len(parts) > 2:
-        directory = ROOT / parts[0] / parts[1]
-        return any(
-            source.relative_to(directory).as_posix() in cmake.read_text(encoding="utf-8")
-            for cmake in directory.glob("CMakeLists.txt")
-        )
+        for directory in source.parents:
+            if directory == ROOT:
+                break
+            cmake = directory / "CMakeLists.txt"
+            if cmake.is_file() and source.relative_to(directory).as_posix() in cmake.read_text(encoding="utf-8"):
+                return True
     return False
 
 

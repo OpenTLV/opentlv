@@ -15,7 +15,7 @@ linked with `OpenTLV::NFC` and put `otlv` on PATH.
 From the repository root:
 
 ```sh
-otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin
+otlv decode --format nfc-type2 --input examples/builtins/nfc/type2/sample.bin
 ```
 
 Expected structured output:
@@ -31,18 +31,18 @@ Terminator. The TLV offsets are 0, 1 and 12. Decode exports raw NDEF bytes.
 To reproduce the binary in a POSIX shell:
 
 ```sh
-otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin > sample.json
+otlv decode --format nfc-type2 --input examples/builtins/nfc/type2/sample.bin > sample.json
 otlv encode --format nfc-type2 --input sample.json --output-encoding binary --output-file sample-roundtrip.bin
-cmake -E compare_files examples/nfc/type2/sample.bin sample-roundtrip.bin
+cmake -E compare_files examples/builtins/nfc/type2/sample.bin sample-roundtrip.bin
 ```
 
 In Windows PowerShell, save JSON explicitly as UTF-8 without a BOM:
 
 ```powershell
-$json = otlv decode --format nfc-type2 --input examples/nfc/type2/sample.bin
+$json = otlv decode --format nfc-type2 --input examples/builtins/nfc/type2/sample.bin
 [IO.File]::WriteAllText((Join-Path $PWD 'sample.json'), $json, [Text.UTF8Encoding]::new($false))
 otlv encode --format nfc-type2 --input sample.json --output-encoding binary --output-file sample-roundtrip.bin
-cmake -E compare_files examples/nfc/type2/sample.bin sample-roundtrip.bin
+cmake -E compare_files examples/builtins/nfc/type2/sample.bin sample-roundtrip.bin
 ```
 
 ## Positive vectors
@@ -90,7 +90,7 @@ is expected.
 Enable `OPENTLV_BUILD_TESTS` and `OPENTLV_BUILD_INTEGRATION_TESTS`, build, then:
 
 ```sh
-ctest --test-dir build -C Debug -R "NfcType2|Integration_example_tlv_nfc_type2" --output-on-failure
+ctest --test-dir build -C Debug -R "NfcType2|example[.]c[.]nfc[.]type2" --output-on-failure
 ```
 
 Use the configuration and build directory of your own build. The C example

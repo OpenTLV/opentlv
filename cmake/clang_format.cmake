@@ -1,5 +1,5 @@
 # Adds convenience targets for applying and checking the project's
-# .clang-format style across tlv (C) and tlv++ (C++), plus tools, tests,
+# .clang-format style across library modules (C and C++), plus tools, tests,
 # benchmarks and examples. Both targets are opt-in (never part of ALL) and are
 # skipped with a warning if no clang-format is found, so their absence never
 # breaks a regular build.

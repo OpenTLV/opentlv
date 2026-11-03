@@ -130,8 +130,7 @@ reference or release notes.
 | [ASN.1 CER-TLV](../../docs/standards/cer/README.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [ASN.1 DER-TLV](../../docs/standards/der/README.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
 | [EMV Contact Book 3 support](../../docs/standards/emv/README.md) | Format user | Reader and matching format | Keep scope and limitations canonical |
-| [NFC Type 2 validation corpus](../../examples/nfc/type2/README.md) | Example user | Selected API setup | Keep runnable sources canonical |
-| [C++ examples](../../examples/tlv++/src/README.md) | Example user | Selected API setup | Keep runnable sources canonical |
-| [C examples](../../examples/tlv/src/README.md) | Example user | Selected API setup | Keep runnable sources canonical |
+| [NFC Type 2 validation corpus](../../examples/builtins/nfc/type2/README.md) | Example user | Selected API setup | Keep runnable sources canonical |
+| [C and C++ examples](../../examples/README.md) | Example user | Selected API setup | Keep runnable sources canonical |
 | [Test layout](../../tests/README.md) | User | None or selected API setup | Use task entry and recommended next step |
 | [Deterministic property suite](../../tests/property/README.md) | User | None or selected API setup | Use task entry and recommended next step |

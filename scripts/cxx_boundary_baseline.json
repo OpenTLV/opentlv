@@ -1,7 +1,7 @@
 {
   "version": 1,
   "files": {
-    "examples/tlv++/src/advanced_control.cpp": {
+    "examples/io/advanced_control.cpp": {
       "reason": "Explicit C/C++ interoperability example.",
       "symbols": {
         "opentlv/native.hpp": 1,

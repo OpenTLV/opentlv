@@ -97,7 +97,7 @@ diagnostic referring to it. Updating Reader does not redirect old views to new
 storage. Release such views before compacting or reusing their bytes; retaining
 an old view is safe if its original backing storage remains alive and unchanged.
 
-See the compiled [incremental Reader example](../../examples/tlv/src/incremental_reader.c):
+See the compiled [incremental Reader example](../../examples/io/incremental_reader.c):
 it processes a six-byte input using four bytes of caller-owned sliding storage.
 
 ## Source and diagnostics
@@ -195,9 +195,9 @@ the range must also outlive any result borrowing its owned Format. Construction
 or movement of an application Format may itself allocate; the range machinery
 does not. Typed `reader<F>` continues to prohibit copying and moving.
 
-See the compiled [basic example](../../examples/tlv++/src/basic_usage.cpp),
-[custom Format example](../../examples/tlv++/src/formats/custom_format.cpp), and
-[runtime Fixed example](../../examples/tlv++/src/formats/fixed_format_runtime.cpp).
+See the compiled [basic example](../../examples/io/basic_usage.cpp),
+[custom Format example](../../examples/core/custom_format.cpp), and
+[runtime Fixed example](../../examples/core/fixed_format_runtime.cpp).
 
 ## Pull-based tree traversal
 
@@ -281,7 +281,7 @@ Incremental traversal resumes across complete subtrees and incomplete subsequent
 roots, without requiring the entire stream in memory. It does not provide an
 early-header stream or partial Elements.
 
-See the compiled [Tree Reader example](../../examples/tlv/src/tree_reader.c)
+See the compiled [Tree Reader example](../../examples/io/tree_reader.c)
 for caller-owned frames, incomplete input, subtree skipping, window replacement,
 and EOF.
 
@@ -318,7 +318,7 @@ errors retain UNKNOWN location. The canonical `tlv_tree_reader_visit()` accepts
 a Reader diagnostic directly. Known input coordinates include discarded windows;
 no offset-only output or `_diag` compatibility wrapper is retained.
 
-See the runnable [Visitor example](../../examples/tlv/src/visitor.c) for STOP,
+See the runnable [Visitor example](../../examples/io/visitor.c) for STOP,
 resumption and incremental input replacement.
 
 ## Ownership and composition

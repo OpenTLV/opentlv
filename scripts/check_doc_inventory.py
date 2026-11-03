@@ -15,8 +15,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 EXAMPLE_ROOTS = (
-    ("examples/tlv/src", ".c"),
-    ("examples/tlv++/src", ".cpp"),
+    ("examples", ".c"),
+    ("examples", ".cpp"),
 )
 
 

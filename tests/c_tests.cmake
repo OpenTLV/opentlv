@@ -195,7 +195,7 @@ foreach(family IN ITEMS asn1 emv bluetooth nfc dhcp lldp)
         target_include_directories(${family_target} PRIVATE ${OpenTLV_SOURCE_DIR}/tests)
         if(family STREQUAL "nfc" AND test_group STREQUAL "integration")
             target_compile_definitions(${family_target} PRIVATE
-                OPENTLV_NFC_TYPE2_CORPUS="${OpenTLV_SOURCE_DIR}/examples/nfc/type2")
+                OPENTLV_NFC_TYPE2_CORPUS="${OpenTLV_SOURCE_DIR}/examples/builtins/nfc/type2")
         endif()
         opentlv_configure_compiler(${family_target})
         opentlv_copy_shared_runtime(${family_target})
