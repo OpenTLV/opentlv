@@ -13,7 +13,7 @@ import subprocess
 from check_cmake_integration import (CACHE_OPTIONS, PACKAGE_FILES, check_embedded_identity,
                                      check_example_tests, check_package_identity,
                                      contract_identities, expected_example_tests,
-                                     read_embedded_report)
+                                     read_embedded_report, require_no_errors)
 from check_module_contracts import (BUILTIN, CONTRACT, GENERIC, MAPPING, ROOT, check,
                                     check_baseline_mapping, check_examples, cycles)
 
@@ -591,6 +591,27 @@ class CMakeIdentityTests(unittest.TestCase):
 
     def test_complete_package_passes(self):
         self.assertEqual([], check_package_identity(self.package_files(), self.registry(), self.identities))
+
+    def test_every_standard_configuration_export_is_accepted(self):
+        # CMake writes lowercase <export>-<config>.cmake files beside each export set.
+        files = set(PACKAGE_FILES)
+        for key in self.components.values():
+            files.add(f"OpenTLV-{key}Targets.cmake")
+        for config in ("debug", "release", "relwithdebinfo", "minsizerel"):
+            files.add(f"OpenTLVTargets-{config}.cmake")
+            files |= {f"OpenTLV-{key}Targets-{config}.cmake" for key in self.components.values()}
+        self.assertEqual([], check_package_identity(files, self.registry(), self.identities))
+        unknown = files | {"OpenTLV-unknownTargets-release.cmake"}
+        self.assertIn("OpenTLV-unknownTargets-release.cmake",
+                      check_package_identity(unknown, self.registry(), self.identities)[0])
+
+    def test_failures_name_the_checked_mode(self):
+        report = self.report()
+        report["target"]["format"] = "UTILITY"
+        with self.assertRaisesRegex(RuntimeError, r"\(fetch-canonical consumer\):\n  embedded build targets"):
+            require_no_errors(check_embedded_identity(report, self.identities, "opentlv"),
+                              "fetch-canonical consumer")
+        require_no_errors([], "fetch-canonical consumer")
 
     def test_package_file_and_registry_drift_fail(self):
         renamed = self.package_files() - {"OpenTLV-coreTargets.cmake"} | {"OpenTLV-CoreTargets.cmake"}
