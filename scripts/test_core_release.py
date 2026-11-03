@@ -152,6 +152,23 @@ class CoreGateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'Full CI evidence'):
                 release.check_quality(evidence, SHA, '123', '1', ENV['GITHUB_REPOSITORY'])
 
+    def test_release_evidence_records_the_files_that_verifiers_compare(self):
+        # opentlv-python and opentlv-rust require these exact sets and compare every
+        # recorded file with the Verified Source. v0.8.0 recorded
+        # cmake/capability_options.cmake and cmake/format_options.cmake instead of
+        # the module files: docs/development/naming.md#findings-for-release-artifacts.
+        with patch.dict(os.environ, {'RELEASE_TAG': 'v0.9.0'}):
+            configuration = release.configuration('full')
+        self.assertEqual(configuration['inputs'], {'full': True, 'release_tag': 'v0.9.0'})
+        self.assertEqual(set(configuration['workflows']), {
+            'abi.yml', 'build-clang.yml', 'build-gcc.yml', 'build-msvc.yml', 'capabilities.yml',
+            'cmake-consumers.yml', 'codeql.yml', 'core-checks.yml', 'core-full.yml', 'core-release.yml',
+            'fuzz.yml', 'property.yml', 'query-hardening.yml', 'static-analysis.yml', 'valgrind.yml'})
+        self.assertEqual(set(configuration['configuration_sources']), {
+            'CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake', 'cmake/library/CMakeLists.txt',
+            'cmake/library/modules.cmake', 'scripts/check_cmake_integration.py',
+            'scripts/check_capabilities.py', 'scripts/abi/check.py'})
+
     def test_full_configuration_evidence_cannot_omit_or_change_inputs(self):
         for changes in ({}, {'inputs': {'full': False}}, {'workflows': {}}):
             evidence = quality()
@@ -544,6 +561,74 @@ class ArchiveTests(unittest.TestCase):
         for line in (destination / 'SHA256SUMS').read_text().splitlines():
             checksum, name = line.split('  ')
             self.assertEqual(checksum, release.digest(destination / name))
+
+    @patch.dict(os.environ, ENV)
+    def test_published_names_and_manifest_fields_follow_the_artifact_contract(self):
+        # Binding verifiers read these names and fields: docs/development/naming.md#release-artifact-audit.
+        # The file set is exact. Fields may be added but never removed (breaking-change policy).
+        destination, evidence = self.fixture()
+        release.manifest(destination, evidence, '0.8.0', SHA)
+        binaries = {'OpenTLV-0.8.0-linux-x64-static.tar.gz', 'OpenTLV-0.8.0-linux-x64-shared.tar.gz',
+                    'OpenTLV-0.8.0-windows-x64-static.zip', 'OpenTLV-0.8.0-windows-x64-shared.zip'}
+        records = {'linux-x64-static.json', 'linux-x64-shared.json',
+                   'windows-x64-static.json', 'windows-x64-shared.json'}
+        performance = {'performance.json', 'performance.md', 'performance-data.tar.gz'}
+        source = 'OpenTLV-0.8.0-source.tar.gz'
+        names = binaries | records | performance | {source, 'release-manifest.json', 'SHA256SUMS'}
+        self.assertEqual({path.name for path in destination.iterdir()}, names)
+        manifest = json.loads((destination / 'release-manifest.json').read_text())
+        self.assertEqual({'schema', 'version', 'commit', 'candidate', 'quality', 'performance', 'artifacts'}
+                         - set(manifest), set())
+        self.assertEqual((manifest['schema'], manifest['version'], manifest['commit']), (2, '0.8.0', SHA))
+        self.assertEqual(manifest['candidate'], candidate())
+        kinds = {}
+        for record in manifest['artifacts']:
+            kinds.setdefault(record['kind'], set()).add(record['filename'])
+            if record['kind'] != 'binary':
+                self.assertEqual({'kind', 'filename', 'sha256', 'version', 'commit'} - set(record), set())
+        self.assertEqual(kinds, {'binary': binaries, 'source': {source}, 'performance': performance})
+        lines = (destination / 'SHA256SUMS').read_text().splitlines()
+        self.assertEqual(len(lines), len(names) - 1)
+        for line in lines:
+            self.assertRegex(line, r'^[0-9a-f]{64}  [^ /\\]+$')
+        self.assertEqual({line.split('  ')[1] for line in lines}, names - {'SHA256SUMS'})
+
+    def test_binary_record_names_the_asset_and_keeps_the_verified_cpack_archive(self):
+        build = self.root / 'build'
+        metadata = build / 'CMakeFiles' / '3.28.3'
+        metadata.mkdir(parents=True)
+        (metadata / 'CMakeCCompiler.cmake').write_text('set(CMAKE_C_SIZEOF_DATA_PTR "8")\n')
+        (metadata / 'CMakeSystem.cmake').write_text(
+            'set(CMAKE_SYSTEM_NAME "Windows")\nset(CMAKE_SYSTEM_PROCESSOR "AMD64")\n')
+        header = build / 'generated/include/opentlv/core/version.h'
+        header.parent.mkdir(parents=True)
+        header.write_text('#define OPENTLV_VERSION_STRING "0.9.0-rc.1"\n'
+                          f'#define OPENTLV_GIT_COMMIT_HASH "{SHA[:12]}"\n')
+        (build / 'packages').mkdir()
+        # CPack names the archive and its top directory without the linkage.
+        (build / 'packages/OpenTLV-0.9.0-rc.1-Windows-AMD64-MSVC.zip').write_bytes(b'verified archive')
+        cache = {'CMAKE_BUILD_TYPE': 'Release', 'OPENTLV_BUILD_CXX': 'ON', 'OPENTLV_BUILD_SHARED_LIBS': 'ON',
+                 'CMAKE_CACHE_MAJOR_VERSION': '3', 'CMAKE_CACHE_MINOR_VERSION': '28',
+                 'CMAKE_CACHE_PATCH_VERSION': '3', 'CMAKE_MSVC_RUNTIME_LIBRARY': 'MultiThreadedDLL'}
+        compiler = {'CMAKE_C_COMPILER': 'cl.exe', 'CMAKE_C_COMPILER_ARG1': '',
+                    'CMAKE_C_COMPILER_ID': 'MSVC', 'CMAKE_C_COMPILER_VERSION': '19.44'}
+        output = self.root / 'output'
+        with patch('check_package.read_cache', return_value=cache), \
+                patch('check_package.compiler_settings', return_value=compiler):
+            release.binary_record(build, output, 'windows-x64-shared', '0.9.0-rc.1', SHA)
+        asset = 'OpenTLV-0.9.0-rc.1-windows-x64-shared.zip'
+        self.assertEqual({path.name for path in output.iterdir()}, {asset, 'windows-x64-shared.json'})
+        self.assertEqual((output / asset).read_bytes(), b'verified archive')
+        record = json.loads((output / 'windows-x64-shared.json').read_text())
+        self.assertEqual({'schema', 'kind', 'id', 'version', 'commit', 'filename', 'sha256', 'os',
+                          'architecture', 'linkage', 'build_type', 'compiler', 'msvc_runtime', 'libc',
+                          'runner_image', 'options'} - set(record), set())
+        self.assertEqual({key: record[key] for key in ('schema', 'kind', 'id', 'version', 'filename', 'os',
+                                                       'architecture', 'linkage', 'build_type', 'libc')},
+                         {'schema': 1, 'kind': 'binary', 'id': 'windows-x64-shared', 'version': '0.9.0-rc.1',
+                          'filename': asset, 'os': 'windows', 'architecture': 'x64', 'linkage': 'shared',
+                          'build_type': 'Release', 'libc': None})
+        self.assertEqual(record['options'], {'OPENTLV_BUILD_CXX': 'ON', 'OPENTLV_BUILD_SHARED_LIBS': 'ON'})
 
     @patch.dict(os.environ, ENV)
     def test_missing_or_changed_performance_blocks_publication(self):

@@ -253,7 +253,7 @@ jobs:
           flags=()
           if [[ "$RELEASE_TAG" == *-* ]]; then flags+=(--prerelease); fi
           gh release create "$RELEASE_TAG" build/publish/* --verify-tag \
-            --title "OpenTLV $RELEASE_TAG" --generate-notes "${flags[@]}"
+            --title "OpenTLV ${RELEASE_TAG#v}" --generate-notes "${flags[@]}"
 
   timings:
     name: Release CI timings
