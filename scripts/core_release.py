@@ -10,13 +10,14 @@ import hashlib
 import io
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import re
 import subprocess
 import tarfile
 import urllib.parse
 import urllib.request
+import zipfile
 
 
 PR = frozenset(('clang', 'static', 'consumers', 'codeql'))
@@ -30,6 +31,8 @@ PERFORMANCE_FILES = frozenset(('performance.json', 'performance.md', 'performanc
 VERSION = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?')
 BINARY_IDS = frozenset(('linux-x64-static', 'linux-x64-shared',
                         'windows-x64-static', 'windows-x64-shared'))
+ARTIFACT_CONTRACT = 2
+CONFIGURATION_SCHEMA = 1
 
 
 def require(condition, message):
@@ -133,10 +136,13 @@ def configuration(tier):
     else:
         inputs = {'full': tier == 'full', 'release_tag': os.environ.get('RELEASE_TAG', '')}
     helpers = ('CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake',
-               'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake',
+               'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake', 'cmake/library/cxx.cmake',
+               'cmake/install.cmake', 'cmake/packaging.cmake', 'cmake/version.cmake',
+               'scripts/core_release.py', 'scripts/check_package.py',
                'scripts/check_cmake_integration.py',
                'scripts/check_capabilities.py', 'scripts/abi/check.py')
-    return {'inputs': inputs, 'configuration_sources': {name: digest(source / name) for name in helpers},
+    return {'schema': CONFIGURATION_SCHEMA, 'inputs': inputs,
+            'configuration_sources': {name: digest(source / name) for name in helpers},
             'workflows': {
         name: {'sha256': digest(root / name), 'definition': (root / name).read_text(encoding='utf-8')}
         for name in sorted(paths)}}
@@ -313,6 +319,47 @@ def check_quality(quality, commit, run_id, attempt, repository):
             'Full CI configuration evidence is missing or differs from the release checkout')
 
 
+def check_binary_archive(archive, root):
+    """Check the extraction namespace before copying or publishing verified bytes."""
+    if archive.suffix == '.zip':
+        with zipfile.ZipFile(archive) as package:
+            # ZipInfo.filename normalizes backslashes on Windows; inspect the
+            # original spelling so the same archive is rejected on every host.
+            names = [entry.orig_filename for entry in package.infolist()]
+    else:
+        with tarfile.open(archive) as package:
+            names = package.getnames()
+    require(names, 'Empty binary archive')
+    for name in names:
+        path = PurePosixPath(name)
+        require(not path.is_absolute() and path.parts and path.parts[0] == root
+                and '..' not in path.parts and '\\' not in name,
+                'Binary archive root differs from artifact identity or contains an unsafe path')
+    require(any(len(PurePosixPath(name).parts) > 1 for name in names), 'Empty binary archive root')
+
+
+def binary_modules(build, linkage):
+    """Use generated target properties, including per-target PIC, not cache guesses."""
+    entries = json.loads((build / 'modules-Release.json').read_text(encoding='utf-8'))
+    require(isinstance(entries, list) and entries, 'Missing binary module inventory')
+    modules = []
+    for entry in entries:
+        names = entry.get('export_name')
+        require(isinstance(names, list) and len(names) == 1 and isinstance(names[0], str),
+                'Invalid module export name')
+        kind = entry.get('type')
+        require(kind in ('STATIC_LIBRARY', 'SHARED_LIBRARY', 'INTERFACE_LIBRARY'), 'Invalid module type')
+        compiled = kind != 'INTERFACE_LIBRARY'
+        require(not compiled or kind == linkage.upper() + '_LIBRARY', 'Module linkage mismatch')
+        pic = entry.get('position_independent_code') if compiled else None
+        require(not compiled or type(pic) is bool, 'Missing module PIC evidence')
+        modules.append({'name': names[0], 'target': 'OpenTLV::' + names[0],
+                        'linkage': linkage if compiled else 'interface', 'position_independent_code': pic})
+    require(len({item['name'] for item in modules}) == len(modules), 'Duplicate binary module')
+    require(any(item['linkage'] != 'interface' for item in modules), 'No compiled modules')
+    return sorted(modules, key=lambda item: item['name'])
+
+
 def binary_record(build, output, identifier, tag, commit):
     # check_package.py produces these archives only after install/consumer verification.
     from check_package import compiler_settings, read_cache
@@ -346,13 +393,26 @@ def binary_record(build, output, identifier, tag, commit):
     require(len(archives) == 1, 'Expected one freshly verified binary archive')
     archive = archives[0]
     suffix = '.zip' if archive.suffix == '.zip' else '.tar.gz'
+    require(suffix == ('.zip' if expected_system == 'Windows' else '.tar.gz'), 'Binary archive format mismatch')
+    archive_root = f'OpenTLV-{version(tag)}-{identifier}'
+    check_binary_archive(archive, archive_root)
+    modules = binary_modules(build, linkage)
+    pic = all(item['position_independent_code'] for item in modules if item['linkage'] != 'interface')
+    require(pic, 'Approved release binaries require PIC on every compiled module')
+    features = {}
+    for key in ('OPENTLV_QUERY_FRONTEND', 'OPENTLV_QUERY_SET_OPERATIONS'):
+        require(cache.get(key) in ('ON', 'OFF'), f'Missing or invalid feature: {key}')
+        features[key] = cache[key] == 'ON'
     output.mkdir(parents=True, exist_ok=True)
     target = output / f'OpenTLV-{version(tag)}-{identifier}{suffix}'
     target.write_bytes(archive.read_bytes())
     compiler = compiler_settings(build, cache, 'C')
     require(compiler['CMAKE_C_COMPILER_ID'] == ('MSVC' if expected_system == 'Windows' else 'GNU'),
             'Compiler is outside the approved binary matrix')
-    record = {'schema': 1, 'kind': 'binary', 'id': identifier, 'version': tag,
+    record = {'schema': 1, 'artifact_contract': ARTIFACT_CONTRACT,
+              'archive_root': archive_root, 'modules': modules, 'features': features,
+              'position_independent_code': pic,
+              'kind': 'binary', 'id': identifier, 'version': tag,
               'commit': revision(commit), 'filename': target.name, 'sha256': digest(target),
               'os': identifier.split('-')[0], 'architecture': 'x64', 'linkage': linkage,
               'build_type': 'Release', 'compiler': compiler,
@@ -361,6 +421,35 @@ def binary_record(build, output, identifier, tag, commit):
               'runner_image': {'os': os.environ.get('ImageOS'), 'version': os.environ.get('ImageVersion')},
               'options': {key: val for key, val in cache.items() if key.startswith('OPENTLV_')}}
     write_json(output / (identifier + '.json'), record)
+
+
+def check_binary_metadata(record, identifier):
+    require(record.get('schema') == 1 and record.get('artifact_contract') == ARTIFACT_CONTRACT,
+            'Unsupported binary artifact contract')
+    linkage = identifier.rsplit('-', 1)[1]
+    require(record.get('linkage') == linkage, 'Binary record linkage mismatch')
+    require(record.get('position_independent_code') is True, 'Approved release binaries require PIC')
+    modules = record.get('modules')
+    require(isinstance(modules, list) and modules, 'Missing binary module inventory')
+    names = []
+    compiled = 0
+    for item in modules:
+        require(isinstance(item, dict), 'Invalid binary module record')
+        name = item.get('name')
+        require(isinstance(name, str) and re.fullmatch(r'[A-Za-z][A-Za-z0-9_+-]*', name)
+                and item.get('target') == 'OpenTLV::' + name, 'Invalid binary module identity')
+        names.append(name)
+        require(item.get('linkage') in (linkage, 'interface'), 'Module linkage mismatch')
+        if item['linkage'] == 'interface':
+            require('position_independent_code' in item and item['position_independent_code'] is None,
+                    'Interface module must have null PIC')
+        else:
+            compiled += 1
+            require(item.get('position_independent_code') is True, 'Compiled module must have PIC')
+    require(compiled and names == sorted(set(names)), 'Unsorted, duplicate or missing compiled modules')
+    features = record.get('features')
+    require(isinstance(features, dict) and all(type(features.get(key)) is bool for key in
+            ('OPENTLV_QUERY_FRONTEND', 'OPENTLV_QUERY_SET_OPERATIONS')), 'Missing binary Query features')
 
 
 def manifest(directory, quality_path, tag, commit):
@@ -390,6 +479,9 @@ def manifest(directory, quality_path, tag, commit):
         suffix = '.zip' if identifier.startswith('windows-') else '.tar.gz'
         require(name == f'OpenTLV-{tag}-{identifier}{suffix}', 'Unexpected binary filename')
         require(digest(directory / name) == record['sha256'], 'Binary checksum mismatch')
+        check_binary_metadata(record, identifier)
+        require(record.get('archive_root') == f'OpenTLV-{tag}-{identifier}', 'Binary archive root mismatch')
+        check_binary_archive(directory / name, record['archive_root'])
         records.append(record)
     source = directory / f'OpenTLV-{tag}-source.tar.gz'
     with tarfile.open(source) as archive:
@@ -405,7 +497,9 @@ def manifest(directory, quality_path, tag, commit):
                     'version': tag, 'commit': commit} for name in sorted(PERFORMANCE_FILES))
     expected = {r['filename'] for r in records} | {name + '.json' for name in BINARY_IDS}
     require({p.name for p in directory.iterdir()} == expected, 'Unexpected or missing release files')
-    write_json(directory / 'release-manifest.json', {'schema': 2, 'version': tag, 'commit': commit,
+    write_json(directory / 'release-manifest.json', {'schema': 2, 'library': 'OpenTLV',
+                                                    'artifact_contract': ARTIFACT_CONTRACT,
+                                                    'version': tag, 'commit': commit,
                                                     'candidate': candidate, 'quality': quality,
                                                     'performance': performance, 'artifacts': records})
     files = sorted(p for p in directory.iterdir() if p.is_file())

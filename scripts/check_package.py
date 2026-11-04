@@ -116,6 +116,8 @@ def main():
         roots = list(extracted.iterdir())
         require(len(roots) == 1 and roots[0].is_dir(), "Expected one package root")
         root = roots[0]
+        archive_root = archive.name.removesuffix(".zip").removesuffix(".tar.gz")
+        require(root.name == archive_root, "Package root differs from archive identity")
         files = manifest(root)
         compare_manifests(expected, files)
         check_license_files(root, Path(cache["CMAKE_HOME_DIRECTORY"]), datarootdir)

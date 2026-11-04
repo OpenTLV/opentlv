@@ -414,6 +414,16 @@ class WorkflowContracts(unittest.TestCase):
         # The title omits the tag's v, as on every published Library release.
         self.assertIn('--title "OpenTLV ${RELEASE_TAG#v}"', publication)
 
+    def test_release_binaries_enable_pic_before_package_verification_and_recording(self):
+        steps = workflow('core-release.yml')['jobs'].mapping()['binaries'].mapping()['steps'].steps()
+        runs = [step['run'].text() for step in steps if 'run' in step]
+        configure = next(run for run in runs if 'cmake -S . ' in run)
+        package = next(run for run in runs if 'scripts/check_package.py' in run)
+        record = next(run for run in runs if 'scripts/core_release.py binary' in run)
+        self.assertIn('-DCMAKE_POSITION_INDEPENDENT_CODE=ON', configure)
+        self.assertLess(runs.index(configure), runs.index(package))
+        self.assertLess(runs.index(package), runs.index(record))
+
     def test_core_quality_gate_covers_the_entire_check_inventory(self):
         jobs = workflow('core-checks.yml')['jobs'].mapping()
         self.assertEqual(set(jobs), CORE_CHECKS | {'gate', 'timings'})
