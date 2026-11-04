@@ -129,7 +129,10 @@ different things and must not be read as one identity.
   use Library identity (`opentlv`, `OpenTLV`) from their first release, with no
   legacy aliases. A per-module amalgamation uses that module's export name;
   "core" appears only when the artifact contains only the Core module. Exact
-  target, component and asset names are set in #701 and #748.
+  target, component and asset names are set in #701 and #748. The
+  [amalgamation contract](amalgamation.md#names) (#741) sets the build target
+  and file names; the install component and release asset remain held for #742
+  and #744.
 
 ## CMake identity audit
 

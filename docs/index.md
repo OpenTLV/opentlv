@@ -56,6 +56,7 @@ Developer onboarding is separate: start with [Contributing](../CONTRIBUTING.md),
 then [development workflow](development/workflow.md),
 [functional module contracts](development/modules/README.md),
 [Library and Core naming contract](development/naming.md),
+[C source amalgamation contract](development/amalgamation.md),
 [documentation conventions](development/documentation-layout.md) and
 [the documentation audit](development/documentation-audit.md).
 

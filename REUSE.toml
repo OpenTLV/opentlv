@@ -110,6 +110,7 @@ path = [
     "docs/concepts/runtime-model.md",
     "docs/concepts/value.md",
     "docs/development/abi-compatibility.md",
+    "docs/development/amalgamation.md",
     "docs/development/ci-baseline.json",
     "docs/development/cxx-facade-performance.md",
     "docs/development/documentation-audit.md",

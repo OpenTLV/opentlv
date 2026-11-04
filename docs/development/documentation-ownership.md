@@ -146,6 +146,7 @@ structure; this table records ownership rather than replacing that audit.
 | [concepts/runtime-model.md](../concepts/runtime-model.md) | Core | Keep |
 | [concepts/value.md](../concepts/value.md) | Core | Keep |
 | [development/abi-compatibility.md](abi-compatibility.md) | Core | Keep |
+| [development/amalgamation.md](amalgamation.md) | Core | Keep: C source amalgamation composition and artifact contract for #701 |
 | [development/cxx-facade-performance.md](cxx-facade-performance.md) | Core | Keep |
 | [development/documentation-audit.md](documentation-audit.md) | Core / Portal | Mixed: historical source audit and presentation decisions |
 | [development/documentation-layout.md](documentation-layout.md) | Core / Portal | Mixed: source conventions and portal rendering/publishing rules |
