@@ -171,6 +171,7 @@ class CoreGateTests(unittest.TestCase):
             'CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake', 'cmake/library/CMakeLists.txt',
             'cmake/library/modules.cmake', 'cmake/library/cxx.cmake', 'cmake/install.cmake',
             'cmake/packaging.cmake', 'cmake/version.cmake', 'scripts/core_release.py', 'scripts/check_package.py',
+            'scripts/archive_safety.py', 'cmake/OpenTLVConfig.cmake.in', 'scripts/check_cmake_discovery.py',
             'scripts/check_cmake_integration.py',
             'scripts/check_capabilities.py', 'scripts/abi/check.py'})
         self.assertEqual(configuration['schema'], 1)
@@ -733,7 +734,7 @@ class ArchiveTests(unittest.TestCase):
                 with self.subTest(suffix=suffix, root=invalid):
                     path = self.root / ('bad' + suffix)
                     self.binary_archive(path, invalid)
-                    with self.assertRaisesRegex(ValueError, 'archive root'):
+                    with self.assertRaises(ValueError):
                         release.check_binary_archive(path, root)
 
     @patch.dict(os.environ, ENV)

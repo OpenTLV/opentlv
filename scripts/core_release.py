@@ -10,14 +10,15 @@ import hashlib
 import io
 import json
 import os
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 import platform
 import re
 import subprocess
 import tarfile
 import urllib.parse
 import urllib.request
-import zipfile
+
+from archive_safety import check_archive
 
 
 PR = frozenset(('clang', 'static', 'consumers', 'codeql'))
@@ -139,6 +140,8 @@ def configuration(tier):
                'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake', 'cmake/library/cxx.cmake',
                'cmake/install.cmake', 'cmake/packaging.cmake', 'cmake/version.cmake',
                'scripts/core_release.py', 'scripts/check_package.py',
+               'scripts/archive_safety.py', 'cmake/OpenTLVConfig.cmake.in',
+               'scripts/check_cmake_discovery.py',
                'scripts/check_cmake_integration.py',
                'scripts/check_capabilities.py', 'scripts/abi/check.py')
     return {'schema': CONFIGURATION_SCHEMA, 'inputs': inputs,
@@ -321,21 +324,7 @@ def check_quality(quality, commit, run_id, attempt, repository):
 
 def check_binary_archive(archive, root):
     """Check the extraction namespace before copying or publishing verified bytes."""
-    if archive.suffix == '.zip':
-        with zipfile.ZipFile(archive) as package:
-            # ZipInfo.filename normalizes backslashes on Windows; inspect the
-            # original spelling so the same archive is rejected on every host.
-            names = [entry.orig_filename for entry in package.infolist()]
-    else:
-        with tarfile.open(archive) as package:
-            names = package.getnames()
-    require(names, 'Empty binary archive')
-    for name in names:
-        path = PurePosixPath(name)
-        require(not path.is_absolute() and path.parts and path.parts[0] == root
-                and '..' not in path.parts and '\\' not in name,
-                'Binary archive root differs from artifact identity or contains an unsafe path')
-    require(any(len(PurePosixPath(name).parts) > 1 for name in names), 'Empty binary archive root')
+    check_archive(archive, root)
 
 
 def binary_modules(build, linkage):

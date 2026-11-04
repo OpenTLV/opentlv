@@ -58,7 +58,7 @@ candidates. Owner is the issue that decides any change.
 | --- | --- | --- | --- | --- |
 | Module targets | `OpenTLV::Core`, `IO`, `Document`, `Query`, `Schema`, `Codec`, `Generator`, `ASN1`, `EMV`, `Bluetooth`, `NFC`, `DHCP`, `LLDP` and integrations | Module | Keep; `OpenTLV::Core` is the Core module only | #747 |
 | Aggregate target | `OpenTLV::tlv` (INTERFACE, no archive) | Library | Keep; see below | #747 |
-| Aggregate build target | `opentlv_tlv`, `EXPORT_NAME tlv`; deprecated source-only `tlv` alias when the application has no such target | Build tree | Link `OpenTLV::tlv`; keep the alias under the deprecation rules below | #753 |
+| Aggregate build target | `opentlv_tlv`, `EXPORT_NAME tlv`; deprecated `tlv` alias only in standalone builds | Build tree | Link `OpenTLV::tlv`; embedding never reserves `tlv` | #753, #754 |
 | Removed targets and paths | Monolithic `tlv` library, `tlv++` target, `tlv/` and `tlv++/` include paths | — | Removed in #654 and #733; never reused | — |
 | Build targets and binaries | `opentlv_<key>`, e.g. `libopentlv_core.so`, `opentlv_core.dll` | Module | Keep; direct consumers link these file names | #747, #748 |
 | Export macros | `OPENTLV_<KEY>_API`, `OPENTLV_<KEY>_STATIC_DEFINE`, e.g. `OPENTLV_CORE_API` | Module | Keep | — |
@@ -148,7 +148,8 @@ changes, in every consumer mode:
 | `fetch-package` | `opentlv_core` with `FIND_PACKAGE_ARGS <x.y.z> EXACT CONFIG NAMES OpenTLV` (CMake 3.24+) | Every contract target is imported |
 | `fetch-package-canonical` | `opentlv` with the same package arguments | Every contract target is imported |
 | `build-tree` | `OpenTLV_DIR=<build>` | Every contract target is imported from build-tree exports |
-| `fetch-collision` | Legacy FetchContent with an application-owned `tlv` target | Application target is preserved; `OpenTLV::tlv` aliases `opentlv_tlv` |
+| `fetch-collision`, `fetch-collision-after` | Legacy FetchContent with an application-owned `tlv` target declared before or after embedding | Application target is preserved; `OpenTLV::tlv` aliases `opentlv_tlv` |
+| `subdirectory-after` | `add_subdirectory()` followed by an application-owned `tlv` target | Both declaration orders work and link the canonical aggregate |
 
 In every mode, each public target from the
 [module contract](modules/ownership.json) resolves to the same `OpenTLV::` name:
@@ -162,8 +163,8 @@ target from the package. The check also pins:
 - `ExactVersion` rejects another patch version, and documentation is installed
   under `share/doc/OpenTLV`.
 - Every removed option still fails at configure time with its message.
-- An embedding build creates only the `opentlv_tlv` and `opentlv_<key>` targets,
-  plus the conditional deprecated `tlv` alias. It adds
+- An embedding build creates only the `opentlv_tlv` and `opentlv_<key>` targets.
+  The deprecated `tlv` alias is standalone-only. It adds
   only these cache entries: the `OPENTLV_*` options, the `OpenTLV_*`
   project variables, and entries owned by CMake's GNUInstallDirs,
   GenerateExportHeader and FetchContent modules.
@@ -205,13 +206,28 @@ unchanged until each consumer deliberately migrates.
    spelling's version identify the selected Library, including unversioned calls.
 5. **Embedding names:** the build target is `opentlv_tlv` with `EXPORT_NAME tlv`.
    Public `OpenTLV::tlv` and `OpenTLVTargets.cmake` are unchanged. The old source
-   spelling `tlv` is a deprecated alias only when the application does not own it;
-   it still means the aggregate. Migrate links to `OpenTLV::tlv`. Alias removal
-   follows the two-minor-release rule below, measured from the first Library
-   release containing this change, after downstream migrations or waivers.
+   spelling `tlv` is a deprecated alias only in standalone builds; it still means
+   the aggregate there. Embedding never creates that alias, so the application
+   can define `tlv` before or after `add_subdirectory()` or FetchContent.
+   This embedding compatibility correction ships before the first 0.9 release;
+   no released deprecation period is shortened. Migrate links to `OpenTLV::tlv`.
+   Future removal of the standalone alias follows the two-minor-release rule.
+   The internal Library binary directory is `opentlv-library`, with policies
+   established by the root CMake project rather than a redundant nested minimum.
    Removing `project(tlv)` and its cache variables is an intentional breaking
    change: use `OpenTLV_SOURCE_DIR` and `OpenTLV_BINARY_DIR` for Library paths and
    the application's own project identity for top-level decisions.
+
+Package discovery updates only the requested spelling's `_FOUND`,
+`_NOT_FOUND_MESSAGE` and component results. A failed `opentlv_core` or `opentlv`
+request does not invalidate an earlier successful `OpenTLV` request (and vice
+versa). A failed request through the *same* name has ordinary CMake semantics:
+its `_FOUND` becomes false, but existing targets remain intact. Successful
+discovery supplies canonical `OpenTLV_VERSION`; failed alternative requests do
+not replace that metadata. Required components are validated before importing
+any target, and target-origin checks reject mixed installations. Normal lookup
+uses CMake's version check once; forwarding configs perform the same check
+internally once, avoiding duplicate `ExactVersion` range warnings.
 
 `scripts/check_cmake_discovery.py`, run by the consumer gate, covers positive and
 negative component/version requests, repeated discovery, conflicting installed
@@ -406,9 +422,11 @@ must match that source. Required modular sources are:
 - `CMakeLists.txt`, `cmake/compiler.cmake`, `cmake/modules.cmake`;
 - `cmake/library/CMakeLists.txt`, `cmake/library/modules.cmake`,
   `cmake/library/cxx.cmake`;
-- `cmake/install.cmake`, `cmake/packaging.cmake`, `cmake/version.cmake`;
+- `cmake/install.cmake`, `cmake/packaging.cmake`, `cmake/version.cmake`,
+  `cmake/OpenTLVConfig.cmake.in`;
 - `scripts/core_release.py`, `scripts/check_package.py`,
-  `scripts/check_cmake_integration.py`, `scripts/check_capabilities.py`,
+  `scripts/archive_safety.py`, `scripts/check_cmake_integration.py`,
+  `scripts/check_cmake_discovery.py`, `scripts/check_capabilities.py`,
   `scripts/abi/check.py`.
 
 The required Full release workflow set remains the set pinned by
@@ -450,6 +468,19 @@ headers. The header-only C++ facades remain installed independently of the
 development-only `OPENTLV_BUILD_CXX` setting.
 
 #### Extensibility, checksums and provenance
+
+Before extraction, the package verifier and release producer validate the entire
+archive namespace. TAR permits only regular files, directories and relative
+symlinks whose complete resolution stays inside the declared root and ends at an
+existing file or directory. Versioned `.so` symlink chains are supported. Absolute
+paths, entry traversal, hardlinks, sparse files, devices, FIFOs and other special
+types are rejected. Symlink targets are resolved from the link's containing
+directory, following other links before interpreting `..`; escaping, cyclic or
+dangling chains fail. No entry may be nested below a symlink, even a safe one.
+Duplicate normalized paths and file/directory conflicts fail regardless of
+archive order. ZIP permits only regular files and directories, rejects links
+and Windows path aliases, and checks CRCs. Truncated or malformed archives fail
+closed. Validation does not extract malicious inputs to test their safety.
 
 Every field in the version 1 tables remains required, with the additions above
 required for contract 2. Readers may ignore unknown object fields. New optional

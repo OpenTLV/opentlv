@@ -369,9 +369,17 @@ A package configuration rejects pre-existing OpenTLV targets from another build
 or installation instead of reporting metadata for the wrong Library. Use one
 Library instance per consuming build.
 
+Discovery results belong to the name passed to `find_package()`: a failed
+`opentlv_core` or `opentlv` lookup leaves a previous `OpenTLV_FOUND` result intact.
+Inspect the requested name's `_FOUND`, `_NOT_FOUND_MESSAGE` and component fields.
+Successful lookups also expose canonical `OpenTLV_VERSION`. Failed probes never
+remove existing targets or import a partial set of requested components.
+
 The aggregate is always `OpenTLV::tlv`. Its internal source target is
-`opentlv_tlv`; a deprecated `tlv` alias exists only when the application has no
-target with that name. Migrate direct links to `OpenTLV::tlv`. The Library no
+`opentlv_tlv`; a deprecated `tlv` alias exists only in standalone Library builds.
+Embedding through `add_subdirectory()` or FetchContent never reserves `tlv`, so
+an application can define that target before or after adding OpenTLV. Migrate
+direct links to `OpenTLV::tlv`. The Library no
 longer creates a nested `project(tlv)` or its `tlv_*` cache variables; use
 `OpenTLV_SOURCE_DIR` and `OpenTLV_BINARY_DIR` for Library paths.
 
