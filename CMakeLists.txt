@@ -70,10 +70,11 @@ if(_OPENTLV_TOP_LEVEL)
     opentlv_add_cppcheck_targets()
 endif()
 
-add_subdirectory(cmake/library tlv)
+add_subdirectory(cmake/library opentlv-library)
 add_library(OpenTLV::tlv ALIAS opentlv_tlv)
-# Deprecated source-only spelling. An application's target always owns its name.
-if(NOT TARGET tlv)
+# Standalone compatibility only: embedding must leave this name to the parent,
+# including applications that declare their target after adding OpenTLV.
+if(_OPENTLV_TOP_LEVEL AND NOT TARGET tlv)
     add_library(tlv ALIAS opentlv_tlv)
 endif()
 

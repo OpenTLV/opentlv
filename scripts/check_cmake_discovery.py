@@ -22,7 +22,7 @@ def check_discovery(root, work, core_build, prefix, version, configure_options, 
         '  set(PACKAGE_VERSION_EXACT TRUE)\nendif()\n', encoding="utf-8")
     config = conflict_config / "OpenTLVConfig.cmake"
     config.write_text(config.read_text(encoding="utf-8").replace(
-        f'set(OpenTLV_VERSION "{version}")', f'set(OpenTLV_VERSION "{other}")'), encoding="utf-8")
+        f'set(_OpenTLV_version "{version}")', f'set(_OpenTLV_version "{other}")'), encoding="utf-8")
 
     cmake_version = subprocess.check_output(["cmake", "--version"], text=True).split()[2]
     redirects = tuple(map(int, cmake_version.split(".")[:2])) >= (3, 24)
@@ -30,7 +30,7 @@ def check_discovery(root, work, core_build, prefix, version, configure_options, 
     cases = []
     for package in ("OpenTLV", "opentlv_core", "opentlv"):
         for mode in ("installed", "build-tree"):
-            for case in ("positive", "required-component", "required-version"):
+            for case in ("positive", "required-component", "required-version", *(["version-range"] if redirects else [])):
                 cases.append((mode, package, case, ""))
     if redirects:
         for package in ("opentlv_core", "opentlv"):
@@ -43,6 +43,8 @@ def check_discovery(root, work, core_build, prefix, version, configure_options, 
             cases.append(("embedded", dependency, "positive", "override"))
         cases.append(("embedded", dependency, "required-component", ""))
         cases.append(("embedded", dependency, "required-version", ""))
+        if redirects:
+            cases.append(("embedded", dependency, "version-range", ""))
 
     for mode, name, case, variant in cases:
         label = "-".join(filter(None, (mode, name, case, variant)))
@@ -69,6 +71,8 @@ def check_discovery(root, work, core_build, prefix, version, configure_options, 
             passed = result.returncode != 0 and "Unknown or unavailable OpenTLV component: unavailable" in output
         elif case == "required-version":
             passed = result.returncode != 0 and "requested version" in output
+        elif case == "version-range":
+            passed = result.returncode == 0 and output.count('Only the lower endpoint') == 1
         else:
             passed = result.returncode == 0
         if not passed:

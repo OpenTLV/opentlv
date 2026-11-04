@@ -61,7 +61,9 @@ if(NOT _OPENTLV_TOP_LEVEL)
     # Also cover add_subdirectory and declarations without FIND_PACKAGE_ARGS.
     foreach(_name IN ITEMS opentlv opentlv_core)
         file(WRITE "${_opentlv_redirect_dir}/${_name}-config.cmake"
-            "include(\"${OpenTLV_BINARY_DIR}/OpenTLVConfig.cmake\")\n")
+            "set(_OpenTLV_redirect_check TRUE)\n"
+            "include(\"${OpenTLV_BINARY_DIR}/OpenTLVConfig.cmake\")\n"
+            "unset(_OpenTLV_redirect_check)\n")
         # Always reach our config, where the real ExactVersion file is
         # checked. Rejecting here would let CMake try an unrelated installed
         # config (including old releases without target provenance checks).

@@ -7,8 +7,26 @@ if(OPENTLV_VERSION_PRERELEASE)
     string(APPEND CPACK_PACKAGE_VERSION "-${OPENTLV_VERSION_PRERELEASE}")
 endif()
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
+# Contract 2: the archive and extraction root carry the same linkage identity.
+string(TOLOWER "${CMAKE_SYSTEM_NAME}" _opentlv_package_system)
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" _opentlv_package_arch)
+if(_opentlv_package_arch MATCHES "^(amd64|x86_64|x64)$")
+    set(_opentlv_package_arch x64)
+endif()
+set(_opentlv_package_linkage static)
+if(OPENTLV_BUILD_SHARED_LIBS)
+    set(_opentlv_package_linkage shared)
+endif()
+set(_opentlv_package_platform "${_opentlv_package_system}-${_opentlv_package_arch}")
+# Only the approved release matrix has one compiler per platform. Preserve a
+# compiler discriminator for other local packages (e.g. Linux/Clang).
+if(NOT (_opentlv_package_system STREQUAL "linux" AND CMAKE_C_COMPILER_ID STREQUAL "GNU") AND
+   NOT (_opentlv_package_system STREQUAL "windows" AND CMAKE_C_COMPILER_ID STREQUAL "MSVC"))
+    string(TOLOWER "${CMAKE_C_COMPILER_ID}" _opentlv_package_compiler)
+    string(APPEND _opentlv_package_platform "-${_opentlv_package_compiler}")
+endif()
 set(CPACK_PACKAGE_FILE_NAME
-    "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_C_COMPILER_ID}")
+    "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${_opentlv_package_platform}-${_opentlv_package_linkage}")
 set(CPACK_PACKAGE_DIRECTORY "${PROJECT_BINARY_DIR}/packages")
 set(CPACK_VERBATIM_VARIABLES YES)
 if(NOT CPACK_GENERATOR)

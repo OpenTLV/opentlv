@@ -58,7 +58,7 @@ candidates. Owner is the issue that decides any change.
 | --- | --- | --- | --- | --- |
 | Module targets | `OpenTLV::Core`, `IO`, `Document`, `Query`, `Schema`, `Codec`, `Generator`, `ASN1`, `EMV`, `Bluetooth`, `NFC`, `DHCP`, `LLDP` and integrations | Module | Keep; `OpenTLV::Core` is the Core module only | #747 |
 | Aggregate target | `OpenTLV::tlv` (INTERFACE, no archive) | Library | Keep; see below | #747 |
-| Aggregate build target | `opentlv_tlv`, `EXPORT_NAME tlv`; deprecated source-only `tlv` alias when the application has no such target | Build tree | Link `OpenTLV::tlv`; keep the alias under the deprecation rules below | #753 |
+| Aggregate build target | `opentlv_tlv`, `EXPORT_NAME tlv`; deprecated `tlv` alias only in standalone builds | Build tree | Link `OpenTLV::tlv`; embedding never reserves `tlv` | #753, #754 |
 | Removed targets and paths | Monolithic `tlv` library, `tlv++` target, `tlv/` and `tlv++/` include paths | — | Removed in #654 and #733; never reused | — |
 | Build targets and binaries | `opentlv_<key>`, e.g. `libopentlv_core.so`, `opentlv_core.dll` | Module | Keep; direct consumers link these file names | #747, #748 |
 | Export macros | `OPENTLV_<KEY>_API`, `OPENTLV_<KEY>_STATIC_DEFINE`, e.g. `OPENTLV_CORE_API` | Module | Keep | — |
@@ -85,7 +85,7 @@ Core. It does not make Core a synonym for the Library.
 | Release title | `OpenTLV X.Y.Z` | Library | Keep | #748 |
 | Assets | `OpenTLV-X.Y.Z-source.tar.gz`, `OpenTLV-X.Y.Z-<os>-x64-<linkage>.{tar.gz,zip}`, `<id>.json`, `release-manifest.json`, `SHA256SUMS`, `performance*` | Library | Keep | #748 |
 | Archive contents | Prefix `OpenTLV-X.Y.Z/`, metadata `opentlv-source.txt` | Library | Keep | #748 |
-| CPack package | `OpenTLV-<version>-<system>-<processor>-<compiler>`, also the top directory inside each binary asset | Library | Resolve archive identity before v0.9.0; see the [artifact findings](#findings-for-release-artifacts) | #748, #754 |
+| CPack release package | `OpenTLV-<version>-<os>-<architecture>-<linkage>`, also the top directory inside each binary asset | Library | Contract 2 from v0.9.0; other compilers retain a discriminator; see the [migration](#artifact-contract-2) | #748, #754 |
 | Workflow files | `core-pr.yml`, `core-main.yml`, `core-full.yml`, `core-checks.yml`, `core-release.yml` | **Ambiguous** | Keep: binding verifiers pin `core-release.yml` as the attestation signer and expect these file names in release evidence | #748 |
 | Workflow and artifact names | `Core Pull Request CI`, `Core Release`, `core-quality-full-*`, `core-release-timings-*` | **Ambiguous** | Display names may change in #748; artifact names that verifiers read follow the alias rules | #748 |
 | Release scripts | `scripts/core_release.py`, `scripts/core_performance.py` | **Ambiguous** | Internal; rename only together with their workflows | #748 |
@@ -148,7 +148,8 @@ changes, in every consumer mode:
 | `fetch-package` | `opentlv_core` with `FIND_PACKAGE_ARGS <x.y.z> EXACT CONFIG NAMES OpenTLV` (CMake 3.24+) | Every contract target is imported |
 | `fetch-package-canonical` | `opentlv` with the same package arguments | Every contract target is imported |
 | `build-tree` | `OpenTLV_DIR=<build>` | Every contract target is imported from build-tree exports |
-| `fetch-collision` | Legacy FetchContent with an application-owned `tlv` target | Application target is preserved; `OpenTLV::tlv` aliases `opentlv_tlv` |
+| `fetch-collision`, `fetch-collision-after` | Legacy FetchContent with an application-owned `tlv` target declared before or after embedding | Application target is preserved; `OpenTLV::tlv` aliases `opentlv_tlv` |
+| `subdirectory-after` | `add_subdirectory()` followed by an application-owned `tlv` target | Both declaration orders work and link the canonical aggregate |
 
 In every mode, each public target from the
 [module contract](modules/ownership.json) resolves to the same `OpenTLV::` name:
@@ -162,8 +163,8 @@ target from the package. The check also pins:
 - `ExactVersion` rejects another patch version, and documentation is installed
   under `share/doc/OpenTLV`.
 - Every removed option still fails at configure time with its message.
-- An embedding build creates only the `opentlv_tlv` and `opentlv_<key>` targets,
-  plus the conditional deprecated `tlv` alias. It adds
+- An embedding build creates only the `opentlv_tlv` and `opentlv_<key>` targets.
+  The deprecated `tlv` alias is standalone-only. It adds
   only these cache entries: the `OPENTLV_*` options, the `OpenTLV_*`
   project variables, and entries owned by CMake's GNUInstallDirs,
   GenerateExportHeader and FetchContent modules.
@@ -205,13 +206,28 @@ unchanged until each consumer deliberately migrates.
    spelling's version identify the selected Library, including unversioned calls.
 5. **Embedding names:** the build target is `opentlv_tlv` with `EXPORT_NAME tlv`.
    Public `OpenTLV::tlv` and `OpenTLVTargets.cmake` are unchanged. The old source
-   spelling `tlv` is a deprecated alias only when the application does not own it;
-   it still means the aggregate. Migrate links to `OpenTLV::tlv`. Alias removal
-   follows the two-minor-release rule below, measured from the first Library
-   release containing this change, after downstream migrations or waivers.
+   spelling `tlv` is a deprecated alias only in standalone builds; it still means
+   the aggregate there. Embedding never creates that alias, so the application
+   can define `tlv` before or after `add_subdirectory()` or FetchContent.
+   This embedding compatibility correction ships before the first 0.9 release;
+   no released deprecation period is shortened. Migrate links to `OpenTLV::tlv`.
+   Future removal of the standalone alias follows the two-minor-release rule.
+   The internal Library binary directory is `opentlv-library`, with policies
+   established by the root CMake project rather than a redundant nested minimum.
    Removing `project(tlv)` and its cache variables is an intentional breaking
    change: use `OpenTLV_SOURCE_DIR` and `OpenTLV_BINARY_DIR` for Library paths and
    the application's own project identity for top-level decisions.
+
+Package discovery updates only the requested spelling's `_FOUND`,
+`_NOT_FOUND_MESSAGE` and component results. A failed `opentlv_core` or `opentlv`
+request does not invalidate an earlier successful `OpenTLV` request (and vice
+versa). A failed request through the *same* name has ordinary CMake semantics:
+its `_FOUND` becomes false, but existing targets remain intact. Successful
+discovery supplies canonical `OpenTLV_VERSION`; failed alternative requests do
+not replace that metadata. Required components are validated before importing
+any target, and target-origin checks reject mixed installations. Normal lookup
+uses CMake's version check once; forwarding configs perform the same check
+internally once, avoiding duplicate `ExactVersion` range warnings.
 
 `scripts/check_cmake_discovery.py`, run by the consumer gate, covers positive and
 negative component/version requests, repeated discovery, conflicting installed
@@ -223,14 +239,15 @@ FetchContent package lookup. Local results do not replace required hosted CI.
 
 The first part of #748 audits the release identities against the published
 Library v0.8.0 and the current `core-release.yml`, before v0.9.0. It renames
-nothing. `scripts/test_core_release.py` and `scripts/test_ci_workflows.py` now
-fail when any identity in the contract below changes.
+nothing. The audit below preserves that baseline; [contract 2](#artifact-contract-2)
+records the #754 implementation for new releases. Producer, CPack and workflow
+tests require the identities and fields of the applicable contract.
 
 ### Artifact contract
 
 This is version 1 of the artifact contract. It describes v0.8.0, the first
-release published by `core-release.yml`, and every later release until a change
-under the [breaking-change policy](#breaking-change-policy). `X.Y.Z` is the
+release published by `core-release.yml`. Version 2 applies starting with v0.9.0,
+including its prereleases, under the [breaking-change policy](#breaking-change-policy). `X.Y.Z` is the
 version without the tag's `v`, including any prerelease suffix such as `-rc.1`.
 `<id>` is one of `linux-x64-static`, `linux-x64-shared`, `windows-x64-static`
 and `windows-x64-shared`.
@@ -300,9 +317,10 @@ accepts both tag forms.
 
 ### Findings for release artifacts
 
-The audit fixed none of these except the release title above. Library-owned
-remediation is tracked in #754 and must be completed before v0.9.0, or explicitly
-waived with documented release-risk approval in #702. Binding verifier changes
+At the audit baseline none of these was fixed except the release title above.
+The [contract 2 decisions](#artifact-contract-2) below resolve the Library-owned
+work in #754; required hosted release validation remains a gate for epic #702
+and release #716. Binding verifier changes
 remain owned by the binding issues named; moving their pins requires validation
 against the approved Library release assets.
 
@@ -357,6 +375,158 @@ against the approved Library release assets.
    the artifact contract version. A verifier cannot tell a renamed artifact set
    from an unknown one. Top-level fields such as `library` and
    `artifact_contract` would be additions, which no current verifier rejects.
+
+### Artifact contract 2
+
+Starting with v0.9.0 (including prereleases), the producer emits
+`library: "OpenTLV"` and `artifact_contract: 2` in `release-manifest.json`.
+The manifest keeps schema 2, Full CI evidence keeps schema 2 and binary records
+keep schema 1: their existing fields retain their meaning. Contract 2 versions
+the new archive namespace and modular evidence requirements. An absent
+`artifact_contract` identifies the historical contract 1, not contract 2.
+Consumers must explicitly support a contract before selecting its artifacts.
+
+#### Archive migration
+
+The binary filename and its single top directory now share the stem
+`OpenTLV-X.Y.Z-<id>`, e.g. `OpenTLV-0.9.0-rc.1-linux-x64-static/` and
+`OpenTLV-0.9.0-rc.1-linux-x64-shared/`. The source archive remains unchanged.
+CPack uses lowercase system/processor names, normalizes `AMD64`, `x86_64` and
+`x64` to `x64`, and appends `static` or `shared`. Compiler identity remains in
+the binary record; the approved release matrix has one compiler per OS.
+Local CPack builds outside the Linux/GNU and Windows/MSVC compiler pairs insert
+a lowercase compiler discriminator before linkage, e.g.
+`OpenTLV-0.9.0-linux-x64-clang-static`, to avoid merging different toolchains.
+Different versions of the same compiler still need separate download directories.
+
+This is a breaking archive-prefix change in the 0.9 minor release. Archive
+consumers must use the new required binary `archive_root` field or discover
+the single root, rather than reconstructing the old compiler-based name.
+There is deliberately no old-directory alias: duplicating or linking the old
+root would restore the static/shared collision. This is the contract's narrow
+exception to the alias-first rule. Published v0.8.0 archives and all older
+tags, records, hashes and attestations stay immutable. Regression tests reject
+the old root for newly produced archives and extract stable/prerelease static
+and shared packages together, retaining each package's own contents.
+
+#### Evidence schema and binary metadata
+
+`quality.configuration.schema: 1` identifies the modular configuration evidence.
+Absence of that field identifies the legacy unversioned evidence. Its required
+fields are `schema`, `inputs`, `configuration_sources` and `workflows`.
+`configuration_sources` maps repository-relative file names to SHA-256 digests;
+`workflows` maps workflow basenames to `sha256` and exact `definition` text.
+All paths must stay within the Verified Source, and every digest and definition
+must match that source. Required modular sources are:
+
+- `CMakeLists.txt`, `cmake/compiler.cmake`, `cmake/modules.cmake`;
+- `cmake/library/CMakeLists.txt`, `cmake/library/modules.cmake`,
+  `cmake/library/cxx.cmake`;
+- `cmake/install.cmake`, `cmake/packaging.cmake`, `cmake/version.cmake`,
+  `cmake/OpenTLVConfig.cmake.in`;
+- `scripts/core_release.py`, `scripts/check_package.py`,
+  `scripts/archive_safety.py`, `scripts/check_cmake_integration.py`,
+  `scripts/check_cmake_discovery.py`, `scripts/check_capabilities.py`,
+  `scripts/abi/check.py`.
+
+The required Full release workflow set remains the set pinned by
+`test_release_evidence_records_the_files_that_verifiers_compare` in
+`scripts/test_core_release.py`. The producer compares the entire configuration
+against the release checkout, including the resolved release-tag input, before
+publishing. Binding verifiers must enforce these required sets, verify every
+additional source/workflow against the same Verified Source, and reject missing
+required files. They must not accept an arbitrary self-consistent subset.
+Adding evidence files is extensible; removing required files or changing their
+meaning requires a new configuration schema and a downstream migration.
+
+Binary records add these required contract 2 fields:
+
+| Field | Meaning |
+| --- | --- |
+| `artifact_contract` | Integer `2` |
+| `archive_root` | The single extraction directory, without a trailing slash |
+| `modules` | Sorted records for registered module and integration targets; each has `name` (CMake component), `target` (`OpenTLV::...`), `linkage` and `position_independent_code` |
+| `features` | Boolean `OPENTLV_QUERY_FRONTEND` and `OPENTLV_QUERY_SET_OPERATIONS` values |
+| `position_independent_code` | Boolean: true only when all compiled modules have CMake's target `POSITION_INDEPENDENT_CODE` enabled |
+
+Per-module `linkage` is `static`, `shared` or `interface`; PIC is a Boolean for
+compiled modules and `null` for an interface. These values come from generated
+target properties, including overrides, rather than an inference from the cache.
+The `modules` list includes integration facades, but excludes the optional
+`OpenTLV::tlv` aggregate because it is not a module. The existing top-level
+`linkage` describes the compiled libraries. All approved release builds enable
+PIC, including Linux static packages, and the producer rejects any compiled
+module without it. On Windows the field records the CMake target setting;
+it does not claim ELF flags or cross-platform binary compatibility.
+
+`options` still records actual `OPENTLV_*` cache entries for build provenance.
+It is not a module-availability map. Consumers select modules through `modules`
+and optional Query behavior through `features`. Removed module/family options,
+monolithic `tlv` archives and legacy headers are not recreated. The owning
+binding must link the modular dependency closure and use `opentlv/<module>/`
+headers. The header-only C++ facades remain installed independently of the
+development-only `OPENTLV_BUILD_CXX` setting.
+
+#### Extensibility, checksums and provenance
+
+Before extraction, the package verifier and release producer validate the entire
+archive namespace. TAR permits only regular files, directories and relative
+symlinks whose complete resolution stays inside the declared root and ends at an
+existing file or directory. Versioned `.so` symlink chains are supported. Absolute
+paths, entry traversal, hardlinks, sparse files, devices, FIFOs and other special
+types are rejected. Symlink targets are resolved from the link's containing
+directory, following other links before interpreting `..`; escaping, cyclic or
+dangling chains fail. No entry may be nested below a symlink, even a safe one.
+Duplicate normalized paths and file/directory conflicts fail regardless of
+archive order. ZIP permits only regular files and directories, rejects links
+and Windows path aliases, and checks CRCs. Truncated or malformed archives fail
+closed. Validation does not extract malicious inputs to test their safety.
+
+Every field in the version 1 tables remains required, with the additions above
+required for contract 2. Readers may ignore unknown object fields. New optional
+fields do not require a schema bump; deleting, retyping or redefining required
+fields does. An unknown manifest schema, artifact contract or configuration
+schema must fail verification until the reader supports it. Asset names,
+the approved binary IDs and required artifact kinds remain exact for contract
+2; adding another published kind or filename requires a deliberate contract
+update, including the owning consumers' selection and validation rules.
+
+`release-manifest.json`, `SHA256SUMS`, binary record filenames and performance
+filenames stay unchanged. Every other published file, including the manifest
+and binary records, has exactly one SHA-256 line in `SHA256SUMS`; the checksum
+file does not checksum itself. Each published file, including `SHA256SUMS`,
+is attested by `OpenTLV/opentlv/.github/workflows/core-release.yml` with the
+release commit as source digest. Candidate and quality repository, commit, run
+ID and attempt must match the same release run, and all Full checks must pass.
+
+Prefixed manifest/checksum companions were evaluated and are deliberately
+omitted in contract 2. They would not make co-download safe: binary records and
+performance files would still collide, while duplicate checksum entry points
+would add another synchronization and provenance obligation. Download each
+repository/tag into its own directory. This resolves finding 3 by retaining the
+verifier-visible paths and documenting the limitation, rather than promising
+that all assets can share a directory. Binary extraction coexistence is tested
+separately.
+
+#### Tracking and downstream handoff
+
+For #702 and audit #748, findings 1, 2 and 4 have Library-side implementations
+in #754; finding 3 has the explicit no-companion decision above. Contract 1 is
+retained as historical evidence. These decisions do not establish hosted PR,
+Full CI, release validation or publication success.
+
+The existing verifier migrations belong to
+[opentlv-python#58](https://github.com/OpenTLV/opentlv-python/issues/58),
+[opentlv-rust#49](https://github.com/OpenTLV/opentlv-rust/issues/49) and
+[opentlv-lua#58](https://github.com/OpenTLV/opentlv-lua/issues/58). Each must
+support contract 2, modular configuration evidence, module selection, PIC and
+the new headers/libraries, while retaining verification of its pinned v0.8.0
+assets until migration. Each binding must record its own CI run against the
+actual approved v0.9.0 assets and a clean consumer before publishing against
+them. Fixtures and Library CI are insufficient. Library CI owns producer,
+archive, native consumer and workflow checks; it does not run every binding
+verifier. #702/#748 tracking must retain those outstanding evidence gates;
+only release-risk approval recorded in #702 can waive required release work.
 
 ## Compatibility rules
 

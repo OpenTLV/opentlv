@@ -23,6 +23,11 @@ if(MODE STREQUAL "embedded")
     endif()
 endif()
 
+if(CASE STREQUAL "version-range")
+    find_package(${PACKAGE} ${VERSION}...${OTHER_VERSION} CONFIG REQUIRED NAMES OpenTLV COMPONENTS Core)
+    return()
+endif()
+
 if(CASE STREQUAL "required-version")
     find_package(${PACKAGE} ${OTHER_VERSION} EXACT CONFIG REQUIRED NAMES OpenTLV)
     message(FATAL_ERROR "Accepted a different required version")
@@ -43,7 +48,7 @@ endif()
 
 # A failed probe must not import partial targets and poison a source fallback.
 find_package(${PACKAGE} CONFIG QUIET NAMES OpenTLV COMPONENTS Core unavailable)
-if(${PACKAGE}_FOUND OR OpenTLV_FOUND)
+if(${PACKAGE}_FOUND)
     message(FATAL_ERROR "Accepted an unknown required component")
 endif()
 if(NOT MODE STREQUAL "embedded" AND TARGET OpenTLV::Core)
@@ -63,8 +68,7 @@ else()
     find_package(${PACKAGE} ${VERSION} EXACT CONFIG REQUIRED NAMES OpenTLV
         COMPONENTS Core OPTIONAL_COMPONENTS unavailable)
 endif()
-if(NOT TARGET OpenTLV::Core OR NOT ${PACKAGE}_Core_FOUND OR NOT OpenTLV_Core_FOUND
-   OR ${PACKAGE}_unavailable_FOUND OR OpenTLV_unavailable_FOUND)
+if(NOT TARGET OpenTLV::Core OR NOT ${PACKAGE}_Core_FOUND OR ${PACKAGE}_unavailable_FOUND)
     message(FATAL_ERROR "Incorrect component metadata")
 endif()
 if(NOT MODE STREQUAL "embedded" AND (TARGET OpenTLV::IO OR TARGET OpenTLV::tlv))
@@ -73,6 +77,37 @@ endif()
 if(NOT "${${PACKAGE}_VERSION}" VERSION_EQUAL VERSION OR NOT OpenTLV_VERSION VERSION_EQUAL VERSION)
     message(FATAL_ERROR "Missing or inconsistent Library version metadata")
 endif()
+
+# Package result variables belong to the requested spelling, in both directions.
+# A failure through one spelling must preserve a successful lookup through any
+# other spelling, and a later success must not clear the other's failure reason.
+foreach(first IN ITEMS OpenTLV opentlv_core opentlv)
+    foreach(second IN ITEMS OpenTLV opentlv_core opentlv)
+        if(first STREQUAL second)
+            continue()
+        endif()
+        find_package(${first} ${VERSION} EXACT CONFIG REQUIRED NAMES OpenTLV COMPONENTS Core)
+        find_package(${second} CONFIG QUIET NAMES OpenTLV COMPONENTS Schema unavailable)
+        if(${second}_FOUND OR NOT ${second}_NOT_FOUND_MESSAGE MATCHES "Unknown or unavailable" OR
+           NOT ${first}_FOUND OR NOT ${first}_Core_FOUND OR
+           NOT "${${first}_VERSION}" VERSION_EQUAL VERSION OR NOT OpenTLV_VERSION VERSION_EQUAL VERSION)
+            message(FATAL_ERROR "Discovery state leaked from ${second} to ${first}")
+        endif()
+        if(NOT MODE STREQUAL "embedded" AND TARGET OpenTLV::Schema)
+            message(FATAL_ERROR "Failed secondary discovery imported partial targets")
+        endif()
+        set(failure_message "${${second}_NOT_FOUND_MESSAGE}")
+        find_package(${first} CONFIG REQUIRED NAMES OpenTLV COMPONENTS Core OPTIONAL_COMPONENTS unavailable)
+        if(${second}_FOUND OR NOT "${${second}_NOT_FOUND_MESSAGE}" STREQUAL failure_message)
+            message(FATAL_ERROR "Successful ${first} discovery erased ${second} failure")
+        endif()
+        find_package(${second} ${OTHER_VERSION} EXACT CONFIG QUIET NAMES OpenTLV)
+        if(${second}_FOUND OR NOT ${first}_FOUND OR NOT TARGET OpenTLV::Core OR
+           NOT "${${first}_VERSION}" VERSION_EQUAL VERSION OR NOT OpenTLV_VERSION VERSION_EQUAL VERSION)
+            message(FATAL_ERROR "Failed ${second} version probe invalidated ${first}")
+        endif()
+    endforeach()
+endforeach()
 
 # Wrong versions fail even when embedded aliases already exist. The conflicting
 # installation advertises OTHER_VERSION, so a redirect miss cannot hide a mix.
@@ -101,7 +136,7 @@ if(MODE STREQUAL "embedded")
             "message(FATAL_ERROR \"Discovery executed a conflicting legacy config\")\n")
         find_package(${PACKAGE} ${OTHER_VERSION} EXACT CONFIG QUIET NAMES OpenTLV
             PATHS "${legacy}" NO_DEFAULT_PATH)
-        if(${PACKAGE}_FOUND OR NOT OpenTLV_NOT_FOUND_MESSAGE MATCHES "does not match requested version")
+        if(${PACKAGE}_FOUND OR NOT ${PACKAGE}_NOT_FOUND_MESSAGE MATCHES "does not match requested version")
             message(FATAL_ERROR "Redirect did not reject the version before installed discovery")
         endif()
     endif()

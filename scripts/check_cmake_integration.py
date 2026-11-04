@@ -36,7 +36,8 @@ PACKAGE_FILES = frozenset(("OpenTLVConfig.cmake", "OpenTLVConfigVersion.cmake",
                            "OpenTLVModules.cmake", "OpenTLVTargets.cmake"))
 # Consumer-side FetchContent names: the legacy spelling and the contract's canonical one.
 DEPENDENCIES = {"fetch": "opentlv_core", "fetch-package": "opentlv_core", "fetch-canonical": "opentlv",
-                "fetch-package-canonical": "opentlv", "fetch-collision": "opentlv_core"}
+                "fetch-package-canonical": "opentlv", "fetch-collision": "opentlv_core",
+                "fetch-collision-after": "opentlv_core"}
 
 
 def run(*args, cwd=None):
@@ -253,10 +254,20 @@ def main():
 
     # A standalone build supplies the reference metadata and installed package.
     core_build = work / "core"
-    configure(root, core_build, *core_options, "-DOPENTLV_BUILD_TESTS=OFF",
-              "-DOPENTLV_BUILD_EXAMPLES=OFF",
-              "-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler",
-              "-DCMAKE_INSTALL_LIBDIR=lib", "-DCMAKE_INSTALL_INCLUDEDIR=include")
+    # CMake 3.16 GraphViz omits aliases. Trace executed declarations instead of
+    # inspecting source text, so both supported CMake paths check the real branch.
+    result = subprocess.run(["cmake", "-S", str(root), "-B", str(core_build), *common, *core_options,
+                             "-DOPENTLV_BUILD_TESTS=OFF", "-DOPENTLV_BUILD_EXAMPLES=OFF",
+                             "-DCMAKE_CXX_COMPILER=/opentlv-no-cxx-compiler",
+                             "-DCMAKE_INSTALL_LIBDIR=lib", "-DCMAKE_INSTALL_INCLUDEDIR=include",
+                             "--trace-expand", f"--trace-source={root / 'CMakeLists.txt'}"],
+                            capture_output=True, text=True)
+    (work / "standalone-configure.log").write_text(result.stdout + result.stderr, encoding="utf-8")
+    if result.returncode:
+        raise RuntimeError(result.stdout + result.stderr)
+    for alias in ("OpenTLV::tlv", "tlv"):
+        if not re.search(r'add_library\(\s*' + re.escape(alias) + r'\s+ALIAS\s+opentlv_tlv\s*\)', result.stderr):
+            raise RuntimeError(f"Standalone aggregate lost its {alias} alias")
     if list((core_build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
         raise RuntimeError("Library/facade-only configuration enabled a C++ compiler")
     cache = (core_build / "CMakeCache.txt").read_text(encoding="utf-8")
@@ -370,7 +381,7 @@ def main():
     # The full fetch build compiles every embedded module; the other source modes
     # check identity and build only the application against Core.
     modes = ["package", "package-all", "build-tree", "fetch", "fetch-canonical",
-             "fetch-collision", "subdirectory"]
+             "fetch-collision", "fetch-collision-after", "subdirectory", "subdirectory-after"]
     cmake_version = subprocess.check_output(["cmake", "--version"], text=True)
     if tuple(map(int, re.search(r"version (\d+)\.(\d+)", cmake_version).groups())) >= (3, 24):
         modes.extend(("fetch-package", "fetch-package-canonical"))
@@ -387,14 +398,15 @@ def main():
         if mode == "build-tree":
             options += [f"-DOpenTLV_DIR={core_build.as_posix()}",
                         f"-DEXPECTED_PREFIX={core_build.as_posix()}"]
-        if mode in ("fetch", "fetch-canonical", "fetch-collision"):
+        if mode in ("fetch", "fetch-canonical", "fetch-collision", "fetch-collision-after"):
             options += core_options + [
                 f"-DFETCHCONTENT_SOURCE_DIR_{dependency.upper()}={root.as_posix()}"]
-        elif mode == "subdirectory":
+        elif mode.startswith("subdirectory"):
             options += core_options + [f"-DCONSUMER_SOURCE_DIR={root.as_posix()}"]
         configure(consumer, build, *options)
-        if mode in ("fetch", "fetch-canonical", "fetch-collision", "subdirectory"):
-            embedded = build / ("opentlv" if mode == "subdirectory" else f"_deps/{dependency}-build")
+        if mode in ("fetch", "fetch-canonical", "fetch-collision", "fetch-collision-after",
+                    "subdirectory", "subdirectory-after"):
+            embedded = build / ("opentlv" if mode.startswith("subdirectory") else f"_deps/{dependency}-build")
             generated = embedded / "generated/include/opentlv/core/version.h"
             if generated.read_bytes() != reference:
                 raise RuntimeError("Embedded Core version differs from standalone metadata")

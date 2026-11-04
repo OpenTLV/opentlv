@@ -14,6 +14,8 @@ import tarfile
 import tempfile
 import zipfile
 
+from archive_safety import check_archive
+
 
 def require(condition, message):
     if not condition:
@@ -107,6 +109,8 @@ def main():
     expected = manifest(prefix)
     for index, archive in enumerate(archives):
         extracted = work / f"archive-{index}"
+        archive_root = archive.name.removesuffix(".zip").removesuffix(".tar.gz")
+        check_archive(archive, archive_root)
         if archive.suffix == ".zip":
             with zipfile.ZipFile(archive) as package:
                 package.extractall(extracted)
@@ -116,6 +120,7 @@ def main():
         roots = list(extracted.iterdir())
         require(len(roots) == 1 and roots[0].is_dir(), "Expected one package root")
         root = roots[0]
+        require(root.name == archive_root, "Package root differs from archive identity")
         files = manifest(root)
         compare_manifests(expected, files)
         check_license_files(root, Path(cache["CMAKE_HOME_DIRECTORY"]), datarootdir)
@@ -236,6 +241,6 @@ endif()
 if __name__ == "__main__":
     try:
         main()
-    except (RuntimeError, OSError, subprocess.CalledProcessError, tarfile.TarError, zipfile.BadZipFile) as error:
+    except (ValueError, RuntimeError, OSError, subprocess.CalledProcessError, tarfile.TarError, zipfile.BadZipFile) as error:
         print(f"Package verification failed: {error}", file=sys.stderr)
         sys.exit(1)

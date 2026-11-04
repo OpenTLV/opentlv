@@ -13,6 +13,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+import zipfile
 from unittest.mock import patch
 
 import core_release as release
@@ -116,7 +117,9 @@ class CoreGateTests(unittest.TestCase):
     def test_changed_module_configuration_invalidates_quality_evidence(self):
         evidence = quality()
         original_digest = release.digest
-        for changed in ('cmake/modules.cmake', 'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake'):
+        for changed in ('cmake/modules.cmake', 'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake',
+                        'cmake/library/cxx.cmake', 'cmake/packaging.cmake', 'scripts/core_release.py',
+                        'scripts/check_package.py'):
             with self.subTest(changed=changed):
                 self.assertIn(changed, evidence['configuration']['configuration_sources'])
                 with patch('core_release.digest', side_effect=lambda path:
@@ -166,8 +169,12 @@ class CoreGateTests(unittest.TestCase):
             'fuzz.yml', 'property.yml', 'query-hardening.yml', 'static-analysis.yml', 'valgrind.yml'})
         self.assertEqual(set(configuration['configuration_sources']), {
             'CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake', 'cmake/library/CMakeLists.txt',
-            'cmake/library/modules.cmake', 'scripts/check_cmake_integration.py',
+            'cmake/library/modules.cmake', 'cmake/library/cxx.cmake', 'cmake/install.cmake',
+            'cmake/packaging.cmake', 'cmake/version.cmake', 'scripts/core_release.py', 'scripts/check_package.py',
+            'scripts/archive_safety.py', 'cmake/OpenTLVConfig.cmake.in', 'scripts/check_cmake_discovery.py',
+            'scripts/check_cmake_integration.py',
             'scripts/check_capabilities.py', 'scripts/abi/check.py'})
+        self.assertEqual(configuration['schema'], 1)
 
     def test_full_configuration_evidence_cannot_omit_or_change_inputs(self):
         for changes in ({}, {'inputs': {'full': False}}, {'workflows': {}}):
@@ -496,18 +503,31 @@ class ArchiveTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
-    def source(self, missing=None):
+    def binary_archive(self, path, root, content=b'package content'):
+        name = root + '/include/opentlv/core/version.h'
+        if path.suffix == '.zip':
+            with zipfile.ZipFile(path, 'w') as archive:
+                entry = zipfile.ZipInfo()
+                entry.filename = name  # Preserve deliberately unsafe backslashes on Windows too.
+                archive.writestr(entry, content)
+        else:
+            with tarfile.open(path, 'w:gz') as archive:
+                entry = tarfile.TarInfo(name)
+                entry.size = len(content)
+                archive.addfile(entry, io.BytesIO(content))
+
+    def source(self, missing=None, number='0.8.0'):
         stream = io.BytesIO()
         with tarfile.open(fileobj=stream, mode='w') as archive:
             for name in ('README.md', 'LICENSE', 'LICENSES/MIT.txt', 'REUSE.toml', 'THIRD_PARTY.md'):
                 if name != missing:
-                    entry = tarfile.TarInfo('OpenTLV-0.8.0/' + name)
+                    entry = tarfile.TarInfo(f'OpenTLV-{number}/' + name)
                     data = b'test source\n'
                     entry.size = len(data)
                     archive.addfile(entry, io.BytesIO(data))
         with patch('core_release.git', side_effect=[SHA, '']), \
                 patch('core_release.subprocess.check_output', return_value=stream.getvalue()):
-            return release.source_archive(self.root, '0.8.0', SHA)
+            return release.source_archive(self.root, number, SHA)
 
     def test_source_bytes_and_metadata_roundtrip(self):
         archive = self.source()
@@ -530,18 +550,25 @@ class ArchiveTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 release.source_archive(self.root, '0.8.0', SHA)
 
-    def fixture(self):
-        self.source()
+    def fixture(self, number='0.8.0'):
+        self.source(number=number)
         for identifier in release.BINARY_IDS:
             suffix = '.zip' if identifier.startswith('windows-') else '.tar.gz'
-            archive = self.root / f'OpenTLV-0.8.0-{identifier}{suffix}'
-            archive.write_bytes(identifier.encode())
+            archive = self.root / f'OpenTLV-{number}-{identifier}{suffix}'
+            root = f'OpenTLV-{number}-{identifier}'
+            self.binary_archive(archive, root, identifier.encode())
             release.write_json(self.root / (identifier + '.json'), {
-                'kind': 'binary', 'id': identifier, 'version': '0.8.0', 'commit': SHA,
+                'schema': 1, 'artifact_contract': 2, 'archive_root': root,
+                'linkage': identifier.rsplit('-', 1)[1], 'position_independent_code': True,
+                'modules': [{'name': 'Core', 'target': 'OpenTLV::Core',
+                             'linkage': identifier.rsplit('-', 1)[1], 'position_independent_code': True}],
+                'features': {'OPENTLV_QUERY_FRONTEND': True, 'OPENTLV_QUERY_SET_OPERATIONS': True},
+                'kind': 'binary', 'id': identifier, 'version': number, 'commit': SHA,
                 'filename': archive.name, 'sha256': release.digest(archive)})
         evidence = self.root / 'evidence' / 'quality.json'
         release.write_json(evidence, quality())
-        release.write_json(evidence.parent / 'release-candidate.json', candidate())
+        release_candidate = dict(candidate(), tag='v' + number, version=number)
+        release.write_json(evidence.parent / 'release-candidate.json', release_candidate)
         # Evidence is deliberately outside the publish directory.
         destination = self.root / 'artifacts'
         destination.mkdir()
@@ -549,7 +576,7 @@ class ArchiveTests(unittest.TestCase):
             if item.is_file():
                 shutil.move(str(item), destination / item.name)
         from test_core_performance import performance_fixture
-        performance_fixture(destination, candidate())
+        performance_fixture(destination, release_candidate)
         return destination, evidence
 
     @patch.dict(os.environ, ENV)
@@ -558,6 +585,23 @@ class ArchiveTests(unittest.TestCase):
         release.manifest(destination, evidence, '0.8.0', SHA)
         manifest = json.loads((destination / 'release-manifest.json').read_text())
         self.assertEqual(len(manifest['artifacts']), 8)
+        for line in (destination / 'SHA256SUMS').read_text().splitlines():
+            checksum, name = line.split('  ')
+            self.assertEqual(checksum, release.digest(destination / name))
+
+    @patch.dict(os.environ, dict(ENV, RELEASE_TAG='v0.9.0-rc.1'))
+    def test_prerelease_manifest_preserves_identity_and_extensible_record_fields(self):
+        destination, evidence = self.fixture('0.9.0-rc.1')
+        path = destination / 'linux-x64-static.json'
+        record = json.loads(path.read_text())
+        record['future_metadata'] = {'optional': True}
+        release.write_json(path, record)
+        release.manifest(destination, evidence, '0.9.0-rc.1', SHA)
+        manifest = json.loads((destination / 'release-manifest.json').read_text())
+        self.assertEqual(manifest['version'], '0.9.0-rc.1')
+        self.assertEqual(manifest['candidate']['tag'], 'v0.9.0-rc.1')
+        self.assertEqual(manifest['quality']['configuration']['inputs']['release_tag'], 'v0.9.0-rc.1')
+        self.assertIn(record, manifest['artifacts'])
         for line in (destination / 'SHA256SUMS').read_text().splitlines():
             checksum, name = line.split('  ')
             self.assertEqual(checksum, release.digest(destination / name))
@@ -580,6 +624,8 @@ class ArchiveTests(unittest.TestCase):
         self.assertEqual({'schema', 'version', 'commit', 'candidate', 'quality', 'performance', 'artifacts'}
                          - set(manifest), set())
         self.assertEqual((manifest['schema'], manifest['version'], manifest['commit']), (2, '0.8.0', SHA))
+        self.assertEqual(manifest['library'], 'OpenTLV')
+        self.assertEqual(manifest['artifact_contract'], 2)
         self.assertEqual(manifest['candidate'], candidate())
         kinds = {}
         for record in manifest['artifacts']:
@@ -605,9 +651,14 @@ class ArchiveTests(unittest.TestCase):
         header.write_text('#define OPENTLV_VERSION_STRING "0.9.0-rc.1"\n'
                           f'#define OPENTLV_GIT_COMMIT_HASH "{SHA[:12]}"\n')
         (build / 'packages').mkdir()
-        # CPack names the archive and its top directory without the linkage.
-        (build / 'packages/OpenTLV-0.9.0-rc.1-Windows-AMD64-MSVC.zip').write_bytes(b'verified archive')
+        archive = build / 'packages/OpenTLV-0.9.0-rc.1-windows-x64-shared.zip'
+        self.binary_archive(archive, 'OpenTLV-0.9.0-rc.1-windows-x64-shared')
+        original_bytes = archive.read_bytes()
+        release.write_json(build / 'modules-Release.json', [
+            {'export_name': ['Core'], 'type': 'SHARED_LIBRARY', 'position_independent_code': True},
+            {'export_name': ['SchemaNumber'], 'type': 'INTERFACE_LIBRARY'}])
         cache = {'CMAKE_BUILD_TYPE': 'Release', 'OPENTLV_BUILD_CXX': 'ON', 'OPENTLV_BUILD_SHARED_LIBS': 'ON',
+                 'OPENTLV_QUERY_FRONTEND': 'ON', 'OPENTLV_QUERY_SET_OPERATIONS': 'OFF',
                  'CMAKE_CACHE_MAJOR_VERSION': '3', 'CMAKE_CACHE_MINOR_VERSION': '28',
                  'CMAKE_CACHE_PATCH_VERSION': '3', 'CMAKE_MSVC_RUNTIME_LIBRARY': 'MultiThreadedDLL'}
         compiler = {'CMAKE_C_COMPILER': 'cl.exe', 'CMAKE_C_COMPILER_ARG1': '',
@@ -616,9 +667,13 @@ class ArchiveTests(unittest.TestCase):
         with patch('check_package.read_cache', return_value=cache), \
                 patch('check_package.compiler_settings', return_value=compiler):
             release.binary_record(build, output, 'windows-x64-shared', '0.9.0-rc.1', SHA)
+            release.write_json(build / 'modules-Release.json', [
+                {'export_name': ['Core'], 'type': 'SHARED_LIBRARY', 'position_independent_code': False}])
+            with self.assertRaisesRegex(ValueError, 'require PIC on every compiled module'):
+                release.binary_record(build, output, 'windows-x64-shared', '0.9.0-rc.1', SHA)
         asset = 'OpenTLV-0.9.0-rc.1-windows-x64-shared.zip'
         self.assertEqual({path.name for path in output.iterdir()}, {asset, 'windows-x64-shared.json'})
-        self.assertEqual((output / asset).read_bytes(), b'verified archive')
+        self.assertEqual((output / asset).read_bytes(), original_bytes)
         record = json.loads((output / 'windows-x64-shared.json').read_text())
         self.assertEqual({'schema', 'kind', 'id', 'version', 'commit', 'filename', 'sha256', 'os',
                           'architecture', 'linkage', 'build_type', 'compiler', 'msvc_runtime', 'libc',
@@ -628,7 +683,73 @@ class ArchiveTests(unittest.TestCase):
                          {'schema': 1, 'kind': 'binary', 'id': 'windows-x64-shared', 'version': '0.9.0-rc.1',
                           'filename': asset, 'os': 'windows', 'architecture': 'x64', 'linkage': 'shared',
                           'build_type': 'Release', 'libc': None})
-        self.assertEqual(record['options'], {'OPENTLV_BUILD_CXX': 'ON', 'OPENTLV_BUILD_SHARED_LIBS': 'ON'})
+        self.assertEqual(record['options'], {key: value for key, value in cache.items()
+                                             if key.startswith('OPENTLV_')})
+        self.assertEqual(record['features'], {'OPENTLV_QUERY_FRONTEND': True,
+                                              'OPENTLV_QUERY_SET_OPERATIONS': False})
+        self.assertEqual(record['artifact_contract'], 2)
+        self.assertEqual(record['archive_root'], 'OpenTLV-0.9.0-rc.1-windows-x64-shared')
+        self.assertIs(record['position_independent_code'], True)
+        self.assertEqual(record['modules'], [
+            {'name': 'Core', 'target': 'OpenTLV::Core', 'linkage': 'shared', 'position_independent_code': True},
+            {'name': 'SchemaNumber', 'target': 'OpenTLV::SchemaNumber', 'linkage': 'interface',
+             'position_independent_code': None}])
+
+    def test_module_metadata_requires_target_pic_and_matching_linkage(self):
+        entry = {'export_name': ['Core'], 'type': 'STATIC_LIBRARY', 'position_independent_code': False}
+        path = self.root / 'modules-Release.json'
+        release.write_json(path, [entry])
+        self.assertIs(release.binary_modules(self.root, 'static')[0]['position_independent_code'], False)
+        for changes in ({'position_independent_code': 'ON'}, {'type': 'SHARED_LIBRARY'},
+                        {'type': 'UNKNOWN'}, {'export_name': []}):
+            with self.subTest(changes=changes):
+                release.write_json(path, [dict(entry, **changes)])
+                with self.assertRaises(ValueError):
+                    release.binary_modules(self.root, 'static')
+
+    def test_archives_coexist_for_stable_and_prerelease_versions(self):
+        extracted = self.root / 'extracted'
+        for number in ('0.9.0', '0.9.0-rc.1'):
+            for identifier in sorted(release.BINARY_IDS):
+                with self.subTest(version=number, identifier=identifier):
+                    root = f'OpenTLV-{number}-{identifier}'
+                    path = self.root / (root + ('.zip' if identifier.startswith('windows') else '.tar.gz'))
+                    self.binary_archive(path, root, root.encode())
+                    release.check_binary_archive(path, root)
+                    if path.suffix == '.zip':
+                        with zipfile.ZipFile(path) as archive:
+                            archive.extractall(extracted)
+                    else:
+                        with tarfile.open(path) as archive:
+                            archive.extractall(extracted, filter='data')
+        self.assertEqual(len(list(extracted.iterdir())), 8)
+        for root in extracted.iterdir():
+            self.assertEqual((root / 'include/opentlv/core/version.h').read_text(), root.name)
+
+    def test_old_colliding_root_and_unsafe_paths_are_rejected(self):
+        root = 'OpenTLV-0.9.0-linux-x64-static'
+        for suffix in ('.zip', '.tar.gz'):
+            for invalid in ('OpenTLV-0.9.0-Linux-x86_64-GNU', root + '/../outside', '/' + root,
+                            root + '\\outside'):
+                with self.subTest(suffix=suffix, root=invalid):
+                    path = self.root / ('bad' + suffix)
+                    self.binary_archive(path, invalid)
+                    with self.assertRaises(ValueError):
+                        release.check_binary_archive(path, root)
+
+    @patch.dict(os.environ, ENV)
+    def test_manifest_rejects_missing_contract_and_false_pic(self):
+        destination, evidence = self.fixture()
+        path = destination / 'linux-x64-static.json'
+        record = json.loads(path.read_text())
+        for changes in ({'artifact_contract': 1}, {'position_independent_code': False},
+                        {'archive_root': 'legacy'}, {'linkage': 'shared'}, {'modules': []},
+                        {'features': {'OPENTLV_QUERY_FRONTEND': True}},
+                        {'modules': [dict(record['modules'][0], position_independent_code=False)]}):
+            with self.subTest(changes=changes):
+                release.write_json(path, dict(record, **changes))
+                with self.assertRaises(ValueError):
+                    release.manifest(destination, evidence, '0.8.0', SHA)
 
     @patch.dict(os.environ, ENV)
     def test_missing_or_changed_performance_blocks_publication(self):

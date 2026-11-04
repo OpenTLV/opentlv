@@ -142,7 +142,11 @@ The initial binary matrix is Linux x64 (Ubuntu 24.04/GCC) and Windows x64
 headers and default Core capabilities. Windows packages use the dynamic MSVC
 runtime (`MultiThreadedDLL`). These packages do not promise compatibility with
 every Linux libc or Windows toolchain. The manifest records the compiler, runtime,
-runner image and Core options. Full CI also tests x86, but x86 and macOS are not published binary
+runner image, module/linkage inventory, Query features and build options. All
+approved binaries enable PIC on every compiled module, including static Linux
+libraries. From v0.9.0 the [artifact contract 2](naming.md#artifact-contract-2)
+defines the modular evidence schema and binding migration requirements.
+Full CI also tests x86, but x86 and macOS are not published binary
 configurations in this issue.
 
 Each release contains:
@@ -152,7 +156,9 @@ Each release contains:
   preserves the version without `.git`, even inside an unrelated parent checkout.
 - Four `OpenTLV-<version>-<os>-x64-<linkage>` ZIP/TGZ packages and their JSON
   configuration records. Packaged libraries are tested before packaging; canonical
-  install contents and relocated C/C++ consumers are verified afterward.
+  install contents and relocated C/C++ consumers are verified afterward. Their
+  single extraction roots use the same version/platform/linkage stem as the
+  filename, so static and shared packages can coexist.
 - `performance.json` and `performance.md`: exact candidate/baseline identity,
   measured comparisons, configuration and toolchain metadata.
 - `performance-data.tar.gz`: raw benchmark samples, Callgrind profiles, immutable

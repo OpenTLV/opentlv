@@ -166,6 +166,7 @@ jobs:
         run: >-
           cmake -S . -B build/release -G Ninja
           -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=11
+          -DCMAKE_POSITION_INDEPENDENT_CODE=ON
           -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL
           -DOPENTLV_BUILD_SHARED_LIBS=${{ matrix.shared }}
           -DOPENTLV_BUILD_TESTS=ON -DOPENTLV_BUILD_EXAMPLES=ON
