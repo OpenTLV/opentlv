@@ -120,7 +120,8 @@ Counts are unique compiled source files. First-party test coverage is unchanged.
    release ID and exact commit. Core Release calls Full CI for the candidate with
    a private local candidate tag in each build checkout. It then compares
    performance, builds/tests/packages approved libraries, validates a source
-   extraction and creates attestations.
+   extraction, reproduces the distribution-tested amalgamation, runs its extracted
+   C99/C++17 consumers and creates attestations.
 5. Publication revalidates the original candidate and baseline lock, the exact
    Full CI run/attempt, performance evidence, artifact completeness and hashes,
    and verifies each producer attestation. Only then
@@ -160,11 +161,16 @@ Each release contains:
   install contents and relocated C/C++ consumers are verified afterward. Their
   single extraction roots use the same version/platform/linkage stem as the
   filename, so static and shared packages can coexist.
+- `OpenTLV-<version>-amalgamation.tar.gz` and `amalgamation.json`: generated
+  sources, C/C++ headers, notices and tested samples with the exact release
+  identity, Query configuration, per-file hashes, reproducibility and matching
+  Full CI distribution evidence. The [amalgamation release checks](amalgamation.md#release-archive-and-verification)
+  are mandatory before publication.
 - `performance.json` and `performance.md`: exact candidate/baseline identity,
   measured comparisons, configuration and toolchain metadata.
 - `performance-data.tar.gz`: raw benchmark samples, Callgrind profiles, immutable
   workload sources, source manifests, compilation metadata and logs.
-- `release-manifest.json`: source/binary/performance digests and the same-run
+- `release-manifest.json`: source/binary/amalgamation/performance digests and the same-run
   Full CI and performance evidence.
 - `SHA256SUMS`: digests for archives, configuration records and manifest.
 

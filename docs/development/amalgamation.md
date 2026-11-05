@@ -17,7 +17,8 @@ for the reviewers who approve it. Read the
 target ([#740](https://github.com/OpenTLV/opentlv/issues/740); see
 [Generation](#generation)), the optional install component (#742), and the
 [distribution equivalence gate](#distribution-equivalence-gate) (#743).
-Publication of a release asset remains tracked by #744.
+The [release archive and verification](#release-archive-and-verification) (#744)
+are required by Core Release. Actual publication requires a successful release run.
 
 An *amalgamation* is a generated C99 header/source pair containing the
 Library's modular C implementation, so that a consumer can compile OpenTLV
@@ -319,7 +320,7 @@ already expose them to consumers' links; the amalgamation does not change that.
   composed, and the portable export block replaces CMake's export header text.
   An input with another SPDX license identifier fails generation until this
   contract and [THIRD_PARTY.md](../../THIRD_PARTY.md) cover it.
-- The published archive includes `LICENSE` and `LICENSES/MIT.txt` (#744).
+- The published archive includes `LICENSE`, `LICENSES/MIT.txt` and `THIRD_PARTY.md` (#744).
   The optional install component already includes both, `THIRD_PARTY.md`, and
   the SPDX/copyright notices retained in each generated file (#742).
 
@@ -354,8 +355,9 @@ by the LF normalization.
 | `targets` | In composition order: `key`, `export_name`, `kind` and the composed `sources` and `public_headers` as source-root-relative paths |
 | `inputs` | Every composed file in emission order with its relative path and the SHA-256 of its LF-normalized content |
 
-The file lists no digest of the generated files; release checksums,
-attestations and provenance belong to #744. It is generated deterministically,
+The file lists no digest of the generated files; the release record
+`amalgamation.json` records those digests and binds them to tested bytes.
+The generated metadata is deterministic,
 with sorted object keys and LF line endings.
 
 ## Distribution equivalence gate
@@ -537,7 +539,7 @@ identity, no legacy alias and no "core" in a multi-module artifact.
 | Output directory | `<build>/amalgamation/` | Implemented in #740 |
 | Files | `opentlv.h`, `opentlv.c`, `include/`, `opentlv-amalgamation.json` | Implemented in #740 |
 | Install component | `Amalgamation` (a CMake install component, not a package component) | Explicit opt-in installation under `${CMAKE_INSTALL_DATADIR}/OpenTLV/amalgamation` (#742) |
-| Release asset | Candidate `OpenTLV-X.Y.Z-amalgamation.tar.gz`, top directory `OpenTLV-X.Y.Z-amalgamation/`, manifest record `kind` `amalgamation` | Held for #744; adding a published kind updates the [artifact contract](naming.md#artifact-contract-2) |
+| Release asset | `OpenTLV-X.Y.Z-amalgamation.tar.gz`, top directory `OpenTLV-X.Y.Z-amalgamation/`, manifest record `kind` `amalgamation` | Required by Core Release (#744) under [artifact contract 2](naming.md#artifact-contract-2); companion record `amalgamation.json` |
 | Per-module artifacts | That module's export name, e.g. `opentlv-asn1.h` | Out of scope for version 1 |
 
 ## Decisions to approve
@@ -559,5 +561,88 @@ identity, no legacy alias and no "core" in a multi-module artifact.
    unprefixed external symbols.
 8. The determinism inputs, LF normalization and the metadata fields.
 9. The C99 and C++ consumer contract and its unsupported combinations.
-10. The names above, with the install component and release asset held for
-    #742 and #744.
+10. The names above, with the install component implemented in #742 and the
+    release archive in #744.
+
+## Release archive and verification
+
+Starting with v0.9.0, Core Release produces one
+`OpenTLV-<version>-amalgamation.tar.gz` with a matching single top directory.
+The version omits the tag's `v` and retains any prerelease suffix. It contains
+the generated pair, public C/C++ `include/` tree, `opentlv-amalgamation.json`,
+`LICENSE`, `LICENSES/MIT.txt`, `THIRD_PARTY.md`, and the standalone samples and
+commands under `examples/`. Every composed SPDX and copyright notice remains
+in the generated files. No third-party implementation is bundled.
+
+The release configuration includes all modules and builtins in the registry:
+Core, IO, Generator, Document, Query, Codec, Schema and their integrations;
+ASN.1 (BER, DER, CER), EMV, Bluetooth, NFC, DHCP and LLDP. Both
+`OPENTLV_QUERY_FRONTEND` and `OPENTLV_QUERY_SET_OPERATIONS` are **ON**.
+All four combinations are supported for locally generated distributions:
+set either CMake option to `OFF` before generation to disable that feature.
+The release asset contains only the ON/ON configuration; recompilation cannot
+change its generated features. See the [consumer limitations](#consumer-contract).
+
+`scripts/amalgamation_release.py produce` requires a clean exact candidate
+checkout with the private release tag already prepared. It configures two fresh
+build directories, generates both distributions, and requires identical archive
+bytes. Entries are sorted regular files with fixed modes, zero timestamps and
+owners; gzip stores no filename or timestamp. Notices and samples use LF too.
+This checks reproducibility with the producer's Python/zlib compression toolchain;
+the generator's cross-platform byte contract applies to the uncompressed files.
+
+Every generated file must match the successful GCC static distribution-equivalence
+report downloaded from Full CI for this same commit and run attempt. A changed
+header, source, configuration or metadata file fails even if its checksums are
+recomputed. This binds the release payload to the complete behavioral gate.
+The producer then reads the archive back and compiles and runs its C99 and C++17
+samples directly. Failed or missing evidence, samples or regeneration blocks
+publication.
+
+The companion `amalgamation.json` records schema 1, artifact contract 2, kind,
+version, full commit, filename, archive root, archive SHA-256, the second archive's
+`reproduction_sha256`, every file's digest, generated metadata, successful consumer
+modes and the equivalence report's identity, coverage counts and tested hashes.
+The manifest contains this same record as kind `amalgamation`. Publication
+rechecks the archive namespace, canonical bytes, record, metadata, tested hashes
+and exact notices/samples from the release checkout.
+
+The archive and companion record are included in `SHA256SUMS` and attested by
+`OpenTLV/opentlv/.github/workflows/core-release.yml`, as are the manifest and
+checksum list. Before extracting, download assets into a separate directory for
+this release, verify the checksums, and authenticate each file you use with the
+expected full release commit:
+
+```sh
+sha256sum --check SHA256SUMS
+gh attestation verify OpenTLV-0.9.0-amalgamation.tar.gz --repo OpenTLV/opentlv \
+  --signer-workflow OpenTLV/opentlv/.github/workflows/core-release.yml \
+  --source-digest <full-release-commit-sha>
+```
+
+Repeat the attestation check for `amalgamation.json`, `release-manifest.json` and
+`SHA256SUMS`. For archive/metadata verification using the matching Verified Source
+checkout (which also supplies the exact notices and samples), run:
+
+```sh
+python scripts/amalgamation_release.py verify --output <download-directory> \
+  --version 0.9.0 --commit <full-release-commit-sha>
+```
+
+This local verifier checks integrity and tested-byte evidence; signature
+authentication is the separate `gh attestation verify` step above. Use the actual
+release version in these commands. They do not assert that v0.9.0 has been published.
+
+After extraction, run these tested commands inside the archive's top directory:
+
+```sh
+cc -std=c99 -pedantic-errors -c opentlv.c -o opentlv.o
+cc -std=c99 -pedantic-errors -I. examples/consumer.c opentlv.o -o consumer-c
+./consumer-c
+c++ -std=c++17 -pedantic-errors -Iinclude examples/consumer.cpp opentlv.o -o consumer-cpp
+./consumer-cpp
+```
+
+The [sample README](../../tests/amalgamation/consumer/README.md) also supplies
+MSVC commands. Neither consumer needs CMake, Python or a conventional OpenTLV
+library. C++ links the C object once and uses the shipped modular header tree.
