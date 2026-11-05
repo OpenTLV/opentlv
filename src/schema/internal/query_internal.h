@@ -14,7 +14,7 @@ static inline tlv_result_t schema_query_requirements(const tlv_schema_query_rule
 /* A false assertion is a Schema finding: the common part carries SCHEMA and the
  * ASSERTION detail is the only cause; location and path are added by the caller. */
 static inline void assertion_failure(tlv_query_diagnostic_t* d, tlv_tag_t tag, const char* name) {
-    query_diag_init(d);
+    schema_query_diag_init(d);
     tlv_diagnostic_init(&d->diagnostic, TLV_ERR_SCHEMA, TLV_DIAGNOSTIC_SEVERITY_ERROR);
     d->diagnostic.expected = "contextual Query assertion true";
     d->diagnostic.has_path = 1;
@@ -58,8 +58,8 @@ static inline tlv_result_t schema_query_requirements(const tlv_schema_query_rule
                 memset(diagnostic, 0, sizeof *diagnostic);
                 diagnostic->rule = i;
             }
-            return query_error_unlocated(diagnostic ? &diagnostic->query : NULL,
-                                         TLV_ERR_INVALID_VALUE, kind, expected);
+            return schema_query_error_unlocated(diagnostic ? &diagnostic->query : NULL,
+                                                TLV_ERR_INVALID_VALUE, kind, expected);
         }
         size_t bytes, align;
         tlv_result_t rc = tlv_query_eval_size(rules[i].context, depth, nodes, &bytes, &align);

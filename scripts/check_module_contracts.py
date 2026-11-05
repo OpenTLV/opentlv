@@ -40,7 +40,8 @@ COMMENT = re.compile(r"/\*.*?\*/|//[^\n]*", re.S)
 INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]*([<"])([^>"\n]+)[>"]', re.M)
 INCLUDE_DIRECTIVE = re.compile(r'^[ \t]*#[ \t]*include\b([^\n]*)', re.M)
 ENUM = r"typedef\s+enum\s+%s\s*\{(.*?)\}\s*%s_t\s*;"
-LIMIT = re.compile(r'\b(?:query_limit|edit_limit)\s*\(\s*[^,]+,\s*"([a-z0-9-]+)"')
+# schema_query_limit is Schema's own copy of the Query helper (#740).
+LIMIT = re.compile(r'\b(?:(?:schema_)?query_limit|edit_limit)\s*\(\s*[^,]+,\s*"([a-z0-9-]+)"')
 MAPPING_FIELDS = frozenset(("previous", "value", "new", "module", "meaning", "change"))
 
 

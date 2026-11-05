@@ -4,7 +4,7 @@
 #include "opentlv/codec/text.h"
 #include <string.h>
 
-static int valid_config(const tlv_text_codec_config_t* config) {
+static int text_valid_config(const tlv_text_codec_config_t* config) {
     return (config->alphabet == TLV_TEXT_ASCII_PRINTABLE ||
             config->alphabet == TLV_TEXT_ASCII_ALNUM) &&
            (config->zero_padding == 0 || config->zero_padding == 1);
@@ -31,7 +31,8 @@ tlv_result_t tlv_text_decode(const void* context, const uint8_t* data, size_t si
     tlv_value_t text;
     if (!config || !value || (!data && size))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
-    if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
+    if (!text_valid_config(config))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     if ((config->width && size != config->width))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_LENGTH);
@@ -60,7 +61,8 @@ tlv_result_t tlv_text_encode(const void* context, const void* value, size_t size
     *written = 0;
     if (!config || !value || (!data && capacity))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_NULL_ARG);
-    if (!valid_config(config)) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
+    if (!text_valid_config(config))
+        return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     if (size != sizeof(text))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
                                            TLV_CODEC_REASON_OBJECT);

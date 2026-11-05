@@ -6,9 +6,6 @@ install(TARGETS opentlv_tlv EXPORT OpenTLVTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY include/opentlv DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
     FILES_MATCHING PATTERN "*.h" PATTERN "*.def")
-install(FILES
-    "${OpenTLV_BINARY_DIR}/generated/include/opentlv/core/version.h"
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/opentlv/core)
 
 # C++ facades are installed with their owning module regardless of build language.
 install(FILES include/opentlv/tlv.hpp include/opentlv/native.hpp

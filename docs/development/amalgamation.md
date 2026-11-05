@@ -13,8 +13,10 @@ for the reviewers who approve it. Read the
 [functional module contracts](modules/README.md) and the
 [Library and Core naming contract](naming.md) first.
 
-**Status:** contract only. No generator, build target, install component or
-release asset exists yet. #740 starts only after this contract is accepted.
+**Status:** contract version 1, implemented by the `opentlv_amalgamation` build
+target ([#740](https://github.com/OpenTLV/opentlv/issues/740); see
+[Generation](#generation)). The install component (#742), the equivalence gate
+(#743) and the release asset (#744) do not exist yet.
 
 An *amalgamation* is a generated C99 header/source pair containing the
 Library's modular C implementation, so that a consumer can compile OpenTLV
@@ -71,13 +73,13 @@ Configuration produces these generated inputs:
 | `opentlv/core/version.h`, `src/version.c` | Core | `cmake/version.cmake` templates | Copied from the configured output |
 | `opentlv/query/features.h` | Query | `src/query/internal/query-features.h.in` | Copied from the configured output |
 
-`version.h` and `features.h` are installed public headers, but no target lists
-them in `PUBLIC_HEADERS`, and `opentlv_add_module()` accepts public headers
+`version.h` and `features.h` are installed public headers. At commit `04e637aa`
+no target listed them, because `opentlv_add_module()` accepted public headers
 only below `INCLUDE_DIR`. `features.h` is reachable from `opentlv/query/query.h`;
 `version.h` is reachable from no public C header, only from
-`opentlv/core/version.hpp` and `version.c`. #740 registers each generated public
-header with its owning target, so that composition reads it from the registry
-instead of special-casing file names.
+`opentlv/core/version.hpp` and `version.c`. Since #740, Core and Query register
+them as `GENERATED_HEADERS`, so that composition reads them from the registry
+instead of special-casing file names, and the registration installs them.
 
 ## Artifact composition
 
@@ -109,8 +111,8 @@ include guards, so a translation unit may include both.
   `modules-<config>.json`. CMake 3.16, the Library's minimum, cannot parse JSON
   (`string(JSON)` needs 3.19), so the generator reads a registry inventory
   written in CMake syntax by the same finalization, like the installed
-  `OpenTLVModules.cmake`. Generation needs no CMake newer than 3.16 and no
-  Python.
+  `OpenTLVModules.cmake`: `<build>/opentlv-registry.cmake`. Generation needs no
+  CMake newer than 3.16 and no Python.
 - Generation is the explicit build target `opentlv_amalgamation`, which runs a
   `cmake -P` script. It is not part of `ALL`, and `install()` never generates.
   The target exists only in standalone Library builds; embedding builds do not
@@ -131,8 +133,8 @@ The order is a function of the registry alone:
    generator fails instead of reordering when a target precedes one of its
    dependencies.
 2. `opentlv.h` starts with the prologue described in [Notices](#notices), then
-   visits each target's registered public headers, including its generated
-   public headers, in registered order.
+   visits each target's registered public C headers in registered order,
+   followed by its generated public headers in registered order.
 3. `opentlv.c` starts with the prologue and `#include "opentlv.h"`, then visits
    each target's `SOURCES` in registered order. The generated `version.c` keeps
    its registered position in Core.
@@ -142,7 +144,9 @@ The order is a function of the registry alone:
    `opentlv.c` their includes are removed. Private headers are emitted in
    `opentlv.c` at their first inclusion.
 5. Each emitted file is delimited by begin and end comments naming its path
-   relative to the source root, or `generated/<path>` for generated inputs.
+   relative to the source root, or `generated/<path>` for generated inputs:
+   `/* ==== begin src/core/tag.c ==== */` and `/* ==== end src/core/tag.c ==== */`.
+   A removed include leaves no line behind.
 
 Facade-only targets are skipped. Ties cannot occur, because every position
 comes from a registered list.
@@ -228,11 +232,16 @@ the generator.
 5. Inputs are UTF-8. Five ASN.1 files contain non-ASCII characters (`§`) in
    comments only.
 
+The generator enforces rules 3 to 5. Rules 1 and 2 need a compiler: the
+`amalgamation-c99` test compiles `opentlv.c` as one C99 translation unit, and a
+violation fails that compile.
+
 At commit `04e637aa`, including the registered sources in registration order
 into one translation unit fails to compile as C99 with 56 errors. The
 violations below were found by compiling each source separately, listing its
 local symbols with `nm` and tracing each name to its defining files. The
 compile gate of #740 remains authoritative for anything this inventory misses.
+The generator issue resolved every finding below.
 
 Internal-linkage names defined at more than one site (39 names, 94 definitions,
 36 files, 30 of them across module boundaries); paths are relative to `src/`:
@@ -279,6 +288,16 @@ Other findings:
 Resolve rule 1 and 2 collisions by giving the helper a name owned by its file
 or module, or by moving a helper that is identical within one module into that
 module's private header. Behavior, public API and exported symbols do not change.
+
+The fixes in #740 keep the first definition in composition order and give every
+later one a name owned by its file or module, for example `der_traverse` in
+`der_validation.c`, `lldp_schema_rules` in `lldp/schema.c` and
+`backend_source_t` in `query/document_backend.c`. The Schema copies of the Query
+diagnostic helpers are `schema_query_*`. `EMV_COUNT` is `#undef`-ed. In one
+translation unit a private header is part of the main file, so Clang's
+`-Wunused-function` also reports its unused `static inline` functions:
+`query_input_location` and `query_relate_expression` in the Schema copy were
+unused and are removed.
 
 Not a blocker, recorded for a separate issue: 22 external symbols lie outside
 the `tlv_` namespace. They are the 12 Query owner-internal symbols (`query_*`)
@@ -361,6 +380,41 @@ while selecting the amalgamated implementation (#742).
   promise of the Library;
 - selecting a subset of modules.
 
+## Generation
+
+A standalone Library build generates the amalgamation on request:
+
+```sh
+cmake -S . -B build
+cmake --build build --target opentlv_amalgamation
+```
+
+The target runs `cmake -P cmake/amalgamation/generate.cmake` with two files that
+configuration writes: `<build>/opentlv-registry.cmake`, the registry inventory
+from `opentlv_finalize_modules()`, and `<build>/opentlv-amalgamation.cmake`,
+which holds the source and build roots, the version metadata and the Query
+features. `cmake/amalgamation.cmake` adds the target. The portable export block
+is the template `cmake/amalgamation/export.h.in`. The script can also run
+directly:
+
+```sh
+cmake -DOPENTLV_AMALGAMATION_CONFIG=build/opentlv-amalgamation.cmake \
+      -DOPENTLV_AMALGAMATION_OUTPUT=<directory> -P cmake/amalgamation/generate.cmake
+```
+
+Every run regenerates. The script checks all inputs before it writes anything,
+so a failed generation leaves earlier outputs in place. It replaces `include/`
+on every run and writes LF line endings on every host. It needs no compiler.
+
+| Check | Covers | CI tier |
+| --- | --- | --- |
+| CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, and identical bytes from another location and from CRLF inputs | PR (Clang unit tests) |
+| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors` and the Library's warning policy, and runs it | PR (Clang integration tests) |
+| `scripts/check_cmake_integration.py` | The standalone build has the target, and neither the default build nor `install()` generates. Embedding builds have no such target | PR and Main (CMake consumers) |
+
+Comparing the external symbols with the static module archives, and comparing
+behavior with the conventional build, belong to #743.
+
 ## Names
 
 The names follow the [naming contract](naming.md#recorded-decisions): Library
@@ -368,9 +422,9 @@ identity, no legacy alias and no "core" in a multi-module artifact.
 
 | Identity | Name | Status |
 | --- | --- | --- |
-| Build target | `opentlv_amalgamation` | Set here; #740 implements and adds it to the CMake identity checks |
-| Output directory | `<build>/amalgamation/` | Set here |
-| Files | `opentlv.h`, `opentlv.c`, `include/`, `opentlv-amalgamation.json` | Set here |
+| Build target | `opentlv_amalgamation` | Implemented in #740; the CMake identity checks require it |
+| Output directory | `<build>/amalgamation/` | Implemented in #740 |
+| Files | `opentlv.h`, `opentlv.c`, `include/`, `opentlv-amalgamation.json` | Implemented in #740 |
 | Install component | `Amalgamation` (a CMake install component, not a package component) | Held for #742 |
 | Release asset | Candidate `OpenTLV-X.Y.Z-amalgamation.tar.gz`, top directory `OpenTLV-X.Y.Z-amalgamation/`, manifest record `kind` `amalgamation` | Held for #744; adding a published kind updates the [artifact contract](naming.md#artifact-contract-2) |
 | Per-module artifacts | That module's export name, e.g. `opentlv-asn1.h` | Out of scope for version 1 |

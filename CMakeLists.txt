@@ -111,4 +111,7 @@ opentlv_finalize_shared_runtime()
 include(cmake/install.cmake)
 if(_OPENTLV_TOP_LEVEL)
     include(cmake/packaging.cmake)
+    # Explicit target only: embedding builds and ALL never generate it.
+    include(cmake/amalgamation.cmake)
+    opentlv_add_amalgamation_target()
 endif()

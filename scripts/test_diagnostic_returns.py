@@ -26,7 +26,8 @@ class DiagnosticReturns(unittest.TestCase):
 
     def test_nested_initialization_and_memset_are_detected(self):
         for init in ('if (d) tlv_reader_diagnostic_init(d);', 'memset(d, 0, sizeof *d);',
-                     'tlv_diagnostic_init(&d->diagnostic, TLV_OK, 0);'):
+                     'tlv_diagnostic_init(&d->diagnostic, TLV_OK, 0);',
+                     'schema_query_diag_init(d);'):
             self.assertTrue(self.check(init + ' return TLV_ERR_VISITOR;'))
 
     def test_populated_return_requires_local_reason(self):
@@ -59,6 +60,9 @@ class LifecycleReturns(unittest.TestCase):
                                     '  return query_error(d, TLV_ERR_INVALID_ARG, EVENTS, 0, 0, "fresh");\n'
                                     '}'), [(5, 'f', 'busy')])
         self.assertTrue(self.check('if (!e->finished && ready(e))\n return TLV_ERR_INVALID_ARG;'))
+        self.assertEqual(self.check('if (e->busy)\n'
+                                    'return schema_query_error(d, TLV_ERR_INVALID_ARG, STATE);'),
+                         [(3, 'f', 'busy')])
 
     def test_comments_strings_and_unrelated_identifiers(self):
         self.assertFalse(self.check('/* if (e->busy) return TLV_ERR_INVALID_ARG; */\n'
@@ -121,6 +125,10 @@ class QueryKindPairs(unittest.TestCase):
                          [(3, 'query_error_unlocated', 'TLV_ERR_INVALID_ARG',
                            'TLV_QUERY_ERROR_STORAGE')])
         self.assertTrue(self.check('return query_failure(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_EVENTS, 0);'))
+        # Schema keeps its own copies of the Query helpers under schema_query_* names.
+        self.assertEqual(self.check('return schema_query_failure(d, TLV_ERR_NULL_ARG,'
+                                    ' TLV_QUERY_ERROR_EVENTS, 0);'),
+                         [(2, 'schema_query_failure', 'TLV_ERR_NULL_ARG', 'TLV_QUERY_ERROR_EVENTS')])
         self.assertTrue(self.check('return query_error(d, TLV_ERR_INVALID_ARG, TLV_QUERY_ERROR_CAPABILITY,'
                                    ' n->begin, f(n, 1), "x");'))
 

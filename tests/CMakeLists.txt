@@ -64,6 +64,29 @@ if(Python3_Interpreter_FOUND)
         LABELS "infrastructure;bindings;no-memcheck")
 endif()
 
+# C source amalgamation (#740). The generator needs no compiler or Python. The
+# integration check generates this build's amalgamation below the test tree,
+# never <build>/amalgamation/, and compiles it as C99 in a separate project.
+if(_OPENTLV_TOP_LEVEL AND OPENTLV_BUILD_UNIT_TESTS)
+    add_test(NAME amalgamation-generator
+        COMMAND "${CMAKE_COMMAND}" "-DOPENTLV_SOURCE_DIR=${OpenTLV_SOURCE_DIR}"
+            "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/amalgamation-generator"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/amalgamation/generator_checks.cmake")
+    set_tests_properties(amalgamation-generator PROPERTIES LABELS "unit;amalgamation;no-memcheck")
+endif()
+if(_OPENTLV_TOP_LEVEL AND OPENTLV_BUILD_INTEGRATION_TESTS)
+    add_test(NAME amalgamation-c99
+        COMMAND "${CMAKE_COMMAND}" "-DOPENTLV_SOURCE_DIR=${OpenTLV_SOURCE_DIR}"
+            "-DOPENTLV_BINARY_DIR=${OpenTLV_BINARY_DIR}"
+            "-DWORK_DIR=${CMAKE_CURRENT_BINARY_DIR}/amalgamation-c99"
+            "-DC_COMPILER=${CMAKE_C_COMPILER}" "-DGENERATOR=${CMAKE_GENERATOR}"
+            "-DGENERATOR_PLATFORM=${CMAKE_GENERATOR_PLATFORM}"
+            "-DGENERATOR_TOOLSET=${CMAKE_GENERATOR_TOOLSET}"
+            "-DMAKE_PROGRAM=${CMAKE_MAKE_PROGRAM}" "-DCONFIG=$<CONFIG>"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/amalgamation/c99_checks.cmake")
+    set_tests_properties(amalgamation-c99 PROPERTIES LABELS "integration;amalgamation;no-memcheck")
+endif()
+
 add_executable(capability-contract capabilities.c)
 target_link_libraries(capability-contract PRIVATE OpenTLV::Core OpenTLV::IO OpenTLV::Query OpenTLV::QueryDocument OpenTLV::Document OpenTLV::Schema OpenTLV::Codec)
 add_test(NAME capability-contract COMMAND capability-contract)

@@ -25,8 +25,8 @@ static tlv_result_t span_size(tlv_value_t value, size_t max, size_t* size) {
     return TLV_OK;
 }
 
-static tlv_result_t decode(const void* context, const uint8_t* data, size_t size, void* value,
-                           size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t lldp_decode(const void* context, const uint8_t* data, size_t size, void* value,
+                                size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const int kind = *(const int*)context;
 #define RETURN_VALUE(result)                                                                       \
@@ -92,8 +92,9 @@ static tlv_result_t decode(const void* context, const uint8_t* data, size_t size
 #undef RETURN_VALUE
 }
 
-static tlv_result_t encode(const void* context, const void* value, size_t size, uint8_t* data,
-                           size_t capacity, size_t* written, tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t lldp_encode(const void* context, const void* value, size_t size, uint8_t* data,
+                                size_t capacity, size_t* written,
+                                tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     const int kind = *(const int*)context;
     /* Management representation: length + family/address (32) + interface (5)
@@ -191,7 +192,7 @@ static tlv_result_t encode(const void* context, const void* value, size_t size, 
 
 #define CODEC(name, kind)                                                                          \
     static const int name##_kind = kind;                                                           \
-    const tlv_codec_t tlv_lldp_codec_##name = {&name##_kind, decode, encode}
+    const tlv_codec_t tlv_lldp_codec_##name = {&name##_kind, lldp_decode, lldp_encode}
 CODEC(chassis_id, CHASSIS);
 CODEC(port_id, PORT);
 CODEC(capabilities, CAPABILITIES);
