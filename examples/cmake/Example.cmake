@@ -13,7 +13,7 @@ endfunction()
 # Create one runnable example; callers own the sources and direct module links.
 function(opentlv_example language module name)
     cmake_parse_arguments(EXAMPLE "QUERY_FRONTEND;UMBRELLA;NATIVE_INTEROP" "PASS_REGULAR_EXPRESSION"
-        "SOURCES;LINK;ARGS" ${ARGN})
+        "SOURCES;LINK" ${ARGN})
     if(EXAMPLE_UNPARSED_ARGUMENTS OR EXAMPLE_KEYWORDS_MISSING_VALUES
        OR NOT EXAMPLE_SOURCES OR NOT EXAMPLE_LINK)
         message(FATAL_ERROR "Invalid opentlv_example(${language} ${module} ${name}) declaration")
@@ -96,7 +96,7 @@ int main(void) { return 0; }" OPENTLV_EXAMPLES_QUERY_FRONTEND)
         opentlv_configure_compiler(${target})
         opentlv_copy_shared_runtime(${target})
     endif()
-    add_test(NAME ${test} COMMAND $<TARGET_FILE:${target}> ${EXAMPLE_ARGS})
+    add_test(NAME ${test} COMMAND $<TARGET_FILE:${target}>)
     set_tests_properties(${test} PROPERTIES LABELS "integration;examples")
     if(WIN32)
         # All OpenTLV DLLs share Core's runtime directory, in-tree and installed.

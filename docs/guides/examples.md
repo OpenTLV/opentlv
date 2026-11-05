@@ -82,7 +82,7 @@ the linked standalone repository. This is an inventory, not evidence of a CI run
 | C | [core/fixed_format.c](../../examples/core/fixed_format.c) | Generic Fixed Format |
 | C | [incremental_reader.c](../../examples/io/incremental_reader.c) | Resumable input |
 | C | [lldp.c](../../examples/builtins/lldp/lldp.c) | LLDP validation / codecs |
-| C | [nfc_type2.c](../../examples/builtins/nfc/type2/type2.c) | NFC Type 2 framing |
+| C | [builtins/nfc/type2/type2.c](../../examples/builtins/nfc/type2/type2.c) | NFC Type 2 framing |
 | C | [parse.c](../../examples/io/parse.c) | Nested parsing / traversal |
 | C | [query.c](../../examples/query/query.c) | Path Query |
 | C | [quick_start.c](../../examples/io/quick_start.c) | Quick start / round trip |

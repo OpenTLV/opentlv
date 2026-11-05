@@ -90,7 +90,7 @@ is expected.
 Enable `OPENTLV_BUILD_TESTS` and `OPENTLV_BUILD_INTEGRATION_TESTS`, build, then:
 
 ```sh
-ctest --test-dir build -C Debug -R "NfcType2|example[.]c[.]nfc[.]type2" --output-on-failure
+ctest --test-dir build -C Debug -R "nfc" --output-on-failure
 ```
 
 Use the configuration and build directory of your own build. The C example

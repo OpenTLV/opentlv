@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Run the NFC Type 2 C example only on its embedded sample, removing the optional file input flagged by CodeQL `cpp/path-injection`, and drop the then-unused `ARGS` option of `opentlv_example()`. (#759)
 - Keep private static-library dependencies usable in packages exported by CMake 3.16, including the conventional consumers compared with the amalgamation. (#742)
 - Keep CMake package discovery results isolated by the requested package name, preserving earlier canonical/legacy discoveries after failed component or version probes. Check version ranges once, and retain target-origin protection against mixed installations. (#753, #754)
 - Validate binary archives before extraction and publication: reject escaping or cyclic symlinks, hardlinks, duplicate/conflicting paths, writes through symlinked directories and special entries while supporting valid versioned shared-library symlink chains. (#754)
