@@ -126,6 +126,39 @@ jobs:
           path: build/release-source/*
           if-no-files-found: error
 
+  amalgamation:
+    needs: full
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: distribution-gcc-static-${{ github.sha }}-${{ github.run_attempt }}
+          path: build/tested-distribution
+      - name: Apply proposed release version locally
+        run: python -B scripts/core_release.py prepare
+      - name: Reproduce tested sources and check extracted C99 and C++17 consumers
+        run: >-
+          python -B scripts/amalgamation_release.py produce
+          --output build/release-amalgamation --work build/amalgamation-release
+          --equivalence build/tested-distribution/report.json
+          --version "${RELEASE_TAG#v}" --commit "$GITHUB_SHA" --cc gcc --cxx g++
+      - uses: actions/attest@v4
+        with:
+          subject-path: build/release-amalgamation/*
+          create-storage-record: false
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-amalgamation-${{ github.run_attempt }}
+          path: build/release-amalgamation/*
+          if-no-files-found: error
+
   binaries:
     needs: full
     strategy:
@@ -191,7 +224,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    needs: [candidate, full, performance, source, binaries]
+    needs: [candidate, full, performance, source, amalgamation, binaries]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -216,6 +249,7 @@ jobs:
         run: |
           mkdir -p build/publish
           cp "build/downloads/release-source-$ATTEMPT/"* build/publish/
+          cp "build/downloads/release-amalgamation-$ATTEMPT/"* build/publish/
           for id in linux-x64-static linux-x64-shared windows-x64-static windows-x64-shared; do
             cp "build/downloads/release-$id-$ATTEMPT/"* build/publish/
           done
@@ -259,7 +293,7 @@ jobs:
   timings:
     name: Release CI timings
     if: always()
-    needs: [candidate, full, performance, source, binaries, publish]
+    needs: [candidate, full, performance, source, amalgamation, binaries, publish]
     runs-on: ubuntu-24.04
     permissions:
       contents: read

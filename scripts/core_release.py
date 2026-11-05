@@ -146,6 +146,9 @@ def configuration(tier):
                'scripts/check_cmake_integration.py',
                'scripts/check_capabilities.py', 'scripts/abi/check.py',
                'scripts/check_distribution_equivalence.py',
+               'scripts/amalgamation_release.py', 'scripts/check_amalgamation_consumers.py',
+               'cmake/amalgamation.cmake', 'cmake/amalgamation/generate.cmake',
+               'cmake/amalgamation/export.h.in',
                'tests/amalgamation/equivalence/CMakeLists.txt', 'tests/fuzz/targets.cmake')
     return {'schema': CONFIGURATION_SCHEMA, 'inputs': inputs,
             'configuration_sources': {name: digest(source / name) for name in helpers},
@@ -446,6 +449,7 @@ def check_binary_metadata(record, identifier):
 
 def manifest(directory, quality_path, tag, commit):
     from core_performance import validate_report
+    from amalgamation_release import verify as verify_amalgamation
     version(tag)
     revision(commit)
     quality = json.loads(quality_path.read_text())
@@ -482,12 +486,13 @@ def manifest(directory, quality_path, tag, commit):
                 'Source archive identity mismatch')
     records.append({'kind': 'source', 'filename': source.name, 'sha256': digest(source),
                     'version': tag, 'commit': commit})
+    records.append(verify_amalgamation(directory, tag, commit))
     performance = validate_report(directory, commit, 'v' + tag, os.environ['GITHUB_REPOSITORY'],
                                   os.environ['GITHUB_RUN_ID'], os.environ['GITHUB_RUN_ATTEMPT'],
                                   candidate['baseline'])
     records.extend({'kind': 'performance', 'filename': name, 'sha256': digest(directory / name),
                     'version': tag, 'commit': commit} for name in sorted(PERFORMANCE_FILES))
-    expected = {r['filename'] for r in records} | {name + '.json' for name in BINARY_IDS}
+    expected = {r['filename'] for r in records} | {name + '.json' for name in BINARY_IDS} | {'amalgamation.json'}
     require({p.name for p in directory.iterdir()} == expected, 'Unexpected or missing release files')
     write_json(directory / 'release-manifest.json', {'schema': 2, 'library': 'OpenTLV',
                                                     'artifact_contract': ARTIFACT_CONTRACT,

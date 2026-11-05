@@ -75,6 +75,7 @@ jobs:
       - name: Test CI and release contracts
         run: |
           python -B scripts/test_core_release.py
+          python -B scripts/test_amalgamation_release.py
           python -B scripts/test_package.py
           python -B scripts/test_archive_safety.py
           python -B scripts/test_license_headers.py

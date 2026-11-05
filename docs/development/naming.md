@@ -389,6 +389,19 @@ the new archive namespace and modular evidence requirements. An absent
 `artifact_contract` identifies the historical contract 1, not contract 2.
 Consumers must explicitly support a contract before selecting its artifacts.
 
+Before its first publication, #744 extends contract 2 with the required
+`amalgamation` kind, `OpenTLV-<version>-amalgamation.tar.gz` (same stem for its
+single top directory), and companion `amalgamation.json`. This deliberately
+updates the exact approved artifact set; it does not change any published
+contract 1 release. Downstream contract 2 migrations must accept and verify
+these additional assets and the new configuration sources listed below.
+Source/binary consumers continue selecting their own explicit kind; they must
+not mistake the amalgamation for a Verified Source or a prebuilt binary.
+The [amalgamation release contract](amalgamation.md#release-archive-and-verification)
+defines its required record fields, fixed Query configuration, reproducibility,
+license, consumer and tested-byte checks. The record is embedded unchanged in
+the release manifest and both assets are checksummed and attested.
+
 #### Archive migration
 
 The binary filename and its single top directory now share the stem
@@ -433,6 +446,9 @@ must match that source. Required modular sources are:
   `scripts/abi/check.py`;
 - `scripts/check_distribution_equivalence.py`,
   `tests/amalgamation/equivalence/CMakeLists.txt`, `tests/fuzz/targets.cmake`.
+- `scripts/amalgamation_release.py`, `scripts/check_amalgamation_consumers.py`,
+  `cmake/amalgamation.cmake`, `cmake/amalgamation/generate.cmake`,
+  `cmake/amalgamation/export.h.in`.
 
 The required Full release workflow set remains the set pinned by
 `test_release_evidence_records_the_files_that_verifiers_compare` in

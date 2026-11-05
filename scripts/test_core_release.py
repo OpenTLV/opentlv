@@ -119,7 +119,8 @@ class CoreGateTests(unittest.TestCase):
         original_digest = release.digest
         for changed in ('cmake/modules.cmake', 'cmake/library/CMakeLists.txt', 'cmake/library/modules.cmake',
                         'cmake/library/cxx.cmake', 'cmake/packaging.cmake', 'scripts/core_release.py',
-                        'scripts/check_package.py'):
+                        'scripts/check_package.py', 'scripts/amalgamation_release.py',
+                        'cmake/amalgamation/generate.cmake'):
             with self.subTest(changed=changed):
                 self.assertIn(changed, evidence['configuration']['configuration_sources'])
                 with patch('core_release.digest', side_effect=lambda path:
@@ -176,6 +177,9 @@ class CoreGateTests(unittest.TestCase):
             'scripts/check_cmake_integration.py',
             'scripts/check_capabilities.py', 'scripts/abi/check.py',
             'scripts/check_distribution_equivalence.py',
+            'scripts/amalgamation_release.py', 'scripts/check_amalgamation_consumers.py',
+            'cmake/amalgamation.cmake', 'cmake/amalgamation/generate.cmake',
+            'cmake/amalgamation/export.h.in',
             'tests/amalgamation/equivalence/CMakeLists.txt', 'tests/fuzz/targets.cmake'})
         self.assertEqual(configuration['schema'], 1)
 
@@ -555,6 +559,8 @@ class ArchiveTests(unittest.TestCase):
 
     def fixture(self, number='0.8.0'):
         self.source(number=number)
+        from test_amalgamation_release import fixture as amalgamation_fixture
+        amalgamation_fixture(self.root, number)
         for identifier in release.BINARY_IDS:
             suffix = '.zip' if identifier.startswith('windows-') else '.tar.gz'
             archive = self.root / f'OpenTLV-{number}-{identifier}{suffix}'
@@ -587,7 +593,7 @@ class ArchiveTests(unittest.TestCase):
         destination, evidence = self.fixture()
         release.manifest(destination, evidence, '0.8.0', SHA)
         manifest = json.loads((destination / 'release-manifest.json').read_text())
-        self.assertEqual(len(manifest['artifacts']), 8)
+        self.assertEqual(len(manifest['artifacts']), 9)
         for line in (destination / 'SHA256SUMS').read_text().splitlines():
             checksum, name = line.split('  ')
             self.assertEqual(checksum, release.digest(destination / name))
@@ -621,7 +627,9 @@ class ArchiveTests(unittest.TestCase):
                    'windows-x64-static.json', 'windows-x64-shared.json'}
         performance = {'performance.json', 'performance.md', 'performance-data.tar.gz'}
         source = 'OpenTLV-0.8.0-source.tar.gz'
-        names = binaries | records | performance | {source, 'release-manifest.json', 'SHA256SUMS'}
+        amalgamation = {'OpenTLV-0.8.0-amalgamation.tar.gz'}
+        names = binaries | records | performance | amalgamation | {
+            'amalgamation.json', source, 'release-manifest.json', 'SHA256SUMS'}
         self.assertEqual({path.name for path in destination.iterdir()}, names)
         manifest = json.loads((destination / 'release-manifest.json').read_text())
         self.assertEqual({'schema', 'version', 'commit', 'candidate', 'quality', 'performance', 'artifacts'}
@@ -635,7 +643,8 @@ class ArchiveTests(unittest.TestCase):
             kinds.setdefault(record['kind'], set()).add(record['filename'])
             if record['kind'] != 'binary':
                 self.assertEqual({'kind', 'filename', 'sha256', 'version', 'commit'} - set(record), set())
-        self.assertEqual(kinds, {'binary': binaries, 'source': {source}, 'performance': performance})
+        self.assertEqual(kinds, {'binary': binaries, 'source': {source}, 'performance': performance,
+                                 'amalgamation': amalgamation})
         lines = (destination / 'SHA256SUMS').read_text().splitlines()
         self.assertEqual(len(lines), len(names) - 1)
         for line in lines:
@@ -753,6 +762,18 @@ class ArchiveTests(unittest.TestCase):
                 release.write_json(path, dict(record, **changes))
                 with self.assertRaises(ValueError):
                     release.manifest(destination, evidence, '0.8.0', SHA)
+
+    @patch.dict(os.environ, ENV)
+    def test_missing_or_changed_amalgamation_blocks_publication(self):
+        destination, evidence = self.fixture()
+        archive = destination / 'OpenTLV-0.8.0-amalgamation.tar.gz'
+        archive.write_bytes(archive.read_bytes() + b'changed')
+        with self.assertRaisesRegex(ValueError, 'checksum'):
+            release.manifest(destination, evidence, '0.8.0', SHA)
+        self.assertFalse((destination / 'release-manifest.json').exists())
+        (destination / 'amalgamation.json').unlink()
+        with self.assertRaises(FileNotFoundError):
+            release.manifest(destination, evidence, '0.8.0', SHA)
 
     @patch.dict(os.environ, ENV)
     def test_missing_or_changed_performance_blocks_publication(self):

@@ -314,7 +314,7 @@ class WorkflowContracts(unittest.TestCase):
 
     def test_release_publication_requires_full_and_every_artifact_producer(self):
         jobs = workflow('core-release.yml')['jobs'].mapping()
-        producers = {'candidate', 'full', 'performance', 'source', 'binaries'}
+        producers = {'candidate', 'full', 'performance', 'source', 'amalgamation', 'binaries'}
         self.assertEqual(set(jobs), producers | {'publish', 'timings'})
         for name in producers | {'publish'}:
             with self.subTest(job=name):
@@ -325,14 +325,14 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(set(full['with'].mapping()), {'release_tag'})
         self.assertEqual(full['with'].mapping()['release_tag'].text(), '${{ inputs.tag }}')
         self.assertEqual(jobs['performance'].mapping()['needs'].names(), {'candidate', 'full'})
-        for name in ('source', 'binaries'):
+        for name in ('source', 'amalgamation', 'binaries'):
             self.assertEqual(jobs[name].mapping()['needs'].names(), {'full'})
         self.assertEqual(jobs['publish'].mapping()['needs'].names(), producers)
 
     def test_main_and_release_collect_timings_after_all_checks_finish(self):
         contracts = (
             ('core-main.yml', {'gate'}, 'core-main-timings'),
-            ('core-release.yml', {'candidate', 'full', 'performance', 'source', 'binaries', 'publish'},
+            ('core-release.yml', {'candidate', 'full', 'performance', 'source', 'amalgamation', 'binaries', 'publish'},
              'core-release-timings'),
         )
         for filename, dependencies, artifact in contracts:
@@ -386,6 +386,25 @@ class WorkflowContracts(unittest.TestCase):
             self.assertEqual(len(matches), 1)
             self.assertEqual(set(matches[0]['with'].mapping()[field].text().splitlines()), expected)
 
+    def test_amalgamation_uses_same_attempt_tested_bytes_and_is_collected(self):
+        jobs = workflow('core-release.yml')['jobs'].mapping()
+        steps = jobs['amalgamation'].mapping()['steps'].steps()
+        for step in steps:
+            self.assert_unconditional(step)
+        download = next(step['with'].mapping() for step in steps if 'uses' in step
+                        and step['uses'].text().startswith('actions/download-artifact@'))
+        self.assertEqual(download['name'].text(),
+                         'distribution-gcc-static-${{ github.sha }}-${{ github.run_attempt }}')
+        command = next(step['run'].text() for step in steps if 'run' in step
+                       and 'amalgamation_release.py produce' in step['run'].text())
+        self.assertIn('--equivalence build/tested-distribution/report.json', command)
+        self.assertIn('--commit "$GITHUB_SHA"', command)
+        self.assertIn('--version "${RELEASE_TAG#v}"', command)
+        publisher = jobs['publish'].mapping()['steps'].steps()
+        collect = next(step['run'].text() for step in publisher if 'run' in step
+                       and 'release-source-$ATTEMPT' in step['run'].text())
+        self.assertIn('cp "build/downloads/release-amalgamation-$ATTEMPT/"* build/publish/', collect)
+
     def test_publisher_rechecks_the_original_candidate_before_manifest_and_upload(self):
         steps = workflow('core-release.yml')['jobs'].mapping()['publish'].mapping()['steps'].steps()
         runs = [step for step in steps if 'run' in step]
@@ -413,6 +432,7 @@ class WorkflowContracts(unittest.TestCase):
         uploads = {
             'candidate': ('release-candidate-${{ github.run_attempt }}', None),
             'performance': ('release-performance-${{ github.run_attempt }}', None),
+            'amalgamation': ('release-amalgamation-${{ github.run_attempt }}', 'build/release-amalgamation/*'),
             'source': ('release-source-${{ github.run_attempt }}', 'build/release-source/*'),
             'binaries': ('release-${{ matrix.id }}-${{ github.run_attempt }}', 'build/release-binary/*'),
         }
@@ -546,6 +566,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(len(hooks), 1)
         self.assert_unconditional(hooks[0])
         required = {'python -B scripts/test_core_release.py',
+                    'python -B scripts/test_amalgamation_release.py',
                     'python -B scripts/test_core_performance.py',
                     'python -B scripts/test_ci_workflows.py'}
         commands = set()
