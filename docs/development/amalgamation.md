@@ -15,8 +15,9 @@ for the reviewers who approve it. Read the
 
 **Status:** contract version 1, implemented by the `opentlv_amalgamation` build
 target ([#740](https://github.com/OpenTLV/opentlv/issues/740); see
-[Generation](#generation)). The install component (#742), the equivalence gate
-(#743) and the release asset (#744) do not exist yet.
+[Generation](#generation)), the optional install component (#742), and the
+[distribution equivalence gate](#distribution-equivalence-gate) (#743).
+Publication of a release asset remains tracked by #744.
 
 An *amalgamation* is a generated C99 header/source pair containing the
 Library's modular C implementation, so that a consumer can compile OpenTLV
@@ -356,6 +357,66 @@ by the LF normalization.
 The file lists no digest of the generated files; release checksums,
 attestations and provenance belong to #744. It is generated deterministically,
 with sorted object keys and LF line endings.
+
+## Distribution equivalence gate
+
+`scripts/check_distribution_equivalence.py` prepares one conventional Library
+build, generates its amalgamation, installs and relocates its native binaries,
+and runs the same external test project against all three distributions. It
+requires matching version/revision/commit/branch/tag, Query configuration,
+module composition, generated version/feature headers, compiler identity,
+pointer size and build configuration. Relocated files must match the checksummed
+installation manifest. Build and installed binary hashes are recorded separately
+because installation can rewrite ELF RPATH. An older published release is not a like-for-like input;
+release download verification and publication remain separate gates.
+
+The test project reuses the existing unit and integration source lists,
+including Core, IO, Document, Query, Schema, Codec, Generator and every builtin,
+the C++ facade, Query conformance/adversarial cases, diagnostic contracts, and
+the baseline observation probe. CTest names and GoogleTest scenario names and
+multiplicities must match exactly, and every selected case must pass. Existing
+white-box tests still use their private test headers; implementation objects
+always come from the selected distribution. EMV source-isolation and binary ABI
+snapshot checks remain in the conventional gates.
+
+Ten Generator domains produce 320 deterministic cases per variant; their bytes
+must match, and the shared property checker checks round trips. Every enabled
+fuzz harness replays the checked-in valid/invalid seed corpus plus an empty
+input, including Query program/image corruption. Query fixtures retain their
+existing expected-result checks. Diagnostic strings, capability observations
+and the baseline probe's results must compare exactly. Public API references
+link every registry-declared C symbol through both header forms. Static builds
+compare external C definitions and reject duplicates; opposite-order flat and
+modular C++ header includes compile and link in separate translation units.
+This is behavioral/source equivalence, not an amalgamation ABI promise.
+
+Run locally with CMake 3.21+ (for CTest JUnit output), Ninja, Python 3.11, a supported C/C++ compiler, and
+`nm` (`llvm-nm` on Windows) on PATH:
+
+```sh
+python scripts/check_distribution_equivalence.py \
+  --output build/distribution-evidence --cc gcc --cxx g++ --shared OFF
+```
+
+Use a fresh output directory for each run. `--frontend OFF`,
+`--set-operations OFF`, `--config Debug`, and `--sanitize` (Linux) select matching
+configurations for every variant. `--gtest-source` can reuse a local checkout of
+the repository's pinned GoogleTest version. Reports, complete command logs,
+CTest/GoogleTest XML, corpus hashes and observations remain under the output
+directory even on failure. `report.json` identifies the active failing variant.
+
+Full and release CI require the `distributions` job. Its initial qualification
+matrix includes GCC static/shared, MSVC static/shared, Clang ASan/UBSan Debug,
+and all four Query feature combinations. Sanitizers instrument the conventional
+libraries, amalgamation and test/corpus consumers. Fast/PR CI keeps the existing
+consumer smoke checks without this suite. Missing, skipped or failed required
+jobs fail the Full release gate, and failure artifacts retain variant names.
+
+For epic [#701](https://github.com/OpenTLV/opentlv/issues/701), attach the
+successful **Core Full CI** run URL, exact candidate commit and its
+`distribution-*` artifacts after the branch is published. Local reports alone
+do not qualify a hosted run or authorize publication; #743's hosted evidence
+acceptance item remains pending until that run is available.
 
 ## Consumer contract
 

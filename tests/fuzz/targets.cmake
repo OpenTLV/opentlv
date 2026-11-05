@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+# Shared by libFuzzer and distribution corpus replay.
+set(fuzz_targets read visitor roundtrip utf8)
+# These harnesses use formats.h, whose mutable Formats need libFuzzer's init hook.
+set(fuzz_initialize read visitor roundtrip)
+if(OPENTLV_QUERY_FRONTEND)
+    list(APPEND fuzz_targets query_parse query_match query_program query_image query_pairs)
+endif()
+set(fuzz_source_query_parse query/parse.c)
+set(fuzz_source_query_match query/match.c)
+set(fuzz_source_query_program query/program.c)
+set(fuzz_source_query_image query/image.c)
+set(fuzz_source_query_pairs query/pairs.c)
+set(fuzz_source_read reader/read.c)
+set(fuzz_source_visitor reader/visitor.c)
+set(fuzz_source_roundtrip roundtrip.c)
+set(fuzz_source_utf8 utf8.c)
+list(APPEND fuzz_targets fixed)
+set(fuzz_source_fixed builtins/fixed/fixed.c)
+list(APPEND fuzz_targets der der_schema)
+set(fuzz_source_der builtins/asn1/der.c)
+set(fuzz_source_der_schema builtins/asn1/der_schema.c)
+list(APPEND fuzz_targets codec dol)
+set(fuzz_source_codec builtins/emv/codec.c)
+set(fuzz_source_dol builtins/emv/dol.c)

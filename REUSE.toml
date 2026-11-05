@@ -32,6 +32,7 @@ path = [
     ".github/workflows/core-main.yml",
     ".github/workflows/core-pr.yml",
     ".github/workflows/core-release.yml",
+    ".github/workflows/distribution-equivalence.yml",
     ".github/workflows/docs-notify.yml",
     ".github/workflows/docs-validation.yml",
     ".github/workflows/fuzz.yml",

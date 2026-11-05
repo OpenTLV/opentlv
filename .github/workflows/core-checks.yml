@@ -42,6 +42,13 @@ jobs:
       full: ${{ inputs.full }}
       release_tag: ${{ inputs.release_tag }}
 
+  distributions:
+    if: inputs.full
+    uses: ./.github/workflows/distribution-equivalence.yml
+    with:
+      full: ${{ inputs.full }}
+      release_tag: ${{ inputs.release_tag }}
+
   codeql:
     # Required before merging to main; also retained in the complete Full tier.
     uses: ./.github/workflows/codeql.yml
@@ -101,7 +108,7 @@ jobs:
   gate:
     name: Core quality gate
     if: always()
-    needs: [clang, msvc, static, consumers, codeql, gcc, properties, query, fuzz, capabilities, abi, memcheck]
+    needs: [clang, msvc, static, consumers, distributions, codeql, gcc, properties, query, fuzz, capabilities, abi, memcheck]
     runs-on: ubuntu-24.04
     permissions:
       contents: read

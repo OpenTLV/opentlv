@@ -166,14 +166,17 @@ class CoreGateTests(unittest.TestCase):
         self.assertEqual(set(configuration['workflows']), {
             'abi.yml', 'build-clang.yml', 'build-gcc.yml', 'build-msvc.yml', 'capabilities.yml',
             'cmake-consumers.yml', 'codeql.yml', 'core-checks.yml', 'core-full.yml', 'core-release.yml',
-            'fuzz.yml', 'property.yml', 'query-hardening.yml', 'static-analysis.yml', 'valgrind.yml'})
+            'fuzz.yml', 'property.yml', 'query-hardening.yml', 'static-analysis.yml', 'valgrind.yml',
+            'distribution-equivalence.yml'})
         self.assertEqual(set(configuration['configuration_sources']), {
             'CMakeLists.txt', 'cmake/compiler.cmake', 'cmake/modules.cmake', 'cmake/library/CMakeLists.txt',
             'cmake/library/modules.cmake', 'cmake/library/cxx.cmake', 'cmake/install.cmake',
             'cmake/packaging.cmake', 'cmake/version.cmake', 'scripts/core_release.py', 'scripts/check_package.py',
             'scripts/archive_safety.py', 'cmake/OpenTLVConfig.cmake.in', 'scripts/check_cmake_discovery.py',
             'scripts/check_cmake_integration.py',
-            'scripts/check_capabilities.py', 'scripts/abi/check.py'})
+            'scripts/check_capabilities.py', 'scripts/abi/check.py',
+            'scripts/check_distribution_equivalence.py',
+            'tests/amalgamation/equivalence/CMakeLists.txt', 'tests/fuzz/targets.cmake'})
         self.assertEqual(configuration['schema'], 1)
 
     def test_full_configuration_evidence_cannot_omit_or_change_inputs(self):
