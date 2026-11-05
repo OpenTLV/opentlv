@@ -6,7 +6,6 @@ installation, and check their CMake package and target identities (#747)."""
 
 import argparse
 import json
-import os
 from pathlib import Path
 import re
 import shutil
@@ -163,26 +162,9 @@ def installed_examples(root, work, prefix, args):
             [str(ctest), "-C", "Release", "--show-only=json-v1"], cwd=build, text=True))
         check_example_tests(listing, expected)
         run(ctest, "-C", "Release", "--output-on-failure", cwd=build)
-        return listing, entries
+        return entries
 
-    listing, entries = build_and_test(build)
-    nfc = next(test for test in listing["tests"] if test["name"] == "example.c.nfc.type2")
-    command = nfc["command"]
-    default = subprocess.check_output(command[:1], cwd=build, env=example_environment(nfc), text=True)
-    fixture = subprocess.check_output(command, cwd=build, env=example_environment(nfc), text=True)
-    if default != fixture:
-        raise RuntimeError("NFC embedded default differs from the copied sample.bin fixture")
-    for name, content in (("empty.bin", b""), ("oversized.bin", b"\0" * 1025), ("truncated.bin", b"\x03")):
-        path = work / name
-        path.write_bytes(content)
-        result = subprocess.run([command[0], str(path)], cwd=build, env=example_environment(nfc), check=False)
-        if result.returncode == 0:
-            raise RuntimeError(f"NFC example accepted {name}")
-    result = subprocess.run([command[0], str(work / "missing.bin")], cwd=build,
-                            env=example_environment(nfc), check=False)
-    if result.returncode == 0:
-        raise RuntimeError("NFC example accepted a missing file")
-
+    entries = build_and_test(build)
     # Build and run every available example without the optional aggregate,
     # using a separate installation so earlier consumers remain unaffected.
     component_prefix = work / "component-only installation"
@@ -201,17 +183,6 @@ def installed_examples(root, work, prefix, args):
             raise RuntimeError("Missing optional aggregate did not produce an explicit skip")
     build_and_test(component_build, aggregate=False)
     print(f"PASS installed examples: shared={args.shared}, cxx={args.cxx}, frontend={args.query_frontend}", flush=True)
-
-
-def example_environment(test):
-    """Use the same DLL search path as CTest for direct fixture/error checks."""
-    environment = os.environ.copy()
-    for prop in test.get("properties", []):
-        if prop["name"] == "ENVIRONMENT":
-            for assignment in prop["value"]:
-                key, value = assignment.split("=", 1)
-                environment[key] = value
-    return environment
 
 
 def main():

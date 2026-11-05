@@ -22,7 +22,7 @@ Targets use `example-<lang>-<module>-<name>` (`c` or `cpp`), and CTest names use
 
 Each directory declares its sources and public `LINK` targets using the thin
 `opentlv_example()` helper in `cmake/Example.cmake`. `SOURCES` accepts multiple
-files; optional `ARGS` and `PASS_REGULAR_EXPRESSION` preserve runtime checks.
+files; optional `PASS_REGULAR_EXPRESSION` preserves runtime output checks.
 The [complete source inventory](../docs/guides/examples.md#source-inventory)
 lists the runnable programs.
 
@@ -33,7 +33,7 @@ the [build-then-install workflow](../docs/development/amalgamation.md#optional-i
 ## Standalone installed-package build
 
 The same directory is a standalone CMake 3.16 project. It can be copied outside
-the checkout, including `cmake/` and the binary fixtures, and built against an
+the checkout, including `cmake/`, and built against an
 installed OpenTLV package. For example, from the repository root:
 
 ```sh
