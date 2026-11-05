@@ -231,6 +231,7 @@ function(opentlv_finalize_modules)
         _opentlv_visit_module("${key}" "")
         get_property(target GLOBAL PROPERTY OPENTLV_MODULE_${key})
         get_target_property(facade ${target} INTERFACE_OPENTLV_FACADE)
+        get_target_property(type ${target} TYPE)
         get_target_property(export_name ${target} INTERFACE_OPENTLV_EXPORT_NAME)
         get_target_property(owner ${target} INTERFACE_OPENTLV_OWNER)
         foreach(field IN ITEMS EXPORT_NAME OWNER BUILTIN FACADE INCLUDE_DIR SOURCES PUBLIC_HEADERS
@@ -290,6 +291,14 @@ function(opentlv_finalize_modules)
                 list(APPEND dependency_names "${dep_name}")
                 if(facade OR scope STREQUAL "FACADE")
                     target_link_libraries(${target} INTERFACE ${dependency})
+                elseif(scope STREQUAL "PRIVATE" AND CMAKE_VERSION VERSION_LESS 3.17 AND
+                       type STREQUAL "STATIC_LIBRARY")
+                    # CMake 3.16 leaks cross-directory lookup suffixes into
+                    # exported LINK_ONLY expressions. Registry dependencies are
+                    # global build targets, so no directory lookup is needed.
+                    set_property(TARGET ${target} APPEND PROPERTY LINK_LIBRARIES "${dependency}")
+                    set_property(TARGET ${target} APPEND PROPERTY INTERFACE_LINK_LIBRARIES
+                        "$<LINK_ONLY:${dependency}>")
                 else()
                     target_link_libraries(${target} ${scope} ${dependency})
                 endif()

@@ -33,6 +33,13 @@ int main(void) {
         return 4;
     if (strcmp(tlv_result_string(TLV_ERR_BUFFER_TOO_SHORT), tlv_result_string(TLV_OK)) == 0)
         return 5;
-    printf("OpenTLV %s amalgamation consumer passed\n", tlv_version_string());
+    /* A second builtin shares the same generic Reader and Codec implementation. */
+    {
+        static const uint8_t lldp[] = {6, 2, 0, 120};
+        if (tlv_read(lldp, sizeof lldp, &tlv_format_lldp, &element, &consumed) != TLV_OK ||
+            consumed != sizeof lldp || element.value.size != 2 || element.value.data[1] != 120)
+            return 6;
+    }
+    printf("OpenTLV %s C consumer passed\n", tlv_version_string());
     return 0;
 }

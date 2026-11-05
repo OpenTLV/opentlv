@@ -34,4 +34,31 @@ function(opentlv_add_amalgamation_target)
             -P "${OpenTLV_SOURCE_DIR}/cmake/amalgamation/generate.cmake"
         COMMENT "Generating the OpenTLV C source amalgamation"
         VERBATIM)
+
+    # An opt-in source distribution, independent of conventional libraries.
+    # Never generate during install, nor silently omit missing outputs.
+    set(destination "${CMAKE_INSTALL_DATADIR}/OpenTLV/amalgamation")
+    string(CONFIGURE [=[
+        foreach(path IN ITEMS opentlv.h opentlv.c opentlv-amalgamation.json include/opentlv/tlv.h)
+            if(NOT EXISTS "@OpenTLV_BINARY_DIR@/amalgamation/${path}")
+                message(FATAL_ERROR "Amalgamation requires generated outputs. Run cmake --build <build> --target opentlv_amalgamation before installing --component Amalgamation.")
+            endif()
+        endforeach()
+    ]=] check_outputs @ONLY)
+    install(CODE "${check_outputs}" COMPONENT Amalgamation EXCLUDE_FROM_ALL)
+    install(FILES
+        "${OpenTLV_BINARY_DIR}/amalgamation/opentlv.h"
+        "${OpenTLV_BINARY_DIR}/amalgamation/opentlv.c"
+        "${OpenTLV_BINARY_DIR}/amalgamation/opentlv-amalgamation.json"
+        "${OpenTLV_SOURCE_DIR}/LICENSE" "${OpenTLV_SOURCE_DIR}/THIRD_PARTY.md"
+        DESTINATION "${destination}" COMPONENT Amalgamation EXCLUDE_FROM_ALL)
+    install(DIRECTORY "${OpenTLV_BINARY_DIR}/amalgamation/include"
+        DESTINATION "${destination}" COMPONENT Amalgamation EXCLUDE_FROM_ALL)
+    install(FILES "${OpenTLV_SOURCE_DIR}/LICENSES/MIT.txt"
+        DESTINATION "${destination}/LICENSES" COMPONENT Amalgamation EXCLUDE_FROM_ALL)
+    install(FILES
+        "${OpenTLV_SOURCE_DIR}/tests/amalgamation/consumer/consumer.c"
+        "${OpenTLV_SOURCE_DIR}/tests/amalgamation/consumer/consumer.cpp"
+        "${OpenTLV_SOURCE_DIR}/tests/amalgamation/consumer/README.md"
+        DESTINATION "${destination}/examples" COMPONENT Amalgamation EXCLUDE_FROM_ALL)
 endfunction()

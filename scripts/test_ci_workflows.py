@@ -201,7 +201,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(set(checks['with'].mapping()), {'full'})
         self.assertEqual(checks['with'].mapping()['full'].text(), 'false')
 
-    def test_main_runs_one_consumer_smoke_configuration_and_full_codeql_after_push(self):
+    def test_main_runs_consumer_smoke_and_full_codeql_after_push(self):
         data = workflow('core-main.yml')
         events = data['on'].mapping()
         self.assertEqual(set(events), {'push'})
@@ -227,7 +227,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assert_gate(jobs['gate'].mapping(), {'smoke', 'codeql'},
                          'python -B scripts/core_release.py main-gate --output ')
         worker_jobs = workflow('cmake-consumers.yml')['jobs'].mapping()
-        self.assertEqual(set(worker_jobs), {'consumers'})
+        self.assertEqual(set(worker_jobs), {'consumers', 'amalgamation'})
         consumer = worker_jobs['consumers'].mapping()
         self.assert_unconditional(consumer)
         self.assertEqual(consumer['runs-on'].text(), '${{ matrix.os }}')
@@ -242,6 +242,25 @@ class WorkflowContracts(unittest.TestCase):
             self.assertEqual(len(selected), 1, 'Main must run one consumer configuration')
             if axis == 'os':
                 self.assertTrue(selected[0].startswith('ubuntu-'), 'Main smoke must remain on Linux')
+
+    def test_amalgamation_consumers_cover_both_linkages_and_supported_compilers(self):
+        job = workflow('cmake-consumers.yml')['jobs'].mapping()['amalgamation'].mapping()
+        self.assert_unconditional(job)
+        self.assertNotIn('continue-on-error', job)
+        matrix = job['strategy'].mapping()['matrix'].mapping()
+        self.assertEqual(matrix['shared'].names(), {'ON', 'OFF'})
+        expression = re.fullmatch(
+            r"\$\{\{\s*fromJSON\(inputs\.full && '([^']*)' \|\| '([^']*)'\)\s*\}\}",
+            matrix['toolchain'].text())
+        self.assertIsNotNone(expression)
+        self.assertEqual({entry['cc'] for entry in json.loads(expression[1])},
+                         {'gcc', 'clang-18', 'cl'})
+        self.assertEqual({entry['cc'] for entry in json.loads(expression[2])}, {'clang-18'})
+        steps = job['steps'].steps()
+        consumer = next(step for step in steps if 'run' in step and step['run'].text().startswith(
+            'python scripts/check_amalgamation_consumers.py'))
+        self.assert_unconditional(consumer)
+        self.assertNotIn('continue-on-error', consumer)
 
     def test_full_requires_manual_dispatch_or_explicit_reuse(self):
         data = workflow('core-full.yml')
