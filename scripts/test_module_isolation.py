@@ -107,6 +107,36 @@ class IsolationTests(unittest.TestCase):
         self.assertEqual(len(check_metadata(entries)), 4)
         self.assertFalse(list(self.build.glob("CMakeFiles/*/CMakeCXXCompiler.cmake")))
 
+    def test_cross_directory_private_static_export(self):
+        # Finalize in another directory, as the real Library does. CMake 3.16
+        # must not export its internal directory suffix inside LINK_ONLY.
+        (self.root / "finalize").mkdir()
+        (self.root / "finalize/CMakeLists.txt").write_text(
+            "opentlv_finalize_modules()\n", encoding="utf-8")
+        self.change("CMakeLists.txt", "opentlv_finalize_modules()", "add_subdirectory(finalize)")
+        self.configure()
+        prefix = self.root / "installed"
+        consumer = self.root / "consumer"
+        consumer.mkdir()
+        (consumer / "CMakeLists.txt").write_text(
+            'cmake_minimum_required(VERSION 3.16)\nproject(consumer LANGUAGES C)\n'
+            'find_package(OpenTLV REQUIRED CONFIG COMPONENTS FixtureAddon)\n'
+            f'add_executable(consumer "{self.root.as_posix()}/addon-consumer.c")\n'
+            'target_link_libraries(consumer PRIVATE OpenTLV::FixtureAddon)\n'
+            'enable_testing()\nadd_test(NAME consumer COMMAND consumer)\n', encoding="utf-8")
+        for command in (
+            ["cmake", "--build", str(self.build), "--config", "Release"],
+            ["cmake", "--install", str(self.build), "--config", "Release", "--prefix", str(prefix)],
+            ["cmake", "-S", str(consumer), "-B", str(consumer / "build"),
+             f"-DCMAKE_PREFIX_PATH={prefix.as_posix()}"],
+            ["cmake", "--build", str(consumer / "build"), "--config", "Release"],
+        ):
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        result = subprocess.run(["ctest", "-C", "Release", "--output-on-failure"],
+                                cwd=consumer / "build", capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_new_builtin_exports_and_integrations_follow_owner(self):
         # "base" is intentionally not one of the repository's six builtins.
         self.change("CMakeLists.txt", "opentlv_add_module(base EXPORT_NAME",

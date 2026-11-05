@@ -319,6 +319,8 @@ already expose them to consumers' links; the amalgamation does not change that.
   An input with another SPDX license identifier fails generation until this
   contract and [THIRD_PARTY.md](../../THIRD_PARTY.md) cover it.
 - The published archive includes `LICENSE` and `LICENSES/MIT.txt` (#744).
+  The optional install component already includes both, `THIRD_PARTY.md`, and
+  the SPDX/copyright notices retained in each generated file (#742).
 
 ## Determinism
 
@@ -366,9 +368,11 @@ configuration. #743 verifies this.
 
 **C++.** The existing header-only C++ facade (C++11 minimum, verified with
 C++17 consumers as #701 requires) works unchanged with the `include/` tree and
-`opentlv.c` compiled as C. The facade needs no amalgamation-specific branch. An
-optional CMake integration target may expose the same consumer-facing targets
-while selecting the amalgamated implementation (#742).
+`opentlv.c` compiled as C. The facade needs no amalgamation-specific branch.
+The [installed samples](../../tests/amalgamation/consumer/README.md) give exact
+GCC, Clang and MSVC compile/link commands. The C driver compiles the implementation
+once; the C++ driver links that object and supplies the C++ standard library.
+No conventional OpenTLV library or import/export definition is required.
 
 **Unsupported:**
 
@@ -411,9 +415,55 @@ on every run and writes LF line endings on every host. It needs no compiler.
 | CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, and identical bytes from another location and from CRLF inputs | PR (Clang unit tests) |
 | CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors` and the Library's warning policy, and runs it | PR (Clang integration tests) |
 | `scripts/check_cmake_integration.py` | The standalone build has the target, and neither the default build nor `install()` generates. Embedding builds have no such target | PR and Main (CMake consumers) |
+| `scripts/check_amalgamation_consumers.py` | Explicit component installation, missing-output failures, licenses, metadata, unchanged public headers, relocation, direct C99/C++17 compiler consumers and the same samples linked to conventional static/shared libraries | PR: Clang 18, both linkage modes; Full: also GCC and MSVC; minimum CMake/custom data directory/disabled Query features on Clang |
 
 Comparing the external symbols with the static module archives, and comparing
-behavior with the conventional build, belong to #743.
+the full behavioral corpus with the conventional build, belong to #743.
+The standalone comparisons here cover the samples' Core/IO, ASN.1 and LLDP
+operations, including C++ Schema validation and Codec decoding.
+The minimum-version check also covers private static-library dependencies in
+the conventional package: CMake 3.16 uses explicit link properties to avoid
+exporting its internal cross-directory lookup suffixes.
+
+## Optional installation
+
+From a standalone Library checkout, explicitly generate and then install:
+
+```sh
+cmake -S . -B build -DOPENTLV_BUILD_TESTS=OFF -DOPENTLV_BUILD_EXAMPLES=OFF -DOPENTLV_BUILD_CXX=OFF
+cmake --build build --config Release --target opentlv_amalgamation
+cmake --install build --config Release --component Amalgamation --prefix "$PWD/install"
+```
+
+The component contains the generated pair, `include/` tree and JSON metadata,
+plus `LICENSE`, `LICENSES/MIT.txt`, `THIRD_PARTY.md` and the
+[standalone samples and commands](../../tests/amalgamation/consumer/README.md)
+under `examples/`. It installs to
+`<prefix>/${CMAKE_INSTALL_DATADIR}/OpenTLV/amalgamation` (normally
+`<prefix>/share/OpenTLV/amalgamation`). Relative GNUInstallDirs destinations
+honor `--prefix` and `DESTDIR`; the installed directory can be copied elsewhere.
+It contains no CMake package, compiled libraries or private build paths.
+
+This is a source-only install component, available in standalone Library builds,
+not a `find_package(OpenTLV COMPONENTS ...)` component or a new library target.
+Neither the default build nor the default installation includes it, even after
+generation. Installation only copies existing outputs: absent required files
+fail with the build command, and no generation or compiler runs during install.
+Regenerate explicitly after changing source files or Query options; installation
+does not check whether previously generated outputs are stale. Generating and
+installing the component needs no C++ compiler or conventional library build.
+
+Run the consumer checks locally from an environment with CMake, Ninja, Python
+and the selected C/C++ compilers (an MSVC Developer shell on Windows):
+
+```sh
+python scripts/check_amalgamation_consumers.py --cc gcc --cxx g++ --shared OFF
+python scripts/check_amalgamation_consumers.py --cc gcc --cxx g++ --shared ON
+```
+
+CMake prepares the artifacts and the conventional comparison. The standalone
+samples are compiled and linked directly with compiler commands, including a
+C-only check with only the flat pair and the sample source available.
 
 ## Names
 
@@ -425,7 +475,7 @@ identity, no legacy alias and no "core" in a multi-module artifact.
 | Build target | `opentlv_amalgamation` | Implemented in #740; the CMake identity checks require it |
 | Output directory | `<build>/amalgamation/` | Implemented in #740 |
 | Files | `opentlv.h`, `opentlv.c`, `include/`, `opentlv-amalgamation.json` | Implemented in #740 |
-| Install component | `Amalgamation` (a CMake install component, not a package component) | Held for #742 |
+| Install component | `Amalgamation` (a CMake install component, not a package component) | Explicit opt-in installation under `${CMAKE_INSTALL_DATADIR}/OpenTLV/amalgamation` (#742) |
 | Release asset | Candidate `OpenTLV-X.Y.Z-amalgamation.tar.gz`, top directory `OpenTLV-X.Y.Z-amalgamation/`, manifest record `kind` `amalgamation` | Held for #744; adding a published kind updates the [artifact contract](naming.md#artifact-contract-2) |
 | Per-module artifacts | That module's export name, e.g. `opentlv-asn1.h` | Out of scope for version 1 |
 

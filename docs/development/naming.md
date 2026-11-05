@@ -131,8 +131,8 @@ different things and must not be read as one identity.
   "core" appears only when the artifact contains only the Core module. Exact
   target, component and asset names are set in #701 and #748. The
   [amalgamation contract](amalgamation.md#names) (#741) sets the build target
-  and file names; the install component and release asset remain held for #742
-  and #744.
+  and file names; #742 adds the opt-in `Amalgamation` install component. The
+  release asset remains held for #744.
 
 ## CMake identity audit
 

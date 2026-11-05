@@ -21,6 +21,45 @@ permissions:
   contents: read
 
 jobs:
+  amalgamation:
+    strategy:
+      fail-fast: false
+      matrix:
+        toolchain: ${{ fromJSON(inputs.full && '[{"os":"ubuntu-24.04","cc":"gcc","cxx":"g++"},{"os":"ubuntu-24.04","cc":"clang-18","cxx":"clang++-18"},{"os":"windows-2022","cc":"cl","cxx":"cl"}]' || '[{"os":"ubuntu-24.04","cc":"clang-18","cxx":"clang++-18"}]') }}
+        shared: ['ON', 'OFF']
+    runs-on: ${{ matrix.toolchain.os }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Install Clang
+        if: matrix.toolchain.cc == 'clang-18'
+        run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+      - name: Install and compare standalone C99 and C++17 consumers
+        run: >-
+          python scripts/check_amalgamation_consumers.py
+          --shared ${{ matrix.shared }}
+          --cc ${{ matrix.toolchain.cc }} --cxx ${{ matrix.toolchain.cxx }}
+      - name: Check minimum CMake, custom install layout and disabled Query features
+        if: matrix.toolchain.cc == 'clang-18' && matrix.shared == 'OFF'
+        shell: bash
+        run: |
+          python -m pip install --target build/cmake-3.16 cmake==3.16.8
+          export PATH="$PWD/build/cmake-3.16/cmake/data/bin:$PATH"
+          python scripts/test_module_isolation.py IsolationTests.test_cross_directory_private_static_export
+          python scripts/check_amalgamation_consumers.py --cc clang-18 --cxx clang++-18 \
+            --shared OFF --query-frontend OFF --query-set-operations OFF --data-dir 'custom data'
+
   consumers:
     strategy:
       fail-fast: false

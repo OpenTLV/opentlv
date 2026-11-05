@@ -26,6 +26,10 @@ files; optional `ARGS` and `PASS_REGULAR_EXPRESSION` preserve runtime checks.
 The [complete source inventory](../docs/guides/examples.md#source-inventory)
 lists the runnable programs.
 
+For a CMake-free consumer of the generated C source distribution, see the
+[standalone amalgamation samples](../tests/amalgamation/consumer/README.md) and
+the [build-then-install workflow](../docs/development/amalgamation.md#optional-installation).
+
 ## Standalone installed-package build
 
 The same directory is a standalone CMake 3.16 project. It can be copied outside
