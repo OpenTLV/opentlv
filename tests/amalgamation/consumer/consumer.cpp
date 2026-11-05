@@ -34,6 +34,6 @@ int main() {
         return 5;
     }
     if (count != 5 || !ttl_seen) return 6;
-    std::cout << "OpenTLV " << tlv_version_string() << " C++ consumer passed\n";
+    std::cout << "OpenTLV " << tlv::version() << " C++ consumer passed\n";
     return 0;
 }
