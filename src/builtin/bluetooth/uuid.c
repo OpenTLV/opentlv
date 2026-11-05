@@ -42,7 +42,7 @@ static tlv_result_t encode_uuid128(const void* context, const void* value, size_
     return tlv_codec_diagnostic_result(diagnostic, TLV_OK);
 }
 
-static tlv_result_t validate_list(const tlv_bluetooth_uuid_list_t* list, size_t* size) {
+static tlv_result_t uuid_validate_list(const tlv_bluetooth_uuid_list_t* list, size_t* size) {
     if (list->uuid_size != 2 && list->uuid_size != 4 && list->uuid_size != 16)
         return TLV_ERR_INVALID_VALUE;
     if (!list->raw.data && list->raw.size) return TLV_ERR_NULL_ARG;
@@ -78,7 +78,7 @@ static tlv_result_t encode_list(const void* context, const void* value, size_t s
     memcpy(&input, value, sizeof(input));
     if (input.uuid_size != *(const size_t*)context)
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_VALUE);
-    rc = validate_list(&input, &length);
+    rc = uuid_validate_list(&input, &length);
     if (rc != TLV_OK) return tlv_codec_diagnostic_result(diagnostic, rc);
     if (data) {
         if (capacity < length)
@@ -95,7 +95,7 @@ tlv_result_t tlv_bluetooth_uuid_list_at(const tlv_bluetooth_uuid_list_t* list, s
     tlv_result_t rc;
     const tlv_codec_t* codec;
     if (!list || !value) return TLV_ERR_NULL_ARG;
-    rc = validate_list(list, &size);
+    rc = uuid_validate_list(list, &size);
     if (rc != TLV_OK) return rc;
     if (index >= size / list->uuid_size) return TLV_ERR_INVALID_VALUE;
     codec = list->uuid_size == 2   ? &tlv_bluetooth_codec_uuid16

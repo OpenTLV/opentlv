@@ -12,10 +12,10 @@
  * tag's length must be definite and canonically minimal. Either form found
  * on the wrong kind of tag is TLV_ERR_INVALID_LENGTH. This resolves framing
  * only, not nested segmentation -- see opentlv/builtin/asn1/cer_validation.h for that. */
-static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
-                                      const uint8_t* data, size_t size, size_t* length_size,
-                                      tlv_size_t* value_size, size_t* trailer_size,
-                                      tlv_format_error_t* error) {
+static tlv_result_t cer_read_value_bounds(const void* context, const tlv_tag_t* tag,
+                                          const uint8_t* data, size_t size, size_t* length_size,
+                                          tlv_size_t* value_size, size_t* trailer_size,
+                                          tlv_format_error_t* error) {
     tlv_size_t length;
     size_t used, native_length;
     tlv_result_t rc;
@@ -62,7 +62,7 @@ static tlv_result_t cer_encode(const void* context, const tlv_element_t* element
 const tlv_field_composition_t tlv_cer_fields = {.context = NULL,
                                                 .read_tag = tlv_asn1_read_identifier,
                                                 .read_length = tlv_asn1_read_minimal_length,
-                                                .resolve = read_value_bounds,
+                                                .resolve = cer_read_value_bounds,
                                                 .write_tag = tlv_asn1_write_identifier,
                                                 .write_length = tlv_ber_write_length};
 const tlv_format_t tlv_format_cer = {&tlv_cer_fields, tlv_fields_decode, cer_measure, cer_encode,

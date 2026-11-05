@@ -16,20 +16,20 @@ static const tlv_variable_length_t ber_length = {TLV_BER_LENGTH_LONG_FORM_BIT,
                                                  TLV_BER_LENGTH_COUNT_MASK,
                                                  TLV_BYTE_ORDER_BIG_ENDIAN, &ber_length_policy};
 
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
-                             size_t* consumed) {
+static tlv_result_t ber_wire_read_tag(const void* context, const uint8_t* data, size_t size,
+                                      tlv_tag_t* tag, size_t* consumed) {
     (void)context;
     return tlv_variable_identifier_read(&ber_identifier, data, size, tag, consumed);
 }
 
-static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
-                              size_t capacity, size_t* written) {
+static tlv_result_t ber_wire_write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                       size_t capacity, size_t* written) {
     (void)context;
     return tlv_variable_identifier_write(&ber_identifier, tag, data, capacity, written);
 }
 
-static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                tlv_size_t* length, size_t* consumed) {
+static tlv_result_t ber_wire_read_length(const void* context, const uint8_t* data, size_t size,
+                                         tlv_size_t* length, size_t* consumed) {
     (void)context;
     return tlv_variable_length_read(&ber_length, data, size, length, consumed);
 }
@@ -37,7 +37,7 @@ static tlv_result_t read_length(const void* context, const uint8_t* data, size_t
 size_t tlv_ber_length_field_size(const uint8_t* data, size_t size) {
     tlv_size_t length;
     size_t consumed = 0;
-    (void)read_length(NULL, data, size, &length, &consumed);
+    (void)ber_wire_read_length(NULL, data, size, &length, &consumed);
     return consumed;
 }
 
@@ -49,7 +49,7 @@ tlv_result_t tlv_ber_length_decode(const uint8_t* data, size_t data_size, tlv_si
     if ((!data && data_size) || !value || !consumed) return TLV_ERR_NULL_ARG;
     /* Unlike field callbacks, this public helper preserves both outputs on
      * failure. Keep diagnostic prefix reporting private to the composition. */
-    rc = read_length(NULL, data, data_size, &decoded, &used);
+    rc = ber_wire_read_length(NULL, data, data_size, &decoded, &used);
     if (rc != TLV_OK) return rc;
     *value = decoded;
     *consumed = used;
@@ -68,7 +68,7 @@ tlv_result_t tlv_ber_write_length(const void* context, tlv_size_t length, uint8_
 }
 
 const tlv_field_composition_t tlv_ber_wire = {.context = NULL,
-                                              .read_tag = read_tag,
-                                              .read_length = read_length,
-                                              .write_tag = write_tag,
+                                              .read_tag = ber_wire_read_tag,
+                                              .read_length = ber_wire_read_length,
+                                              .write_tag = ber_wire_write_tag,
                                               .write_length = tlv_ber_write_length};

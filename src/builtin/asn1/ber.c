@@ -7,35 +7,35 @@
 #include "internal/ber_internal.h"
 #include "internal/asn1_internal.h"
 #include <string.h>
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
-                             size_t* used) {
+static tlv_result_t ber_read_tag(const void* context, const uint8_t* data, size_t size,
+                                 tlv_tag_t* tag, size_t* used) {
     if ((!data && size) || !tag || !used) return TLV_ERR_NULL_ARG;
     /* Universal tag zero is reserved for EOC, never an ordinary element. */
     if (size && (data[0] == 0 || data[0] == TLV_ASN1_CONSTRUCTED_BIT)) return TLV_ERR_INVALID_TAG;
     return tlv_ber_wire.read_tag(context, data, size, tag, used);
 }
 
-static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
-                              size_t capacity, size_t* used) {
+static tlv_result_t ber_write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                  size_t capacity, size_t* used) {
     if (!tag || (!tag->data && tag->size) || (!data && capacity) || !used) return TLV_ERR_NULL_ARG;
     if (tag->size && tag->data && (tag->data[0] == 0 || tag->data[0] == TLV_ASN1_CONSTRUCTED_BIT))
         return TLV_ERR_INVALID_TAG;
     return tlv_ber_wire.write_tag(context, tag, data, capacity, used);
 }
 
-static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                tlv_size_t* length, size_t* used) {
+static tlv_result_t ber_read_length(const void* context, const uint8_t* data, size_t size,
+                                    tlv_size_t* length, size_t* used) {
     if ((!data && size) || !length || !used) return TLV_ERR_NULL_ARG;
     return tlv_ber_wire.read_length(context, data, size, length, used);
 }
 
 tlv_result_t tlv_ber_tag_make(tlv_asn1_class_t tag_class, int constructed, uint64_t number,
                               uint8_t* storage, tlv_tag_t* tag) {
-    return tlv_asn1_tag_make_checked(write_tag, tag_class, constructed, number, storage, tag);
+    return tlv_asn1_tag_make_checked(ber_write_tag, tag_class, constructed, number, storage, tag);
 }
 
 tlv_result_t tlv_ber_tag_number(const tlv_tag_t* tag, uint64_t* number) {
-    return tlv_asn1_tag_number_checked(write_tag, tag, number);
+    return tlv_asn1_tag_number_checked(ber_write_tag, tag, number);
 }
 
 static tlv_result_t scan_failure(tlv_format_error_t* error, tlv_result_t code, size_t offset,
@@ -98,7 +98,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
             continue;
         }
         region = TLV_REGION_TAG;
-        rc = read_tag(NULL, data + pos, limit - pos, &tag, &tag_size);
+        rc = ber_read_tag(NULL, data + pos, limit - pos, &tag, &tag_size);
         if (rc != TLV_OK) return scan_failure(error, rc, pos, region, bounded[depth - 1]);
         pos += tag_size;
         region = TLV_REGION_LENGTH;
@@ -112,7 +112,7 @@ tlv_result_t tlv_ber_scan_contents_diag(const uint8_t* data, size_t size, int in
             ++pos;
             length = limit - pos;
         } else {
-            rc = read_length(NULL, data + pos, limit - pos, &length, &len_size);
+            rc = ber_read_length(NULL, data + pos, limit - pos, &length, &len_size);
             if (rc != TLV_OK) return scan_failure(error, rc, pos, region, bounded[depth - 1]);
             pos += len_size;
             region = TLV_REGION_VALUE;
@@ -148,7 +148,7 @@ static tlv_result_t read_value_bounds(const void* context, const tlv_tag_t* tag,
     size_t used, native_length;
     tlv_result_t rc;
     if (!size || data[0] != TLV_BER_LENGTH_LONG_FORM_BIT) {
-        rc = read_length(context, data, size, &length, len_size);
+        rc = ber_read_length(context, data, size, &length, len_size);
         if (rc != TLV_OK) return rc;
         *value_size = length;
         *trailer_size = 0;
@@ -200,10 +200,10 @@ tlv_result_t tlv_ber_writer_write_indefinite(tlv_writer_t* writer, tlv_tag_t tag
 }
 
 const tlv_field_composition_t tlv_ber_fields = {.context = NULL,
-                                                .read_tag = read_tag,
-                                                .read_length = read_length,
+                                                .read_tag = ber_read_tag,
+                                                .read_length = ber_read_length,
                                                 .resolve = read_value_bounds,
-                                                .write_tag = write_tag,
+                                                .write_tag = ber_write_tag,
                                                 .write_length = tlv_ber_write_length};
 const tlv_format_t tlv_format_ber = {&tlv_ber_fields, tlv_fields_decode, tlv_fields_measure,
                                      tlv_fields_encode, tlv_asn1_is_constructed};
@@ -261,5 +261,5 @@ const tlv_format_t tlv_format_ber_indefinite = {
 tlv_result_t tlv_ber_read_identifier(const uint8_t* data, size_t size, tlv_tag_t* tag,
                                      size_t* consumed) {
     if ((!data && size) || !tag || !consumed) return TLV_ERR_NULL_ARG;
-    return read_tag(NULL, data, size, tag, consumed);
+    return ber_read_tag(NULL, data, size, tag, consumed);
 }

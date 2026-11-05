@@ -12,13 +12,15 @@ where its detail was set. Pre-initialization returns are deliberately excluded.
 
 An independent lifecycle check rejects INVALID_ARG in an if branch governed by
 a busy, finished, invalid or query_callbacks member. It includes query_error()
-returns and runs before diagnostic initialization too. Only the immediately
+returns, and those of Schema's schema_query_* copies of the Query helpers, and
+runs before diagnostic initialization too. Only the immediately
 governing branch is checked; propagated results and arbitrary control flow remain
 outside this lexical guard. Diagnostic-return comments cannot waive this check.
 
 A Query kind check reads the allowed (result, kind) pairs of the #551 failure
 model from TEST_QUERY_KIND_PAIRS in tests/diagnostic_invariant.h and rejects a
-query_error(), query_error_unlocated() or query_failure() call whose literal
+query_error(), query_error_unlocated() or query_failure() call, or a call of
+their schema_query_* copies, whose literal
 result and literal kind, including both branches of a literal conditional, are
 not listed. Computed results are checked at runtime by the shared assertions.
 """
@@ -34,8 +36,8 @@ RETURN = re.compile(r'\breturn\s+(TLV_ERR_\w+|TLV_NEED_MORE_DATA)\s*;')
 IF = re.compile(r'\bif\s*\(')
 LIFECYCLE = re.compile(r'(?:->|\.)\s*(busy|finished|invalid|query_callbacks)\b')
 INVALID_ARGUMENT = re.compile(
-    r'\breturn\s+(?:TLV_ERR_INVALID_ARG\s*;|query_error\s*\([^,;]*,\s*TLV_ERR_INVALID_ARG\b)')
-PRODUCER = re.compile(r'\b(query_error|query_error_unlocated|query_failure)\s*\(')
+    r'\breturn\s+(?:TLV_ERR_INVALID_ARG\s*;|(?:schema_)?query_error\s*\([^,;]*,\s*TLV_ERR_INVALID_ARG\b)')
+PRODUCER = re.compile(r'\b((?:schema_)?query_(?:error|error_unlocated|failure))\s*\(')
 RESULT = re.compile(r'TLV_ERR_\w+|TLV_NEED_MORE_DATA|TLV_END')
 KIND = re.compile(r'TLV_QUERY_ERROR_\w+')
 PAIRS = re.compile(r'#define\s+TEST_QUERY_KIND_PAIRS\(X\)((?:[^\n]*\\\n)*[^\n]*)')

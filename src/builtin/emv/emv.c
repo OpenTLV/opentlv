@@ -93,3 +93,5 @@ tlv_result_t tlv_emv_titlecase_name(const char* name, char* buffer, size_t capac
     buffer[i] = '\0';
     return TLV_OK;
 }
+
+#undef EMV_COUNT

@@ -14,12 +14,12 @@ typedef struct document_edit_failure {
     size_t configured;
 } document_edit_failure_t;
 
-static size_t node_depth(const tlv_node_t* node) {
+static size_t backend_node_depth(const tlv_node_t* node) {
     size_t depth = 0;
     while ((node = tlv_node_parent(node)) != NULL) ++depth;
     return depth;
 }
-static size_t subtree_size(const tlv_node_t* root) {
+static size_t backend_subtree_size(const tlv_node_t* root) {
     size_t count = 0;
     for (const tlv_node_t* node = root; node;) {
         ++count;
@@ -142,11 +142,11 @@ static tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t**
         if (!target) continue;
         if (kind == TLV_DOCUMENT_QUERY_REMOVE) continue;
         if (kind == TLV_DOCUMENT_QUERY_REPLACE && !tlv_node_is_constructed(target)) continue;
-        size_t depth = node_depth(target);
+        size_t depth = backend_node_depth(target);
         if (added && (depth >= options.max_depth || relative_depth > options.max_depth - depth - 1))
             return edit_limit(failure, "document-depth", options.max_depth);
         if (kind == TLV_DOCUMENT_QUERY_REPLACE)
-            projected -= subtree_size(target) - 1;
+            projected -= backend_subtree_size(target) - 1;
         else {
             if (projected == options.max_elements)
                 return edit_limit(failure, "document-elements", options.max_elements);
@@ -180,11 +180,11 @@ static tlv_result_t document_edit_targets(tlv_document_t* document, tlv_node_t**
     return rc;
 }
 
-typedef struct document_source {
+typedef struct backend_source {
     const tlv_node_t* next;
     size_t depth;
     int closing;
-} document_source_t;
+} backend_source_t;
 static int document_current(const void* owner, uint64_t revision) {
     return tlv_document_revision(owner) == revision;
 }
@@ -197,7 +197,7 @@ static tlv_result_t document_metadata(const void* handle, int header, size_t* va
 
 /* Public topology provides balanced events independently of wire representation. */
 static tlv_result_t document_event(void* context, tlv_tree_event_t* event) {
-    document_source_t* source = context;
+    backend_source_t* source = context;
     const tlv_node_t* node = source->next;
     if (!node) return TLV_END;
     memset(event, 0, sizeof *event);
@@ -250,7 +250,7 @@ tlv_result_t tlv_document_query_value_size(const tlv_document_t* document,
     if (!document || !staging || !bytes)
         return query_error_unlocated(d, TLV_ERR_NULL_ARG, TLV_QUERY_ERROR_ARGUMENT,
                                      "required Document snapshot arguments");
-    document_source_t source = {tlv_document_first(document), 0, 0};
+    backend_source_t source = {tlv_document_first(document), 0, 0};
     tlv_result_t rc =
         tlv_tree_writer_measure_events(tlv_document_options(document).format, document_event,
                                        &source, staging, SIZE_MAX, SIZE_MAX, bytes, NULL);
@@ -304,7 +304,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
     const uint8_t* cursor = storage;
     const uint8_t* wire_end = NULL;
     if (values) {
-        document_source_t source = {tlv_document_first(document), 0, 0};
+        backend_source_t source = {tlv_document_first(document), 0, 0};
         /* Encode directly into the final snapshot: staging output is only needed
          * for discovery, and may be reused as storage here. */
         tlv_tree_writer_workspace_t output = *staging;
@@ -327,7 +327,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         if (rc != TLV_OK) goto failed;
         wire_end = encoded ? cursor + encoded : cursor;
     }
-    document_source_t source = {tlv_document_first(document), 0, 0};
+    backend_source_t source = {tlv_document_first(document), 0, 0};
     for (;;) {
         const tlv_node_t* node = source.next;
         tlv_tree_event_t event;

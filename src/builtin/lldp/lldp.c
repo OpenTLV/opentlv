@@ -5,7 +5,7 @@
 #include "opentlv/core/formats/packed.h"
 
 /* Canonical Type bytes must survive subsequent decodes and shallow copies. */
-static const uint8_t identifiers[128] = {
+static const uint8_t lldp_identifiers[128] = {
     0,   1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,  16,  17,  18,
     19,  20,  21,  22,  23,  24,  25,  26,  27,  28,  29,  30,  31,  32,  33,  34,  35,  36,  37,
     38,  39,  40,  41,  42,  43,  44,  45,  46,  47,  48,  49,  50,  51,  52,  53,  54,  55,  56,
@@ -18,21 +18,22 @@ static const tlv_packed_layout_t lldp_layout = {2,
                                                 {2, 9, 7, TLV_BYTE_ORDER_BIG_ENDIAN},
                                                 {2, 0, 9, TLV_BYTE_ORDER_BIG_ENDIAN},
                                                 TLV_LENGTH_SCOPE_VALUE,
-                                                identifiers,
+                                                lldp_identifiers,
                                                 1,
-                                                sizeof(identifiers)};
+                                                sizeof(lldp_identifiers)};
 
 const tlv_format_t tlv_format_lldp = {&lldp_layout, tlv_packed_decode, tlv_packed_measure,
                                       tlv_packed_encode, NULL};
 
-static const tlv_definition_t types[] = {{{identifiers + 0, 1}, "End of LLDPDU"},
-                                         {{identifiers + 1, 1}, "Chassis ID"},
-                                         {{identifiers + 2, 1}, "Port ID"},
-                                         {{identifiers + 3, 1}, "Time To Live"},
-                                         {{identifiers + 4, 1}, "Port Description"},
-                                         {{identifiers + 5, 1}, "System Name"},
-                                         {{identifiers + 6, 1}, "System Description"},
-                                         {{identifiers + 7, 1}, "System Capabilities"},
-                                         {{identifiers + 8, 1}, "Management Address"},
-                                         {{identifiers + 127, 1}, "Organisationally Specific"}};
+static const tlv_definition_t types[] = {
+    {{lldp_identifiers + 0, 1}, "End of LLDPDU"},
+    {{lldp_identifiers + 1, 1}, "Chassis ID"},
+    {{lldp_identifiers + 2, 1}, "Port ID"},
+    {{lldp_identifiers + 3, 1}, "Time To Live"},
+    {{lldp_identifiers + 4, 1}, "Port Description"},
+    {{lldp_identifiers + 5, 1}, "System Name"},
+    {{lldp_identifiers + 6, 1}, "System Description"},
+    {{lldp_identifiers + 7, 1}, "System Capabilities"},
+    {{lldp_identifiers + 8, 1}, "Management Address"},
+    {{lldp_identifiers + 127, 1}, "Organisationally Specific"}};
 const tlv_definition_registry_t tlv_lldp_types = {types, sizeof(types) / sizeof(types[0])};

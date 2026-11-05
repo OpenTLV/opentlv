@@ -282,6 +282,16 @@ def main():
             rb'#define OPENTLV_VERSION_' + component.encode() + rb' (\d+)', reference)[1].decode()
     prefix = work / "installed"
     run("cmake", "--install", core_build, "--config", "Release", "--prefix", prefix)
+    # The amalgamation is the explicit standalone target opentlv_amalgamation
+    # (#740): neither ALL nor install() generates it. Embedding builds do not
+    # receive the target; the embedded target inventory above rejects it.
+    amalgamation = core_build / "amalgamation"
+    if amalgamation.exists() or any(prefix.rglob("opentlv-amalgamation.json")):
+        raise RuntimeError("The default build or installation generated the amalgamation")
+    run("cmake", "--build", core_build, "--config", "Release", "--target", "opentlv_amalgamation")
+    for name in ("opentlv.h", "opentlv.c", "opentlv-amalgamation.json", "include/opentlv/tlv.h"):
+        if not (amalgamation / name).is_file():
+            raise RuntimeError(f"opentlv_amalgamation did not write {name}")
     relocated = work / "relocated installation"
     shutil.copytree(prefix, relocated)
     missing = work / "missing-component"

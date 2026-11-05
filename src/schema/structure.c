@@ -8,7 +8,7 @@
 #include "opentlv/core/size.h"
 #include <string.h>
 
-static int same_tag(const tlv_tag_t* a, const tlv_tag_t* b) {
+static int structure_same_tag(const tlv_tag_t* a, const tlv_tag_t* b) {
     return tlv_tag_equal(*a, *b);
 }
 
@@ -43,10 +43,11 @@ static void set_read_location(tlv_diagnostic_t* location, size_t offset) {
                                     offset);
 }
 
-static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
-                                const tlv_structure_schema_t* current, size_t start, size_t end,
-                                const tlv_tag_t* path, size_t depth, tlv_diagnostic_t* location,
-                                tlv_schema_diagnostic_t* diagnostic) {
+static tlv_result_t structure_check_scope(const uint8_t* data, const tlv_format_t* format,
+                                          const tlv_structure_schema_t* current, size_t start,
+                                          size_t end, const tlv_tag_t* path, size_t depth,
+                                          tlv_diagnostic_t* location,
+                                          tlv_schema_diagnostic_t* diagnostic) {
     for (size_t i = 0; i < current->count; ++i) {
         const tlv_structure_rule_t* rule = &current->rules[i];
         size_t count = 0, pos = start;
@@ -58,7 +59,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 set_read_location(location, pos);
                 return rc;
             }
-            if (same_tag(&rule->entry->tag, &element.tag)) {
+            if (structure_same_tag(&rule->entry->tag, &element.tag)) {
                 if (count == rule->max_occurs) {
                     if (diagnostic) schema_issue_rule_occurs(diagnostic, rule, count + 1);
                     return violation(diagnostic, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, pos,
@@ -87,7 +88,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
             }
             for (size_t i = 0; i < current->count; ++i)
                 if (current->rules[i].group == group->id &&
-                    same_tag(&current->rules[i].entry->tag, &element.tag)) {
+                    structure_same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (count == group->max_occurs) {
                         if (diagnostic) schema_issue_group_occurs(diagnostic, group, count + 1);
                         return violation(diagnostic, TLV_SCHEMA_ISSUE_DUPLICATE, &element.tag, pos,
@@ -119,7 +120,7 @@ static tlv_result_t check_scope(const uint8_t* data, const tlv_format_t* format,
                 return rc;
             }
             for (size_t i = 0; i < current->count; ++i)
-                if (same_tag(&current->rules[i].entry->tag, &element.tag)) {
+                if (structure_same_tag(&current->rules[i].entry->tag, &element.tag)) {
                     if (have_last && i < last_index) {
                         if (diagnostic)
                             diagnostic->detail.schema.field = current->rules[i].entry->name;
@@ -155,7 +156,7 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
     rc = schema_check_tree(data, size, format, max_depth, max_elements, diagnostic);
     if (rc != TLV_OK) return rc;
     /* The root scope has no enclosing tags. */
-    rc = check_scope(data, format, schema, 0, size, NULL, 0, location, diagnostic);
+    rc = structure_check_scope(data, format, schema, 0, size, NULL, 0, location, diagnostic);
     if (rc != TLV_OK) return rc;
     rc = tlv_tree_reader_init(&reader, data, size, format, frames, TLV_SCHEMA_MAX_DEPTH, max_depth,
                               max_elements);
@@ -176,7 +177,7 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
         }
         current = scopes[item.depth];
         for (size_t i = 0; i < current->count; ++i)
-            if (same_tag(&current->rules[i].entry->tag, &item.element.tag)) {
+            if (structure_same_tag(&current->rules[i].entry->tag, &item.element.tag)) {
                 rule = &current->rules[i];
                 break;
             }
@@ -205,8 +206,9 @@ static tlv_result_t validate_input(const uint8_t* data, size_t size, const tlv_f
             if (rule->children) {
                 size_t start = item.offset + item.source.value.offset;
                 path[item.depth + 1] = item.element.tag;
-                rc = check_scope(data, format, rule->children, start, start + value_length, path,
-                                 item.depth + 1, location, diagnostic);
+                rc =
+                    structure_check_scope(data, format, rule->children, start, start + value_length,
+                                          path, item.depth + 1, location, diagnostic);
                 if (rc != TLV_OK) return rc;
                 if (value_length) {
                     if (item.depth == TLV_SCHEMA_MAX_DEPTH) return TLV_ERR_LIMIT;

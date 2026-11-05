@@ -69,9 +69,9 @@ static tlv_result_t encode_boolean(const void* context, const void* value, size_
  * complement; shared here because both universal types carry identical
  * content rules under section 11.2. */
 
-static tlv_result_t decode_integer(const void* context, const uint8_t* data, size_t size,
-                                   void* value, size_t capacity,
-                                   tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t asn1_decode_integer(const void* context, const uint8_t* data, size_t size,
+                                        void* value, size_t capacity,
+                                        tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     (void)context;
     return tlv_codec_diagnostic_result(
@@ -79,9 +79,9 @@ static tlv_result_t decode_integer(const void* context, const uint8_t* data, siz
         tlv_codec_decode(&tlv_codec_int64_minimal_be, data, size, value, capacity, diagnostic));
 }
 
-static tlv_result_t encode_integer(const void* context, const void* value, size_t size,
-                                   uint8_t* data, size_t capacity, size_t* written,
-                                   tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t asn1_encode_integer(const void* context, const void* value, size_t size,
+                                        uint8_t* data, size_t capacity, size_t* written,
+                                        tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     (void)context;
     return tlv_codec_diagnostic_result(diagnostic,
@@ -977,8 +977,8 @@ static tlv_result_t encode_relative_oid_iri(const void* context, const void* val
 }
 
 const tlv_codec_t tlv_asn1_codec_boolean = {NULL, decode_boolean, encode_boolean};
-const tlv_codec_t tlv_asn1_codec_integer = {NULL, decode_integer, encode_integer};
-const tlv_codec_t tlv_asn1_codec_enumerated = {NULL, decode_integer, encode_integer};
+const tlv_codec_t tlv_asn1_codec_integer = {NULL, asn1_decode_integer, asn1_encode_integer};
+const tlv_codec_t tlv_asn1_codec_enumerated = {NULL, asn1_decode_integer, asn1_encode_integer};
 const tlv_codec_t tlv_asn1_codec_bit_string = {NULL, decode_bit_string, encode_bit_string};
 const tlv_codec_t tlv_asn1_codec_octet_string = {NULL, decode_octet_string, encode_octet_string};
 const tlv_codec_t tlv_asn1_codec_null = {NULL, decode_null, encode_null};

@@ -4,26 +4,26 @@
 #include "opentlv/core/formats/variable.h"
 #include "../internal/field/variable_internal.h"
 
-static tlv_result_t read_tag(const void* context, const uint8_t* data, size_t size, tlv_tag_t* tag,
-                             size_t* consumed) {
+static tlv_result_t variable_read_tag(const void* context, const uint8_t* data, size_t size,
+                                      tlv_tag_t* tag, size_t* consumed) {
     const tlv_variable_format_t* c = (const tlv_variable_format_t*)context;
     return tlv_variable_identifier_read(&c->identifier, data, size, tag, consumed);
 }
 
-static tlv_result_t write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
-                              size_t capacity, size_t* written) {
+static tlv_result_t variable_write_tag(const void* context, const tlv_tag_t* tag, uint8_t* data,
+                                       size_t capacity, size_t* written) {
     const tlv_variable_format_t* c = (const tlv_variable_format_t*)context;
     return tlv_variable_identifier_write(&c->identifier, tag, data, capacity, written);
 }
 
-static tlv_result_t read_length(const void* context, const uint8_t* data, size_t size,
-                                tlv_size_t* length, size_t* consumed) {
+static tlv_result_t variable_read_length(const void* context, const uint8_t* data, size_t size,
+                                         tlv_size_t* length, size_t* consumed) {
     const tlv_variable_format_t* c = (const tlv_variable_format_t*)context;
     return tlv_variable_length_read(&c->length, data, size, length, consumed);
 }
 
-static tlv_result_t write_length(const void* context, tlv_size_t length, uint8_t* data,
-                                 size_t capacity, size_t* written) {
+static tlv_result_t variable_write_length(const void* context, tlv_size_t length, uint8_t* data,
+                                          size_t capacity, size_t* written) {
     const tlv_variable_format_t* c = (const tlv_variable_format_t*)context;
     return tlv_variable_length_write(&c->length, length, data, capacity, written);
 }
@@ -31,10 +31,10 @@ static tlv_result_t write_length(const void* context, tlv_size_t length, uint8_t
 static tlv_field_composition_t variable_fields(const tlv_variable_format_t* config) {
     tlv_field_composition_t fields = {0};
     fields.context = config;
-    fields.read_tag = read_tag;
-    fields.read_length = read_length;
-    fields.write_tag = write_tag;
-    fields.write_length = write_length;
+    fields.read_tag = variable_read_tag;
+    fields.read_length = variable_read_length;
+    fields.write_tag = variable_write_tag;
+    fields.write_length = variable_write_length;
 
     fields.element_order = config->element_order;
     fields.length_scope = config->length_scope;

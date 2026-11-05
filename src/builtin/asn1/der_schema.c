@@ -12,7 +12,7 @@
 const tlv_der_schema_limits_t tlv_der_schema_default_limits = {
     {32, (size_t)16 * 1024 * 1024, (size_t)16 * 1024 * 1024, 100000}, 10000};
 
-static tlv_result_t fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* location) {
+static tlv_result_t der_schema_fail(tlv_result_t rc, size_t offset, tlv_diagnostic_t* location) {
     if (location) {
         location->code = rc;
         tlv_location_kind_t kind = location->location.kind;
@@ -30,7 +30,7 @@ static tlv_result_t missing(size_t offset, tlv_diagnostic_t* location,
         diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_MISSING;
         diagnostic->diagnostic.location.kind = anchor;
     }
-    return fail(TLV_ERR_SCHEMA, offset, location);
+    return der_schema_fail(TLV_ERR_SCHEMA, offset, location);
 }
 
 static tlv_result_t publish(tlv_result_t rc, tlv_location_domain_t domain,
@@ -485,7 +485,7 @@ static tlv_result_t read_one(der_schema_ctx_t* ctx, size_t offset, size_t size, 
     if (depth > ctx->limits->base.max_depth ||
         ctx->element_count == ctx->limits->base.max_elements) {
         /* Keep the limit error explicit for interprocedural static analysis. */
-        (void)fail(TLV_ERR_LIMIT, offset, ctx->location);
+        (void)der_schema_fail(TLV_ERR_LIMIT, offset, ctx->location);
         return TLV_ERR_LIMIT;
     }
     rc = tlv_der_read_element(ctx->data + offset, size, offset, &ctx->limits->base, element, used,
@@ -539,7 +539,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
     size_t value_length, value_offset;
     tlv_result_t rc;
     rc = tlv_size_to_native(element.value.size, &value_length);
-    if (rc != TLV_OK) return fail(rc, elem_base, ctx->location);
+    if (rc != TLV_OK) return der_schema_fail(rc, elem_base, ctx->location);
     value_offset = elem_base + used - value_length;
 
     if (component->tagging == TLV_DER_TAG_EXPLICIT) {
@@ -548,7 +548,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
         rc = read_one(ctx, value_offset, value_length, depth + 1, &inner, &inner_used);
         if (rc != TLV_OK) return rc;
         if (inner_used != value_length)
-            return fail(TLV_ERR_INVALID_VALUE, value_offset + inner_used, ctx->location);
+            return der_schema_fail(TLV_ERR_INVALID_VALUE, value_offset + inner_used, ctx->location);
         if (component->type->kind == TLV_DER_SCHEMA_ANY)
             return dispatch_any(ctx, value_offset, inner_used,
                                 tlv_asn1_tag_is_constructed(&inner.tag), depth + 1);
@@ -563,7 +563,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             synthetic.default_encoding = NULL;
             synthetic.default_encoding_length = 0;
             resolved = resolve_at(&synthetic, &inner.tag, 0);
-            if (!resolved) return fail(TLV_ERR_INVALID_TAG, value_offset, ctx->location);
+            if (!resolved) return der_schema_fail(TLV_ERR_INVALID_TAG, value_offset, ctx->location);
             return handle_matched_element(ctx, inner, inner_used, value_offset, resolved, depth + 1,
                                           stack, level);
         }
@@ -581,7 +581,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
                 rc = validate_leaf_constraint(component->type, element.value.data, value_length,
                                               cause);
             if (rc == TLV_OK) return TLV_OK;
-            fail(rc, value_offset, ctx->location);
+            der_schema_fail(rc, value_offset, ctx->location);
             leaf_cause(ctx->diagnostic, rc, cause);
             /* The offending Value bytes, when known and representable, refine the
              * Value start; otherwise the Value start remains the evidence. */
@@ -602,7 +602,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
         case TLV_DER_SCHEMA_SET_OF:
         case TLV_DER_SCHEMA_SEQUENCE_OF:
             if (depth == ctx->limits->base.max_depth)
-                return fail(TLV_ERR_LIMIT, value_offset, ctx->location);
+                return der_schema_fail(TLV_ERR_LIMIT, value_offset, ctx->location);
             ++*level;
             stack[*level].type = component->type;
             stack[*level].depth = depth;
@@ -614,7 +614,7 @@ static tlv_result_t handle_matched_element(der_schema_ctx_t* ctx, tlv_element_t 
             stack[*level].has_prev = 0;
             stack[*level].element_count = 0;
             return TLV_OK;
-        default: return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+        default: return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     }
 }
 
@@ -631,7 +631,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         const tlv_der_schema_component_t* resolved = resolve_at(comp, &element.tag, 0);
         if (resolved) {
             if (is_default_equal(ctx->data, elem_base, used, comp))
-                return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
+                return der_schema_fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
             ++frame->next_component;
             frame->pos = elem_base + used;
             return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1,
@@ -648,7 +648,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
          * element (like an ANY component) without further interpretation. */
         size_t value_length, value_offset;
         rc = tlv_size_to_native(element.value.size, &value_length);
-        if (rc != TLV_OK) return fail(rc, elem_base, ctx->location);
+        if (rc != TLV_OK) return der_schema_fail(rc, elem_base, ctx->location);
         value_offset = elem_base + used - value_length;
         rc = dispatch_any(ctx, value_offset, value_length,
                           tlv_asn1_tag_is_constructed(&element.tag), frame->depth + 1);
@@ -656,7 +656,7 @@ static tlv_result_t process_sequence(der_schema_ctx_t* ctx, der_schema_frame_t* 
         frame->pos = elem_base + used;
         return TLV_OK;
     }
-    return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+    return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
 }
 
 static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack, int* level) {
@@ -677,9 +677,9 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
             break;
         }
     }
-    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+    if (!resolved) return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     if (frame->seen & ((uint64_t)1 << matched_index))
-        return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+        return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     if (frame->has_prev) {
         tlv_asn1_class_t pc = tlv_asn1_tag_class(&frame->prev_tag),
                          cc = tlv_asn1_tag_class(&element.tag);
@@ -687,10 +687,10 @@ static tlv_result_t process_set(der_schema_ctx_t* ctx, der_schema_frame_t* stack
         int known = tlv_der_tag_number(&frame->prev_tag, &pn) == TLV_OK &&
                     tlv_der_tag_number(&element.tag, &cn) == TLV_OK;
         int ordered = known && (pc < cc || (pc == cc && pn < cn));
-        if (!ordered) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
+        if (!ordered) return der_schema_fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
     }
     if (is_default_equal(ctx->data, elem_base, used, &frame->type->components[matched_index]))
-        return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
+        return der_schema_fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
     frame->seen |= (uint64_t)1 << matched_index;
     frame->prev_tag = element.tag;
     frame->has_prev = 1;
@@ -707,16 +707,16 @@ static tlv_result_t process_set_of(der_schema_ctx_t* ctx, der_schema_frame_t* st
     const tlv_der_schema_component_t* resolved;
 
     if (frame->element_count == frame->type->max_elements)
-        return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+        return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     resolved = resolve_at(frame->type->element, &element.tag, 0);
-    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+    if (!resolved) return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     if (frame->has_prev) {
         size_t common = frame->prev_length < used ? frame->prev_length : used;
         int cmp = memcmp(ctx->data + frame->prev_offset, ctx->data + elem_base, common);
         int in_order = cmp < 0 || (cmp == 0 && frame->prev_length <= used);
-        if (!in_order) return fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
+        if (!in_order) return der_schema_fail(TLV_ERR_INVALID_VALUE, elem_base, ctx->location);
     }
     frame->prev_offset = elem_base;
     frame->prev_length = used;
@@ -738,11 +738,11 @@ static tlv_result_t process_sequence_of(der_schema_ctx_t* ctx, der_schema_frame_
     const tlv_der_schema_component_t* resolved;
 
     if (frame->element_count == frame->type->max_elements)
-        return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+        return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     rc = read_one(ctx, frame->pos, frame->end - frame->pos, frame->depth + 1, &element, &used);
     if (rc != TLV_OK) return rc;
     resolved = resolve_at(frame->type->element, &element.tag, 0);
-    if (!resolved) return fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
+    if (!resolved) return der_schema_fail(TLV_ERR_SCHEMA, elem_base, ctx->location);
     ++frame->element_count;
     frame->pos = elem_base + used;
     return handle_matched_element(ctx, element, used, elem_base, resolved, frame->depth + 1, stack,
@@ -785,7 +785,7 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
     synthetic.default_encoding = NULL;
     synthetic.default_encoding_length = 0;
     resolved = resolve_at(&synthetic, &root_element.tag, 0);
-    if (!resolved) return fail(TLV_ERR_INVALID_TAG, 0, location);
+    if (!resolved) return der_schema_fail(TLV_ERR_INVALID_TAG, 0, location);
 
     rc = handle_matched_element(&ctx, root_element, root_used, 0, resolved, 0, stack, &level);
     if (rc != TLV_OK) return rc;
@@ -819,7 +819,7 @@ static tlv_result_t read_input(const uint8_t* data, size_t size, const tlv_der_s
             case TLV_DER_SCHEMA_SET: rc = process_set(&ctx, stack, &level); break;
             case TLV_DER_SCHEMA_SET_OF: rc = process_set_of(&ctx, stack, &level); break;
             case TLV_DER_SCHEMA_SEQUENCE_OF: rc = process_sequence_of(&ctx, stack, &level); break;
-            default: rc = fail(TLV_ERR_SCHEMA, frame->pos, location); break;
+            default: rc = der_schema_fail(TLV_ERR_SCHEMA, frame->pos, location); break;
         }
         if (rc != TLV_OK) return rc;
     }
@@ -1469,7 +1469,7 @@ static tlv_result_t write_input(uint8_t* data, size_t capacity, const tlv_der_sc
          * Preserve the original result, with no invented output location. */
         *located = rc == TLV_OK && wctx.failure_owner == root_off && wctx.failure_location_known;
         size_t offset = *located ? wctx.failure_offset : 0;
-        return fail(wctx.failure, offset, location);
+        return der_schema_fail(wctx.failure, offset, location);
     }
     if (rc != TLV_OK) return rc;
     if (absent) {

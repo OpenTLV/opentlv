@@ -52,6 +52,8 @@ opentlv_add_module(core EXPORT_NAME Core INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/incl
         "${OpenTLV_SOURCE_DIR}/include/opentlv/core/tag.h"
         "${OpenTLV_SOURCE_DIR}/include/opentlv/core/utf8.h"
         "${OpenTLV_SOURCE_DIR}/include/opentlv/core/value.h"
+    GENERATED_HEADERS
+        "${OpenTLV_BINARY_DIR}/generated/include/opentlv/core/version.h"
     PRIVATE_HEADERS
         "${OpenTLV_SOURCE_DIR}/src/core/internal/field/escaped_internal.h"
         "${OpenTLV_SOURCE_DIR}/src/core/internal/field/fixed_internal.h"
@@ -330,7 +332,6 @@ opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR "${OpenTLV_SOURCE_D
 )
 
 configure_file("${OpenTLV_SOURCE_DIR}/src/query/internal/query-features.h.in" "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" @ONLY)
-install(FILES "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/opentlv/query")
 set(_query_sources)
 set(_query_frontend_symbols)
 if(OPENTLV_QUERY_FRONTEND)
@@ -353,6 +354,8 @@ opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/in
         "${OpenTLV_SOURCE_DIR}/include/opentlv/query/program.h"
         "${OpenTLV_SOURCE_DIR}/include/opentlv/query/plan.h"
         "${OpenTLV_SOURCE_DIR}/include/opentlv/query/definition.h"
+    GENERATED_HEADERS
+        "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h"
     PRIVATE_HEADERS
         "${OpenTLV_SOURCE_DIR}/src/query/internal/program_internal.h"
         "${OpenTLV_SOURCE_DIR}/src/query/internal/frontend_internal.h"

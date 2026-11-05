@@ -6,8 +6,8 @@
 #include "opentlv/io/reader/reader.h"
 #include <string.h>
 
-static tlv_result_t failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc, size_t offset,
-                            const char* expected) {
+static tlv_result_t container_failure(tlv_schema_diagnostic_t* diagnostic, tlv_result_t rc,
+                                      size_t offset, const char* expected) {
     if (diagnostic) {
         tlv_diagnostic_init(&diagnostic->diagnostic, rc, TLV_DIAGNOSTIC_SEVERITY_ERROR);
         if (rc != TLV_ERR_NULL_ARG && rc != TLV_ERR_INVALID_ARG) {
@@ -35,18 +35,19 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
     tlv_result_t rc;
     if (diagnostic) memset(diagnostic, 0, sizeof(*diagnostic));
     if (!significant_size || (!data && size))
-        return failure(diagnostic, TLV_ERR_NULL_ARG, 0, "valid input and output storage");
+        return container_failure(diagnostic, TLV_ERR_NULL_ARG, 0, "valid input and output storage");
     if (!rules) rules = &defaults;
     if (rules->tail != TLV_DHCPV4_OPTIONS_TAIL_PAD &&
         rules->tail != TLV_DHCPV4_OPTIONS_TAIL_EMPTY &&
         rules->tail != TLV_DHCPV4_OPTIONS_TAIL_IGNORE)
-        return failure(diagnostic, TLV_ERR_INVALID_ARG, 0, "known DHCP tail policy");
+        return container_failure(diagnostic, TLV_ERR_INVALID_ARG, 0, "known DHCP tail policy");
     rc = tlv_reader_init(&reader, data, size, &tlv_format_dhcpv4);
-    if (rc != TLV_OK) return failure(diagnostic, rc, 0, "readable DHCP options region");
+    if (rc != TLV_OK) return container_failure(diagnostic, rc, 0, "readable DHCP options region");
     while (!tlv_reader_at_end(&reader)) {
         tlv_element_t element;
         if (count == max_elements)
-            return failure(diagnostic, TLV_ERR_LIMIT, reader.pos, "element count within limit");
+            return container_failure(diagnostic, TLV_ERR_LIMIT, reader.pos,
+                                     "element count within limit");
         if (diagnostic) {
             tlv_reader_diagnostic_t detail;
             rc = tlv_reader_next_diag(&reader, &element, &detail);
@@ -65,11 +66,13 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
         ++count;
         if (element.tag.data[0] == 255) {
             if (rules->tail == TLV_DHCPV4_OPTIONS_TAIL_EMPTY && reader.pos != size)
-                return failure(diagnostic, TLV_ERR_SCHEMA, reader.pos, "no bytes after End");
+                return container_failure(diagnostic, TLV_ERR_SCHEMA, reader.pos,
+                                         "no bytes after End");
             if (rules->tail == TLV_DHCPV4_OPTIONS_TAIL_PAD) {
                 for (size_t i = reader.pos; i < size; ++i) {
                     if (data[i] != 0)
-                        return failure(diagnostic, TLV_ERR_SCHEMA, i, "zero padding after End");
+                        return container_failure(diagnostic, TLV_ERR_SCHEMA, i,
+                                                 "zero padding after End");
                 }
             }
             *significant_size = reader.pos;
@@ -78,7 +81,7 @@ tlv_result_t tlv_dhcpv4_options_validate(const uint8_t* data, size_t size,
     }
     if (rules->require_end) {
         static const uint8_t end_tag = 255;
-        rc = failure(diagnostic, TLV_ERR_SCHEMA, size, "DHCP End option");
+        rc = container_failure(diagnostic, TLV_ERR_SCHEMA, size, "DHCP End option");
         if (diagnostic) {
             diagnostic->cause = TLV_SCHEMA_CAUSE_SCHEMA;
             diagnostic->detail.schema.kind = TLV_SCHEMA_ISSUE_MISSING;

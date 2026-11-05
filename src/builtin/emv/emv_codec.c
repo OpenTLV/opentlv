@@ -43,8 +43,8 @@ enum {
  * (63 four-byte entries) is the largest; every other kind needs far less. */
 enum { EMV_MAX_ENCODED_VALUE_SIZE = 252 };
 
-static tlv_result_t validate_length(const emv_value_rule_t* rule, size_t size,
-                                    tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t emv_codec_validate_length(const emv_value_rule_t* rule, size_t size,
+                                              tlv_codec_diagnostic_t* diagnostic) {
     return tlv_schema_number_validate_length(rule->schema, size, diagnostic);
 }
 
@@ -140,7 +140,7 @@ static tlv_result_t encode_digits(const emv_value_rule_t* rule, const void* valu
                                   uint8_t* data, size_t capacity, size_t* written,
                                   tlv_codec_diagnostic_t* diagnostic) {
     const tlv_digits_codec_config_t config = {0};
-    tlv_result_t result = validate_length(rule, size / 2 + size % 2, diagnostic);
+    tlv_result_t result = emv_codec_validate_length(rule, size / 2 + size % 2, diagnostic);
     if (result != TLV_OK) return result;
     if (rule->argument && (!size || size > rule->argument))
         return tlv_codec_diagnostic_reason(diagnostic, TLV_ERR_INVALID_VALUE,
@@ -163,7 +163,7 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
     uint64_t number;
     tlv_codec_reason_t reason = TLV_CODEC_REASON_NONE;
     tlv_codec_reason_t* why = diagnostic ? &reason : NULL;
-    tlv_result_t result = validate_length(rule, size, diagnostic);
+    tlv_result_t result = emv_codec_validate_length(rule, size, diagnostic);
     if (result != TLV_OK) return result;
     switch (rule->kind) {
         case EMV_REP_DIGITS:
@@ -482,7 +482,7 @@ tlv_result_t emv_value_encode(const void* context, const void* value, size_t siz
         }
         default: return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
     }
-    tlv_result_t result = validate_length(rule, count, diagnostic);
+    tlv_result_t result = emv_codec_validate_length(rule, count, diagnostic);
     if (result != TLV_OK) return result;
     if (data) {
         if (capacity < count)

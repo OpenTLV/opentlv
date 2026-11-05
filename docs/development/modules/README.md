@@ -573,7 +573,9 @@ Register each compiled target with `opentlv_add_module(key ...)`, giving
 `EXPORT_NAME`, `INCLUDE_DIR`, `SOURCES`, `PUBLIC_HEADERS`, `PRIVATE_HEADERS`,
 `PUBLIC_DEPS`, `PRIVATE_DEPS`, `PUBLIC_SYMBOLS` and a runnable C `CONSUMER` source.
 Paths are relative to the calling source directory. Public headers are installed
-relative to `INCLUDE_DIR`; private headers are never installed. Lists of symbols
+relative to `INCLUDE_DIR`; private headers are never installed. `GENERATED_HEADERS`
+registers configured public headers, such as `opentlv/core/version.h`, which are
+installed relative to the build tree's `generated/include`. Lists of symbols
 contain exact external names, including exported data. No symbol-prefix wildcard
 grants ownership. Every registered source/header must agree with `ownership.json`.
 Generated export headers are handled by the helper.
@@ -596,8 +598,10 @@ examples and benchmarks enable C++ when they actually compile C++ sources.
 
 `opentlv_finalize_modules()` runs after registrations. It rejects cycles,
 undeclared links, missing owners and sources added outside the registration. It
-writes the per-configuration `modules-<config>.json` build inventory and the
-installed component registry. Components load their dependencies transitively,
+writes the per-configuration `modules-<config>.json` build inventory, the
+installed component registry and `opentlv-registry.cmake`, the same registry in
+CMake syntax for `cmake -P` scripts such as the
+[amalgamation generator](../amalgamation.md#generation). Components load their dependencies transitively,
 including private archive dependencies, before importing their own targets.
 Unknown required components reject package discovery; unknown optional components
 report `OpenTLV_<name>_FOUND=FALSE`. No-component discovery preserves existing

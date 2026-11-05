@@ -26,40 +26,40 @@ tlv_result_t tlv_schema_query_validate_document(const tlv_document_t* document,
         rc = tlv_query_eval_init(rules[i].context, rules[i].environment, w->selector,
                                  w->selector_size, depth, nodes, work, &exec);
         if (rc != TLV_OK)
-            return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
-                                 "valid Schema Query execution");
+            return schema_query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
+                                        "valid Schema Query execution");
         rc = tlv_document_query_evaluate(document, exec, NULL, values, capacity, staging, detail);
         if (rc != TLV_OK)
-            return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
-                                 "valid Schema Query execution");
+            return schema_query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
+                                        "valid Schema Query execution");
         size_t contexts = 0;
         for (;;) {
             tlv_node_t* node;
             rc = tlv_document_query_next(exec, &node, detail);
             if (rc == TLV_END) break;
             if (rc != TLV_OK)
-                return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
-                                     "valid Schema Query execution");
+                return schema_query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
+                                            "valid Schema Query execution");
             if (contexts == w->context_capacity)
-                return query_limit(detail, "schema-contexts", w->context_capacity, 0, 0);
+                return schema_query_limit(detail, "schema-contexts", w->context_capacity, 0, 0);
             w->contexts[contexts++].node = node;
         }
         for (size_t j = 0; j < contexts; ++j) {
             rc = tlv_query_eval_init(rules[i].assertion, rules[i].environment, w->assertion,
                                      w->assertion_size, depth, nodes, work, &exec);
             if (rc != TLV_OK)
-                return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
-                                     "valid Schema Query execution");
+                return schema_query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
+                                            "valid Schema Query execution");
             rc = tlv_document_query_evaluate(document, exec, w->contexts[j].node, values, capacity,
                                              staging, detail);
             if (rc != TLV_OK)
-                return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
-                                     "valid Schema Query execution");
+                return schema_query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
+                                            "valid Schema Query execution");
             tlv_query_result_t result;
             rc = tlv_query_exec_result(exec, &result);
             if (rc != TLV_OK)
-                return query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
-                                     "valid Schema Query execution");
+                return schema_query_failure(detail, rc, TLV_QUERY_ERROR_EVENTS,
+                                            "valid Schema Query execution");
             if (!result.boolean) {
                 if (diagnostic) {
                     assertion_failure(&diagnostic->query, tlv_node_tag(w->contexts[j].node),
