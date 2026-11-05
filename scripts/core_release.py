@@ -22,12 +22,13 @@ from archive_safety import check_archive
 
 
 PR = frozenset(('clang', 'static', 'consumers', 'codeql'))
-FULL = PR | frozenset(('msvc', 'gcc', 'properties', 'query', 'fuzz', 'capabilities', 'abi', 'memcheck'))
+FULL = PR | frozenset(('msvc', 'gcc', 'properties', 'query', 'fuzz', 'capabilities', 'abi', 'memcheck', 'distributions'))
 WORKERS = {'clang': 'build-clang.yml', 'msvc': 'build-msvc.yml',
            'static': 'static-analysis.yml', 'consumers': 'cmake-consumers.yml',
            'codeql': 'codeql.yml', 'gcc': 'build-gcc.yml', 'properties': 'property.yml',
            'query': 'query-hardening.yml', 'fuzz': 'fuzz.yml',
-           'capabilities': 'capabilities.yml', 'abi': 'abi.yml', 'memcheck': 'valgrind.yml'}
+           'capabilities': 'capabilities.yml', 'abi': 'abi.yml', 'memcheck': 'valgrind.yml',
+           'distributions': 'distribution-equivalence.yml'}
 PERFORMANCE_FILES = frozenset(('performance.json', 'performance.md', 'performance-data.tar.gz'))
 VERSION = re.compile(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?')
 BINARY_IDS = frozenset(('linux-x64-static', 'linux-x64-shared',
@@ -143,7 +144,9 @@ def configuration(tier):
                'scripts/archive_safety.py', 'cmake/OpenTLVConfig.cmake.in',
                'scripts/check_cmake_discovery.py',
                'scripts/check_cmake_integration.py',
-               'scripts/check_capabilities.py', 'scripts/abi/check.py')
+               'scripts/check_capabilities.py', 'scripts/abi/check.py',
+               'scripts/check_distribution_equivalence.py',
+               'tests/amalgamation/equivalence/CMakeLists.txt', 'tests/fuzz/targets.cmake')
     return {'schema': CONFIGURATION_SCHEMA, 'inputs': inputs,
             'configuration_sources': {name: digest(source / name) for name in helpers},
             'workflows': {

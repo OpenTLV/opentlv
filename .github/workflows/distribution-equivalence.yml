@@ -1,0 +1,74 @@
+name: Distribution equivalence
+
+on:
+  workflow_call:
+    inputs:
+      release_tag:
+        type: string
+        default: ''
+      full:
+        type: boolean
+        default: true
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  equivalence:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-24.04, cc: gcc, cxx: g++, shared: 'OFF', frontend: 'ON', sets: 'ON', config: Release, extra: '', id: gcc-static}
+          - {os: ubuntu-24.04, cc: gcc, cxx: g++, shared: 'ON', frontend: 'ON', sets: 'ON', config: Release, extra: '', id: gcc-shared}
+          - {os: windows-2022, cc: cl, cxx: cl, shared: 'OFF', frontend: 'ON', sets: 'ON', config: Release, extra: '', id: msvc-static}
+          - {os: windows-2022, cc: cl, cxx: cl, shared: 'ON', frontend: 'ON', sets: 'ON', config: Release, extra: '', id: msvc-shared}
+          - {os: ubuntu-24.04, cc: clang-18, cxx: clang++-18, shared: 'OFF', frontend: 'ON', sets: 'ON', config: Debug, extra: '--sanitize', id: clang-sanitized}
+          - {os: ubuntu-24.04, cc: clang-18, cxx: clang++-18, shared: 'ON', frontend: 'ON', sets: 'OFF', config: Release, extra: '', id: clang-no-sets}
+          - {os: ubuntu-24.04, cc: clang-18, cxx: clang++-18, shared: 'OFF', frontend: 'OFF', sets: 'ON', config: Release, extra: '', id: clang-no-frontend}
+          - {os: ubuntu-24.04, cc: clang-18, cxx: clang++-18, shared: 'OFF', frontend: 'OFF', sets: 'OFF', config: Release, extra: '', id: clang-minimal}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+      - name: Install Clang and Ninja
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang-18 ninja-build
+      - name: Apply proposed release version locally
+        if: inputs.release_tag != ''
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: python -B scripts/core_release.py prepare
+      - name: Check gate rejection paths
+        run: python -B scripts/test_distribution_equivalence.py
+      - name: Require shared scenarios and observable results
+        run: >-
+          python -B scripts/check_distribution_equivalence.py
+          --output build/distribution-evidence
+          --cc ${{ matrix.cc }} --cxx ${{ matrix.cxx }}
+          --shared ${{ matrix.shared }} --frontend ${{ matrix.frontend }}
+          --set-operations ${{ matrix.sets }} --config ${{ matrix.config }} ${{ matrix.extra }}
+      - name: Preserve variant-specific evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-${{ matrix.id }}-${{ github.sha }}-${{ github.run_attempt }}
+          path: |
+            build/distribution-evidence/report.json
+            build/distribution-evidence/*.log
+            build/distribution-evidence/*metadata.json
+            build/distribution-evidence/installed-files.json
+            build/distribution-evidence/*/*.log
+            build/distribution-evidence/*/*.json
+            build/distribution-evidence/*/*.xml
+            build/distribution-evidence/*/gtest/*.xml
+            build/distribution-evidence/*/build/property-failures/
+          if-no-files-found: error

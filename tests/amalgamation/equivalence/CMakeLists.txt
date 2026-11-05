@@ -1,0 +1,86 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Marek Cingel
+cmake_minimum_required(VERSION 3.16)
+project(distribution_equivalence LANGUAGES C CXX)
+
+enable_testing()
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin$<0:>")
+file(WRITE "${CMAKE_BINARY_DIR}/toolchain.json"
+    "{\"c\":\"${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}\","
+    "\"cxx\":\"${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\","
+    "\"system\":\"${CMAKE_SYSTEM_NAME}\",\"processor\":\"${CMAKE_SYSTEM_PROCESSOR}\","
+    "\"pointer_bytes\":${CMAKE_SIZEOF_VOID_P},\"configuration\":\"${CMAKE_BUILD_TYPE}\"}\n")
+get_filename_component(OpenTLV_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
+set(OpenTLV_BINARY_DIR "${CMAKE_BINARY_DIR}")
+set(OPENTLV_BUILD_CXX ON)
+set(OPENTLV_WARNINGS_AS_ERRORS ON)
+include("${OpenTLV_SOURCE_DIR}/cmake/compiler.cmake")
+include("${OpenTLV_SOURCE_DIR}/cmake/memcheck.cmake")
+include("${OpenTLV_SOURCE_DIR}/cmake/modules.cmake")
+include("${REGISTRY}")
+
+if(VARIANT STREQUAL "amalgamation")
+    add_library(distribution STATIC "${ARTIFACT}/opentlv.c")
+    target_include_directories(distribution PUBLIC "${ARTIFACT}/include" "${ARTIFACT}")
+    opentlv_configure_compiler(distribution)
+    file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/library-$<CONFIG>.txt"
+        CONTENT "$<TARGET_FILE:distribution>")
+    foreach(key IN LISTS OPENTLV_REGISTRY_MODULES)
+        add_library(OpenTLV::${OPENTLV_REGISTRY_${key}_EXPORT_NAME} ALIAS distribution)
+    endforeach()
+    add_library(OpenTLV::tlv ALIAS distribution)
+else()
+    find_package(OpenTLV CONFIG REQUIRED PATHS "${PACKAGE}" NO_DEFAULT_PATH)
+endif()
+foreach(key IN LISTS OPENTLV_REGISTRY_MODULES)
+    set_property(GLOBAL PROPERTY OPENTLV_MODULE_${key} OpenTLV::${OPENTLV_REGISTRY_${key}_EXPORT_NAME})
+endforeach()
+# Compile-only Query checks must also use the selected distribution.
+set(OPENTLV_TEST_PUBLIC_INCLUDE_DIRS "${HEADERS}")
+
+include(FetchContent)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git GIT_TAG v1.18.0)
+FetchContent_MakeAvailable(googletest)
+foreach(test_group IN ITEMS unit integration)
+    add_subdirectory("${OpenTLV_SOURCE_DIR}/tests/${test_group}" "${test_group}")
+endforeach()
+add_subdirectory("${OpenTLV_SOURCE_DIR}/tests/query" query)
+# The driver excludes query-abi-snapshot: ABI belongs to compatible binaries.
+add_subdirectory("${OpenTLV_SOURCE_DIR}/tests/property" property)
+
+foreach(probe IN ITEMS capabilities diagnostic_strings)
+    add_executable(${probe} "${OpenTLV_SOURCE_DIR}/tests/${probe}.c")
+    target_link_libraries(${probe} PRIVATE OpenTLV::tlv)
+    add_test(NAME ${probe} COMMAND ${probe})
+endforeach()
+add_executable(behavior "${OpenTLV_SOURCE_DIR}/tests/baseline/probe.cpp")
+target_link_libraries(behavior PRIVATE OpenTLV::tlv)
+add_test(NAME behavior COMMAND behavior)
+add_executable(api "${CMAKE_BINARY_DIR}/api.cpp")
+target_link_libraries(api PRIVATE OpenTLV::tlv)
+add_test(NAME public-api COMMAND api)
+if(VARIANT STREQUAL "amalgamation")
+    # Two translation units include the flat and modular headers in opposite
+    # orders; duplicate definitions and inconsistent guards fail compilation/link.
+    add_executable(include-order include_first.cpp include_last.cpp)
+    target_link_libraries(include-order PRIVATE distribution)
+    add_test(NAME include-order COMMAND include-order)
+endif()
+
+include("${OpenTLV_SOURCE_DIR}/tests/fuzz/targets.cmake")
+foreach(name IN LISTS fuzz_targets)
+    add_executable(replay_${name} replay.c "${OpenTLV_SOURCE_DIR}/tests/fuzz/${fuzz_source_${name}}")
+    target_include_directories(replay_${name} PRIVATE "${OpenTLV_SOURCE_DIR}/tests/fuzz")
+    if(name IN_LIST fuzz_initialize)
+        target_compile_definitions(replay_${name} PRIVATE OPENTLV_FUZZ_INITIALIZE)
+    endif()
+    target_link_libraries(replay_${name} PRIVATE OpenTLV::tlv)
+endforeach()

@@ -46,6 +46,7 @@ substitute for this evidence.
 | Source checks | Formatting/contract checks, clang-tidy 18, cppcheck 2.21.0 and security-extended CodeQL |
 | Public consumers | Linux/Windows, shared/static, C-only/C++ through `add_subdirectory()`, FetchContent under the `opentlv_core` and `opentlv` names, and relocated installations, with pinned [CMake identities](naming.md#cmake-identity-audit); copied standalone examples with CMake 3.16 on Linux, Windows DLL lookup, and Query frontend disabled |
 | Capability contracts | Shared and static profiles |
+| Distribution equivalence | Shared scenarios and deterministic corpus observations across conventional builds, verified relocated binaries and amalgamation; GCC/MSVC static/shared, Clang ASan/UBSan and all Query feature combinations; see the [equivalence gate](amalgamation.md#distribution-equivalence-gate) |
 | Properties | Default and minimal capabilities, 1,000 deterministic cases |
 | Sanitizers and Query | ASan/UBSan Core suites, Query conformance/adversarial evidence, native x86 boundaries, MSan campaigns, eight frontend/set/C++ plan configurations |
 | Fuzzing | All existing C API targets with saved seed corpora and bounded ASan/UBSan campaigns |

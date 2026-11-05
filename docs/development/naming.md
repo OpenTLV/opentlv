@@ -430,7 +430,9 @@ must match that source. Required modular sources are:
 - `scripts/core_release.py`, `scripts/check_package.py`,
   `scripts/archive_safety.py`, `scripts/check_cmake_integration.py`,
   `scripts/check_cmake_discovery.py`, `scripts/check_capabilities.py`,
-  `scripts/abi/check.py`.
+  `scripts/abi/check.py`;
+- `scripts/check_distribution_equivalence.py`,
+  `tests/amalgamation/equivalence/CMakeLists.txt`, `tests/fuzz/targets.cmake`.
 
 The required Full release workflow set remains the set pinned by
 `test_release_evidence_records_the_files_that_verifiers_compare` in

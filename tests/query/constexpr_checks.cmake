@@ -2,10 +2,14 @@
 function(opentlv_check_constexpr_query)
     include(CheckCXXSourceCompiles)
     set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-    set(CMAKE_REQUIRED_INCLUDES
-        "${OpenTLV_SOURCE_DIR}/include"
-        "${OpenTLV_SOURCE_DIR}/include"
-        "${OpenTLV_BINARY_DIR}/generated/include")
+    if(OPENTLV_TEST_PUBLIC_INCLUDE_DIRS)
+        # External distribution tests must compile the selected public headers.
+        set(CMAKE_REQUIRED_INCLUDES ${OPENTLV_TEST_PUBLIC_INCLUDE_DIRS})
+    else()
+        set(CMAKE_REQUIRED_INCLUDES
+            "${OpenTLV_SOURCE_DIR}/include"
+            "${OpenTLV_BINARY_DIR}/generated/include")
+    endif()
     if(MSVC)
         set(CMAKE_REQUIRED_FLAGS "/W4 /WX /EHsc")
     else()

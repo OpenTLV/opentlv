@@ -14,7 +14,7 @@ import unittest
 WORKFLOWS = Path(__file__).resolve().parents[1] / '.github/workflows'
 KEY = re.compile(r'''(?:([A-Za-z_][\w-]*)|'([A-Za-z_][\w-]*)'|"([A-Za-z_][\w-]*)"):\s*(.*)$''')
 CORE_CHECKS = frozenset(('clang', 'msvc', 'static', 'consumers', 'codeql', 'gcc', 'properties',
-                         'query', 'fuzz', 'capabilities', 'abi', 'memcheck'))
+                         'query', 'fuzz', 'capabilities', 'abi', 'memcheck', 'distributions'))
 PR_CHECKS = frozenset(('clang', 'static', 'consumers', 'codeql'))
 STATIC_CHECKS = frozenset(('pre-commit', 'cppcheck', 'clang-tidy'))
 
@@ -126,6 +126,26 @@ def workflow(name):
 
 
 class WorkflowContracts(unittest.TestCase):
+    def test_distribution_equivalence_is_blocking_and_preserves_failure_evidence(self):
+        job = workflow('distribution-equivalence.yml')['jobs'].mapping()['equivalence'].mapping()
+        self.assert_unconditional(job)
+        self.assertNotIn('continue-on-error', job)
+        self.assertEqual(job['strategy'].mapping()['fail-fast'].text(), 'false')
+        matrix = '\n'.join(job['strategy'].mapping()['matrix'].lines)
+        for required in ('gcc-static', 'gcc-shared', 'msvc-static', 'msvc-shared',
+                         'clang-sanitized', 'clang-no-sets', 'clang-no-frontend', 'clang-minimal'):
+            self.assertIn(required, matrix)
+        steps = job['steps'].steps()
+        checks = [step for step in steps if 'run' in step and
+                  'scripts/check_distribution_equivalence.py' in step['run'].text()]
+        self.assertEqual(len(checks), 1)
+        self.assert_unconditional(checks[0])
+        uploads = [step for step in steps if 'uses' in step and
+                   step['uses'].text().startswith('actions/upload-artifact@')]
+        self.assertEqual(len(uploads), 1)
+        self.assertEqual(uploads[0]['if'].text(), 'always()')
+        self.assertEqual(uploads[0]['with'].mapping()['if-no-files-found'].text(), 'error')
+
     def test_installed_examples_use_minimum_cmake_and_full_frontend_off_coverage(self):
         job = workflow('cmake-consumers.yml')['jobs'].mapping()['consumers'].mapping()
         steps = job['steps'].steps()
