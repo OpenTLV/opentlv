@@ -3,7 +3,8 @@
 # Copyright (c) 2026 Marek Cingel
 """Build each registered module alone, inspect symbols, and consume its installation.
 
-Run on ELF platforms with GNU/LLVM nm. Windows package/runtime consumers remain
+Run on ELF platforms with GNU/LLVM nm. Every external definition must be
+allowlisted in the registry as a public, owner-internal or internal symbol. Windows package/runtime consumers remain
 covered by check_cmake_integration.py. No functional module is fabricated for
 the transitional monolith: only opentlv_add_module registrations are checked.
 """
@@ -155,8 +156,14 @@ def check_symbols(entries, shared, nm):
         defined[key] = nm_symbols(nm, entry["library"], "--defined-only")
         undefined[key] = nm_symbols(nm, entry["library"], "--undefined-only")
         expected = set(entry["public_symbols"] + entry["owner_symbols"])
+        allowed = expected | set(entry["internal_symbols"])
         if not expected <= defined[key]:
             raise ValueError(f"{key}: declared symbols missing: {sorted(expected - defined[key])}")
+        # Every external definition of an archive is allowlisted, including the
+        # hidden cross-TU ones that static archives and the amalgamation expose.
+        if not shared and defined[key] != allowed:
+            raise ValueError(f"{key}: undeclared external symbols: {sorted(defined[key] - allowed)}; "
+                             f"stale internal symbols: {sorted(allowed - defined[key])}")
         if shared:
             exported = nm_symbols(nm, entry["library"], "-D", "--defined-only")
             if exported != expected:

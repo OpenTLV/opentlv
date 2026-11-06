@@ -940,7 +940,7 @@ static tlv_result_t analyze(const char* text, query_node_t* nodes, size_t count,
             if (nodes[i].op == Q_TEST && (nodes[i].axis == A_FOLLOW || nodes[i].axis == A_PRECEDE))
                 *level = TLV_QUERY_D;
     }
-    if (*level == TLV_QUERY_S2 && query_s1_filter(nodes, count, root) != QUERY_NONE)
+    if (*level == TLV_QUERY_S2 && tlv_query_s1_filter(nodes, count, root) != QUERY_NONE)
         *level = TLV_QUERY_S1;
     return TLV_OK;
 }
@@ -1073,8 +1073,8 @@ tlv_result_t tlv_query_compile(const char* text, size_t size,
     result.pattern_bytes = pattern_bytes;
     result.optimized_states = optimized;
     result.expression_stack = used + 1;
-    result.candidate_size = level >= TLV_QUERY_S2 ? query_candidate_size() : 0;
-    result.candidate_alignment = level >= TLV_QUERY_S2 ? query_candidate_alignment() : 0;
+    result.candidate_size = level >= TLV_QUERY_S2 ? tlv_query_candidate_size() : 0;
+    result.candidate_alignment = level >= TLV_QUERY_S2 ? tlv_query_candidate_alignment() : 0;
     result.frame_states = used;
     result.decision_timing = level == TLV_QUERY_S0   ? TLV_QUERY_DECISION_NODE
                              : level == TLV_QUERY_S1 ? TLV_QUERY_DECISION_SCOPE

@@ -143,5 +143,5 @@ enum {
     count_BASE
 };
 
-extern const tlv_schema_entry_t emv_base_fields[];
+extern const tlv_schema_entry_t tlv_emv_base_fields[];
 #endif

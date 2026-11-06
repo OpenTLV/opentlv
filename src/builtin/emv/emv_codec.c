@@ -156,8 +156,9 @@ static tlv_result_t encode_digits(const emv_value_rule_t* rule, const void* valu
         return TLV_OK;                                                                             \
     } while (0)
 
-tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t size, void* value,
-                              size_t capacity, tlv_codec_diagnostic_t* diagnostic) {
+tlv_result_t tlv_emv_value_decode(const void* context, const uint8_t* data, size_t size,
+                                  void* value, size_t capacity,
+                                  tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, TLV_CODEC_OP_DECODE);
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
     uint64_t number;
@@ -333,9 +334,9 @@ tlv_result_t emv_value_decode(const void* context, const uint8_t* data, size_t s
         memcpy(&(object), value, sizeof(object));                                                  \
     } while (0)
 
-tlv_result_t emv_value_encode(const void* context, const void* value, size_t size, uint8_t* data,
-                              size_t capacity, size_t* written,
-                              tlv_codec_diagnostic_t* diagnostic) {
+tlv_result_t tlv_emv_value_encode(const void* context, const void* value, size_t size,
+                                  uint8_t* data, size_t capacity, size_t* written,
+                                  tlv_codec_diagnostic_t* diagnostic) {
     tlv_codec_diagnostic_init(diagnostic, data ? TLV_CODEC_OP_ENCODE : TLV_CODEC_OP_MEASURE);
     const emv_value_rule_t* rule = (const emv_value_rule_t*)context;
     uint8_t bytes[EMV_MAX_ENCODED_VALUE_SIZE];

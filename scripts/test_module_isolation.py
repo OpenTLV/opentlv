@@ -54,7 +54,8 @@ include("{ROOT.as_posix()}/cmake/modules.cmake")
 opentlv_add_module(base EXPORT_NAME FixtureBase INCLUDE_DIR include
     SOURCES base/base.c PUBLIC_HEADERS include/fixture/base.h
     PRIVATE_HEADERS base/private.h PUBLIC_SYMBOLS tlv_fixture_base
-    OWNER_SYMBOLS tlv_fixture_owner CONSUMER base-consumer.c)
+    OWNER_SYMBOLS tlv_fixture_owner INTERNAL_SYMBOLS tlv_fixture_hidden
+    CONSUMER base-consumer.c)
 opentlv_add_module(util EXPORT_NAME FixtureUtil INCLUDE_DIR include
     SOURCES util.c PUBLIC_HEADERS include/fixture/util.h
     PUBLIC_SYMBOLS tlv_fixture_util CONSUMER util-consumer.c)
@@ -181,6 +182,15 @@ class IsolationTests(unittest.TestCase):
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(f"{option} was removed", result.stdout + result.stderr)
                     self.assertIn("OpenTLV::ASN1", result.stdout + result.stderr)
+
+    def test_symbols_stay_in_reserved_namespace(self):
+        self.change("CMakeLists.txt", "PUBLIC_SYMBOLS tlv_fixture_util", "PUBLIC_SYMBOLS fixture_util")
+        self.configure("symbol fixture_util is outside the tlv_ namespace")
+
+    def test_symbol_declared_once(self):
+        self.change("CMakeLists.txt", "INTERNAL_SYMBOLS tlv_fixture_hidden",
+                    "INTERNAL_SYMBOLS tlv_fixture_owner")
+        self.configure("a symbol is declared twice")
 
     def test_cycle(self):
         self.change("CMakeLists.txt", "OWNER_SYMBOLS tlv_fixture_owner",
@@ -314,12 +324,17 @@ def integration(build_root):
         # owner-internal symbols used by a foreign integration.
         for mutation, message in (("exports", "exported symbols differ"),
                                   ("dependency", "undeclared symbol dependency"),
-                                  ("private", "private symbol")):
+                                  ("private", "private symbol"),
+                                  ("internal", "undeclared external symbols")):
             changed = json.loads(json.dumps(entries))
             if mutation == "exports":
                 if shared != "ON":
                     continue
                 changed[0]["public_symbols"] = []
+            elif mutation == "internal":
+                if shared == "ON":
+                    continue  # Hidden in shared modules; "exports" covers them.
+                changed[0]["internal_symbols"] = []
             elif mutation == "dependency":
                 changed[2]["private_deps"] = []
             else:

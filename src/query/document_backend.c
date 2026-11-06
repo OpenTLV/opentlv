@@ -339,7 +339,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
         const uint8_t* end = NULL;
         if (values) {
             if (event.kind == TLV_TREE_END)
-                cursor = query_document_end(e);
+                cursor = tlv_query_document_end(e);
             else {
                 tlv_element_t element;
                 size_t consumed;
@@ -364,7 +364,7 @@ tlv_result_t tlv_document_query_evaluate(const tlv_document_t* document, tlv_que
             e->context_ordinal = e->elements;
         }
         int matched;
-        if (event.kind != TLV_TREE_END) query_document_handle(e, (void*)node, end);
+        if (event.kind != TLV_TREE_END) tlv_query_document_handle(e, (void*)node, end);
         rc = tlv_query_exec_feed(e, &event, &matched, d);
         if (rc != TLV_OK) goto failed;
     }
@@ -403,7 +403,7 @@ tlv_result_t tlv_document_query_next(tlv_query_exec_t* e, tlv_node_t** node,
         return document_pull_failure(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
                                      "evaluated execution of the current Document revision");
     void* handle;
-    tlv_result_t rc = query_document_next(e, &handle);
+    tlv_result_t rc = tlv_query_document_next(e, &handle);
     if (rc == TLV_OK) *node = handle;
     if (rc == TLV_OK || rc == TLV_END) return rc;
     return document_pull_failure(d, rc, query_result_kind(rc, TLV_QUERY_ERROR_STATE),
@@ -487,7 +487,7 @@ tlv_result_t tlv_document_query_edit(tlv_document_t* document, tlv_query_exec_t*
         return query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
                                      "unread selection of the current Document revision");
     size_t required;
-    tlv_result_t status = query_document_result_count(e, &required);
+    tlv_result_t status = tlv_query_document_result_count(e, &required);
     if (status != TLV_OK)
         return query_failure(d, status, TLV_QUERY_ERROR_STATE, "evaluated Document node execution");
     if (capacity < required)

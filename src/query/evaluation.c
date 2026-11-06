@@ -65,10 +65,10 @@ typedef struct retained_node {
     void* handle;
     const uint8_t* document_end;
 } retained_node_t;
-size_t query_candidate_size(void) {
+size_t tlv_query_candidate_size(void) {
     return sizeof(retained_node_t);
 }
-size_t query_candidate_alignment(void) {
+size_t tlv_query_candidate_alignment(void) {
     struct alignment_probe {
         /* Force padding before node so offsetof reports its C99 alignment. */
         // cppcheck-suppress unusedStructMember
@@ -115,7 +115,7 @@ static int borrowed_envelope_overlap(const tlv_query_exec_t* e, const void* p, s
     return e->borrowed_low <= first ? first - e->borrowed_low < e->borrowed_high - e->borrowed_low
                                     : e->borrowed_low - first < size;
 }
-int query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
+int tlv_query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
     if (!p || !size) return 0;
     if (query_overlap(e->result.data, e->result.size, p, size)) return 1;
     /* This envelope is only a fast rejection; gaps between live spans are legal.
@@ -130,7 +130,7 @@ int query_live_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
                           size) ||
             query_overlap(e->delayed.source.data, e->delayed.source.size, p, size));
 }
-int query_retained_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
+int tlv_query_retained_overlap(const tlv_query_exec_t* e, const void* p, size_t size) {
     if (!e->retained || !borrowed_envelope_overlap(e, p, size)) return 0;
     const retained_node_t* nodes = eval_nodes((tlv_query_exec_t*)e);
     for (size_t i = 0; i < e->elements; ++i) {
@@ -277,8 +277,8 @@ static tlv_result_t eval_charge(tlv_query_exec_t* e, size_t count, const query_n
     e->work += count;
     return TLV_OK;
 }
-tlv_result_t query_retained_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event,
-                                 tlv_query_diagnostic_t* d) {
+tlv_result_t tlv_query_retained_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event,
+                                     tlv_query_diagnostic_t* d) {
     if (event->depth >= e->depth_capacity)
         return query_limit(d, "depth", e->depth_capacity - 1, 0, 0);
     if (event->skipped) return TLV_ERR_INVALID_VALUE;
@@ -438,7 +438,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
         for (size_t i = 0; i < e->elements; ++i) {
             if (nodes[i].parent != f->context) continue;
             query_value_t selected = {0};
-            tlv_result_t rc = query_function_eval(e, &nodes[i].event, &step, &selected, d);
+            tlv_result_t rc = tlv_query_function_eval(e, &nodes[i].event, &step, &selected, d);
             if (rc != TLV_OK) return rc;
             out[i] = selected.number != 0;
         }
@@ -449,7 +449,7 @@ static tlv_result_t scalar_call(tlv_query_exec_t* e, eval_frame_t* f, const quer
     if (f->arg_count > 1) values[f->args[1]] = f->b;
     if (f->arg_count > 2) values[f->args[2]] = f->c;
     tlv_tree_event_t empty = {0};
-    return query_function_eval(e, event ? event : &empty, n, &f->value, d);
+    return tlv_query_function_eval(e, event ? event : &empty, n, &f->value, d);
 }
 static size_t args_of(const query_node_t* nodes, const query_node_t* n, uint32_t args[3]) {
     uint32_t cursor = n->left;
@@ -491,7 +491,7 @@ static tlv_result_t eval_failure(tlv_query_exec_t* e, const eval_frame_t* f, tlv
     }
     return rc;
 }
-tlv_result_t query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* d) {
+tlv_result_t tlv_query_retained_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* d) {
     const query_node_t* instructions = query_nodes(e->program);
     retained_node_t* nodes = eval_nodes(e);
     size_t top = 0, virtual_root = e->node_capacity;
@@ -879,16 +879,16 @@ tlv_result_t tlv_query_program_explain(const tlv_query_program_t* p, char* outpu
     return TLV_OK;
 }
 
-void query_document_handle(tlv_query_exec_t* e, void* handle, const uint8_t* end) {
+void tlv_query_document_handle(tlv_query_exec_t* e, void* handle, const uint8_t* end) {
     if (e->elements < e->node_capacity) {
         eval_nodes(e)[e->elements].handle = handle;
         eval_nodes(e)[e->elements].document_end = end;
     }
 }
-const uint8_t* query_document_end(tlv_query_exec_t* e) {
+const uint8_t* tlv_query_document_end(tlv_query_exec_t* e) {
     return eval_nodes(e)[((size_t*)eval_base(e))[e->open - 1]].document_end;
 }
-tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
+tlv_result_t tlv_query_document_next(tlv_query_exec_t* e, void** handle) {
     if (!e || !handle) return TLV_ERR_NULL_ARG;
     if (!e->finished || e->invalid) return TLV_ERR_INVALID_STATE;
     if (!e->document_backend || e->result.kind != TLV_QUERY_RESULT_NODES)
@@ -903,7 +903,7 @@ tlv_result_t query_document_next(tlv_query_exec_t* e, void** handle) {
     return TLV_END;
 }
 
-tlv_result_t query_document_result_count(const tlv_query_exec_t* e, size_t* count) {
+tlv_result_t tlv_query_document_result_count(const tlv_query_exec_t* e, size_t* count) {
     if (!e || !count) return TLV_ERR_NULL_ARG;
     if (!e->finished || e->invalid) return TLV_ERR_INVALID_STATE;
     if (!e->document_backend || e->result.kind != TLV_QUERY_RESULT_NODES)

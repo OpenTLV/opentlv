@@ -23,11 +23,11 @@ static void default_release(void* context, void* memory) {
     free(memory);
 }
 
-void* document_memory_allocate(const tlv_document_t* document, size_t size) {
+void* tlv_document_memory_allocate(const tlv_document_t* document, size_t size) {
     return document->allocator.allocate(document->allocator.context, size);
 }
 
-void document_memory_release(const tlv_document_t* document, void* memory) {
+void tlv_document_memory_release(const tlv_document_t* document, void* memory) {
     if (memory) document->allocator.release(document->allocator.context, memory);
 }
 
@@ -39,7 +39,7 @@ static const uint8_t* node_tag_data(const tlv_node_t* node) {
                                              : 0);
 }
 
-tlv_document_source_location_t* document_node_location(tlv_node_t* node) {
+tlv_document_source_location_t* tlv_document_node_location(tlv_node_t* node) {
     return node && node->document->options.retain_source_locations
                ? (tlv_document_source_location_t*)(node + 1)
                : NULL;
@@ -54,10 +54,10 @@ tlv_document_source_location_t tlv_node_source_location(const tlv_node_t* node) 
 static void invalidate_locations(tlv_node_t* node) {
     if (!node || !node->document->options.retain_source_locations) return;
     for (; node; node = node->parent)
-        memset(document_node_location(node), 0, sizeof(tlv_document_source_location_t));
+        memset(tlv_document_node_location(node), 0, sizeof(tlv_document_source_location_t));
 }
 
-tlv_tag_t document_node_tag(const tlv_node_t* node) {
+tlv_tag_t tlv_document_node_tag(const tlv_node_t* node) {
     return node->tag_size ? tlv_tag(node_tag_data(node), node->tag_size) : tlv_tag(NULL, 0);
 }
 
@@ -131,8 +131,8 @@ static void free_subtree(tlv_node_t* root) {
         } else {
             tlv_node_t* parent = node == root ? NULL : node->parent;
             if (parent) parent->first = node->next;
-            document_memory_release(node->document, node->value);
-            document_memory_release(node->document, node);
+            tlv_document_memory_release(node->document, node->value);
+            tlv_document_memory_release(node->document, node);
             node = parent;
         }
     }
@@ -169,14 +169,14 @@ static size_t node_depth(const tlv_node_t* node) {
 static uint8_t* copy_bytes(const tlv_document_t* document, const uint8_t* data, size_t size) {
     uint8_t* copy;
     if (!size) return NULL;
-    copy = (uint8_t*)document_memory_allocate(document, size);
+    copy = (uint8_t*)tlv_document_memory_allocate(document, size);
     if (copy) memcpy(copy, data, size);
     return copy;
 }
 
 /* ---- Parsing --------------------------------------------------------------------------- */
 
-void document_set_offset(tlv_reader_diagnostic_t* out, size_t offset) {
+void tlv_document_set_offset(tlv_reader_diagnostic_t* out, size_t offset) {
     if (out) {
         memset(out, 0, sizeof *out);
         out->diagnostic.code = TLV_ERR_LIMIT;
@@ -188,13 +188,13 @@ void document_set_offset(tlv_reader_diagnostic_t* out, size_t offset) {
 /*
  * Creates one owned node; constructed children are supplied by the Tree Reader consumer.
  */
-tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
-                                  const uint8_t* value, size_t length, int constructed,
-                                  size_t depth, size_t element_offset,
-                                  tlv_reader_diagnostic_t* diagnostic, tlv_node_t** created) {
+tlv_result_t tlv_document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
+                                      const uint8_t* value, size_t length, int constructed,
+                                      size_t depth, size_t element_offset,
+                                      tlv_reader_diagnostic_t* diagnostic, tlv_node_t** created) {
     tlv_node_t* node;
     if (depth > document->options.max_depth || document->count >= document->options.max_elements) {
-        document_set_offset(diagnostic, element_offset);
+        tlv_document_set_offset(diagnostic, element_offset);
         return TLV_ERR_LIMIT;
     }
     size_t node_size =
@@ -202,7 +202,7 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
         (document->options.retain_source_locations ? sizeof(tlv_document_source_location_t) : 0);
     if (tag.size > SIZE_MAX - node_size) return TLV_ERR_OVERFLOW;
     if (document->next_identity == UINT64_MAX) return TLV_ERR_OVERFLOW;
-    node = (tlv_node_t*)document_memory_allocate(document, node_size + tag.size);
+    node = (tlv_node_t*)tlv_document_memory_allocate(document, node_size + tag.size);
     if (!node) return TLV_ERR_OUT_OF_MEMORY;
     memset(node, 0, node_size);
     node->document = document;
@@ -213,7 +213,7 @@ tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, 
     if (!node->constructed && length) {
         node->value = copy_bytes(document, value, length);
         if (!node->value) {
-            document_memory_release(document, node);
+            tlv_document_memory_release(document, node);
             return TLV_ERR_OUT_OF_MEMORY;
         }
         node->value_size = length;
@@ -232,16 +232,16 @@ static tlv_result_t build_node(tlv_document_t* document, tlv_node_t* parent, tlv
     int constructed =
         document->options.format->is_constructed &&
         document->options.format->is_constructed(document->options.format->context, &tag);
-    tlv_result_t rc = document_create_node(document, parent, tag, value, length, constructed, depth,
-                                           element_offset, diagnostic, &node);
+    tlv_result_t rc = tlv_document_create_node(document, parent, tag, value, length, constructed,
+                                               depth, element_offset, diagnostic, &node);
     if (rc != TLV_OK) return rc;
     if (node->constructed && length) {
         if (depth == document->options.max_depth) {
-            document_set_offset(diagnostic, value_base);
+            tlv_document_set_offset(diagnostic, value_base);
             rc = TLV_ERR_LIMIT;
         } else {
-            rc = document_parse_list(document, node, value, length, depth + 1, value_base,
-                                     diagnostic);
+            rc = tlv_document_parse_list(document, node, value, length, depth + 1, value_base,
+                                         diagnostic);
         }
     }
     if (rc != TLV_OK) {
@@ -302,7 +302,7 @@ void tlv_document_free(tlv_document_t* document) {
         return;
     }
     discard_children(document, NULL);
-    document_memory_release(document, document);
+    tlv_document_memory_release(document, document);
 }
 
 size_t tlv_document_count(const tlv_document_t* document) {
@@ -329,7 +329,7 @@ tlv_node_t* tlv_node_parent(const tlv_node_t* node) {
 
 static tlv_node_t* find_in_siblings(tlv_node_t* node, tlv_tag_t tag) {
     for (; node; node = node->next)
-        if (tlv_tag_equal(document_node_tag(node), tag)) return node;
+        if (tlv_tag_equal(tlv_document_node_tag(node), tag)) return node;
     return NULL;
 }
 
@@ -345,13 +345,13 @@ tlv_node_t* tlv_document_find(const tlv_document_t* document, const tlv_node_t* 
 }
 
 tlv_node_t* tlv_node_next_same_tag(const tlv_node_t* node) {
-    return node ? find_in_siblings(node->next, document_node_tag(node)) : NULL;
+    return node ? find_in_siblings(node->next, tlv_document_node_tag(node)) : NULL;
 }
 
 /* ---- Reading a node -------------------------------------------------------------------- */
 
 tlv_tag_t tlv_node_tag(const tlv_node_t* node) {
-    return node ? document_node_tag(node) : tlv_tag(NULL, 0);
+    return node ? tlv_document_node_tag(node) : tlv_tag(NULL, 0);
 }
 
 int tlv_node_is_constructed(const tlv_node_t* node) {
@@ -379,7 +379,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     if (!node->constructed) {
         uint8_t* copy = copy_bytes(document, value, length);
         if (length && !copy) return TLV_ERR_OUT_OF_MEMORY;
-        document_memory_release(document, node->value);
+        tlv_document_memory_release(document, node->value);
         node->value = copy;
         node->value_size = length;
         invalidate_locations(node);
@@ -392,7 +392,7 @@ tlv_result_t tlv_node_set_value(tlv_node_t* node, const uint8_t* value, size_t l
     holder.document = document;
     old_count = subtree_size(node) - 1;
     document->count -= old_count;
-    rc = document_parse_list(document, &holder, value, length, node_depth(node) + 1, 0, NULL);
+    rc = tlv_document_parse_list(document, &holder, value, length, node_depth(node) + 1, 0, NULL);
     if (rc != TLV_OK) {
         discard_children(document, &holder);
         document->count += old_count;

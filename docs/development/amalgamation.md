@@ -207,6 +207,26 @@ symbols: 623 public, 12 owner-internal and 56 other module-internal symbols.
 Hidden visibility in shared modules has no counterpart in the amalgamation; the
 internal symbols are external there, as they already are to static consumers.
 
+Every external symbol is in the reserved `tlv_` namespace, so a consumer's own
+names never collide with the Library. The module registry allowlists each
+symbol in exactly one category: `PUBLIC_SYMBOLS` (the declared API),
+`OWNER_SYMBOLS` (exported from a shared module to the integrations of the same
+owner) and `INTERNAL_SYMBOLS` (shared between translation units of one module,
+hidden in shared modules). A helper used by only one translation unit is
+`static` and needs no entry. Registration rejects a name outside `tlv_` or one
+declared twice. The audit compares the allowlist with `nm` output:
+
+- `scripts/check_module_isolation.py` requires each static archive to define
+  exactly its allowlisted symbols, and each shared module to export exactly its
+  public and owner-internal ones.
+- `scripts/check_distribution_equivalence.py` requires the external symbols of
+  the amalgamation object to equal the registry allowlist.
+- The `symbol-collision` test defines the historical unprefixed names in the
+  consumer and links it against the conventional static archives or shared
+  modules of the build. `amalgamation-c99` links the same source beside
+  `opentlv.c`. A collision fails the link, and ELF interposition of an exported
+  name aborts the run.
+
 ## Configuration and platform-specific code
 
 | Input | Contract |
@@ -301,13 +321,10 @@ translation unit a private header is part of the main file, so Clang's
 `query_input_location` and `query_relate_expression` in the Schema copy were
 unused and are removed.
 
-Not a blocker, recorded for a separate issue: 22 external symbols lie outside
-the `tlv_` namespace. They are the 12 Query owner-internal symbols (`query_*`)
-and 10 hidden internal symbols (`document_create_node`,
-`document_memory_allocate`, `document_memory_release`, `document_node_location`,
-`document_node_tag`, `document_parse_list`, `document_set_offset`,
-`emv_base_fields`, `emv_value_decode`, `emv_value_encode`). Static archives
-already expose them to consumers' links; the amalgamation does not change that.
+The 22 external symbols that were outside the `tlv_` namespace, the 12 Query
+owner-internal `query_*` symbols and the internal `document_*` and `emv_*`
+helpers, now carry the `tlv_` prefix of their module, for example
+`tlv_query_document_next` and `tlv_emv_value_decode`. They are not public API.
 
 ## Notices
 
@@ -476,7 +493,7 @@ on every run and writes LF line endings on every host. It needs no compiler.
 | Check | Covers | CI tier |
 | --- | --- | --- |
 | CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, and identical bytes from another location and from CRLF inputs | PR (Clang unit tests) |
-| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors` and the Library's warning policy, and runs it | PR (Clang integration tests) |
+| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors` and the Library's warning policy, and runs it and the symbol collision regression | PR (Clang integration tests) |
 | `scripts/check_cmake_integration.py` | The standalone build has the target, and neither the default build nor `install()` generates. Embedding builds have no such target | PR and Main (CMake consumers) |
 | `scripts/check_amalgamation_consumers.py` | Explicit component installation, missing-output failures, licenses, metadata, unchanged public headers, relocation, direct C99/C++17 compiler consumers and the same samples linked to conventional static/shared libraries | PR: Clang 18, both linkage modes; Full: also GCC and MSVC; minimum CMake/custom data directory/disabled Query features on Clang |
 
@@ -557,8 +574,8 @@ identity, no legacy alias and no "core" in a multi-module artifact.
    symbols equal to those of the static archives.
 6. Fixed Query features and version metadata as recorded inputs.
 7. The source rules; the fixes for the listed collisions and the registration
-   of generated public headers in #740; and the separate follow-up for the 22
-   unprefixed external symbols.
+   of generated public headers in #740; and the `tlv_` namespace with the
+   registry allowlist for every external symbol.
 8. The determinism inputs, LF normalization and the metadata fields.
 9. The C99 and C++ consumer contract and its unsupported combinations.
 10. The names above, with the install component implemented in #742 and the
