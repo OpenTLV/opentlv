@@ -850,6 +850,55 @@ TEST(Unit_Tlv_Document, ParseAllocationFailuresLeaveNothingBehind) {
     EXPECT_TRUE(succeeded);
 }
 
+TEST(Unit_Tlv_Document, MalformedNestedInputReleasesPartialTreeWithCallerAllocator) {
+    // The first child owns a Value before the second child's truncated header fails.
+    const uint8_t wire[] = {0x6F, 4, 0x51, 1, 0x42, 0x52};
+    for (int retain : {0, 1}) {
+        bool reached_input_failure = false;
+        for (size_t fail_at = 0; fail_at < 16 && !reached_input_failure; ++fail_at) {
+            Arena arena;
+            auto  allocator = arena.allocator();
+            auto  opts = options();
+            opts.allocator = &allocator;
+            opts.retain_source_locations = retain;
+            arena.fail_at = fail_at;
+            tlv_document_t*         doc = nullptr;
+            tlv_reader_diagnostic_t diagnostic{};
+            auto rc = tlv_document_parse(wire, sizeof(wire), &opts, &doc, &diagnostic);
+            EXPECT_EQ(nullptr, doc);
+            if (rc != TLV_ERR_OUT_OF_MEMORY) {
+                EXPECT_EQ(TLV_ERR_TRUNCATED, rc);
+                EXPECT_EQ(rc, diagnostic.diagnostic.code);
+                reached_input_failure = true;
+            }
+            tlv_document_free(doc);
+            EXPECT_TRUE(arena.live.empty()) << fail_at;
+        }
+        EXPECT_TRUE(reached_input_failure);
+    }
+}
+
+TEST(Unit_Tlv_DocumentBuilder, MalformedInputReleasesPartialTreeBeforeBuilderDestruction) {
+    const uint8_t wire[] = {0x6F, 4, 0x51, 1, 0x42, 0x52};
+    Arena         arena;
+    auto          allocator = arena.allocator();
+    auto          opts = options();
+    opts.allocator = &allocator;
+    tlv_tree_frame_t  frames[4];
+    tlv_tree_reader_t reader;
+    ASSERT_EQ(TLV_OK,
+              tlv_tree_reader_init(&reader, wire, sizeof(wire), opts.format, frames, 4, 4, 20));
+    tlv_document_builder_t* builder = nullptr;
+    ASSERT_EQ(TLV_OK, tlv_document_builder_create(&opts, &reader, nullptr, &builder));
+    tlv_document_t* doc = nullptr;
+    EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_document_builder_consume(builder, &doc, nullptr));
+    EXPECT_EQ(nullptr, doc);
+    EXPECT_EQ(1u, arena.live.size()); // Only the caller-owned builder remains.
+    EXPECT_EQ(TLV_ERR_INVALID_STATE, tlv_document_builder_consume(builder, &doc, nullptr));
+    tlv_document_builder_free(builder);
+    EXPECT_TRUE(arena.live.empty());
+}
+
 TEST(Unit_Tlv_Document, ModificationFailuresChangeNothing) {
     Arena                  arena;
     tlv_allocator_t        allocator = arena.allocator();

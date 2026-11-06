@@ -277,6 +277,34 @@ TEST(Unit_Tlv_Emv, SemanticErrorsAndUnalignedStorage) {
                                sizeof(invalid_account), nullptr, 0, &written, NULL));
 }
 
+TEST(Unit_Tlv_Emv, InvalidBcdNeverPublishesDateTimeOrAccount) {
+    struct Case {
+        tlv_tag_t tag;
+        size_t    wire_size;
+        size_t    object_size;
+    };
+    const Case cases[] = {{tlv_emv_tag_transaction_date, 3, sizeof(tlv_emv_date_t)},
+                          {tlv_emv_tag_transaction_time, 3, sizeof(tlv_emv_time_t)},
+                          {tlv_emv_tag_account_type, 1, sizeof(tlv_emv_account_type_t)}};
+    for (const auto& item : cases) {
+        const auto* codec = find(item.tag)->codec;
+        for (size_t nibble = 0; nibble < item.wire_size * 2; ++nibble) {
+            std::vector<uint8_t> wire(item.wire_size, 0);
+            wire[nibble / 2] = nibble % 2 ? 0x0A : 0xA0;
+            tlv_codec_diagnostic_t diagnostic{};
+            for (auto* detail : {static_cast<tlv_codec_diagnostic_t*>(nullptr), &diagnostic}) {
+                std::vector<uint8_t> output(item.object_size, 0xCC);
+                const auto           before = output;
+                EXPECT_EQ(TLV_ERR_INVALID_VALUE,
+                          tlv_codec_decode(codec, wire.data(), wire.size(), output.data(),
+                                           output.size(), detail));
+                EXPECT_EQ(before, output);
+                if (detail) EXPECT_EQ(TLV_CODEC_REASON_DIGIT, detail->codec.reason);
+            }
+        }
+    }
+}
+
 TEST(Unit_Tlv_Emv, AmountCodecRejectsInvalidInputs) {
     uint64_t amount = 1000000000000ULL;
     uint8_t  wire[7] = {};

@@ -1,5 +1,8 @@
 # C source amalgamation contract
 
+The [static-analyzer triage](amalgamation-analyzer-triage.md) records the
+correctness findings, path evidence and regression coverage for #764.
+
 This page is the target composition and public artifact contract for the C
 source amalgamation of the OpenTLV Library. It is the deliverable of
 [#741](https://github.com/OpenTLV/opentlv/issues/741) for epic

@@ -226,6 +226,30 @@ TEST(Unit_Tlv_Packed, ConfigurationValidationDoesNotReadStorage) {
     EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_packed_layout_validate(&bad));
 }
 
+TEST(Unit_Tlv_Packed, InvalidFieldsNeverPublishDecodedValues) {
+    const uint8_t wire[] = {0x10, 0};
+    for (int field = 0; field < 2; ++field) {
+        for (int fault = 0; fault < 4; ++fault) {
+            auto  config = layout();
+            auto& broken = field ? config.length : config.tag;
+            switch (fault) {
+                case 0: broken.bit_width = 0; break;
+                case 1: broken.bit_offset = 16; break;
+                case 2: broken.storage_size = 1; break;
+                case 3: broken.byte_order = TLV_BYTE_ORDER_UNKNOWN; break;
+            }
+            tlv_decoded_t decoded{};
+            decoded.source.size = 99;
+            decoded.element.value.size = 77;
+            tlv_format_error_t error{};
+            EXPECT_EQ(TLV_ERR_INVALID_ARG,
+                      tlv_packed_decode(&config, wire, sizeof(wire), &decoded, &error));
+            EXPECT_EQ(99u, decoded.source.size);
+            EXPECT_EQ(77u, decoded.element.value.size);
+        }
+    }
+}
+
 TEST(Unit_Tlv_Packed, WideLengthIsCheckedBeforeNativeNarrowing) {
     const tlv_packed_layout_t config = {8,
                                         {8, 63, 1, TLV_BYTE_ORDER_BIG_ENDIAN},
