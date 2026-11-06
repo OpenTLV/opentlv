@@ -78,6 +78,7 @@ def check_metadata(metadata, config, modules, frontend, sets):
     require([row["key"] for row in metadata["targets"]] ==
             [row["key"] for row in modules if row["type"] != "INTERFACE_LIBRARY"],
             "module composition differs")
+    require("selection" not in metadata, "the amalgamation is a selective composition")
 
 
 def scenarios(path):

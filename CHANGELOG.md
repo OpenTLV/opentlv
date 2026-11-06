@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `OPENTLV_AMALGAMATION_TARGETS` to generate an amalgamation of selected targets and their registry dependency closure; the default and the release stay the complete composition. (#770)
 - Document optional dead-stripping flags for amalgamation consumers on GCC, Clang and MSVC, and check in CI that the samples still run and get smaller with them. (#766)
 - Document the amalgamation static-analyzer findings and their path-based false-positive dispositions, with regressions for malformed packed fields, EMV BCD, DER headers, Document allocator cleanup and unmatched Tree Writer closes. (#764)
 - Add versioned amalgamation release archives with C/C++ headers, notices and standalone samples. Require byte-for-byte reproduction, matching Full CI distribution-tested sources, extracted C99/C++17 consumers, metadata and checksum verification, and release attestations. Extend the pre-publication artifact contract 2 with the `amalgamation` kind and `amalgamation.json`; downstream verifiers must recognize the additional assets and evidence inputs. (#744)

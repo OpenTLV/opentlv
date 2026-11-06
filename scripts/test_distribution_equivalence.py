@@ -26,6 +26,9 @@ class EvidenceTests(unittest.TestCase):
                 changed[field] = [] if field == "targets" else "different"
                 with self.assertRaises(ValueError):
                     gate.check_metadata(changed, config, modules, True, False)
+        with self.assertRaises(ValueError):
+            gate.check_metadata(dict(metadata, selection={"requested": ["Core"]}), config, modules,
+                                True, False)
 
     def test_missing_extra_and_duplicate_scenarios_fail(self):
         reference = Counter({"valid": 1, "invalid": 2})

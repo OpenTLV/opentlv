@@ -48,6 +48,7 @@ candidates. Owner is the issue that decides any change.
 | Target namespace | `OpenTLV::` | Library | Keep | #747 |
 | Package components | Module export names, plus `tlv` for the aggregate | Module | Keep | #747 |
 | Cache options | `OPENTLV_BUILD_*`, `OPENTLV_QUERY_*`, `OPENTLV_WARNINGS_AS_ERRORS` | Library | Keep | #747 |
+| Amalgamation selection | `OPENTLV_AMALGAMATION_TARGETS`, a standalone-only cache entry of module export names, never in embedding builds | Library | Keep | #770 |
 | Removed options | `OPENTLV_READER`, `OPENTLV_<FAMILY>` and the other rejected options | Library | Keep the configure-time rejection messages | #747 |
 | Documentation install path | `share/doc/OpenTLV` | Library | Keep | #747 |
 | Nested CMake project | Removed `project(tlv)` and its `tlv_SOURCE_DIR`, `tlv_BINARY_DIR`, `tlv_IS_TOP_LEVEL` cache entries | Build tree | Breaking embedding fix; use the `OpenTLV_*` project paths | #753 |
@@ -448,7 +449,7 @@ must match that source. Required modular sources are:
   `tests/amalgamation/equivalence/CMakeLists.txt`, `tests/fuzz/targets.cmake`.
 - `scripts/amalgamation_release.py`, `scripts/check_amalgamation_consumers.py`,
   `cmake/amalgamation.cmake`, `cmake/amalgamation/generate.cmake`,
-  `cmake/amalgamation/export.h.in`.
+  `cmake/amalgamation/export.h.in`, `cmake/amalgamation/selection.cmake`.
 
 The required Full release workflow set remains the set pinned by
 `test_release_evidence_records_the_files_that_verifiers_compare` in
