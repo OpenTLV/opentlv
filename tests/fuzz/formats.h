@@ -21,19 +21,17 @@ static inline int fuzz_constructed(const void* context, const tlv_tag_t* tag) {
  * fuzz_constructed() can be attached to `is_constructed` without mutating the
  * library's own extern const globals. Populated by LLVMFuzzerInitialize()
  * below; tlv_fixed_format_t-based formats additionally need a runtime init
- * call and cannot be compile-time constants like the other entries here. */
+ * call. */
 static const tlv_fixed_format_t fuzz_fixed_config = {
     {1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}, TLV_ELEMENT_ORDER_TLV, TLV_LENGTH_SCOPE_VALUE};
 static tlv_format_t fuzz_fixed_format;
 static tlv_format_t fuzz_bluetooth_ltv_format;
 
-static const struct {
+/* NULL-terminated; filled by LLVMFuzzerInitialize(). The address of a format
+ * imported from a shared MSVC module is not a C constant expression. */
+static struct {
     const tlv_format_t* format;
-} fuzz_formats[] = {{&fuzz_fixed_format},
-                    {&fuzz_bluetooth_ltv_format},
-                    {&tlv_format_ber},
-                    {&tlv_format_der},
-                    {NULL}};
+} fuzz_formats[5];
 
 /* libFuzzer calls this once before any input is fuzzed. */
 int LLVMFuzzerInitialize(int* argc, char*** argv) {
@@ -43,6 +41,10 @@ int LLVMFuzzerInitialize(int* argc, char*** argv) {
     fuzz_fixed_format.is_constructed = fuzz_constructed;
     fuzz_bluetooth_ltv_format = tlv_format_bluetooth_ltv;
     fuzz_bluetooth_ltv_format.is_constructed = fuzz_constructed;
+    fuzz_formats[0].format = &fuzz_fixed_format;
+    fuzz_formats[1].format = &fuzz_bluetooth_ltv_format;
+    fuzz_formats[2].format = &tlv_format_ber;
+    fuzz_formats[3].format = &tlv_format_der;
     return 0;
 }
 

@@ -12,6 +12,7 @@
 #include "opentlv/builtin/asn1/ber.h"
 #include "opentlv/builtin/asn1/cer.h"
 #include "controlled_format.h"
+#include "set_operations.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <cstdlib>
@@ -147,6 +148,7 @@ TEST(Unit_Tlv_QueryF3, WholePlanRequirementsAndDocumentRejection) {
              {"//70/5A[last()]", TLV_QUERY_S2},
              {"//5A/..", TLV_QUERY_S2},
              {"//5A/following::50", TLV_QUERY_D}}) {
+        if (query_set_operations_unavailable(c.first)) continue;
         Evaluation e;
         ASSERT_EQ(e.compile(c.first), TLV_OK) << c.first;
         EXPECT_EQ(e.info.level, c.second) << c.first;
@@ -281,6 +283,7 @@ TEST(Unit_Tlv_QueryF3, S1RawFeedDecidesOnlyAtEndAndReportsOriginalNode) {
     ASSERT_EQ(tlv_query_exec_finish(e.exec, &e.diagnostic), TLV_OK);
 }
 TEST(Unit_Tlv_QueryF3, CandidatesExactCapacityOverflowAndSourceLessIdentity) {
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//5A/.. | //70");
     Evaluation e;
     ASSERT_EQ(e.compile("//5A/.. | //70"), TLV_OK);
     ASSERT_EQ(e.init(3), TLV_OK);
@@ -321,6 +324,7 @@ TEST(Unit_Tlv_QueryF3, NestedDeferredOrderAndReverseContexts) {
                                            {"//50/ancestor-or-self::70[1]", {2}},
                                            {"//50/.. | //50/ancestor::70", {0, 2}},
                                            {"//70/descendant-or-self::*[last()]", {4}}}) {
+        if (query_set_operations_unavailable(c.text)) continue;
         Evaluation e;
         ASSERT_EQ(e.compile(c.text), TLV_OK);
         ASSERT_EQ(e.init(), TLV_OK);
@@ -358,6 +362,7 @@ TEST(Unit_Tlv_QueryF3, DeferredWindowsRetainStablePayloadAndResume) {
     ASSERT_EQ(tlv_tree_reader_set_input(&reader, second, sizeof second, sizeof first, 1), TLV_OK);
     ASSERT_EQ(tlv_query_program_visit(&reader, e.exec, noop, &selected, &e.diagnostic), TLV_OK);
     EXPECT_EQ(selected, std::vector<size_t>({0, 4}));
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//70[not(5A)] | //50");
     ASSERT_EQ(e.compile("//70[not(5A)] | //50"), TLV_OK);
     ASSERT_EQ(e.init(), TLV_OK);
     ASSERT_EQ(tlv_tree_reader_init_incremental(&reader, first, sizeof first, &e.format, frames, 16,

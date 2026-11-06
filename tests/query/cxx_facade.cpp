@@ -68,6 +68,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && !std::strcmp(argv[1], "--capabilities")) {
         std::cout << "document ";
         std::cout << "asn1 ";
+        if (tlv_config_query_set_operations()) std::cout << "set-operations ";
         return 0;
     }
     if (argc < 3) return 2;

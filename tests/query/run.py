@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 import json
 from pathlib import Path
 import random
+import re
 import subprocess
 import sys
 from threading import Event
@@ -13,6 +14,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "property"))
 from corpus import commit_seed, write_metadata
 from reference import select, v1_baseline
 from minimize import minimize
+
+# Set operations are an optional Query feature. A library without them must
+# reject every query using one with TLV_ERR_UNSUPPORTED (19) and
+# TLV_QUERY_ERROR_CAPABILITY (2), which those cases then check instead.
+SET_OPERATION = re.compile(r"\||(?<![\w-])(?:intersect|except)(?![\w-])")
+SET_OPERATIONS_REJECTED = {"code": 19, "kind": 2}
 
 
 def native_command(native, case, mode, split):
@@ -109,7 +116,7 @@ def main():
         parser.error("seed must be uint64 and property count nonnegative")
     corpus = json.loads(Path(__file__).with_name("corpus.json").read_text())
     assert corpus["version"] == 1
-    capabilities = set(subprocess.check_output([args.native, "--capabilities"], text=True, timeout=30).split()) if args.native else {"document", "asn1"}
+    capabilities = set(subprocess.check_output([args.native, "--capabilities"], text=True, timeout=30).split()) if args.native else {"document", "asn1", "set-operations"}
     if args.native:
         implemented = set(subprocess.check_output([args.native,"--language-features"],text=True,timeout=30).split())
         assert implemented <= set(corpus["f3_rules"]), ("uncovered implemented features", implemented - set(corpus["f3_rules"]))
@@ -137,6 +144,12 @@ def main():
         requirements = set(case.get("requires", []))
         if "following::" in case["query"] or "preceding::" in case["query"]:
             requirements.add("document")
+        if SET_OPERATION.search(case["query"]):
+            requirements.add("set-operations")
+        if args.native and requirements - capabilities == {"set-operations"}:
+            rejected = dict(case, diagnostic=SET_OPERATIONS_REJECTED)
+            jobs.append(([args.native, case["query"], case["wire"]], rejected, None, "diagnostic", None))
+            continue
         if args.native and not requirements <= capabilities:
             skipped += 1
             continue
