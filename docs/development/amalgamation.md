@@ -259,7 +259,11 @@ the generator.
 
 The generator enforces rules 3 to 5. Rules 1 and 2 need a compiler: the
 `amalgamation-c99` test compiles `opentlv.c` as one C99 translation unit, and a
-violation fails that compile.
+violation fails that compile. GCC and Clang also use `-Wshadow -Werror=shadow`
+so a local declaration hiding an identifier from another original translation
+unit fails the gate. Rename conflicting internal identifiers in the modular
+sources; do not suppress these warnings in generated output. The test runs
+with Clang in PR CI and with both GCC and Clang in Full CI.
 
 At commit `04e637aa`, including the registered sources in registration order
 into one translation unit fails to compile as C99 with 56 errors. The
@@ -496,7 +500,7 @@ on every run and writes LF line endings on every host. It needs no compiler.
 | Check | Covers | CI tier |
 | --- | --- | --- |
 | CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, and identical bytes from another location and from CRLF inputs | PR (Clang unit tests) |
-| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors` and the Library's warning policy, and runs it and the symbol collision regression | PR (Clang integration tests) |
+| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors`, `-Wshadow -Werror=shadow` on GCC/Clang and the Library's warning policy, and runs it and the symbol collision regression | PR (Clang integration tests), Full (GCC and Clang integration tests) |
 | `scripts/check_cmake_integration.py` | The standalone build has the target, and neither the default build nor `install()` generates. Embedding builds have no such target | PR and Main (CMake consumers) |
 | `scripts/check_amalgamation_consumers.py` | Explicit component installation, missing-output failures, licenses, metadata, unchanged public headers, relocation, direct C99/C++17 compiler consumers and the same samples linked to conventional static/shared libraries | PR: Clang 18, both linkage modes; Full: also GCC and MSVC; minimum CMake/custom data directory/disabled Query features on Clang |
 

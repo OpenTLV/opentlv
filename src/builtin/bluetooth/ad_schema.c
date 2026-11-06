@@ -25,7 +25,7 @@ static const tlv_schema_entry_t ad_schema_fields[] = {
     {{identifiers + 12, 1}, 16, SIZE_MAX, 0, "Service Data - 128-bit UUID", 0},
     {{identifiers + 13, 1}, 2, SIZE_MAX, 0, "Manufacturer Specific Data", 0}};
 
-static const tlv_structure_rule_t rules[] = {
+static const tlv_structure_rule_t ad_schema_rules[] = {
     {&ad_schema_fields[0], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 0},
     {&ad_schema_fields[1], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 1},
     {&ad_schema_fields[2], 0, 1, TLV_SCHEMA_PRIMITIVE, NULL, 1},
@@ -48,6 +48,10 @@ static const tlv_structure_group_t groups[] = {
     {4, 0, 1, "Local Name"},
 };
 
-const tlv_structure_schema_t tlv_bluetooth_ad_schema = {
-    rules,  sizeof(rules) / sizeof(rules[0]),   1,
-    groups, sizeof(groups) / sizeof(groups[0]), TLV_SCHEMA_ORDER_ANY};
+const tlv_structure_schema_t tlv_bluetooth_ad_schema = {ad_schema_rules,
+                                                        sizeof(ad_schema_rules) /
+                                                            sizeof(ad_schema_rules[0]),
+                                                        1,
+                                                        groups,
+                                                        sizeof(groups) / sizeof(groups[0]),
+                                                        TLV_SCHEMA_ORDER_ANY};

@@ -4,8 +4,9 @@
 #include "opentlv/io/reader/visitor.h"
 #include "internal/result_internal.h"
 
-static tlv_result_t validate(const tlv_structure_codec_t* codec, const uint8_t* data, size_t size,
-                             tlv_codec_diagnostic_t* diagnostic) {
+static tlv_result_t structure_codec_validate(const tlv_structure_codec_t* codec,
+                                             const uint8_t* data, size_t size,
+                                             tlv_codec_diagnostic_t* diagnostic) {
     tlv_result_t rc;
     if (codec->schema) {
         tlv_schema_diagnostic_t cause;
@@ -48,7 +49,7 @@ tlv_result_t tlv_structure_decode(const tlv_structure_codec_t* codec, const uint
     if (!codec->format) return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_INVALID_ARG);
     if (!codec->decode || !tlv_format_can_read(codec->format))
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_UNSUPPORTED);
-    rc = validate(codec, data, size, diagnostic);
+    rc = structure_codec_validate(codec, data, size, diagnostic);
     if (rc != TLV_OK) return rc;
     rc = codec->decode(codec->context, codec->format, data, size, value, capacity, diagnostic);
     return tlv_codec_callback_result(diagnostic, rc, TLV_CODEC_OP_DECODE);
@@ -78,7 +79,7 @@ tlv_result_t tlv_structure_encode(const tlv_structure_codec_t* codec, const void
         return tlv_codec_diagnostic_result(diagnostic, TLV_ERR_CALLBACK);
     }
     if (data) {
-        rc = validate(codec, data, count, diagnostic);
+        rc = structure_codec_validate(codec, data, count, diagnostic);
         if (diagnostic && diagnostic->diagnostic.location.domain == TLV_LOCATION_INPUT)
             diagnostic->diagnostic.location.domain = TLV_LOCATION_OUTPUT;
         if (rc != TLV_OK) return rc;
