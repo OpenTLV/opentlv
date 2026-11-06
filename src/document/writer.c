@@ -28,7 +28,8 @@ static tlv_result_t document_next(void* context, tlv_tree_event_t* event) {
         event->kind = TLV_TREE_END;
     } else {
         event->kind = node->constructed ? TLV_TREE_BEGIN : TLV_TREE_ELEMENT;
-        event->element = (tlv_element_t){document_node_tag(node), {node->value, node->value_size}};
+        event->element =
+            (tlv_element_t){tlv_document_node_tag(node), {node->value, node->value_size}};
         if (node->constructed) {
             if (node->first) {
                 source->next = node->first;
@@ -64,9 +65,9 @@ static tlv_result_t grow_workspace(const tlv_document_t* document, uint8_t** dat
     grown = *capacity <= SIZE_MAX / 2 ? *capacity * 2 : required;
     if (grown < 256) grown = 256;
     if (grown < required) grown = required;
-    replacement = (uint8_t*)document_memory_allocate(document, grown);
+    replacement = (uint8_t*)tlv_document_memory_allocate(document, grown);
     if (!replacement) return TLV_ERR_OUT_OF_MEMORY;
-    document_memory_release(document, *data);
+    tlv_document_memory_release(document, *data);
     *data = replacement;
     *capacity = grown;
     return TLV_OK;
@@ -74,9 +75,9 @@ static tlv_result_t grow_workspace(const tlv_document_t* document, uint8_t** dat
 
 static void release_workspace(const tlv_document_t* document,
                               tlv_tree_writer_workspace_t* workspace) {
-    document_memory_release(document, workspace->frames);
-    document_memory_release(document, workspace->data);
-    document_memory_release(document, workspace->scratch);
+    tlv_document_memory_release(document, workspace->frames);
+    tlv_document_memory_release(document, workspace->data);
+    tlv_document_memory_release(document, workspace->scratch);
 }
 
 static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_node_t* first,
@@ -94,7 +95,7 @@ static tlv_result_t prepare_encoding(const tlv_document_t* document, const tlv_n
         }
     }
     if (workspace->frame_capacity) {
-        workspace->frames = (tlv_tree_writer_frame_t*)document_memory_allocate(
+        workspace->frames = (tlv_tree_writer_frame_t*)tlv_document_memory_allocate(
             document, workspace->frame_capacity * sizeof *workspace->frames);
         if (!workspace->frames) return TLV_ERR_OUT_OF_MEMORY;
     }

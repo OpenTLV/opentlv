@@ -321,7 +321,7 @@ const tlv_tag_t tlv_emv_tag_enciphered_biometric_key_seed = {tag_df50, 2};
 const tlv_tag_t tlv_emv_tag_enciphered_biometric_data = {tag_df51, 2};
 const tlv_tag_t tlv_emv_tag_biometric_data_mac = {tag_df52, 2};
 
-const tlv_schema_entry_t emv_base_fields[] = {
+const tlv_schema_entry_t tlv_emv_base_fields[] = {
     [index_iin] = {{tag_42, 1}, 3, 3, 0, "iin", 0},
     [index_adf_name] = {{tag_4f, 1}, 5, 16, 0, "adf_name", 0},
     [index_application_label] = {{tag_50, 1}, 1, 16, 0, "application_label", 0},
@@ -497,262 +497,264 @@ const tlv_schema_entry_t emv_base_fields[] = {
     [index_biometric_verification_data_template] =
         {{tag_bf4e, 2}, 0, SIZE_MAX, 0, "biometric_verification_data_template", 0},
 };
-static const tlv_schema_number_t codec_iin_rule = {&emv_base_fields[index_iin],
+static const tlv_schema_number_t codec_iin_rule = {&tlv_emv_base_fields[index_iin],
                                                    {TLV_NUMBER_BCD, 0, 6}};
 static const tlv_codec_t codec_iin = {&codec_iin_rule, tlv_schema_number_decode,
                                       tlv_schema_number_encode};
 static const emv_value_rule_t codec_track2_equivalent_data_rule = {
-    &emv_base_fields[index_track2_equivalent_data], EMV_REP_TRACK2, 0};
-static const tlv_codec_t codec_track2_equivalent_data = {&codec_track2_equivalent_data_rule,
-                                                         emv_value_decode, emv_value_encode};
-static const emv_value_rule_t codec_pan_rule = {&emv_base_fields[index_pan], EMV_REP_DIGITS, 19};
-static const tlv_codec_t codec_pan = {&codec_pan_rule, emv_value_decode, emv_value_encode};
+    &tlv_emv_base_fields[index_track2_equivalent_data], EMV_REP_TRACK2, 0};
+static const tlv_codec_t codec_track2_equivalent_data = {
+    &codec_track2_equivalent_data_rule, tlv_emv_value_decode, tlv_emv_value_encode};
+static const emv_value_rule_t codec_pan_rule = {&tlv_emv_base_fields[index_pan], EMV_REP_DIGITS,
+                                                19};
+static const tlv_codec_t codec_pan = {&codec_pan_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 static const tlv_schema_number_t codec_amount_authorised_binary_rule = {
-    &emv_base_fields[index_amount_authorised_binary], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_amount_authorised_binary], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_amount_authorised_binary = {
     &codec_amount_authorised_binary_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const tlv_schema_number_t codec_aip_rule = {&emv_base_fields[index_aip],
+static const tlv_schema_number_t codec_aip_rule = {&tlv_emv_base_fields[index_aip],
                                                    {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_aip = {&codec_aip_rule, tlv_schema_number_decode,
                                       tlv_schema_number_encode};
 static const tlv_schema_number_t codec_application_priority_indicator_rule = {
-    &emv_base_fields[index_application_priority_indicator], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_application_priority_indicator], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_application_priority_indicator = {
     &codec_application_priority_indicator_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const tlv_schema_number_t codec_sfi_rule = {&emv_base_fields[index_sfi],
+static const tlv_schema_number_t codec_sfi_rule = {&tlv_emv_base_fields[index_sfi],
                                                    {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_sfi = {&codec_sfi_rule, tlv_schema_number_decode,
                                       tlv_schema_number_encode};
 static const tlv_schema_number_t codec_ca_public_key_index_rule = {
-    &emv_base_fields[index_ca_public_key_index], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_ca_public_key_index], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_ca_public_key_index = {
     &codec_ca_public_key_index_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const emv_value_rule_t codec_afl_rule = {&emv_base_fields[index_afl], EMV_REP_AFL, 0};
-static const tlv_codec_t codec_afl = {&codec_afl_rule, emv_value_decode, emv_value_encode};
-static const tlv_schema_number_t codec_tvr_rule = {&emv_base_fields[index_tvr],
+static const emv_value_rule_t codec_afl_rule = {&tlv_emv_base_fields[index_afl], EMV_REP_AFL, 0};
+static const tlv_codec_t codec_afl = {&codec_afl_rule, tlv_emv_value_decode, tlv_emv_value_encode};
+static const tlv_schema_number_t codec_tvr_rule = {&tlv_emv_base_fields[index_tvr],
                                                    {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_tvr = {&codec_tvr_rule, tlv_schema_number_decode,
                                       tlv_schema_number_encode};
 static const emv_value_rule_t codec_transaction_date_rule = {
-    &emv_base_fields[index_transaction_date], EMV_REP_DATE, 0};
-static const tlv_codec_t codec_transaction_date = {&codec_transaction_date_rule, emv_value_decode,
-                                                   emv_value_encode};
-static const tlv_schema_number_t codec_tsi_rule = {&emv_base_fields[index_tsi],
+    &tlv_emv_base_fields[index_transaction_date], EMV_REP_DATE, 0};
+static const tlv_codec_t codec_transaction_date = {&codec_transaction_date_rule,
+                                                   tlv_emv_value_decode, tlv_emv_value_encode};
+static const tlv_schema_number_t codec_tsi_rule = {&tlv_emv_base_fields[index_tsi],
                                                    {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_tsi = {&codec_tsi_rule, tlv_schema_number_decode,
                                       tlv_schema_number_encode};
 static const tlv_schema_number_t codec_transaction_type_rule = {
-    &emv_base_fields[index_transaction_type], {TLV_NUMBER_BCD, 0, 2}};
+    &tlv_emv_base_fields[index_transaction_type], {TLV_NUMBER_BCD, 0, 2}};
 static const tlv_codec_t codec_transaction_type = {
     &codec_transaction_type_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const emv_value_rule_t codec_application_expiration_date_rule = {
-    &emv_base_fields[index_application_expiration_date], EMV_REP_DATE, 0};
+    &tlv_emv_base_fields[index_application_expiration_date], EMV_REP_DATE, 0};
 static const tlv_codec_t codec_application_expiration_date = {
-    &codec_application_expiration_date_rule, emv_value_decode, emv_value_encode};
+    &codec_application_expiration_date_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 static const emv_value_rule_t codec_application_effective_date_rule = {
-    &emv_base_fields[index_application_effective_date], EMV_REP_DATE, 0};
-static const tlv_codec_t codec_application_effective_date = {&codec_application_effective_date_rule,
-                                                             emv_value_decode, emv_value_encode};
+    &tlv_emv_base_fields[index_application_effective_date], EMV_REP_DATE, 0};
+static const tlv_codec_t codec_application_effective_date = {
+    &codec_application_effective_date_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 static const tlv_schema_number_t codec_issuer_country_code_rule = {
-    &emv_base_fields[index_issuer_country_code], {TLV_NUMBER_BCD, 0, 3}};
+    &tlv_emv_base_fields[index_issuer_country_code], {TLV_NUMBER_BCD, 0, 3}};
 static const tlv_codec_t codec_issuer_country_code = {
     &codec_issuer_country_code_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_transaction_currency_code_rule = {
-    &emv_base_fields[index_transaction_currency_code], {TLV_NUMBER_BCD, 0, 3}};
+    &tlv_emv_base_fields[index_transaction_currency_code], {TLV_NUMBER_BCD, 0, 3}};
 static const tlv_codec_t codec_transaction_currency_code = {
     &codec_transaction_currency_code_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const tlv_schema_number_t codec_service_code_rule = {&emv_base_fields[index_service_code],
-                                                            {TLV_NUMBER_BCD, 0, 3}};
+static const tlv_schema_number_t codec_service_code_rule = {
+    &tlv_emv_base_fields[index_service_code], {TLV_NUMBER_BCD, 0, 3}};
 static const tlv_codec_t codec_service_code = {&codec_service_code_rule, tlv_schema_number_decode,
                                                tlv_schema_number_encode};
 static const tlv_schema_number_t codec_pan_sequence_number_rule = {
-    &emv_base_fields[index_pan_sequence_number], {TLV_NUMBER_BCD, 0, 2}};
+    &tlv_emv_base_fields[index_pan_sequence_number], {TLV_NUMBER_BCD, 0, 2}};
 static const tlv_codec_t codec_pan_sequence_number = {
     &codec_pan_sequence_number_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_transaction_currency_exponent_rule = {
-    &emv_base_fields[index_transaction_currency_exponent], {TLV_NUMBER_BCD, 0, 1}};
+    &tlv_emv_base_fields[index_transaction_currency_exponent], {TLV_NUMBER_BCD, 0, 1}};
 static const tlv_codec_t codec_transaction_currency_exponent = {
     &codec_transaction_currency_exponent_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const emv_value_rule_t codec_account_type_rule = {&emv_base_fields[index_account_type],
+static const emv_value_rule_t codec_account_type_rule = {&tlv_emv_base_fields[index_account_type],
                                                          EMV_REP_ACCOUNT, 0};
-static const tlv_codec_t codec_account_type = {&codec_account_type_rule, emv_value_decode,
-                                               emv_value_encode};
+static const tlv_codec_t codec_account_type = {&codec_account_type_rule, tlv_emv_value_decode,
+                                               tlv_emv_value_encode};
 static const tlv_schema_number_t codec_acquirer_identifier_rule = {
-    &emv_base_fields[index_acquirer_identifier], {TLV_NUMBER_BCD, 0, 11}};
+    &tlv_emv_base_fields[index_acquirer_identifier], {TLV_NUMBER_BCD, 0, 11}};
 static const tlv_codec_t codec_acquirer_identifier = {
     &codec_acquirer_identifier_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_amount_authorised_rule = {
-    &emv_base_fields[index_amount_authorised], {TLV_NUMBER_BCD, 0, 12}};
+    &tlv_emv_base_fields[index_amount_authorised], {TLV_NUMBER_BCD, 0, 12}};
 const tlv_codec_t tlv_emv_codec_amount = {&codec_amount_authorised_rule, tlv_schema_number_decode,
                                           tlv_schema_number_encode};
-static const tlv_schema_number_t codec_amount_other_rule = {&emv_base_fields[index_amount_other],
-                                                            {TLV_NUMBER_BCD, 0, 12}};
+static const tlv_schema_number_t codec_amount_other_rule = {
+    &tlv_emv_base_fields[index_amount_other], {TLV_NUMBER_BCD, 0, 12}};
 static const tlv_codec_t codec_amount_other = {&codec_amount_other_rule, tlv_schema_number_decode,
                                                tlv_schema_number_encode};
 static const tlv_schema_number_t codec_amount_other_binary_rule = {
-    &emv_base_fields[index_amount_other_binary], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_amount_other_binary], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_amount_other_binary = {
     &codec_amount_other_binary_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_application_usage_control_rule = {
-    &emv_base_fields[index_application_usage_control], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_application_usage_control], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_application_usage_control = {
     &codec_application_usage_control_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_application_version_card_rule = {
-    &emv_base_fields[index_application_version_card], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_application_version_card], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_application_version_card = {
     &codec_application_version_card_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_application_version_terminal_rule = {
-    &emv_base_fields[index_application_version_terminal], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_application_version_terminal], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_application_version_terminal = {
     &codec_application_version_terminal_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const tlv_schema_number_t codec_iin_extended_rule = {&emv_base_fields[index_iin_extended],
-                                                            {TLV_NUMBER_BCD, 0, 8}};
+static const tlv_schema_number_t codec_iin_extended_rule = {
+    &tlv_emv_base_fields[index_iin_extended], {TLV_NUMBER_BCD, 0, 8}};
 static const tlv_codec_t codec_iin_extended = {&codec_iin_extended_rule, tlv_schema_number_decode,
                                                tlv_schema_number_encode};
 static const tlv_schema_number_t codec_issuer_action_code_default_rule = {
-    &emv_base_fields[index_issuer_action_code_default], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_issuer_action_code_default], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_issuer_action_code_default = {
     &codec_issuer_action_code_default_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_issuer_action_code_denial_rule = {
-    &emv_base_fields[index_issuer_action_code_denial], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_issuer_action_code_denial], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_issuer_action_code_denial = {
     &codec_issuer_action_code_denial_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_issuer_action_code_online_rule = {
-    &emv_base_fields[index_issuer_action_code_online], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_issuer_action_code_online], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_issuer_action_code_online = {
     &codec_issuer_action_code_online_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_issuer_code_table_index_rule = {
-    &emv_base_fields[index_issuer_code_table_index], {TLV_NUMBER_BCD, 0, 2}};
+    &tlv_emv_base_fields[index_issuer_code_table_index], {TLV_NUMBER_BCD, 0, 2}};
 static const tlv_codec_t codec_issuer_code_table_index = {
     &codec_issuer_code_table_index_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_last_online_atc_rule = {
-    &emv_base_fields[index_last_online_atc], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_last_online_atc], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_last_online_atc = {
     &codec_last_online_atc_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_lower_consecutive_offline_limit_rule = {
-    &emv_base_fields[index_lower_consecutive_offline_limit], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_lower_consecutive_offline_limit], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_lower_consecutive_offline_limit = {
     &codec_lower_consecutive_offline_limit_rule, tlv_schema_number_decode,
     tlv_schema_number_encode};
 static const tlv_schema_number_t codec_merchant_category_code_rule = {
-    &emv_base_fields[index_merchant_category_code], {TLV_NUMBER_BCD, 0, 4}};
+    &tlv_emv_base_fields[index_merchant_category_code], {TLV_NUMBER_BCD, 0, 4}};
 static const tlv_codec_t codec_merchant_category_code = {
     &codec_merchant_category_code_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_pin_try_counter_rule = {
-    &emv_base_fields[index_pin_try_counter], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_pin_try_counter], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_pin_try_counter = {
     &codec_pin_try_counter_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_token_requestor_id_rule = {
-    &emv_base_fields[index_token_requestor_id], {TLV_NUMBER_BCD, 0, 11}};
+    &tlv_emv_base_fields[index_token_requestor_id], {TLV_NUMBER_BCD, 0, 11}};
 static const tlv_codec_t codec_token_requestor_id = {
     &codec_token_requestor_id_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_terminal_country_code_rule = {
-    &emv_base_fields[index_terminal_country_code], {TLV_NUMBER_BCD, 0, 3}};
+    &tlv_emv_base_fields[index_terminal_country_code], {TLV_NUMBER_BCD, 0, 3}};
 static const tlv_codec_t codec_terminal_country_code = {
     &codec_terminal_country_code_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_terminal_floor_limit_rule = {
-    &emv_base_fields[index_terminal_floor_limit], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_terminal_floor_limit], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_terminal_floor_limit = {
     &codec_terminal_floor_limit_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const emv_value_rule_t codec_track2_discretionary_data_rule = {
-    &emv_base_fields[index_track2_discretionary_data], EMV_REP_DIGITS, 0};
-static const tlv_codec_t codec_track2_discretionary_data = {&codec_track2_discretionary_data_rule,
-                                                            emv_value_decode, emv_value_encode};
+    &tlv_emv_base_fields[index_track2_discretionary_data], EMV_REP_DIGITS, 0};
+static const tlv_codec_t codec_track2_discretionary_data = {
+    &codec_track2_discretionary_data_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 static const emv_value_rule_t codec_transaction_time_rule = {
-    &emv_base_fields[index_transaction_time], EMV_REP_TIME, 0};
-static const tlv_codec_t codec_transaction_time = {&codec_transaction_time_rule, emv_value_decode,
-                                                   emv_value_encode};
+    &tlv_emv_base_fields[index_transaction_time], EMV_REP_TIME, 0};
+static const tlv_codec_t codec_transaction_time = {&codec_transaction_time_rule,
+                                                   tlv_emv_value_decode, tlv_emv_value_encode};
 static const tlv_schema_number_t codec_ca_public_key_index_terminal_rule = {
-    &emv_base_fields[index_ca_public_key_index_terminal], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_ca_public_key_index_terminal], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_ca_public_key_index_terminal = {
     &codec_ca_public_key_index_terminal_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_upper_consecutive_offline_limit_rule = {
-    &emv_base_fields[index_upper_consecutive_offline_limit], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_upper_consecutive_offline_limit], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_upper_consecutive_offline_limit = {
     &codec_upper_consecutive_offline_limit_rule, tlv_schema_number_decode,
     tlv_schema_number_encode};
-static const tlv_schema_number_t codec_last4_pan_rule = {&emv_base_fields[index_last4_pan],
+static const tlv_schema_number_t codec_last4_pan_rule = {&tlv_emv_base_fields[index_last4_pan],
                                                          {TLV_NUMBER_BCD, 0, 4}};
 static const tlv_codec_t codec_last4_pan = {&codec_last4_pan_rule, tlv_schema_number_decode,
                                             tlv_schema_number_encode};
 static const emv_value_rule_t codec_cryptogram_information_data_rule = {
-    &emv_base_fields[index_cryptogram_information_data], EMV_REP_CRYPTOGRAM, 0};
+    &tlv_emv_base_fields[index_cryptogram_information_data], EMV_REP_CRYPTOGRAM, 0};
 static const tlv_codec_t codec_cryptogram_information_data = {
-    &codec_cryptogram_information_data_rule, emv_value_decode, emv_value_encode};
+    &codec_cryptogram_information_data_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 static const tlv_schema_number_t codec_icc_pin_public_key_exponent_rule = {
-    &emv_base_fields[index_icc_pin_public_key_exponent], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_icc_pin_public_key_exponent], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_icc_pin_public_key_exponent = {
     &codec_icc_pin_public_key_exponent_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_biometric_terminal_capabilities_rule = {
-    &emv_base_fields[index_biometric_terminal_capabilities], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_biometric_terminal_capabilities], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_biometric_terminal_capabilities = {
     &codec_biometric_terminal_capabilities_rule, tlv_schema_number_decode,
     tlv_schema_number_encode};
 static const tlv_schema_number_t codec_issuer_public_key_exponent_rule = {
-    &emv_base_fields[index_issuer_public_key_exponent], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_issuer_public_key_exponent], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_issuer_public_key_exponent = {
     &codec_issuer_public_key_exponent_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_terminal_capabilities_rule = {
-    &emv_base_fields[index_terminal_capabilities], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_terminal_capabilities], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_terminal_capabilities = {
     &codec_terminal_capabilities_rule, tlv_schema_number_decode, tlv_schema_number_encode};
-static const emv_value_rule_t codec_cvm_results_rule = {&emv_base_fields[index_cvm_results],
+static const emv_value_rule_t codec_cvm_results_rule = {&tlv_emv_base_fields[index_cvm_results],
                                                         EMV_REP_CVM_RESULT, 0};
-static const tlv_codec_t codec_cvm_results = {&codec_cvm_results_rule, emv_value_decode,
-                                              emv_value_encode};
-static const tlv_schema_number_t codec_terminal_type_rule = {&emv_base_fields[index_terminal_type],
-                                                             {TLV_NUMBER_BCD, 0, 2}};
+static const tlv_codec_t codec_cvm_results = {&codec_cvm_results_rule, tlv_emv_value_decode,
+                                              tlv_emv_value_encode};
+static const tlv_schema_number_t codec_terminal_type_rule = {
+    &tlv_emv_base_fields[index_terminal_type], {TLV_NUMBER_BCD, 0, 2}};
 static const tlv_codec_t codec_terminal_type = {&codec_terminal_type_rule, tlv_schema_number_decode,
                                                 tlv_schema_number_encode};
-static const tlv_schema_number_t codec_atc_rule = {&emv_base_fields[index_atc],
+static const tlv_schema_number_t codec_atc_rule = {&tlv_emv_base_fields[index_atc],
                                                    {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_atc = {&codec_atc_rule, tlv_schema_number_decode,
                                       tlv_schema_number_encode};
 static const tlv_schema_number_t codec_pos_entry_mode_rule = {
-    &emv_base_fields[index_pos_entry_mode], {TLV_NUMBER_BCD, 0, 2}};
+    &tlv_emv_base_fields[index_pos_entry_mode], {TLV_NUMBER_BCD, 0, 2}};
 static const tlv_codec_t codec_pos_entry_mode = {
     &codec_pos_entry_mode_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_amount_reference_currency_rule = {
-    &emv_base_fields[index_amount_reference_currency], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_amount_reference_currency], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_amount_reference_currency = {
     &codec_amount_reference_currency_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const emv_value_rule_t codec_application_reference_currency_rule = {
-    &emv_base_fields[index_application_reference_currency], EMV_REP_NUMBER_LIST, 3};
+    &tlv_emv_base_fields[index_application_reference_currency], EMV_REP_NUMBER_LIST, 3};
 static const tlv_codec_t codec_application_reference_currency = {
-    &codec_application_reference_currency_rule, emv_value_decode, emv_value_encode};
+    &codec_application_reference_currency_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 static const tlv_schema_number_t codec_transaction_reference_currency_code_rule = {
-    &emv_base_fields[index_transaction_reference_currency_code], {TLV_NUMBER_BCD, 0, 3}};
+    &tlv_emv_base_fields[index_transaction_reference_currency_code], {TLV_NUMBER_BCD, 0, 3}};
 static const tlv_codec_t codec_transaction_reference_currency_code = {
     &codec_transaction_reference_currency_code_rule, tlv_schema_number_decode,
     tlv_schema_number_encode};
 static const tlv_schema_number_t codec_transaction_reference_currency_exponent_rule = {
-    &emv_base_fields[index_transaction_reference_currency_exponent], {TLV_NUMBER_BCD, 0, 1}};
+    &tlv_emv_base_fields[index_transaction_reference_currency_exponent], {TLV_NUMBER_BCD, 0, 1}};
 static const tlv_codec_t codec_transaction_reference_currency_exponent = {
     &codec_transaction_reference_currency_exponent_rule, tlv_schema_number_decode,
     tlv_schema_number_encode};
 static const tlv_schema_number_t codec_additional_terminal_capabilities_rule = {
-    &emv_base_fields[index_additional_terminal_capabilities], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_additional_terminal_capabilities], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_additional_terminal_capabilities = {
     &codec_additional_terminal_capabilities_rule, tlv_schema_number_decode,
     tlv_schema_number_encode};
 static const tlv_schema_number_t codec_transaction_sequence_counter_rule = {
-    &emv_base_fields[index_transaction_sequence_counter], {TLV_NUMBER_BCD, 0, 8}};
+    &tlv_emv_base_fields[index_transaction_sequence_counter], {TLV_NUMBER_BCD, 0, 8}};
 static const tlv_codec_t codec_transaction_sequence_counter = {
     &codec_transaction_sequence_counter_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_application_currency_code_rule = {
-    &emv_base_fields[index_application_currency_code], {TLV_NUMBER_BCD, 0, 3}};
+    &tlv_emv_base_fields[index_application_currency_code], {TLV_NUMBER_BCD, 0, 3}};
 static const tlv_codec_t codec_application_currency_code = {
     &codec_application_currency_code_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const emv_value_rule_t codec_application_reference_currency_exponent_rule = {
-    &emv_base_fields[index_application_reference_currency_exponent], EMV_REP_NUMBER_LIST, 1};
+    &tlv_emv_base_fields[index_application_reference_currency_exponent], EMV_REP_NUMBER_LIST, 1};
 static const tlv_codec_t codec_application_reference_currency_exponent = {
-    &codec_application_reference_currency_exponent_rule, emv_value_decode, emv_value_encode};
+    &codec_application_reference_currency_exponent_rule, tlv_emv_value_decode,
+    tlv_emv_value_encode};
 static const tlv_schema_number_t codec_application_currency_exponent_rule = {
-    &emv_base_fields[index_application_currency_exponent], {TLV_NUMBER_BCD, 0, 1}};
+    &tlv_emv_base_fields[index_application_currency_exponent], {TLV_NUMBER_BCD, 0, 1}};
 static const tlv_codec_t codec_application_currency_exponent = {
     &codec_application_currency_exponent_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const tlv_schema_number_t codec_icc_public_key_exponent_rule = {
-    &emv_base_fields[index_icc_public_key_exponent], {TLV_NUMBER_BINARY_BE, 0, 0}};
+    &tlv_emv_base_fields[index_icc_public_key_exponent], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_icc_public_key_exponent = {
     &codec_icc_public_key_exponent_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 
@@ -980,367 +982,375 @@ static const tlv_definition_t definition_biometric_verification_data_template = 
     {tag_bf4e, 2}, "Biometric Verification Data Template"};
 
 static const tlv_emv_definition_t dictionary_BASE[] = {
-    {.definition = &definition_iin, .schema = &emv_base_fields[index_iin], .codec = &codec_iin},
-    {.definition = &definition_adf_name, .schema = &emv_base_fields[index_adf_name], .codec = NULL},
+    {.definition = &definition_iin, .schema = &tlv_emv_base_fields[index_iin], .codec = &codec_iin},
+    {.definition = &definition_adf_name,
+     .schema = &tlv_emv_base_fields[index_adf_name],
+     .codec = NULL},
     {.definition = &definition_application_label,
-     .schema = &emv_base_fields[index_application_label],
+     .schema = &tlv_emv_base_fields[index_application_label],
      .codec = NULL},
     {.definition = &definition_track2_equivalent_data,
-     .schema = &emv_base_fields[index_track2_equivalent_data],
+     .schema = &tlv_emv_base_fields[index_track2_equivalent_data],
      .codec = &codec_track2_equivalent_data},
-    {.definition = &definition_pan, .schema = &emv_base_fields[index_pan], .codec = &codec_pan},
+    {.definition = &definition_pan, .schema = &tlv_emv_base_fields[index_pan], .codec = &codec_pan},
     {.definition = &definition_application_template,
-     .schema = &emv_base_fields[index_application_template],
+     .schema = &tlv_emv_base_fields[index_application_template],
      .codec = NULL},
     {.definition = &definition_fci_template,
-     .schema = &emv_base_fields[index_fci_template],
+     .schema = &tlv_emv_base_fields[index_fci_template],
      .codec = NULL},
     {.definition = &definition_read_record_template,
-     .schema = &emv_base_fields[index_read_record_template],
+     .schema = &tlv_emv_base_fields[index_read_record_template],
      .codec = NULL},
     {.definition = &definition_issuer_script_template1,
-     .schema = &emv_base_fields[index_issuer_script_template1],
+     .schema = &tlv_emv_base_fields[index_issuer_script_template1],
      .codec = NULL},
     {.definition = &definition_issuer_script_template2,
-     .schema = &emv_base_fields[index_issuer_script_template2],
+     .schema = &tlv_emv_base_fields[index_issuer_script_template2],
      .codec = NULL},
     {.definition = &definition_directory_discretionary_template,
-     .schema = &emv_base_fields[index_directory_discretionary_template],
+     .schema = &tlv_emv_base_fields[index_directory_discretionary_template],
      .codec = NULL},
     {.definition = &definition_response_template2,
-     .schema = &emv_base_fields[index_response_template2],
+     .schema = &tlv_emv_base_fields[index_response_template2],
      .codec = NULL},
     {.definition = &definition_response_template1,
-     .schema = &emv_base_fields[index_response_template1],
+     .schema = &tlv_emv_base_fields[index_response_template1],
      .codec = NULL},
     {.definition = &definition_amount_authorised_binary,
-     .schema = &emv_base_fields[index_amount_authorised_binary],
+     .schema = &tlv_emv_base_fields[index_amount_authorised_binary],
      .codec = &codec_amount_authorised_binary},
-    {.definition = &definition_aip, .schema = &emv_base_fields[index_aip], .codec = &codec_aip},
+    {.definition = &definition_aip, .schema = &tlv_emv_base_fields[index_aip], .codec = &codec_aip},
     {.definition = &definition_command_template,
-     .schema = &emv_base_fields[index_command_template],
+     .schema = &tlv_emv_base_fields[index_command_template],
      .codec = NULL},
-    {.definition = &definition_df_name, .schema = &emv_base_fields[index_df_name], .codec = NULL},
+    {.definition = &definition_df_name,
+     .schema = &tlv_emv_base_fields[index_df_name],
+     .codec = NULL},
     {.definition = &definition_issuer_script_command,
-     .schema = &emv_base_fields[index_issuer_script_command],
+     .schema = &tlv_emv_base_fields[index_issuer_script_command],
      .codec = NULL},
     {.definition = &definition_application_priority_indicator,
-     .schema = &emv_base_fields[index_application_priority_indicator],
+     .schema = &tlv_emv_base_fields[index_application_priority_indicator],
      .codec = &codec_application_priority_indicator},
-    {.definition = &definition_sfi, .schema = &emv_base_fields[index_sfi], .codec = &codec_sfi},
+    {.definition = &definition_sfi, .schema = &tlv_emv_base_fields[index_sfi], .codec = &codec_sfi},
     {.definition = &definition_authorisation_code,
-     .schema = &emv_base_fields[index_authorisation_code],
+     .schema = &tlv_emv_base_fields[index_authorisation_code],
      .codec = NULL},
     {.definition = &definition_authorisation_response_code,
-     .schema = &emv_base_fields[index_authorisation_response_code],
+     .schema = &tlv_emv_base_fields[index_authorisation_response_code],
      .codec = NULL},
-    {.definition = &definition_cdol1, .schema = &emv_base_fields[index_cdol1], .codec = NULL},
-    {.definition = &definition_cdol2, .schema = &emv_base_fields[index_cdol2], .codec = NULL},
-    {.definition = &definition_cvm_list, .schema = &emv_base_fields[index_cvm_list], .codec = NULL},
+    {.definition = &definition_cdol1, .schema = &tlv_emv_base_fields[index_cdol1], .codec = NULL},
+    {.definition = &definition_cdol2, .schema = &tlv_emv_base_fields[index_cdol2], .codec = NULL},
+    {.definition = &definition_cvm_list,
+     .schema = &tlv_emv_base_fields[index_cvm_list],
+     .codec = NULL},
     {.definition = &definition_ca_public_key_index,
-     .schema = &emv_base_fields[index_ca_public_key_index],
+     .schema = &tlv_emv_base_fields[index_ca_public_key_index],
      .codec = &codec_ca_public_key_index},
     {.definition = &definition_issuer_public_key_certificate,
-     .schema = &emv_base_fields[index_issuer_public_key_certificate],
+     .schema = &tlv_emv_base_fields[index_issuer_public_key_certificate],
      .codec = NULL},
     {.definition = &definition_issuer_authentication_data,
-     .schema = &emv_base_fields[index_issuer_authentication_data],
+     .schema = &tlv_emv_base_fields[index_issuer_authentication_data],
      .codec = NULL},
     {.definition = &definition_issuer_public_key_remainder,
-     .schema = &emv_base_fields[index_issuer_public_key_remainder],
+     .schema = &tlv_emv_base_fields[index_issuer_public_key_remainder],
      .codec = NULL},
     {.definition = &definition_signed_static_application_data,
-     .schema = &emv_base_fields[index_signed_static_application_data],
+     .schema = &tlv_emv_base_fields[index_signed_static_application_data],
      .codec = NULL},
-    {.definition = &definition_afl, .schema = &emv_base_fields[index_afl], .codec = &codec_afl},
-    {.definition = &definition_tvr, .schema = &emv_base_fields[index_tvr], .codec = &codec_tvr},
-    {.definition = &definition_tdol, .schema = &emv_base_fields[index_tdol], .codec = NULL},
+    {.definition = &definition_afl, .schema = &tlv_emv_base_fields[index_afl], .codec = &codec_afl},
+    {.definition = &definition_tvr, .schema = &tlv_emv_base_fields[index_tvr], .codec = &codec_tvr},
+    {.definition = &definition_tdol, .schema = &tlv_emv_base_fields[index_tdol], .codec = NULL},
     {.definition = &definition_tc_hash_value,
-     .schema = &emv_base_fields[index_tc_hash_value],
+     .schema = &tlv_emv_base_fields[index_tc_hash_value],
      .codec = NULL},
     {.definition = &definition_transaction_pin_data,
-     .schema = &emv_base_fields[index_transaction_pin_data],
+     .schema = &tlv_emv_base_fields[index_transaction_pin_data],
      .codec = NULL},
     {.definition = &definition_transaction_date,
-     .schema = &emv_base_fields[index_transaction_date],
+     .schema = &tlv_emv_base_fields[index_transaction_date],
      .codec = &codec_transaction_date},
-    {.definition = &definition_tsi, .schema = &emv_base_fields[index_tsi], .codec = &codec_tsi},
+    {.definition = &definition_tsi, .schema = &tlv_emv_base_fields[index_tsi], .codec = &codec_tsi},
     {.definition = &definition_transaction_type,
-     .schema = &emv_base_fields[index_transaction_type],
+     .schema = &tlv_emv_base_fields[index_transaction_type],
      .codec = &codec_transaction_type},
-    {.definition = &definition_ddf_name, .schema = &emv_base_fields[index_ddf_name], .codec = NULL},
+    {.definition = &definition_ddf_name,
+     .schema = &tlv_emv_base_fields[index_ddf_name],
+     .codec = NULL},
     {.definition = &definition_fci_proprietary_template,
-     .schema = &emv_base_fields[index_fci_proprietary_template],
+     .schema = &tlv_emv_base_fields[index_fci_proprietary_template],
      .codec = NULL},
     {.definition = &definition_cardholder_name,
-     .schema = &emv_base_fields[index_cardholder_name],
+     .schema = &tlv_emv_base_fields[index_cardholder_name],
      .codec = NULL},
     {.definition = &definition_application_expiration_date,
-     .schema = &emv_base_fields[index_application_expiration_date],
+     .schema = &tlv_emv_base_fields[index_application_expiration_date],
      .codec = &codec_application_expiration_date},
     {.definition = &definition_application_effective_date,
-     .schema = &emv_base_fields[index_application_effective_date],
+     .schema = &tlv_emv_base_fields[index_application_effective_date],
      .codec = &codec_application_effective_date},
     {.definition = &definition_issuer_country_code,
-     .schema = &emv_base_fields[index_issuer_country_code],
+     .schema = &tlv_emv_base_fields[index_issuer_country_code],
      .codec = &codec_issuer_country_code},
     {.definition = &definition_transaction_currency_code,
-     .schema = &emv_base_fields[index_transaction_currency_code],
+     .schema = &tlv_emv_base_fields[index_transaction_currency_code],
      .codec = &codec_transaction_currency_code},
     {.definition = &definition_language_preference,
-     .schema = &emv_base_fields[index_language_preference],
+     .schema = &tlv_emv_base_fields[index_language_preference],
      .codec = NULL},
     {.definition = &definition_service_code,
-     .schema = &emv_base_fields[index_service_code],
+     .schema = &tlv_emv_base_fields[index_service_code],
      .codec = &codec_service_code},
     {.definition = &definition_pan_sequence_number,
-     .schema = &emv_base_fields[index_pan_sequence_number],
+     .schema = &tlv_emv_base_fields[index_pan_sequence_number],
      .codec = &codec_pan_sequence_number},
     {.definition = &definition_transaction_currency_exponent,
-     .schema = &emv_base_fields[index_transaction_currency_exponent],
+     .schema = &tlv_emv_base_fields[index_transaction_currency_exponent],
      .codec = &codec_transaction_currency_exponent},
     {.definition = &definition_issuer_url,
-     .schema = &emv_base_fields[index_issuer_url],
+     .schema = &tlv_emv_base_fields[index_issuer_url],
      .codec = NULL},
-    {.definition = &definition_iban, .schema = &emv_base_fields[index_iban], .codec = NULL},
-    {.definition = &definition_bic, .schema = &emv_base_fields[index_bic], .codec = NULL},
+    {.definition = &definition_iban, .schema = &tlv_emv_base_fields[index_iban], .codec = NULL},
+    {.definition = &definition_bic, .schema = &tlv_emv_base_fields[index_bic], .codec = NULL},
     {.definition = &definition_issuer_country_alpha2,
-     .schema = &emv_base_fields[index_issuer_country_alpha2],
+     .schema = &tlv_emv_base_fields[index_issuer_country_alpha2],
      .codec = NULL},
     {.definition = &definition_issuer_country_alpha3,
-     .schema = &emv_base_fields[index_issuer_country_alpha3],
+     .schema = &tlv_emv_base_fields[index_issuer_country_alpha3],
      .codec = NULL},
     {.definition = &definition_account_type,
-     .schema = &emv_base_fields[index_account_type],
+     .schema = &tlv_emv_base_fields[index_account_type],
      .codec = &codec_account_type},
     {.definition = &definition_biometric_information_template,
-     .schema = &emv_base_fields[index_biometric_information_template],
+     .schema = &tlv_emv_base_fields[index_biometric_information_template],
      .codec = NULL},
     {.definition = &definition_acquirer_identifier,
-     .schema = &emv_base_fields[index_acquirer_identifier],
+     .schema = &tlv_emv_base_fields[index_acquirer_identifier],
      .codec = &codec_acquirer_identifier},
     {.definition = &definition_amount_authorised,
-     .schema = &emv_base_fields[index_amount_authorised],
+     .schema = &tlv_emv_base_fields[index_amount_authorised],
      .codec = &tlv_emv_codec_amount},
     {.definition = &definition_amount_other,
-     .schema = &emv_base_fields[index_amount_other],
+     .schema = &tlv_emv_base_fields[index_amount_other],
      .codec = &codec_amount_other},
     {.definition = &definition_amount_other_binary,
-     .schema = &emv_base_fields[index_amount_other_binary],
+     .schema = &tlv_emv_base_fields[index_amount_other_binary],
      .codec = &codec_amount_other_binary},
     {.definition = &definition_application_discretionary_data,
-     .schema = &emv_base_fields[index_application_discretionary_data],
+     .schema = &tlv_emv_base_fields[index_application_discretionary_data],
      .codec = NULL},
     {.definition = &definition_aid_terminal,
-     .schema = &emv_base_fields[index_aid_terminal],
+     .schema = &tlv_emv_base_fields[index_aid_terminal],
      .codec = NULL},
     {.definition = &definition_application_usage_control,
-     .schema = &emv_base_fields[index_application_usage_control],
+     .schema = &tlv_emv_base_fields[index_application_usage_control],
      .codec = &codec_application_usage_control},
     {.definition = &definition_application_version_card,
-     .schema = &emv_base_fields[index_application_version_card],
+     .schema = &tlv_emv_base_fields[index_application_version_card],
      .codec = &codec_application_version_card},
     {.definition = &definition_application_version_terminal,
-     .schema = &emv_base_fields[index_application_version_terminal],
+     .schema = &tlv_emv_base_fields[index_application_version_terminal],
      .codec = &codec_application_version_terminal},
-    {.definition = &definition_asrpd, .schema = &emv_base_fields[index_asrpd], .codec = NULL},
+    {.definition = &definition_asrpd, .schema = &tlv_emv_base_fields[index_asrpd], .codec = NULL},
     {.definition = &definition_cardholder_name_extended,
-     .schema = &emv_base_fields[index_cardholder_name_extended],
+     .schema = &tlv_emv_base_fields[index_cardholder_name_extended],
      .codec = NULL},
     {.definition = &definition_iin_extended,
-     .schema = &emv_base_fields[index_iin_extended],
+     .schema = &tlv_emv_base_fields[index_iin_extended],
      .codec = &codec_iin_extended},
     {.definition = &definition_issuer_action_code_default,
-     .schema = &emv_base_fields[index_issuer_action_code_default],
+     .schema = &tlv_emv_base_fields[index_issuer_action_code_default],
      .codec = &codec_issuer_action_code_default},
     {.definition = &definition_issuer_action_code_denial,
-     .schema = &emv_base_fields[index_issuer_action_code_denial],
+     .schema = &tlv_emv_base_fields[index_issuer_action_code_denial],
      .codec = &codec_issuer_action_code_denial},
     {.definition = &definition_issuer_action_code_online,
-     .schema = &emv_base_fields[index_issuer_action_code_online],
+     .schema = &tlv_emv_base_fields[index_issuer_action_code_online],
      .codec = &codec_issuer_action_code_online},
     {.definition = &definition_issuer_application_data,
-     .schema = &emv_base_fields[index_issuer_application_data],
+     .schema = &tlv_emv_base_fields[index_issuer_application_data],
      .codec = NULL},
     {.definition = &definition_issuer_code_table_index,
-     .schema = &emv_base_fields[index_issuer_code_table_index],
+     .schema = &tlv_emv_base_fields[index_issuer_code_table_index],
      .codec = &codec_issuer_code_table_index},
     {.definition = &definition_application_preferred_name,
-     .schema = &emv_base_fields[index_application_preferred_name],
+     .schema = &tlv_emv_base_fields[index_application_preferred_name],
      .codec = NULL},
     {.definition = &definition_last_online_atc,
-     .schema = &emv_base_fields[index_last_online_atc],
+     .schema = &tlv_emv_base_fields[index_last_online_atc],
      .codec = &codec_last_online_atc},
     {.definition = &definition_lower_consecutive_offline_limit,
-     .schema = &emv_base_fields[index_lower_consecutive_offline_limit],
+     .schema = &tlv_emv_base_fields[index_lower_consecutive_offline_limit],
      .codec = &codec_lower_consecutive_offline_limit},
     {.definition = &definition_merchant_category_code,
-     .schema = &emv_base_fields[index_merchant_category_code],
+     .schema = &tlv_emv_base_fields[index_merchant_category_code],
      .codec = &codec_merchant_category_code},
     {.definition = &definition_merchant_identifier,
-     .schema = &emv_base_fields[index_merchant_identifier],
+     .schema = &tlv_emv_base_fields[index_merchant_identifier],
      .codec = NULL},
     {.definition = &definition_pin_try_counter,
-     .schema = &emv_base_fields[index_pin_try_counter],
+     .schema = &tlv_emv_base_fields[index_pin_try_counter],
      .codec = &codec_pin_try_counter},
     {.definition = &definition_issuer_script_identifier,
-     .schema = &emv_base_fields[index_issuer_script_identifier],
+     .schema = &tlv_emv_base_fields[index_issuer_script_identifier],
      .codec = NULL},
     {.definition = &definition_token_requestor_id,
-     .schema = &emv_base_fields[index_token_requestor_id],
+     .schema = &tlv_emv_base_fields[index_token_requestor_id],
      .codec = &codec_token_requestor_id},
     {.definition = &definition_terminal_country_code,
-     .schema = &emv_base_fields[index_terminal_country_code],
+     .schema = &tlv_emv_base_fields[index_terminal_country_code],
      .codec = &codec_terminal_country_code},
     {.definition = &definition_terminal_floor_limit,
-     .schema = &emv_base_fields[index_terminal_floor_limit],
+     .schema = &tlv_emv_base_fields[index_terminal_floor_limit],
      .codec = &codec_terminal_floor_limit},
     {.definition = &definition_terminal_identification,
-     .schema = &emv_base_fields[index_terminal_identification],
+     .schema = &tlv_emv_base_fields[index_terminal_identification],
      .codec = NULL},
     {.definition = &definition_terminal_risk_management_data,
-     .schema = &emv_base_fields[index_terminal_risk_management_data],
+     .schema = &tlv_emv_base_fields[index_terminal_risk_management_data],
      .codec = NULL},
     {.definition = &definition_ifd_serial_number,
-     .schema = &emv_base_fields[index_ifd_serial_number],
+     .schema = &tlv_emv_base_fields[index_ifd_serial_number],
      .codec = NULL},
     {.definition = &definition_track1_discretionary_data,
-     .schema = &emv_base_fields[index_track1_discretionary_data],
+     .schema = &tlv_emv_base_fields[index_track1_discretionary_data],
      .codec = NULL},
     {.definition = &definition_track2_discretionary_data,
-     .schema = &emv_base_fields[index_track2_discretionary_data],
+     .schema = &tlv_emv_base_fields[index_track2_discretionary_data],
      .codec = &codec_track2_discretionary_data},
     {.definition = &definition_transaction_time,
-     .schema = &emv_base_fields[index_transaction_time],
+     .schema = &tlv_emv_base_fields[index_transaction_time],
      .codec = &codec_transaction_time},
     {.definition = &definition_ca_public_key_index_terminal,
-     .schema = &emv_base_fields[index_ca_public_key_index_terminal],
+     .schema = &tlv_emv_base_fields[index_ca_public_key_index_terminal],
      .codec = &codec_ca_public_key_index_terminal},
     {.definition = &definition_upper_consecutive_offline_limit,
-     .schema = &emv_base_fields[index_upper_consecutive_offline_limit],
+     .schema = &tlv_emv_base_fields[index_upper_consecutive_offline_limit],
      .codec = &codec_upper_consecutive_offline_limit},
     {.definition = &definition_payment_account_reference,
-     .schema = &emv_base_fields[index_payment_account_reference],
+     .schema = &tlv_emv_base_fields[index_payment_account_reference],
      .codec = NULL},
     {.definition = &definition_last4_pan,
-     .schema = &emv_base_fields[index_last4_pan],
+     .schema = &tlv_emv_base_fields[index_last4_pan],
      .codec = &codec_last4_pan},
     {.definition = &definition_application_cryptogram,
-     .schema = &emv_base_fields[index_application_cryptogram],
+     .schema = &tlv_emv_base_fields[index_application_cryptogram],
      .codec = NULL},
     {.definition = &definition_cryptogram_information_data,
-     .schema = &emv_base_fields[index_cryptogram_information_data],
+     .schema = &tlv_emv_base_fields[index_cryptogram_information_data],
      .codec = &codec_cryptogram_information_data},
     {.definition = &definition_icc_pin_public_key_certificate,
-     .schema = &emv_base_fields[index_icc_pin_public_key_certificate],
+     .schema = &tlv_emv_base_fields[index_icc_pin_public_key_certificate],
      .codec = NULL},
     {.definition = &definition_icc_pin_public_key_exponent,
-     .schema = &emv_base_fields[index_icc_pin_public_key_exponent],
+     .schema = &tlv_emv_base_fields[index_icc_pin_public_key_exponent],
      .codec = &codec_icc_pin_public_key_exponent},
     {.definition = &definition_icc_pin_public_key_remainder,
-     .schema = &emv_base_fields[index_icc_pin_public_key_remainder],
+     .schema = &tlv_emv_base_fields[index_icc_pin_public_key_remainder],
      .codec = NULL},
     {.definition = &definition_biometric_terminal_capabilities,
-     .schema = &emv_base_fields[index_biometric_terminal_capabilities],
+     .schema = &tlv_emv_base_fields[index_biometric_terminal_capabilities],
      .codec = &codec_biometric_terminal_capabilities},
     {.definition = &definition_card_bit_group_template,
-     .schema = &emv_base_fields[index_card_bit_group_template],
+     .schema = &tlv_emv_base_fields[index_card_bit_group_template],
      .codec = NULL},
     {.definition = &definition_issuer_public_key_exponent,
-     .schema = &emv_base_fields[index_issuer_public_key_exponent],
+     .schema = &tlv_emv_base_fields[index_issuer_public_key_exponent],
      .codec = &codec_issuer_public_key_exponent},
     {.definition = &definition_terminal_capabilities,
-     .schema = &emv_base_fields[index_terminal_capabilities],
+     .schema = &tlv_emv_base_fields[index_terminal_capabilities],
      .codec = &codec_terminal_capabilities},
     {.definition = &definition_cvm_results,
-     .schema = &emv_base_fields[index_cvm_results],
+     .schema = &tlv_emv_base_fields[index_cvm_results],
      .codec = &codec_cvm_results},
     {.definition = &definition_terminal_type,
-     .schema = &emv_base_fields[index_terminal_type],
+     .schema = &tlv_emv_base_fields[index_terminal_type],
      .codec = &codec_terminal_type},
-    {.definition = &definition_atc, .schema = &emv_base_fields[index_atc], .codec = &codec_atc},
+    {.definition = &definition_atc, .schema = &tlv_emv_base_fields[index_atc], .codec = &codec_atc},
     {.definition = &definition_unpredictable_number,
-     .schema = &emv_base_fields[index_unpredictable_number],
+     .schema = &tlv_emv_base_fields[index_unpredictable_number],
      .codec = NULL},
-    {.definition = &definition_pdol, .schema = &emv_base_fields[index_pdol], .codec = NULL},
+    {.definition = &definition_pdol, .schema = &tlv_emv_base_fields[index_pdol], .codec = NULL},
     {.definition = &definition_pos_entry_mode,
-     .schema = &emv_base_fields[index_pos_entry_mode],
+     .schema = &tlv_emv_base_fields[index_pos_entry_mode],
      .codec = &codec_pos_entry_mode},
     {.definition = &definition_amount_reference_currency,
-     .schema = &emv_base_fields[index_amount_reference_currency],
+     .schema = &tlv_emv_base_fields[index_amount_reference_currency],
      .codec = &codec_amount_reference_currency},
     {.definition = &definition_application_reference_currency,
-     .schema = &emv_base_fields[index_application_reference_currency],
+     .schema = &tlv_emv_base_fields[index_application_reference_currency],
      .codec = &codec_application_reference_currency},
     {.definition = &definition_transaction_reference_currency_code,
-     .schema = &emv_base_fields[index_transaction_reference_currency_code],
+     .schema = &tlv_emv_base_fields[index_transaction_reference_currency_code],
      .codec = &codec_transaction_reference_currency_code},
     {.definition = &definition_transaction_reference_currency_exponent,
-     .schema = &emv_base_fields[index_transaction_reference_currency_exponent],
+     .schema = &tlv_emv_base_fields[index_transaction_reference_currency_exponent],
      .codec = &codec_transaction_reference_currency_exponent},
     {.definition = &definition_additional_terminal_capabilities,
-     .schema = &emv_base_fields[index_additional_terminal_capabilities],
+     .schema = &tlv_emv_base_fields[index_additional_terminal_capabilities],
      .codec = &codec_additional_terminal_capabilities},
     {.definition = &definition_transaction_sequence_counter,
-     .schema = &emv_base_fields[index_transaction_sequence_counter],
+     .schema = &tlv_emv_base_fields[index_transaction_sequence_counter],
      .codec = &codec_transaction_sequence_counter},
     {.definition = &definition_application_currency_code,
-     .schema = &emv_base_fields[index_application_currency_code],
+     .schema = &tlv_emv_base_fields[index_application_currency_code],
      .codec = &codec_application_currency_code},
     {.definition = &definition_application_reference_currency_exponent,
-     .schema = &emv_base_fields[index_application_reference_currency_exponent],
+     .schema = &tlv_emv_base_fields[index_application_reference_currency_exponent],
      .codec = &codec_application_reference_currency_exponent},
     {.definition = &definition_application_currency_exponent,
-     .schema = &emv_base_fields[index_application_currency_exponent],
+     .schema = &tlv_emv_base_fields[index_application_currency_exponent],
      .codec = &codec_application_currency_exponent},
     {.definition = &definition_data_authentication_code,
-     .schema = &emv_base_fields[index_data_authentication_code],
+     .schema = &tlv_emv_base_fields[index_data_authentication_code],
      .codec = NULL},
     {.definition = &definition_icc_public_key_certificate,
-     .schema = &emv_base_fields[index_icc_public_key_certificate],
+     .schema = &tlv_emv_base_fields[index_icc_public_key_certificate],
      .codec = NULL},
     {.definition = &definition_icc_public_key_exponent,
-     .schema = &emv_base_fields[index_icc_public_key_exponent],
+     .schema = &tlv_emv_base_fields[index_icc_public_key_exponent],
      .codec = &codec_icc_public_key_exponent},
     {.definition = &definition_icc_public_key_remainder,
-     .schema = &emv_base_fields[index_icc_public_key_remainder],
+     .schema = &tlv_emv_base_fields[index_icc_public_key_remainder],
      .codec = NULL},
-    {.definition = &definition_ddol, .schema = &emv_base_fields[index_ddol], .codec = NULL},
+    {.definition = &definition_ddol, .schema = &tlv_emv_base_fields[index_ddol], .codec = NULL},
     {.definition = &definition_sda_tag_list,
-     .schema = &emv_base_fields[index_sda_tag_list],
+     .schema = &tlv_emv_base_fields[index_sda_tag_list],
      .codec = NULL},
     {.definition = &definition_signed_dynamic_application_data,
-     .schema = &emv_base_fields[index_signed_dynamic_application_data],
+     .schema = &tlv_emv_base_fields[index_signed_dynamic_application_data],
      .codec = NULL},
     {.definition = &definition_icc_dynamic_number,
-     .schema = &emv_base_fields[index_icc_dynamic_number],
+     .schema = &tlv_emv_base_fields[index_icc_dynamic_number],
      .codec = NULL},
     {.definition = &definition_log_entry,
-     .schema = &emv_base_fields[index_log_entry],
+     .schema = &tlv_emv_base_fields[index_log_entry],
      .codec = NULL},
     {.definition = &definition_merchant_name_and_location,
-     .schema = &emv_base_fields[index_merchant_name_and_location],
+     .schema = &tlv_emv_base_fields[index_merchant_name_and_location],
      .codec = NULL},
     {.definition = &definition_log_format,
-     .schema = &emv_base_fields[index_log_format],
+     .schema = &tlv_emv_base_fields[index_log_format],
      .codec = NULL},
     {.definition = &definition_fci_issuer_discretionary_data,
-     .schema = &emv_base_fields[index_fci_issuer_discretionary_data],
+     .schema = &tlv_emv_base_fields[index_fci_issuer_discretionary_data],
      .codec = NULL},
     {.definition = &definition_offline_bit_group_template,
-     .schema = &emv_base_fields[index_offline_bit_group_template],
+     .schema = &tlv_emv_base_fields[index_offline_bit_group_template],
      .codec = NULL},
     {.definition = &definition_online_bit_group_template,
-     .schema = &emv_base_fields[index_online_bit_group_template],
+     .schema = &tlv_emv_base_fields[index_online_bit_group_template],
      .codec = NULL},
     {.definition = &definition_biometric_try_counters_template,
-     .schema = &emv_base_fields[index_biometric_try_counters_template],
+     .schema = &tlv_emv_base_fields[index_biometric_try_counters_template],
      .codec = NULL},
     {.definition = &definition_preferred_attempts_template,
-     .schema = &emv_base_fields[index_preferred_attempts_template],
+     .schema = &tlv_emv_base_fields[index_preferred_attempts_template],
      .codec = NULL},
     {.definition = &definition_biometric_verification_data_template,
-     .schema = &emv_base_fields[index_biometric_verification_data_template],
+     .schema = &tlv_emv_base_fields[index_biometric_verification_data_template],
      .codec = NULL},
 };
 
@@ -1400,8 +1410,8 @@ static const tlv_codec_t codec_biometric_header_version = {
     &codec_biometric_header_version_rule, tlv_schema_number_decode, tlv_schema_number_encode};
 static const emv_value_rule_t codec_biometric_type_rule = {&schema_BHT[index_biometric_type],
                                                            EMV_REP_BIOMETRIC, 0};
-static const tlv_codec_t codec_biometric_type = {&codec_biometric_type_rule, emv_value_decode,
-                                                 emv_value_encode};
+static const tlv_codec_t codec_biometric_type = {&codec_biometric_type_rule, tlv_emv_value_decode,
+                                                 tlv_emv_value_encode};
 static const tlv_schema_number_t codec_biometric_subtype_rule = {
     &schema_BHT[index_biometric_subtype], {TLV_NUMBER_BINARY_BE, 0, 0}};
 static const tlv_codec_t codec_biometric_subtype = {
@@ -1678,7 +1688,7 @@ static const tlv_schema_entry_t schema_BIOMETRIC_VERIFICATION[] = {
 static const emv_value_rule_t codec_verification_biometric_type_rule = {
     &schema_BIOMETRIC_VERIFICATION[index_verification_biometric_type], EMV_REP_BIOMETRIC, 0};
 static const tlv_codec_t codec_verification_biometric_type = {
-    &codec_verification_biometric_type_rule, emv_value_decode, emv_value_encode};
+    &codec_verification_biometric_type_rule, tlv_emv_value_decode, tlv_emv_value_encode};
 
 static const tlv_definition_t definition_verification_biometric_type = {
     {tag_81, 1}, "Verification Biometric Type"};
@@ -1709,7 +1719,7 @@ static const tlv_emv_definition_t dictionary_BIOMETRIC_VERIFICATION[] = {
 };
 
 static const tlv_schema_t schemas[] = {
-    [TLV_EMV_CONTEXT_BASE] = {emv_base_fields, count_BASE},
+    [TLV_EMV_CONTEXT_BASE] = {tlv_emv_base_fields, count_BASE},
     [TLV_EMV_CONTEXT_BIT] = {schema_BIT, count_BIT},
     [TLV_EMV_CONTEXT_BHT] = {schema_BHT, count_BHT},
     [TLV_EMV_CONTEXT_BHT_FORMAT] = {schema_BHT_FORMAT, count_BHT_FORMAT},
@@ -1732,7 +1742,7 @@ static const tlv_emv_dictionary_t dictionaries[] = {
     [TLV_EMV_CONTEXT_BIOMETRIC_VERIFICATION] = {dictionary_BIOMETRIC_VERIFICATION,
                                                 count_BIOMETRIC_VERIFICATION},
 };
-const tlv_schema_t tlv_emv_schema = {emv_base_fields, count_BASE};
+const tlv_schema_t tlv_emv_schema = {tlv_emv_base_fields, count_BASE};
 
 const tlv_schema_t* tlv_emv_schema_for(tlv_emv_context_t context) {
     if ((unsigned)context >= TLV_EMV_CONTEXT_COUNT) return NULL;

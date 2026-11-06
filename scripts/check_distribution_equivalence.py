@@ -276,6 +276,11 @@ def verify(args):
             amalgamated = symbols(nm, [(work / "amalgamation/build" / f"library-{args.config}.txt").read_text()],
                                   work / "symbols-amalgamation.log")
             equal_scenarios(conventional, amalgamated, "external symbols")
+            allowlist = {name for row in modules for kind in ("public", "owner", "internal")
+                         for name in row[kind + "_symbols"]}
+            require(set(amalgamated) == allowlist,
+                    f"external symbols differ from the registry allowlist: "
+                    f"{sorted(set(amalgamated) ^ allowlist)}")
             report["external_symbols"] = len(conventional)
         report["status"] = "passed"
         report.pop("active_variant", None)

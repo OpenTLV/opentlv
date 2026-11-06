@@ -9,7 +9,7 @@ include(GenerateExportHeader)
 # This helper is for extracted modules, not aliases to the legacy monolith.
 function(opentlv_add_module key)
     cmake_parse_arguments(M "FACADE;BUILTIN" "OWNER;EXPORT_NAME;INCLUDE_DIR;CONSUMER"
-        "SOURCES;PUBLIC_HEADERS;GENERATED_HEADERS;PRIVATE_HEADERS;PUBLIC_DEPS;PRIVATE_DEPS;PUBLIC_SYMBOLS;OWNER_SYMBOLS" ${ARGN})
+        "SOURCES;PUBLIC_HEADERS;GENERATED_HEADERS;PRIVATE_HEADERS;PUBLIC_DEPS;PRIVATE_DEPS;PUBLIC_SYMBOLS;OWNER_SYMBOLS;INTERNAL_SYMBOLS" ${ARGN})
     if(M_UNPARSED_ARGUMENTS OR NOT key MATCHES "^[a-z][a-z0-9-]*$" OR
        NOT M_EXPORT_NAME MATCHES "^[A-Za-z][A-Za-z0-9_+-]*$" OR NOT M_CONSUMER OR
        NOT M_INCLUDE_DIR OR NOT M_PUBLIC_HEADERS)
@@ -45,7 +45,8 @@ function(opentlv_add_module key)
         set(M_${field} "${paths}")
     endforeach()
     if(M_FACADE)
-        if(M_SOURCES OR M_GENERATED_HEADERS OR M_PRIVATE_DEPS OR M_PUBLIC_SYMBOLS OR M_OWNER_SYMBOLS)
+        if(M_SOURCES OR M_GENERATED_HEADERS OR M_PRIVATE_DEPS OR M_PUBLIC_SYMBOLS OR M_OWNER_SYMBOLS OR
+           M_INTERNAL_SYMBOLS)
             message(FATAL_ERROR "Facade ${key}: only headers and public dependencies are allowed")
         endif()
         add_library(${target} INTERFACE)
@@ -55,6 +56,19 @@ function(opentlv_add_module key)
         if(NOT M_SOURCES OR NOT M_PUBLIC_SYMBOLS)
             message(FATAL_ERROR "Module ${key}: declare sources and public symbols")
         endif()
+        # Every external symbol is allowlisted in exactly one category, and
+        # all of them stay in the reserved tlv_ namespace (amalgamation.md).
+        set(symbols ${M_PUBLIC_SYMBOLS} ${M_OWNER_SYMBOLS} ${M_INTERNAL_SYMBOLS})
+        set(unique ${symbols})
+        list(REMOVE_DUPLICATES unique)
+        if(NOT symbols STREQUAL unique)
+            message(FATAL_ERROR "Module ${key}: a symbol is declared twice")
+        endif()
+        foreach(symbol IN LISTS symbols)
+            if(NOT symbol MATCHES "^tlv_[a-z0-9_]+$")
+                message(FATAL_ERROR "Module ${key}: symbol ${symbol} is outside the tlv_ namespace")
+            endif()
+        endforeach()
         set(kind STATIC)
         if(OPENTLV_BUILD_SHARED_LIBS)
             set(kind SHARED)
@@ -108,7 +122,7 @@ function(opentlv_add_module key)
     set_property(GLOBAL PROPERTY OPENTLV_MODULE_${key} "${target}")
     foreach(field IN ITEMS OWNER EXPORT_NAME INCLUDE_DIR CONSUMER SOURCES PUBLIC_HEADERS
             GENERATED_HEADERS PRIVATE_HEADERS PUBLIC_DEPS PRIVATE_DEPS PUBLIC_SYMBOLS OWNER_SYMBOLS
-            FACADE BUILTIN)
+            INTERNAL_SYMBOLS FACADE BUILTIN)
         # INTERFACE_ custom properties also work on interface targets in CMake 3.16.
         set_property(TARGET ${target} PROPERTY INTERFACE_OPENTLV_${field} "${M_${field}}")
     endforeach()
@@ -313,7 +327,7 @@ function(opentlv_finalize_modules)
         set(entry "\"key\":\"${key}\",\"target\":\"${target}\"")
         foreach(field IN ITEMS OWNER EXPORT_NAME INCLUDE_DIR CONSUMER SOURCES PUBLIC_HEADERS
                 GENERATED_HEADERS PRIVATE_HEADERS PUBLIC_DEPS PRIVATE_DEPS PUBLIC_SYMBOLS
-                OWNER_SYMBOLS FACADE CXX_HEADERS CXX_CONSUMER FACADE_DEPS BUILTIN)
+                OWNER_SYMBOLS INTERNAL_SYMBOLS FACADE CXX_HEADERS CXX_CONSUMER FACADE_DEPS BUILTIN)
             get_target_property(value ${target} INTERFACE_OPENTLV_${field})
             if(NOT value)
                 set(value)

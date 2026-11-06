@@ -33,17 +33,17 @@ struct tlv_document {
     uint64_t next_identity;
 };
 
-void* document_memory_allocate(const tlv_document_t* document, size_t size);
-void document_memory_release(const tlv_document_t* document, void* memory);
-tlv_tag_t document_node_tag(const tlv_node_t* node);
-tlv_document_source_location_t* document_node_location(tlv_node_t* node);
-void document_set_offset(tlv_reader_diagnostic_t* out, size_t offset);
-tlv_result_t document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
-                                  const uint8_t* value, size_t length, int constructed,
-                                  size_t depth, size_t element_offset,
-                                  tlv_reader_diagnostic_t* diagnostic, tlv_node_t** created);
-tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                                 size_t size, size_t depth, size_t base,
-                                 tlv_reader_diagnostic_t* diagnostic);
+void* tlv_document_memory_allocate(const tlv_document_t* document, size_t size);
+void tlv_document_memory_release(const tlv_document_t* document, void* memory);
+tlv_tag_t tlv_document_node_tag(const tlv_node_t* node);
+tlv_document_source_location_t* tlv_document_node_location(tlv_node_t* node);
+void tlv_document_set_offset(tlv_reader_diagnostic_t* out, size_t offset);
+tlv_result_t tlv_document_create_node(tlv_document_t* document, tlv_node_t* parent, tlv_tag_t tag,
+                                      const uint8_t* value, size_t length, int constructed,
+                                      size_t depth, size_t element_offset,
+                                      tlv_reader_diagnostic_t* diagnostic, tlv_node_t** created);
+tlv_result_t tlv_document_parse_list(tlv_document_t* document, tlv_node_t* parent,
+                                     const uint8_t* data, size_t size, size_t depth, size_t base,
+                                     tlv_reader_diagnostic_t* diagnostic);
 
 #endif

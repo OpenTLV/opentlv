@@ -87,6 +87,14 @@ if(_OPENTLV_TOP_LEVEL AND OPENTLV_BUILD_INTEGRATION_TESTS)
     set_tests_properties(amalgamation-c99 PROPERTIES LABELS "integration;amalgamation;no-memcheck")
 endif()
 
+# Symbol isolation (#763): historical unprefixed names in the consumer must not
+# collide with the static archives or interpose the shared modules.
+add_executable(symbol-collision amalgamation/collision.c)
+target_link_libraries(symbol-collision PRIVATE OpenTLV::Core OpenTLV::Document OpenTLV::Query
+    OpenTLV::QueryDocument OpenTLV::Codec OpenTLV::EMV)
+add_test(NAME symbol-collision COMMAND symbol-collision)
+set_tests_properties(symbol-collision PROPERTIES LABELS "integration;symbols")
+
 add_executable(capability-contract capabilities.c)
 target_link_libraries(capability-contract PRIVATE OpenTLV::Core OpenTLV::IO OpenTLV::Query OpenTLV::QueryDocument OpenTLV::Document OpenTLV::Schema OpenTLV::Codec)
 add_test(NAME capability-contract COMMAND capability-contract)

@@ -268,9 +268,9 @@ static int root_prefix(const tlv_query_exec_t* e, const query_node_t* root,
                                                 : event->depth == e->context_depth + 1);
 }
 
-tlv_result_t query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* event,
-                                 const query_node_t* n, query_value_t* out,
-                                 tlv_query_diagnostic_t* d) {
+tlv_result_t tlv_query_function_eval(tlv_query_exec_t* e, const tlv_tree_event_t* event,
+                                     const query_node_t* n, query_value_t* out,
+                                     tlv_query_diagnostic_t* d) {
     const tlv_query_program_t* p = e->program;
     const query_node_t* nodes = query_nodes(p);
     const query_value_t* values = execution_values(e);
@@ -562,7 +562,7 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
             }
             case Q_ARGS: out = b; break;
             case Q_CALL:
-                rc = query_function_eval(e, event, n, &out, d);
+                rc = tlv_query_function_eval(e, event, n, &out, d);
                 if (rc != TLV_OK) return rc;
                 break;
             default: return TLV_ERR_UNSUPPORTED;
@@ -579,7 +579,7 @@ static tlv_result_t evaluate(tlv_query_exec_t* e, const tlv_tree_event_t* event,
 /* Proven S1 subset: one root selector with local child/descendant evidence.
    Selected root scopes never overlap, so END order is also result preorder.
    Composition, nested contexts and projections conservatively use S2. */
-uint32_t query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root) {
+uint32_t tlv_query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root) {
     uint32_t filter = root;
     if (nodes[root].op == Q_CHILD && nodes[nodes[root].left].op == Q_ROOT &&
         !nodes[nodes[root].left].anchor)
@@ -604,7 +604,8 @@ uint32_t query_s1_filter(const query_node_t* nodes, size_t count, uint32_t root)
     return filter;
 }
 static tlv_result_t s1_decide(tlv_query_exec_t* e, int* matched, tlv_query_diagnostic_t* d) {
-    uint32_t filter = query_s1_filter(query_nodes(e->program), e->program->count, e->program->root);
+    uint32_t filter =
+        tlv_query_s1_filter(query_nodes(e->program), e->program->count, e->program->root);
     const query_node_t* nodes = query_nodes(e->program);
     uint32_t predicate = nodes[filter].right;
     query_value_t* values = execution_values(e);
@@ -649,7 +650,7 @@ static tlv_result_t s1_decide(tlv_query_exec_t* e, int* matched, tlv_query_diagn
 static tlv_result_t s1_feed(tlv_query_exec_t* e, const tlv_tree_event_t* event, int* matched,
                             tlv_query_diagnostic_t* d) {
     const query_node_t* nodes = query_nodes(e->program);
-    uint32_t filter = query_s1_filter(nodes, e->program->count, e->program->root);
+    uint32_t filter = tlv_query_s1_filter(nodes, e->program->count, e->program->root);
     if (e->has_context) return TLV_ERR_UNSUPPORTED;
     if (event->kind == TLV_TREE_END) return event->depth == 0 ? s1_decide(e, matched, d) : TLV_OK;
     if (!event->depth) {
@@ -746,7 +747,7 @@ tlv_result_t tlv_query_exec_feed(tlv_query_exec_t* e, const tlv_tree_event_t* ev
                event->depth != e->open || event->skipped)
         goto events;
     if (e->retained) {
-        rc = query_retained_feed(e, event, d);
+        rc = tlv_query_retained_feed(e, event, d);
         if (rc != TLV_OK) goto failure;
     }
     if (event->kind == TLV_TREE_END) {
@@ -856,7 +857,7 @@ tlv_result_t tlv_query_exec_finish(tlv_query_exec_t* e, tlv_query_diagnostic_t* 
     if (e->finished) return TLV_OK;
     if (e->retained) {
         e->busy = 1;
-        tlv_result_t rc = query_retained_finish(e, d);
+        tlv_result_t rc = tlv_query_retained_finish(e, d);
         if (!e->busy)
             rc = query_error_unlocated(d, TLV_ERR_INVALID_STATE, TLV_QUERY_ERROR_STATE,
                                        "callback preserves execution workspace");

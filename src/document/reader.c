@@ -29,10 +29,10 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
     if (depth > SIZE_MAX - builder->target_depth) return TLV_ERR_OVERFLOW;
     rc = tlv_size_to_native(item->element.value.size, &length);
     if (rc == TLV_OK)
-        rc = document_create_node(builder->document, builder->container, item->element.tag,
-                                  item->element.value.data, length, item->constructed,
-                                  builder->target_depth + depth, builder->base + item->offset,
-                                  diagnostic, &created);
+        rc = tlv_document_create_node(builder->document, builder->container, item->element.tag,
+                                      item->element.value.data, length, item->constructed,
+                                      builder->target_depth + depth, builder->base + item->offset,
+                                      diagnostic, &created);
     if (rc != TLV_OK && diagnostic) {
         memset(diagnostic, 0, sizeof *diagnostic);
         diagnostic->diagnostic.code = rc;
@@ -41,7 +41,7 @@ static tlv_result_t append_item(tlv_document_builder_t* builder, const tlv_tree_
         tlv_location_translate(&diagnostic->diagnostic.location, builder->base);
     }
     if (rc == TLV_OK && builder->retain_source_locations && item->source.data) {
-        tlv_document_source_location_t* location = document_node_location(created);
+        tlv_document_source_location_t* location = tlv_document_node_location(created);
         location->offset = item->offset;
         location->has_offset = 1;
         if (item->source.header.present && item->source.header.offset <= item->source.size &&
@@ -82,16 +82,16 @@ static tlv_result_t consume_tree(tlv_document_builder_t* builder,
     return TLV_OK;
 }
 
-tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, const uint8_t* data,
-                                 size_t size, size_t depth, size_t base,
-                                 tlv_reader_diagnostic_t* diagnostic) {
+tlv_result_t tlv_document_parse_list(tlv_document_t* document, tlv_node_t* parent,
+                                     const uint8_t* data, size_t size, size_t depth, size_t base,
+                                     tlv_reader_diagnostic_t* diagnostic) {
     tlv_tree_reader_t reader;
     tlv_tree_frame_t* frames = NULL;
     tlv_document_builder_t builder = {0};
     size_t capacity;
     tlv_result_t rc;
     if (size && depth > document->options.max_depth) {
-        document_set_offset(diagnostic, base);
+        tlv_document_set_offset(diagnostic, base);
         return TLV_ERR_LIMIT;
     }
     capacity = depth > document->options.max_depth ? 0 : document->options.max_depth - depth;
@@ -101,7 +101,8 @@ tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, c
         capacity = document->options.max_elements - document->count;
     if (capacity > SIZE_MAX / sizeof *frames) return TLV_ERR_OVERFLOW;
     if (capacity) {
-        frames = (tlv_tree_frame_t*)document_memory_allocate(document, capacity * sizeof *frames);
+        frames =
+            (tlv_tree_frame_t*)tlv_document_memory_allocate(document, capacity * sizeof *frames);
         if (!frames) return TLV_ERR_OUT_OF_MEMORY;
     }
     rc = tlv_tree_reader_init(&reader, data, size, document->options.format, frames, capacity,
@@ -115,7 +116,7 @@ tlv_result_t document_parse_list(tlv_document_t* document, tlv_node_t* parent, c
      * no coordinates in the original Document input. */
     builder.retain_source_locations = !parent && document->options.retain_source_locations;
     if (rc == TLV_OK) rc = consume_tree(&builder, diagnostic);
-    document_memory_release(document, frames);
+    tlv_document_memory_release(document, frames);
     return rc;
 }
 
@@ -133,7 +134,7 @@ tlv_result_t tlv_document_parse(const uint8_t* data, size_t size,
         if (diagnostic) diagnostic->diagnostic.code = rc;
         return rc;
     }
-    rc = document_parse_list(created, NULL, data, size, 0, 0, diagnostic);
+    rc = tlv_document_parse_list(created, NULL, data, size, 0, 0, diagnostic);
     if (rc != TLV_OK) {
         if (diagnostic) diagnostic->diagnostic.code = rc;
         tlv_document_free(created);
@@ -159,7 +160,7 @@ tlv_result_t tlv_document_builder_create(const tlv_document_options_t* options,
         return TLV_ERR_INVALID_ARG;
     rc = tlv_document_create(options, &document);
     if (rc != TLV_OK) return rc;
-    created = (tlv_document_builder_t*)document_memory_allocate(document, sizeof *created);
+    created = (tlv_document_builder_t*)tlv_document_memory_allocate(document, sizeof *created);
     if (!created) {
         tlv_document_free(document);
         return TLV_ERR_OUT_OF_MEMORY;

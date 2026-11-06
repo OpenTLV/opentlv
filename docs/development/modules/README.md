@@ -282,7 +282,7 @@ the other diagnostic name implementations to their owning directories:
 | `tlv_tree_writer_measure_events_observed()` | IO private helper without `tlv_` prefix | IO public API | `io-tree-measure` |
 | `tlv_document_query_*`, `tlv_document_find_path()` and their types | Document `document.h` | `query-document` | `document-query-boundary` |
 | `document_contains()`, `document_format()`, `document_node_tag()` | Document internals | Document public boundary | `document-query-boundary` |
-| `query_document_*`, `query_live_overlap()`, `query_retained_overlap()` | Query internals | Query owner-internal interface | `query-document-integration` |
+| `tlv_query_document_*`, `tlv_query_live_overlap()`, `tlv_query_retained_overlap()` | Query internals | Query owner-internal interface | `query-document-integration` |
 | `tlv_query_definition_resolve()` | `query-codec` `adapters.h` | Query | `query-codec-hooks` |
 | Query kind and cause names | Core `diagnostic_strings.c` | Query | `query-diagnostic-names` |
 | `tlv_codec_diagnostic_init()` and Codec names | Core `diagnostic.c`, `diagnostic_strings.c` | Codec | `codec-diagnostic-vocabulary` |
@@ -585,9 +585,11 @@ boundaries. Source selection belongs to the registering module.
 
 For an integration, set `OWNER` to its owning module and depend directly on that
 module. `OWNER_SYMBOLS` declares the owner's exported internal interfaces, which
-only integrations with the same owner may reference. Other hidden global
-functions remain private even in static archives. Integrations are real
-independently linkable targets, not aliases to their participants.
+only integrations with the same owner may reference. `INTERNAL_SYMBOLS` lists
+the hidden global functions and objects that the module's own translation units
+share; they remain private even in static archives. Every listed name starts
+with `tlv_` and appears in one list only. Integrations are real independently
+linkable targets, not aliases to their participants.
 
 A `FACADE` registration has public headers and public dependencies, no compiled
 sources, and a C++ `CONSUMER`. It propagates `cxx_std_11` through an `INTERFACE`
@@ -612,7 +614,8 @@ All compiled modules follow `OPENTLV_BUILD_SHARED_LIBS`. Shared targets use hidd
 default visibility, disable Windows automatic symbol export and export only
 their public or owner-internal symbol lists through their own macros. Static
 targets propagate their own static definition without suppressing another
-module's exports. The ELF symbol gate compares shared exports exactly and checks
+module's exports. The ELF symbol gate compares shared exports and the external
+definitions of each static archive exactly with the registered lists, and checks
 archive references against direct dependencies and symbol ownership.
 Installed shared modules locate adjacent dependencies through `$ORIGIN` on ELF
 or `@loader_path` on macOS, unless an installation RPATH was explicitly supplied.

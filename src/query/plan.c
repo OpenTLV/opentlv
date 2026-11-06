@@ -126,7 +126,7 @@ static int plan_types(const tlv_query_program_t* p) {
         if ((f == F_CLASS || f == F_NUMBER) && !p->tag_id) return 0;
     }
     if (p->level == TLV_QUERY_S0 && !immediate) return 0;
-    if (p->level == TLV_QUERY_S1 && query_s1_filter(nodes, p->count, p->root) == QUERY_NONE)
+    if (p->level == TLV_QUERY_S1 && tlv_query_s1_filter(nodes, p->count, p->root) == QUERY_NONE)
         return 0;
     return 1;
 }
@@ -197,8 +197,8 @@ tlv_result_t tlv_query_plan_info(const tlv_query_program_t* p, tlv_query_program
     result.codec_scratch = p->codec_stride;
     result.pattern_bytes = p->pattern_capacity;
     result.expression_stack = (size_t)p->count + 1;
-    result.candidate_size = p->level >= TLV_QUERY_S2 ? query_candidate_size() : 0;
-    result.candidate_alignment = p->level >= TLV_QUERY_S2 ? query_candidate_alignment() : 0;
+    result.candidate_size = p->level >= TLV_QUERY_S2 ? tlv_query_candidate_size() : 0;
+    result.candidate_alignment = p->level >= TLV_QUERY_S2 ? tlv_query_candidate_alignment() : 0;
     result.frame_states = p->count;
     result.decision_timing = p->level == TLV_QUERY_S0   ? TLV_QUERY_DECISION_NODE
                              : p->level == TLV_QUERY_S1 ? TLV_QUERY_DECISION_SCOPE

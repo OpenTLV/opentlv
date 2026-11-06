@@ -329,6 +329,14 @@ opentlv_add_module(document EXPORT_NAME Document INCLUDE_DIR "${OpenTLV_SOURCE_D
         tlv_node_tag
         tlv_node_value_data
         tlv_node_value_size
+    INTERNAL_SYMBOLS
+        tlv_document_create_node
+        tlv_document_memory_allocate
+        tlv_document_memory_release
+        tlv_document_node_location
+        tlv_document_node_tag
+        tlv_document_parse_list
+        tlv_document_set_offset
 )
 
 configure_file("${OpenTLV_SOURCE_DIR}/src/query/internal/query-features.h.in" "${OpenTLV_BINARY_DIR}/generated/include/opentlv/query/features.h" @ONLY)
@@ -401,18 +409,18 @@ opentlv_add_module(query EXPORT_NAME Query INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/in
         tlv_config_query_set_operations
         ${_query_frontend_symbols}
     OWNER_SYMBOLS
-        query_retained_overlap
-        query_live_overlap
-        query_function_eval
-        query_retained_finish
-        query_retained_feed
-        query_document_handle
-        query_document_end
-        query_document_next
-        query_document_result_count
-        query_candidate_size
-        query_candidate_alignment
-        query_s1_filter
+        tlv_query_retained_overlap
+        tlv_query_live_overlap
+        tlv_query_function_eval
+        tlv_query_retained_finish
+        tlv_query_retained_feed
+        tlv_query_document_handle
+        tlv_query_document_end
+        tlv_query_document_next
+        tlv_query_document_result_count
+        tlv_query_candidate_size
+        tlv_query_candidate_alignment
+        tlv_query_s1_filter
 )
 opentlv_add_module(query-document OWNER query EXPORT_NAME QueryDocument INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
     CONSUMER "${OpenTLV_SOURCE_DIR}/tests/modules/query_document.c"
@@ -696,6 +704,53 @@ opentlv_add_module(asn1 BUILTIN EXPORT_NAME ASN1 INCLUDE_DIR "${OpenTLV_SOURCE_D
         tlv_format_ber_indefinite
         tlv_format_cer
         tlv_format_der
+    INTERNAL_SYMBOLS
+        tlv_asn1_indefinite_encode
+        tlv_asn1_indefinite_measure
+        tlv_asn1_number_must_construct
+        tlv_asn1_read_identifier
+        tlv_asn1_read_minimal_length
+        tlv_asn1_tag_make_checked
+        tlv_asn1_tag_number_checked
+        tlv_asn1_validate_bit_string
+        tlv_asn1_validate_bmp_string
+        tlv_asn1_validate_boolean
+        tlv_asn1_validate_date
+        tlv_asn1_validate_date_time
+        tlv_asn1_validate_duration
+        tlv_asn1_validate_generalized_time
+        tlv_asn1_validate_ia5_string
+        tlv_asn1_validate_integer
+        tlv_asn1_validate_null
+        tlv_asn1_validate_numeric_string
+        tlv_asn1_validate_octet_string
+        tlv_asn1_validate_oid
+        tlv_asn1_validate_oid_iri
+        tlv_asn1_validate_printable_string
+        tlv_asn1_validate_real
+        tlv_asn1_validate_relative_oid_iri
+        tlv_asn1_validate_time
+        tlv_asn1_validate_time_of_day
+        tlv_asn1_validate_universal_string
+        tlv_asn1_validate_universal_value
+        tlv_asn1_validate_utc_time
+        tlv_asn1_validate_utf8
+        tlv_asn1_validate_visible_string
+        tlv_asn1_write_identifier
+        tlv_asn1_write_identifier_checked
+        tlv_ber_fields
+        tlv_ber_length_field_size
+        tlv_ber_scan_contents
+        tlv_ber_scan_contents_diag
+        tlv_ber_wire
+        tlv_ber_write_length
+        tlv_cer_fields
+        tlv_cer_segment_state_add
+        tlv_cer_segment_state_finish
+        tlv_cer_segment_state_init
+        tlv_cer_type_info
+        tlv_der_fields
+        tlv_der_read_element
 )
 
 opentlv_add_module(emv BUILTIN EXPORT_NAME EMV INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
@@ -911,6 +966,10 @@ opentlv_add_module(emv BUILTIN EXPORT_NAME EMV INCLUDE_DIR "${OpenTLV_SOURCE_DIR
         tlv_emv_validate_length
         tlv_emv_value_kind_description
         tlv_format_emv
+    INTERNAL_SYMBOLS
+        tlv_emv_base_fields
+        tlv_emv_value_decode
+        tlv_emv_value_encode
 )
 
 opentlv_add_module(bluetooth BUILTIN EXPORT_NAME Bluetooth INCLUDE_DIR "${OpenTLV_SOURCE_DIR}/include"
