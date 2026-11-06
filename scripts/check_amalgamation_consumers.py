@@ -3,7 +3,8 @@
 # Copyright (c) 2026 Marek Cingel
 """Check optional source installation and direct C99/C++17 compiler consumers.
 
-The same samples also run against a relocated conventional static/shared install.
+The same samples also run with the documented optional dead-stripping flags and
+against a relocated conventional static/shared install.
 CMake prepares the distributions and conventional comparison only; standalone
 consumers use compiler commands and require no OpenTLV libraries or CMake package.
 """
@@ -34,16 +35,22 @@ def inventory(directory):
             for path in directory.rglob("*") if path.is_file()}
 
 
-def compile_object(compiler, source, output, includes=(), *, cxx=False, msvc=False):
+def compile_object(compiler, source, output, includes=(), *, cxx=False, msvc=False, extra=()):
     if msvc:
         flags = ["/nologo", "/WX", "/MD", "/c", "/std:c++17" if cxx else "/std:c11"]
         flags += ["/EHsc", "/TP"] if cxx else ["/TC"]
         flags += [f"/I{path}" for path in includes]
-        run(compiler, *flags, source, f"/Fo{output}", cwd=output.parent)
+        run(compiler, *flags, *extra, source, f"/Fo{output}", cwd=output.parent)
     else:
         flags = ["-std=c++17" if cxx else "-std=c99", "-pedantic-errors", "-Werror"]
         flags += [f"-I{path}" for path in includes]
-        run(compiler, *flags, "-c", source, "-o", output, cwd=output.parent)
+        run(compiler, *flags, *extra, "-c", source, "-o", output, cwd=output.parent)
+
+
+# The optional dead-stripping flags documented in the sample README:
+# (compile flags, link flags) for MSVC and for GCC/Clang with GNU-compatible linkers.
+DEAD_STRIPPING = {True: (["/Gy", "/Gw"], ["/link", "/OPT:REF", "/OPT:ICF"]),
+                  False: (["-ffunction-sections", "-fdata-sections"], ["-Wl,--gc-sections"])}
 
 
 def main():
@@ -156,20 +163,38 @@ def main():
     for name in ("opentlv.c", "opentlv.h"):
         shutil.copyfile(artifact / name, c_only / name)
     shutil.copyfile(artifact / "examples/consumer.c", c_only / "consumer.c")
-    implementation = c_only / "opentlv.obj"
-    compile_object(cc, c_only / "opentlv.c", implementation, msvc=msvc)
     outputs = {}
-    for language, compiler in (("c", cc), ("cpp", cxx)):
-        consumer = work / f"standalone-{language}"
-        consumer.mkdir()
-        source = c_only / "consumer.c" if language == "c" else artifact / "examples/consumer.cpp"
-        includes = [] if language == "c" else [artifact / "include"]
-        obj = consumer / "consumer.obj"
-        compile_object(compiler, source, obj, includes, cxx=language == "cpp", msvc=msvc)
-        binary = consumer / ("consumer.exe" if os.name == "nt" else "consumer")
-        flags = ["/nologo", f"/Fe{binary}"] if msvc else ["-o", binary]
-        run(compiler, obj, implementation, *flags, cwd=consumer)
-        outputs[language] = run(binary)
+    sizes = {}
+    # Build each sample as documented, then again with optional dead stripping. The
+    # stripped programs must behave identically and be smaller, without fixed sizes.
+    for strip in (False, True):
+        compile_flags, link_flags = DEAD_STRIPPING[msvc] if strip else ([], [])
+        suffix = "-stripped" if strip else ""
+        implementation = c_only / f"opentlv{suffix}.obj"
+        compile_object(cc, c_only / "opentlv.c", implementation, msvc=msvc, extra=compile_flags)
+        for language, compiler in (("c", cc), ("cpp", cxx)):
+            consumer = work / f"standalone-{language}{suffix}"
+            consumer.mkdir()
+            source = c_only / "consumer.c" if language == "c" else artifact / "examples/consumer.cpp"
+            includes = [] if language == "c" else [artifact / "include"]
+            obj = consumer / "consumer.obj"
+            compile_object(compiler, source, obj, includes, cxx=language == "cpp", msvc=msvc,
+                           extra=compile_flags)
+            binary = consumer / ("consumer.exe" if os.name == "nt" else "consumer")
+            flags = ["/nologo", f"/Fe{binary}"] if msvc else ["-o", binary]
+            run(compiler, obj, implementation, *flags, *link_flags, cwd=consumer)
+            output = run(binary)
+            if strip:
+                if output != outputs[language]:
+                    raise RuntimeError(f"Dead-stripped {language} consumer output differs")
+                if binary.stat().st_size >= sizes[language]:
+                    raise RuntimeError(f"Dead stripping did not shrink the {language} consumer: "
+                                       f"{binary.stat().st_size} >= {sizes[language]} bytes")
+                print(f"{language} consumer: {sizes[language]} -> {binary.stat().st_size} bytes "
+                      "with dead stripping", flush=True)
+            else:
+                outputs[language] = output
+                sizes[language] = binary.stat().st_size
 
     relocated_libs = work / "relocated conventional"
     shutil.move(str(conventional), relocated_libs)
@@ -186,7 +211,8 @@ def main():
         binary = comparison / "bin" / f"consumer-{language}{'.exe' if os.name == 'nt' else ''}"
         if run(binary, env=env) != outputs[language]:
             raise RuntimeError(f"Conventional and amalgamated {language} output differs")
-    print(f"Amalgamation install, C99/C++17 and shared={args.shared} comparisons passed")
+    print(f"Amalgamation install, C99/C++17, dead stripping and shared={args.shared} "
+          "comparisons passed")
 
 
 if __name__ == "__main__":
