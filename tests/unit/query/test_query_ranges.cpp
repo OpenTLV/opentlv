@@ -10,6 +10,7 @@
 #include "opentlv/query/builder.hpp"
 #include "opentlv/document/document.hpp"
 #include "opentlv/query/diff.hpp"
+#include "set_operations.h"
 #include <gtest/gtest.h>
 #include <vector>
 #include <cstdlib>
@@ -272,6 +273,7 @@ TEST(Unit_Tlvpp_FullQuery, DocumentSnapshotsAndCompletedRemove) {
     ASSERT_TRUE(removed);
     EXPECT_EQ(3u, *removed);
     for (const auto& handle : *snapshot) EXPECT_FALSE(handle);
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//6F | //50");
     auto roots = tlv::query_program::compile("//6F | //50");
     ASSERT_TRUE(roots);
     auto removed_roots = doc->query_remove(*roots);
@@ -357,6 +359,7 @@ TEST(Unit_Tlvpp_FullQuery, NativeEditCapacityAndAncestorDominance) {
     auto doc = tlv::document::parse(bytes(input, sizeof input),
                                     tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//6F | //50");
     auto query = tlv::query_program::compile("//6F | //50");
     ASSERT_TRUE(query);
     auto execution = tlv::query_execution::create(*query, 3, 100, 100000);
@@ -516,6 +519,7 @@ TEST(Unit_Tlvpp_FullQuery, MixedReplacementPrevalidatesConstructedValue) {
     auto doc = tlv::document::parse(bytes(fixture, sizeof fixture),
                                     tlv::document_format(tlv::native::borrow_format(format)));
     ASSERT_TRUE(doc);
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//50 | //6F");
     auto all = tlv::query_program::compile("//50 | //6F");
     ASSERT_TRUE(all);
     const uint8_t replacement[] = {0x50, 3};

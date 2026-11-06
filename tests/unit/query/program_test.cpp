@@ -5,6 +5,7 @@
 #include "opentlv/schema/query_document.h"
 #include "../../../src/query/internal/program_internal.h"
 #include "controlled_format.h"
+#include "set_operations.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <string>
@@ -315,6 +316,7 @@ TEST(Unit_Tlv_QueryProgram, CanonicalFormattingRequiresIndependentScratchSizing)
 }
 
 TEST(Unit_Tlv_QueryProgram, BoundedLoaderRejectsEveryTruncationWithoutWrites) {
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//70[exists(5A)] | //50[@len > 2]");
     Program p;
     ASSERT_EQ(TLV_OK, p.compile("//70[exists(5A)] | //50[@len > 2]"));
     const auto original = p.storage;
@@ -379,6 +381,7 @@ TEST(Unit_Tlv_QueryProgram, LoaderRejectsAliasedStorageBeforeWriting) {
 }
 
 TEST(Unit_Tlv_QueryProgram, LoaderAuthenticatesEveryInstructionField) {
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//70[exists(5A)] | //50[@len > 2]");
     Program p;
     ASSERT_EQ(TLV_OK, p.compile("//70[exists(5A)] | //50[@len > 2]"));
     size_t bytes, alignment;
@@ -542,6 +545,7 @@ TEST(Unit_Tlv_QueryProgram, StructuralWorkScalesWithEventsAndProgramStates) {
     for (size_t alternatives : {size_t(1), size_t(4), size_t(16)}) {
         std::string text = "//5A";
         for (size_t i = 1; i < alternatives; ++i) text += " | //50";
+        if (query_set_operations_unavailable(text)) continue;
         Program p;
         ASSERT_EQ(TLV_OK, p.compile(text));
         size_t bytes, alignment;
@@ -577,6 +581,7 @@ TEST(Unit_Tlv_QueryProgram, StructuralWorkScalesWithEventsAndProgramStates) {
 
 TEST(Unit_Tlv_QueryProgram, DescendantUnionIsOrderedAndUnique) {
     Program p;
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//70//5A | //5A");
     ASSERT_EQ(TLV_OK, p.compile("//70//5A | //5A"));
     const std::vector<uint8_t> data = {0x70, 3, 0x5A, 1, 0x12, 0x5A, 1, 0x34};
     EXPECT_EQ((std::vector<size_t>{2, 5}), run(p, data));
@@ -691,6 +696,7 @@ TEST(Unit_Tlv_QueryProgram, VariableIdentifiersFollowGrammar) {
 }
 TEST(Unit_Tlv_QueryProgram, IntersectionAndDifferenceBindMoreStronglyThanUnion) {
     Program p;
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//5A | //5A except //5A");
     ASSERT_EQ(TLV_OK, p.compile("//5A | //5A except //5A"));
     EXPECT_EQ((std::vector<size_t>{0}), run(p, {0x5a, 0}));
     ASSERT_EQ(TLV_OK, p.compile("(//5A | //5A) except //5A"));
@@ -740,6 +746,7 @@ TEST(Unit_Tlv_QueryProgram, CallerSizedInfoPreservesUnknownAndUnavailableFields)
 TEST(Unit_Tlv_QueryProgram, SetOperationsUseNodeIdentityAndSourceOrder) {
     Program                    p;
     const std::vector<uint8_t> data = {0x70, 3, 0x5A, 1, 0x12, 0x5A, 1, 0x12};
+    OPENTLV_END_WITHOUT_SET_OPERATIONS("//5A intersect //70//5A");
     ASSERT_EQ(TLV_OK, p.compile("//5A intersect //70//5A"));
     EXPECT_EQ((std::vector<size_t>{2}), run(p, data));
     ASSERT_EQ(TLV_OK, p.compile("//5A except //70//5A"));
@@ -947,10 +954,12 @@ TEST(Unit_Tlv_QueryProgram, MissingBindingsDoNotAdvanceReader) {
 }
 TEST(Unit_Tlv_QueryProgram, UnsupportedFeaturesHavePreciseDiagnostics) {
     Program p;
-    EXPECT_EQ(TLV_OK, p.compile("//70[not(5A)] | //5A"));
-    EXPECT_EQ(TLV_QUERY_S2, p.info.level);
-    size_t bytes, alignment;
-    EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_query_exec_size(p.get(), 1, &bytes, &alignment));
+    if (!query_set_operations_unavailable("//70[not(5A)] | //5A")) {
+        EXPECT_EQ(TLV_OK, p.compile("//70[not(5A)] | //5A"));
+        EXPECT_EQ(TLV_QUERY_S2, p.info.level);
+        size_t bytes, alignment;
+        EXPECT_EQ(TLV_ERR_UNSUPPORTED, tlv_query_exec_size(p.get(), 1, &bytes, &alignment));
+    }
     EXPECT_EQ(TLV_ERR_UNSUPPORTED, p.compile("//5A[num(.) > $min]"));
     EXPECT_EQ(TLV_QUERY_ERROR_CAPABILITY, p.diagnostic.kind);
     EXPECT_EQ(TLV_ERR_SYNTAX, p.compile("//5A[@len > 1"));

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Check the documented capability rejection of Query set operations in builds without them, instead of failing the unit, conformance and property suites. (#743)
+- Build the fuzz replay harnesses against shared MSVC libraries by filling their format table at initialization instead of with imported addresses in a static initializer. (#743)
 - Remove internal identifier shadowing in the C99 amalgamation and make GCC/Clang integration tests reject new shadowing warnings in PR and Full CI. Public API and behavior are unchanged. (#765)
 - Keep every external Library symbol in the `tlv_` namespace: the internal Query, Document and EMV helpers no longer collide with or interpose on same-named consumer symbols in static, shared or amalgamated builds. The module registry allowlists public, owner-internal and internal symbols, and the isolation and distribution gates compare them exactly. (#763)
 - Run the NFC Type 2 C example only on its embedded sample, removing the optional file input flagged by CodeQL `cpp/path-injection`, and drop the then-unused `ARGS` option of `opentlv_example()`. (#759)

@@ -226,6 +226,7 @@ int main(int argc, char** argv) {
     if (argc == 2 && !strcmp(argv[1], "--capabilities")) {
         printf("document ");
         printf("asn1 ");
+        if (tlv_config_query_set_operations()) printf("set-operations ");
         printf("\n");
         return 0;
     }

@@ -9,6 +9,7 @@
 #include "opentlv/builtin/asn1/query.h"
 #include "opentlv/builtin/asn1/ber.h"
 #include "controlled_format.h"
+#include "set_operations.h"
 #include <gtest/gtest.h>
 #include <cstring>
 #include <string>
@@ -179,6 +180,7 @@ TEST(Unit_Tlv_QueryF2, PositionLastChainedPredicatesAndDeferredSetAlgebra) {
                           {"//70[last()]", {8}}};
     for (const auto& c : cases) {
         SCOPED_TRACE(c.query);
+        if (query_set_operations_unavailable(c.query)) continue;
         Evaluation e;
         ASSERT_EQ(TLV_OK, e.compile(c.query));
         ASSERT_EQ(TLV_OK, e.init());
@@ -344,6 +346,7 @@ TEST(Unit_Tlv_QueryF2, OptimizedAndUnoptimizedAgreeAndExplainIsAtomic) {
     Evaluation                 optimized, plain;
     plain.options.optimize = 0;
     const std::string query = "(//5A | //5A)[true and not(false)]";
+    OPENTLV_END_WITHOUT_SET_OPERATIONS(query);
     ASSERT_EQ(TLV_OK, optimized.compile(query));
     ASSERT_EQ(TLV_OK, plain.compile(query));
     ASSERT_EQ(TLV_OK, optimized.init());
