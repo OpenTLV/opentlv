@@ -89,10 +89,10 @@ instead of special-casing file names, and the registration installs them.
 ## Artifact composition
 
 Version 1 publishes one self-contained composition: every compiled target in
-the registry, for one configuration. Per-module artifacts, custom or minimal
-module selection, and transitive per-target composition are out of scope until
-a later contract version. A consumer that needs fewer modules links the
-conventional module libraries.
+the registry, for one configuration. A consumer that generates its own
+amalgamation may compose fewer targets; see
+[Selective composition](#selective-composition). Separately published
+per-module artifacts remain out of scope.
 
 | File | Contents | Consumers |
 | --- | --- | --- |
@@ -106,6 +106,48 @@ tree is needed because the header-only C++ facade includes the modular C
 headers by path (`#include "opentlv/core/tag.h"`). Its generated headers are
 byte-identical to the corresponding blocks of `opentlv.h` and keep the same
 include guards, so a translation unit may include both.
+
+## Selective composition
+
+The release artifact is always the complete composition. A standalone build can
+generate a composition of selected targets instead:
+
+```sh
+cmake -S . -B build -DOPENTLV_AMALGAMATION_TARGETS='Core;IO'
+cmake --build build --target opentlv_amalgamation
+```
+
+- `OPENTLV_AMALGAMATION_TARGETS` is a standalone-only cache entry listing
+  registered export names, as in `OpenTLV::<name>`. Empty, the default, composes
+  every compiled target, with the same bytes as before selection existed.
+- It selects modules. The `OPENTLV_QUERY_*` options stay feature toggles of the
+  Query sources and apply to both forms. There are no per-builtin options.
+- The composition is the selected targets and the transitive closure of their
+  public, private and C++ header dependencies in the registry, in registration
+  order. `cmake/amalgamation/selection.cmake` resolves it for configuration
+  and generation alike. For example, `EMV` resolves Core, IO, Query, Codec,
+  Schema and SchemaNumber, and composes no ASN.1, Bluetooth, NFC, DHCP or LLDP
+  code. An integration is composed only when it is selected or required.
+- `opentlv.h`, `opentlv.c` and `include/` contain only the resolved targets. A
+  header-only C++ facade cannot be selected; its headers ship when every one of
+  its dependencies is composed. The umbrella headers `opentlv/tlv.h`,
+  `opentlv/tlv.hpp` and `opentlv/native.hpp` ship only when every header they
+  include ships, so a selective composition is used through `opentlv.h` or the
+  module headers.
+- Configuration and generation reject an unknown name, a facade, the aggregate
+  `tlv` and a comma-separated list, and list the valid names. Generation fails
+  instead of writing an incomplete composition when a composed header includes
+  a header of a target outside the closure, which means the registry lacks a
+  dependency.
+- The notice of both generated files names the selected targets, and the
+  metadata records the [selection](#metadata).
+- Running the script directly, `-DOPENTLV_AMALGAMATION_TARGETS=<names>`
+  overrides the configured selection.
+
+Selective compositions are consumer-generated and never published. Core Release
+pins the empty selection, and the release and equivalence verifiers reject
+metadata that records one. The installed samples use ASN.1 and LLDP, so they
+need the complete composition.
 
 ## Generator inputs and authority
 
@@ -133,7 +175,8 @@ include guards, so a translation unit may include both.
 
 The order is a function of the registry alone:
 
-1. Targets follow registration order (`OPENTLV_MODULES`). That order must be a
+1. Targets follow registration order (`OPENTLV_MODULES`), restricted to the
+   resolved targets of a selective composition. That order must be a
    topological order of the public and private dependencies; it is today. The
    generator fails instead of reordering when a target precedes one of its
    dependencies.
@@ -164,6 +207,10 @@ comes from a registered list.
   the composed targets fails generation. A private header may be reached only
   from sources of its owning module or its owner's integrations, as the module
   contract already requires.
+- Every quoted include of a header in the `include/` tree, C++ headers
+  included, must resolve to a header of that tree, relative to the including
+  header or from the tree root. An include of a header that no registered
+  target ships fails generation.
 - Angle includes are kept verbatim in place and must name C99 standard headers.
   The C sources and headers currently use `assert.h`, `ctype.h`, `limits.h`,
   `stdbool.h`, `stddef.h`, `stdint.h`, `stdio.h`, `stdlib.h` and `string.h`.
@@ -356,6 +403,8 @@ The output bytes are a function of only these inputs:
 - the registry: target order, `SOURCES` and `PUBLIC_HEADERS` lists and
   dependencies;
 - the version metadata and the Query features;
+- the target selection, as resolved: the order and repetition of the selected
+  names do not matter;
 - this contract's version.
 
 They do not depend on the source or build directory, the host operating
@@ -378,6 +427,7 @@ by the LF normalization.
 | `configuration` | `query_frontend` and `query_set_operations` as booleans |
 | `targets` | In composition order: `key`, `export_name`, `kind` and the composed `sources` and `public_headers` as source-root-relative paths |
 | `inputs` | Every composed file in emission order with its relative path and the SHA-256 of its LF-normalized content |
+| `selection` | Selective compositions only: `requested`, the selected export names; `resolved`, every composed target and shipped facade in registration order; and `dependencies`, the direct public, private and C++ header dependencies of each resolved target. The complete composition has no `selection` field |
 
 The file lists no digest of the generated files; the release record
 `amalgamation.json` records those digests and binds them to tested bytes.
@@ -477,8 +527,7 @@ none, and results vary by toolchain.
   amalgamations, into one program;
 - redefining Query feature or Library version macros when compiling;
 - treating a consumer-built shared library from the amalgamation as an ABI
-  promise of the Library;
-- selecting a subset of modules.
+  promise of the Library.
 
 ## Generation
 
@@ -492,8 +541,8 @@ cmake --build build --target opentlv_amalgamation
 The target runs `cmake -P cmake/amalgamation/generate.cmake` with two files that
 configuration writes: `<build>/opentlv-registry.cmake`, the registry inventory
 from `opentlv_finalize_modules()`, and `<build>/opentlv-amalgamation.cmake`,
-which holds the source and build roots, the version metadata and the Query
-features. `cmake/amalgamation.cmake` adds the target. The portable export block
+which holds the source and build roots, the version metadata, the Query
+features and the target selection. `cmake/amalgamation.cmake` adds the target. The portable export block
 is the template `cmake/amalgamation/export.h.in`. The script can also run
 directly:
 
@@ -508,8 +557,8 @@ on every run and writes LF line endings on every host. It needs no compiler.
 
 | Check | Covers | CI tier |
 | --- | --- | --- |
-| CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, and identical bytes from another location and from CRLF inputs | PR (Clang unit tests) |
-| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors`, `-Wshadow -Werror=shadow` on GCC/Clang and the Library's warning policy, and runs it and the symbol collision regression | PR (Clang integration tests), Full (GCC and Clang integration tests) |
+| CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, identical bytes from another location and from CRLF inputs, and target selection: closure over public, private and C++ header dependencies, excluded targets, facades and aggregate headers, selection metadata, spelling-independent bytes and every rejected selection | PR (Clang unit tests) |
+| CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors`, `-Wshadow -Werror=shadow` on GCC/Clang and the Library's warning policy, and runs it and the symbol collision regression. Then generates the Core, Core and IO, and EMV compositions twice each, checks that they contain exactly the resolved targets' headers and sources and no umbrella header, and builds and runs every resolved target's registered C consumer, and its C++ consumers when the build has a C++ compiler, against each | PR (Clang integration tests), Full (GCC and Clang integration tests) |
 | `scripts/check_cmake_integration.py` | The standalone build has the target, and neither the default build nor `install()` generates. Embedding builds have no such target | PR and Main (CMake consumers) |
 | `scripts/check_amalgamation_consumers.py` | Explicit component installation, missing-output failures, licenses, metadata, unchanged public headers, relocation, direct C99/C++17 compiler consumers, the same consumers with the documented dead-stripping flags (same output, smaller executable; no fixed size) and the same samples linked to conventional static/shared libraries | PR: Clang 18, both linkage modes; Full: also GCC and MSVC; minimum CMake/custom data directory/disabled Query features on Clang |
 
@@ -575,12 +624,14 @@ identity, no legacy alias and no "core" in a multi-module artifact.
 | Files | `opentlv.h`, `opentlv.c`, `include/`, `opentlv-amalgamation.json` | Implemented in #740 |
 | Install component | `Amalgamation` (a CMake install component, not a package component) | Explicit opt-in installation under `${CMAKE_INSTALL_DATADIR}/OpenTLV/amalgamation` (#742) |
 | Release asset | `OpenTLV-X.Y.Z-amalgamation.tar.gz`, top directory `OpenTLV-X.Y.Z-amalgamation/`, manifest record `kind` `amalgamation` | Required by Core Release (#744) under [artifact contract 2](naming.md#artifact-contract-2); companion record `amalgamation.json` |
+| Target selection | Cache entry `OPENTLV_AMALGAMATION_TARGETS` (standalone builds only), values are module export names | Implemented; empty selects every target |
 | Per-module artifacts | That module's export name, e.g. `opentlv-asn1.h` | Out of scope for version 1 |
 
 ## Decisions to approve
 
-1. Version 1 composes all 19 compiled targets for one configuration; per-module
-   and custom selection are out of scope.
+1. Version 1 publishes all 19 compiled targets for one configuration;
+   consumers may generate selective compositions, and per-module artifacts are
+   out of scope.
 2. The artifact set: `opentlv.h`, `opentlv.c`, the `include/` tree for C++ and
    module-path consumers, and `opentlv-amalgamation.json`.
 3. The registry as the only composition input, read without JSON so that
@@ -615,6 +666,8 @@ ASN.1 (BER, DER, CER), EMV, Bluetooth, NFC, DHCP and LLDP. Both
 `OPENTLV_QUERY_FRONTEND` and `OPENTLV_QUERY_SET_OPERATIONS` are **ON**.
 All four combinations are supported for locally generated distributions:
 set either CMake option to `OFF` before generation to disable that feature.
+The release configures an empty `OPENTLV_AMALGAMATION_TARGETS` and rejects
+metadata that records a selection.
 The release asset contains only the ON/ON configuration; recompilation cannot
 change its generated features. See the [consumer limitations](#consumer-contract).
 

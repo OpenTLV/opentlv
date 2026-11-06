@@ -148,7 +148,7 @@ def configuration(tier):
                'scripts/check_distribution_equivalence.py',
                'scripts/amalgamation_release.py', 'scripts/check_amalgamation_consumers.py',
                'cmake/amalgamation.cmake', 'cmake/amalgamation/generate.cmake',
-               'cmake/amalgamation/export.h.in',
+               'cmake/amalgamation/export.h.in', 'cmake/amalgamation/selection.cmake',
                'tests/amalgamation/equivalence/CMakeLists.txt', 'tests/fuzz/targets.cmake')
     return {'schema': CONFIGURATION_SCHEMA, 'inputs': inputs,
             'configuration_sources': {name: digest(source / name) for name in helpers},

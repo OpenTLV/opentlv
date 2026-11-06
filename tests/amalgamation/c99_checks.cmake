@@ -2,8 +2,11 @@
 # Copyright (c) 2026 Marek Cingel
 
 # Generates the amalgamation of this build's registry twice, requires identical
-# bytes, then builds and runs a consumer that compiles opentlv.c as C99.
-# Outputs stay below WORK_DIR; <build>/amalgamation/ is left untouched.
+# bytes, then builds and runs a consumer that compiles opentlv.c as C99. Then
+# generates representative selective compositions the same way, checks that
+# they contain exactly the resolved targets, and builds and runs the registered
+# consumers of every resolved target against each (C++ ones when CXX_COMPILER
+# is set). Outputs stay below WORK_DIR; <build>/amalgamation/ is left untouched.
 cmake_minimum_required(VERSION 3.16)
 
 foreach(variable IN ITEMS OPENTLV_SOURCE_DIR OPENTLV_BINARY_DIR WORK_DIR C_COMPILER GENERATOR)
@@ -25,23 +28,38 @@ function(run)
     message(STATUS "${output}")
 endfunction()
 
-foreach(name IN ITEMS first second)
-    run("${CMAKE_COMMAND}" "-DOPENTLV_AMALGAMATION_CONFIG=${OPENTLV_BINARY_DIR}/opentlv-amalgamation.cmake"
-        "-DOPENTLV_AMALGAMATION_OUTPUT=${WORK_DIR}/${name}"
-        -P "${OPENTLV_SOURCE_DIR}/cmake/amalgamation/generate.cmake")
-    file(GLOB_RECURSE files_${name} LIST_DIRECTORIES false RELATIVE "${WORK_DIR}/${name}" "${WORK_DIR}/${name}/*")
-    list(SORT files_${name})
-endforeach()
-if(NOT files_first STREQUAL files_second)
-    message(FATAL_ERROR "Two generations wrote different files")
-endif()
-foreach(path IN LISTS files_first)
-    file(SHA256 "${WORK_DIR}/first/${path}" first)
-    file(SHA256 "${WORK_DIR}/second/${path}" second)
-    if(NOT first STREQUAL second)
-        message(FATAL_ERROR "Two generations wrote different bytes to ${path}")
+# Generates <directory>/first and <directory>/second for one selection (empty:
+# the complete composition) and requires identical files and bytes.
+function(generate_twice directory selection files_out)
+    foreach(name IN ITEMS first second)
+        # Not run(): its argument list would split a selection such as Core;IO.
+        execute_process(COMMAND "${CMAKE_COMMAND}"
+            "-DOPENTLV_AMALGAMATION_CONFIG=${OPENTLV_BINARY_DIR}/opentlv-amalgamation.cmake"
+            "-DOPENTLV_AMALGAMATION_TARGETS=${selection}" "-DOPENTLV_AMALGAMATION_OUTPUT=${directory}/${name}"
+            -P "${OPENTLV_SOURCE_DIR}/cmake/amalgamation/generate.cmake"
+            RESULT_VARIABLE code OUTPUT_VARIABLE output ERROR_VARIABLE errors)
+        if(NOT code EQUAL 0)
+            message(FATAL_ERROR "Generating '${selection}' failed (${code}):
+${output}${errors}")
+        endif()
+        message(STATUS "${output}")
+        file(GLOB_RECURSE files_${name} LIST_DIRECTORIES false RELATIVE "${directory}/${name}" "${directory}/${name}/*")
+        list(SORT files_${name})
+    endforeach()
+    if(NOT files_first STREQUAL files_second)
+        message(FATAL_ERROR "Two generations of '${selection}' wrote different files")
     endif()
-endforeach()
+    foreach(path IN LISTS files_first)
+        file(SHA256 "${directory}/first/${path}" first)
+        file(SHA256 "${directory}/second/${path}" second)
+        if(NOT first STREQUAL second)
+            message(FATAL_ERROR "Two generations of '${selection}' wrote different bytes to ${path}")
+        endif()
+    endforeach()
+    set(${files_out} "${files_first}" PARENT_SCOPE)
+endfunction()
+
+generate_twice("${WORK_DIR}" "" files_first)
 foreach(path IN ITEMS opentlv.h opentlv.c opentlv-amalgamation.json include/opentlv/core/export.h
         include/opentlv/core/version.h include/opentlv/query/features.h include/opentlv/tlv.h)
     if(NOT path IN_LIST files_first)
@@ -49,8 +67,7 @@ foreach(path IN ITEMS opentlv.h opentlv.c opentlv-amalgamation.json include/open
     endif()
 endforeach()
 
-set(options -G "${GENERATOR}" "-DCMAKE_C_COMPILER=${C_COMPILER}" "-DCMAKE_BUILD_TYPE=${CONFIG}"
-    "-DOPENTLV_AMALGAMATION_DIR=${WORK_DIR}/first")
+set(options -G "${GENERATOR}" "-DCMAKE_C_COMPILER=${C_COMPILER}" "-DCMAKE_BUILD_TYPE=${CONFIG}")
 if(GENERATOR_PLATFORM)
     list(APPEND options -A "${GENERATOR_PLATFORM}")
 endif()
@@ -60,7 +77,88 @@ endif()
 if(MAKE_PROGRAM AND GENERATOR MATCHES "Ninja|Makefiles")
     list(APPEND options "-DCMAKE_MAKE_PROGRAM=${MAKE_PROGRAM}")
 endif()
-run("${CMAKE_COMMAND}" -S "${CMAKE_CURRENT_LIST_DIR}/consumer" -B "${WORK_DIR}/consumer" ${options})
+run("${CMAKE_COMMAND}" -S "${CMAKE_CURRENT_LIST_DIR}/consumer" -B "${WORK_DIR}/consumer" ${options}
+    "-DOPENTLV_AMALGAMATION_DIR=${WORK_DIR}/first")
 run("${CMAKE_COMMAND}" --build "${WORK_DIR}/consumer" --config "${CONFIG}")
 run("${WORK_DIR}/consumer/bin/consumer")
 run("${WORK_DIR}/consumer/bin/collision")
+
+# Selective compositions: Core alone, Core with IO, and EMV with its closure.
+include("${OPENTLV_BINARY_DIR}/opentlv-registry.cmake")
+include("${OPENTLV_SOURCE_DIR}/cmake/amalgamation/selection.cmake")
+set(cxx_options)
+if(CXX_COMPILER)
+    set(cxx_options "-DCMAKE_CXX_COMPILER=${CXX_COMPILER}")
+endif()
+foreach(selection IN ITEMS "Core" "Core|IO" "EMV")
+    string(REPLACE "|" ";" selection "${selection}")
+    string(REPLACE ";" "-" name "${selection}")
+    set(directory "${WORK_DIR}/selective-${name}")
+    generate_twice("${directory}" "${selection}" files)
+    opentlv_amalgamation_select("${selection}" requested resolved)
+    file(READ "${directory}/first/opentlv.c" source)
+    file(READ "${directory}/first/opentlv-amalgamation.json" metadata)
+    string(FIND "${metadata}" "\"selection\": {" index)
+    if(index EQUAL -1)
+        message(FATAL_ERROR "${name}: the metadata records no selection")
+    endif()
+    # Exactly the resolved targets: their headers and sources, and nothing of
+    # the others. The umbrella headers name every module, so they are omitted.
+    set(c_consumers)
+    set(cxx_consumers)
+    foreach(key IN LISTS OPENTLV_REGISTRY_MODULES)
+        set(prefix "OPENTLV_REGISTRY_${key}_")
+        set(present FALSE)
+        if(key IN_LIST resolved)
+            set(present TRUE)
+        endif()
+        foreach(header IN LISTS ${prefix}PUBLIC_HEADERS ${prefix}CXX_HEADERS)
+            file(RELATIVE_PATH path "${${prefix}INCLUDE_DIR}" "${header}")
+            set(found FALSE)
+            if("include/${path}" IN_LIST files)
+                set(found TRUE)
+            endif()
+            if(NOT found STREQUAL present)
+                message(FATAL_ERROR "${name}: include/${path} of ${key} ships=${found}, expected ${present}")
+            endif()
+        endforeach()
+        foreach(file IN LISTS ${prefix}SOURCES)
+            file(RELATIVE_PATH path "${OPENTLV_SOURCE_DIR}" "${file}")
+            if(path MATCHES "^\\.\\./")
+                file(RELATIVE_PATH path "${OPENTLV_BINARY_DIR}" "${file}")
+            endif()
+            string(FIND "${source}" "/* ==== begin ${path} ==== */" index)
+            if(index EQUAL -1 AND present OR NOT index EQUAL -1 AND NOT present)
+                message(FATAL_ERROR "${name}: opentlv.c composes ${path} of ${key}: expected ${present}")
+            endif()
+        endforeach()
+        if(present)
+            foreach(consumer IN LISTS ${prefix}CONSUMER ${prefix}CXX_CONSUMER)
+                if(consumer MATCHES "\.c$")
+                    list(APPEND c_consumers "${consumer}")
+                elseif(CXX_COMPILER)
+                    list(APPEND cxx_consumers "${consumer}")
+                endif()
+            endforeach()
+        endif()
+    endforeach()
+    foreach(path IN LISTS OPENTLV_REGISTRY_AGGREGATE_HEADERS)
+        file(RELATIVE_PATH path "${OPENTLV_SOURCE_DIR}" "${path}")
+        if("${path}" IN_LIST files)
+            message(FATAL_ERROR "${name}: the umbrella header ${path} names unselected modules")
+        endif()
+    endforeach()
+    string(REPLACE ";" "|" c_consumers "${c_consumers}")
+    string(REPLACE ";" "|" cxx_consumers "${cxx_consumers}")
+    set(build "${directory}/consumers")
+    run("${CMAKE_COMMAND}" -S "${CMAKE_CURRENT_LIST_DIR}/selective" -B "${build}" ${options} ${cxx_options}
+        "-DOPENTLV_AMALGAMATION_DIR=${directory}/first" "-DC_CONSUMERS=${c_consumers}"
+        "-DCXX_CONSUMERS=${cxx_consumers}")
+    run("${CMAKE_COMMAND}" --build "${build}" --config "${CONFIG}")
+    file(READ "${build}/consumers.txt" consumers)
+    foreach(consumer IN LISTS consumers)
+        run("${build}/bin/${consumer}")
+    endforeach()
+    list(LENGTH consumers count)
+    message(STATUS "Selective amalgamation ${name}: ${count} consumers passed")
+endforeach()

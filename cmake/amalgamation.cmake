@@ -12,6 +12,21 @@ function(opentlv_add_amalgamation_target)
     if(NOT EXISTS "${registry}")
         message(FATAL_ERROR "Call opentlv_finalize_modules() before opentlv_add_amalgamation_target()")
     endif()
+    # Module selection, not a feature toggle: registered export names whose
+    # dependency closure is composed. Empty composes every target.
+    set(OPENTLV_AMALGAMATION_TARGETS "" CACHE STRING
+        "Export names of the targets the opentlv_amalgamation target composes with their dependencies (empty: all)")
+    include("${registry}")
+    include("${OpenTLV_SOURCE_DIR}/cmake/amalgamation/selection.cmake")
+    opentlv_amalgamation_select("${OPENTLV_AMALGAMATION_TARGETS}" requested resolved)
+    if(requested)
+        set(names)
+        foreach(key IN LISTS resolved)
+            list(APPEND names "${OPENTLV_REGISTRY_${key}_EXPORT_NAME}")
+        endforeach()
+        string(REPLACE ";" ", " names "${names}")
+        message(STATUS "OpenTLV amalgamation composes: ${names}")
+    endif()
     set(config "${OpenTLV_BINARY_DIR}/opentlv-amalgamation.cmake")
     set(content "# Generated amalgamation inputs; see docs/development/amalgamation.md.\n")
     foreach(pair IN ITEMS
@@ -27,6 +42,8 @@ function(opentlv_add_amalgamation_target)
         string(SUBSTRING "${pair}" ${split} -1 value)
         string(APPEND content "set(OPENTLV_AMALGAMATION_${name} [==[${value}]==])\n")
     endforeach()
+    # A list, so it cannot travel through the name=value items above.
+    string(APPEND content "set(OPENTLV_AMALGAMATION_TARGETS [==[${OPENTLV_AMALGAMATION_TARGETS}]==])\n")
     file(WRITE "${config}" "${content}")
     add_custom_target(opentlv_amalgamation
         COMMAND "${CMAKE_COMMAND}" "-DOPENTLV_AMALGAMATION_CONFIG=${config}"
@@ -39,7 +56,7 @@ function(opentlv_add_amalgamation_target)
     # Never generate during install, nor silently omit missing outputs.
     set(destination "${CMAKE_INSTALL_DATADIR}/OpenTLV/amalgamation")
     string(CONFIGURE [=[
-        foreach(path IN ITEMS opentlv.h opentlv.c opentlv-amalgamation.json include/opentlv/tlv.h)
+        foreach(path IN ITEMS opentlv.h opentlv.c opentlv-amalgamation.json include)
             if(NOT EXISTS "@OpenTLV_BINARY_DIR@/amalgamation/${path}")
                 message(FATAL_ERROR "Amalgamation requires generated outputs. Run cmake --build <build> --target opentlv_amalgamation before installing --component Amalgamation.")
             endif()

@@ -3,6 +3,10 @@
 These samples use Core and IO with the ASN.1 and LLDP builtins. The C++ sample
 also validates an LLDP packet and decodes its TTL through the existing Codec
 facade. They return nonzero on failure and print the Library version on success.
+A selective amalgamation generated with `OPENTLV_AMALGAMATION_TARGETS` builds
+the C sample if it selects ASN1 and LLDP. The C++ sample includes the umbrella
+`opentlv/tlv.hpp`, which only the complete composition that releases publish
+ships.
 
 After extracting a release amalgamation archive, run these commands from its
 `OpenTLV-<version>-amalgamation` directory. For the installed `Amalgamation`

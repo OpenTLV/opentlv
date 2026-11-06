@@ -55,6 +55,7 @@ def check_metadata(metadata, number, commit):
             and all(type(value) is bool for value in metadata['configuration'].values()),
             'Unapproved amalgamation Query configuration')
     require(metadata.get('targets') and metadata.get('inputs'), 'Missing amalgamation inventory')
+    require('selection' not in metadata, 'The release amalgamation must compose every target')
 
 
 def check_equivalence(report, files, commit):
@@ -171,7 +172,7 @@ def produce(output, work, evidence, number, commit, cc, cxx):
         run('cmake', '-S', ROOT, '-B', build, '-G', 'Ninja', f'-DCMAKE_C_COMPILER={cc}',
             '-DCMAKE_BUILD_TYPE=Release', '-DOPENTLV_BUILD_TESTS=OFF',
             '-DOPENTLV_BUILD_CXX=OFF', '-DOPENTLV_BUILD_EXAMPLES=OFF',
-            '-DOPENTLV_BUILD_SHARED_LIBS=OFF',
+            '-DOPENTLV_BUILD_SHARED_LIBS=OFF', '-DOPENTLV_AMALGAMATION_TARGETS=',
             '-DOPENTLV_QUERY_FRONTEND=ON', '-DOPENTLV_QUERY_SET_OPERATIONS=ON')
         run('cmake', '--build', build, '--target', 'opentlv_amalgamation')
         files = payload(build / 'amalgamation')

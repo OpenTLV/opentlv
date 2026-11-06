@@ -104,7 +104,8 @@ class AmalgamationReleaseTests(unittest.TestCase):
     def test_wrong_metadata_even_with_updated_test_hashes_rejected(self):
         for key, value in (('version', '0.9.0'), ('commit', 'b' * 8), ('tag', 'v0.7.0'),
                            ('revision', 1), ('configuration', {'query_frontend': False}),
-                           ('inputs', []), ('targets', [])):
+                           ('inputs', []), ('targets', []),
+                           ('selection', {'requested': ['Core'], 'resolved': ['Core']})):
             with self.subTest(key=key):
                 record, files = fixture(self.root)
                 record['metadata'][key] = value

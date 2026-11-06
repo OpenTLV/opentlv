@@ -249,8 +249,8 @@ function(opentlv_finalize_modules)
         get_target_property(export_name ${target} INTERFACE_OPENTLV_EXPORT_NAME)
         get_target_property(owner ${target} INTERFACE_OPENTLV_OWNER)
         foreach(field IN ITEMS EXPORT_NAME OWNER BUILTIN FACADE INCLUDE_DIR SOURCES PUBLIC_HEADERS
-                GENERATED_HEADERS PRIVATE_HEADERS CXX_HEADERS PUBLIC_DEPS PRIVATE_DEPS EXPORT_HEADER
-                API_MACRO)
+                GENERATED_HEADERS PRIVATE_HEADERS CXX_HEADERS PUBLIC_DEPS PRIVATE_DEPS FACADE_DEPS
+                EXPORT_HEADER API_MACRO CONSUMER CXX_CONSUMER)
             get_target_property(value ${target} INTERFACE_OPENTLV_${field})
             if(NOT value)
                 set(value)

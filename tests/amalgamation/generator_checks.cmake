@@ -3,7 +3,8 @@
 
 # Regression tests for cmake/amalgamation/generate.cmake on fixture registries:
 # composition order, include replacement and deduplication, include guards,
-# private-header boundaries, notices, configuration rules and determinism.
+# private-header boundaries, notices, configuration rules, target selection
+# and determinism.
 #
 #   cmake -DOPENTLV_SOURCE_DIR=<repository> -DWORK_DIR=<scratch directory> -P generator_checks.cmake
 cmake_minimum_required(VERSION 3.16)
@@ -175,9 +176,15 @@ set(OPENTLV_AMALGAMATION_QUERY_SET_OPERATIONS [==[OFF]==])
 ")
 endfunction()
 
+# generate(<root> <result> <messages> [<selection>])
 function(generate root result messages)
+    # A selection such as Base;Addon must stay one argument.
+    set(selection "-DOPENTLV_AMALGAMATION_FIXTURE=")
+    if(ARGC GREATER 3)
+        set(selection "-DOPENTLV_AMALGAMATION_TARGETS=${ARGV3}")
+    endif()
     execute_process(COMMAND "${CMAKE_COMMAND}" "-DOPENTLV_AMALGAMATION_CONFIG=${root}/build/config.cmake"
-        "-DOPENTLV_AMALGAMATION_OUTPUT=${root}/build/amalgamation" -P "${generator}"
+        "${selection}" "-DOPENTLV_AMALGAMATION_OUTPUT=${root}/build/amalgamation" -P "${generator}"
         RESULT_VARIABLE code OUTPUT_VARIABLE output ERROR_VARIABLE errors)
     set(${result} "${code}" PARENT_SCOPE)
     string(REGEX REPLACE "[ \t\r\n]+" " " flat "${output}${errors}")
@@ -193,8 +200,9 @@ macro(failure_case name)
     write_fixture("${root}")
 endmacro()
 
+# expect_failure(<message> [<selection>])
 function(expect_failure expected)
-    generate("${root}" code messages)
+    generate("${root}" code messages ${ARGN})
     string(REGEX REPLACE "[ \t\r\n]+" " " expected "${expected}")
     string(FIND "${messages}" "opentlv_amalgamation: ${expected}" index)
     check("${case}: generation succeeded" NOT code EQUAL 0)
@@ -342,6 +350,90 @@ endforeach()
 generate("${utf8}" code messages)
 check("UTF-8 input: ${messages}" code EQUAL 0)
 
+# --- Selection ------------------------------------------------------------------
+
+# Base alone: no addon, no facade (its dependencies are incomplete) and no
+# aggregate header (it includes addon.h).
+set(root "${WORK_DIR}/select-base")
+write_fixture("${root}")
+generate("${root}" code messages "Base")
+check("Base selection: ${messages}" code EQUAL 0)
+set(selected "${root}/build/amalgamation")
+file(READ "${selected}/opentlv.h" base_header)
+file(READ "${selected}/opentlv.c" base_source)
+file(READ "${selected}/opentlv-amalgamation.json" base_metadata)
+find(base_header "commit abc1234.\n// Selected targets: Base. opentlv-amalgamation.json lists\n// every composed target.\n// Do not edit" index)
+check("Base selection: opentlv.h lacks the selection notice" index GREATER 0)
+find(base_header "addon" index)
+check("Base selection: opentlv.h composes addon" index EQUAL -1)
+find(base_source "begin src/addon/addon.c" index)
+check("Base selection: opentlv.c composes addon.c" index EQUAL -1)
+find(base_source "/* ==== begin generated/src/version.c ==== */" index)
+check("Base selection: opentlv.c lacks version.c" index GREATER 0)
+find(base_metadata "  \"schema\": 1,\n  \"selection\": {\n    \"dependencies\": {\n      \"Base\": []\n    },\n    \"requested\": [\n      \"Base\"\n    ],\n    \"resolved\": [\n      \"Base\"\n    ]\n  },\n  \"tag\"" index)
+check("Base selection: metadata lacks the selection: ${base_metadata}" index GREATER 0)
+find(base_metadata "\"key\": \"addon\"" index)
+check("Base selection: metadata lists addon" index EQUAL -1)
+file(GLOB_RECURSE tree RELATIVE "${selected}/include" "${selected}/include/*")
+list(SORT tree)
+set(expected "fx/base/base.h;fx/base/export.h;fx/base/util.h;opentlv/core/version.h")
+check("Base selection: include/ is ${tree}" tree STREQUAL expected)
+find(metadata "selection" index)
+check("the complete composition records a selection" index EQUAL -1)
+
+# Addon pulls in Base and completes the facade and the aggregate header; the
+# outputs equal the complete composition apart from the notice and selection.
+# Order, duplicates and surrounding spaces do not change the bytes.
+set(root "${WORK_DIR}/select-addon")
+write_fixture("${root}")
+generate("${root}" code messages "Addon")
+check("Addon selection: ${messages}" code EQUAL 0)
+set(selected "${root}/build/amalgamation")
+file(READ "${selected}/opentlv.h" addon_header)
+file(READ "${selected}/opentlv.c" addon_source)
+file(READ "${selected}/opentlv-amalgamation.json" addon_metadata)
+set(addon_notice "commit abc1234.\n// Selected targets: Addon. opentlv-amalgamation.json lists\n// every composed target.\n")
+string(REPLACE "commit abc1234.\n" "${addon_notice}" expected "${header}")
+check("Addon selection: opentlv.h differs from the complete composition" addon_header STREQUAL expected)
+string(REPLACE "commit abc1234.\n" "${addon_notice}" expected "${source}")
+check("Addon selection: opentlv.c differs from the complete composition" addon_source STREQUAL expected)
+find(addon_metadata "  \"selection\": {\n    \"dependencies\": {\n      \"Addon\": [\n        \"Base\"\n      ],\n      \"Base\": [],\n      \"Facade\": [\n        \"Base\",\n        \"Addon\"\n      ]\n    },\n    \"requested\": [\n      \"Addon\"\n    ],\n    \"resolved\": [\n      \"Base\",\n      \"Addon\",\n      \"Facade\"\n    ]\n  },\n" index)
+check("Addon selection: metadata lacks the closure: ${addon_metadata}" index GREATER 0)
+string(FIND "${addon_metadata}" "  \"selection\": {" start)
+string(FIND "${addon_metadata}" "  \"tag\":" end)
+math(EXPR length "${end} - ${start}")
+string(SUBSTRING "${addon_metadata}" ${start} ${length} block)
+string(REPLACE "${block}" "" expected "${addon_metadata}")
+check("Addon selection: metadata differs from the complete composition beyond the selection" expected STREQUAL metadata)
+file(GLOB_RECURSE tree RELATIVE "${selected}/include" "${selected}/include/*")
+list(LENGTH tree count)
+check("Addon selection: include/ has ${count} files instead of 8" count EQUAL 8)
+set(root "${WORK_DIR}/select-order")
+write_fixture("${root}")
+generate("${root}" code messages "Base;Addon")
+check("selection 'Base;Addon': ${messages}" code EQUAL 0)
+set(respelled "${WORK_DIR}/select-respelled")
+write_fixture("${respelled}")
+generate("${respelled}" code messages " Addon ; Base ;Addon")
+check("selection ' Addon ; Base ;Addon': ${messages}" code EQUAL 0)
+foreach(path IN ITEMS opentlv.h opentlv.c opentlv-amalgamation.json include/fx/all.h)
+    file(SHA256 "${root}/build/amalgamation/${path}" first)
+    file(SHA256 "${respelled}/build/amalgamation/${path}" second)
+    check("selection spelling changes ${path}" first STREQUAL second)
+endforeach()
+
+# Private and C++ header dependencies are part of the closure.
+foreach(scope IN ITEMS PRIVATE FACADE)
+    set(root "${WORK_DIR}/select-${scope}")
+    write_fixture("${root}")
+    write_registry("${root}" "set(OPENTLV_REGISTRY_addon_PUBLIC_DEPS)\nset(OPENTLV_REGISTRY_addon_${scope}_DEPS [==[base]==])")
+    generate("${root}" code messages "Addon")
+    check("${scope} dependency: ${messages}" code EQUAL 0)
+    file(READ "${root}/build/amalgamation/opentlv-amalgamation.json" closure)
+    find(closure "    \"resolved\": [\n      \"Base\",\n      \"Addon\"," index)
+    check("${scope} dependency is not resolved: ${closure}" index GREATER 0)
+endforeach()
+
 # --- Failures -------------------------------------------------------------------
 
 # Registry and configuration.
@@ -472,6 +564,36 @@ foreach(bytes IN ITEMS "224;128;128" "237;160;128" "240;128;128;128" "244;144;12
     file(WRITE "${src}/src/addon/addon.c" "${mit}/* ${invalid} */\n")
     expect_failure("src/addon/addon.c is not UTF-8")
 endforeach()
+
+# Selection.
+failure_case(select-unknown)
+expect_failure("OPENTLV_AMALGAMATION_TARGETS names Nope, which is not a compiled target of the registry. Valid names: Base, Addon." "Nope")
+
+failure_case(select-case)
+expect_failure("OPENTLV_AMALGAMATION_TARGETS names addon, which is not a compiled target of the registry. Did you mean Addon?" "addon")
+
+failure_case(select-separator)
+expect_failure("OPENTLV_AMALGAMATION_TARGETS names Base,Addon, which is not a compiled target of the registry. Separate target names with ';'." "Base,Addon")
+
+failure_case(select-facade)
+expect_failure("OPENTLV_AMALGAMATION_TARGETS names Facade, a header-only C++ facade without C sources. Select the targets it depends on (Base, Addon)" "Facade")
+
+failure_case(select-undeclared)
+write_registry("${root}" "set(OPENTLV_REGISTRY_addon_PRIVATE_DEPS [==[ghost]==])")
+expect_failure("the registry lists the undeclared dependency ghost" "Addon")
+
+failure_case(select-missing-dependency)
+file(WRITE "${src}/include/fx/base/util.h" "${mit}#ifndef FX_BASE_UTIL_H\n#define FX_BASE_UTIL_H\n#include \"fx/addon/addon.h\"\n#endif\n")
+expect_failure("#include \"fx/addon/addon.h\" reaches ${src}/include/fx/addon/addon.h, which no composed target registers" "Base")
+
+failure_case(select-cxx-dependency)
+file(WRITE "${src}/include/fx/base/base.hpp" "// SPDX-License-Identifier: MIT\n#include \"../addon/addon.hpp\"\n")
+write_registry("${root}" "set(OPENTLV_REGISTRY_base_CXX_HEADERS [==[${src}/include/fx/base/base.hpp]==])")
+expect_failure("include/fx/base/base.hpp of Base includes \"../addon/addon.hpp\" of Addon, which the selection does not compose; the module registry must declare the dependency" "Base")
+
+failure_case(tree-unregistered)
+file(WRITE "${src}/include/fx/all.h" "// SPDX-License-Identifier: MIT\n#include \"fx/addon/addon.h\"\n#include \"fx/nowhere.h\"\n")
+expect_failure("include/fx/all.h includes \"fx/nowhere.h\", which no registered target ships")
 
 failure_case(output)
 execute_process(COMMAND "${CMAKE_COMMAND}" "-DOPENTLV_AMALGAMATION_CONFIG=${root}/build/config.cmake"
