@@ -21,6 +21,7 @@ foreach(target IN ITEMS consumer collision)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin$<0:>")
     # The Library's warning policy (cmake/compiler.cmake), with strict ISO C.
     target_compile_options(${target} PRIVATE
+        "$<$<C_COMPILER_ID:GNU,Clang,AppleClang>:-Wshadow;-Werror=shadow>"
         "$<$<C_COMPILER_ID:GNU>:-pedantic-errors;-Werror>"
         "$<$<C_COMPILER_ID:Clang,AppleClang>:-pedantic-errors;-Wall;-Wextra;-Wpedantic;-Wstrict-prototypes;-Werror>"
         "$<$<C_COMPILER_ID:MSVC>:/WX>")
