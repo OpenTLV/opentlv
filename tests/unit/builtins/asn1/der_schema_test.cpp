@@ -554,6 +554,31 @@ TEST(Unit_Tlv_DerSchema, CheckedReadLimitPreservesOutputsWithOptionalDiagnostic)
     }
 }
 
+TEST(Unit_Tlv_DerSchema, MalformedRootHeaderNeverPublishesOutputs) {
+    tlv_der_schema_checked_t checked{};
+    ASSERT_EQ(TLV_OK, tlv_der_schema_prepare(&checked, &kInteger, nullptr));
+    for (const auto& wire :
+         {std::vector<uint8_t>{0x1F, 0x80}, std::vector<uint8_t>{0x02},
+          std::vector<uint8_t>{0x02, 0x82, 0x01}, std::vector<uint8_t>{0x02, 0x02, 0x01}}) {
+        tlv_schema_diagnostic_t diagnostic{};
+        for (auto* detail : {static_cast<tlv_schema_diagnostic_t*>(nullptr), &diagnostic}) {
+            tlv_element_t element{};
+            element.tag = tlv_tag(wire.data(), 1);
+            element.value = {wire.data(), 77};
+            size_t consumed = 99;
+            auto   rc = tlv_der_schema_read_checked(&checked, wire.data(), wire.size(), nullptr,
+                                                    &element, &consumed, detail);
+            EXPECT_NE(TLV_OK, rc);
+            EXPECT_EQ(wire.data(), element.tag.data);
+            EXPECT_EQ(1u, element.tag.size);
+            EXPECT_EQ(wire.data(), element.value.data);
+            EXPECT_EQ(77u, element.value.size);
+            EXPECT_EQ(99u, consumed);
+            if (detail) EXPECT_EQ(rc, detail->diagnostic.code);
+        }
+    }
+}
+
 TEST(Unit_Tlv_DerSchema, SchemaCheckCatchesAuthoringErrors) {
     tlv_der_schema_component_t  duplicate[2] = {Required(kInteger), Required(kInteger)};
     const tlv_der_schema_type_t bad_set = {

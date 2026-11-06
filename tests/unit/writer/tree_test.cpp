@@ -58,6 +58,21 @@ tlv_result_t fail_parent(const void* context, const tlv_element_t* element, uint
 }
 } // namespace
 
+TEST(Unit_Tlv_TreeWriter, EventMeasurementRejectsUnmatchedCloseWithoutFrames) {
+    auto next = [](void*, tlv_tree_event_t* event) {
+        *event = {};
+        event->kind = TLV_TREE_END;
+        return TLV_OK;
+    };
+    tlv_tree_writer_workspace_t workspace{};
+    size_t                      size = 99;
+    EXPECT_EQ(
+        TLV_ERR_INVALID_VALUE,
+        tlv_tree_writer_measure_events(&format, next, nullptr, &workspace, 4, 20, &size, nullptr));
+    EXPECT_EQ(99u, size);
+    EXPECT_EQ(nullptr, workspace.frames);
+}
+
 TEST(Unit_Tlv_TreeWriter, NestedAndSequentialOutputPublishesOnlyClosedRoots) {
     uint8_t                 data[32]{}, scratch[32]{};
     tlv_tree_writer_frame_t frames[2]{};
