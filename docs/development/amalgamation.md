@@ -461,6 +461,15 @@ GCC, Clang and MSVC compile/link commands. The C driver compiles the implementat
 once; the C++ driver links that object and supplies the C++ standard library.
 No conventional OpenTLV library or import/export definition is required.
 
+**Optional dead stripping.** Because `opentlv.c` is a single object, a program
+links all of it unless the consumer enables linker garbage collection. The
+[sample README](../../tests/amalgamation/consumer/README.md#optional-dead-stripping)
+gives tested commands: `-ffunction-sections -fdata-sections` with
+`-Wl,--gc-sections` for GCC and Clang, and `/Gy /Gw` with `/OPT:REF /OPT:ICF`
+for MSVC, and explains their limits for static and shared libraries. The flags
+are a consumer choice, not part of the contract: the default commands need
+none, and results vary by toolchain.
+
 **Unsupported:**
 
 - compiling `opentlv.c` as C++;
@@ -502,7 +511,7 @@ on every run and writes LF line endings on every host. It needs no compiler.
 | CTest `amalgamation-generator` (labels `unit`, `amalgamation`) | Fixture registries: composition order, include resolution and deduplication, include guards, private-header boundaries, notices, metadata, compile definitions, generated inputs, UTF-8, and identical bytes from another location and from CRLF inputs | PR (Clang unit tests) |
 | CTest `amalgamation-c99` (labels `integration`, `amalgamation`) | Generates this build's amalgamation twice and compares the bytes, then builds a consumer that compiles `opentlv.c` as C99 with `-pedantic-errors`, `-Wshadow -Werror=shadow` on GCC/Clang and the Library's warning policy, and runs it and the symbol collision regression | PR (Clang integration tests), Full (GCC and Clang integration tests) |
 | `scripts/check_cmake_integration.py` | The standalone build has the target, and neither the default build nor `install()` generates. Embedding builds have no such target | PR and Main (CMake consumers) |
-| `scripts/check_amalgamation_consumers.py` | Explicit component installation, missing-output failures, licenses, metadata, unchanged public headers, relocation, direct C99/C++17 compiler consumers and the same samples linked to conventional static/shared libraries | PR: Clang 18, both linkage modes; Full: also GCC and MSVC; minimum CMake/custom data directory/disabled Query features on Clang |
+| `scripts/check_amalgamation_consumers.py` | Explicit component installation, missing-output failures, licenses, metadata, unchanged public headers, relocation, direct C99/C++17 compiler consumers, the same consumers with the documented dead-stripping flags (same output, smaller executable; no fixed size) and the same samples linked to conventional static/shared libraries | PR: Clang 18, both linkage modes; Full: also GCC and MSVC; minimum CMake/custom data directory/disabled Query features on Clang |
 
 Comparing the external symbols with the static module archives, and comparing
 the full behavioral corpus with the conventional build, belong to #743.
@@ -550,7 +559,9 @@ python scripts/check_amalgamation_consumers.py --cc gcc --cxx g++ --shared ON
 
 CMake prepares the artifacts and the conventional comparison. The standalone
 samples are compiled and linked directly with compiler commands, including a
-C-only check with only the flat pair and the sample source available.
+C-only check with only the flat pair and the sample source available. Each
+sample is also built with the optional dead-stripping flags; it must print the
+same output and produce a smaller executable than the default build.
 
 ## Names
 
