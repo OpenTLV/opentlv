@@ -12,6 +12,13 @@ format defines how to encode an element and determine its extent in a
 buffer. The reader and writer use those rules and manage their own cursors.
 Protocol-specific interpretation stays outside both modules.
 
+Core defines the result codes, their categories and messages, and the
+`tlv_diagnostic_t` record. Validators can report a result without IO.
+The reader and writer supply offsets and byte counts when they encounter
+incomplete input or insufficient output capacity. The record contains only
+scalar values, so callers can retain it after releasing their buffer.
+See [result categories and diagnostics](fixed-tlv.md#result-categories-and-diagnostics).
+
 | Foundation work | Public header location | Tracking issue |
 | --- | --- | --- |
 | Tag, length, value, fixed encoding and size bounds | `opentlv/core/` | [#5](https://github.com/OpenTLV/opentlv/issues/5) |

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added result categories and messages for Core and IO. Optional reader and
+  writer diagnostics report byte offsets and required and available sizes
+  for truncated input and short output buffers. (#8)
 - Added a bounded fixed TLV writer for caller-provided buffers. A single
   write reports the required size on short output, and failed appends
   preserve the buffer and cursor. (#7)

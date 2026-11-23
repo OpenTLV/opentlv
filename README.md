@@ -6,7 +6,9 @@ OpenTLV is a C99 library under development for processing type-length-value
 [write them into caller-provided buffers](docs/fixed-tlv.md#writing-elements),
 convert fixed-width lengths, and measure encoded sizes.
 The [fixed TLV data model](docs/fixed-tlv.md) gives the wire layout, limits,
-and boundary test command. The [architecture guide](docs/architecture.md)
+and boundary test command. [Result categories and diagnostics](docs/fixed-tlv.md#result-categories-and-diagnostics)
+show how to locate an incomplete field or size a write retry.
+The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 

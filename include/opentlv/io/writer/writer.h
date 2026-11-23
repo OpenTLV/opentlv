@@ -4,6 +4,7 @@
 #ifndef OPENTLV_IO_WRITER_H
 #define OPENTLV_IO_WRITER_H
 
+#include "opentlv/core/diagnostic.h"
 #include "opentlv/core/formats/fixed.h"
 #include "opentlv/io/export.h"
 
@@ -45,6 +46,15 @@ TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_write(
     uint8_t *data, size_t capacity, const tlv_fixed_format_t *format,
     const tlv_element_t *element, size_t *written);
 
+/** As tlv_write(), with an optional diagnostic overwritten on every call.
+ * On short output it reports TLV_FIELD_ELEMENT at offset zero, the complete
+ * encoded size required, and the supplied capacity.
+ * Store the diagnostic separately from all other arguments and their buffers.
+ */
+TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_write_with_diagnostic(
+    uint8_t *data, size_t capacity, const tlv_fixed_format_t *format,
+    const tlv_element_t *element, size_t *written, tlv_diagnostic_t *diagnostic);
+
 /**
  * @brief Borrow the output buffer, copy the format, and start at offset zero.
  *
@@ -70,6 +80,13 @@ TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_writer_init(
  */
 TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_writer_write(
     tlv_writer_t *writer, const tlv_element_t *element);
+
+/** As tlv_writer_write(), with the optional output of tlv_write_with_diagnostic().
+ * A short append reports the current cursor offset and remaining capacity.
+ * Store the diagnostic separately from the writer, element and their buffers.
+ */
+TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_writer_write_with_diagnostic(
+    tlv_writer_t *writer, const tlv_element_t *element, tlv_diagnostic_t *diagnostic);
 
 #ifdef __cplusplus
 }

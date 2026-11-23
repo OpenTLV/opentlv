@@ -4,6 +4,7 @@
 #ifndef OPENTLV_IO_READER_H
 #define OPENTLV_IO_READER_H
 
+#include "opentlv/core/diagnostic.h"
 #include "opentlv/core/formats/fixed.h"
 #include "opentlv/io/export.h"
 
@@ -48,6 +49,15 @@ TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_read(
     const uint8_t *data, size_t size, const tlv_fixed_format_t *format,
     tlv_element_t *out_element, size_t *consumed);
 
+/** As tlv_read(), with an optional diagnostic overwritten on every call.
+ * On truncation it identifies the first incomplete field, its starting
+ * offset within data, and its required and available byte counts.
+ * Store the diagnostic separately from all other arguments and their buffers.
+ */
+TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_read_with_diagnostic(
+    const uint8_t *data, size_t size, const tlv_fixed_format_t *format,
+    tlv_element_t *out_element, size_t *consumed, tlv_diagnostic_t *diagnostic);
+
 /**
  * @brief Validate and copy the format, borrow the input, and start at offset zero.
  *
@@ -76,6 +86,13 @@ TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_reader_init(
  */
 TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_reader_next(
     tlv_reader_t *reader, tlv_element_t *out_element);
+
+/** As tlv_reader_next(), with the optional output of tlv_read_with_diagnostic().
+ * Field offsets are measured from the beginning of the reader's input.
+ * Store the diagnostic separately from the reader, input and output element.
+ */
+TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_reader_next_with_diagnostic(
+    tlv_reader_t *reader, tlv_element_t *out_element, tlv_diagnostic_t *diagnostic);
 
 #ifdef __cplusplus
 }
