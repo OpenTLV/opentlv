@@ -2,7 +2,7 @@
 
 The [Fixed TLV Foundation](https://github.com/OpenTLV/opentlv/issues/3)
 defines a C99 interface for C and C++11 callers. Include `<opentlv/tlv.h>`
-to use the fixed TLV data model, the reader, and the public compiler macros.
+to use the fixed TLV data model, reader, writer, and public compiler macros.
 
 ## Modules and dependencies
 
@@ -49,7 +49,9 @@ The reader borrows its input from the caller. Copying a borrowed tag,
 value or element copies only its descriptor. Keep the backing bytes alive
 and unchanged until the last use of any view, even after the reader goes
 out of scope. The writer borrows a writable buffer whose capacity and
-lifetime the caller controls.
+lifetime the caller controls. Both cursors copy the format settings at
+initialization. Before appending, the writer validates the element and
+checks that the remaining capacity can hold the entire encoding.
 
 The value type, `tlv_value_t`, pairs a read-only byte pointer with
 a logical byte count (`tlv_size_t`, a 64-bit unsigned integer). Before

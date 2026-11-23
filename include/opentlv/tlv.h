@@ -15,5 +15,6 @@
 #include "opentlv/core/formats/fixed.h"
 #include "opentlv/core/length.h"
 #include "opentlv/io/reader/reader.h"
+#include "opentlv/io/writer/writer.h"
 
 #endif /* OPENTLV_TLV_H */

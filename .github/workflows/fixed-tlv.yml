@@ -24,7 +24,7 @@ jobs:
           persist-credentials: false
       - name: Compile public headers
         run: python3 tests/check_public_api.py
-      - name: Test the fixed model and reader
+      - name: Test the fixed model, reader and writer
         run: python3 tests/check_fixed_model.py
       - name: Test the release build
         run: python3 tests/check_fixed_model.py --release
