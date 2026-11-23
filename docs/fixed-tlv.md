@@ -1,0 +1,74 @@
+# Fixed TLV data model
+
+A fixed TLV element consists of a tag, an unsigned length, and exactly that
+many value bytes, in that order. The caller selects the field widths and byte
+order in `tlv_fixed_format_t`. Every element using that format has the same
+header size. The wire carries no width or byte-order indicator.
+
+| Field | Encoding |
+| --- | --- |
+| Tag | Any positive number of octets, fixed by `identifier.size`. All byte patterns are valid. Leading zeros and byte order are part of the identifier. |
+| Length | Exactly `length.size` octets (1–8), big-endian or little-endian as specified by `length.byte_order`. A field of width *w* represents counts from 0 through `2^(8 × w) − 1`. |
+| Value | Contiguous, uninterpreted octets. The length counts only these bytes. An empty value has a zero length field and occupies no payload bytes. |
+
+For example, with two tag bytes and a two-byte length, a three-byte value
+has the following representations. Only the length field changes with byte
+order.
+
+| Byte order | Tag | Length | Value |
+| --- | --- | --- | --- |
+| Big-endian | `12 34` | `00 03` | `AA BB CC` |
+| Little-endian | `12 34` | `03 00` | `AA BB CC` |
+
+## Borrowed bytes and sizes
+
+Core primitives allocate no memory. A format configuration only needs to
+remain valid during the call. A value view borrows its backing bytes for as
+long as the caller uses the view.
+
+- `tlv_tag_t` and `tlv_length_t` describe raw bytes in wire order. Each
+  carries a `const uint8_t *data` and a native `size_t size`. For a raw
+  length field, `size` counts the bytes occupied by the field itself.
+- `tlv_value_t` carries a read-only pointer and a logical payload size of
+  type `tlv_size_t` (`uint64_t`). `tlv_element_t` pairs the tag with this
+  value. Copying an element or a view copies its descriptor. The caller
+  keeps the backing bytes alive and unchanged during every use.
+- `tlv_value_init` accepts a null data pointer for zero bytes and preserves
+  the supplied pointer, including for an empty view. `tlv_value_validate`
+  checks pointer and native-size requirements without reading the payload.
+  The caller supplies at least the declared number of readable bytes.
+
+## Checking boundaries
+
+Use `tlv_fixed_length_read` and `tlv_fixed_length_write` to convert a single
+length field. They use the configured byte order regardless of host order or
+buffer alignment. Extra bytes after the field are untouched. For a sizing
+query, pass a null destination and zero capacity to `tlv_fixed_length_write`.
+
+Check the result of each operation before using its outputs.
+
+| Condition | Result |
+| --- | --- |
+| Missing required pointer, or null data with a positive count | `TLV_ERR_NULL_ARG` |
+| Zero tag width, length width outside 1–8, or unspecified/invalid byte order | `TLV_ERR_INVALID_ARG` |
+| Element's tag width differs from the configured width | `TLV_ERR_INVALID_TAG_SIZE` |
+| Count exceeds the selected wire width, e.g. 256 with one length byte | `TLV_ERR_INVALID_LENGTH` |
+| Input ends before the length field is complete | `TLV_ERR_TRUNCATED` |
+| Output buffer is shorter than the length field | `TLV_ERR_BUFFER_TOO_SHORT` |
+| Logical payload size exceeds `SIZE_MAX` when used as a native size | `TLV_ERR_NATIVE_SIZE` |
+| A checked sum exceeds its result type's maximum | `TLV_ERR_OVERFLOW` |
+
+An eight-byte length of all `FF` decodes to `UINT64_MAX` on both 32-bit and
+64-bit platforms. `tlv_size_to_native` checks whether that count fits a
+native buffer size. `tlv_size_add` checks addition of two logical counts.
+`tlv_fixed_element_size` checks the tag and value descriptors, wire length
+range, and the complete header-plus-payload size against `SIZE_MAX`. It
+measures without accessing the backing bytes.
+
+A truncated length read reports the available prefix size in `*consumed`
+and leaves the decoded count untouched. All other failures preserve every
+output, including destination bytes.
+
+Run `python tests/check_fixed_model.py` to build and run the boundary tests
+and the C++11 consumer against the C99 implementation. Select GCC or Clang
+with the `CC` and `CXX` environment variables.
