@@ -22,9 +22,9 @@ order.
 
 ## Borrowed bytes and sizes
 
-Core primitives allocate no memory. A format configuration only needs to
-remain valid during the call. A value view borrows its backing bytes for as
-long as the caller uses the view.
+Core primitives and the reader allocate no memory. A format configuration
+only needs to remain valid during the call. A value view borrows its backing
+bytes for as long as the caller uses the view.
 
 - `tlv_tag_t` and `tlv_length_t` describe raw bytes in wire order. Each
   carries a `const uint8_t *data` and a native `size_t size`. For a raw
@@ -61,6 +61,8 @@ Check the result of each operation before using its outputs.
 An eight-byte length of all `FF` decodes to `UINT64_MAX` on both 32-bit and
 64-bit platforms. `tlv_size_to_native` checks whether that count fits a
 native buffer size. `tlv_size_add` checks addition of two logical counts.
+`tlv_fixed_header_size` validates the format and returns the sum of its tag
+and length widths, rejecting a sum above `SIZE_MAX`.
 `tlv_fixed_element_size` checks the tag and value descriptors, wire length
 range, and the complete header-plus-payload size against `SIZE_MAX`. It
 measures without accessing the backing bytes.
@@ -69,6 +71,39 @@ A truncated length read reports the available prefix size in `*consumed`
 and leaves the decoded count untouched. All other failures preserve every
 output, including destination bytes.
 
-Run `python tests/check_fixed_model.py` to build and run the boundary tests
-and the C++11 consumer against the C99 implementation. Select GCC or Clang
-with the `CC` and `CXX` environment variables.
+## Reading elements
+
+Use `tlv_read` to decode the first element of a bounded buffer. On success
+it returns the borrowed tag and value and sets `*consumed` to the complete
+element size. To iterate through adjacent elements, initialize a
+`tlv_reader_t` and call `tlv_reader_next` until it returns `TLV_END`.
+Both APIs are available through `<opentlv/io/reader/reader.h>` or the
+umbrella header.
+
+With one-byte tag and length fields, `10 01 AB 20 00 30 02 CD` contains
+two complete elements followed by an incomplete third element.
+
+| Call to `tlv_reader_next` | Result | Next byte offset (`reader.pos`) |
+| --- | --- | --- |
+| First | `TLV_OK` (tag `10`, value `AB`) | 3 |
+| Second | `TLV_OK` (tag `20`, empty value) | 5 |
+| Third | `TLV_ERR_TRUNCATED` (tag `30` declares two bytes, only `CD` is available) | 5 |
+
+A buffer ending at offset 5 instead returns `TLV_END` on the third call.
+Empty input, including a null pointer with zero size, also returns `TLV_END`
+for a valid format. Any nonempty incomplete tag, length field or value
+returns `TLV_ERR_TRUNCATED`. The reader compares the 64-bit payload length
+with the remaining input before converting it to a native size. Even a
+length of `UINT64_MAX` in a short buffer is reported as truncation on both
+32-bit and 64-bit hosts.
+
+On end or error, the element, cursor, and one-shot consumed count keep
+their previous values. Repeating the call gives the same result. Successful
+initialization copies the format settings and resets the cursor to zero.
+The tag and value point into the original input, so keep those bytes alive
+and unchanged while any view is in use. An empty value points just past
+its header. A payload that resembles another TLV is returned as raw bytes.
+
+Run `python tests/check_fixed_model.py` to build and run the model and reader
+boundary tests and the C++11 consumer against the C99 implementation.
+Select GCC or Clang with the `CC` and `CXX` environment variables.

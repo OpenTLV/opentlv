@@ -142,6 +142,34 @@ static void test_invalid_length_arguments(void)
     assert(decoded == 42 && count == 0);
 }
 
+static void test_header_size(void)
+{
+    tlv_fixed_format_t format = {{2}, {4, TLV_BYTE_ORDER_LITTLE_ENDIAN}};
+    size_t size = 42;
+
+    assert(tlv_fixed_header_size(NULL, &size) == TLV_ERR_NULL_ARG);
+    assert(tlv_fixed_header_size(&format, NULL) == TLV_ERR_NULL_ARG);
+    assert(size == 42);
+    assert(tlv_fixed_header_size(&format, &size) == TLV_OK && size == 6);
+
+    format.identifier.size = 0;
+    assert(tlv_fixed_header_size(&format, &size) == TLV_ERR_INVALID_ARG && size == 6);
+    format.identifier.size = 2;
+    format.length.size = 0;
+    assert(tlv_fixed_header_size(&format, &size) == TLV_ERR_INVALID_ARG && size == 6);
+    format.length.size = 9;
+    assert(tlv_fixed_header_size(&format, &size) == TLV_ERR_INVALID_ARG && size == 6);
+    format.length.size = 8;
+    format.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
+    assert(tlv_fixed_header_size(&format, &size) == TLV_ERR_INVALID_ARG && size == 6);
+
+    format.length.byte_order = TLV_BYTE_ORDER_BIG_ENDIAN;
+    format.identifier.size = SIZE_MAX - 8;
+    assert(tlv_fixed_header_size(&format, &size) == TLV_OK && size == SIZE_MAX);
+    ++format.identifier.size;
+    assert(tlv_fixed_header_size(&format, &size) == TLV_ERR_OVERFLOW && size == SIZE_MAX);
+}
+
 static void test_element_size(void)
 {
     const uint8_t tag[9] = {0x81};
@@ -197,6 +225,7 @@ int main(void)
     test_borrowed_value();
     test_length_fields();
     test_invalid_length_arguments();
+    test_header_size();
     test_element_size();
     return 0;
 }

@@ -23,6 +23,18 @@ typedef struct tlv_fixed_format {
 } tlv_fixed_format_t;
 
 /**
+ * @brief Validate the format and return its tag-plus-length width in octets.
+ *
+ * Both pointers are required. The tag width must be positive. The length
+ * width must be 1 through 8 and its byte order must be big- or little-endian.
+ * @return TLV_OK on success, TLV_ERR_NULL_ARG for a null pointer,
+ * TLV_ERR_INVALID_ARG for an invalid format, or TLV_ERR_OVERFLOW if the
+ * header exceeds SIZE_MAX. On failure *size is unchanged.
+ */
+TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_header_size(
+    const tlv_fixed_format_t *format, size_t *size);
+
+/**
  * @brief Validate an element for the format and measure its total wire size.
  *
  * The tag width must match the format. A zero-length value may use NULL.

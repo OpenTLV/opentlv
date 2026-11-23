@@ -2,7 +2,7 @@
 
 The [Fixed TLV Foundation](https://github.com/OpenTLV/opentlv/issues/3)
 defines a C99 interface for C and C++11 callers. Include `<opentlv/tlv.h>`
-to use the fixed TLV data model and the public compiler macros.
+to use the fixed TLV data model, the reader, and the public compiler macros.
 
 ## Modules and dependencies
 

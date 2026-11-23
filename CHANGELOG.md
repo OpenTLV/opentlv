@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a bounded fixed TLV reader that returns borrowed elements, advances
+  only after a complete element, and distinguishes end of input from truncation. (#6)
 - Added borrowed tag, length, value, and element types, fixed-width length
   conversion in either byte order, and checked size calculations. (#5)
 - Added the public `<opentlv/tlv.h>` header and documented the C99 and

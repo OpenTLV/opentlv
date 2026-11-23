@@ -14,5 +14,6 @@
 #include "opentlv/core/compiler.h"
 #include "opentlv/core/formats/fixed.h"
 #include "opentlv/core/length.h"
+#include "opentlv/io/reader/reader.h"
 
 #endif /* OPENTLV_TLV_H */
