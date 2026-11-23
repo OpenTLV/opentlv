@@ -29,9 +29,12 @@ declarations in `extern "C"` under `#ifdef __cplusplus`. Compile the
 implementation as C and link it using a compatible C ABI.
 
 Use `tlv_` for public C functions, `tlv_…_t` for public typedefs and
-`TLV_` for result constants and feature macros. For example,
-`TLV_C_VERSION` and `TLV_NODISCARD` are available from the umbrella header.
-The latter can annotate a declaration in either language.
+`TLV_` for result constants and feature macros. The umbrella header exposes
+`TLV_C_VERSION` and three portable attributes. Mark functions whose results
+should be checked with `TLV_NODISCARD`, intentionally unused declarations
+with `TLV_MAYBE_UNUSED`, and intentional fallthrough between switch cases
+with `TLV_FALLTHROUGH;`. OpenTLV reserves all three attribute names.
+Predefining any of them before including the header is a compilation error.
 
 Expose `include/` as the consumer include path. Keep each module's public
 headers under `include/opentlv/<module>/`, implementations in
@@ -70,8 +73,11 @@ a new major version.
 
 Run `python tests/check_public_api.py` from the repository root with Python
 3 and a GCC- or Clang-compatible toolchain. Set `CC` and `CXX` to select
-the C and C++ compiler executables. The check compiles every public header
-with only the public include tree available in strict C99 and C++11 modes.
+the C and C++ compiler executables. To use Clang's Microsoft-compatible
+driver, run `python tests/check_public_api.py --clang-cl clang-cl`.
+The check compiles every public header in isolation and exercises the
+attribute diagnostics in C99, C11, C17, C23, C++11 and C++17. C99 and
+C++11 are required. The script reports newer modes the compiler cannot run.
 
 The epic tracks installed-package and link checks in
 [#9](https://github.com/OpenTLV/opentlv/issues/9), behavioral test and

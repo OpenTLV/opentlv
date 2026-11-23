@@ -11,27 +11,24 @@
  * @ingroup core
  * @brief Portable declaration attributes built on opentlv/core/compiler.h.
  *
- * Each macro expands to the strongest attribute the active language standard
- * and compiler support, using the capabilities detected by opentlv/core/compiler.h,
- * and degrades to nothing (or, for #TLV_FALLTHROUGH, to no statement) where
- * none apply, including the C99 baseline. A declaration written once, for
- * example `TLV_NODISCARD tlv_result_t tlv_reader_next(...)`, therefore keeps
- * the same API and ABI on every supported toolchain while newer ones gain
- * stronger compile-time diagnostics. This header defines no functions or
- * types, only preprocessor macros, so it needs no `extern "C"` guard and is
- * safe to include from both C and C++ translation units.
+ * OpenTLV supplies TLV_NODISCARD, TLV_MAYBE_UNUSED and TLV_FALLTHROUGH.
+ * Defining any of them before the first inclusion of this header is an error.
+ * Each expands to a standard attribute in C23 and C++17 or later, a compiler
+ * attribute in earlier modes when supported, or an empty replacement otherwise.
  */
 
 /** @addtogroup core
  * @{
  */
 
-/* Internal: nonzero when the standard [[...]] attribute syntax used below is
- * available (C++17 or newer, or C23; TLV_HAS_C23 is always 0 when compiling
- * as C++, so no separate !defined(__cplusplus) guard is needed here).
- * Undefined again once the last macro that reads it is defined; excluded
- * from the generated reference via EXCLUDE_SYMBOLS. */
-#if (defined(__cplusplus) && __cplusplus >= 201703L) || TLV_HAS_C23
+#if defined(TLV_NODISCARD) || defined(TLV_MAYBE_UNUSED) || defined(TLV_FALLTHROUGH)
+#error "OpenTLV reserves TLV_NODISCARD, TLV_MAYBE_UNUSED and TLV_FALLTHROUGH"
+#endif
+
+/* MSVC reports the selected C++ standard in _MSVC_LANG even when
+ * __cplusplus retains its default value. */
+#if TLV_HAS_C23 || (defined(__cplusplus) && __cplusplus >= 201703L) || \
+    (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
 #define TLV_ATTRIBUTES_HAS_STD_ATTR 1
 #else
 #define TLV_ATTRIBUTES_HAS_STD_ATTR 0
@@ -42,18 +39,14 @@
  *
  * Expands to the standard `[[nodiscard]]` attribute in C++17 or newer or in
  * C23, to `__attribute__((warn_unused_result))` on compilers that recognize
- * it (GCC, Clang), and to nothing otherwise, including the C99 baseline. The
- * annotated declaration's signature, linkage and ABI are unchanged in every
- * case. A definition supplied by the C++ compatibility header is retained.
+ * it (GCC, Clang), and to nothing otherwise.
  */
-#ifndef TLV_NODISCARD
 #if TLV_ATTRIBUTES_HAS_STD_ATTR
 #define TLV_NODISCARD [[nodiscard]]
 #elif TLV_HAS_ATTRIBUTE(warn_unused_result)
 #define TLV_NODISCARD __attribute__((warn_unused_result))
 #else
 #define TLV_NODISCARD
-#endif
 #endif
 
 /**

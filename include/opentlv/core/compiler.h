@@ -37,10 +37,10 @@
  * #TLV_C17 and #TLV_C23.
  *
  * Expands to `__STDC_VERSION__` when compiling as C. C++ has no equivalent
- * macro, so a C++ translation unit sees #TLV_C99 here; C++-specific checks
- * should test `__cplusplus` directly instead of this macro.
+ * macro, so a C++ translation unit sees #TLV_C99 here. For C++ language
+ * features, check `__cplusplus` or the selected MSVC mode in `_MSVC_LANG`.
  */
-#if defined(__STDC_VERSION__)
+#if !defined(__cplusplus) && defined(__STDC_VERSION__)
 #define TLV_C_VERSION __STDC_VERSION__
 #else
 #define TLV_C_VERSION TLV_C99
@@ -85,10 +85,8 @@
  * @brief Nonzero when the active compiler recognizes `__declspec` attribute
  * `x` via the `__has_declspec_attribute` compiler builtin.
  *
- * Expands to `__has_declspec_attribute(x)` where supported (MSVC and
- * clang-cl) and to `0` otherwise, so it can be used unconditionally in an
- * `#if` without first checking whether `__has_declspec_attribute` itself
- * exists.
+ * Expands to `__has_declspec_attribute(x)` where the compiler provides
+ * this builtin and to `0` otherwise.
  */
 #ifdef __has_declspec_attribute
 #define TLV_HAS_DECLSPEC_ATTRIBUTE(x) __has_declspec_attribute(x)
