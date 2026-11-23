@@ -2,8 +2,7 @@
 
 The [Fixed TLV Foundation](https://github.com/OpenTLV/opentlv/issues/3)
 defines a C99 interface for C and C++11 callers. Include `<opentlv/tlv.h>`
-to use the public macros for compiler feature detection and declaration
-attributes.
+to use the fixed TLV data model and the public compiler macros.
 
 ## Modules and dependencies
 
@@ -52,12 +51,13 @@ and unchanged until the last use of any view, even after the reader goes
 out of scope. The writer borrows a writable buffer whose capacity and
 lifetime the caller controls.
 
-The planned value type, `tlv_value_t`, pairs a read-only byte pointer with
+The value type, `tlv_value_t`, pairs a read-only byte pointer with
 a logical byte count (`tlv_size_t`, a 64-bit unsigned integer). Before
 using a logical count to access memory, check that it fits the native
 `size_t` and the actual buffer. Public declarations document borrowing,
 null and empty inputs, output state on failure, and any invalidation
-rules. The concrete types and their boundary tests belong to #5.
+rules. See the [fixed TLV data model](fixed-tlv.md) for the wire layout,
+size limits, and boundary tests.
 
 ## Compatibility
 
