@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added the public `<opentlv/tlv.h>` header and documented the C99 and
+  C++11 API conventions for the Fixed TLV Foundation. (#4)
 - Documented how to contribute, report vulnerabilities privately, and merge
-  changes under the repository's branch protections.
-
-[Unreleased]: https://github.com/OpenTLV/opentlv/commits/main/
+  changes under the repository's branch protections. (#1)
