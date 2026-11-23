@@ -1,7 +1,10 @@
 # OpenTLV
 
-OpenTLV is a project for processing type-length-value (TLV) data. This
-repository is being set up for library development.
+OpenTLV is a C99 library under development for processing type-length-value
+(TLV) data. C99 and C++11 callers can include `<opentlv/tlv.h>` for the
+current compiler feature and declaration attribute macros. The
+[architecture guide](docs/architecture.md) describes the Core and IO
+modules, buffer ownership, API stability, and how to check the headers.
 
 ## Contributing
 
