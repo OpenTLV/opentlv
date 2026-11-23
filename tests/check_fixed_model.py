@@ -1,5 +1,6 @@
 """Build and run the fixed TLV model and reader tests with C99 and C++11 compilers."""
 
+import argparse
 import os
 import subprocess
 import tempfile
@@ -9,13 +10,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def check(build):
+def check(build, release=False):
     cc = os.environ.get("CC", "cc")
     cxx = os.environ.get("CXX", "c++")
     flags = ["-pedantic-errors", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "include"]
+    if release:
+        flags.extend(["-O2", "-DNDEBUG"])
+
     def compile_c(relative):
         source = ROOT / "src" / relative
-        obj = build / (source.stem + ".o")
+        obj = (build / "objects" / relative).with_suffix(".o")
+        obj.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run([cc, "-std=c99", *flags, "-c", source, "-o", obj], cwd=build, check=True)
         return obj
 
@@ -37,5 +42,8 @@ def check(build):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--release", action="store_true", help="compile with -O2 and -DNDEBUG")
+    args = parser.parse_args()
     with tempfile.TemporaryDirectory() as directory:
-        check(Path(directory))
+        check(Path(directory), release=args.release)

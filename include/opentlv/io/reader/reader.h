@@ -35,7 +35,8 @@ typedef struct tlv_reader {
  * input and *consumed counts the tag, length and payload bytes. Trailing
  * bytes are available for subsequent reads. An empty value points just past
  * the header. Keep the backing bytes alive and unchanged while using a view.
- * Use separate storage for the input and the two outputs.
+ * @pre The storage for *out_element and *consumed must be disjoint from
+ * each other and from the input bytes.
  *
  * @return TLV_END for empty input with a valid format, TLV_ERR_TRUNCATED if
  * a nonempty prefix lacks a complete header or payload, TLV_ERR_NULL_ARG for
@@ -51,8 +52,10 @@ TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_read(
  * @brief Validate and copy the format, borrow the input, and start at offset zero.
  *
  * data may be null when size is zero. Initialization does not inspect any
- * input bytes. The format may go out of scope after this call. The input
- * must outlive the reader and every borrowed view still in use.
+ * input bytes. The format may go out of scope after this call. To reuse
+ * an initialized reader's format, pass &reader->format as the format.
+ * @pre The reader object must occupy storage disjoint from the input bytes.
+ * Keep those bytes alive and unchanged while using the reader or any view.
  * @return TLV_OK, TLV_ERR_NULL_ARG, TLV_ERR_INVALID_ARG, or TLV_ERR_OVERFLOW.
  * On failure the previous reader is unchanged.
  */
@@ -62,8 +65,12 @@ TLV_NODISCARD OPENTLV_IO_API tlv_result_t tlv_reader_init(
 /**
  * @brief Publish the next borrowed element and advance past its payload.
  *
- * Use an initialized reader and a separate output object. The value is
- * opaque. Result codes and output lifetimes follow tlv_read(). An offset
+ * @pre The reader must be initialized. The storage for *out_element must
+ * be disjoint from the entire reader object (including its format member)
+ * and from the input bytes.
+ *
+ * The returned tag and value point into the input. The value is opaque.
+ * Result codes and output lifetimes follow tlv_read(). An offset
  * beyond the supplied input size returns TLV_ERR_INVALID_ARG. On TLV_END
  * or error, both the cursor and the output retain their previous values.
  */

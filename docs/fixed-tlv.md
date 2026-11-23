@@ -100,10 +100,20 @@ length of `UINT64_MAX` in a short buffer is reported as truncation on both
 On end or error, the element, cursor, and one-shot consumed count keep
 their previous values. Repeating the call gives the same result. Successful
 initialization copies the format settings and resets the cursor to zero.
-The tag and value point into the original input, so keep those bytes alive
-and unchanged while any view is in use. An empty value points just past
-its header. A payload that resembles another TLV is returned as raw bytes.
+To restart a reader with its current settings, pass `&reader.format` to
+`tlv_reader_init`. Copy an initialized reader to iterate independently
+over the same input from the copied position.
+
+Store the reader and the output element in separate, nonoverlapping objects
+outside the input buffer. Even partial overlap with a reader member such
+as `reader.format` violates the contract for `tlv_reader_next`. The tag and
+value pointers in the output refer to the original input. Keep those bytes
+alive and unchanged while using the reader or any view. An empty value
+points just past its header. A payload that resembles another TLV is
+returned as raw bytes.
 
 Run `python tests/check_fixed_model.py` to build and run the model and reader
 boundary tests and the C++11 consumer against the C99 implementation.
+Run `python tests/check_fixed_model.py --release` to run the same checks with
+optimization enabled and `NDEBUG` defined.
 Select GCC or Clang with the `CC` and `CXX` environment variables.
