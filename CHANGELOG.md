@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a bounded fixed TLV writer for caller-provided buffers. A single
+  write reports the required size on short output, and failed appends
+  preserve the buffer and cursor. (#7)
 - Added a bounded fixed TLV reader that returns borrowed elements, advances
   only after a complete element, and distinguishes end of input from truncation. (#6)
 - Added borrowed tag, length, value, and element types, fixed-width length

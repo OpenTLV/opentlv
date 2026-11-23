@@ -22,9 +22,9 @@ order.
 
 ## Borrowed bytes and sizes
 
-Core primitives and the reader allocate no memory. A format configuration
-only needs to remain valid during the call. A value view borrows its backing
-bytes for as long as the caller uses the view.
+Core primitives, the reader, and the writer allocate no memory. A format
+configuration only needs to remain valid during the call. A value view
+borrows its backing bytes for as long as the caller uses the view.
 
 - `tlv_tag_t` and `tlv_length_t` describe raw bytes in wire order. Each
   carries a `const uint8_t *data` and a native `size_t size`. For a raw
@@ -67,9 +67,9 @@ and length widths, rejecting a sum above `SIZE_MAX`.
 range, and the complete header-plus-payload size against `SIZE_MAX`. It
 measures without accessing the backing bytes.
 
-A truncated length read reports the available prefix size in `*consumed`
-and leaves the decoded count untouched. All other failures preserve every
-output, including destination bytes.
+For the length-field primitives, a truncated read reports the available
+prefix size in `*consumed` and preserves the decoded count. All other
+failures preserve every output, including destination bytes.
 
 ## Reading elements
 
@@ -112,8 +112,46 @@ alive and unchanged while using the reader or any view. An empty value
 points just past its header. A payload that resembles another TLV is
 returned as raw bytes.
 
-Run `python tests/check_fixed_model.py` to build and run the model and reader
-boundary tests and the C++11 consumer against the C99 implementation.
+## Writing elements
+
+Use `tlv_write(data, capacity, format, element, written)` to encode one
+element. Include `<opentlv/io/writer/writer.h>` or the umbrella header.
+The caller supplies writable storage and a separate `size_t` for the byte
+count. On success, `*written` is the complete element size. The writer
+copies the tag bytes in wire order, encodes the payload length in the
+configured width and byte order, then copies the payload.
+
+| Result | Destination | `*written` |
+| --- | --- | --- |
+| `TLV_OK` | Contains the element in the first `*written` bytes. | Number of bytes encoded. |
+| `TLV_ERR_BUFFER_TOO_SHORT` | Preserves every byte. | Capacity required for the complete element. |
+| Any other error | Preserves every byte. | Preserves the previous count. |
+
+For example, a two-byte tag `12 34`, a two-byte little-endian length, and
+one payload byte `AB` produce `12 34 01 00 AB`. With four bytes available,
+`tlv_write` returns `TLV_ERR_BUFFER_TOO_SHORT` and sets `*written` to 5.
+Passing `NULL` and zero capacity gives the same result for this element.
+Use `tlv_fixed_element_size` to measure an element before choosing a buffer.
+
+For successive writes, call `tlv_writer_init(writer, data, capacity, format)`.
+Initialization copies the format and sets `writer->pos` to zero. A null
+destination is valid only with zero capacity. Failed initialization preserves
+the previous writer. Call `tlv_writer_write(writer, element)` to append at
+`writer->pos`. A successful append advances the cursor by the encoded size.
+Any failure preserves the cursor and the entire destination, including
+previously encoded elements.
+
+Keep the destination alive and writable while the writer uses it. Keep
+the writer state and output count in separate storage. The tag, payload,
+and input descriptors must remain readable during the call and must be
+disjoint from the bytes being written. A completed prefix of the same
+buffer can supply tag or payload bytes for an append into a disjoint suffix.
+
+## Running the tests
+
+Run `python tests/check_fixed_model.py` to check model and cursor bounds,
+round-trip fixed TLV elements, and link a C++11 consumer against the C99
+implementation.
 Run `python tests/check_fixed_model.py --release` to run the same checks with
 optimization enabled and `NDEBUG` defined.
 Select GCC or Clang with the `CC` and `CXX` environment variables.
