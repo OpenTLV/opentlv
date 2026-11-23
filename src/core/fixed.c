@@ -70,13 +70,38 @@ tlv_result_t tlv_fixed_length_write(const tlv_fixed_length_t *config, tlv_size_t
     return TLV_OK;
 }
 
+static int valid_format(const tlv_fixed_format_t *format)
+{
+    return format->identifier.size != 0 && valid_length_field(format->length);
+}
+
+static tlv_result_t add_native_sizes(size_t a, size_t b, size_t *sum)
+{
+    if (a > SIZE_MAX - b) {
+        return TLV_ERR_OVERFLOW;
+    }
+    *sum = a + b;
+    return TLV_OK;
+}
+
+tlv_result_t tlv_fixed_header_size(const tlv_fixed_format_t *format, size_t *size)
+{
+    if (!format || !size) {
+        return TLV_ERR_NULL_ARG;
+    }
+    if (!valid_format(format)) {
+        return TLV_ERR_INVALID_ARG;
+    }
+    return add_native_sizes(format->identifier.size, format->length.size, size);
+}
+
 tlv_result_t tlv_fixed_element_size(const tlv_fixed_format_t *format,
                                     const tlv_element_t *element, size_t *size)
 {
     if (!format || !element || !size) {
         return TLV_ERR_NULL_ARG;
     }
-    if (format->identifier.size == 0 || !valid_length_field(format->length)) {
+    if (!valid_format(format)) {
         return TLV_ERR_INVALID_ARG;
     }
     if (!element->tag.data && element->tag.size != 0) {
@@ -92,14 +117,10 @@ tlv_result_t tlv_fixed_element_size(const tlv_fixed_format_t *format,
     if (!length_fits(format->length.size, element->value.size)) {
         return TLV_ERR_INVALID_LENGTH;
     }
-    if (format->identifier.size > SIZE_MAX - format->length.size) {
-        return TLV_ERR_OVERFLOW;
+    size_t header_size;
+    result = add_native_sizes(format->identifier.size, format->length.size, &header_size);
+    if (result != TLV_OK) {
+        return result;
     }
-    size_t header_size = format->identifier.size + format->length.size;
-    size_t payload_size = (size_t)element->value.size;
-    if (payload_size > SIZE_MAX - header_size) {
-        return TLV_ERR_OVERFLOW;
-    }
-    *size = header_size + payload_size;
-    return TLV_OK;
+    return add_native_sizes(header_size, (size_t)element->value.size, size);
 }

@@ -1,5 +1,6 @@
-"""Build and run the fixed TLV model tests with C99 and C++11 compilers."""
+"""Build and run the fixed TLV model and reader tests with C99 and C++11 compilers."""
 
+import argparse
 import os
 import subprocess
 import tempfile
@@ -9,19 +10,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def check(build):
+def check(build, release=False):
     cc = os.environ.get("CC", "cc")
     cxx = os.environ.get("CXX", "c++")
     flags = ["-pedantic-errors", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "include"]
-    objects = []
-    for name in ("size", "value", "fixed"):
-        source = ROOT / "src" / "core" / (name + ".c")
-        obj = build / (name + ".o")
-        subprocess.run([cc, "-std=c99", *flags, "-c", source, "-o", obj], cwd=build, check=True)
-        objects.append(obj)
+    if release:
+        flags.extend(["-O2", "-DNDEBUG"])
 
-    consumers = [(cc, "c99", "fixed_model.c"), (cxx, "c++11", "fixed_model.cpp")]
-    for compiler, standard, source in consumers:
+    def compile_c(relative):
+        source = ROOT / "src" / relative
+        obj = (build / "objects" / relative).with_suffix(".o")
+        obj.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run([cc, "-std=c99", *flags, "-c", source, "-o", obj], cwd=build, check=True)
+        return obj
+
+    core = [compile_c(name) for name in ("core/size.c", "core/value.c", "core/fixed.c")]
+    reader = [*core, compile_c("io/reader/reader.c")]
+    consumers = [
+        (cc, "c99", "fixed_model.c", core),
+        (cc, "c99", "fixed_reader.c", reader),
+        (cxx, "c++11", "fixed_model.cpp", reader),
+    ]
+    for compiler, standard, source, objects in consumers:
         executable = build / ("test.exe" if os.name == "nt" else "test")
         subprocess.run(
             [compiler, "-std=" + standard, *flags, ROOT / "tests" / source, *objects, "-o", executable],
@@ -32,5 +42,8 @@ def check(build):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--release", action="store_true", help="compile with -O2 and -DNDEBUG")
+    args = parser.parse_args()
     with tempfile.TemporaryDirectory() as directory:
-        check(Path(directory))
+        check(Path(directory), release=args.release)

@@ -5,14 +5,15 @@
 #define OPENTLV_RESULT_H
 
 /** @file
- * @brief Results returned by Core primitives.
+ * @brief Results shared by Core and IO operations.
  * @ingroup core
  */
 
-/** Outcome of a checked operation. Test for success with `result == TLV_OK`. */
+/** Outcome of a checked operation. Readers return TLV_END on normal exhaustion. */
 typedef enum tlv_result {
     TLV_OK = 0,                  /**< The operation succeeded. */
-    TLV_ERR_TRUNCATED = 3,       /**< Input ended before the field was complete. */
+    TLV_END = 1,                 /**< The input ended at an element boundary. */
+    TLV_ERR_TRUNCATED = 3,       /**< Input ended inside a field or element. */
     TLV_ERR_INVALID_TAG_SIZE = 5, /**< The tag width differs from the format's width. */
     TLV_ERR_INVALID_LENGTH = 6,  /**< The length falls outside the format's range. */
     TLV_ERR_NULL_ARG = 10,       /**< A required pointer was null. */

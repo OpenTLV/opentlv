@@ -1,0 +1,30 @@
+name: Fixed TLV
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  fixed-tlv:
+    name: fixed-tlv
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CC: gcc
+      CXX: g++
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Compile public headers
+        run: python3 tests/check_public_api.py
+      - name: Test the fixed model and reader
+        run: python3 tests/check_fixed_model.py
+      - name: Test the release build
+        run: python3 tests/check_fixed_model.py --release

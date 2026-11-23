@@ -1,8 +1,9 @@
 # OpenTLV
 
 OpenTLV is a C99 library under development for processing type-length-value
-(TLV) data. C99 and C++11 callers can include `<opentlv/tlv.h>` to describe
-borrowed elements, convert fixed-width lengths, and measure encoded sizes.
+(TLV) data. C99 and C++11 callers can include `<opentlv/tlv.h>` to
+[read fixed TLV elements](docs/fixed-tlv.md#reading-elements), convert
+fixed-width lengths, and measure encoded sizes.
 The [fixed TLV data model](docs/fixed-tlv.md) gives the wire layout, limits,
 and boundary test command. The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
