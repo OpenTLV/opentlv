@@ -27,6 +27,10 @@ int main()
     CHECK(tlv_reader_init(&reader, wire, writer.pos, &format) == TLV_OK);
     CHECK(tlv_reader_next(&reader, &element) == TLV_OK);
     CHECK(element.tag.data == wire && element.value.size == 1 && element.value.data[0] == payload[0]);
-    CHECK(tlv_reader_next(&reader, &element) == TLV_END);
+    tlv_diagnostic_t diagnostic{};
+    CHECK(tlv_reader_next_with_diagnostic(&reader, &element, &diagnostic) == TLV_END);
+    CHECK(diagnostic.result == TLV_END && diagnostic.field == TLV_FIELD_NONE);
+    CHECK(tlv_result_category(diagnostic.result) == TLV_CATEGORY_END);
+    CHECK(std::strcmp(tlv_result_string(diagnostic.result), "end of input") == 0);
     return 0;
 }

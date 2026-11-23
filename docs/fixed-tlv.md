@@ -45,19 +45,6 @@ length field. They use the configured byte order regardless of host order or
 buffer alignment. Extra bytes after the field are untouched. For a sizing
 query, pass a null destination and zero capacity to `tlv_fixed_length_write`.
 
-Check the result of each operation before using its outputs.
-
-| Condition | Result |
-| --- | --- |
-| Missing required pointer, or null data with a positive count | `TLV_ERR_NULL_ARG` |
-| Zero tag width, length width outside 1–8, or unspecified/invalid byte order | `TLV_ERR_INVALID_ARG` |
-| Element's tag width differs from the configured width | `TLV_ERR_INVALID_TAG_SIZE` |
-| Count exceeds the selected wire width, e.g. 256 with one length byte | `TLV_ERR_INVALID_LENGTH` |
-| Input ends before the length field is complete | `TLV_ERR_TRUNCATED` |
-| Output buffer is shorter than the length field | `TLV_ERR_BUFFER_TOO_SHORT` |
-| Logical payload size exceeds `SIZE_MAX` when used as a native size | `TLV_ERR_NATIVE_SIZE` |
-| A checked sum exceeds its result type's maximum | `TLV_ERR_OVERFLOW` |
-
 An eight-byte length of all `FF` decodes to `UINT64_MAX` on both 32-bit and
 64-bit platforms. `tlv_size_to_native` checks whether that count fits a
 native buffer size. `tlv_size_add` checks addition of two logical counts.
@@ -146,6 +133,55 @@ the writer state and output count in separate storage. The tag, payload,
 and input descriptors must remain readable during the call and must be
 disjoint from the bytes being written. A completed prefix of the same
 buffer can supply tag or payload bytes for an append into a disjoint suffix.
+
+## Result categories and diagnostics
+
+Pass the result of a Core validator or an IO operation to
+`tlv_result_category(result)` to choose how to handle it.
+`tlv_result_string(result)` returns a message in immutable static storage.
+Callers may retain the pointer for the lifetime of the program. An
+unrecognized result maps to `TLV_CATEGORY_UNKNOWN` and the message
+`"unknown result"`.
+
+| Category | Result | Meaning |
+| --- | --- | --- |
+| `TLV_CATEGORY_SUCCESS` | `TLV_OK` | The operation succeeded. |
+| `TLV_CATEGORY_END` | `TLV_END` | The reader reached the end of its input. |
+| `TLV_CATEGORY_INVALID_ARGUMENT` | `TLV_ERR_NULL_ARG`, `TLV_ERR_INVALID_ARG` | A required pointer is null, the format is invalid, or the cursor position exceeds its bound. |
+| `TLV_CATEGORY_MALFORMED_DATA` | `TLV_ERR_INVALID_TAG_SIZE`, `TLV_ERR_INVALID_LENGTH` | The supplied tag width differs from the format, or the supplied count exceeds the selected length width. |
+| `TLV_CATEGORY_TRUNCATED` | `TLV_ERR_TRUNCATED` | An input field or payload is incomplete. |
+| `TLV_CATEGORY_CAPACITY` | `TLV_ERR_BUFFER_TOO_SHORT` | The destination cannot hold the requested encoding. |
+| `TLV_CATEGORY_RANGE` | `TLV_ERR_NATIVE_SIZE`, `TLV_ERR_OVERFLOW` | A logical size exceeds `SIZE_MAX`, or a checked sum exceeds its result type's maximum. |
+
+Every tag and length bit pattern is legal at its configured width, and
+the payload is opaque. For example, a supplied length of 256 is malformed
+for a one-byte length field. On input, a complete one-byte field of `FF`
+declares 255 payload bytes. If fewer follow, the reader reports truncation.
+
+For byte-level detail, pass a `tlv_diagnostic_t *` as the last argument to
+`tlv_read_with_diagnostic`, `tlv_reader_next_with_diagnostic`,
+`tlv_write_with_diagnostic`, or `tlv_writer_write_with_diagnostic`. Use a
+separate object disjoint from the buffers, descriptors, cursor, and other
+outputs. Pass `NULL` to omit the record. Existing calls keep their signatures
+and numeric result codes. The diagnostic variants follow the same rules for
+outputs and cursor movement.
+
+Each call sets `result` in the supplied record. On truncation, `field`
+identifies the incomplete part as `TLV_FIELD_TAG`, `TLV_FIELD_LENGTH`,
+or `TLV_FIELD_VALUE`. On short output, `TLV_FIELD_ELEMENT` identifies the
+entire element. The `size_t offset` gives the start of the affected field or
+element in the buffer supplied to the one-shot operation or the original
+cursor buffer. The `uintmax_t required` and `available` counts give the full size
+needed and the bytes available from that position. All other results,
+including success and end, set `field` to `TLV_FIELD_NONE` and the offset
+and both counts to zero.
+
+In the reader example above, the third element starts at offset 5.
+`tlv_reader_next_with_diagnostic` reports `TLV_FIELD_VALUE` at offset 7
+with 2 bytes required and 1 available. A one-shot read starting at the
+third element reports offset 2 for the same field. For a writer at offset
+4 in a six-byte destination, appending a five-byte element reports
+`TLV_FIELD_ELEMENT` at offset 4 with 5 required and 2 available.
 
 ## Running the tests
 

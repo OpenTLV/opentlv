@@ -1,4 +1,4 @@
-"""Build and run the fixed TLV model, reader and writer tests with C99 and C++11 compilers."""
+"""Build and run the fixed TLV and diagnostics tests with C99 and C++11 compilers."""
 
 import argparse
 import os
@@ -24,13 +24,14 @@ def check(build, release=False):
         subprocess.run([cc, "-std=c99", *flags, "-c", source, "-o", obj], cwd=build, check=True)
         return obj
 
-    core = [compile_c(name) for name in ("core/size.c", "core/value.c", "core/fixed.c")]
+    core = [compile_c(name) for name in ("core/size.c", "core/value.c", "core/fixed.c", "core/result.c")]
     reader = [*core, compile_c("io/reader/reader.c")]
     reader_and_writer = [*reader, compile_c("io/writer/writer.c")]
     consumers = [
         (cc, "c99", "fixed_model.c", core),
         (cc, "c99", "fixed_reader.c", reader),
         (cc, "c99", "fixed_writer.c", reader_and_writer),
+        (cc, "c99", "fixed_diagnostics.c", reader_and_writer),
         (cxx, "c++11", "fixed_model.cpp", reader_and_writer),
     ]
     for compiler, standard, source, objects in consumers:
