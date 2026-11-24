@@ -88,9 +88,22 @@ The check compiles every public header in isolation and exercises the
 attribute diagnostics in C99, C11, C17, C23, C++11 and C++17. C99 and
 C++11 are required. The script reports newer modes the compiler cannot run.
 
-The epic tracks installed-package and link checks in
-[#9](https://github.com/OpenTLV/opentlv/issues/9), behavioral test and
-coverage infrastructure in [#10](https://github.com/OpenTLV/opentlv/issues/10),
+Run the installed-package checks with CMake, a native build tool, and C99
+and C++11 compilers on the path.
+
+```sh
+python tests/check_cmake_package.py
+python tests/check_cmake_package.py --shared
+```
+
+Each check builds and installs the libraries in a temporary directory, moves
+the installation, and checks the exported CMake files for source, build and
+original install paths. Separate C99 and C++11 projects then find the moved
+package, link Core and IO respectively, and run through CTest. The C++11
+consumer calls functions from both modules through the IO target.
+
+The epic tracks behavioral test and coverage infrastructure in
+[#10](https://github.com/OpenTLV/opentlv/issues/10),
 CI workflows in [#11](https://github.com/OpenTLV/opentlv/issues/11), and
 the usage guide and runnable examples in
 [#12](https://github.com/OpenTLV/opentlv/issues/12).
