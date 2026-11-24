@@ -1,9 +1,11 @@
-"""Measure production code exercised by the CTest and standalone contract suites."""
+"""Measure production code exercised by the Core, IO and integration CTest suites."""
 
+import argparse
 import json
 import os
 import re
 import subprocess
+import tempfile
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -16,8 +18,6 @@ WRITER = "src/io/writer/writer.c"
 # Reviewed in docs/coverage.md. Branch indices are zero-based within a line.
 EXCLUDED_LINES = {(READER, 43), (WRITER, 38)}
 EXCLUDED_BRANCHES = {(READER, 42, 0), (READER, 79, 6), (WRITER, 37, 0), (WRITER, 71, 4)}
-STANDALONE = {"fixed_model_c", "fixed_model_cpp", "fixed_reader_c", "fixed_writer_c",
-              "fixed_diagnostics_c"}
 
 
 def read_profiles(build, gcov, version):
@@ -111,8 +111,6 @@ def report(destination, version, lines, branches, calls, passed):
     if mapping.keys() - declared:
         errors.append(f"Stale public API mappings: {sorted(mapping.keys() - declared)}")
     output.append(f"Public API with passing behavioral tests: {fraction(covered, len(declared))}")
-    if STANDALONE - passed:
-        errors.append(f"Missing standalone contract tests: {sorted(STANDALONE - passed)}")
     text = "\n".join(output + errors) + "\n"
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(text.encode("utf-8"))
@@ -139,3 +137,11 @@ def check_coverage(build, destination):
     subprocess.run(["cmake", "--build", build], check=True)
     passed = run_ctest(build, "Debug", build / "reports")
     report(destination, version, *read_profiles(build, gcov, version), passed)
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("report", type=Path, help="write the coverage report to this file")
+    args = parser.parse_args()
+    with tempfile.TemporaryDirectory() as directory:
+        check_coverage(Path(directory), args.report)

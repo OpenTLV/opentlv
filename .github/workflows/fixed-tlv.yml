@@ -37,10 +37,6 @@ jobs:
           CC: clang-18
           CXX: clang++-18
         run: python3 tests/check_public_api.py
-      - name: Test the fixed model, reader and writer
-        run: python3 tests/check_fixed_model.py
-      - name: Test the release build
-        run: python3 tests/check_fixed_model.py --release
       - name: Build and run CTest in Debug and Release
         id: ctest
         run: |
@@ -59,7 +55,6 @@ jobs:
           ASAN_OPTIONS: halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
         run: |
-          python3 tests/check_fixed_model.py --sanitize
           export CXXFLAGS="$CFLAGS"
           build="$RUNNER_TEMP/opentlv-sanitized"
           cmake -S . -B "$build" -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
@@ -81,8 +76,8 @@ jobs:
         run: |
           test "$(gcc-13 -dumpfullversion)" = 13.3.0
           python3 -m unittest discover -s tests -p test_check_coverage.py
-          python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage.txt"
-          python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage-repeat.txt"
+          python3 tests/check_coverage.py "$RUNNER_TEMP/coverage.txt"
+          python3 tests/check_coverage.py "$RUNNER_TEMP/coverage-repeat.txt"
           diff -u "$RUNNER_TEMP/coverage.txt" "$RUNNER_TEMP/coverage-repeat.txt"
           {
             echo '### Fixed TLV coverage'

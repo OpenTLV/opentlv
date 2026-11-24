@@ -2,9 +2,9 @@
 
 CI measures Core and IO on Ubuntu 24.04 x86-64 with GCC, G++, and gcov
 13.3.0. It builds the production libraries at `-O0` with coverage counters.
-The Core, IO, and integration GoogleTest suites and the five standalone
-C99/C++11 programs all link those libraries. CTest runs them sequentially
-against one set of counters. The gate requires every production `.c` file under
+The Core, IO, and integration GoogleTest suites link those libraries. CTest
+runs the cases sequentially against one set of counters. The gate requires
+every production `.c` file under
 `src/`, including newly added files, plus `src/io/internal/diagnostic.h`.
 A missing source or an additional instrumented header under `src/` fails the
 scope check. Test code and GoogleTest are outside the measured sources.
@@ -21,7 +21,7 @@ tests**. The report lists raw per-file and total counts and identifies every
 missed line and branch by location. A new gap fails the run. An exclusion
 that disappears also fails and requires review. CI compares the reports from
 two fresh builds byte for byte and publishes them in the `coverage-reports`
-artifact. See the [commands for reproducing the report](fixed-tlv.md#coverage).
+artifact. See the [commands for reproducing the report](testing.md#coverage).
 
 ## Reviewed gaps
 

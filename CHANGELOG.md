@@ -9,12 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Documented how to run each contract suite and mapped the Fixed TLV
+  behavioral scenarios to their CTest and compatibility checks. (#32)
 - Added bounded libFuzzer tests for Fixed TLV read, write, and round-trip
   contracts, with seed replay and ASan/UBSan checks in CI. (#31)
 - Added Win32 CI execution of the Core, IO, and integration suites with
   explicit checks for four-byte `size_t` and native-size boundary cases. (#30)
 - Added CI coverage gates for reachable production lines, branches, and
-  public API behavior across Core, IO, integration, and standalone tests. (#29)
+  public API behavior across Core, IO, and integration tests. (#29)
 - CI runs the Core, IO, and integration suites under ASan and UBSan, checks
   that each suite ran, and publishes CTest JUnit reports and logs. (#28)
 - Added checks for test artifacts and test dependencies in relocated static

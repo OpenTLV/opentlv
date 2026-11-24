@@ -1,5 +1,5 @@
 #include <opentlv/tlv.h>
-#include "../test_check.h"
+#include "check.h"
 
 #include <string.h>
 

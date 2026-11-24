@@ -119,6 +119,10 @@ TEST(ReadDiagnostic, ReportsTheFullWireLengthWhenItExceedsTheRemainingInput)
         ExpectDiagnostic(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, 9, entry.declared, 1);
         ExpectView(saved_view, view);
         EXPECT_EQ(91u, consumed);
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read(
+            entry.wire.data(), entry.wire.size(), &format, &view, &consumed));
+        ExpectView(saved_view, view);
+        EXPECT_EQ(91u, consumed);
     }
 }
 

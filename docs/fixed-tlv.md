@@ -195,73 +195,7 @@ third element reports offset 2 for the same field. For a writer at offset
 
 ## Running the tests
 
-Run the [test suites with CTest](../README.md#run-the-tests).
-Use the `core` label for length-field and size boundaries, and the `io` label for
-reader and writer behavior, including cursor state and diagnostic offsets.
-Use `integration` for golden wire vectors and end-to-end round trips.
-
-From the repository root, run `python tests/check_fixed_model.py` with Python 3
-and a GCC or Clang toolchain. The suite checks wire bytes and round trips for
-all eight length widths in both byte orders, truncated fields, and writer
-failures that must preserve the cursor and destination. At the one-byte length
-limit, it rejects a 256-byte payload and retries with 255 bytes. A C++11
-consumer exercises the same C99 implementation. Add `--release` to run the
-suite with optimization and `NDEBUG` enabled.
-
-CI runs all discovered CTest cases in Debug and Release. For each configuration
-it requires at least one passing case from each of the `core`, `io`, and
-`integration` suites. To reproduce these checks with Ninja, Python 3, and
-CTest 3.21 or newer, run the following commands from the repository root.
-
-```sh
-cmake -S . -B build-ci -G "Ninja Multi-Config" -DBUILD_TESTING=ON
-cmake --build build-ci --config Debug
-python3 tests/run_ctest.py build-ci Debug reports/Debug
-cmake --build build-ci --config Release
-python3 tests/run_ctest.py build-ci Release reports/Release
-```
-
-The `ctest-reports` workflow artifact contains a JUnit XML report and a CTest
-log for each test run that started, including runs with failing cases.
-
-### Sanitizers
-
-On a platform with the AddressSanitizer and UndefinedBehaviorSanitizer
-runtimes, use `--sanitize` to instrument the library and test executables.
-A sanitizer finding fails the run. The Ubuntu 24.04 workflow uses Clang 18.
-
-```sh
-CC=clang-18 CXX=clang++-18 python3 tests/check_fixed_model.py --sanitize
-```
-
-To run the CTest suites with the same instrumentation as CI, configure a
-fresh build directory so CMake picks up the compiler and linker flags.
-
-```sh
-flags="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
-CC=clang-18 CXX=clang++-18 CFLAGS="$flags" CXXFLAGS="$flags" LDFLAGS="-fsanitize=address,undefined" \
-  cmake -S . -B build-sanitized -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
-cmake --build build-sanitized
-ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
-  python3 tests/run_ctest.py build-sanitized Debug reports/sanitizers
-```
-
-### Fuzz tests
-
-The [bounded reader and writer fuzz tests](../tests/fuzz/README.md) exercise
-arbitrary input streams and generated round trips under ASan and UBSan.
-
-### Coverage
-
-Use GCC, G++, and gcov 13.3.0 with Ninja and CTest 3.21 or newer to
-reproduce the CI coverage gate on Ubuntu 24.04.
-
-```sh
-CC=gcc-13 CXX=g++-13 GCOV=gcov-13 python3 tests/check_fixed_model.py --coverage coverage.txt
-```
-
-Repeat the command with `coverage-repeat.txt` and run
-`diff -u coverage.txt coverage-repeat.txt` to check reproducibility.
-For offline builds, set `OPENTLV_GOOGLETEST_URL` to the absolute path of
-the checksum-verified source archive. The [coverage gates and public API test
-map](coverage.md) document thresholds, reporting scope, and reviewed gaps.
+The `core` CTest label covers length fields and size boundaries. Use `io`
+for reader, writer and diagnostic contracts, and `integration` for golden
+wire vectors, round trips and truncated streams. For commands and a map of
+scenarios to tests, see the [testing guide](testing.md).
