@@ -5,6 +5,32 @@
 
 enum { max_input = 1024, max_output = max_input + 32 };
 
+static void check_rejected_format(tlv_writer_t *writer, const tlv_element_t *element,
+                                  unsigned selector, const uint8_t *expected)
+{
+    const tlv_writer_t before = *writer;
+    uint8_t *record = before.data + before.pos;
+    const size_t remaining = before.capacity - before.pos;
+    tlv_fixed_format_t invalid = before.format;
+    switch (selector) {
+    case 0: invalid.identifier.size = 0; break;
+    case 1: invalid.length.size = 0; break;
+    case 2: invalid.length.size = 9; break;
+    case 3: invalid.length.byte_order = TLV_BYTE_ORDER_UNKNOWN; break;
+    }
+
+    CHECK(tlv_writer_init(writer, record, remaining, &invalid) == TLV_ERR_INVALID_ARG);
+    CHECK(writer->data == before.data && writer->capacity == before.capacity && writer->pos == before.pos);
+    CHECK(writer->format.identifier.size == before.format.identifier.size);
+    CHECK(writer->format.length.size == before.format.length.size);
+    CHECK(writer->format.length.byte_order == before.format.length.byte_order);
+    CHECK(memcmp(before.data, expected, max_output) == 0);
+
+    size_t written = SIZE_MAX;
+    CHECK(tlv_write(record, remaining, &invalid, element, &written) == TLV_ERR_INVALID_ARG);
+    CHECK(written == SIZE_MAX && memcmp(before.data, expected, max_output) == 0);
+}
+
 /* The first record is empty. Its committed bytes must survive the next append. */
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
@@ -19,9 +45,10 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     const size_t required = header + length;
     const tlv_element_t source = {{data + 4, tag}, {data + 4 + tag, length}};
     const tlv_element_t empty = {source.tag, {NULL, 0}};
-    size_t capacity = data[3];
+    size_t capacity;
     if (data[3] == 0) capacity = required;
-    if (data[3] == 1) capacity = required - 1;
+    else if (data[3] == 1) capacity = required - 1;
+    else capacity = (size_t)(data[3] - 2) * (max_output - header) / (UINT8_MAX - 2);
 
     uint8_t stream[max_output], direct[max_output], expected[max_output];
     memset(stream, 0xa5, sizeof stream);
@@ -33,7 +60,9 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     CHECK(tlv_writer_write(&writer, &empty) == TLV_OK);
     memcpy(expected, source.tag.data, tag);
     memset(expected + tag, 0, width);
+    CHECK(writer.data == stream && writer.capacity == header + capacity);
     CHECK(writer.pos == header && memcmp(stream, expected, sizeof stream) == 0);
+    check_rejected_format(&writer, &source, (data[2] >> 1) & 3, expected);
 
     tlv_result_t result = TLV_OK;
     size_t expected_written = required;
