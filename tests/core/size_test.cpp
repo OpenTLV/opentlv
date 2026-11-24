@@ -25,6 +25,16 @@ TEST(CoreSize, RejectsTheFirstUnrepresentableNativeCountAndPreservesOutput)
 }
 #endif
 
+#if defined(_M_IX86) || defined(__i386__)
+TEST(CoreSize, RejectsUint64MaxOnX86)
+{
+    static_assert(sizeof(size_t) == 4, "The x86 test requires a four-byte size_t");
+    size_t native = 42;
+    EXPECT_EQ(TLV_ERR_NATIVE_SIZE, tlv_size_to_native(UINT64_MAX, &native));
+    EXPECT_EQ(42u, native);
+}
+#endif
+
 TEST(CoreSize, AddsCountsThroughTheLogicalLimit)
 {
     const struct {

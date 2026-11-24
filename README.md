@@ -64,9 +64,7 @@ elements with every possible prefix of the final element. Each layout uses
 the same fixed seed (`0x26f1`) and payloads of at most 513 bytes.
 
 To check Release, repeat the commands with `Release` in place of `Debug` and
-use `build-tests-release` as the build directory. A 32-bit build also exercises
-logical sizes above `SIZE_MAX`. With a Visual Studio generator, add `-A Win32`
-to the configure command in a fresh build directory to run those cases.
+use `build-tests-release` as the build directory.
 
 When you first configure a test build, CMake downloads the
 [GoogleTest 1.17.0 source archive] and verifies its SHA-256. To build offline, add
@@ -75,6 +73,28 @@ command. CMake checks the local archive against the same digest.
 Both build modes install only the OpenTLV libraries, headers, license and CMake files.
 
 [GoogleTest 1.17.0 source archive]: https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+
+### Run the 32-bit x86 tests
+
+The `windows-x86` CI job builds the libraries, GoogleTest, and the Core, IO,
+and integration suites for Win32 and executes them on the Windows runner.
+To reproduce it with the Visual Studio 2022 C++ build tools, the v143 14.44.35207 x86/x64
+toolset, Python 3, and CTest 3.21 or newer, use a fresh build directory.
+
+```powershell
+cmake -S . -B build-x86 -G "Visual Studio 17 2022" -A Win32 -T "v143,version=14.44.35207" -DBUILD_TESTING=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
+cmake --build build-x86 --config Release --parallel
+python tests/run_ctest.py build-x86 Release reports/x86 --require-x86
+```
+
+The Release build links the MSVC runtime statically so the test executables
+use the runtime supplied with the selected toolset. The x86-only Core case
+asserts `sizeof(size_t) == 4` at compile time and
+checks that converting `UINT64_MAX` fails with the output preserved. The
+runner requires this case and the named boundary cases to pass in the JUnit
+report. They cover `SIZE_MAX`, rejection of `SIZE_MAX + 1`, checked addition,
+and truncation of a 64-bit wire length before narrowing. GitHub publishes
+the JUnit report and CTest log in `ctest-reports-x86`.
 
 ## Run the examples
 
