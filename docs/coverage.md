@@ -69,3 +69,17 @@ the mapped function and asserts its expected behavior.
 | `tlv_writer_init` | `IOWriter.RetriesAfterShortAppendAndKeepsItsFormatSnapshot` |
 | `tlv_writer_write` | `IOWriter.RetriesAfterShortAppendAndKeepsItsFormatSnapshot` |
 | `tlv_writer_write_with_diagnostic` | `WriteDiagnostic.ReportsCommittedOffsetAndRemainingSpaceForAShortAppend` |
+
+The Core suite also exercises the inline C++17 interfaces. Compile-time
+assertions check view type distinctions, result code conversions and the
+`noexcept` contract. The coverage report measures the underlying C functions.
+
+| C++ Core operations | Behavioral test |
+| --- | --- |
+| `to_c`, `from_c` for borrowed views | `CppCore.CopiedDescriptorsKeepBorrowingTheOriginalStorage` |
+| `make_value_view`, `validate` | `CppCore.ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure` |
+| `size_add`, `size_to_native` | `CppCore.ChecksLogicalAndNativeSizeLimits` |
+| `to_c`, `from_c` for format settings and byte order, and `header_size` | `CppFixed.ConvertsConfigurationByValueAndValidatesHeaderSize` |
+| `from_c` and `to_c` for unknown and unnamed byte orders | `CppFixed.ConvertsUnknownByteOrdersBetweenCAndCpp` |
+| `element_size` | `CppFixed.MeasuresElementsAndPreservesSizeOnError` |
+| `read_length`, `write_length` | `CppFixed.ReadsAndWritesExactlyTheSelectedFieldInBothOrders`, `CppFixed.PreservesFieldOutputsAndReportsTruncation` |

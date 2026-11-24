@@ -1,13 +1,57 @@
 # C++17 API conventions and module contracts
 
 C++17 is the supported language mode for the C++ API. Its umbrella,
-`<opentlv/tlv.hpp>`, currently exposes the public C declarations, including
-`tlv_read` and `tlv_write`. The following conventions govern typed C++
-interfaces as they are added.
+`<opentlv/tlv.hpp>`, exposes typed Core interfaces alongside the public C
+declarations, including `tlv_read` and `tlv_write`.
 
 C++17 callers can also use the C interface directly through
 `<opentlv/tlv.h>` or individual `.h` headers. Newer C++ modes are
 outside the required test matrix.
+
+## Using Fixed TLV from C++17
+
+A `fixed_format` specifies the tag width, length width and length byte order.
+`header_size` validates those settings. `element_size` also checks that the
+tag and payload fit the format and returns the number of bytes needed to
+encode the element. Both operations preserve the output size on failure.
+
+```cpp
+#include <opentlv/core/formats/fixed.hpp>
+
+namespace core = opentlv::core;
+
+bool fits_example()
+{
+    const std::uint8_t tag[] = {0xa5};
+    const std::uint8_t payload[] = {0x10, 0x20, 0x30};
+    const core::fixed_format format{{1}, {2, core::byte_order::big_endian}};
+    const core::element_view element{{tag, sizeof tag}, {payload, sizeof payload}};
+    std::size_t required{};
+    return core::element_size(format, element, required) == core::result::ok
+        && required == 6;
+}
+```
+
+To pass the same inputs to a C writer, obtain the native descriptors with
+`auto c_format = core::to_c(format)` and `auto c_element = core::to_c(element)`.
+Pass their addresses to the C operation. In the other direction, use
+`core::from_c` on an element returned by a C reader. Each conversion copies
+the descriptor and keeps the same backing byte addresses.
+
+The tag and encoded length views carry native byte counts. A `value_view`
+carries a 64-bit logical count. Use `make_value_view` to check that the
+pointer and count form a valid descriptor, or `validate` to check an existing
+view. The caller supplies the backing storage. Before accessing bytes, use
+`size_to_native` to check that a logical count fits in `std::size_t` and
+compare it with the available extent. Use `size_add` for checked addition
+of two logical counts.
+
+`read_length` decodes a `length_view` into a 64-bit `logical_size` and reports
+the number of input bytes consumed. On truncation it reports the available
+bytes and preserves the decoded length. `write_length` writes into a
+`mutable_byte_view`. Pass an empty, null destination to query the width.
+Both operations accept a `fixed_length` configuration and return a scoped
+`result`. See the [fixed-field contracts](fixed-tlv.md) for wire limits.
 
 ## Headers, namespaces and linking
 

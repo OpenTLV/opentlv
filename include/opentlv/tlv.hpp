@@ -8,7 +8,7 @@
  * @file
  * @brief C++17 umbrella header for the Fixed TLV Foundation.
  *
- * Includes the public C declarations for interoperability.
+ * Exposes the typed Core interface and the public C declarations.
  */
 
 #if !defined(__cplusplus) || \
@@ -17,5 +17,7 @@
 #endif
 
 #include "opentlv/tlv.h"
+#include "opentlv/core/bytes.hpp"
+#include "opentlv/core/formats/fixed.hpp"
 
 #endif /* OPENTLV_TLV_HPP */

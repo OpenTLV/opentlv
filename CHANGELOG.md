@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added C++17 borrowed byte and element views, checked size conversions, and Fixed TLV length encoding, decoding, and measurement backed by the C99 Core. (#45)
 - Documented how to run each contract suite and mapped the Fixed TLV behavioral scenarios to their CTest and compatibility checks. (#32)
 - Added bounded libFuzzer tests for Fixed TLV read, write, and round-trip contracts, with seed replay and ASan/UBSan checks in CI. (#31)
 - Added Win32 CI execution of the Core, IO, and integration suites with explicit checks for four-byte `size_t` and native-size boundary cases. (#30)

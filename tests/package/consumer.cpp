@@ -5,33 +5,38 @@
 
 int main()
 {
+    namespace core = opentlv::core;
     const uint8_t tag[] = {0xa5};
-    tlv_element_t element{{tag, sizeof tag}, {nullptr, 0}};
-    const tlv_fixed_format_t format{{1}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    core::element_view element{{tag, sizeof tag}, {}};
+    const core::fixed_format format{{1}, {2, core::byte_order::big_endian}};
     size_t native;
-    if (tlv_value_init(nullptr, 0, &element.value) != TLV_OK ||
-        tlv_fixed_element_size(&format, &element, &native) != TLV_OK || native != 3 ||
-        tlv_size_to_native(element.value.size, &native) != TLV_OK || native != 0)
+    if (core::element_size(format, element, native) != core::result::ok || native != 3 ||
+        core::size_to_native(element.value.size, native) != core::result::ok || native != 0)
         return EXIT_FAILURE;
 
     const uint8_t payload[] = {0xab};
     const uint8_t expected[] = {0xa5, 0x00, 0x01, 0xab};
     uint8_t wire[sizeof expected]{};
     tlv_writer_t writer{};
-    if (tlv_value_init(payload, sizeof payload, &element.value) != TLV_OK ||
-        tlv_writer_init(&writer, wire, sizeof wire, &format) != TLV_OK ||
-        tlv_writer_write(&writer, &element) != TLV_OK ||
+    if (core::make_value_view(payload, sizeof payload, element.value) != core::result::ok)
+        return EXIT_FAILURE;
+    const auto c_format = core::to_c(format);
+    auto c_element = core::to_c(element);
+    if (tlv_writer_init(&writer, wire, sizeof wire, &c_format) != TLV_OK ||
+        tlv_writer_write(&writer, &c_element) != TLV_OK ||
         writer.pos != sizeof expected || std::memcmp(wire, expected, sizeof expected) != 0)
         return EXIT_FAILURE;
 
     tlv_reader_t reader{};
-    if (tlv_reader_init(&reader, wire, writer.pos, &format) != TLV_OK ||
-        tlv_reader_next(&reader, &element) != TLV_OK ||
-        element.tag.data != wire || element.value.size != 1 || element.value.data[0] != payload[0])
+    if (tlv_reader_init(&reader, wire, writer.pos, &c_format) != TLV_OK ||
+        tlv_reader_next(&reader, &c_element) != TLV_OK)
+        return EXIT_FAILURE;
+    const auto decoded = core::from_c(c_element);
+    if (decoded.tag.data != wire || decoded.value.size != 1 || decoded.value.data[0] != payload[0])
         return EXIT_FAILURE;
 
     tlv_diagnostic_t diagnostic{};
-    if (tlv_reader_next_with_diagnostic(&reader, &element, &diagnostic) != TLV_END ||
+    if (tlv_reader_next_with_diagnostic(&reader, &c_element, &diagnostic) != TLV_END ||
         diagnostic.result != TLV_END || diagnostic.field != TLV_FIELD_NONE ||
         tlv_result_category(diagnostic.result) != TLV_CATEGORY_END ||
         std::strcmp(tlv_result_string(diagnostic.result), "end of input") != 0)
