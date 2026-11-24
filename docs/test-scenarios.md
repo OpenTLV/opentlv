@@ -13,6 +13,7 @@ an individual case, or a single wire layout with CTest.
 | Reject zero or overwide length fields, unknown byte order and missing arguments. Distinguish empty input from a null pointer with positive size. | `FixedLengthArguments` in [fixed_length_test.cpp](../tests/core/fixed_length_test.cpp) |
 | Measure opaque tags, empty and nonempty payloads, and a header or complete element of exactly `SIZE_MAX`. Reject overflow, invalid formats, mismatched tag widths, missing data, and values beyond the wire or native limit. | `FixedMeasurement` and `FixedElementSize` in [fixed_measure_test.cpp](../tests/core/fixed_measure_test.cpp) |
 | Classify and describe every named result and return the fallback for unassigned codes. | `CoreResult` in [result_test.cpp](../tests/core/result_test.cpp) |
+| Convert borrowed descriptors between C and C++17, keep views alive after the source descriptor goes out of scope, and compare size limits, format validation, wire bytes and failure outputs across both interfaces. | `CppCore` in [cpp_core_test.cpp](../tests/core/cpp_core_test.cpp) and `CppFixed` in [cpp_fixed_test.cpp](../tests/core/cpp_fixed_test.cpp) |
 
 | IO and integration scenario | Where it is checked |
 | --- | --- |

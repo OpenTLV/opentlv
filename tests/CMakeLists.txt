@@ -34,6 +34,8 @@ if(OPENTLV_TEST_COVERAGE)
 endif()
 
 add_executable(opentlv_core_tests
+    core/cpp_core_test.cpp
+    core/cpp_fixed_test.cpp
     core/fixed_length_test.cpp
     core/fixed_measure_test.cpp
     core/result_test.cpp

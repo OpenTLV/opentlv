@@ -12,9 +12,10 @@ The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 
-The C++17 header currently exposes the C API.
-The [C++ API conventions](docs/cpp-api.md) define the namespaces, ownership
-rules, and error handling for C++ module interfaces.
+The C++17 umbrella exposes typed Core views and Fixed TLV configuration in
+`opentlv::core`, alongside the C reader and writer. The
+[C++ API guide](docs/cpp-api.md#using-fixed-tlv-from-c17) shows how to borrow
+payload bytes, measure an element, and pass its descriptor to C.
 
 OpenTLV supports fixed-width tag and length fields with opaque payloads.
 Variable-width field encodings, automatic nested decoding, schemas, queries,

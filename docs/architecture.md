@@ -83,8 +83,9 @@ a new major version.
 ## Verification
 
 The Core, IO and integration suites link the production library targets and
-exercise their public C interfaces. Test builds use GoogleTest to discover
-individual cases through CTest. The [testing guide](testing.md) explains how
+exercise their public C interfaces. The Core suite also checks the typed C++17
+views and Fixed TLV operations against the C implementation. Test builds use
+GoogleTest to discover individual cases through CTest. The [testing guide](testing.md) explains how
 to select a contract, reproduce CI runs and read their reports.
 
 Run `python tests/check_public_api.py` from the repository root with Python
