@@ -1,7 +1,7 @@
 # OpenTLV
 
 OpenTLV is a C99 library under development for processing type-length-value
-(TLV) data. C99 and C++11 callers can include `<opentlv/tlv.h>` to
+(TLV) data. Include `<opentlv/tlv.h>` in C99 or `<opentlv/tlv.hpp>` in C++17 to
 [read fixed TLV elements](docs/fixed-tlv.md#reading-elements),
 [write them into caller-provided buffers](docs/fixed-tlv.md#writing-elements),
 convert fixed-width lengths, and measure encoded sizes.
@@ -12,10 +12,14 @@ The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 
-The package exposes the C API directly to C++ callers. It supports fixed-width
-tag and length fields with opaque payloads. Variable-width field encodings,
-automatic nested decoding, schemas, queries, EMV processing, language-specific
-bindings, and single-file amalgamation are outside the Fixed TLV Foundation.
+The C++17 header currently exposes the C API.
+The [C++ API conventions](docs/cpp-api.md) define the namespaces, ownership
+rules, and error handling for C++ module interfaces.
+
+OpenTLV supports fixed-width tag and length fields with opaque payloads.
+Variable-width field encodings, automatic nested decoding, schemas, queries,
+EMV processing, bindings for other languages, and single-file amalgamation
+are outside the Fixed TLV Foundation.
 
 ## Build and install
 
@@ -51,7 +55,7 @@ reports, sanitizers, coverage, 32-bit execution and fuzz reproduction.
 ## Run the examples
 
 After installing OpenTLV, run these commands from the repository root with
-a C99 and a C++11 compiler. Use the same installation prefix as above.
+a C99 and a C++17 compiler. Use the same installation prefix as above.
 
 ```sh
 cmake -S examples -B build-examples -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/path/to/opentlv
@@ -60,17 +64,17 @@ cd build-examples
 ctest -C Release -V
 ```
 
-The C writer encodes a three-byte payload. The C++ reader decodes the
-same seven wire bytes. CTest runs both programs and shows their output.
+The C writer encodes a three-byte payload. The C++ reader uses the C API to
+decode the same seven wire bytes. CTest runs both programs and shows their output.
 
 | Example | Output |
 | --- | --- |
 | [C99 writer](examples/write.c) | `12 34 00 03 AA BB CC` |
-| [C++11 reader](examples/read.cpp) | `tag 12 34, value AA BB CC` |
+| [C++17 reader](examples/read.cpp) | `tag 12 34, value AA BB CC` |
 
 ## Use the installed package
 
-In a C99 or C++11 CMake project, link your executable to `OpenTLV::io` for
+In a C or C++ CMake project, link your executable to `OpenTLV::io` for
 the reader and writer. This target also links Core. For just the fixed TLV
 model, size calculations and result codes, link `OpenTLV::core` directly.
 
@@ -81,9 +85,10 @@ target_link_libraries(example PRIVATE OpenTLV::io)
 ```
 
 Configure the consumer with `-DCMAKE_PREFIX_PATH=/path/to/opentlv` so CMake
-can find the installation. Both targets supply the include path for
-`<opentlv/tlv.h>`. See the [package checks](docs/architecture.md#verification)
-for the commands that exercise C99 and C++11 callers after moving an installation.
+can find the installation. Both targets supply the include path. Use
+`<opentlv/tlv.h>` for the C API or `<opentlv/tlv.hpp>` in a C++17 target.
+The [package checks](docs/architecture.md#verification) run C99 and C++17
+consumers against a relocated installation.
 
 ## Contributing
 

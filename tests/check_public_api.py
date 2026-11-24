@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 MODES = {"c99": 199901, "c11": 201112, "c17": 201710, "c23": 202311,
-         "c++11": 201103, "c++17": 201703}
+         "c++11": 201103, "c++14": 201402, "c++17": 201703}
 ATTRIBUTES = {
     # Macro, compiler capability, diagnostic, and annotated use.
     "TLV_NODISCARD": ("warn_unused_result", "unused-result",
@@ -87,7 +87,7 @@ int probe(void);
         unsupported = "TEST_MODE_UNAVAILABLE" in result.stdout or (
             "-std=" + mode_flag in result.stdout and
             any(word in result.stdout.lower() for word in ("invalid", "unrecognized", "unknown")))
-        if not unsupported or mode in ("c99", "c++11"):
+        if not unsupported or mode in ("c99", "c++17"):
             raise SystemExit(f"{mode} compiler probe failed\n{result.stdout}")
     else:
         print(f"SKIP {mode}: compiler does not provide the final language mode")
@@ -103,6 +103,12 @@ int probe(void);
             expected = "success" if diagnostic is None else "an error containing " + ", ".join(diagnostic)
             raise SystemExit(f"{mode} failed {label}: expected {expected}\n{result.stdout}")
 
+    if mode in ("c++11", "c++14"):
+        expect("C++ umbrella minimum standard", "#include <opentlv/tlv.hpp>",
+               diagnostic=("requires C++17",))
+        print(f"PASS {mode}: C++ umbrella requires C++17")
+        return
+
     for header in headers:
         expect(header, f"#include <{header}>\n" * 2 + "int probe(void);\n")
     c_version = 199901 if cpp else version
@@ -114,7 +120,7 @@ int probe(void);
         expect("empty attribute fallback", EMPTY_FALLBACK)
 
     for macro, (attribute, warning, use) in ATTRIBUTES.items():
-        if mode in ("c99", "c++11"):
+        if mode in ("c99", "c++17"):
             expect(
                 macro + " predefinition", f"#define {macro}\n" + UMBRELLA + "int probe(void);\n",
                 diagnostic=("OpenTLV reserves", macro),
@@ -158,8 +164,10 @@ def main():
         build = Path(directory)
         include = build / "include"
         shutil.copytree(ROOT / "include" / "opentlv", include / "opentlv")
-        headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.h"))
+        c_headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.h"))
+        cpp_headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.hpp"))
         for mode, version in MODES.items():
+            headers = c_headers + cpp_headers if mode == "c++17" else c_headers
             variable, default = ("CXX", "c++") if mode.startswith("c++") else ("CC", "cc")
             compiler = os.environ.get(variable, default)
             check_mode(build, headers, args.clang_cl or compiler, mode, version, bool(args.clang_cl))

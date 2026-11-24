@@ -28,7 +28,7 @@ an individual case, or a single wire layout with CTest.
 The [public-header check](../tests/check_public_api.py) compiles headers in
 isolation and checks compiler diagnostics. The [installed-package
 check](../tests/check_cmake_package.py) builds and runs a C99 Core consumer,
-a C++11 IO consumer and the examples after relocating each static or shared
+a C++17 IO consumer and the examples after relocating each static or shared
 install. These exercises cover language compatibility, transitive linkage,
 and the installed target interfaces.
 

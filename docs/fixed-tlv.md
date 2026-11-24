@@ -22,7 +22,7 @@ order.
 
 The [C99 writer](../examples/write.c) encodes the big-endian row with
 `tlv_write` and prints the bytes counted by `written`. The
-[C++11 reader](../examples/read.cpp) uses the same format to read the tag
+[C++17 reader](../examples/read.cpp) uses the same format to read the tag
 and value from the encoded bytes. Both examples use the installed C API.
 [Build and run the examples](../README.md#run-the-examples).
 

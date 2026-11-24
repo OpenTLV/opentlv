@@ -1,8 +1,10 @@
 # Library architecture and public C API
 
 The [Fixed TLV Foundation](https://github.com/OpenTLV/opentlv/issues/3)
-defines a C99 interface for C and C++11 callers. Include `<opentlv/tlv.h>`
+defines a C99 interface for C and C++17 callers. Include `<opentlv/tlv.h>`
 to use the fixed TLV data model, reader, writer, and public compiler macros.
+The [C++ API conventions](cpp-api.md) define the C++17 header layout and
+the contracts for wrappers around Core and IO.
 
 ## Modules and dependencies
 
@@ -28,7 +30,7 @@ See [result categories and diagnostics](fixed-tlv.md#result-categories-and-diagn
 
 ## Public and private interfaces
 
-C99 is the implementation baseline. C++11 callers include the same C
+C99 is the implementation baseline. C++17 callers can include the same C
 headers. Each module header includes its prerequisites and has an
 `OPENTLV_…_H` include guard. Headers declaring external functions wrap those
 declarations in `extern "C"` under `#ifdef __cplusplus`. Compile the
@@ -89,12 +91,15 @@ Run `python tests/check_public_api.py` from the repository root with Python
 3 and a GCC- or Clang-compatible toolchain. Set `CC` and `CXX` to select
 the C and C++ compiler executables. To use Clang's Microsoft-compatible
 driver, run `python tests/check_public_api.py --clang-cl clang-cl`.
-The check compiles every public header in isolation and exercises the
-attribute diagnostics in C99, C11, C17, C23, C++11 and C++17. C99 and
-C++11 are required. The script reports newer modes the compiler cannot run.
+The check gives each header its own translation unit and includes it twice
+to exercise its dependencies and include guard. It checks public `.h` files
+and C API attribute diagnostics in C99 and C++17. It also exercises C11,
+C17 and C23 when the compiler provides those modes. All public `.hpp`
+headers must compile in C++17. Separate probes verify that including the
+C++ umbrella in C++11 or C++14 reports the required standard.
 
 Run the installed-package checks with CMake, a native build tool, and C99
-and C++11 compilers on the path.
+and C++17 compilers on the path.
 
 ```sh
 python tests/check_cmake_package.py
@@ -105,8 +110,8 @@ Each check builds with `BUILD_TESTING=OFF`, installs the libraries in a
 temporary directory, and moves the installation. It checks the installed tree
 for GoogleTest, GoogleMock and OpenTLV test artifacts, and checks the CMake
 exports for references to those components or to source, build and original
-install paths. With GTest discovery disabled, separate C99 and C++11 projects
-find the moved package, link Core and IO respectively, and run through CTest. The C++11
+install paths. With GTest discovery disabled, separate C99 and C++17 projects
+find the moved package, link Core and IO respectively, and run through CTest. The C++17
 consumer calls functions from both modules through the IO target.
 The same check builds and runs the [documented examples](../README.md#run-the-examples)
 against the relocated package and checks the output of each program.
