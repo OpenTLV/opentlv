@@ -32,25 +32,30 @@ The default build produces static libraries. For shared libraries, add
 `-DBUILD_SHARED_LIBS=ON` to the configure command. On Windows, add the
 installation's `bin` directory to `PATH` when running a shared-library consumer.
 
-## Run the Core tests
+## Run the Core and IO tests
 
-Set `BUILD_TESTING=ON` to build the Core tests with CMake 3.18 or newer and
+Set `BUILD_TESTING=ON` to build the tests with CMake 3.18 or newer and
 a C++17 compiler. The default library build uses only C and works offline.
-The suite checks fixed-length reads and writes against expected wire bytes for
+The Core suite checks fixed-length reads and writes against expected wire bytes for
 widths 1–8 in both byte orders. It also checks header and element sizes, borrowed
 values, checked arithmetic, and the categories and messages for result codes.
+The IO suite checks one-shot and cursor reads and writes. Its cases verify where
+borrowed views point, which bytes a failed append preserves, and how diagnostics
+report an incomplete input field or the capacity needed for a retry.
 
 ```sh
 cmake -S . -B build-tests -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-tests --config Debug
 cd build-tests
-ctest -C Debug -L core -N
-ctest -C Debug -L core --output-on-failure
+ctest -C Debug -N
+ctest -C Debug --output-on-failure
 cd ..
 ```
 
-The first CTest command lists the individual cases. The second runs them.
-To run just the three-byte little-endian cases, add `-R LittleEndian3$`.
+The first CTest command lists the individual cases. The second runs both suites.
+For IO alone, run `ctest -C Debug -L io --output-on-failure` from the build
+directory. Use `-L core` for Core, adding `-R LittleEndian3$` to select its
+three-byte little-endian cases.
 To check Release, repeat the commands with `Release` in place of `Debug` and
 use `build-tests-release` as the build directory. A 32-bit build also exercises
 logical sizes above `SIZE_MAX`. With a Visual Studio generator, add `-A Win32`
