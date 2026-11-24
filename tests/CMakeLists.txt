@@ -35,8 +35,10 @@ add_executable(opentlv_io_tests
     io/writer_test.cpp
 )
 
-foreach(module IN ITEMS core io)
-    set(test_target opentlv_${module}_tests)
+add_executable(opentlv_integration_tests integration/fixed_round_trip_test.cpp)
+
+function(register_opentlv_tests suite module)
+    set(test_target opentlv_${suite}_tests)
     target_link_libraries(${test_target} PRIVATE OpenTLV::${module} GTest::gtest_main)
     if(WIN32)
         # Windows must find the module DLLs during discovery and execution.
@@ -47,6 +49,10 @@ foreach(module IN ITEMS core io)
     gtest_discover_tests(${test_target}
         DISCOVERY_MODE PRE_TEST
         NO_PRETTY_VALUES
-        PROPERTIES LABELS ${module}
+        PROPERTIES LABELS ${suite}
     )
-endforeach()
+endfunction()
+
+register_opentlv_tests(core core)
+register_opentlv_tests(io io)
+register_opentlv_tests(integration io)
