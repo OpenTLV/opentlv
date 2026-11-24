@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
 project(OpenTLVConsumer LANGUAGES ${CONSUMER_LANGUAGE})
 
+set(CMAKE_DISABLE_FIND_PACKAGE_GTest TRUE)
 # Restrict discovery to the relocated install, even on a host with OpenTLV installed.
 find_package(OpenTLV CONFIG REQUIRED PATHS "${PACKAGE_PREFIX}" NO_DEFAULT_PATH)
 

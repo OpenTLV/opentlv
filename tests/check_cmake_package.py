@@ -2,12 +2,18 @@
 
 import argparse
 import os
+import re
 import subprocess
 import tempfile
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+TEST_COMPONENT = re.compile(
+    r"(?<![a-z0-9])(?:lib|-l)?(?:googletest|googlemock|gtest|gmock)"
+    r"|\bopentlv(?:_|::)(?:core|io|integration)_tests\b",
+    re.IGNORECASE,
+)
 
 
 def build_project(source, build, *options):
@@ -16,20 +22,33 @@ def build_project(source, build, *options):
     subprocess.run(["cmake", "--build", build, "--config", "Release"], check=True)
 
 
+def check_install_tree(relocated, private_paths):
+    for path in relocated.rglob("*"):
+        relative = path.relative_to(relocated)
+        if TEST_COMPONENT.search(relative.as_posix()):
+            raise SystemExit(f"Test artifact in production install: {relative}")
+        if path.suffix.lower() != ".cmake" or not path.is_file():
+            continue
+        contents = path.read_text(encoding="utf-8")
+        reference = TEST_COMPONENT.search(contents)
+        if reference:
+            raise SystemExit(f"{relative} references test dependency {reference.group()}")
+        normalized = os.path.normcase(contents.replace("\\", "/"))
+        for private_path in private_paths:
+            if os.path.normcase(private_path.as_posix()) in normalized:
+                raise SystemExit(f"{relative} contains private path {private_path}")
+
+
 def check_package(work, shared):
     build = work / "library"
     prefix = work / "original install"
     relocated = work / "relocated install"
-    build_project(ROOT, build, f"-DCMAKE_INSTALL_PREFIX={prefix}",
+    build_project(ROOT, build, "-DBUILD_TESTING=OFF", f"-DCMAKE_INSTALL_PREFIX={prefix}",
                   "-DBUILD_SHARED_LIBS=" + ("ON" if shared else "OFF"))
     subprocess.run(["cmake", "--install", build, "--config", "Release"], check=True)
     prefix.rename(relocated)
 
-    for config in relocated.rglob("*.cmake"):
-        contents = os.path.normcase(config.read_text(encoding="utf-8").replace("\\", "/"))
-        for private_path in (ROOT, build, prefix):
-            if os.path.normcase(private_path.as_posix()) in contents:
-                raise SystemExit(f"{config.name} contains private path {private_path}")
+    check_install_tree(relocated, (ROOT, build, prefix))
 
     env = os.environ.copy()
     if os.name == "nt":

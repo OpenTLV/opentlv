@@ -96,10 +96,12 @@ python tests/check_cmake_package.py
 python tests/check_cmake_package.py --shared
 ```
 
-Each check builds and installs the libraries in a temporary directory, moves
-the installation, and checks the exported CMake files for source, build and
-original install paths. Separate C99 and C++11 projects then find the moved
-package, link Core and IO respectively, and run through CTest. The C++11
+Each check builds with `BUILD_TESTING=OFF`, installs the libraries in a
+temporary directory, and moves the installation. It checks the installed tree
+for GoogleTest, GoogleMock and OpenTLV test artifacts, and checks the CMake
+exports for references to those components or to source, build and original
+install paths. With GTest discovery disabled, separate C99 and C++11 projects
+find the moved package, link Core and IO respectively, and run through CTest. The C++11
 consumer calls functions from both modules through the IO target.
 The same check builds and runs the [documented examples](../README.md#run-the-examples)
 against the relocated package and checks the output of each program.
