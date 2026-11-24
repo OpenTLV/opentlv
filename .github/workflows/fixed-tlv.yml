@@ -41,6 +41,14 @@ jobs:
         run: python3 tests/check_fixed_model.py
       - name: Test the release build
         run: python3 tests/check_fixed_model.py --release
+      - name: Build and run CTest in Debug and Release
+        run: |
+          build="$RUNNER_TEMP/opentlv-tests"
+          cmake -S . -B "$build" -G "Ninja Multi-Config" -DBUILD_TESTING=ON
+          for config in Debug Release; do
+            cmake --build "$build" --config "$config"
+            ctest --test-dir "$build" -C "$config" --output-on-failure --no-tests=error
+          done
       - name: Run AddressSanitizer and UndefinedBehaviorSanitizer
         env:
           CC: clang-18

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added an opt-in Core smoke test discoverable through CTest. Test builds
+  accept a checksum-verified GoogleTest archive for offline use. (#23)
 - Added runnable C99 writer and C++11 reader examples for the installed
   OpenTLV package, with expected wire bytes and decoded output. (#12)
 - Added workflow correctness and security checks for pull requests and `main`.

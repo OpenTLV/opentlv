@@ -3,6 +3,7 @@ project(OpenTLV LANGUAGES C)
 
 include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option(BUILD_TESTING "Build OpenTLV tests" OFF)
 
 add_library(opentlv_core
     src/core/fixed.c
@@ -66,3 +67,9 @@ install(EXPORT OpenTLVTargets
     NAMESPACE OpenTLV::
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/OpenTLV"
 )
+
+if(BUILD_TESTING)
+    enable_language(CXX)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
