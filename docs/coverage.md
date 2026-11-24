@@ -4,9 +4,16 @@ CI measures Core and IO on Ubuntu 24.04 x86-64 with GCC, G++, and gcov
 13.3.0. It builds the production libraries at `-O0` with coverage counters.
 The Core, IO, and integration GoogleTest suites and the five standalone
 C99/C++11 programs all link those libraries. CTest runs them sequentially
-against one set of counters. Test code and GoogleTest are outside the measured
-sources. Counts for the private diagnostic header are merged by source location
-across the reader and writer translation units.
+against one set of counters. The gate requires every production `.c` file under
+`src/`, including newly added files, plus `src/io/internal/diagnostic.h`.
+A missing source or an additional instrumented header under `src/` fails the
+scope check. Test code and GoogleTest are outside the measured sources.
+
+Each compiled copy of a repeated source contributes its own executable lines
+and branch outcomes to the per-file totals. For example, both the reader and
+writer copies of the diagnostic header must exercise both outcomes of its
+null check. Missed locations in repeated sources include the object profile
+path so the report identifies which copy needs attention.
 
 The gate requires **100% of reachable executable lines, 100% of reachable
 branch outcomes, and 100% of public functions mapped to passing behavioral
@@ -36,7 +43,9 @@ the first unrepresentable count and preservation of the caller's output.
 
 Each row names one representative CTest case. The gate compares the table
 with the public header declarations, checks that each function executed, and
-requires the named case to pass in the same coverage run.
+requires the named case to pass in the same coverage run. Function execution
+counts cover the entire suite. Reviewers verify that the named test exercises
+the mapped function and asserts its expected behavior.
 
 | Public function | Behavioral test |
 | --- | --- |

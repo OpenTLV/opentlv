@@ -80,6 +80,7 @@ jobs:
           GCOV: gcov-13
         run: |
           test "$(gcc-13 -dumpfullversion)" = 13.3.0
+          python3 -m unittest discover -s tests -p test_check_coverage.py
           python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage.txt"
           python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage-repeat.txt"
           diff -u "$RUNNER_TEMP/coverage.txt" "$RUNNER_TEMP/coverage-repeat.txt"

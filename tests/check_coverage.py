@@ -4,7 +4,7 @@ import json
 import os
 import re
 import subprocess
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 from run_ctest import run as run_ctest
@@ -21,8 +21,7 @@ STANDALONE = {"fixed_model_c", "fixed_model_cpp", "fixed_reader_c", "fixed_write
 
 
 def read_profiles(build, gcov, version):
-    lines, branches, calls = Counter(), Counter(), Counter()
-    measured = set()
+    by_source = defaultdict(list)
     for notes in sorted(build.rglob("*.gcno")):
         if not notes.with_suffix(".gcda").is_file():
             raise SystemExit(f"Missing execution counts for {notes.name}")
@@ -36,18 +35,29 @@ def read_profiles(build, gcov, version):
             if ROOT / "src" not in path.parents:
                 continue
             name = path.relative_to(ROOT).as_posix()
-            measured.add(name)
+            by_source[name].append((notes.relative_to(build).as_posix(), entry))
+    expected = {path.relative_to(ROOT).as_posix() for path in (ROOT / "src").rglob("*.c")}
+    expected.add("src/io/internal/diagnostic.h")
+    missing = sorted(expected - by_source.keys())
+    unexpected = sorted(by_source.keys() - expected)
+    if missing or unexpected:
+        raise SystemExit(f"Production coverage scope differs: missing={missing}, unexpected={unexpected}")
+    return aggregate_counts(by_source)
+
+
+def aggregate_counts(by_source):
+    lines, branches, calls = Counter(), Counter(), Counter()
+    for name, profiles in by_source.items():
+        for unit, entry in profiles:
+            # Branch indices belong to one object. Keep repeated sources' counters separate.
+            suffix = (unit,) if len(profiles) > 1 else ()
             for function in entry["functions"]:
                 calls[function["name"]] += function["execution_count"]
             for line in entry["lines"]:
                 key = (name, line["line_number"])
-                lines[key] += line["count"]
+                lines[(*key, *suffix)] += line["count"]
                 for index, branch in enumerate(line["branches"]):
-                    branches[(*key, index)] += branch["count"]
-    expected = {path.relative_to(ROOT).as_posix() for path in (ROOT / "src").rglob("*.c")}
-    expected.add("src/io/internal/diagnostic.h")
-    if expected - measured:
-        raise SystemExit("Missing production files: " + ", ".join(sorted(expected - measured)))
+                    branches[(*key, index, *suffix)] += branch["count"]
     return lines, branches, calls
 
 
