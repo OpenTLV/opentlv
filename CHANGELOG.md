@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- CI runs the Core, IO, and integration suites under ASan and UBSan, checks
+  that each suite ran, and publishes CTest JUnit reports and logs. (#28)
 - Added checks for test artifacts and test dependencies in relocated static
   and shared production packages consumed by C99 and C++11 projects. (#27)
 - Added Fixed TLV integration tests with independent wire vectors, seeded

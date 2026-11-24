@@ -208,6 +208,22 @@ limit, it rejects a 256-byte payload and retries with 255 bytes. A C++11
 consumer exercises the same C99 implementation. Add `--release` to run the
 suite with optimization and `NDEBUG` enabled.
 
+CI runs all discovered CTest cases in Debug and Release. For each configuration
+it requires at least one passing case from each of the `core`, `io`, and
+`integration` suites. To reproduce these checks with Ninja, Python 3, and
+CTest 3.21 or newer, run the following commands from the repository root.
+
+```sh
+cmake -S . -B build-ci -G "Ninja Multi-Config" -DBUILD_TESTING=ON
+cmake --build build-ci --config Debug
+python3 tests/run_ctest.py build-ci Debug reports/Debug
+cmake --build build-ci --config Release
+python3 tests/run_ctest.py build-ci Release reports/Release
+```
+
+The `ctest-reports` workflow artifact contains a JUnit XML report and a CTest
+log for each test run that started, including runs with failing cases.
+
 ### Sanitizers
 
 On a platform with the AddressSanitizer and UndefinedBehaviorSanitizer
@@ -216,6 +232,18 @@ A sanitizer finding fails the run. The Ubuntu 24.04 workflow uses Clang 18.
 
 ```sh
 CC=clang-18 CXX=clang++-18 python3 tests/check_fixed_model.py --sanitize
+```
+
+To run the CTest suites with the same instrumentation as CI, configure a
+fresh build directory so CMake picks up the compiler and linker flags.
+
+```sh
+flags="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+CC=clang-18 CXX=clang++-18 CFLAGS="$flags" CXXFLAGS="$flags" LDFLAGS="-fsanitize=address,undefined" \
+  cmake -S . -B build-sanitized -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-sanitized
+ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
+  python3 tests/run_ctest.py build-sanitized Debug reports/sanitizers
 ```
 
 ### Coverage

@@ -42,18 +42,36 @@ jobs:
       - name: Test the release build
         run: python3 tests/check_fixed_model.py --release
       - name: Build and run CTest in Debug and Release
+        id: ctest
         run: |
           build="$RUNNER_TEMP/opentlv-tests"
           cmake -S . -B "$build" -G "Ninja Multi-Config" -DBUILD_TESTING=ON
           for config in Debug Release; do
             cmake --build "$build" --config "$config"
-            ctest --test-dir "$build" -C "$config" --output-on-failure --no-tests=error
+            python3 tests/run_ctest.py "$build" "$config" "$RUNNER_TEMP/ctest-reports/$config"
           done
       - name: Run AddressSanitizer and UndefinedBehaviorSanitizer
         env:
           CC: clang-18
           CXX: clang++-18
-        run: python3 tests/check_fixed_model.py --sanitize
+          CFLAGS: -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer
+          LDFLAGS: -fsanitize=address,undefined
+          ASAN_OPTIONS: halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: |
+          python3 tests/check_fixed_model.py --sanitize
+          export CXXFLAGS="$CFLAGS"
+          build="$RUNNER_TEMP/opentlv-sanitized"
+          cmake -S . -B "$build" -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
+          cmake --build "$build"
+          python3 tests/run_ctest.py "$build" Debug "$RUNNER_TEMP/ctest-reports/sanitizers"
+      - name: Publish CTest JUnit reports and logs
+        if: ${{ !cancelled() && steps.ctest.outcome != 'skipped' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ctest-reports
+          path: ${{ runner.temp }}/ctest-reports/
+          if-no-files-found: error
       - name: Check and report reproducible library coverage
         env:
           CC: gcc-13
