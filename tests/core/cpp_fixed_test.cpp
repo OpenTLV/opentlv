@@ -13,6 +13,19 @@ static_assert(noexcept(core::element_size({}, {}, std::declval<std::size_t &>())
 static_assert(noexcept(core::read_length({}, {}, std::declval<core::logical_size &>(),
                                          std::declval<std::size_t &>())));
 
+TEST(CppFixed, ConvertsUnknownByteOrdersBetweenCAndCpp)
+{
+    const auto unknown = core::from_c(TLV_BYTE_ORDER_UNKNOWN);
+    EXPECT_EQ(core::byte_order::unknown, unknown);
+    EXPECT_EQ(TLV_BYTE_ORDER_UNKNOWN, core::to_c(unknown));
+
+    // 3 is representable by tlv_byte_order_t in C++17 and has no named enumerator.
+    constexpr auto unnamed = static_cast<tlv_byte_order_t>(3);
+    const auto converted = core::from_c(unnamed);
+    EXPECT_EQ(static_cast<core::byte_order>(3), converted);
+    EXPECT_EQ(TLV_BYTE_ORDER_UNKNOWN, core::to_c(converted));
+}
+
 TEST(CppFixed, ConvertsConfigurationByValueAndValidatesHeaderSize)
 {
     const tlv_fixed_format_t formats[] = {

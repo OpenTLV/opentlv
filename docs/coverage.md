@@ -80,5 +80,6 @@ assertions check view type distinctions, result code conversions and the
 | `make_value_view`, `validate` | `CppCore.ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure` |
 | `size_add`, `size_to_native` | `CppCore.ChecksLogicalAndNativeSizeLimits` |
 | `to_c`, `from_c` for format settings and byte order, and `header_size` | `CppFixed.ConvertsConfigurationByValueAndValidatesHeaderSize` |
+| `from_c` and `to_c` for unknown and unnamed byte orders | `CppFixed.ConvertsUnknownByteOrdersBetweenCAndCpp` |
 | `element_size` | `CppFixed.MeasuresElementsAndPreservesSizeOnError` |
 | `read_length`, `write_length` | `CppFixed.ReadsAndWritesExactlyTheSelectedFieldInBothOrders`, `CppFixed.PreservesFieldOutputsAndReportsTruncation` |
