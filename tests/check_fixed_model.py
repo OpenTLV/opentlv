@@ -10,25 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def write_coverage(build, objects, destination):
-    profiles = [obj.with_suffix(".gcda") for obj in objects]
-    for profile in profiles:
-        if not profile.is_file():
-            raise SystemExit(f"Missing execution counts for {profile.name}")
-
-    gcov = os.environ.get("GCOV", "gcov")
-    summary = subprocess.run(
-        [gcov, "--no-output", "--branch-probabilities", "--relative-only",
-         "--source-prefix", ROOT.as_posix(), *profiles],
-        cwd=build, env={**os.environ, "LC_ALL": "C"}, check=True,
-        stdout=subprocess.PIPE, text=True,
-    ).stdout
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_bytes(summary.encode("utf-8"))
-    print(summary, end="")
-
-
-def check(build, release=False, sanitize=False, coverage=None):
+def check(build, release=False, sanitize=False):
     cc = os.environ.get("CC", "cc")
     cxx = os.environ.get("CXX", "c++")
     flags = ["-pedantic-errors", "-Wall", "-Wextra", "-Werror", "-I", ROOT / "include"]
@@ -37,15 +19,12 @@ def check(build, release=False, sanitize=False, coverage=None):
     if sanitize:
         flags.extend(["-O1", "-g", "-fno-omit-frame-pointer",
                       "-fsanitize=address,undefined", "-fno-sanitize-recover=all"])
-    # Only library objects contribute coverage. Test executables link the runtime.
-    library_flags = ["--coverage", "-O0"] if coverage else []
-    link_flags = ["-lgcov"] if coverage else []
 
     def compile_c(relative):
         source = ROOT / "src" / relative
         obj = (build / "objects" / relative).with_suffix(".o")
         obj.parent.mkdir(parents=True, exist_ok=True)
-        subprocess.run([cc, "-std=c99", *flags, *library_flags, "-c", source, "-o", obj],
+        subprocess.run([cc, "-std=c99", *flags, "-c", source, "-o", obj],
                        cwd=build, check=True)
         return obj
 
@@ -63,13 +42,11 @@ def check(build, release=False, sanitize=False, coverage=None):
         executable = build / ("test.exe" if os.name == "nt" else "test")
         subprocess.run(
             [compiler, "-std=" + standard, *flags, ROOT / "tests" / source,
-             *objects, *link_flags, "-o", executable],
+             *objects, "-o", executable],
             cwd=build, check=True,
         )
         subprocess.run([executable], cwd=build, check=True)
         print(f"PASS {standard} {source}")
-    if coverage:
-        write_coverage(build, reader_and_writer, coverage)
 
 
 if __name__ == "__main__":
@@ -82,4 +59,8 @@ if __name__ == "__main__":
                        help="write a GCC/gcov coverage summary to FILE")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory() as directory:
-        check(Path(directory), release=args.release, sanitize=args.sanitize, coverage=args.coverage)
+        if args.coverage:
+            from check_coverage import check_coverage
+            check_coverage(Path(directory), args.coverage)
+        else:
+            check(Path(directory), release=args.release, sanitize=args.sanitize)
