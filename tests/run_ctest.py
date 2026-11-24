@@ -7,6 +7,20 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
+X86_REQUIRED_CASES = {
+    "CoreSize.ConvertsRepresentableCountsToNative",
+    "CoreSize.RejectsUint64MaxOnX86",
+    "CoreSize.RejectsTheFirstUnrepresentableNativeCountAndPreservesOutput",
+    "CoreValue.RejectsANonNativeSizeAndPreservesTheDestination",
+    "FixedElementSize.RejectsAWireLengthAboveTheNativeSizeRange",
+    "FixedMeasurement.MeasuresAnExactNativeHeaderAndRejectsTheNextWidth",
+    "CoreSize.AddsCountsThroughTheLogicalLimit",
+    "CoreSize.ReportsOverflowAndPreservesOutput",
+    "ReaderBounds.ComparesHugeLengthsBeforeAnyNativeSizeConversion",
+    "IOWrite.SizingQueriesValidateWireAndNativeLimits",
+}
+
+
 def run(build, config, reports):
     reports.mkdir(parents=True, exist_ok=True)
     junit = reports / "junit.xml"
@@ -37,5 +51,12 @@ if __name__ == "__main__":
     parser.add_argument("build", type=Path)
     parser.add_argument("config", choices=("Debug", "Release"))
     parser.add_argument("reports", type=Path)
+    parser.add_argument("--require-x86", action="store_true",
+                        help="require passing x86 ABI and native-size boundary cases")
     args = parser.parse_args()
-    run(args.build.resolve(), args.config, args.reports.resolve())
+    passed = run(args.build.resolve(), args.config, args.reports.resolve())
+    if args.require_x86:
+        missing = X86_REQUIRED_CASES - passed
+        if missing:
+            raise SystemExit("Missing passing x86 cases: " + ", ".join(sorted(missing)))
+        print("Verified x86 execution with sizeof(size_t) == 4 and all required boundary cases")

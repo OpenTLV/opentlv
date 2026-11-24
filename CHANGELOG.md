@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Win32 CI execution of the Core, IO, and integration suites with
+  explicit checks for four-byte `size_t` and native-size boundary cases. (#30)
 - Added CI coverage gates for reachable production lines, branches, and
   public API behavior across Core, IO, integration, and standalone tests. (#29)
 - CI runs the Core, IO, and integration suites under ASan and UBSan, checks

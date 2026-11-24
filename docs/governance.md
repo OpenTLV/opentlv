@@ -59,6 +59,8 @@ and every push to `main`.
 - `fixed-tlv` compiles the public headers, runs the default, release and
   sanitizer test suites, compares two GCC coverage reports, and exercises
   both static and shared installed packages on Ubuntu 24.04.
+- `windows-x86` builds and executes the Win32 test suites with MSVC and
+  verifies the [x86 ABI and native-size boundary cases](../README.md#run-the-32-bit-x86-tests).
 - `workflow-analyzers` checks the workflow files with actionlint and zizmor.
   Pull requests and manual runs use zizmor offline. Pushes to `main` and
   scheduled runs use a read-only token in the zizmor step to check action
@@ -70,7 +72,7 @@ select **Fixed TLV**, choose **Run workflow**, and select the branch to check.
 Full CI adds a Clang 18 public-header check to `fixed-tlv`. It also runs
 `windows-package`, which builds static and shared packages with MSVC and tests
 their C and C++ consumers after relocating the installation. For a release
-candidate, verify that all three jobs passed for the exact `main` commit.
+candidate, verify that all four jobs passed for the exact `main` commit.
 
 To reproduce the build checks, follow the [header and installed-package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
