@@ -32,7 +32,7 @@ The default build produces static libraries. For shared libraries, add
 `-DBUILD_SHARED_LIBS=ON` to the configure command. On Windows, add the
 installation's `bin` directory to `PATH` when running a shared-library consumer.
 
-## Run the Core and IO tests
+## Run the tests
 
 Set `BUILD_TESTING=ON` to build the tests with CMake 3.18 or newer and
 a C++17 compiler. The default library build uses only C and works offline.
@@ -52,10 +52,17 @@ ctest -C Debug --output-on-failure
 cd ..
 ```
 
-The first CTest command lists the individual cases. The second runs both suites.
+The first CTest command lists the individual cases. The second runs all suites.
 For IO alone, run `ctest -C Debug -L io --output-on-failure` from the build
 directory. Use `-L core` for Core, adding `-R LittleEndian3$` to select its
 three-byte little-endian cases.
+
+Run `ctest -C Debug -L integration --output-on-failure` for Fixed TLV
+integration tests. They check literal wire vectors in all 16 length layouts,
+round-trip binary values with 1-, 2- and 9-byte tags, and read adjacent
+elements with every possible prefix of the final element. Each layout uses
+the same fixed seed (`0x26f1`) and payloads of at most 513 bytes.
+
 To check Release, repeat the commands with `Release` in place of `Debug` and
 use `build-tests-release` as the build directory. A 32-bit build also exercises
 logical sizes above `SIZE_MAX`. With a Visual Studio generator, add `-A Win32`

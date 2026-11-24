@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Fixed TLV integration tests with independent wire vectors, seeded
+  binary round trips and truncated streams across all 16 length layouts. (#26)
 - Added an IO GoogleTest suite for one-shot and cursor reads and writes.
   It checks borrowed views, diagnostic offsets and counts, and preservation
   of committed bytes when an append fails. (#25)
