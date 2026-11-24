@@ -20,6 +20,12 @@ order.
 | Big-endian | `12 34` | `00 03` | `AA BB CC` |
 | Little-endian | `12 34` | `03 00` | `AA BB CC` |
 
+The [C99 writer](../examples/write.c) encodes the big-endian row with
+`tlv_write` and prints the bytes counted by `written`. The
+[C++11 reader](../examples/read.cpp) uses the same format to read the tag
+and value from the encoded bytes. Both examples use the installed C API.
+[Build and run the examples](../README.md#run-the-examples).
+
 ## Borrowed bytes and sizes
 
 Core primitives, the reader, and the writer allocate no memory. A format
@@ -44,6 +50,8 @@ Use `tlv_fixed_length_read` and `tlv_fixed_length_write` to convert a single
 length field. They use the configured byte order regardless of host order or
 buffer alignment. Extra bytes after the field are untouched. For a sizing
 query, pass a null destination and zero capacity to `tlv_fixed_length_write`.
+For a valid count and configuration this returns `TLV_OK` and writes the
+length field's width to `*written`.
 
 An eight-byte length of all `FF` decodes to `UINT64_MAX` on both 32-bit and
 64-bit platforms. `tlv_size_to_native` checks whether that count fits a
@@ -87,6 +95,7 @@ length of `UINT64_MAX` in a short buffer is reported as truncation on both
 On end or error, the element, cursor, and one-shot consumed count keep
 their previous values. Repeating the call gives the same result. Successful
 initialization copies the format settings and resets the cursor to zero.
+Treat the initialized reader's fields as read-only.
 To restart a reader with its current settings, pass `&reader.format` to
 `tlv_reader_init`. Copy an initialized reader to iterate independently
 over the same input from the copied position.
@@ -117,7 +126,8 @@ configured width and byte order, then copies the payload.
 For example, a two-byte tag `12 34`, a two-byte little-endian length, and
 one payload byte `AB` produce `12 34 01 00 AB`. With four bytes available,
 `tlv_write` returns `TLV_ERR_BUFFER_TOO_SHORT` and sets `*written` to 5.
-Passing `NULL` and zero capacity gives the same result for this element.
+For any valid element, passing `NULL` and zero capacity to `tlv_write`
+returns `TLV_ERR_BUFFER_TOO_SHORT` and sets `*written` to its full encoded size.
 Use `tlv_fixed_element_size` to measure an element before choosing a buffer.
 
 For successive writes, call `tlv_writer_init(writer, data, capacity, format)`.
@@ -125,8 +135,8 @@ Initialization copies the format and sets `writer->pos` to zero. A null
 destination is valid only with zero capacity. Failed initialization preserves
 the previous writer. Call `tlv_writer_write(writer, element)` to append at
 `writer->pos`. A successful append advances the cursor by the encoded size.
-Any failure preserves the cursor and the entire destination, including
-previously encoded elements.
+Treat the writer's fields as read-only. Any failure preserves the cursor
+and the entire destination, including previously encoded elements.
 
 Keep the destination alive and writable while the writer uses it. Keep
 the writer state and output count in separate storage. The tag, payload,
