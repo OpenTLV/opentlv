@@ -12,6 +12,38 @@ The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 
+## Build and install
+
+Build the libraries with CMake 3.15 or newer and a C99 compiler. Replace
+`/path/to/opentlv` with the absolute path where you want to install the package.
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+cmake --install build --config Release --prefix /path/to/opentlv
+```
+
+The default build produces static libraries. For shared libraries, add
+`-DBUILD_SHARED_LIBS=ON` to the configure command. On Windows, add the
+installation's `bin` directory to `PATH` when running a shared-library consumer.
+
+## Use the installed package
+
+In a C99 or C++11 CMake project, link your executable to `OpenTLV::io` for
+the reader and writer. This target also links Core. For just the fixed TLV
+model, size calculations and result codes, link `OpenTLV::core` directly.
+
+```cmake
+find_package(OpenTLV CONFIG REQUIRED)
+add_executable(example main.c)
+target_link_libraries(example PRIVATE OpenTLV::io)
+```
+
+Configure the consumer with `-DCMAKE_PREFIX_PATH=/path/to/opentlv` so CMake
+can find the installation. Both targets supply the include path for
+`<opentlv/tlv.h>`. See the [package checks](docs/architecture.md#verification)
+for the commands that exercise C99 and C++11 callers after moving an installation.
+
 ## Contributing
 
 For a bug, proposal, or maintenance task, start with the

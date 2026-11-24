@@ -28,3 +28,7 @@ jobs:
         run: python3 tests/check_fixed_model.py
       - name: Test the release build
         run: python3 tests/check_fixed_model.py --release
+      - name: Test the installed static CMake package
+        run: python3 tests/check_cmake_package.py
+      - name: Test the installed shared CMake package
+        run: python3 tests/check_cmake_package.py --shared
