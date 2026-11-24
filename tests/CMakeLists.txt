@@ -29,15 +29,24 @@ add_executable(opentlv_core_tests
     core/size_test.cpp
     core/value_test.cpp
 )
-target_link_libraries(opentlv_core_tests PRIVATE OpenTLV::core GTest::gtest_main)
-if(WIN32)
-    # Windows must find the Core DLL during both discovery and execution.
-    set_target_properties(opentlv_core_tests PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:opentlv_core>"
-    )
-endif()
-gtest_discover_tests(opentlv_core_tests
-    DISCOVERY_MODE PRE_TEST
-    NO_PRETTY_VALUES
-    PROPERTIES LABELS core
+add_executable(opentlv_io_tests
+    io/diagnostic_test.cpp
+    io/reader_test.cpp
+    io/writer_test.cpp
 )
+
+foreach(module IN ITEMS core io)
+    set(test_target opentlv_${module}_tests)
+    target_link_libraries(${test_target} PRIVATE OpenTLV::${module} GTest::gtest_main)
+    if(WIN32)
+        # Windows must find the module DLLs during discovery and execution.
+        set_target_properties(${test_target} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:opentlv_${module}>"
+        )
+    endif()
+    gtest_discover_tests(${test_target}
+        DISCOVERY_MODE PRE_TEST
+        NO_PRETTY_VALUES
+        PROPERTIES LABELS ${module}
+    )
+endforeach()

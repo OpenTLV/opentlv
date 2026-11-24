@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added an IO GoogleTest suite for one-shot and cursor reads and writes.
+  It checks borrowed views, diagnostic offsets and counts, and preservation
+  of committed bytes when an append fails. (#25)
 - Added GoogleTest coverage for the public Core API, including wire bytes
   for length fields of 1–8 bytes in both byte orders, borrowed values,
   size limits on 32-bit and 64-bit hosts, and result mappings. (#24)
