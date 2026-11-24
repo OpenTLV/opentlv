@@ -32,6 +32,33 @@ The default build produces static libraries. For shared libraries, add
 `-DBUILD_SHARED_LIBS=ON` to the configure command. On Windows, add the
 installation's `bin` directory to `PATH` when running a shared-library consumer.
 
+## Run the CTest smoke test
+
+Set `BUILD_TESTING=ON` to build the Core tests with CMake 3.18 or newer and
+a C++17 compiler. The default library build uses only C and works offline.
+The smoke test calls `tlv_result_category(TLV_OK)` through the public Core API.
+
+```sh
+cmake -S . -B build-tests -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-tests --config Debug
+cd build-tests
+ctest -C Debug -N
+ctest -C Debug -L core --output-on-failure
+cd ..
+```
+
+`ctest -N` lists `CoreResult.ClassifiesSuccess`. To check Release, repeat
+the commands with `Release` in place of `Debug` and use `build-tests-release`
+as the build directory.
+
+When you first configure a test build, CMake downloads the
+[GoogleTest 1.17.0 source archive] and verifies its SHA-256. To build offline, add
+`-DOPENTLV_GOOGLETEST_URL=/absolute/path/to/v1.17.0.tar.gz` to the first
+command. CMake checks the local archive against the same digest.
+Both build modes install only the OpenTLV libraries, headers, license and CMake files.
+
+[GoogleTest 1.17.0 source archive]: https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+
 ## Run the examples
 
 After installing OpenTLV, run these commands from the repository root with
