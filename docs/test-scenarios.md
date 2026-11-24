@@ -17,6 +17,7 @@ an individual case, or a single wire layout with CTest.
 
 | IO and integration scenario | Where it is checked |
 | --- | --- |
+| Compare C++ one-shot and cursor reads with C. Verify borrowed views, independent cursor copies and preserved outputs on end, truncation and invalid initialization. | `CppReader` in [cpp_reader_test.cpp](../tests/io/cpp_reader_test.cpp) |
 | Read exactly one element with trailing bytes, borrow its tag and value, and preserve the view, count and cursor on each incomplete prefix or end of input. | `ReaderLayout` in [reader_test.cpp](../tests/io/reader_test.cpp) |
 | Iterate adjacent records with opaque and empty payloads. Keep earlier views valid, copy the format on initialization, advance copied cursors independently and restart using the stored format. | `ReaderStream` in [reader_test.cpp](../tests/io/reader_test.cpp) |
 | Reject invalid arguments, formats, positions and failed reinitializations. Compare large wire lengths against remaining bytes before native conversion, including 2³², 2³² + 1 and 2⁶⁴ − 1. | `ReaderArguments` and `ReaderBounds` in [reader_test.cpp](../tests/io/reader_test.cpp), and `ReadDiagnostic.ReportsTheFullWireLengthWhenItExceedsTheRemainingInput` in [diagnostic_test.cpp](../tests/io/diagnostic_test.cpp) |

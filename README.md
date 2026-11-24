@@ -12,10 +12,10 @@ The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 
-The C++17 umbrella exposes typed Core views and Fixed TLV configuration in
-`opentlv::core`, alongside the C reader and writer. The
-[C++ API guide](docs/cpp-api.md#using-fixed-tlv-from-c17) shows how to borrow
-payload bytes, measure an element, and pass its descriptor to C.
+The C++17 umbrella exposes typed views and Fixed TLV configuration in
+`opentlv::core` and a reader in `opentlv::io`. The
+[C++ API guide](docs/cpp-api.md#reading-elements) shows how to read one
+element or iterate a stream and locate an incomplete field.
 
 OpenTLV supports fixed-width tag and length fields with opaque payloads.
 Variable-width field encodings, automatic nested decoding, schemas, queries,
@@ -65,8 +65,9 @@ cd build-examples
 ctest -C Release -V
 ```
 
-The C writer encodes a three-byte payload. The C++ reader uses the C API to
-decode the same seven wire bytes. CTest runs both programs and shows their output.
+The C writer encodes a three-byte payload. The C++ reader decodes the same
+seven wire bytes with `opentlv::io::reader`. CTest runs both programs and
+shows their output.
 
 | Example | Output |
 | --- | --- |
