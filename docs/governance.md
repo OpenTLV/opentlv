@@ -56,11 +56,11 @@ merge commit and the introduced commits on GitHub.
 The [Fixed TLV workflow] runs these checks on every pull request to `main`
 and every push to `main`.
 
-- `fixed-tlv` compiles the public headers, runs the default, release and
-  sanitizer test suites, compares two GCC coverage reports, and exercises
-  both static and shared installed packages on Ubuntu 24.04.
+- `fixed-tlv` compiles the public headers, runs CTest in Debug, Release and
+  sanitizer builds, compares two GCC coverage reports, exercises static and
+  shared installed packages, and runs the bounded fuzz targets on Ubuntu 24.04.
 - `windows-x86` builds and executes the Win32 test suites with MSVC and
-  verifies the [x86 ABI and native-size boundary cases](../README.md#run-the-32-bit-x86-tests).
+  verifies the [x86 ABI and native-size boundary cases](testing.md#32-bit-x86).
 - `workflow-analyzers` checks the workflow files with actionlint and zizmor.
   Pull requests and manual runs use zizmor offline. Pushes to `main` and
   scheduled runs use a read-only token in the zizmor step to check action
@@ -119,7 +119,7 @@ non-maintainer remains unverified. [Reporting verification]
 [governance baseline]: https://github.com/OpenTLV/.github/blob/main/docs/governance.md
 [Fixed TLV workflow]: ../.github/workflows/fixed-tlv.yml
 [header and installed-package checks]: architecture.md#verification
-[fixed TLV test commands]: fixed-tlv.md#running-the-tests
+[fixed TLV test commands]: testing.md
 [dependency graph export]: https://api.github.com/repos/OpenTLV/opentlv/dependency-graph/sbom
 [private vulnerability reporting]: https://api.github.com/repos/OpenTLV/opentlv/private-vulnerability-reporting
 [Advisories page]: https://github.com/OpenTLV/opentlv/security/advisories

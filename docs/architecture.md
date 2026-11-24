@@ -80,6 +80,11 @@ a new major version.
 
 ## Verification
 
+The Core, IO and integration suites link the production library targets and
+exercise their public C interfaces. Test builds use GoogleTest to discover
+individual cases through CTest. The [testing guide](testing.md) explains how
+to select a contract, reproduce CI runs and read their reports.
+
 Run `python tests/check_public_api.py` from the repository root with Python
 3 and a GCC- or Clang-compatible toolchain. Set `CC` and `CXX` to select
 the C and C++ compiler executables. To use Clang's Microsoft-compatible
