@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added checks for test artifacts and test dependencies in relocated static
+  and shared production packages consumed by C99 and C++11 projects. (#27)
 - Added Fixed TLV integration tests with independent wire vectors, seeded
   binary round trips and truncated streams across all 16 length layouts. (#26)
 - Added an IO GoogleTest suite for one-shot and cursor reads and writes.
