@@ -15,9 +15,10 @@ def run(build, config, reports):
                     "--output-junit", junit, "--output-log", reports / "ctest.log"],
                    check=True)
 
-    # A discovered case can still be disabled or skipped at runtime.
+    # Count only executed cases without a JUnit skip, failure or error.
     passed = {case.attrib["name"] for case in ET.parse(junit).iter("testcase")
-              if case.get("status") == "run" and case.find("skipped") is None}
+              if case.get("status") == "run"
+              and all(case.find(tag) is None for tag in ("skipped", "failure", "error"))}
     inventory = subprocess.check_output([*ctest, "--show-only=json-v1"], text=True)
     labels = set()
     for test in json.loads(inventory)["tests"]:
