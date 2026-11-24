@@ -46,6 +46,9 @@ for the commands that exercise C99 and C++11 callers after moving an installatio
 
 ## Contributing
 
+See [Running the tests](docs/fixed-tlv.md#running-the-tests) for the unit suite,
+sanitizer checks, and coverage report.
+
 For a bug, proposal, or maintenance task, start with the
 [issue chooser](https://github.com/OpenTLV/opentlv/issues/new/choose).
 Follow the shared [contribution guidelines] for branch names, commit messages,

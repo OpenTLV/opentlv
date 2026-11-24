@@ -108,13 +108,25 @@ static void test_input_fields(void)
     CHECK(ended.pos == ended.size + 1);
     check_view(element, first);
 
-    const tlv_fixed_format_t wide = {{1}, {8, TLV_BYTE_ORDER_BIG_ENDIAN}};
-    const uint8_t max[] = {0xaa, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe};
-    CHECK(tlv_read_with_diagnostic(max, sizeof max, &wide, &element, &consumed, &d) == TLV_ERR_TRUNCATED);
-    check_detail(d, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, 9, TLV_SIZE_MAX, 1);
-    CHECK(tlv_read_with_diagnostic(max, sizeof max, &wide, &element, &consumed, NULL) == TLV_ERR_TRUNCATED);
-    CHECK(consumed == 99);
-    check_view(element, first);
+    const struct {
+        tlv_byte_order_t order;
+        uint8_t wire[10];
+        tlv_size_t required;
+    } wide_cases[] = {
+        {TLV_BYTE_ORDER_BIG_ENDIAN, {0xaa, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe}, TLV_SIZE_MAX},
+        /* The low 32 bits alone would accept the single available payload byte. */
+        {TLV_BYTE_ORDER_LITTLE_ENDIAN, {0xaa, 1, 0, 0, 0, 1, 0, 0, 0, 0xfe}, UINT64_C(0x100000001)}
+    };
+    for (size_t i = 0; i < sizeof wide_cases / sizeof wide_cases[0]; ++i) {
+        const tlv_fixed_format_t wide = {{1}, {8, wide_cases[i].order}};
+        CHECK(tlv_read_with_diagnostic(wide_cases[i].wire, sizeof wide_cases[i].wire, &wide,
+                                       &element, &consumed, &d) == TLV_ERR_TRUNCATED);
+        check_detail(d, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, 9, wide_cases[i].required, 1);
+        CHECK(tlv_read(wide_cases[i].wire, sizeof wide_cases[i].wire, &wide,
+                       &element, &consumed) == TLV_ERR_TRUNCATED);
+        CHECK(consumed == 99);
+        check_view(element, first);
+    }
 }
 
 static void test_fixed_wire_domain(void)

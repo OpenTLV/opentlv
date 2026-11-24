@@ -117,6 +117,47 @@ static void test_append_from_committed_prefix(void)
     CHECK(memcmp(output + sizeof record, record, sizeof record) == 0);
 }
 
+static void test_one_byte_length_boundary(void)
+{
+    const tlv_fixed_format_t format = {{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    const uint8_t prefix[] = {0xa1, 0};
+    const uint8_t header[] = {0xa2, UINT8_MAX};
+    uint8_t payload[UINT8_MAX + 1];
+    uint8_t output[sizeof prefix + sizeof header + sizeof payload];
+    uint8_t expected[sizeof output];
+    const tlv_element_t empty = {{prefix, 1}, {NULL, 0}};
+    tlv_element_t record = {{header, 1}, {payload, sizeof payload}};
+    tlv_writer_t writer;
+    tlv_reader_t reader;
+    tlv_element_t decoded;
+
+    for (size_t i = 0; i < sizeof payload; ++i) {
+        payload[i] = (uint8_t)i;
+    }
+    memset(output, 0xcc, sizeof output);
+    memset(expected, 0xcc, sizeof expected);
+    memcpy(expected, prefix, sizeof prefix);
+
+    CHECK(tlv_writer_init(&writer, output, sizeof output, &format) == TLV_OK);
+    CHECK(tlv_writer_write(&writer, &empty) == TLV_OK && writer.pos == sizeof prefix);
+    /* The 256-byte value fits the destination but exceeds the wire length field. */
+    CHECK(tlv_writer_write(&writer, &record) == TLV_ERR_INVALID_LENGTH);
+    CHECK(writer.pos == sizeof prefix && memcmp(output, expected, sizeof output) == 0);
+
+    record.value.size = UINT8_MAX;
+    memcpy(expected + sizeof prefix, header, sizeof header);
+    memcpy(expected + sizeof prefix + sizeof header, payload, UINT8_MAX);
+    CHECK(tlv_writer_write(&writer, &record) == TLV_OK && writer.pos == sizeof output - 1);
+    CHECK(memcmp(output, expected, sizeof output) == 0);
+    CHECK(tlv_reader_init(&reader, output, writer.pos, &format) == TLV_OK);
+    CHECK(tlv_reader_next(&reader, &decoded) == TLV_OK && reader.pos == sizeof prefix);
+    CHECK(decoded.tag.data == output && decoded.tag.size == 1 && decoded.value.size == 0);
+    CHECK(tlv_reader_next(&reader, &decoded) == TLV_OK && reader.pos == writer.pos);
+    CHECK(decoded.tag.data == output + sizeof prefix && decoded.tag.size == 1);
+    CHECK(decoded.value.data == output + sizeof prefix + sizeof header && decoded.value.size == UINT8_MAX);
+    CHECK(tlv_reader_next(&reader, &decoded) == TLV_END);
+}
+
 static void test_invalid_inputs(void)
 {
     const uint8_t tag = 0x42;
@@ -180,6 +221,7 @@ int main(void)
     test_wire_vectors();
     test_capacity_and_retry();
     test_append_from_committed_prefix();
+    test_one_byte_length_boundary();
     test_invalid_inputs();
     return 0;
 }
