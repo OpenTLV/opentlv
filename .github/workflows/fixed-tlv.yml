@@ -5,9 +5,16 @@ on:
     branches: [main]
   push:
     branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '43 6 * * 1'
 
 permissions:
   contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   fixed-tlv:
@@ -23,6 +30,12 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
       - name: Compile public headers
+        run: python3 tests/check_public_api.py
+      - name: Compile public headers with Clang
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        env:
+          CC: clang-18
+          CXX: clang++-18
         run: python3 tests/check_public_api.py
       - name: Test the fixed model, reader and writer
         run: python3 tests/check_fixed_model.py
@@ -53,3 +66,55 @@ jobs:
         run: python3 tests/check_cmake_package.py
       - name: Test the installed shared CMake package
         run: python3 tests/check_cmake_package.py --shared
+
+  windows-package:
+    name: windows-package
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    runs-on: windows-2022
+    timeout-minutes: 15
+    env:
+      CMAKE_GENERATOR: Visual Studio 17 2022
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Test the installed static CMake package with MSVC
+        run: python tests/check_cmake_package.py
+      - name: Test the installed shared CMake package with MSVC
+        run: python tests/check_cmake_package.py --shared
+
+  workflow-analyzers:
+    name: workflow-analyzers
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check workflow syntax and expressions
+        shell: bash
+        run: |
+          curl --fail --silent --show-error --location \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output "$RUNNER_TEMP/actionlint.tar.gz"
+          printf '%s  %s\n' 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8 \
+            "$RUNNER_TEMP/actionlint.tar.gz" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/actionlint.tar.gz" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes=
+      - name: Install zizmor
+        run: |
+          python3 -m venv "$RUNNER_TEMP/zizmor-venv"
+          "$RUNNER_TEMP/zizmor-venv/bin/python" -m pip install --require-hashes --only-binary=:all: -r .github/requirements-actions.txt
+      - name: Audit workflow security offline
+        if: github.ref != 'refs/heads/main' || (github.event_name != 'push' && github.event_name != 'schedule')
+        run: |
+          "$RUNNER_TEMP/zizmor-venv/bin/zizmor" --offline --strict-collection --collect=workflows .
+      - name: Audit workflow security online
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'schedule')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          : "${GH_TOKEN:?GitHub token is required for online audits}"
+          "$RUNNER_TEMP/zizmor-venv/bin/zizmor" --strict-collection --collect=workflows .

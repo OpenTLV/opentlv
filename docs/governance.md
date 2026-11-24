@@ -45,11 +45,46 @@ on 2026-11-23.
 - The [maintainer audit] recorded an empty bypass list. The public ruleset
   response on 2026-11-23 did not expose that list.
 
-There were no project workflows, check runs on `main`, or required status
-checks on 2026-11-23. When project CI first reports on a pull request, verify
-the exact check names and source app IDs, then require the applicable checks
-and an up-to-date branch under the [governance baseline]. At the first signed
-PR merge, verify the merge commit and the introduced commits on GitHub.
+The 2026-11-23 audit found no required status checks. Before configuring
+required checks, verify the `fixed-tlv` and `workflow-analyzers` check names
+and source app ID on a pull request, then follow the [governance baseline]
+for requiring them and an up-to-date branch. Verify the signatures on the
+merge commit and the introduced commits on GitHub.
+
+## Continuous integration
+
+The [Fixed TLV workflow] runs these checks on every pull request to `main`
+and every push to `main`.
+
+- `fixed-tlv` compiles the public headers, runs the default, release and
+  sanitizer test suites, compares two GCC coverage reports, and exercises
+  both static and shared installed packages on Ubuntu 24.04.
+- `workflow-analyzers` checks the workflow files with actionlint and zizmor.
+  Pull requests and manual runs use zizmor offline. Pushes to `main` and
+  scheduled runs use a read-only token in the zizmor step to check action
+  pins against GitHub. All jobs use read-only repository access, and checkout
+  disables credential persistence.
+
+Full CI runs every Monday at 06:43 UTC. To run it manually, open **Actions**,
+select **Fixed TLV**, choose **Run workflow**, and select the branch to check.
+Full CI adds a Clang 18 public-header check to `fixed-tlv`. It also runs
+`windows-package`, which builds static and shared packages with MSVC and tests
+their C and C++ consumers after relocating the installation. For a release
+candidate, verify that all three jobs passed for the exact `main` commit.
+
+To reproduce the build checks, follow the [header and installed-package checks]
+and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
+run `CC=clang-18 CXX=clang++-18 python3 tests/check_public_api.py`.
+To reproduce `windows-package`, run both installed-package commands on Windows
+with the `Visual Studio 17 2022` CMake generator and the C++ build tools.
+
+To check workflow changes locally on Ubuntu 24.04 x86-64, open Bash at the
+repository root and run `export RUNNER_TEMP="$(mktemp -d)"`. Execute the
+commands from **Check workflow syntax and expressions**, **Install zizmor**,
+and **Audit workflow security offline** in the [Fixed TLV workflow]. These
+steps verify the actionlint archive's SHA-256 before extraction and use pip
+hash verification to install the zizmor wheel from
+[the analyzer requirements](../.github/requirements-actions.txt).
 
 ## Actions and dependency security
 
@@ -80,6 +115,9 @@ non-maintainer remains unverified. [Reporting verification]
 [repository ruleset]: https://github.com/OpenTLV/opentlv/rules/27461544
 [maintainer audit]: https://github.com/OpenTLV/.github/issues/10
 [governance baseline]: https://github.com/OpenTLV/.github/blob/main/docs/governance.md
+[Fixed TLV workflow]: ../.github/workflows/fixed-tlv.yml
+[header and installed-package checks]: architecture.md#verification
+[fixed TLV test commands]: fixed-tlv.md#running-the-tests
 [dependency graph export]: https://api.github.com/repos/OpenTLV/opentlv/dependency-graph/sbom
 [private vulnerability reporting]: https://api.github.com/repos/OpenTLV/opentlv/private-vulnerability-reporting
 [Advisories page]: https://github.com/OpenTLV/opentlv/security/advisories
