@@ -185,9 +185,37 @@ third element reports offset 2 for the same field. For a writer at offset
 
 ## Running the tests
 
-Run `python tests/check_fixed_model.py` to check model and cursor bounds,
-round-trip fixed TLV elements, and link a C++11 consumer against the C99
-implementation.
-Run `python tests/check_fixed_model.py --release` to run the same checks with
-optimization enabled and `NDEBUG` defined.
-Select GCC or Clang with the `CC` and `CXX` environment variables.
+From the repository root, run `python tests/check_fixed_model.py` with Python 3
+and a GCC or Clang toolchain. The suite checks wire bytes and round trips for
+all eight length widths in both byte orders, truncated fields, and writer
+failures that must preserve the cursor and destination. At the one-byte length
+limit, it rejects a 256-byte payload and retries with 255 bytes. A C++11
+consumer exercises the same C99 implementation. Add `--release` to run the
+suite with optimization and `NDEBUG` enabled.
+
+### Sanitizers
+
+On a platform with the AddressSanitizer and UndefinedBehaviorSanitizer
+runtimes, use `--sanitize` to instrument the library and test executables.
+A sanitizer finding fails the run. The Ubuntu 24.04 workflow uses Clang 18.
+
+```sh
+CC=clang-18 CXX=clang++-18 python3 tests/check_fixed_model.py --sanitize
+```
+
+### Coverage
+
+Use GCC and its matching `gcov` executable to measure library coverage.
+To reproduce the CI report on Ubuntu 24.04, run the following command.
+
+```sh
+CC=gcc-13 CXX=g++-13 GCOV=gcov-13 python3 tests/check_fixed_model.py --coverage coverage.txt
+```
+
+Each run builds the library without optimization in a fresh temporary
+directory and accumulates counts across the full suite. The text report gives
+per-file line and branch coverage for Core and IO, including the private
+diagnostic helpers, and an overall line percentage. CI compares reports from
+two independent runs and displays the result in the workflow run summary.
+Use the same revision, toolchain and target architecture when comparing
+reports. The native-size checks compiled into the library depend on `SIZE_MAX`.

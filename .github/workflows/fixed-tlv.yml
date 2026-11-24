@@ -28,6 +28,27 @@ jobs:
         run: python3 tests/check_fixed_model.py
       - name: Test the release build
         run: python3 tests/check_fixed_model.py --release
+      - name: Run AddressSanitizer and UndefinedBehaviorSanitizer
+        env:
+          CC: clang-18
+          CXX: clang++-18
+        run: python3 tests/check_fixed_model.py --sanitize
+      - name: Check and report reproducible library coverage
+        env:
+          CC: gcc-13
+          CXX: g++-13
+          GCOV: gcov-13
+        run: |
+          python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage.txt"
+          python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage-repeat.txt"
+          diff -u "$RUNNER_TEMP/coverage.txt" "$RUNNER_TEMP/coverage-repeat.txt"
+          {
+            echo '### Fixed TLV coverage'
+            echo
+            echo '```text'
+            cat "$RUNNER_TEMP/coverage.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Test the installed static CMake package
         run: python3 tests/check_cmake_package.py
       - name: Test the installed shared CMake package

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added sanitizer runs and reproducible line and branch coverage reports for
+  the fixed TLV unit tests. (#10)
 - Added a relocatable CMake package for static and shared builds. C99 and
   C++11 projects can link `OpenTLV::core` and `OpenTLV::io`. (#9)
 - Added result categories and messages for Core and IO. Optional reader and
