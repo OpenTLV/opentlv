@@ -246,6 +246,11 @@ ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
   python3 tests/run_ctest.py build-sanitized Debug reports/sanitizers
 ```
 
+### Fuzz tests
+
+The [bounded reader and writer fuzz tests](../tests/fuzz/README.md) exercise
+arbitrary input streams and generated round trips under ASan and UBSan.
+
 ### Coverage
 
 Use GCC, G++, and gcov 13.3.0 with Ninja and CTest 3.21 or newer to

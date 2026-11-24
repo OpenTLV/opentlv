@@ -104,6 +104,27 @@ jobs:
         run: python3 tests/check_cmake_package.py
       - name: Test the installed shared CMake package
         run: python3 tests/check_cmake_package.py --shared
+      - name: Build Fixed TLV fuzz targets
+        env:
+          CC: clang-18
+          CXX: clang++-18
+        run: |
+          cmake -S tests/fuzz -B "$RUNNER_TEMP/fuzz-build" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake --build "$RUNNER_TEMP/fuzz-build"
+      - name: Replay seeds and fuzz Fixed TLV contracts
+        id: fuzz
+        timeout-minutes: 3
+        env:
+          ASAN_OPTIONS: halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: python3 tests/fuzz/run.py "$RUNNER_TEMP/fuzz-build" "$RUNNER_TEMP/fuzz-failures"
+      - name: Retain failing fuzz inputs
+        if: ${{ failure() && steps.fuzz.outcome == 'failure' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fixed-tlv-fuzz-failures
+          path: ${{ runner.temp }}/fuzz-failures/
+          if-no-files-found: warn
 
   windows-x86:
     runs-on: windows-2022
