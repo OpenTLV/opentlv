@@ -101,6 +101,8 @@ the installation, and checks the exported CMake files for source, build and
 original install paths. Separate C99 and C++11 projects then find the moved
 package, link Core and IO respectively, and run through CTest. The C++11
 consumer calls functions from both modules through the IO target.
+The same check builds and runs the [documented examples](../README.md#run-the-examples)
+against the relocated package and checks the output of each program.
 
 The epic tracks behavioral test and coverage infrastructure in
 [#10](https://github.com/OpenTLV/opentlv/issues/10),

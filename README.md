@@ -12,6 +12,11 @@ The [architecture guide](docs/architecture.md)
 describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 
+The package exposes the C API directly to C++ callers. It supports fixed-width
+tag and length fields with opaque payloads. Variable-width field encodings,
+automatic nested decoding, schemas, queries, EMV processing, language-specific
+bindings, and single-file amalgamation are outside the Fixed TLV Foundation.
+
 ## Build and install
 
 Build the libraries with CMake 3.15 or newer and a C99 compiler. Replace
@@ -26,6 +31,26 @@ cmake --install build --config Release --prefix /path/to/opentlv
 The default build produces static libraries. For shared libraries, add
 `-DBUILD_SHARED_LIBS=ON` to the configure command. On Windows, add the
 installation's `bin` directory to `PATH` when running a shared-library consumer.
+
+## Run the examples
+
+After installing OpenTLV, run these commands from the repository root with
+a C99 and a C++11 compiler. Use the same installation prefix as above.
+
+```sh
+cmake -S examples -B build-examples -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/path/to/opentlv
+cmake --build build-examples --config Release
+cd build-examples
+ctest -C Release -V
+```
+
+The C writer encodes a three-byte payload. The C++ reader decodes the
+same seven wire bytes. CTest runs both programs and shows their output.
+
+| Example | Output |
+| --- | --- |
+| [C99 writer](examples/write.c) | `12 34 00 03 AA BB CC` |
+| [C++11 reader](examples/read.cpp) | `tag 12 34, value AA BB CC` |
 
 ## Use the installed package
 

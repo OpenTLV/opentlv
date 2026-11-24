@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added runnable C99 writer and C++11 reader examples for the installed
+  OpenTLV package, with expected wire bytes and decoded output. (#12)
 - Added workflow correctness and security checks for pull requests and `main`.
   Weekly and manual Full CI runs also compile the public headers with Clang
   and test installed static and shared packages with MSVC. (#11)
