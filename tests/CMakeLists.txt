@@ -22,7 +22,13 @@ set(INSTALL_GTEST OFF)
 set(gtest_force_shared_crt ON)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(opentlv_core_tests core/result_test.cpp)
+add_executable(opentlv_core_tests
+    core/fixed_length_test.cpp
+    core/fixed_measure_test.cpp
+    core/result_test.cpp
+    core/size_test.cpp
+    core/value_test.cpp
+)
 target_link_libraries(opentlv_core_tests PRIVATE OpenTLV::core GTest::gtest_main)
 if(WIN32)
     # Windows must find the Core DLL during both discovery and execution.
@@ -30,4 +36,8 @@ if(WIN32)
         RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:opentlv_core>"
     )
 endif()
-gtest_discover_tests(opentlv_core_tests DISCOVERY_MODE PRE_TEST PROPERTIES LABELS core)
+gtest_discover_tests(opentlv_core_tests
+    DISCOVERY_MODE PRE_TEST
+    NO_PRETTY_VALUES
+    PROPERTIES LABELS core
+)

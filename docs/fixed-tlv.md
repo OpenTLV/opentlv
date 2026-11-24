@@ -195,6 +195,10 @@ third element reports offset 2 for the same field. For a writer at offset
 
 ## Running the tests
 
+Run the [Core tests with CTest](../README.md#run-the-core-tests) to check
+the public Core functions, including length-field boundaries and output
+preservation on failure.
+
 From the repository root, run `python tests/check_fixed_model.py` with Python 3
 and a GCC or Clang toolchain. The suite checks wire bytes and round trips for
 all eight length widths in both byte orders, truncated fields, and writer

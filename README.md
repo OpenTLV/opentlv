@@ -32,24 +32,29 @@ The default build produces static libraries. For shared libraries, add
 `-DBUILD_SHARED_LIBS=ON` to the configure command. On Windows, add the
 installation's `bin` directory to `PATH` when running a shared-library consumer.
 
-## Run the CTest smoke test
+## Run the Core tests
 
 Set `BUILD_TESTING=ON` to build the Core tests with CMake 3.18 or newer and
 a C++17 compiler. The default library build uses only C and works offline.
-The smoke test calls `tlv_result_category(TLV_OK)` through the public Core API.
+The suite checks fixed-length reads and writes against expected wire bytes for
+widths 1–8 in both byte orders. It also checks header and element sizes, borrowed
+values, checked arithmetic, and the categories and messages for result codes.
 
 ```sh
 cmake -S . -B build-tests -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-tests --config Debug
 cd build-tests
-ctest -C Debug -N
+ctest -C Debug -L core -N
 ctest -C Debug -L core --output-on-failure
 cd ..
 ```
 
-`ctest -N` lists `CoreResult.ClassifiesSuccess`. To check Release, repeat
-the commands with `Release` in place of `Debug` and use `build-tests-release`
-as the build directory.
+The first CTest command lists the individual cases. The second runs them.
+To run just the three-byte little-endian cases, add `-R LittleEndian3$`.
+To check Release, repeat the commands with `Release` in place of `Debug` and
+use `build-tests-release` as the build directory. A 32-bit build also exercises
+logical sizes above `SIZE_MAX`. With a Visual Studio generator, add `-A Win32`
+to the configure command in a fresh build directory to run those cases.
 
 When you first configure a test build, CMake downloads the
 [GoogleTest 1.17.0 source archive] and verifies its SHA-256. To build offline, add

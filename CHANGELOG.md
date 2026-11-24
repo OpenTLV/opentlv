@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added GoogleTest coverage for the public Core API, including wire bytes
+  for length fields of 1–8 bytes in both byte orders, borrowed values,
+  size limits on 32-bit and 64-bit hosts, and result mappings. (#24)
 - Added an opt-in Core smoke test discoverable through CTest. Test builds
   accept a checksum-verified GoogleTest archive for offline use. (#23)
 - Added runnable C99 writer and C++11 reader examples for the installed
