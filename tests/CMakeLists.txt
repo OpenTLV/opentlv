@@ -56,6 +56,7 @@ endif()
 
 function(register_opentlv_tests suite module)
     set(test_target opentlv_${suite}_tests)
+    set_target_properties(${test_target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS OFF)
     target_link_libraries(${test_target} PRIVATE OpenTLV::${module} GTest::gtest_main)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
         target_compile_options(${test_target} PRIVATE -pedantic-errors -Wall -Wextra -Werror)

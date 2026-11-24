@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking change for C++ consumers.** The supported C++ standard has
+  moved from C++11 to C++17. Set `CXX_STANDARD` to `17` on your CMake
+  target to use `<opentlv/tlv.hpp>`. C consumers continue to use
+  `<opentlv/tlv.h>` with C99. See the [C++ API contracts](docs/cpp-api.md). (#44)
+
 ### Added
 
 - Documented how to run each contract suite and mapped the Fixed TLV

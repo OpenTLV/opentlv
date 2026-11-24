@@ -2,8 +2,8 @@
 
 Run the commands from the repository root. The production libraries require a
 C99 compiler and CMake 3.15 or newer. Setting `BUILD_TESTING=ON` requires a
-C++17 compiler and adds GoogleTest 1.17.0 to the build. Consumers can use
-C99 or C++11.
+C++17 compiler and adds GoogleTest 1.17.0 to the build. Consumers use
+C99 or C++17.
 The test build requires CMake 3.18 or newer. For the commands below, use
 CMake and CTest 3.21 or newer, Ninja, and Python 3.8 or newer.
 
@@ -135,9 +135,10 @@ mutation. A saved input can be replayed directly with its target, for example
 `build-fuzz/fuzz_reader tests/fuzz/corpus/reader/partial-value`. See the
 [fuzz build, run and replay commands](../tests/fuzz/README.md).
 
-Public-header probes check C99/C++11 and the newer language modes supported
-by the selected compiler. Separate package checks relocate static and shared
-installations and exercise Core and IO from independent C99 and C++11
+Public-header probes compile C headers in C99 and all public headers in
+C++17. They also check that the C++ umbrella rejects C++11 and C++14.
+Separate package checks relocate static and shared
+installations and exercise Core and IO from independent C99 and C++17
 consumers under `tests/package/`. See the [header and installed-package
 commands](architecture.md#verification).
 
