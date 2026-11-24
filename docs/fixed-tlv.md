@@ -248,17 +248,15 @@ ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
 
 ### Coverage
 
-Use GCC and its matching `gcov` executable to measure library coverage.
-To reproduce the CI report on Ubuntu 24.04, run the following command.
+Use GCC, G++, and gcov 13.3.0 with Ninja and CTest 3.21 or newer to
+reproduce the CI coverage gate on Ubuntu 24.04.
 
 ```sh
 CC=gcc-13 CXX=g++-13 GCOV=gcov-13 python3 tests/check_fixed_model.py --coverage coverage.txt
 ```
 
-Each run builds the library without optimization in a fresh temporary
-directory and accumulates counts across the full suite. The text report gives
-per-file line and branch coverage for Core and IO, including the private
-diagnostic helpers, and an overall line percentage. CI compares reports from
-two independent runs and displays the result in the workflow run summary.
-Use the same revision, toolchain and target architecture when comparing
-reports. The native-size checks compiled into the library depend on `SIZE_MAX`.
+Repeat the command with `coverage-repeat.txt` and run
+`diff -u coverage.txt coverage-repeat.txt` to check reproducibility.
+For offline builds, set `OPENTLV_GOOGLETEST_URL` to the absolute path of
+the checksum-verified source archive. The [coverage gates and public API test
+map](coverage.md) document thresholds, reporting scope, and reviewed gaps.

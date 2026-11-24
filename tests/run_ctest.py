@@ -29,6 +29,7 @@ def run(build, config, reports):
     missing = {"core", "io", "integration"} - labels
     if missing:
         raise SystemExit("No passing CTest case for required suite(s): " + ", ".join(sorted(missing)))
+    return passed
 
 
 if __name__ == "__main__":

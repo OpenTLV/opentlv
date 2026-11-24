@@ -73,11 +73,13 @@ jobs:
           path: ${{ runner.temp }}/ctest-reports/
           if-no-files-found: error
       - name: Check and report reproducible library coverage
+        id: coverage
         env:
           CC: gcc-13
           CXX: g++-13
           GCOV: gcov-13
         run: |
+          test "$(gcc-13 -dumpfullversion)" = 13.3.0
           python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage.txt"
           python3 tests/check_fixed_model.py --coverage "$RUNNER_TEMP/coverage-repeat.txt"
           diff -u "$RUNNER_TEMP/coverage.txt" "$RUNNER_TEMP/coverage-repeat.txt"
@@ -88,6 +90,15 @@ jobs:
             cat "$RUNNER_TEMP/coverage.txt"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish production coverage reports
+        if: ${{ !cancelled() && steps.coverage.outcome != 'skipped' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage-reports
+          path: |
+            ${{ runner.temp }}/coverage.txt
+            ${{ runner.temp }}/coverage-repeat.txt
+          if-no-files-found: error
       - name: Test the installed static CMake package
         run: python3 tests/check_cmake_package.py
       - name: Test the installed shared CMake package

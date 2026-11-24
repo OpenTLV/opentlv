@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added CI coverage gates for reachable production lines, branches, and
+  public API behavior across Core, IO, integration, and standalone tests. (#29)
 - CI runs the Core, IO, and integration suites under ASan and UBSan, checks
   that each suite ran, and publishes CTest JUnit reports and logs. (#28)
 - Added checks for test artifacts and test dependencies in relocated static

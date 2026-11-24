@@ -22,6 +22,32 @@ set(INSTALL_GTEST OFF)
 set(gtest_force_shared_crt ON)
 FetchContent_MakeAvailable(googletest)
 
+option(OPENTLV_TEST_COVERAGE "Measure Core and IO across all contract tests with GCC" OFF)
+if(OPENTLV_TEST_COVERAGE)
+    foreach(target IN ITEMS opentlv_core opentlv_io)
+        target_compile_options(${target} PRIVATE -O0 --coverage -pedantic-errors -Wall -Wextra -Werror)
+        target_link_options(${target} PRIVATE --coverage)
+    endforeach()
+    add_link_options(--coverage)
+    foreach(source IN ITEMS fixed_model.c fixed_reader.c fixed_writer.c fixed_diagnostics.c fixed_model.cpp)
+        string(REPLACE "." "_" target "${source}")
+        add_executable(${target} "${source}")
+        target_compile_options(${target} PRIVATE -pedantic-errors -Wall -Wextra -Werror)
+        set_target_properties(${target} PROPERTIES C_STANDARD 99 CXX_STANDARD 11
+            C_STANDARD_REQUIRED YES CXX_STANDARD_REQUIRED YES C_EXTENSIONS NO CXX_EXTENSIONS NO)
+        if(source STREQUAL "fixed_model.c")
+            target_link_libraries(${target} PRIVATE OpenTLV::core)
+        else()
+            target_link_libraries(${target} PRIVATE OpenTLV::io)
+        endif()
+        if(WIN32)
+            set_target_properties(${target} PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:opentlv_core>")
+        endif()
+        add_test(NAME ${target} COMMAND ${target})
+    endforeach()
+endif()
+
 add_executable(opentlv_core_tests
     core/fixed_length_test.cpp
     core/fixed_measure_test.cpp
