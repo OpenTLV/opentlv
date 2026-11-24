@@ -47,7 +47,9 @@ for the commands that exercise C99 and C++11 callers after moving an installatio
 ## Contributing
 
 See [Running the tests](docs/fixed-tlv.md#running-the-tests) for the unit suite,
-sanitizer checks, and coverage report.
+sanitizer checks, and coverage report. The
+[CI guide](docs/governance.md#continuous-integration) lists the pull request
+checks and explains how to run Full CI.
 
 For a bug, proposal, or maintenance task, start with the
 [issue chooser](https://github.com/OpenTLV/opentlv/issues/new/choose).
