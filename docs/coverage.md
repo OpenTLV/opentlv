@@ -83,3 +83,9 @@ assertions check view type distinctions, result code conversions and the
 | `from_c` and `to_c` for unknown and unnamed byte orders | `CppFixed.ConvertsUnknownByteOrdersBetweenCAndCpp` |
 | `element_size` | `CppFixed.MeasuresElementsAndPreservesSizeOnError` |
 | `read_length`, `write_length` | `CppFixed.ReadsAndWritesExactlyTheSelectedFieldInBothOrders`, `CppFixed.PreservesFieldOutputsAndReportsTruncation` |
+
+| C++ IO operations | Behavioral test |
+| --- | --- |
+| `read` with and without diagnostics | `CppReader.OneShotMatchesCAtEveryPrefix` |
+| `reader::init`, `reader::format` and reinitialization | `CppReader.PreservesTheCursorOnInvalidInitialization`, `CppReader.CopiesCursorsAndBorrowsTheInput` |
+| `reader::next`, `reader::position` and cursor copies | `CppReader.CopiesCursorsAndBorrowsTheInput`, `CppReader.ReportsStreamOffsetsAndPreservesStateOnFailure` |

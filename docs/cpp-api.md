@@ -1,8 +1,8 @@
 # C++17 API conventions and module contracts
 
 C++17 is the supported language mode for the C++ API. Its umbrella,
-`<opentlv/tlv.hpp>`, exposes typed Core interfaces alongside the public C
-declarations, including `tlv_read` and `tlv_write`.
+`<opentlv/tlv.hpp>`, exposes the Core types, the Fixed TLV reader in
+`opentlv::io`, and the public C declarations.
 
 C++17 callers can also use the C interface directly through
 `<opentlv/tlv.h>` or individual `.h` headers. Newer C++ modes are
@@ -52,6 +52,48 @@ bytes and preserves the decoded length. `write_length` writes into a
 `mutable_byte_view`. Pass an empty, null destination to query the width.
 Both operations accept a `fixed_length` configuration and return a scoped
 `result`. See the [fixed-field contracts](fixed-tlv.md) for wire limits.
+
+## Reading elements
+
+Include `<opentlv/io/reader/reader.hpp>` and link `OpenTLV::io`. For a
+one-shot read, pass the format, the input byte view and two outputs as in
+this example.
+
+```cpp
+namespace core = opentlv::core;
+const std::uint8_t wire[] = {0xa5, 0x01, 0x10, 0xb6, 0x00};
+const core::fixed_format format{{1}, {1, core::byte_order::big_endian}};
+core::element_view element;
+std::size_t consumed{};
+const auto status = opentlv::io::read(format, {wire, sizeof wire}, element, consumed);
+```
+
+Here `status` is `core::result::ok`, the tag and value point to `wire[0]`
+and `wire[2]`, and `consumed` is 3. With a valid format, empty input
+returns `core::result::end`. A partial tag, length or value returns
+`core::result::truncated`. Both outputs retain their values on end or error.
+
+For a stream, construct an `opentlv::io::reader` and check that
+`reader.init(format, input)` succeeds. Initialization copies the format,
+borrows the input and sets the byte position to zero. To read a new buffer
+with the saved format, call `reader.init(reader.format(), new_input)`.
+A failed initialization preserves the previous cursor.
+
+Loop while `reader.next(element)` returns `core::result::ok`. On each
+success, `reader.position()` gives the offset immediately past the element.
+At `core::result::end` or on error, the element and position keep their
+previous values. Cursor copies advance independently. A returned element
+remains usable after the reader advances or goes out of scope. Keep the input
+bytes alive, unchanged and at the same address through the last use of any view.
+See the [runnable reader example](../examples/read.cpp).
+
+To locate a truncated field, pass a pointer to a `core::diagnostic` as the
+last argument to `read` or `next`. Its `field` identifies the tag, length or
+value, and `required` and `available` give the byte counts for that field.
+The field's `offset` is relative to the supplied input for `read` and to the
+start of the stream for `next`. Both operations refresh the diagnostic on
+every call, including success and end. Give the element, consumed count and
+optional diagnostic separate storage outside the input bytes and the reader.
 
 ## Headers, namespaces and linking
 

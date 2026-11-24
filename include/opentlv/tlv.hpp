@@ -8,7 +8,7 @@
  * @file
  * @brief C++17 umbrella header for the Fixed TLV Foundation.
  *
- * Exposes the typed Core interface and the public C declarations.
+ * Exposes the typed Core and Reader interfaces and the public C declarations.
  */
 
 #if !defined(__cplusplus) || \
@@ -19,5 +19,6 @@
 #include "opentlv/tlv.h"
 #include "opentlv/core/bytes.hpp"
 #include "opentlv/core/formats/fixed.hpp"
+#include "opentlv/io/reader/reader.hpp"
 
 #endif /* OPENTLV_TLV_HPP */

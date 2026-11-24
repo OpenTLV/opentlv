@@ -27,19 +27,19 @@ int main()
         writer.pos != sizeof expected || std::memcmp(wire, expected, sizeof expected) != 0)
         return EXIT_FAILURE;
 
-    tlv_reader_t reader{};
-    if (tlv_reader_init(&reader, wire, writer.pos, &c_format) != TLV_OK ||
-        tlv_reader_next(&reader, &c_element) != TLV_OK)
+    opentlv::io::reader reader;
+    core::element_view decoded{};
+    if (reader.init(format, {wire, writer.pos}) != core::result::ok ||
+        reader.next(decoded) != core::result::ok)
         return EXIT_FAILURE;
-    const auto decoded = core::from_c(c_element);
     if (decoded.tag.data != wire || decoded.value.size != 1 || decoded.value.data[0] != payload[0])
         return EXIT_FAILURE;
 
-    tlv_diagnostic_t diagnostic{};
-    if (tlv_reader_next_with_diagnostic(&reader, &c_element, &diagnostic) != TLV_END ||
-        diagnostic.result != TLV_END || diagnostic.field != TLV_FIELD_NONE ||
-        tlv_result_category(diagnostic.result) != TLV_CATEGORY_END ||
-        std::strcmp(tlv_result_string(diagnostic.result), "end of input") != 0)
+    core::diagnostic diagnostic{};
+    if (reader.next(decoded, &diagnostic) != core::result::end ||
+        diagnostic.result != core::result::end || diagnostic.field != core::field::none ||
+        tlv_result_category(core::to_c(diagnostic.result)) != TLV_CATEGORY_END ||
+        std::strcmp(tlv_result_string(core::to_c(diagnostic.result)), "end of input") != 0)
         return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }
