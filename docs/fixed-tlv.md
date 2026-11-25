@@ -21,9 +21,9 @@ order.
 | Little-endian | `12 34` | `03 00` | `AA BB CC` |
 
 The [C99 writer](../examples/write.c) encodes the big-endian row with
-`tlv_write` and prints the bytes counted by `written`. The
-[C++17 reader](../examples/read.cpp) uses the same format to read the tag
-and value from the encoded bytes with `opentlv::io::reader`.
+`tlv_write`. The [C++17 writer](../examples/write.cpp) encodes it with
+`opentlv::io::writer`. The [C++17 reader](../examples/read.cpp) uses the
+same format to read the tag and value from those bytes.
 [Build and run the examples](../README.md#run-the-examples).
 
 ## Borrowed bytes and sizes
