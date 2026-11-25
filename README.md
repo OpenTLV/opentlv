@@ -57,6 +57,8 @@ provides equivalent C99 and C++17 inputs. The [Google Benchmark runner](docs/tes
 measures Core and IO latency and throughput and writes JSON reports.
 The [allocation and footprint checks](docs/testing.md#heap-allocation-and-binary-size)
 measure heap use during those calls and report the sizes of libraries and linked programs.
+The [performance baseline](docs/performance-baseline.md) explains how to reproduce
+the CI comparison and read the instruction-count, size and timing results.
 
 ## Run the examples
 

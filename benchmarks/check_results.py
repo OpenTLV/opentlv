@@ -87,9 +87,7 @@ def check_aggregates(workload, samples, aggregates):
                                  f"(expected {target}, got {value})")
 
 
-def check_report(path, catalog):
-    with path.open(encoding="utf-8") as stream:
-        report = json.load(stream)
+def checked_samples(report, catalog):
     if not isinstance(report, dict) or not isinstance(report.get("benchmarks"), list):
         raise ValueError("missing benchmarks array")
     samples = defaultdict(dict)
@@ -135,6 +133,13 @@ def check_report(path, catalog):
         if not samples[workload] or len(samples[workload]) != repetitions:
             raise ValueError(f"{workload}: missing iteration data")
         check_aggregates(workload, samples[workload].values(), aggregates[workload])
+    return samples
+
+
+def check_report(path, catalog):
+    with path.open(encoding="utf-8") as stream:
+        samples = checked_samples(json.load(stream), catalog)
+    repetitions = len(next(iter(samples.values()), ()))
     print(f"{path}: validated {len(catalog)} workload IDs, {repetitions} repetition(s) each")
 
 

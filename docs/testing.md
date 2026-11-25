@@ -75,6 +75,9 @@ inputs and build settings. For instruction counts, see the
 
 ## Runtime and throughput
 
+For the cross-revision comparison used in CI, see the
+[performance baseline and release evidence](performance-baseline.md).
+
 Run the Release executable twice on the same idle machine. This example runs
 all 3,584 language-qualified workloads with three repetitions per invocation.
 The fixed iteration count makes a full catalog run practical. Keep both JSON
