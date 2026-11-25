@@ -10,6 +10,8 @@ namespace io = opentlv::io;
 
 static_assert(!std::is_copy_constructible_v<io::writer>);
 static_assert(!std::is_copy_assignable_v<io::writer>);
+static_assert(!std::is_move_constructible_v<io::writer>);
+static_assert(!std::is_move_assignable_v<io::writer>);
 static_assert(noexcept(io::write({}, {}, {}, std::declval<std::size_t &>(), nullptr)));
 static_assert(noexcept(std::declval<io::writer &>().init({}, {})));
 static_assert(noexcept(std::declval<io::writer &>().write({}, nullptr)));
@@ -191,5 +193,35 @@ TEST(CppWriter, ReinitializationSwitchesBufferAndFormatOnlyOnSuccess)
     const std::array<std::uint8_t, 4> expected_second{0xa5, 0, 1, 0xf0};
     EXPECT_EQ(expected_second, second);
     EXPECT_EQ(expected_first, first);
+}
+
+TEST(CppWriter, CopiesSharedSourceBytesAndAppendsFromTheCommittedPrefix)
+{
+    std::array<std::uint8_t, 8> c_output{}, output{};
+    tlv_writer_t c_writer{};
+    io::writer cursor;
+    {
+        const core::fixed_format format{{1}, {1, core::byte_order::big_endian}};
+        const auto c_format = core::to_c(format);
+        ASSERT_EQ(TLV_OK, tlv_writer_init(&c_writer, c_output.data(), c_output.size(), &c_format));
+        ASSERT_EQ(core::result::ok, cursor.init(format, {output.data(), output.size()}));
+        const std::uint8_t source[] = {0xab, 0xcd};
+        const core::element_view element{{source, 1}, {source, sizeof source}};
+        const auto c_element = core::to_c(element);
+        ASSERT_EQ(TLV_OK, tlv_writer_write(&c_writer, &c_element));
+        ASSERT_EQ(core::result::ok, cursor.write(element));
+    }
+    ASSERT_EQ(4u, c_writer.pos);
+    ASSERT_EQ(4u, cursor.position());
+
+    const tlv_element_t c_prefix{{c_output.data(), 1}, {c_output.data() + 2, 2}};
+    const core::element_view prefix{{output.data(), 1}, {output.data() + 2, 2}};
+    ASSERT_EQ(TLV_OK, tlv_writer_write(&c_writer, &c_prefix));
+    ASSERT_EQ(core::result::ok, cursor.write(prefix));
+    const std::array<std::uint8_t, 8> expected{0xab, 2, 0xab, 0xcd, 0xab, 2, 0xab, 0xcd};
+    EXPECT_EQ(expected.size(), c_writer.pos);
+    EXPECT_EQ(expected.size(), cursor.position());
+    EXPECT_EQ(expected, c_output);
+    EXPECT_EQ(expected, output);
 }
 } // namespace

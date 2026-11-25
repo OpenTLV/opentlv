@@ -28,9 +28,10 @@ same format to read the tag and value from those bytes.
 
 ## Borrowed bytes and sizes
 
-Core primitives, the reader, and the writer allocate no memory. A format
-configuration only needs to remain valid during the call. A value view
-borrows its backing bytes for as long as the caller uses the view.
+Core primitives, the reader and the writer use caller-provided storage.
+See the [Core and IO ownership contract](architecture.md#ownership-contract)
+for buffer and descriptor lifetimes, permitted overlap and the outputs set
+on success, end or error.
 
 - `tlv_tag_t` and `tlv_length_t` describe raw bytes in wire order. Each
   carries a `const uint8_t *data` and a native `size_t size`. For a raw

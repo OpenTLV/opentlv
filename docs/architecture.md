@@ -54,21 +54,72 @@ annotation. Private headers and symbols are outside the public API.
 
 ## Ownership contract
 
-The reader borrows its input from the caller. Copying a borrowed tag,
-value or element copies only its descriptor. Keep the backing bytes alive
-and unchanged until the last use of any view, even after the reader goes
-out of scope. The writer borrows a writable buffer whose capacity and
-lifetime the caller controls. Both cursors copy the format settings at
-initialization. Before appending, the writer validates the element and
-checks that the remaining capacity can hold the entire encoding.
+Fixed TLV Core and IO use caller-provided storage in both C99 and C++17.
+They allocate no heap memory. The caller owns the buffers and controls
+when to reuse or release them. A format descriptor only needs to survive
+the one-shot operation or cursor initialization that receives it.
 
-The value type, `tlv_value_t`, pairs a read-only byte pointer with
-a logical byte count (`tlv_size_t`, a 64-bit unsigned integer). Before
-using a logical count to access memory, check that it fits the native
-`size_t` and the actual buffer. Public declarations document borrowing,
-null and empty inputs, output state on failure, and any invalidation
-rules. See the [fixed TLV data model](fixed-tlv.md) for the wire layout,
-size limits, and boundary tests.
+- **Views.** Copying a tag, encoded length, value or element descriptor, including
+  converting it between C and C++, copies its pointers and counts. The source
+  descriptor can go out of scope. Keep the backing bytes alive, at the same
+  address and unchanged through the last use of any view.
+- **Readers.** A successful read returns a zero-copy view. The tag points to the
+  start of the element and the value points just past its header, even for an
+  empty value. Keep the input alive, unchanged and at the same address while
+  using any reader or returned view. Each reader stores its format and position
+  by value. A view stays valid after the reader advances or goes out of scope.
+  Copied readers advance independently. Reinitializing one binds it to a new
+  stream while its copies and earlier views still refer to the original input.
+- **Writers.** A writer stores its format by value and borrows a fixed-capacity
+  buffer. Keep the buffer at the same address and writable through the last
+  write. Each successful write copies the tag and payload into that buffer.
+  The source descriptors and bytes need only survive the call. A copied C
+  writer has its own position and shares the destination, so writes from the
+  same position can overwrite one another. The C++17 writer disables copying
+  and moving.
+
+### Aliasing and bounds
+
+Reader and writer state must reside outside their respective buffers. For a
+read, keep the output element and one-shot consumed count separate from each
+other, the input bytes and the cursor. For a write, keep the source descriptors
+and their bytes disjoint from the range being encoded. For an append, the
+source element and its bytes must also be disjoint from the writer object.
+The tag and payload may share source bytes. An append can also use bytes
+from a committed prefix while writing into the suffix. Keep the written
+count separate from the destination and the sources. An optional diagnostic
+must occupy storage separate from the cursor, buffers, descriptors and counts.
+For a length-field read, give the decoded length and consumed count separate
+storage. For a length-field write, keep the written count outside the destination.
+When reinitializing a C cursor, its own `format` member is a valid format input.
+
+Value validation and element measurement inspect descriptors without reading
+tag or payload bytes. A `tlv_size_t` payload count is 64 bits. Before using
+it to access memory, check that it fits both `size_t` and the actual buffer.
+The caller supplies the readable or writable extent advertised by each IO buffer.
+
+### Outputs and cursor position
+
+The table applies to both APIs, including IO calls with diagnostics.
+
+| C99 / C++17 operation | On success | On end or error |
+| --- | --- | --- |
+| `tlv_value_init` / `make_value_view` | Store the supplied pointer and size, including the pointer supplied for an empty view. | Preserve the previous view. |
+| Checked size conversion, addition, header and element measurement | Store the converted size, sum or encoded size. | Preserve the output count. |
+| `tlv_fixed_length_read` / `read_length` | Store the decoded length and set `consumed` to the field width. | On truncation, set `consumed` to the available byte count and preserve the length. Other errors preserve both. |
+| `tlv_fixed_length_write` / `write_length` | Set `written` to the field width. Encode exactly that many bytes when a destination is supplied. A null, zero-capacity destination queries the width. | Preserve every destination byte and `written`, including on short capacity. |
+| Reader or writer initialization | Copy the format, bind the buffer and set the position to zero. Writer initialization preserves the buffer contents. | Preserve the previous cursor, including its buffer, format and position. |
+| `tlv_read` / `read`, `tlv_reader_next` / `reader::next` | Return a borrowed element. The one-shot count or cursor advance covers exactly one complete element. | Preserve the element and the one-shot count or cursor position, including on truncation and end of input. |
+| `tlv_write` / `write` | Encode one complete element, set `written` to its size and preserve trailing bytes. | Preserve every destination byte. Short capacity sets `written` to the full required size, including for a null, zero-capacity destination. Other errors preserve `written`. |
+| `tlv_writer_write` / `writer::write` | Append one complete element at the current position and advance by its size. | Preserve the position and the entire destination, including the committed prefix and unused capacity. |
+
+Each IO read or write refreshes a supplied diagnostic, even when other outputs
+are preserved. It owns its scalar details and can outlive the buffer. For a
+truncated read or short write, the offset is relative to the one-shot buffer
+or the start of the cursor's buffer. Other results record the status with
+`TLV_FIELD_NONE` and zero offset and counts.
+See the [wire layout and diagnostic examples](fixed-tlv.md) and the
+[contract test inventory](test-scenarios.md).
 
 ## Compatibility
 

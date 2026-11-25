@@ -1,10 +1,12 @@
-#include <opentlv/core/formats/fixed.h>
+#include <opentlv/core/formats/fixed.hpp>
 
 #include <gtest/gtest.h>
 
 #include <algorithm>
 
 namespace {
+
+namespace core = opentlv::core;
 
 constexpr uint8_t byte = 0xa5;
 constexpr tlv_fixed_format_t oneByteFields{{1}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
@@ -126,11 +128,18 @@ TEST(FixedElementSize, EnforcesWireAndNativePayloadLimitsForEachWidth)
         size_t size = 0;
         ASSERT_EQ(TLV_OK, tlv_fixed_element_size(&format, &element, &size));
         EXPECT_EQ(header + static_cast<size_t>(maxPayload), size);
+        size_t cpp_size = 0;
+        const auto cpp_format = core::from_c(format);
+        ASSERT_EQ(core::result::ok, core::element_size(cpp_format, core::from_c(element), cpp_size));
+        EXPECT_EQ(size, cpp_size);
 
         if (maxPayload < TLV_SIZE_MAX) {
             ++element.value.size;
             const auto error = maxPayload == wireMax ? TLV_ERR_INVALID_LENGTH : TLV_ERR_OVERFLOW;
             ExpectElementError(error, &format, &element);
+            EXPECT_EQ(core::from_c(error),
+                      core::element_size(cpp_format, core::from_c(element), cpp_size));
+            EXPECT_EQ(size, cpp_size);
         }
     }
 }
@@ -141,6 +150,10 @@ TEST(FixedElementSize, RejectsAWireLengthAboveTheNativeSizeRange)
     const tlv_fixed_format_t format{{1}, {8, TLV_BYTE_ORDER_BIG_ENDIAN}};
     const tlv_element_t element{{&byte, 1}, {&byte, static_cast<tlv_size_t>(SIZE_MAX) + 1}};
     ExpectElementError(TLV_ERR_NATIVE_SIZE, &format, &element);
+    size_t size = 37;
+    EXPECT_EQ(core::result::native_size,
+              core::element_size(core::from_c(format), core::from_c(element), size));
+    EXPECT_EQ(37u, size);
 }
 #endif
 

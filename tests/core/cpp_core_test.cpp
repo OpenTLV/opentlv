@@ -85,10 +85,16 @@ TEST(CppCore, CopiedDescriptorsKeepBorrowingTheOriginalStorage)
 TEST(CppCore, ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure)
 {
     const uint8_t byte = 0xab;
-    const tlv_value_t inputs[] = {{&byte, 1}, {nullptr, 0}, {&byte + 1, 0}, {nullptr, 1}};
+    const uint8_t previous[] = {0x34, 0x35};
+    const tlv_value_t inputs[] = {
+        {&byte, 1}, {nullptr, 0}, {&byte + 1, 0}, {nullptr, 1},
+#if SIZE_MAX < TLV_SIZE_MAX
+        {&byte, static_cast<tlv_size_t>(SIZE_MAX) + 1},
+#endif
+    };
     for (const auto &input : inputs) {
-        core::value_view view{&byte, 1};
-        tlv_value_t native{&byte, 1};
+        core::value_view view{previous, sizeof previous};
+        tlv_value_t native{previous, sizeof previous};
         const auto result = tlv_value_init(input.data, input.size, &native);
         EXPECT_EQ(core::from_c(result), core::make_value_view(input.data, input.size, view));
         EXPECT_EQ(native.data, view.data);

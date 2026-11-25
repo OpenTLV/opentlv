@@ -198,9 +198,19 @@ TEST(FixedLengthArguments, ReadsRejectMissingArgumentsAndDistinguishEmptyInput)
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_fixed_length_read(&field, &byte, 1, &decoded, nullptr));
     EXPECT_EQ(42u, decoded);
     EXPECT_EQ(99u, consumed);
+    const auto cpp_field = core::from_c(field);
+    core::logical_size cpp_decoded = 42;
+    size_t cpp_consumed = 99;
+    EXPECT_EQ(core::result::null_arg, core::read_length(
+        cpp_field, {nullptr, 1}, cpp_decoded, cpp_consumed));
+    EXPECT_EQ(decoded, cpp_decoded);
+    EXPECT_EQ(consumed, cpp_consumed);
     EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_fixed_length_read(&field, nullptr, 0, &decoded, &consumed));
     EXPECT_EQ(42u, decoded);
     EXPECT_EQ(0u, consumed);
+    EXPECT_EQ(core::result::truncated, core::read_length(cpp_field, {}, cpp_decoded, cpp_consumed));
+    EXPECT_EQ(decoded, cpp_decoded);
+    EXPECT_EQ(consumed, cpp_consumed);
 }
 
 TEST(FixedLengthArguments, WritesRequireConfigCountAndStorageForPositiveCapacity)
@@ -213,6 +223,10 @@ TEST(FixedLengthArguments, WritesRequireConfigCountAndStorageForPositiveCapacity
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_fixed_length_write(&field, 0, &byte, 1, nullptr));
     EXPECT_EQ(0x6b, byte);
     EXPECT_EQ(99u, written);
+    size_t cpp_written = 99;
+    EXPECT_EQ(core::result::null_arg, core::write_length(
+        core::from_c(field), 0, {nullptr, 1}, cpp_written));
+    EXPECT_EQ(written, cpp_written);
 }
 
 } // namespace
