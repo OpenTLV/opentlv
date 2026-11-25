@@ -75,7 +75,7 @@ Full run has its own concurrency group.
 
 | Job and scope | PR to `main` | Push to `main` | Manual Full | Weekly Full |
 | --- | --- | --- | --- | --- |
-| `fixed-tlv` · GCC 13 and Clang 18 x64 Debug/Release contracts, ASan/UBSan with Clang Debug, public headers, coverage, Linux static/shared packages and symbols, bounded fuzzing | GCC headers | GCC headers | GCC + Clang headers | GCC + Clang headers |
+| `fixed-tlv` · GCC 13 and Clang 18 x64 Debug/Release contracts, Clang ASan/UBSan, GCC Debug Memcheck, public headers, coverage, Linux static/shared packages and symbols, bounded fuzzing | GCC headers | GCC headers | GCC + Clang headers | GCC + Clang headers |
 | `windows-contracts` · MSVC Win32 Release and x64 Debug contracts, ABI and native-size boundaries | Run both | Run both | Run both | Run both |
 | `resource-usage` · allocation probes and two clean footprint builds for each of static and shared linkage | Run both | Run both | Run both | Run both |
 | `callgrind` · compare the candidate with the reviewed baseline for instruction counts and binary size, publish timing observations | Run | Run | Run | Run |
@@ -109,6 +109,8 @@ candidate, including its [performance and resource artifacts](performance-baseli
 Record the `first-party-analysis` result from that run alongside those artifacts.
 Its [local reproduction steps](testing.md#formatting-and-static-analysis) use
 the same tool versions and negative checks.
+Retain the [Memcheck reports](testing.md#memcheck) and the
+[managed CodeQL evidence](#codeql-coverage) for that revision.
 
 To reproduce the build checks, follow the [header and package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
@@ -123,6 +125,44 @@ and **Audit workflow security offline** in the [Fixed TLV workflow]. These
 steps verify the actionlint archive's SHA-256 before extraction and use pip
 hash verification to install the zizmor wheel from
 [the analyzer requirements](../.github/requirements-actions.txt).
+
+## CodeQL coverage
+
+The [maintainer audit] recorded the assignment of `OpenTLV-org-config-1`
+to this repository. GitHub runs CodeQL through default setup. On
+2026-11-25, the [CodeQL run on main] at `2ff402e` completed analysis for
+GitHub Actions and Python. Its job list contained no C/C++ analysis.
+Public API requests for the [default setup configuration], attached
+[organization security configuration] and [analysis results] required
+authentication. The effective organization settings, C/C++ findings and
+dismissals could not be verified in this audit.
+
+A repository admin, security manager or organization owner can enable C/C++
+in **Settings → Advanced Security → CodeQL analysis → View CodeQL
+configuration → Edit**. Under **Languages**, add C/C++ alongside the enabled
+languages and save. Saving starts an analysis. If an enforced organization
+configuration controls this setting, its owner must make the change.
+Default setup uses build mode `none` for C/C++ and infers include paths
+and compiler flags. [GitHub's default setup instructions] · [C/C++ build modes]
+
+For v0.1.0 release evidence, record the analyzed `main` commit, the
+successful C/C++ analysis run and its query suite. In **Security and
+quality → Code scanning → Tool status**, download the analyzed-files CSV
+and check extraction for `src/core/`, `src/io/` and the public headers in
+`include/opentlv/`.
+Record missing coverage and extraction warnings. Review alerts and
+dismissals on the same revision, including the rationale for any accepted
+finding. Keep sensitive details in the private reporting channel described
+in the [security policy]. The managed CodeQL run has its own status outside
+`fixed-tlv-quality`. [Tool status and file coverage]
+
+[CodeQL run on main]: https://github.com/OpenTLV/opentlv/actions/runs/45643501512
+[default setup configuration]: https://api.github.com/repos/OpenTLV/opentlv/code-scanning/default-setup
+[organization security configuration]: https://api.github.com/repos/OpenTLV/opentlv/code-security-configuration
+[analysis results]: https://api.github.com/repos/OpenTLV/opentlv/code-scanning/analyses
+[GitHub's default setup instructions]: https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/manage-your-configuration/edit-default-setup
+[C/C++ build modes]: https://docs.github.com/en/code-security/reference/code-scanning/codeql/build-options-for-compiled-languages
+[Tool status and file coverage]: https://docs.github.com/en/code-security/how-tos/find-and-fix-code-vulnerabilities/manage-your-configuration/use-the-tools-status-page-for-code-scanning
 
 ## Actions and dependency security
 

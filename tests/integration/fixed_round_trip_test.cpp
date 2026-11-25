@@ -4,8 +4,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <ostream>
 #include <random>
-#include <string>
 #include <vector>
 
 namespace {
@@ -19,6 +19,12 @@ struct Layout {
     tlv_byte_order_t order;
     Bytes lengthOfThree;
 };
+
+void PrintTo(const Layout &layout, std::ostream *out)
+{
+    *out << (layout.order == TLV_BYTE_ORDER_BIG_ENDIAN ? "BigEndian" : "LittleEndian")
+         << layout.lengthOfThree.size();
+}
 
 const Layout layouts[] = {
     {TLV_BYTE_ORDER_BIG_ENDIAN, {3}},
@@ -214,11 +220,6 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
 }
 
 INSTANTIATE_TEST_SUITE_P(WireLayouts, FixedRoundTrip, testing::ValuesIn(layouts),
-                         [](const testing::TestParamInfo<Layout> &info) {
-                             const std::string order = info.param.order == TLV_BYTE_ORDER_BIG_ENDIAN
-                                                           ? "BigEndian"
-                                                           : "LittleEndian";
-                             return order + std::to_string(info.param.lengthOfThree.size());
-                         });
+                         testing::PrintToStringParamName{});
 
 } // namespace
