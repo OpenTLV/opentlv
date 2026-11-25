@@ -38,8 +38,8 @@ int main()
     core::diagnostic diagnostic{};
     if (reader.next(decoded, &diagnostic) != core::result::end ||
         diagnostic.result != core::result::end || diagnostic.field != core::field::none ||
-        tlv_result_category(core::to_c(diagnostic.result)) != TLV_CATEGORY_END ||
-        std::strcmp(tlv_result_string(core::to_c(diagnostic.result)), "end of input") != 0)
+        core::result_category(diagnostic.result) != core::category::end ||
+        std::strcmp(core::result_string(diagnostic.result), "end of input") != 0)
         return EXIT_FAILURE;
     return EXIT_SUCCESS;
 }

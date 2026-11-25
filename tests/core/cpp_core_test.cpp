@@ -1,4 +1,5 @@
 #include <opentlv/core/bytes.hpp>
+#include <opentlv/core/diagnostic.hpp>
 #include <opentlv/core/element.hpp>
 #include <opentlv/core/length.hpp>
 
@@ -24,6 +25,34 @@ static_assert(core::from_c(TLV_END) == core::result::end);
 constexpr auto unassigned_result = static_cast<tlv_result_t>(2);
 static_assert(core::to_c(core::from_c(unassigned_result)) == unassigned_result);
 static_assert(noexcept(core::make_value_view(nullptr, 0, std::declval<core::value_view &>())));
+static_assert(noexcept(core::from_c(tlv_diagnostic_t{})));
+static_assert(noexcept(core::to_c(core::diagnostic{})));
+static_assert(core::to_c(core::field::none) == TLV_FIELD_NONE);
+static_assert(core::to_c(core::field::tag) == TLV_FIELD_TAG);
+static_assert(core::to_c(core::field::length) == TLV_FIELD_LENGTH);
+static_assert(core::to_c(core::field::value) == TLV_FIELD_VALUE);
+static_assert(core::to_c(core::field::element) == TLV_FIELD_ELEMENT);
+
+TEST(CppCore, RoundTripsDiagnosticFieldsAndFullWidthCounts)
+{
+    const tlv_diagnostic_t native{
+        TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, std::numeric_limits<std::size_t>::max(),
+        std::numeric_limits<std::uintmax_t>::max(), std::numeric_limits<std::uintmax_t>::max() - 1
+    };
+    const auto details = core::from_c(native);
+    EXPECT_EQ(core::result::truncated, details.result);
+    EXPECT_EQ(core::field::value, details.field);
+    EXPECT_EQ(native.offset, details.offset);
+    EXPECT_EQ(native.required, details.required);
+    EXPECT_EQ(native.available, details.available);
+
+    const auto converted = core::to_c(details);
+    EXPECT_EQ(native.result, converted.result);
+    EXPECT_EQ(native.field, converted.field);
+    EXPECT_EQ(native.offset, converted.offset);
+    EXPECT_EQ(native.required, converted.required);
+    EXPECT_EQ(native.available, converted.available);
+}
 
 TEST(CppCore, CopiedDescriptorsKeepBorrowingTheOriginalStorage)
 {

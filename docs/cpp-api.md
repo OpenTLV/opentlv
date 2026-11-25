@@ -185,11 +185,26 @@ copy, move and destruction behavior.
 
 ## Results and exceptions
 
-Declare checked C++ operations `[[nodiscard]]` and `noexcept`. Return
-a typed result corresponding to `tlv_result_t`, including from fallible
-initialization. End of input, truncation, invalid arguments,
-range errors and short output each keep their C meanings. A caller can
-request diagnostic details separately. No exception may cross the C ABI.
+Checked C++ operations, including cursor initialization, are `[[nodiscard]]`
+and `noexcept`. Their `core::result` return value preserves the C result code.
+For example, a reader returns `core::result::end` at an element boundary and
+`core::result::truncated` when input ends inside an element. No exception
+may cross the C ABI.
+
+Use `core::result_category(code)` to group results that share recovery logic.
+For example, both `overflow` and `native_size` belong to `core::category::range`.
+For logging, `core::result_string(code)` returns the C library's read-only
+message, valid for the lifetime of the program. Both lookups accept codes
+representable by `tlv_result_t`. An unassigned code yields
+`core::category::unknown` and the message `"unknown result"`.
+
+Pass an optional `core::diagnostic` pointer to a one-shot read or write,
+`reader.next`, or `writer.write` for byte-level details. For example, if an
+append starts at offset 4 and needs five bytes but only two remain, the
+diagnostic contains `core::result::buffer_too_short`, `core::field::element`,
+`offset == 4`, `required == 5` and `available == 2`. Use `core::to_c` and
+`core::from_c` to convert a complete diagnostic, or a result, category or
+field individually. The converted diagnostic owns a copy of every field.
 
 Preserve each C operation's output and cursor guarantees. For example,
 a failed read or a read at end leaves the element and cursor intact. A
