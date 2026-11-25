@@ -20,7 +20,7 @@ jobs:
   fixed-tlv:
     name: fixed-tlv
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       CC: gcc
       CXX: g++
@@ -37,15 +37,27 @@ jobs:
           CC: clang-18
           CXX: clang++-18
         run: python3 tests/check_public_api.py
-      - name: Build and run CTest in Debug and Release
+      - name: Build and run GCC x64 contracts in Debug and Release
         id: ctest
+        env:
+          CC: gcc-13
+          CXX: g++-13
         run: |
           build="$RUNNER_TEMP/opentlv-tests"
           cmake -S . -B "$build" -G "Ninja Multi-Config" -DBUILD_TESTING=ON
           for config in Debug Release; do
             cmake --build "$build" --config "$config"
-            python3 tests/run_ctest.py "$build" "$config" "$RUNNER_TEMP/ctest-reports/$config"
+            python3 tests/run_ctest.py "$build" "$config" "$RUNNER_TEMP/ctest-reports/$config" --require-x64
           done
+      - name: Build and run Clang x64 Release contracts
+        env:
+          CC: clang-18
+          CXX: clang++-18
+        run: |
+          build="$RUNNER_TEMP/opentlv-clang-release"
+          cmake -S . -B "$build" -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$build"
+          python3 tests/run_ctest.py "$build" Release "$RUNNER_TEMP/ctest-reports/clang-release" --require-x64
       - name: Run AddressSanitizer and UndefinedBehaviorSanitizer
         env:
           CC: clang-18
@@ -59,7 +71,7 @@ jobs:
           build="$RUNNER_TEMP/opentlv-sanitized"
           cmake -S . -B "$build" -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
           cmake --build "$build"
-          python3 tests/run_ctest.py "$build" Debug "$RUNNER_TEMP/ctest-reports/sanitizers"
+          python3 tests/run_ctest.py "$build" Debug "$RUNNER_TEMP/ctest-reports/sanitizers" --require-x64
       - name: Publish CTest JUnit reports and logs
         if: ${{ !cancelled() && steps.ctest.outcome != 'skipped' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -236,29 +248,44 @@ jobs:
           path: ${{ runner.temp }}/performance-reports/
           if-no-files-found: error
 
-  windows-x86:
+  windows-contracts:
+    name: windows-${{ matrix.arch }}
     runs-on: windows-2022
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86
+            platform: Win32
+            config: Release
+          - arch: x64
+            platform: x64
+            config: Debug
+    env:
+      TARGET_ARCH: ${{ matrix.arch }}
+      TARGET_PLATFORM: ${{ matrix.platform }}
+      BUILD_CONFIG: ${{ matrix.config }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Configure MSVC and GoogleTest for Win32
+      - name: Configure MSVC and GoogleTest
         run: >-
-          cmake -S . -B build-x86 -G "Visual Studio 17 2022" -A Win32 -T "v143,version=14.44.35207"
-          -DBUILD_TESTING=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
-      - name: Build x86 tests
-        run: cmake --build build-x86 --config Release --parallel
-      - name: Run x86 suites and verify native-size cases
-        id: x86
-        run: python tests/run_ctest.py build-x86 Release "$env:RUNNER_TEMP/ctest-reports-x86" --require-x86
-      - name: Publish x86 CTest results
-        if: ${{ !cancelled() && steps.x86.outcome != 'skipped' }}
+          cmake -S . -B build -G "Visual Studio 17 2022" -A $env:TARGET_PLATFORM -T "v143,version=14.44.35207"
+          -DBUILD_TESTING=ON '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
+      - name: Build contract tests
+        run: cmake --build build --config $env:BUILD_CONFIG --parallel
+      - name: Run suites and verify ABI and native-size cases
+        id: ctest
+        run: python tests/run_ctest.py build $env:BUILD_CONFIG "$env:RUNNER_TEMP/ctest-reports" "--require-$env:TARGET_ARCH"
+      - name: Publish CTest results
+        if: ${{ !cancelled() && steps.ctest.outcome != 'skipped' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: ctest-reports-x86
-          path: ${{ runner.temp }}/ctest-reports-x86/
+          name: ctest-reports-${{ matrix.arch }}
+          path: ${{ runner.temp }}/ctest-reports/
           if-no-files-found: error
 
   windows-package:
@@ -318,7 +345,7 @@ jobs:
   quality-gate:
     name: fixed-tlv-quality
     if: ${{ always() }}
-    needs: [fixed-tlv, resource-usage, callgrind, windows-x86, windows-package, workflow-analyzers]
+    needs: [fixed-tlv, resource-usage, callgrind, windows-contracts, windows-package, workflow-analyzers]
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:

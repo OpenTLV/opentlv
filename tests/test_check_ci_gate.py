@@ -10,7 +10,7 @@ def job_results(windows_package="success"):
         "fixed-tlv": {"result": "success"},
         "callgrind": {"result": "success"},
         "resource-usage": {"result": "success"},
-        "windows-x86": {"result": "success"},
+        "windows-contracts": {"result": "success"},
         "workflow-analyzers": {"result": "success"},
         "windows-package": {"result": windows_package},
     }

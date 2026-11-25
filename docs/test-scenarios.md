@@ -7,7 +7,7 @@ an individual case, or a single wire layout with CTest.
 
 | Core scenario | Where it is checked |
 | --- | --- |
-| Convert zero and the largest representable count to `size_t`. On x86, reject the first larger count and `UINT64_MAX`. Add through the 64-bit limit, reject overflow and preserve the output on failure. | `CoreSize` in [size_test.cpp](../tests/core/size_test.cpp) |
+| Convert zero and the largest representable count to `size_t`. On x86, reject 2³² and `UINT64_MAX`. On x64, convert both exactly. Add through the 64-bit limit, reject overflow and preserve the output on failure. | `CoreSize` in [size_test.cpp](../tests/core/size_test.cpp) |
 | Copy a borrowed value, keep the supplied pointer for empty views, reject missing storage and preserve the destination on error, including an unrepresentable size on x86. | `CoreValue` in [value_test.cpp](../tests/core/value_test.cpp) |
 | Compare C and C++17 length reads and writes at unaligned addresses for zero, a patterned value and the field maximum. Check literal bytes, counts, sizing queries and preserved outputs for short fields and unencodable lengths. | `FixedLength` in [fixed_length_test.cpp](../tests/core/fixed_length_test.cpp) |
 | Reject zero or overwide length fields, unknown byte order and missing arguments. Compare C and C++ outputs for null buffers with zero or positive extents. | `FixedLengthArguments` in [fixed_length_test.cpp](../tests/core/fixed_length_test.cpp) |

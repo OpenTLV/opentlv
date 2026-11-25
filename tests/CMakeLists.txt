@@ -5,6 +5,13 @@ if(POLICY CMP0135)
 endif()
 include(FetchContent)
 include(GoogleTest)
+include(strict_compile_options.cmake)
+
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/toolchain.txt"
+    "C compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}\n"
+    "C++ compiler: ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\n"
+    "Pointer size (bytes): ${CMAKE_SIZEOF_VOID_P}\n"
+)
 
 set(OPENTLV_GOOGLETEST_URL
     "https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz"
@@ -53,19 +60,15 @@ add_executable(opentlv_io_tests
 add_executable(opentlv_integration_tests integration/fixed_round_trip_test.cpp)
 add_subdirectory(abi)
 
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
-    foreach(target IN ITEMS opentlv_core opentlv_io)
-        target_compile_options(${target} PRIVATE -pedantic-errors -Wall -Wextra -Werror)
-    endforeach()
-endif()
+foreach(target IN ITEMS opentlv_core opentlv_io)
+    opentlv_strict_compile_options(${target} C)
+endforeach()
 
 function(register_opentlv_tests suite module)
     set(test_target opentlv_${suite}_tests)
     set_target_properties(${test_target} PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS OFF)
     target_link_libraries(${test_target} PRIVATE OpenTLV::${module} GTest::gtest_main)
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
-        target_compile_options(${test_target} PRIVATE -pedantic-errors -Wall -Wextra -Werror)
-    endif()
+    opentlv_strict_compile_options(${test_target} CXX)
     if(WIN32)
         # Windows must find the module DLLs during discovery and execution.
         set_target_properties(${test_target} PROPERTIES

@@ -33,6 +33,18 @@ TEST(CoreSize, RejectsUint64MaxOnX86)
     EXPECT_EQ(TLV_ERR_NATIVE_SIZE, tlv_size_to_native(UINT64_MAX, &native));
     EXPECT_EQ(42u, native);
 }
+#elif defined(_M_X64) || (defined(__x86_64__) && !defined(__ILP32__))
+TEST(CoreSize, ConvertsCountsAboveUint32MaxOnX64)
+{
+    static_assert(sizeof(size_t) == 8, "The x64 test requires an eight-byte size_t");
+    const tlv_size_t counts[] = {UINT64_C(0x100000000), UINT64_MAX};
+    for (const tlv_size_t count : counts) {
+        SCOPED_TRACE(count);
+        size_t native = 0;
+        ASSERT_EQ(TLV_OK, tlv_size_to_native(count, &native));
+        EXPECT_EQ(count, native);
+    }
+}
 #endif
 
 TEST(CoreSize, AddsCountsThroughTheLogicalLimit)
