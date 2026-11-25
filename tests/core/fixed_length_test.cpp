@@ -44,19 +44,21 @@ TEST_P(FixedLength, ReadsExactlyOneField)
     for (const Example &example : examples()) {
         SCOPED_TRACE(example.value);
         alignas(tlv_size_t) std::array<uint8_t, 10> input;
-        input.fill(0x6b);
-        std::copy_n(example.wire, field.size, input.begin() + 1);
         for (size_t available : {field.size, input.size() - 1}) {
+            // End the span at the array boundary so ASan can detect overreads.
+            uint8_t *data = input.data() + (input.size() - available);
+            input.fill(0x6b);
+            std::copy_n(example.wire, field.size, data);
             tlv_size_t decoded = ~example.value;
             size_t consumed = 99;
-            ASSERT_EQ(TLV_OK, tlv_fixed_length_read(&field, input.data() + 1, available,
+            ASSERT_EQ(TLV_OK, tlv_fixed_length_read(&field, data, available,
                                                     &decoded, &consumed));
             EXPECT_EQ(example.value, decoded);
             EXPECT_EQ(field.size, consumed);
             core::logical_size cpp_decoded = ~example.value;
             size_t cpp_consumed = 99;
             ASSERT_EQ(core::result::ok, core::read_length(
-                cpp_field, {input.data() + 1, available}, cpp_decoded, cpp_consumed));
+                cpp_field, {data, available}, cpp_decoded, cpp_consumed));
             EXPECT_EQ(decoded, cpp_decoded);
             EXPECT_EQ(consumed, cpp_consumed);
         }
@@ -100,16 +102,17 @@ TEST_P(FixedLength, TruncatedReadsReportTheAvailablePrefix)
     const std::array<uint8_t, 8> input{};
     for (size_t available = 0; available < field.size; ++available) {
         SCOPED_TRACE(available);
+        const uint8_t *data = input.data() + (input.size() - available);
         tlv_size_t decoded = 42;
         size_t consumed = 99;
-        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_fixed_length_read(&field, input.data(), available,
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_fixed_length_read(&field, data, available,
                                                            &decoded, &consumed));
         EXPECT_EQ(42u, decoded);
         EXPECT_EQ(available, consumed);
         core::logical_size cpp_decoded = 42;
         size_t cpp_consumed = 99;
         EXPECT_EQ(core::result::truncated, core::read_length(
-            cpp_field, {input.data(), available}, cpp_decoded, cpp_consumed));
+            cpp_field, {data, available}, cpp_decoded, cpp_consumed));
         EXPECT_EQ(decoded, cpp_decoded);
         EXPECT_EQ(consumed, cpp_consumed);
     }
