@@ -45,7 +45,7 @@ TEST(CoreResult, ClassifiesAndDescribesEveryNamedResult)
         ASSERT_NE(nullptr, message);
         EXPECT_STRNE("", message);
         EXPECT_STRNE("unknown result", message);
-        EXPECT_STREQ(message, core::result_string(entry.cpp_code));
+        EXPECT_EQ(message, core::result_string(entry.cpp_code));
     }
 }
 
@@ -63,7 +63,7 @@ TEST(CoreResult, ReturnsTheFallbackForUnassignedCodes)
         const auto cpp_code = core::from_c(code);
         EXPECT_EQ(code, core::to_c(cpp_code));
         EXPECT_EQ(core::category::unknown, core::result_category(cpp_code));
-        EXPECT_STREQ(tlv_result_string(code), core::result_string(cpp_code));
+        EXPECT_EQ(tlv_result_string(code), core::result_string(cpp_code));
     }
     EXPECT_STREQ("end of input", retained);
 }

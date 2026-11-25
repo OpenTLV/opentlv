@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- C++17 reads and checked value-view construction skip redundant descriptor initialization and preserve the caller's view on failure. (#69)
 - Fixed TLV reads and writes select byte order once per length field, reducing measured instruction counts for complete records across all 16 layouts. (#68)
 - Reduce repeated validation when measuring, reading and writing Fixed TLV elements, while preserving error precedence, diagnostics and transactional writes. (#67)
 - Fixed TLV reads and writes skip diagnostic field preparation when diagnostics are omitted. C++17 callers also skip initializing and converting the diagnostic record. (#66)

@@ -253,6 +253,24 @@ Use native C objects at the call boundary to keep wrapper layout
 independent of the C ABI. Add C and C++ entry points for new wire operations
 together so both use the same implementation and produce the same bytes.
 
+### Wrapper costs
+
+The wrappers allocate no heap storage. Converting an element copies its two
+pointers and two counts. Reads borrow both byte ranges from the input. Writes
+copy the tag and payload once into the destination as part of C encoding.
+The amount of wrapper work is independent of the payload length.
+
+| Operation | Work at the C boundary |
+| --- | --- |
+| One-shot read or write | The wrapper builds a native format from the typed settings. A constant byte order can be folded at compile time. A runtime order must also handle unsupported values. A write supplies a native element descriptor. |
+| Successful read or `make_value_view` | C fills a temporary native descriptor. The wrapper copies its fields to the typed output only on success, so end or failure preserves the caller's view. The temporary needs no initial contents. |
+| Cursor operation | Each cursor stores its native cursor inline. Initialization converts the format once per stream. Subsequent calls use the stored format, and `position()` reads its offset. Each append checks initialization so a write before the first successful `init` returns `invalid_arg`. |
+| Result and diagnostic | Returning a `core::result` converts the C status code with an enum cast. Category and string lookups call the same C functions. An omitted diagnostic passes a null pointer. A supplied diagnostic requires conversion of its five output fields. |
+
+The [optimized instruction counts](../tests/diagnostics/README.md#c17-wrapper-costs) compare
+C99 and C++17 callers on the same inputs and show which of these operations
+remain visible in a particular build.
+
 ## Ownership and lifetimes
 
 The C++17 wrappers use caller-provided storage. Destroying a view or cursor

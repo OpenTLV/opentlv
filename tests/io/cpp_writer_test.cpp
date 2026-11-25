@@ -8,6 +8,7 @@ namespace {
 namespace core = opentlv::core;
 namespace io = opentlv::io;
 
+static_assert(std::is_nothrow_default_constructible_v<io::writer>);
 static_assert(!std::is_copy_constructible_v<io::writer>);
 static_assert(!std::is_copy_assignable_v<io::writer>);
 static_assert(!std::is_move_constructible_v<io::writer>);
@@ -15,6 +16,8 @@ static_assert(!std::is_move_assignable_v<io::writer>);
 static_assert(noexcept(io::write({}, {}, {}, std::declval<std::size_t &>(), nullptr)));
 static_assert(noexcept(std::declval<io::writer &>().init({}, {})));
 static_assert(noexcept(std::declval<io::writer &>().write({}, nullptr)));
+static_assert(noexcept(std::declval<const io::writer &>().position()));
+static_assert(noexcept(std::declval<const io::writer &>().format()));
 
 TEST(CppWriter, RejectsWritesUntilInitializationSucceeds)
 {
