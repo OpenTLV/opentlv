@@ -85,13 +85,14 @@ TEST_P(FixedRoundTrip, ReadsAndWritesGoldenBytes)
 
 TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
 {
-    std::mt19937 random(0x26f1u);
+    constexpr uint32_t seed = 0x26f1u;
+    std::mt19937 random(seed);
     for (const size_t tagWidth : {1u, 2u, 9u}) {
         const tlv_fixed_format_t layout{{tagWidth}, length};
         const auto cppLayout = core::from_c(layout);
         for (const size_t count : {0u, 1u, 127u, 254u, 255u, 256u, 257u, 513u}) {
-            SCOPED_TRACE(testing::Message()
-                         << "tag bytes " << tagWidth << ", value bytes " << count);
+            SCOPED_TRACE(testing::Message() << "seed " << seed << ", tag bytes " << tagWidth
+                                            << ", value bytes " << count);
             Bytes tag(tagWidth), value(count);
             const auto nextByte = [&random] { return static_cast<uint8_t>(random()); };
             std::generate(tag.begin(), tag.end(), nextByte);
@@ -216,6 +217,61 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
             EXPECT_EQ(stream.data() + boundary, view.value.data);
             EXPECT_EQ(0u, view.value.size);
         }
+    }
+}
+
+TEST_P(FixedRoundTrip, ReportsShortAppendsBeyondAOneBytePosition)
+{
+    const Bytes record = GoldenRecord();
+    const tlv_element_t element{{record.data(), 2}, {record.data() + record.size() - 3, 3}};
+    const auto cppElement = core::from_c(element);
+    const auto cppFormat = core::from_c(format);
+    const size_t prefixRecords = UINT8_MAX / record.size() + 1;
+    const size_t boundary = prefixRecords * record.size();
+    constexpr uint8_t guard = 0xcc;
+
+    Bytes committed{guard};
+    for (size_t i = 0; i < prefixRecords; ++i) {
+        committed.insert(committed.end(), record.begin(), record.end());
+    }
+    Bytes complete = committed;
+    complete.insert(complete.end(), record.begin(), record.end());
+    complete.push_back(guard);
+    committed.resize(complete.size(), guard);
+
+    for (size_t remaining = 0; remaining <= record.size(); ++remaining) {
+        SCOPED_TRACE(testing::Message()
+                     << "committed bytes " << boundary << ", remaining bytes " << remaining);
+        Bytes output(complete.size(), guard), cppOutput = output;
+        const size_t capacity = boundary + remaining;
+        tlv_writer_t writer{};
+        io::writer cppWriter;
+        ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output.data() + 1, capacity, &format));
+        ASSERT_EQ(core::result::ok, cppWriter.init(cppFormat, {cppOutput.data() + 1, capacity}));
+        for (size_t i = 0; i < prefixRecords; ++i) {
+            ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, &element));
+            ASSERT_EQ(core::result::ok, cppWriter.write(cppElement));
+        }
+        ASSERT_EQ(boundary, writer.pos);
+        ASSERT_EQ(boundary, cppWriter.position());
+
+        const bool fits = remaining == record.size();
+        const auto result = fits ? TLV_OK : TLV_ERR_BUFFER_TOO_SHORT;
+        tlv_diagnostic_t details{TLV_ERR_TRUNCATED, TLV_FIELD_TAG, 11, 12, 13};
+        auto cppDetails = core::from_c(details);
+        EXPECT_EQ(result, tlv_writer_write_with_diagnostic(&writer, &element, &details));
+        EXPECT_EQ(core::from_c(result), cppWriter.write(cppElement, &cppDetails));
+        for (const auto &actual : {details, core::to_c(cppDetails)}) {
+            EXPECT_EQ(result, actual.result);
+            EXPECT_EQ(fits ? TLV_FIELD_NONE : TLV_FIELD_ELEMENT, actual.field);
+            EXPECT_EQ(fits ? 0u : boundary, actual.offset);
+            EXPECT_EQ(fits ? 0u : record.size(), actual.required);
+            EXPECT_EQ(fits ? 0u : remaining, actual.available);
+        }
+        EXPECT_EQ(fits ? capacity : boundary, writer.pos);
+        EXPECT_EQ(writer.pos, cppWriter.position());
+        EXPECT_EQ(fits ? complete : committed, output);
+        EXPECT_EQ(output, cppOutput);
     }
 }
 
