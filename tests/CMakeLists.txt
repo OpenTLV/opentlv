@@ -51,6 +51,7 @@ add_executable(opentlv_io_tests
 )
 
 add_executable(opentlv_integration_tests integration/fixed_round_trip_test.cpp)
+add_subdirectory(abi)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
     foreach(target IN ITEMS opentlv_core opentlv_io)

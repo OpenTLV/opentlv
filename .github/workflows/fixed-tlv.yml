@@ -95,10 +95,12 @@ jobs:
             ${{ runner.temp }}/coverage.txt
             ${{ runner.temp }}/coverage-repeat.txt
           if-no-files-found: error
+      - name: Test symbol parsers with tool output fixtures
+        run: python3 -m unittest discover -s tests -p test_check_symbols.py
       - name: Test static build-tree and installed CMake packages
-        run: python3 tests/check_cmake_package.py
+        run: python3 tests/check_cmake_package.py --check-symbols
       - name: Test shared build-tree and installed CMake packages
-        run: python3 tests/check_cmake_package.py --shared
+        run: python3 tests/check_cmake_package.py --shared --check-symbols
       - name: Build Fixed TLV fuzz targets
         env:
           CC: clang-18
@@ -159,9 +161,9 @@ jobs:
           ref: ${{ github.sha }}
           persist-credentials: false
       - name: Test static build-tree and installed CMake packages with MSVC
-        run: python tests/check_cmake_package.py
+        run: python tests/check_cmake_package.py --check-symbols
       - name: Test shared build-tree and installed CMake packages with MSVC
-        run: python tests/check_cmake_package.py --shared
+        run: python tests/check_cmake_package.py --shared --check-symbols
 
   workflow-analyzers:
     name: workflow-analyzers

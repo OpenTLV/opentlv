@@ -1,4 +1,4 @@
-"""Compile the public headers and check their diagnostics with GCC or Clang."""
+"""Compile the public headers, Core in isolation, and diagnostic probes with GCC or Clang."""
 
 import argparse
 import os
@@ -54,22 +54,25 @@ typedef char check_empty[sizeof(SPELL(TLV_NODISCARD) SPELL(TLV_MAYBE_UNUSED)
 """
 
 
-def check_mode(build, headers, compiler, mode, version, clang_cl):
+def check_mode(build, core_build, headers, compiler, mode, version, clang_cl):
     cpp = mode.startswith("c++")
     filename = "check.cpp" if cpp else "check.c"
 
-    def compile_source(source, *flags):
-        (build / filename).write_text(source.rstrip() + "\n", encoding="utf-8")
+    def compile_file(directory, source_file, *flags):
         options = ["-std=" + mode_flag, "-pedantic-errors", "-Wall", "-Wextra", "-Werror", *flags]
         if clang_cl:
-            command = [compiler, "/nologo", "/Iinclude", "/c", filename]
+            command = [compiler, "/nologo", "/Iinclude", "/c", source_file]
             command.extend("/clang:" + option for option in options)
         else:
-            command = [compiler, *options, "-Iinclude", "-c", filename]
+            command = [compiler, *options, "-Iinclude", "-c", source_file]
         return subprocess.run(
-            command, cwd=build, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            command, cwd=directory, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, errors="replace", env={**os.environ, "LC_ALL": "C"},
         )
+
+    def compile_source(source, *flags, directory=build):
+        (directory / filename).write_text(source.rstrip() + "\n", encoding="utf-8")
+        return compile_file(directory, filename, *flags)
 
     # An optional mode is skipped only for a rejected -std option or a draft
     # language version. Errors in OpenTLV headers always fail the check.
@@ -93,8 +96,8 @@ int probe(void);
         print(f"SKIP {mode}: compiler does not provide the final language mode")
         return
 
-    def expect(label, source, *flags, diagnostic=None):
-        result = compile_source(source, *flags)
+    def expect(label, source, *flags, diagnostic=None, directory=build):
+        result = compile_source(source, *flags, directory=directory)
         if diagnostic is None:
             passed = result.returncode == 0
         else:
@@ -110,7 +113,8 @@ int probe(void);
         return
 
     for header in headers:
-        expect(header, f"#include <{header}>\n" * 2 + "int probe(void);\n")
+        directory = core_build if header.startswith("opentlv/core/") else build
+        expect(header, f"#include <{header}>\n" * 2 + "int probe(void);\n", directory=directory)
     c_version = 199901 if cpp else version
     contract = UMBRELLA + f"#define EXPECTED_C_VERSION {c_version}L\n" + LANGUAGE_CONTRACT
     if clang_cl:
@@ -118,6 +122,17 @@ int probe(void);
     expect("umbrella", contract)
     if mode == "c99":
         expect("empty attribute fallback", EMPTY_FALLBACK)
+        # Copy the implementations so relative includes cannot reach src/io.
+        source_build = core_build.parent / "implementation"
+        sources = source_build / "src" / "core"
+        shutil.copytree(ROOT / "src" / "core", sources)
+        shutil.copytree(core_build / "include", source_build / "include")
+        for path in sorted(sources.rglob("*.c")):
+            relative = path.relative_to(source_build).as_posix()
+            result = compile_file(source_build, relative)
+            if result.returncode:
+                raise SystemExit(f"{mode} failed {relative} in isolation\n{result.stdout}")
+        print("PASS c99: Core sources compile with only Core headers")
 
     for macro, (attribute, warning, use) in ATTRIBUTES.items():
         if mode in ("c99", "c++17"):
@@ -161,16 +176,19 @@ def main():
                         help="use clang-cl with the Windows MSVC target")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory() as directory:
-        build = Path(directory)
+        build = Path(directory) / "public"
+        core_build = Path(directory) / "core"
         include = build / "include"
         shutil.copytree(ROOT / "include" / "opentlv", include / "opentlv")
+        shutil.copytree(include / "opentlv" / "core", core_build / "include" / "opentlv" / "core")
         c_headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.h"))
         cpp_headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.hpp"))
         for mode, version in MODES.items():
             headers = c_headers + cpp_headers if mode == "c++17" else c_headers
             variable, default = ("CXX", "c++") if mode.startswith("c++") else ("CC", "cc")
             compiler = os.environ.get(variable, default)
-            check_mode(build, headers, args.clang_cl or compiler, mode, version, bool(args.clang_cl))
+            check_mode(build, core_build, headers, args.clang_cl or compiler,
+                       mode, version, bool(args.clang_cl))
 
 
 if __name__ == "__main__":

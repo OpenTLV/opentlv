@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from check_symbols import check_symbols
+
 
 ROOT = Path(__file__).resolve().parents[1]
 TEST_COMPONENT = re.compile(
@@ -23,8 +25,13 @@ def build_project(source, build, *options):
 
 
 def check_install_tree(relocated, private_paths):
+    public_headers = {path.relative_to(ROOT) for path in (ROOT / "include").rglob("*")
+                      if path.suffix in (".h", ".hpp")}
     for path in relocated.rglob("*"):
         relative = path.relative_to(relocated)
+        if path.suffix in (".h", ".hpp") and relative not in public_headers:
+            raise SystemExit(f"Unexpected header in production install: {relative}")
+        public_headers.discard(relative)
         if TEST_COMPONENT.search(relative.as_posix()):
             raise SystemExit(f"Test artifact in production install: {relative}")
         if path.suffix.lower() != ".cmake" or not path.is_file():
@@ -37,6 +44,8 @@ def check_install_tree(relocated, private_paths):
         for private_path in private_paths:
             if os.path.normcase(private_path.as_posix()) in normalized:
                 raise SystemExit(f"{relative} contains private path {private_path}")
+    if public_headers:
+        raise SystemExit(f"Missing installed public headers: {sorted(public_headers)}")
 
 
 def runtime_environment(prefix):
@@ -55,7 +64,7 @@ def check_consumers(work, package_prefix):
                        cwd=consumer, env=runtime_environment(package_prefix), check=True)
 
 
-def check_package(work, shared):
+def check_package(work, shared, audit_symbols=False):
     build = work / "library"
     prefix = work / "original install"
     relocated = work / "relocated install"
@@ -68,6 +77,8 @@ def check_package(work, shared):
     prefix.rename(relocated)
 
     check_install_tree(relocated, (ROOT, build, prefix))
+    if audit_symbols:
+        check_symbols(relocated, shared, build)
     check_consumers(work / "installed consumers", relocated)
 
     package_config = next(relocated.rglob("OpenTLVConfig.cmake"))
@@ -89,6 +100,8 @@ def check_package(work, shared):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--shared", action="store_true", help="build shared libraries")
+    parser.add_argument("--check-symbols", action="store_true",
+                        help="compare installed library symbols with the public C ABI baseline")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory() as directory:
-        check_package(Path(directory).resolve(), args.shared)
+        check_package(Path(directory).resolve(), args.shared, args.check_symbols)
