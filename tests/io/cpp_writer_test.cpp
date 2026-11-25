@@ -63,17 +63,19 @@ TEST(CppWriter, MatchesCAndPreservesCommittedBytesOnShortAppend)
     ASSERT_EQ(core::result::buffer_too_short, io::write(format, {}, element, written, &details));
     EXPECT_EQ(count, written);
     const auto untouched = one_shot;
-    ASSERT_EQ(core::result::buffer_too_short, io::write(format, {one_shot.data(), count - 1},
-                                                        element, written, &details));
+    ASSERT_EQ(core::result::buffer_too_short,
+              io::write(format, {one_shot.data(), count - 1}, element, written, &details));
     EXPECT_EQ(count, written);
     EXPECT_EQ(untouched, one_shot);
-    ASSERT_EQ(core::result::ok, io::write(format, {one_shot.data(), one_shot.size()}, element, written, &details));
+    ASSERT_EQ(core::result::ok,
+              io::write(format, {one_shot.data(), one_shot.size()}, element, written, &details));
     EXPECT_EQ(core::result::ok, details.result);
     EXPECT_EQ(count, written);
     EXPECT_EQ(expected, one_shot);
     one_shot = untouched;
     written = 0;
-    ASSERT_EQ(core::result::ok, io::write(format, {one_shot.data(), one_shot.size()}, element, written));
+    ASSERT_EQ(core::result::ok,
+              io::write(format, {one_shot.data(), one_shot.size()}, element, written));
     EXPECT_EQ(count, written);
     EXPECT_EQ(expected, one_shot);
     {
@@ -120,10 +122,10 @@ TEST(CppWriter, OneShotFailuresMatchCResultsAndDiagnostics)
         tlv_diagnostic_t c_details{};
         core::diagnostic details{core::result::ok, core::field::length, 3, 5, 1};
         const auto c_result = tlv_write_with_diagnostic(c_bytes.data(), entry.capacity, &config,
-                                                       &source, &c_written, &c_details);
+                                                        &source, &c_written, &c_details);
         ASSERT_EQ(entry.expected, c_result);
         EXPECT_EQ(core::from_c(c_result), io::write(entry.format, {bytes.data(), entry.capacity},
-                                                   entry.element, written, &details));
+                                                    entry.element, written, &details));
         EXPECT_EQ(core::from_c(c_details.result), details.result);
         EXPECT_EQ(core::from_c(c_details.field), details.field);
         EXPECT_EQ(c_details.offset, details.offset);
@@ -134,8 +136,8 @@ TEST(CppWriter, OneShotFailuresMatchCResultsAndDiagnostics)
 
         bytes = original;
         written = 91;
-        EXPECT_EQ(core::from_c(c_result), io::write(entry.format, {bytes.data(), entry.capacity},
-                                                   entry.element, written));
+        EXPECT_EQ(core::from_c(c_result),
+                  io::write(entry.format, {bytes.data(), entry.capacity}, entry.element, written));
         EXPECT_EQ(c_written, written);
         EXPECT_EQ(original, bytes);
     }

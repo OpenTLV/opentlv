@@ -40,9 +40,11 @@ typedef struct tlv_fixed_length {
  * @return TLV_OK, TLV_ERR_NULL_ARG, TLV_ERR_INVALID_ARG (width or order),
  * or TLV_ERR_TRUNCATED.
  */
-TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_length_read(
-    const tlv_fixed_length_t *config, const uint8_t *data, size_t available,
-    tlv_size_t *length, size_t *consumed);
+TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_length_read(const tlv_fixed_length_t *config,
+                                                                  const uint8_t *data,
+                                                                  size_t available,
+                                                                  tlv_size_t *length,
+                                                                  size_t *consumed);
 
 /**
  * @brief Encode one length field, or measure its width with NULL and zero capacity.
@@ -54,9 +56,10 @@ TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_length_read(
  * @return TLV_OK, TLV_ERR_NULL_ARG, TLV_ERR_INVALID_ARG (width or order),
  * TLV_ERR_INVALID_LENGTH, or TLV_ERR_BUFFER_TOO_SHORT.
  */
-TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_length_write(
-    const tlv_fixed_length_t *config, tlv_size_t length, uint8_t *data,
-    size_t capacity, size_t *written);
+TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_length_write(const tlv_fixed_length_t *config,
+                                                                   tlv_size_t length, uint8_t *data,
+                                                                   size_t capacity,
+                                                                   size_t *written);
 
 #ifdef __cplusplus
 }

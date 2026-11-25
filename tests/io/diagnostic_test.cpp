@@ -16,8 +16,8 @@ constexpr uint8_t saved_bytes[] = {0x42, 0x93};
 constexpr tlv_element_t saved_view{{saved_bytes, 1}, {saved_bytes + 1, 1}};
 
 void ExpectDiagnostic(const tlv_diagnostic_t &diagnostic, tlv_result_t result,
-                      tlv_field_t field = TLV_FIELD_NONE, size_t offset = 0,
-                      uintmax_t required = 0, uintmax_t available = 0)
+                      tlv_field_t field = TLV_FIELD_NONE, size_t offset = 0, uintmax_t required = 0,
+                      uintmax_t available = 0)
 {
     EXPECT_EQ(result, diagnostic.result);
     EXPECT_EQ(field, diagnostic.field);
@@ -29,10 +29,8 @@ void ExpectDiagnostic(const tlv_diagnostic_t &diagnostic, tlv_result_t result,
 TEST(ReadDiagnostic, LocatesEachIncompleteFieldFromTheStartOfTheSuppliedBuffer)
 {
     const tlv_fixed_format_t format{{3}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}};
-    const uint8_t wire[] = {
-        0x00, 0x89, 0x01, 0x00, 0x01, 0xe1,
-        0xff, 0x00, 0xa0, 0x00, 0x03, 0x7f, 0xa5, 0x00
-    };
+    const uint8_t wire[] = {0x00, 0x89, 0x01, 0x00, 0x01, 0xe1, 0xff,
+                            0x00, 0xa0, 0x00, 0x03, 0x7f, 0xa5, 0x00};
     constexpr size_t second = 6;
     const tlv_element_t first{{wire, 3}, {wire + 5, 1}};
     const struct {
@@ -41,24 +39,23 @@ TEST(ReadDiagnostic, LocatesEachIncompleteFieldFromTheStartOfTheSuppliedBuffer)
         size_t offset;
         uintmax_t required;
         uintmax_t available;
-    } cuts[] = {
-        {1, TLV_FIELD_TAG,    0, 3, 1}, {2, TLV_FIELD_TAG,    0, 3, 2},
-        {3, TLV_FIELD_LENGTH, 3, 2, 0}, {4, TLV_FIELD_LENGTH, 3, 2, 1},
-        {5, TLV_FIELD_VALUE,  5, 3, 0}, {6, TLV_FIELD_VALUE,  5, 3, 1},
-        {7, TLV_FIELD_VALUE,  5, 3, 2}
-    };
+    } cuts[] = {{1, TLV_FIELD_TAG, 0, 3, 1},    {2, TLV_FIELD_TAG, 0, 3, 2},
+                {3, TLV_FIELD_LENGTH, 3, 2, 0}, {4, TLV_FIELD_LENGTH, 3, 2, 1},
+                {5, TLV_FIELD_VALUE, 5, 3, 0},  {6, TLV_FIELD_VALUE, 5, 3, 1},
+                {7, TLV_FIELD_VALUE, 5, 3, 2}};
     for (const auto &cut : cuts) {
         SCOPED_TRACE(cut.prefix);
         tlv_element_t view = saved_view;
         size_t consumed = 91;
         tlv_diagnostic_t diagnostic = stale;
-        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read_with_diagnostic(
-            wire + second, cut.prefix, &format, &view, &consumed, &diagnostic));
-        ExpectDiagnostic(diagnostic, TLV_ERR_TRUNCATED, cut.field, cut.offset, cut.required, cut.available);
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read_with_diagnostic(wire + second, cut.prefix, &format,
+                                                              &view, &consumed, &diagnostic));
+        ExpectDiagnostic(diagnostic, TLV_ERR_TRUNCATED, cut.field, cut.offset, cut.required,
+                         cut.available);
         ExpectView(saved_view, view);
         EXPECT_EQ(91u, consumed);
-        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read_with_diagnostic(
-            wire + second, cut.prefix, &format, &view, &consumed, nullptr));
+        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read_with_diagnostic(wire + second, cut.prefix, &format,
+                                                              &view, &consumed, nullptr));
         ExpectView(saved_view, view);
         EXPECT_EQ(91u, consumed);
 
@@ -89,8 +86,8 @@ TEST(ReadDiagnostic, AcceptsEverySingleByteTagAndLengthAndClearsFieldDetails)
         tlv_diagnostic_t diagnostic = stale;
         tlv_element_t view = saved_view;
         size_t consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_read_with_diagnostic(
-            wire.data(), 2 + n, &one_byte_fields, &view, &consumed, &diagnostic));
+        ASSERT_EQ(TLV_OK, tlv_read_with_diagnostic(wire.data(), 2 + n, &one_byte_fields, &view,
+                                                   &consumed, &diagnostic));
         ExpectDiagnostic(diagnostic, TLV_OK);
         ExpectView({{wire.data(), 1}, {wire.data() + 2, n}}, view);
         EXPECT_EQ(2 + n, consumed);
@@ -103,24 +100,26 @@ TEST(ReadDiagnostic, ReportsTheFullWireLengthWhenItExceedsTheRemainingInput)
         tlv_byte_order_t order;
         std::array<uint8_t, 10> wire;
         tlv_size_t declared;
-    } cases[] = {
-        {TLV_BYTE_ORDER_BIG_ENDIAN, {0x11, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x51},
-         UINT64_MAX},
-        {TLV_BYTE_ORDER_LITTLE_ENDIAN, {0x11, 1, 0, 0, 0, 1, 0, 0, 0, 0x51}, UINT64_C(0x100000001)}
-    };
+    } cases[] = {{TLV_BYTE_ORDER_BIG_ENDIAN,
+                  {0x11, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x51},
+                  UINT64_MAX},
+                 {TLV_BYTE_ORDER_LITTLE_ENDIAN,
+                  {0x11, 1, 0, 0, 0, 1, 0, 0, 0, 0x51},
+                  UINT64_C(0x100000001)}};
     for (const auto &entry : cases) {
         SCOPED_TRACE(entry.declared);
         const tlv_fixed_format_t format{{1}, {8, entry.order}};
         tlv_diagnostic_t diagnostic = stale;
         tlv_element_t view = saved_view;
         size_t consumed = 91;
-        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read_with_diagnostic(
-            entry.wire.data(), entry.wire.size(), &format, &view, &consumed, &diagnostic));
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
+                  tlv_read_with_diagnostic(entry.wire.data(), entry.wire.size(), &format, &view,
+                                           &consumed, &diagnostic));
         ExpectDiagnostic(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, 9, entry.declared, 1);
         ExpectView(saved_view, view);
         EXPECT_EQ(91u, consumed);
-        EXPECT_EQ(TLV_ERR_TRUNCATED, tlv_read(
-            entry.wire.data(), entry.wire.size(), &format, &view, &consumed));
+        EXPECT_EQ(TLV_ERR_TRUNCATED,
+                  tlv_read(entry.wire.data(), entry.wire.size(), &format, &view, &consumed));
         ExpectView(saved_view, view);
         EXPECT_EQ(91u, consumed);
     }
@@ -131,28 +130,30 @@ TEST(ReadDiagnostic, ClearsStaleDetailsOnEndAndInvalidArguments)
     tlv_element_t view = saved_view;
     size_t consumed = 91;
     tlv_diagnostic_t diagnostic = stale;
-    EXPECT_EQ(TLV_END, tlv_read_with_diagnostic(nullptr, 0, &one_byte_fields, &view, &consumed, &diagnostic));
+    EXPECT_EQ(TLV_END, tlv_read_with_diagnostic(nullptr, 0, &one_byte_fields, &view, &consumed,
+                                                &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_END);
     ExpectView(saved_view, view);
     EXPECT_EQ(91u, consumed);
     diagnostic = stale;
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_with_diagnostic(
-        nullptr, 1, &one_byte_fields, &view, &consumed, &diagnostic));
+    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_read_with_diagnostic(nullptr, 1, &one_byte_fields, &view,
+                                                         &consumed, &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_ERR_NULL_ARG);
     ExpectView(saved_view, view);
     EXPECT_EQ(91u, consumed);
 
     const tlv_fixed_format_t oversized_header{{SIZE_MAX}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
     diagnostic = stale;
-    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_read_with_diagnostic(
-        nullptr, 0, &oversized_header, &view, &consumed, &diagnostic));
+    EXPECT_EQ(TLV_ERR_OVERFLOW, tlv_read_with_diagnostic(nullptr, 0, &oversized_header, &view,
+                                                         &consumed, &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_ERR_OVERFLOW);
     ExpectView(saved_view, view);
     EXPECT_EQ(91u, consumed);
 
     const uint8_t wire[] = {0xc3, 0x00};
     const tlv_element_t empty{{wire, 1}, {wire + 2, 0}};
-    ASSERT_EQ(TLV_OK, tlv_read_with_diagnostic(wire, sizeof wire, &one_byte_fields, &view, &consumed, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_read_with_diagnostic(wire, sizeof wire, &one_byte_fields, &view,
+                                               &consumed, nullptr));
     ExpectView(empty, view);
     EXPECT_EQ(sizeof wire, consumed);
     tlv_reader_t reader{};
@@ -183,31 +184,33 @@ TEST(WriteDiagnostic, ReportsTheWholeElementAndTheCapacityOfTheSuppliedSlice)
     auto output = initial;
     size_t written = 91;
     tlv_diagnostic_t diagnostic = stale;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_with_diagnostic(
-        nullptr, 0, &one_byte_fields, &record, &written, &diagnostic));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_with_diagnostic(nullptr, 0, &one_byte_fields,
+                                                                  &record, &written, &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 0, 4, 0);
     EXPECT_EQ(4u, written);
     written = 91;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_with_diagnostic(
-        output.data() + 1, 3, &one_byte_fields, &record, &written, &diagnostic));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_write_with_diagnostic(output.data() + 1, 3, &one_byte_fields, &record, &written,
+                                        &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 0, 4, 3);
     EXPECT_EQ(4u, written);
     EXPECT_EQ(initial, output);
     written = 91;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write_with_diagnostic(
-        output.data() + 1, 3, &one_byte_fields, &record, &written, nullptr));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_write_with_diagnostic(output.data() + 1, 3, &one_byte_fields, &record, &written,
+                                        nullptr));
     EXPECT_EQ(4u, written);
     EXPECT_EQ(initial, output);
 
-    ASSERT_EQ(TLV_OK, tlv_write_with_diagnostic(output.data() + 1, 4, &one_byte_fields,
-                                                &record, &written, &diagnostic));
+    ASSERT_EQ(TLV_OK, tlv_write_with_diagnostic(output.data() + 1, 4, &one_byte_fields, &record,
+                                                &written, &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_OK);
     EXPECT_EQ(4u, written);
     EXPECT_EQ(encoded, output);
     written = 91;
     output = initial;
-    ASSERT_EQ(TLV_OK, tlv_write_with_diagnostic(output.data() + 1, 4, &one_byte_fields,
-                                                &record, &written, nullptr));
+    ASSERT_EQ(TLV_OK, tlv_write_with_diagnostic(output.data() + 1, 4, &one_byte_fields, &record,
+                                                &written, nullptr));
     EXPECT_EQ(4u, written);
     EXPECT_EQ(encoded, output);
 }
@@ -226,7 +229,8 @@ TEST(WriteDiagnostic, ReportsCommittedOffsetAndRemainingSpaceForAShortAppend)
     ASSERT_EQ(2u, writer.pos);
     EXPECT_EQ(committed, bytes);
     tlv_diagnostic_t diagnostic = stale;
-    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_writer_write_with_diagnostic(&writer, &next, &diagnostic));
+    EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+              tlv_writer_write_with_diagnostic(&writer, &next, &diagnostic));
     ExpectDiagnostic(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 2, 4, 3);
     EXPECT_EQ(2u, writer.pos);
     EXPECT_EQ(committed, bytes);
@@ -266,12 +270,14 @@ TEST(WriteDiagnostic, ClearsFieldDetailsForDescriptorAndSizeErrors)
     } cases[] = {
         {one_byte_fields, {{&tag, 0}, {nullptr, 0}}, TLV_ERR_INVALID_TAG_SIZE},
         {one_byte_fields, {{&tag, 1}, {payload.data(), payload.size()}}, TLV_ERR_INVALID_LENGTH},
-        {bad_format,      {{&tag, 1}, {nullptr, 0}}, TLV_ERR_INVALID_ARG},
+        {bad_format, {{&tag, 1}, {nullptr, 0}}, TLV_ERR_INVALID_ARG},
 #if SIZE_MAX <= UINT64_MAX
         {wide, {{&tag, 1}, {payload.data(), SIZE_MAX}}, TLV_ERR_OVERFLOW},
 #endif
 #if SIZE_MAX < UINT64_MAX
-        {wide, {{&tag, 1}, {payload.data(), static_cast<tlv_size_t>(SIZE_MAX) + 1}}, TLV_ERR_NATIVE_SIZE},
+        {wide,
+         {{&tag, 1}, {payload.data(), static_cast<tlv_size_t>(SIZE_MAX) + 1}},
+         TLV_ERR_NATIVE_SIZE},
 #endif
     };
     for (const auto &entry : cases) {
@@ -279,14 +285,14 @@ TEST(WriteDiagnostic, ClearsFieldDetailsForDescriptorAndSizeErrors)
         tlv_diagnostic_t diagnostic = stale;
         diagnostic.result = TLV_OK;
         size_t written = 91;
-        EXPECT_EQ(entry.result, tlv_write_with_diagnostic(
-            nullptr, 0, &entry.format, &entry.element, &written, &diagnostic));
+        EXPECT_EQ(entry.result, tlv_write_with_diagnostic(nullptr, 0, &entry.format, &entry.element,
+                                                          &written, &diagnostic));
         ExpectDiagnostic(diagnostic, entry.result);
         EXPECT_EQ(91u, written);
-        EXPECT_EQ(entry.result, tlv_write_with_diagnostic(
-            nullptr, 0, &entry.format, &entry.element, &written, nullptr));
+        EXPECT_EQ(entry.result, tlv_write_with_diagnostic(nullptr, 0, &entry.format, &entry.element,
+                                                          &written, nullptr));
         EXPECT_EQ(91u, written);
     }
 }
 
-}  // namespace
+} // namespace

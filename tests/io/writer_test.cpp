@@ -42,7 +42,8 @@ TEST(IOWrite, EncodesTheTagLengthAndPayloadForEveryLayout)
             const size_t count = width == 1 ? 0x23 : payload.size();
             const tlv_element_t element{{identifier, sizeof identifier}, {payload.data(), count}};
             const uint8_t *length = order == TLV_BYTE_ORDER_BIG_ENDIAN
-                ? bigEndian + (sizeof bigEndian - width) : littleEndian;
+                                        ? bigEndian + (sizeof bigEndian - width)
+                                        : littleEndian;
 
             const size_t encoded = sizeof identifier + width + count;
             std::vector<uint8_t> expected(encoded + 2, 0xc7);
@@ -51,8 +52,8 @@ TEST(IOWrite, EncodesTheTagLengthAndPayloadForEveryLayout)
             std::copy_n(payload.begin(), count, payloadStart);
             std::vector<uint8_t> output(expected.size(), 0xc7);
             size_t written = 0;
-            ASSERT_EQ(TLV_OK, tlv_write(output.data() + 1, output.size() - 1,
-                                        &format, &element, &written));
+            ASSERT_EQ(TLV_OK,
+                      tlv_write(output.data() + 1, output.size() - 1, &format, &element, &written));
             ASSERT_EQ(encoded, written);
             EXPECT_EQ(expected, output);
 
@@ -61,7 +62,8 @@ TEST(IOWrite, EncodesTheTagLengthAndPayloadForEveryLayout)
             ASSERT_EQ(TLV_OK, tlv_read(output.data() + 1, written, &format, &decoded, &consumed));
             EXPECT_EQ(encoded, consumed);
             const uint8_t *start = output.data() + 1;
-            ExpectView({{start, sizeof identifier}, {start + sizeof identifier + width, count}}, decoded);
+            ExpectView({{start, sizeof identifier}, {start + sizeof identifier + width, count}},
+                       decoded);
         }
     }
 }
@@ -79,8 +81,8 @@ TEST(IOWrite, ReportsRequiredCapacityAndRetriesAtExactFit)
         SCOPED_TRACE(capacity);
         auto output = original;
         size_t written = 99;
-        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT, tlv_write(output.data() + 1, capacity,
-                                                      &byteFields, &element, &written));
+        EXPECT_EQ(TLV_ERR_BUFFER_TOO_SHORT,
+                  tlv_write(output.data() + 1, capacity, &byteFields, &element, &written));
         ASSERT_EQ(required, written);
         EXPECT_EQ(original, output);
         ASSERT_EQ(TLV_OK, tlv_write(output.data() + 1, written, &byteFields, &element, &written));
@@ -196,8 +198,10 @@ TEST(IOWriter, InvalidElementsPreserveEveryByteAndOutput)
     const struct {
         const tlv_element_t *element;
         tlv_result_t error;
-    } cases[] = {{nullptr, TLV_ERR_NULL_ARG}, {&wrongWidth, TLV_ERR_INVALID_TAG_SIZE},
-                 {&missingTag, TLV_ERR_NULL_ARG}, {&missingPayload, TLV_ERR_NULL_ARG}};
+    } cases[] = {{nullptr, TLV_ERR_NULL_ARG},
+                 {&wrongWidth, TLV_ERR_INVALID_TAG_SIZE},
+                 {&missingTag, TLV_ERR_NULL_ARG},
+                 {&missingPayload, TLV_ERR_NULL_ARG}};
     std::array<uint8_t, 8> output{9, 8, 7, 6, 5, 4, 3, 2};
     tlv_writer_t writer{};
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, output.data(), output.size(), &byteFields));
@@ -206,8 +210,8 @@ TEST(IOWriter, InvalidElementsPreserveEveryByteAndOutput)
     const auto bytes = output;
     for (const auto &entry : cases) {
         size_t written = 99;
-        EXPECT_EQ(entry.error, tlv_write(output.data(), output.size(), &byteFields,
-                                         entry.element, &written));
+        EXPECT_EQ(entry.error,
+                  tlv_write(output.data(), output.size(), &byteFields, entry.element, &written));
         EXPECT_EQ(99u, written);
         EXPECT_EQ(bytes, output);
         EXPECT_EQ(entry.error, tlv_writer_write(&writer, entry.element));
@@ -228,13 +232,17 @@ TEST(IOWriter, RejectsMissingPointersInvalidFormatsAndOutOfRangePositions)
     const auto bytes = output;
     size_t written = 99;
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write(nullptr, 1, &byteFields, &emptyElement, &written));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write(output.data(), output.size(), nullptr, &emptyElement, &written));
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_write(output.data(), output.size(), &byteFields, &emptyElement, nullptr));
-    EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_write(output.data(), output.size(), &invalid, &emptyElement, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_write(output.data(), output.size(), nullptr, &emptyElement, &written));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_write(output.data(), output.size(), &byteFields, &emptyElement, nullptr));
+    EXPECT_EQ(TLV_ERR_INVALID_ARG,
+              tlv_write(output.data(), output.size(), &invalid, &emptyElement, &written));
     EXPECT_EQ(99u, written);
     EXPECT_EQ(bytes, output);
 
-    EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(nullptr, output.data(), output.size(), &byteFields));
+    EXPECT_EQ(TLV_ERR_NULL_ARG,
+              tlv_writer_init(nullptr, output.data(), output.size(), &byteFields));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(&writer, nullptr, 1, &byteFields));
     EXPECT_EQ(TLV_ERR_NULL_ARG, tlv_writer_init(&writer, nullptr, 0, nullptr));
     EXPECT_EQ(TLV_ERR_INVALID_ARG, tlv_writer_init(&writer, nullptr, 0, &invalid));
@@ -273,4 +281,4 @@ TEST(IOWrite, SizingQueriesValidateWireAndNativeLimits)
     EXPECT_EQ(99u, written);
 }
 
-}  // namespace
+} // namespace

@@ -37,8 +37,7 @@ TEST(CppCore, RoundTripsDiagnosticFieldsAndFullWidthCounts)
 {
     const tlv_diagnostic_t native{
         TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, std::numeric_limits<std::size_t>::max(),
-        std::numeric_limits<std::uintmax_t>::max(), std::numeric_limits<std::uintmax_t>::max() - 1
-    };
+        std::numeric_limits<std::uintmax_t>::max(), std::numeric_limits<std::uintmax_t>::max() - 1};
     const auto details = core::from_c(native);
     EXPECT_EQ(core::result::truncated, details.result);
     EXPECT_EQ(core::field::value, details.field);
@@ -87,7 +86,10 @@ TEST(CppCore, ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure)
     const uint8_t byte = 0xab;
     const uint8_t previous[] = {0x34, 0x35};
     const tlv_value_t inputs[] = {
-        {&byte, 1}, {nullptr, 0}, {&byte + 1, 0}, {nullptr, 1},
+        {&byte, 1},
+        {nullptr, 0},
+        {&byte + 1, 0},
+        {nullptr, 1},
 #if SIZE_MAX < TLV_SIZE_MAX
         {&byte, static_cast<tlv_size_t>(SIZE_MAX) + 1},
 #endif
@@ -128,4 +130,4 @@ TEST(CppCore, ChecksLogicalAndNativeSizeLimits)
     EXPECT_EQ(core::from_c(tlv_value_validate(&descriptor)), core::validate(logical_view));
 }
 
-}  // namespace
+} // namespace

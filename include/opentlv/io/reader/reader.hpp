@@ -26,12 +26,12 @@ namespace opentlv::io {
     tlv_result_t code;
     if (details) {
         tlv_diagnostic_t native_details;
-        code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element,
-                                        &consumed, &native_details);
+        code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element, &consumed,
+                                        &native_details);
         *details = core::from_c(native_details);
     } else {
-        code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element,
-                                        &consumed, nullptr);
+        code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element, &consumed,
+                                        nullptr);
     }
     if (code == TLV_OK) {
         element = core::from_c(native_element);
@@ -47,7 +47,8 @@ public:
     /** Borrow the input, copy the format and start at byte zero. Failure
      * preserves the current stream and position.
      */
-    [[nodiscard]] core::result init(const core::fixed_format &format, core::byte_view input) noexcept
+    [[nodiscard]] core::result init(const core::fixed_format &format,
+                                    core::byte_view input) noexcept
     {
         const auto config = core::to_c(format);
         return core::from_c(tlv_reader_init(&cursor_, input.data, input.size, &config));
@@ -76,10 +77,7 @@ public:
         return core::from_c(code);
     }
 
-    [[nodiscard]] std::size_t position() const noexcept
-    {
-        return cursor_.pos;
-    }
+    [[nodiscard]] std::size_t position() const noexcept { return cursor_.pos; }
 
     /** Return the saved format by value, for example to initialize another stream. */
     [[nodiscard]] core::fixed_format format() const noexcept

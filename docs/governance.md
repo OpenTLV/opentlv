@@ -80,6 +80,7 @@ Full run has its own concurrency group.
 | `resource-usage` · allocation probes and two clean footprint builds for each of static and shared linkage | Run both | Run both | Run both | Run both |
 | `callgrind` · compare the candidate with the reviewed baseline for instruction counts and binary size, publish timing observations | Run | Run | Run | Run |
 | `windows-package` · MSVC static/shared C99 and C++17 consumers of the build tree and relocated installation | Skip | Skip | Run | Run |
+| `first-party-analysis` · clang-format, clang-tidy, Cppcheck and deliberate C99/C++17 violation checks | Run | Run | Run | Run |
 | `workflow-analyzers` · gate regression tests, actionlint, zizmor | Offline audit | Online audit | Offline audit | Online audit |
 | `fixed-tlv-quality` · aggregate result | Evaluate | Evaluate | Evaluate | Evaluate |
 
@@ -90,7 +91,7 @@ resource or Windows contract matrix leg fails, its sibling can finish and publis
 Actions use full commit pins and read-only repository access. Checkout
 disables credential persistence.
 
-`fixed-tlv-quality` directly depends on all six worker job IDs. Its
+`fixed-tlv-quality` directly depends on all seven worker job IDs. Its
 `always()` condition lets it inspect [GitHub's job results] after a worker
 fails or skips. The gate requires `success` from every selected worker,
 including both matrix jobs. The only expected `skipped` result is
@@ -105,6 +106,9 @@ run against the matrix. To run Full CI, choose **Actions → Fixed TLV → Run
 workflow**, select the candidate branch and check the run's SHA. For
 release evidence, record a successful Full run for the exact `main`
 candidate, including its [performance and resource artifacts](performance-baseline.md#hand-off-release-evidence).
+Record the `first-party-analysis` result from that run alongside those artifacts.
+Its [local reproduction steps](testing.md#formatting-and-static-analysis) use
+the same tool versions and negative checks.
 
 To reproduce the build checks, follow the [header and package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,

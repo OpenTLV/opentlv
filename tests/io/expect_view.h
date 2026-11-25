@@ -14,6 +14,6 @@ inline void ExpectView(const tlv_element_t &expected, const tlv_element_t &actua
     EXPECT_EQ(expected.value.size, actual.value.size);
 }
 
-}  // namespace opentlv_test
+} // namespace opentlv_test
 
 #endif

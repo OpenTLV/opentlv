@@ -26,22 +26,30 @@ bool is_measurement(bench_operation op)
 const char *operation_name(bench_operation op)
 {
     switch (op) {
-    case BENCH_FIELD_READ: return "field-read";
-    case BENCH_FIELD_WRITE: return "field-write";
-    case BENCH_HEADER_SIZE: return "header-size";
-    case BENCH_ELEMENT_SIZE: return "element-size";
-    case BENCH_READ: return "read";
-    case BENCH_NEXT: return "next";
-    case BENCH_WRITE: return "write";
-    case BENCH_APPEND: return "append";
+    case BENCH_FIELD_READ:
+        return "field-read";
+    case BENCH_FIELD_WRITE:
+        return "field-write";
+    case BENCH_HEADER_SIZE:
+        return "header-size";
+    case BENCH_ELEMENT_SIZE:
+        return "element-size";
+    case BENCH_READ:
+        return "read";
+    case BENCH_NEXT:
+        return "next";
+    case BENCH_WRITE:
+        return "write";
+    case BENCH_APPEND:
+        return "append";
     }
     return "unknown";
 }
 
 bool same_view(const tlv_element_t &a, const tlv_element_t &b)
 {
-    return a.tag.data == b.tag.data && a.tag.size == b.tag.size &&
-           a.value.data == b.value.data && a.value.size == b.value.size;
+    return a.tag.data == b.tag.data && a.tag.size == b.tag.size && a.value.data == b.value.data &&
+           a.value.size == b.value.size;
 }
 
 bool same_diagnostic(const tlv_diagnostic_t &a, const tlv_diagnostic_t &b)
@@ -55,7 +63,8 @@ bool same_diagnostic(const tlv_diagnostic_t &a, const tlv_diagnostic_t &b)
 std::string workload::id() const
 {
     std::string name = std::string("v1/") + operation_name(operation) + "/" +
-        (field.byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? "be" : "le") + std::to_string(field.size);
+                       (field.byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? "be" : "le") +
+                       std::to_string(field.size);
     if (!is_measurement(operation)) {
         name += "/offset" + std::to_string(offset);
     }
@@ -160,9 +169,15 @@ bench_input fixture::input() const
     }
     if (!entry_.complete) {
         switch (entry_.operation) {
-        case BENCH_HEADER_SIZE: in.format.identifier.size = 0; break;
-        case BENCH_ELEMENT_SIZE: in.source.tag.size = 1; break;
-        default: --in.available; break;
+        case BENCH_HEADER_SIZE:
+            in.format.identifier.size = 0;
+            break;
+        case BENCH_ELEMENT_SIZE:
+            in.source.tag.size = 1;
+            break;
+        default:
+            --in.available;
+            break;
         }
     }
     return in;
@@ -170,8 +185,9 @@ bench_input fixture::input() const
 
 bench_output fixture::initial_output()
 {
-    return {TLV_END, SIZE_MAX, UINT64_MAX, {{tag, 1}, {payload_pattern, 2}}, SIZE_MAX,
-            {TLV_END, TLV_FIELD_TAG, 99, 98, 97}};
+    return {TLV_END,    SIZE_MAX,
+            UINT64_MAX, {{tag, 1}, {payload_pattern, 2}},
+            SIZE_MAX,   {TLV_END, TLV_FIELD_TAG, 99, 98, 97}};
 }
 
 bench_output fixture::expected(const bench_input &in) const
@@ -200,7 +216,8 @@ bench_output fixture::expected(const bench_input &in) const
         if (complete) {
             out.count = entry_.operation == BENCH_HEADER_SIZE ? header_size() : wire_size();
         } else {
-            out.result = entry_.operation == BENCH_HEADER_SIZE ? TLV_ERR_INVALID_ARG : TLV_ERR_INVALID_TAG_SIZE;
+            out.result = entry_.operation == BENCH_HEADER_SIZE ? TLV_ERR_INVALID_ARG
+                                                               : TLV_ERR_INVALID_TAG_SIZE;
         }
         break;
     case BENCH_READ:
@@ -233,7 +250,8 @@ bench_output fixture::expected(const bench_input &in) const
         } else if (entry_.payload_size == 0) {
             out.diagnostic = {out.result, TLV_FIELD_LENGTH, sizeof tag, width, width - 1};
         } else {
-            out.diagnostic = {out.result, TLV_FIELD_VALUE, header_size(), entry_.payload_size, entry_.payload_size - 1};
+            out.diagnostic = {out.result, TLV_FIELD_VALUE, header_size(), entry_.payload_size,
+                              entry_.payload_size - 1};
         }
     }
     return out;
@@ -258,18 +276,26 @@ std::string fixture::validate(decltype(&bench_run_c) run) const
 std::string fixture::validate(const bench_output &got, const wire_buffer &output) const
 {
     const bench_output want = expected(input());
-    if (got.result != want.result) return "result";
-    if (got.count != want.count) return "byte count";
-    if (got.length != want.length) return "decoded length";
-    if (got.position != want.position) return "cursor position";
-    if (!same_view(got.view, want.view)) return "borrowed view";
-    if (!same_diagnostic(got.diagnostic, want.diagnostic)) return "diagnostic";
+    if (got.result != want.result)
+        return "result";
+    if (got.count != want.count)
+        return "byte count";
+    if (got.length != want.length)
+        return "decoded length";
+    if (got.position != want.position)
+        return "cursor position";
+    if (!same_view(got.view, want.view))
+        return "borrowed view";
+    if (!same_diagnostic(got.diagnostic, want.diagnostic))
+        return "diagnostic";
 
     const bool write = entry_.operation == BENCH_FIELD_WRITE || entry_.operation == BENCH_WRITE ||
                        entry_.operation == BENCH_APPEND;
     if (write && entry_.complete) {
-        if (output.bytes != golden_.bytes) return "wire bytes or guards";
-    } else if (!std::all_of(output.bytes.begin(), output.bytes.end(), [](uint8_t b) { return b == guard; })) {
+        if (output.bytes != golden_.bytes)
+            return "wire bytes or guards";
+    } else if (!std::all_of(output.bytes.begin(), output.bytes.end(),
+                            [](uint8_t b) { return b == guard; })) {
         return "destination preservation";
     }
     return {};

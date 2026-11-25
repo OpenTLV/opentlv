@@ -27,7 +27,7 @@
 
 /* MSVC reports the selected C++ standard in _MSVC_LANG even when
  * __cplusplus retains its default value. */
-#if TLV_HAS_C23 || (defined(__cplusplus) && __cplusplus >= 201703L) || \
+#if TLV_HAS_C23 || (defined(__cplusplus) && __cplusplus >= 201703L) ||                             \
     (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
 #define TLV_ATTRIBUTES_HAS_STD_ATTR 1
 #else

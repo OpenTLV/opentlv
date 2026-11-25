@@ -31,8 +31,8 @@ typedef struct tlv_fixed_format {
  * TLV_ERR_INVALID_ARG for an invalid format, or TLV_ERR_OVERFLOW if the
  * header exceeds SIZE_MAX. On failure *size is unchanged.
  */
-TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_header_size(
-    const tlv_fixed_format_t *format, size_t *size);
+TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_header_size(const tlv_fixed_format_t *format,
+                                                                  size_t *size);
 
 /**
  * @brief Validate an element for the format and measure its total wire size.
@@ -45,8 +45,9 @@ TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_header_size(
  * TLV_ERR_INVALID_TAG_SIZE, TLV_ERR_NATIVE_SIZE, TLV_ERR_INVALID_LENGTH,
  * or TLV_ERR_OVERFLOW.
  */
-TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_element_size(
-    const tlv_fixed_format_t *format, const tlv_element_t *element, size_t *size);
+TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_fixed_element_size(const tlv_fixed_format_t *format,
+                                                                   const tlv_element_t *element,
+                                                                   size_t *size);
 
 #ifdef __cplusplus
 }

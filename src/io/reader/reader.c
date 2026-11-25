@@ -37,8 +37,8 @@ static tlv_result_t read_element(const uint8_t *data, size_t size, const tlv_fix
     /* Compare before narrowing the wire count or adding it to an offset. */
     if (value_size > size - header_size) {
         if (diagnostic) {
-            set_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, header_size,
-                      value_size, size - header_size);
+            set_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, header_size, value_size,
+                      size - header_size);
         }
         return TLV_ERR_TRUNCATED;
     }

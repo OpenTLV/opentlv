@@ -17,7 +17,8 @@ namespace opentlv::io {
  * Keep source bytes disjoint from the destination range and store the
  * count and optional diagnostic separately from all buffers and inputs.
  */
-[[nodiscard]] inline core::result write(const core::fixed_format &format, core::mutable_byte_view output,
+[[nodiscard]] inline core::result write(const core::fixed_format &format,
+                                        core::mutable_byte_view output,
                                         const core::element_view &element, std::size_t &written,
                                         core::diagnostic *details = nullptr) noexcept
 {
@@ -42,7 +43,8 @@ public:
     writer &operator=(const writer &) = delete;
 
     /** Copy the format and borrow output. Failure preserves the current stream. */
-    [[nodiscard]] core::result init(const core::fixed_format &format, core::mutable_byte_view output) noexcept
+    [[nodiscard]] core::result init(const core::fixed_format &format,
+                                    core::mutable_byte_view output) noexcept
     {
         const auto config = core::to_c(format);
         return core::from_c(tlv_writer_init(&cursor_, output.data, output.size, &config));
@@ -74,7 +76,10 @@ public:
     }
 
     [[nodiscard]] std::size_t position() const noexcept { return cursor_.pos; }
-    [[nodiscard]] core::fixed_format format() const noexcept { return core::from_c(cursor_.format); }
+    [[nodiscard]] core::fixed_format format() const noexcept
+    {
+        return core::from_c(cursor_.format);
+    }
 
 private:
     tlv_writer_t cursor_{};

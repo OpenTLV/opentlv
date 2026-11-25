@@ -13,7 +13,8 @@ namespace opentlv_bench {
 // observations outside the timed interval. Only run() belongs in that interval.
 class c_timing {
 public:
-    c_timing(bench_operation op, const bench_input &in, uint8_t *destination, const bench_output &initial);
+    c_timing(bench_operation op, const bench_input &in, uint8_t *destination,
+             const bench_output &initial);
     c_timing(const c_timing &) = delete;
     c_timing &operator=(const c_timing &) = delete;
 
@@ -29,7 +30,8 @@ private:
 
 class cpp_timing {
 public:
-    cpp_timing(bench_operation op, const bench_input &in, uint8_t *destination, const bench_output &initial);
+    cpp_timing(bench_operation op, const bench_input &in, uint8_t *destination,
+               const bench_output &initial);
     cpp_timing(const cpp_timing &) = delete;
     cpp_timing &operator=(const cpp_timing &) = delete;
 

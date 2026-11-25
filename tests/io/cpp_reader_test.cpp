@@ -53,7 +53,8 @@ TEST(CppReader, OneShotMatchesCAtEveryPrefix)
         std::size_t c_count = 87, count = 87;
         tlv_diagnostic_t c_details{};
         auto details = stale;
-        const auto result = tlv_read_with_diagnostic(wire, size, &c_format, &c_view, &c_count, &c_details);
+        const auto result =
+            tlv_read_with_diagnostic(wire, size, &c_format, &c_view, &c_count, &c_details);
         ASSERT_EQ(core::from_c(result), io::read(format, {wire, size}, view, count, &details));
         ExpectView(c_view, core::to_c(view));
         EXPECT_EQ(c_count, count);
@@ -143,8 +144,8 @@ TEST(CppReader, ReportsStreamOffsetsAndPreservesStateOnFailure)
 {
     const core::fixed_format format{{1}, {8, core::byte_order::big_endian}};
     const auto c_format = core::to_c(format);
-    const std::uint8_t wire[] = {0x41, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x72};
+    const std::uint8_t wire[] = {0x41, 0,    0,    0,    0,    0,    0,    0,    0,   0x42,
+                                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x72};
     tlv_reader_t c_reader{};
     io::reader reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&c_reader, wire, sizeof wire, &c_format));
@@ -173,7 +174,8 @@ TEST(CppReader, PreservesTheCursorOnInvalidInitialization)
     ASSERT_EQ(core::result::ok, reader.init(one_byte_fields, {wire, sizeof wire}));
     core::element_view first{};
     ASSERT_EQ(core::result::ok, reader.next(first));
-    const core::fixed_format oversized{{std::numeric_limits<std::size_t>::max()}, one_byte_fields.length};
+    const core::fixed_format oversized{{std::numeric_limits<std::size_t>::max()},
+                                       one_byte_fields.length};
     const struct {
         core::fixed_format format;
         core::byte_view input;
@@ -203,4 +205,4 @@ TEST(CppReader, PreservesTheCursorOnInvalidInitialization)
     ExpectView({{wire + 2, 1}, {wire + sizeof wire, 0}}, core::to_c(second));
 }
 
-}  // namespace
+} // namespace
