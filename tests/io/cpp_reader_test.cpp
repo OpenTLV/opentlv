@@ -49,6 +49,12 @@ TEST(CppReader, OneShotMatchesCAtEveryPrefix)
         ExpectView(c_view, core::to_c(view));
         EXPECT_EQ(c_count, count);
         ExpectDiagnostic(c_details, details);
+
+        view = saved;
+        count = 87;
+        ASSERT_EQ(core::from_c(result), io::read(format, {wire, size}, view, count));
+        ExpectView(c_view, core::to_c(view));
+        EXPECT_EQ(c_count, count);
     }
     auto view = saved;
     std::size_t count = 87;
@@ -134,8 +140,9 @@ TEST(CppReader, ReportsStreamOffsetsAndPreservesStateOnFailure)
     io::reader reader;
     ASSERT_EQ(TLV_OK, tlv_reader_init(&c_reader, wire, sizeof wire, &c_format));
     ASSERT_EQ(core::result::ok, reader.init(format, {wire, sizeof wire}));
+    auto plain_reader = reader;
     tlv_element_t c_view{};
-    core::element_view view{};
+    core::element_view view{}, plain_view{};
     for (const auto expected : {TLV_OK, TLV_ERR_TRUNCATED, TLV_ERR_TRUNCATED}) {
         tlv_diagnostic_t c_details{};
         auto details = stale;
@@ -144,6 +151,9 @@ TEST(CppReader, ReportsStreamOffsetsAndPreservesStateOnFailure)
         ExpectView(c_view, core::to_c(view));
         EXPECT_EQ(c_reader.pos, reader.position());
         ExpectDiagnostic(c_details, details);
+        ASSERT_EQ(core::from_c(expected), plain_reader.next(plain_view));
+        ExpectView(c_view, core::to_c(plain_view));
+        EXPECT_EQ(c_reader.pos, plain_reader.position());
     }
 }
 

@@ -23,12 +23,14 @@ namespace opentlv::io {
 {
     const auto config = core::to_c(format);
     const auto source = core::to_c(element);
-    tlv_diagnostic_t diagnostic{};
-    const auto code = tlv_write_with_diagnostic(output.data, output.size, &config, &source,
-                                                &written, details ? &diagnostic : nullptr);
-    if (details) {
-        *details = core::from_c(diagnostic);
+    if (!details) {
+        return core::from_c(tlv_write_with_diagnostic(output.data, output.size, &config, &source,
+                                                      &written, nullptr));
     }
+    tlv_diagnostic_t diagnostic;
+    const auto code = tlv_write_with_diagnostic(output.data, output.size, &config, &source,
+                                                &written, &diagnostic);
+    *details = core::from_c(diagnostic);
     return core::from_c(code);
 }
 
@@ -62,11 +64,12 @@ public:
             return core::result::invalid_arg;
         }
         const auto source = core::to_c(element);
-        tlv_diagnostic_t diagnostic{};
-        const auto code = tlv_writer_write_with_diagnostic(&cursor_, &source, details ? &diagnostic : nullptr);
-        if (details) {
-            *details = core::from_c(diagnostic);
+        if (!details) {
+            return core::from_c(tlv_writer_write_with_diagnostic(&cursor_, &source, nullptr));
         }
+        tlv_diagnostic_t diagnostic;
+        const auto code = tlv_writer_write_with_diagnostic(&cursor_, &source, &diagnostic);
+        *details = core::from_c(diagnostic);
         return core::from_c(code);
     }
 

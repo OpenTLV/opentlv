@@ -23,14 +23,18 @@ namespace opentlv::io {
 {
     const auto config = core::to_c(format);
     tlv_element_t native_element{};
-    tlv_diagnostic_t native_details{};
-    const auto code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element,
-                                               &consumed, details ? &native_details : nullptr);
+    tlv_result_t code;
+    if (details) {
+        tlv_diagnostic_t native_details;
+        code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element,
+                                        &consumed, &native_details);
+        *details = core::from_c(native_details);
+    } else {
+        code = tlv_read_with_diagnostic(input.data, input.size, &config, &native_element,
+                                        &consumed, nullptr);
+    }
     if (code == TLV_OK) {
         element = core::from_c(native_element);
-    }
-    if (details) {
-        *details = core::from_c(native_details);
     }
     return core::from_c(code);
 }
@@ -58,14 +62,16 @@ public:
                                     core::diagnostic *details = nullptr) noexcept
     {
         tlv_element_t native_element{};
-        tlv_diagnostic_t native_details{};
-        const auto code = tlv_reader_next_with_diagnostic(&cursor_, &native_element,
-                                                          details ? &native_details : nullptr);
+        tlv_result_t code;
+        if (details) {
+            tlv_diagnostic_t native_details;
+            code = tlv_reader_next_with_diagnostic(&cursor_, &native_element, &native_details);
+            *details = core::from_c(native_details);
+        } else {
+            code = tlv_reader_next_with_diagnostic(&cursor_, &native_element, nullptr);
+        }
         if (code == TLV_OK) {
             element = core::from_c(native_element);
-        }
-        if (details) {
-            *details = core::from_c(native_details);
         }
         return core::from_c(code);
     }

@@ -283,6 +283,9 @@ TEST(WriteDiagnostic, ClearsFieldDetailsForDescriptorAndSizeErrors)
             nullptr, 0, &entry.format, &entry.element, &written, &diagnostic));
         ExpectDiagnostic(diagnostic, entry.result);
         EXPECT_EQ(91u, written);
+        EXPECT_EQ(entry.result, tlv_write_with_diagnostic(
+            nullptr, 0, &entry.format, &entry.element, &written, nullptr));
+        EXPECT_EQ(91u, written);
     }
 }
 

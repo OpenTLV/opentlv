@@ -81,6 +81,11 @@ python3 tests/run_ctest.py build-tests Release reports/Release
 CI uploads the reports from Debug, Release and sanitizer runs in the `ctest-reports`
 artifact. On Windows, use `python` for the Python 3 interpreter.
 
+## Diagnostic instruction counts
+
+See the [Fixed TLV diagnostic instruction counts](../tests/diagnostics/README.md)
+for the optimized-code comparison and commands for reproducing it.
+
 ## Sanitizers
 
 On Ubuntu 24.04, use Clang 18 with the AddressSanitizer and

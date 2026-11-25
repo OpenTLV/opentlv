@@ -110,6 +110,10 @@ start of the stream for `next`. Both operations refresh the diagnostic on
 every call, including success and end. Give the element, consumed count and
 optional diagnostic separate storage outside the input bytes and the reader.
 
+Both reader and writer wrappers pass a null pointer to C when the caller
+omits the diagnostic. When the caller supplies one, the C function fills
+all five fields and the wrapper converts them to the C++ record.
+
 ## Writing elements
 
 Include `<opentlv/io/writer/writer.hpp>` and link `OpenTLV::io`.
