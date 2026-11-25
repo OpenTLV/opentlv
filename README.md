@@ -13,9 +13,9 @@ describes the Core and IO modules, buffer ownership, API stability, and how
 to check the headers.
 
 The C++17 umbrella exposes typed views and Fixed TLV configuration in
-`opentlv::core` and a reader in `opentlv::io`. The
-[C++ API guide](docs/cpp-api.md#reading-elements) shows how to read one
-element or iterate a stream and locate an incomplete field.
+`opentlv::core` and a reader and writer in `opentlv::io`. The
+[C++ API guide](docs/cpp-api.md) covers buffer lifetimes, reading and
+writing streams, and using diagnostics to locate a partial field or size a write.
 
 OpenTLV supports fixed-width tag and length fields with opaque payloads.
 Variable-width field encodings, automatic nested decoding, schemas, queries,
@@ -65,13 +65,14 @@ cd build-examples
 ctest -C Release -V
 ```
 
-The C writer encodes a three-byte payload. The C++ reader decodes the same
-seven wire bytes with `opentlv::io::reader`. CTest runs both programs and
-shows their output.
+Both writers encode the tag `12 34` and a three-byte payload. The C++ reader
+decodes the same seven wire bytes. CTest runs all three programs and shows
+their output.
 
 | Example | Output |
 | --- | --- |
 | [C99 writer](examples/write.c) | `12 34 00 03 AA BB CC` |
+| [C++17 writer](examples/write.cpp) | `12 34 00 03 AA BB CC` |
 | [C++17 reader](examples/read.cpp) | `tag 12 34, value AA BB CC` |
 
 ## Use the installed package

@@ -76,6 +76,7 @@ def check_package(work, shared):
                   f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={binaries}")
     env = runtime_environment(relocated)
     for name, expected in (("opentlv-write", "12 34 00 03 AA BB CC"),
+                           ("opentlv-write-cpp", "12 34 00 03 AA BB CC"),
                            ("opentlv-read", "tag 12 34, value AA BB CC")):
         executable = binaries / (name + ".exe" if os.name == "nt" else name)
         output = subprocess.run([executable], env=env, stdout=subprocess.PIPE,
