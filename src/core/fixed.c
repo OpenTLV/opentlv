@@ -2,6 +2,8 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "opentlv/core/formats/fixed.h"
+#include "internal/fixed.h"
+#include "internal/validation.h"
 
 static int valid_length_field(tlv_fixed_length_t field)
 {
@@ -14,12 +16,6 @@ static int valid_length_field(tlv_fixed_length_t field)
 static int length_fits(size_t width, tlv_size_t length)
 {
     return width == 8 || length < (UINT64_C(1) << (8 * width));
-}
-
-/* Map an octet's significance (zero for least significant) to its wire offset. */
-static size_t byte_offset(tlv_fixed_length_t field, size_t octet)
-{
-    return field.byte_order == TLV_BYTE_ORDER_LITTLE_ENDIAN ? octet : field.size - 1 - octet;
 }
 
 tlv_result_t tlv_fixed_length_read(const tlv_fixed_length_t *config, const uint8_t *data,
@@ -36,11 +32,7 @@ tlv_result_t tlv_fixed_length_read(const tlv_fixed_length_t *config, const uint8
         *consumed = available;
         return TLV_ERR_TRUNCATED;
     }
-    tlv_size_t result = 0;
-    for (size_t i = 0; i < field.size; ++i) {
-        result |= (tlv_size_t)data[byte_offset(field, i)] << (8 * i);
-    }
-    *length = result;
+    *length = decode_fixed_length(field, data);
     *consumed = field.size;
     return TLV_OK;
 }
@@ -62,9 +54,7 @@ tlv_result_t tlv_fixed_length_write(const tlv_fixed_length_t *config, tlv_size_t
         if (capacity < field.size) {
             return TLV_ERR_BUFFER_TOO_SHORT;
         }
-        for (size_t i = 0; i < field.size; ++i) {
-            data[byte_offset(field, i)] = (uint8_t)(length >> (8 * i));
-        }
+        encode_fixed_length(field, length, data);
     }
     *written = field.size;
     return TLV_OK;
@@ -110,7 +100,7 @@ tlv_result_t tlv_fixed_element_size(const tlv_fixed_format_t *format,
     if (element->tag.size != format->identifier.size) {
         return TLV_ERR_INVALID_TAG_SIZE;
     }
-    tlv_result_t result = tlv_value_validate(&element->value);
+    tlv_result_t result = validate_value_view(element->value.data, element->value.size);
     if (result != TLV_OK) {
         return result;
     }

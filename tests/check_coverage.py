@@ -16,8 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 READER = "src/io/reader/reader.c"
 WRITER = "src/io/writer/writer.c"
 # Reviewed in docs/coverage.md. Branch indices are zero-based within a line.
-EXCLUDED_LINES = {(READER, 48), (WRITER, 40)}
-EXCLUDED_BRANCHES = {(READER, 47, 0), (READER, 87, 6), (WRITER, 39, 0), (WRITER, 73, 4)}
+EXCLUDED_LINES = set()
+EXCLUDED_BRANCHES = {(READER, 90, 6), (WRITER, 78, 4)}
 
 
 def read_profiles(build, gcov, version):
@@ -37,7 +37,8 @@ def read_profiles(build, gcov, version):
             name = path.relative_to(ROOT).as_posix()
             by_source[name].append((notes.relative_to(build).as_posix(), entry))
     expected = {path.relative_to(ROOT).as_posix() for path in (ROOT / "src").rglob("*.c")}
-    expected.add("src/io/internal/diagnostic.h")
+    expected.update({"src/core/internal/fixed.h", "src/core/internal/validation.h",
+                     "src/io/internal/diagnostic.h"})
     missing = sorted(expected - by_source.keys())
     unexpected = sorted(by_source.keys() - expected)
     if missing or unexpected:

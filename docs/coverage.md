@@ -5,7 +5,8 @@ CI measures Core and IO on Ubuntu 24.04 x86-64 with GCC, G++, and gcov
 The Core, IO, and integration GoogleTest suites link those libraries. CTest
 runs the cases sequentially against one set of counters. The gate requires
 every production `.c` file under
-`src/`, including newly added files, plus `src/io/internal/diagnostic.h`.
+`src/`, including newly added files, plus `src/core/internal/fixed.h`,
+`src/core/internal/validation.h` and `src/io/internal/diagnostic.h`.
 A missing source or an additional instrumented header under `src/` fails the
 scope check. Test code and GoogleTest are outside the measured sources.
 
@@ -29,15 +30,14 @@ Branch indices below are zero-based within the source line in gcov JSON.
 
 | File | Uncovered location | Reason |
 | --- | --- | --- |
-| `src/io/reader/reader.c` | Line 47, branch 0 and line 48 | The length reader is called with validated field settings, valid output pointers, and the entire header available. Its defensive error return cannot be reached with that input. |
-| `src/io/writer/writer.c` | Line 39, branch 0 and line 40 | Element measurement already validated the length field and payload size, and the capacity check reserved the entire element. The length writer's error return cannot be reached. |
-| `src/io/reader/reader.c` | Line 87, branch 6 | A successfully initialized reader cannot have a null buffer and positive size. The public contract requires callers to treat cursor fields as read-only. |
-| `src/io/writer/writer.c` | Line 73, branch 4 | Writer initialization rejects a null buffer with positive capacity. Reaching this outcome would require violating the initialized cursor contract. |
+| `src/io/reader/reader.c` | Line 90, branch 6 | A successfully initialized reader cannot have a null buffer and positive size. The public contract requires callers to treat cursor fields as read-only. |
+| `src/io/writer/writer.c` | Line 78, branch 4 | Writer initialization rejects a null buffer with positive capacity. Reaching this outcome would require violating the initialized cursor contract. |
 
-The native-size conversion check in `src/core/size.c` is compiled only when
-`SIZE_MAX < TLV_SIZE_MAX`. On x86-64 it contributes zero executable lines
-or branches. On 32-bit targets the conditional Core cases check rejection of
-the first unrepresentable count and preservation of the caller's output.
+The native-size checks in `src/core/size.c` and
+`src/core/internal/validation.h` compile only when `SIZE_MAX < TLV_SIZE_MAX`.
+On 32-bit targets the Core cases check rejection of the first unrepresentable
+count, its precedence over wire length errors, and preservation of the caller's
+output.
 
 ## Public API behavior
 

@@ -111,6 +111,19 @@ TEST(FixedElementSize, RequiresDataPointersForNonemptyFields)
     ExpectElementError(TLV_ERR_NULL_ARG, &oneByteFields, &missingPayload);
 }
 
+TEST(FixedElementSize, ReportsDescriptorErrorsBeforeWireLengthAndOverflow)
+{
+    const tlv_fixed_format_t format{{SIZE_MAX}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}};
+    tlv_element_t element{{&byte, 1}, {nullptr, 256}};
+    ExpectElementError(TLV_ERR_INVALID_TAG_SIZE, &format, &element);
+
+    element.tag.size = SIZE_MAX;
+    ExpectElementError(TLV_ERR_NULL_ARG, &format, &element);
+
+    element.value.data = &byte;
+    ExpectElementError(TLV_ERR_INVALID_LENGTH, &format, &element);
+}
+
 TEST(FixedElementSize, EnforcesWireAndNativePayloadLimitsForEachWidth)
 {
     constexpr tlv_size_t wireMaxima[] = {
@@ -150,6 +163,7 @@ TEST(FixedElementSize, RejectsAWireLengthAboveTheNativeSizeRange)
     const tlv_fixed_format_t format{{1}, {8, TLV_BYTE_ORDER_BIG_ENDIAN}};
     const tlv_element_t element{{&byte, 1}, {&byte, static_cast<tlv_size_t>(SIZE_MAX) + 1}};
     ExpectElementError(TLV_ERR_NATIVE_SIZE, &format, &element);
+    ExpectElementError(TLV_ERR_NATIVE_SIZE, &oneByteFields, &element);
     size_t size = 37;
     EXPECT_EQ(core::result::native_size,
               core::element_size(core::from_c(format), core::from_c(element), size));
