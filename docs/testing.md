@@ -33,7 +33,7 @@ production build configures offline using only C.
 ## Benchmark workload catalog
 
 From a Git checkout, enable `OPENTLV_BUILD_BENCHMARKS` to build the fixture
-checker and Google Benchmark 1.9.4. This opt-in build requires Git, CMake
+checker and timing runner with Google Benchmark 1.9.4. This opt-in build requires Git, CMake
 3.19 or newer and a C++17 compiler. CMake verifies the source archive's
 SHA-256. For an offline build, add
 `-DOPENTLV_GOOGLE_BENCHMARK_URL=/absolute/path/to/v1.9.4.tar.gz` to the
@@ -70,8 +70,52 @@ instrumentation, interprocedural optimization, MSVC runtime selection where
 applicable, and tool versions. Keep it with the workload IDs and
 `compile_commands.json` for the exact compiler invocations. Use a clean
 checkout for comparable results and compare matching workload versions,
-inputs and build settings. This catalog reports fixture correctness. The
+inputs and build settings. The
 [GDB probes](../tests/diagnostics/README.md) record instruction counts.
+
+## Runtime and throughput
+
+Run the Release executable twice on the same idle machine. This example runs
+all 3,584 language-qualified workloads with three repetitions per invocation.
+The fixed iteration count makes a full catalog run practical. Keep both JSON
+files with the build metadata. With a multi-config generator, take both
+executables from the `Release` directory.
+
+```sh
+../opentlv-bench/opentlv_benchmark --benchmark_min_time=8192x --benchmark_repetitions=3 --benchmark_out_format=json --benchmark_out=../opentlv-bench/run1.json
+../opentlv-bench/opentlv_benchmark --benchmark_min_time=8192x --benchmark_repetitions=3 --benchmark_out_format=json --benchmark_out=../opentlv-bench/run2.json
+python3 benchmarks/check_results.py --fixtures ../opentlv-bench/opentlv_check_fixtures ../opentlv-bench/run1.json ../opentlv-bench/run2.json
+```
+
+Each iteration represents one public API operation. Inputs, destination
+buffers, and native C99 or C++17 descriptors are prepared before timing.
+The runner times calls in batches of 32 and resets reader and writer cursors
+outside the timed interval so each call starts at the same record. It checks
+results and guarded buffers against the golden fixture outside the timer.
+The JSON `run_name` contains the catalog ID followed by `/real_time`.
+
+| JSON field | Meaning |
+| --- | --- |
+| `real_time` | Elapsed nanoseconds per operation in each iteration row. |
+| `cpu_time` | CPU nanoseconds per operation. A short sample can be below the platform CPU timer's resolution. |
+| `items_per_second` | Calls per elapsed second, including calls that return the expected error. |
+| `bytes_per_operation` | Logical wire bytes successfully processed. Codecs count the field width. IO counts the complete encoded record, including tag and length. Sizing and failure paths count zero. |
+| `bytes_per_second` | Logical wire bytes per elapsed second. A borrowed read counts the record it consumed, even though it only returns a view of the payload. |
+
+For a closer comparison, filter to a matching C99/C++17 pair, allow the
+framework to calibrate a longer run, and retain the individual repetitions.
+The following command measures a complete unaligned write with diagnostics.
+
+```sh
+../opentlv-bench/opentlv_benchmark --benchmark_filter='^(c99|cpp17)/v1/write/le8/offset1/payload513/complete/diagnostic/' --benchmark_min_time=0.1s --benchmark_repetitions=7
+```
+
+Compare the wall-time medians, the spread of the repetitions, and the
+variation between invocations. In JSON, a `cv` aggregate expresses the
+coefficient of variation as a ratio (0.02 means 2%). CPU frequency,
+scheduling and background load can shift the measurements. Use timing as
+observational evidence and compare matching workload IDs, machines,
+toolchains and build settings.
 
 ## Select a contract
 

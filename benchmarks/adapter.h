@@ -40,6 +40,19 @@ typedef struct bench_output {
     tlv_diagnostic_t diagnostic;
 } bench_output;
 
+/* Prepared C99 arguments. The selected step performs one public API call. */
+typedef struct bench_c_state {
+    bench_input input;
+    bench_output output;
+    uint8_t *destination;
+    tlv_diagnostic_t *details;
+    tlv_reader_t reader;
+    tlv_writer_t writer;
+} bench_c_state;
+
+typedef tlv_result_t (*bench_c_step)(bench_c_state *);
+bench_c_step bench_select_c(bench_operation op);
+
 void bench_run_c(bench_operation op, const bench_input *in, uint8_t *destination, bench_output *out);
 void bench_run_cpp(bench_operation op, const bench_input *in, uint8_t *destination, bench_output *out);
 

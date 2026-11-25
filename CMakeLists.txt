@@ -4,7 +4,7 @@ project(OpenTLV LANGUAGES C)
 include(GNUInstallDirs)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(BUILD_TESTING "Build OpenTLV tests" OFF)
-option(OPENTLV_BUILD_BENCHMARKS "Build the OpenTLV benchmark workload catalog" OFF)
+option(OPENTLV_BUILD_BENCHMARKS "Build the Fixed TLV benchmark runner and fixture checker" OFF)
 
 add_library(opentlv_core
     src/core/fixed.c

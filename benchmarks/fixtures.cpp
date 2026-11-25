@@ -239,14 +239,25 @@ bench_output fixture::expected(const bench_input &in) const
     return out;
 }
 
+wire_buffer fixture::initial_destination()
+{
+    wire_buffer output;
+    output.bytes.fill(guard);
+    return output;
+}
+
 std::string fixture::validate(decltype(&bench_run_c) run) const
 {
     const bench_input in = input();
-    const bench_output want = expected(in);
     bench_output got = initial_output();
-    wire_buffer output;
-    output.bytes.fill(guard);
+    auto output = initial_destination();
     run(entry_.operation, &in, output.bytes.data() + data_offset(), &got);
+    return validate(got, output);
+}
+
+std::string fixture::validate(const bench_output &got, const wire_buffer &output) const
+{
+    const bench_output want = expected(input());
     if (got.result != want.result) return "result";
     if (got.count != want.count) return "byte count";
     if (got.length != want.length) return "decoded length";

@@ -37,9 +37,11 @@ public:
     bench_input input() const;
     size_t data_offset() const;
     static bench_output initial_output();
+    static wire_buffer initial_destination();
 
     // An empty string means every observed result matched the golden fixture.
     std::string validate(decltype(&bench_run_c) run) const;
+    std::string validate(const bench_output &result, const wire_buffer &destination) const;
 
 private:
     workload entry_;
