@@ -28,11 +28,11 @@ an individual case, or a single wire layout with CTest.
 | Check encoder and decoder independently against golden bytes. Round-trip bounded binary values, check borrowed pointers and consume only complete records when a stream ends partway through its final record. | `FixedRoundTrip` in [fixed_round_trip_test.cpp](../tests/integration/fixed_round_trip_test.cpp) |
 
 The [public-header check](../tests/check_public_api.py) compiles headers in
-isolation and checks compiler diagnostics. The [installed-package
-check](../tests/check_cmake_package.py) builds and runs a C99 Core consumer,
-a C++17 IO consumer and the examples after relocating each static or shared
-install. These exercises cover language compatibility, transitive linkage,
-and the installed target interfaces.
+isolation and checks compiler diagnostics. The [package
+check](../tests/check_cmake_package.py) builds and runs C99 and C++17
+consumers of each exported target against both the build tree and a relocated
+installation. For static and shared libraries, it also checks the output of
+the installed-package examples.
 
 The [production coverage gate](coverage.md) checks the executed code
 alongside this inventory. It measures each production translation unit and

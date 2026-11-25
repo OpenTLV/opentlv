@@ -137,9 +137,9 @@ mutation. A saved input can be replayed directly with its target, for example
 
 Public-header probes compile C headers in C99 and all public headers in
 C++17. They also check that the C++ umbrella rejects C++11 and C++14.
-Separate package checks relocate static and shared
-installations and exercise Core and IO from independent C99 and C++17
-consumers under `tests/package/`. See the [header and installed-package
+Separate package checks exercise Core and IO from independent C99 and C++17
+consumers under `tests/package/`. They run against the build tree and the
+relocated installation for static and shared builds. See the [header and package
 commands](architecture.md#verification).
 
 [GoogleTest archive]: https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz

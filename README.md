@@ -76,21 +76,29 @@ shows their output.
 
 ## Use the installed package
 
-In a C or C++ CMake project, link your executable to `OpenTLV::io` for
-the reader and writer. This target also links Core. For just the fixed TLV
-model, size calculations and result codes, link `OpenTLV::core` directly.
+Link `OpenTLV::io` to use the reader and writer. It also links Core.
+For just the fixed TLV model, size calculations and result codes, link
+`OpenTLV::core` directly.
 
 ```cmake
 find_package(OpenTLV CONFIG REQUIRED)
-add_executable(example main.c)
+add_executable(example main.cpp)
 target_link_libraries(example PRIVATE OpenTLV::io)
 ```
 
-Configure the consumer with `-DCMAKE_PREFIX_PATH=/path/to/opentlv` so CMake
-can find the installation. Both targets supply the include path. Use
-`<opentlv/tlv.h>` for the C API or `<opentlv/tlv.hpp>` in a C++17 target.
-The [package checks](docs/architecture.md#verification) run C99 and C++17
-consumers against a relocated installation.
+Configure the consumer with `-DCMAKE_PREFIX_PATH=/path/to/opentlv`.
+Both targets supply the public include directory and request C++17 for C++
+compilation. Include a module header such as `<opentlv/io/writer/writer.hpp>`
+or use the umbrella `<opentlv/tlv.hpp>`. A C99 project can link the same
+targets and include `<opentlv/tlv.h>` with only the C language enabled.
+
+## Use the build-tree package
+
+Build OpenTLV, then configure the consumer with
+`-DOpenTLV_DIR=/absolute/path/to/build`. The same `find_package` and target
+names work before installation. Keep the OpenTLV source and build directories
+in place. On Windows, put the directory containing the built DLLs on `PATH`
+when running a shared-library consumer.
 
 ## Contributing
 

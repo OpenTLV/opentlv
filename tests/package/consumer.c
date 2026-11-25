@@ -27,7 +27,7 @@ int main(void)
         decoded != sizeof payload || count != 1)
         return EXIT_FAILURE;
 
-    /* Exercise unassigned enum values through the installed C ABI. */
+    /* Exercise unassigned enum values through the C ABI. */
     const tlv_fixed_length_t invalid = {1, (tlv_byte_order_t)99};
     if (tlv_fixed_length_read(&invalid, &wire_length, 1, &decoded, &count) != TLV_ERR_INVALID_ARG ||
         tlv_fixed_length_write(&invalid, 0, &wire_length, 1, &count) != TLV_ERR_INVALID_ARG ||
