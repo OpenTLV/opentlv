@@ -3,49 +3,61 @@
 
 #include "adapter.h"
 
-void bench_run_c(bench_operation op, const bench_input *in, uint8_t *destination, bench_output *out)
+static tlv_result_t read_field(bench_c_state *s)
 {
-    tlv_diagnostic_t *details = in->diagnostic ? &out->diagnostic : NULL;
+    return tlv_fixed_length_read(&s->input.format.length, s->input.data, s->input.available,
+                                 &s->output.length, &s->output.count);
+}
+
+static tlv_result_t write_field(bench_c_state *s)
+{
+    return tlv_fixed_length_write(&s->input.format.length, s->input.length, s->destination,
+                                  s->input.available, &s->output.count);
+}
+
+static tlv_result_t header_size(bench_c_state *s)
+{
+    return tlv_fixed_header_size(&s->input.format, &s->output.count);
+}
+
+static tlv_result_t element_size(bench_c_state *s)
+{
+    return tlv_fixed_element_size(&s->input.format, &s->input.source, &s->output.count);
+}
+
+static tlv_result_t read_element(bench_c_state *s)
+{
+    return tlv_read_with_diagnostic(s->input.data, s->input.available, &s->input.format,
+                                    &s->output.view, &s->output.count, s->details);
+}
+
+static tlv_result_t next_element(bench_c_state *s)
+{
+    return tlv_reader_next_with_diagnostic(&s->reader, &s->output.view, s->details);
+}
+
+static tlv_result_t write_element(bench_c_state *s)
+{
+    return tlv_write_with_diagnostic(s->destination, s->input.available, &s->input.format,
+                                     &s->input.source, &s->output.count, s->details);
+}
+
+static tlv_result_t append_element(bench_c_state *s)
+{
+    return tlv_writer_write_with_diagnostic(&s->writer, &s->input.source, s->details);
+}
+
+bench_c_step bench_select_c(bench_operation op)
+{
     switch (op) {
-    case BENCH_FIELD_READ:
-        out->result = tlv_fixed_length_read(&in->format.length, in->data, in->available,
-                                            &out->length, &out->count);
-        break;
-    case BENCH_FIELD_WRITE:
-        out->result = tlv_fixed_length_write(&in->format.length, in->length, destination,
-                                             in->available, &out->count);
-        break;
-    case BENCH_HEADER_SIZE:
-        out->result = tlv_fixed_header_size(&in->format, &out->count);
-        break;
-    case BENCH_ELEMENT_SIZE:
-        out->result = tlv_fixed_element_size(&in->format, &in->source, &out->count);
-        break;
-    case BENCH_READ:
-        out->result = tlv_read_with_diagnostic(in->data, in->available, &in->format,
-                                               &out->view, &out->count, details);
-        break;
-    case BENCH_NEXT: {
-        tlv_reader_t reader;
-        out->result = tlv_reader_init(&reader, in->data, in->available, &in->format);
-        if (out->result == TLV_OK) {
-            out->result = tlv_reader_next_with_diagnostic(&reader, &out->view, details);
-            out->position = reader.pos;
-        }
-        break;
+    case BENCH_FIELD_READ: return read_field;
+    case BENCH_FIELD_WRITE: return write_field;
+    case BENCH_HEADER_SIZE: return header_size;
+    case BENCH_ELEMENT_SIZE: return element_size;
+    case BENCH_READ: return read_element;
+    case BENCH_NEXT: return next_element;
+    case BENCH_WRITE: return write_element;
+    case BENCH_APPEND: return append_element;
     }
-    case BENCH_WRITE:
-        out->result = tlv_write_with_diagnostic(destination, in->available, &in->format,
-                                                &in->source, &out->count, details);
-        break;
-    case BENCH_APPEND: {
-        tlv_writer_t writer;
-        out->result = tlv_writer_init(&writer, destination, in->available, &in->format);
-        if (out->result == TLV_OK) {
-            out->result = tlv_writer_write_with_diagnostic(&writer, &in->source, details);
-            out->position = writer.pos;
-        }
-        break;
-    }
-    }
+    return NULL;
 }

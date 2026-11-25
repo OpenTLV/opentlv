@@ -38,11 +38,15 @@ if(BUILD_TESTING AND OPENTLV_TEST_COVERAGE)
 endif()
 add_executable(opentlv_check_fixtures check_fixtures.cpp)
 target_link_libraries(opentlv_check_fixtures PRIVATE opentlv_benchmark_workloads)
+add_executable(opentlv_benchmark google_benchmark.cpp)
+target_link_libraries(opentlv_benchmark PRIVATE opentlv_benchmark_workloads benchmark::benchmark)
 add_dependencies(opentlv_check_fixtures opentlv_benchmark_metadata)
-# This also puts the checker beside the OpenTLV DLLs in Windows shared builds.
-set_target_properties(opentlv_check_fixtures PROPERTIES
+add_dependencies(opentlv_benchmark opentlv_benchmark_metadata)
+# Both executables must be beside the OpenTLV DLLs in Windows shared builds.
+set_target_properties(opentlv_check_fixtures opentlv_benchmark PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:opentlv_io>"
     CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
 )
 add_test(NAME BenchmarkFixtures COMMAND opentlv_check_fixtures)
-set_tests_properties(BenchmarkFixtures PROPERTIES LABELS benchmark)
+add_test(NAME BenchmarkRunner COMMAND opentlv_benchmark --benchmark_min_time=32x)
+set_tests_properties(BenchmarkFixtures BenchmarkRunner PROPERTIES LABELS benchmark)
