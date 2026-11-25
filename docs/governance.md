@@ -45,43 +45,66 @@ on 2026-11-23.
 - The [maintainer audit] recorded an empty bypass list. The public ruleset
   response on 2026-11-23 did not expose that list.
 
-The 2026-11-23 audit found no required status checks. Before configuring
-required checks, verify the `fixed-tlv` and `workflow-analyzers` check names
-and source app ID on a pull request, then follow the [governance baseline]
-for requiring them and an up-to-date branch. Verify the signatures on the
-merge commit and the introduced commits on GitHub.
+On 2026-11-25, the [ruleset inventory including organization rules] returned
+one active repository ruleset, `main-protection` (ID `27461544`). The
+[effective rules for main] contained no required status checks. A repository
+admin can enable the merge check under the [governance baseline] as follows.
+
+1. Let **Fixed TLV** finish on a pull request containing the gate. Verify
+   the exact check-run name `fixed-tlv-quality`, conclusion `success` and
+   source **GitHub Actions** (app ID `15368`) on that PR.
+2. In **Settings → Rules → Rulesets → main-protection → Edit**, enable
+   **Require status checks to pass**. Add `fixed-tlv-quality` with
+   **GitHub Actions** as the expected source. Enable **Require branches to
+   be up to date before merging** and save the active ruleset. This single
+   context covers the worker jobs listed below.
+3. Inspect the [effective rules for main]. The `required_status_checks`
+   rule must show `strict_required_status_checks_policy: true` and a check
+   with `context: fixed-tlv-quality` and `integration_id: 15368`. Verify on
+   a PR without bypass that the merge is blocked while the gate is pending
+   or failing and that a successful gate satisfies the check on the current
+   revision. Verify the signatures on the merge commit and introduced commits.
 
 ## Continuous integration
 
-The [Fixed TLV workflow] runs these checks on every pull request to `main`
-and every push to `main`.
+The [Fixed TLV workflow] runs once per event. A PR tests the proposed merge
+into `main`. A push tests the resulting `main` commit. Full CI runs on manual
+dispatch for the selected ref and every Monday at 06:43 UTC on the default
+branch. A newer PR run can cancel an earlier run for that PR. Each push and
+Full run has its own concurrency group.
 
-- `fixed-tlv` compiles the public headers, runs CTest in Debug, Release and
-  sanitizer builds, compares two GCC coverage reports, tests build-tree and
-  relocated packages for static and shared libraries, and runs the bounded
-  fuzz targets on Ubuntu 24.04.
-- `callgrind` measures a pinned baseline and the candidate on one Ubuntu
-  24.04 x86-64 runner. It verifies repeatable instruction counts, checks for
-  instruction-count and binary-size increases, and publishes timing observations.
-  [Performance baseline and release evidence](performance-baseline.md)
-- `resource-usage` checks for heap allocation during Fixed TLV calls and
-  compares footprint reports from two clean Release builds for each of the
-  static and shared configurations. [Allocation and footprint checks](testing.md#heap-allocation-and-binary-size)
-- `windows-x86` builds and executes the Win32 test suites with MSVC and
-  verifies the [x86 ABI and native-size boundary cases](testing.md#32-bit-x86).
-- `workflow-analyzers` checks the workflow files with actionlint and zizmor.
-  Pull requests and manual runs use zizmor offline. Pushes to `main` and
-  scheduled runs use a read-only token in the zizmor step to check action
-  pins against GitHub. All jobs use read-only repository access, and checkout
-  disables credential persistence.
+| Job and scope | PR to `main` | Push to `main` | Manual Full | Weekly Full |
+| --- | --- | --- | --- | --- |
+| `fixed-tlv` · C99/C++17 public headers, Debug/Release CTest, ASan/UBSan, reproducible coverage, Linux static/shared packages and symbols, bounded fuzzing | GCC headers | GCC headers | GCC + Clang 18 headers | GCC + Clang 18 headers |
+| `windows-x86` · MSVC Win32 Release tests, ABI and native-size boundaries | Run | Run | Run | Run |
+| `resource-usage` · allocation probes and two clean footprint builds for each of static and shared linkage | Run both | Run both | Run both | Run both |
+| `callgrind` · compare the candidate with the reviewed baseline for instruction counts and binary size, publish timing observations | Run | Run | Run | Run |
+| `windows-package` · MSVC static/shared C99 and C++17 consumers of the build tree and relocated installation | Skip | Skip | Run | Run |
+| `workflow-analyzers` · gate regression tests, actionlint, zizmor | Offline audit | Online audit | Offline audit | Online audit |
+| `fixed-tlv-quality` · aggregate result | Evaluate | Evaluate | Evaluate | Evaluate |
 
-Full CI runs every Monday at 06:43 UTC. To run it manually, open **Actions**,
-select **Fixed TLV**, choose **Run workflow**, and select the branch to check.
-Full CI adds a Clang 18 public-header check to `fixed-tlv`. It also runs
-`windows-package`, which builds static and shared packages with MSVC and tests
-their C and C++ consumers against the build tree and a relocated installation.
-For a release candidate, verify that all jobs passed for the exact `main`
-commit.
+The performance and resource jobs run before merge so reviewers can inspect
+regressions and proposed baseline updates. Full CI adds the second header
+compiler and Windows package checks within the same workflow. If one
+resource matrix leg fails, the other can finish and publish its report.
+Actions use full commit pins and read-only repository access. Checkout
+disables credential persistence.
+
+`fixed-tlv-quality` directly depends on all six worker job IDs. Its
+`always()` condition lets it inspect [GitHub's job results] after a worker
+fails or skips. The gate requires `success` from every selected worker,
+including the resource matrix. The only expected `skipped` result is
+`windows-package` on a PR or push. A failed, cancelled, missing or
+unexpected result fails the gate. Keep the workflow's `needs` list and
+[gate policy](../tests/check_ci_gate.py) in sync when adding jobs.
+
+Run `python3 -B -m unittest discover -s tests -p test_check_ci_gate.py`
+to exercise successful, failed, skipped and cancelled results for each
+trigger. For hosted validation, inspect the PR run and the subsequent push
+run against the matrix. To run Full CI, choose **Actions → Fixed TLV → Run
+workflow**, select the candidate branch and check the run's SHA. For
+release evidence, record a successful Full run for the exact `main`
+candidate, including its [performance and resource artifacts](performance-baseline.md#hand-off-release-evidence).
 
 To reproduce the build checks, follow the [header and package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
@@ -123,10 +146,12 @@ non-maintainer remains unverified. [Reporting verification]
 [repository labels]: https://github.com/OpenTLV/opentlv/labels
 [Form verification]: https://github.com/OpenTLV/.github/issues/42
 [effective rules for main]: https://api.github.com/repos/OpenTLV/opentlv/rules/branches/main
+[ruleset inventory including organization rules]: https://api.github.com/repos/OpenTLV/opentlv/rulesets?includes_parents=true
 [repository ruleset]: https://github.com/OpenTLV/opentlv/rules/27461544
 [maintainer audit]: https://github.com/OpenTLV/.github/issues/10
 [governance baseline]: https://github.com/OpenTLV/.github/blob/main/docs/governance.md
 [Fixed TLV workflow]: ../.github/workflows/fixed-tlv.yml
+[GitHub's job results]: https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#needs-context
 [header and package checks]: architecture.md#verification
 [fixed TLV test commands]: testing.md
 [dependency graph export]: https://api.github.com/repos/OpenTLV/opentlv/dependency-graph/sbom
