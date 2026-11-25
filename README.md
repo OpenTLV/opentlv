@@ -55,6 +55,8 @@ reports, sanitizers, coverage, 32-bit execution and fuzz reproduction.
 The [benchmark workload catalog](docs/testing.md#benchmark-workload-catalog)
 provides equivalent C99 and C++17 inputs. The [Google Benchmark runner](docs/testing.md#runtime-and-throughput)
 measures Core and IO latency and throughput and writes JSON reports.
+The [allocation and footprint checks](docs/testing.md#heap-allocation-and-binary-size)
+measure heap use during those calls and report the sizes of libraries and linked programs.
 
 ## Run the examples
 

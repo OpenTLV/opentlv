@@ -6,6 +6,8 @@ option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 option(BUILD_TESTING "Build OpenTLV tests" OFF)
 option(OPENTLV_BUILD_BENCHMARKS "Build the Fixed TLV benchmark runner and fixture checker" OFF)
 option(OPENTLV_BUILD_CALLGRIND "Build the Linux Fixed TLV instruction-count probe" OFF)
+option(OPENTLV_BUILD_ALLOCATION_CHECKS "Check Fixed TLV calls for heap allocation with GDB" OFF)
+option(OPENTLV_BUILD_FOOTPRINT "Measure Fixed TLV libraries and linked consumers" OFF)
 
 add_library(opentlv_core
     src/core/fixed.c
@@ -76,13 +78,19 @@ install(EXPORT OpenTLVTargets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/OpenTLV"
 )
 
-if(BUILD_TESTING OR OPENTLV_BUILD_BENCHMARKS OR OPENTLV_BUILD_CALLGRIND)
+if(OPENTLV_BUILD_BENCHMARKS OR OPENTLV_BUILD_CALLGRIND
+        OR OPENTLV_BUILD_ALLOCATION_CHECKS OR OPENTLV_BUILD_FOOTPRINT)
+    set(opentlv_measurements_enabled ON)
+else()
+    set(opentlv_measurements_enabled OFF)
+endif()
+if(BUILD_TESTING OR opentlv_measurements_enabled)
     enable_language(CXX)
     enable_testing()
 endif()
 if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()
-if(OPENTLV_BUILD_BENCHMARKS OR OPENTLV_BUILD_CALLGRIND)
+if(opentlv_measurements_enabled)
     add_subdirectory(benchmarks)
 endif()

@@ -127,6 +127,74 @@ CPU frequency, scheduling and background load can shift the measurements.
 Use timing as observational evidence and compare matching workload IDs,
 machines, toolchains and build settings.
 
+## Heap allocation and binary size
+
+`OPENTLV_BUILD_ALLOCATION_CHECKS` checks all 1,792 v1 inputs through both
+public APIs. For each input, the probe prepares the caller's buffers, arms
+the allocation check, initializes the cursor when the operation uses one,
+and calls Core or IO. It disarms the check before comparing the results
+with the golden fixture. A failure identifies the language and workload ID.
+Separate checks exercise result classification and borrowed value-view
+construction with valid and null inputs through both APIs.
+
+The probe runs under Python-enabled GDB on native Linux or MinGW with GCC
+or Clang. After the runtime libraries load, GDB sets breakpoints on
+`malloc`, `calloc` and `realloc`, plus aligned allocation routines it can
+resolve. An empty measurement checks the boundary. Deliberate calls to
+the three C allocators and to scalar, array and over-aligned C++ allocation
+functions verify that the observer detects an allocation. The result applies to
+executed paths that reach the monitored allocators.
+
+`OPENTLV_BUILD_FOOTPRINT` builds the C99 one-shot writer and the C++17
+cursor writer from `examples/`. Both encode and print the same seven bytes.
+Each executable links directly to `OpenTLV::io` and its Core dependency.
+The report measures those executables and the two library files. For a
+Windows shared build, the library measurements use the runtime DLLs.
+
+From a Git checkout, run the following in Bash with CMake 3.21 or newer,
+Ninja, Python 3, GCC, GDB and GNU size on the path. CI runs these checks
+on Ubuntu 24.04 x86-64 with GCC and G++ 13.3.0. Each configuration gets
+its own build directory. The second build uses the same paths and flags so
+the two reports can be compared directly.
+
+```bash
+set -eu
+export CC=gcc-13 CXX=g++-13
+flags="-O2 -DNDEBUG -march=x86-64 -mtune=generic"
+for shared in OFF ON; do
+  build="$PWD/../opentlv-resources-$shared"
+  cmake -S . -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_FLAGS_RELEASE="$flags" -DCMAKE_CXX_FLAGS_RELEASE="$flags" \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+    -DBUILD_SHARED_LIBS="$shared" -DOPENTLV_BUILD_ALLOCATION_CHECKS=ON \
+    -DOPENTLV_BUILD_FOOTPRINT=ON -DOPENTLV_SIZE_TOOL=/usr/bin/size
+  cmake --build "$build" --target opentlv_allocation_probe opentlv_footprint
+  ctest --test-dir "$build" -C Release --no-tests=error --output-on-failure --output-junit "$build/checks.xml"
+  report="$build/benchmarks/footprint/Release/footprint.json"
+  cp "$report" "$build/footprint-first.json"
+  cmake --build "$build" --target opentlv_footprint --clean-first
+  cmp "$build/footprint-first.json" "$report"
+done
+```
+
+Each option can also be enabled independently. The footprint target needs
+Python 3 and records `file_bytes` as the on-disk size. The `section_bytes`
+map gives sizes by section name, such as `.text`, `.data` and `.bss`.
+For archives, it sums like-named sections across members. File sizes
+include headers and alignment, while a section such as `.bss` can occupy
+memory without storing its contents in the file. A shared consumer's size
+covers its executable alone. The runtime libraries have separate entries.
+The two writers use different public call sequences, and each executable
+also includes its toolchain's startup code.
+
+The reporter reads System V section tables from GNU size or llvm-size, or
+the hexadecimal section summary from MSVC dumpbin. Use `OPENTLV_SIZE_TOOL`
+to select the tool for the target. If CMake finds none, `section_bytes`
+is `null`. A selected tool must produce a valid report. Keep `footprint.json` with
+`compile_commands.json` (Ninja) and the CTest report. Compare the same
+artifact role, target, compiler, flags, linkage and section tool. CI publishes
+these files in `fixed-tlv-resource-usage-static` and `fixed-tlv-resource-usage-shared`.
+
 ## Select a contract
 
 | Source directory | CTest label | Behavior |

@@ -62,6 +62,9 @@ and every push to `main`.
   fuzz targets on Ubuntu 24.04.
 - `callgrind` runs the [instruction-count probe](testing.md#linux-callgrind)
   twice on Ubuntu 24.04 x86-64 and checks that each workload reproduces its count.
+- `resource-usage` checks for heap allocation during Fixed TLV calls and
+  compares footprint reports from two clean Release builds for each of the
+  static and shared configurations. [Allocation and footprint checks](testing.md#heap-allocation-and-binary-size)
 - `windows-x86` builds and executes the Win32 test suites with MSVC and
   verifies the [x86 ABI and native-size boundary cases](testing.md#32-bit-x86).
 - `workflow-analyzers` checks the workflow files with actionlint and zizmor.
@@ -75,7 +78,7 @@ select **Fixed TLV**, choose **Run workflow**, and select the branch to check.
 Full CI adds a Clang 18 public-header check to `fixed-tlv`. It also runs
 `windows-package`, which builds static and shared packages with MSVC and tests
 their C and C++ consumers against the build tree and a relocated installation.
-For a release candidate, verify that all five jobs passed for the exact `main`
+For a release candidate, verify that all jobs passed for the exact `main`
 commit.
 
 To reproduce the build checks, follow the [header and package checks]

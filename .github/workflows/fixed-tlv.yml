@@ -125,6 +125,61 @@ jobs:
           path: ${{ runner.temp }}/fuzz-failures/
           if-no-files-found: warn
 
+  resource-usage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        linkage: [static, shared]
+    env:
+      CC: gcc-13
+      CXX: g++-13
+      LINKAGE: ${{ matrix.linkage }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Install GDB if needed
+        run: |
+          if ! command -v gdb >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends gdb
+          fi
+      - name: Check allocations and measure two clean Release builds
+        run: |
+          test "$("$CC" -dumpfullversion)" = 13.3.0
+          test "$("$CXX" -dumpfullversion)" = 13.3.0
+          build="$RUNNER_TEMP/resource-build"
+          reports="$RUNNER_TEMP/resource-reports"
+          mkdir -p "$reports"
+          shared=OFF
+          if [ "$LINKAGE" = shared ]; then shared=ON; fi
+          flags="-O2 -DNDEBUG -march=x86-64 -mtune=generic"
+          cmake -S . -B "$build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_FLAGS_RELEASE="$flags" -DCMAKE_CXX_FLAGS_RELEASE="$flags" \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF \
+            -DBUILD_SHARED_LIBS="$shared" -DOPENTLV_BUILD_ALLOCATION_CHECKS=ON \
+            -DOPENTLV_BUILD_FOOTPRINT=ON -DOPENTLV_SIZE_TOOL=/usr/bin/size
+          cmake --build "$build" --target opentlv_allocation_probe opentlv_footprint
+          ctest --test-dir "$build" -C Release --no-tests=error --output-on-failure \
+            --output-junit "$reports/checks.xml"
+          footprint="$build/benchmarks/footprint/Release/footprint.json"
+          cp "$footprint" "$reports/footprint.json"
+          cmake --build "$build" --target opentlv_footprint --clean-first
+          cp "$footprint" "$reports/footprint-repeat.json"
+          cmp "$reports/footprint.json" "$reports/footprint-repeat.json"
+      - name: Publish allocation checks, footprint and build settings
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fixed-tlv-resource-usage-${{ matrix.linkage }}
+          path: |
+            ${{ runner.temp }}/resource-reports/
+            ${{ runner.temp }}/resource-build/benchmarks/Release/metadata.json
+            ${{ runner.temp }}/resource-build/compile_commands.json
+          if-no-files-found: error
+
   callgrind:
     runs-on: ubuntu-24.04
     timeout-minutes: 10

@@ -5,6 +5,13 @@ endif()
 
 set(OPENTLV_GOOGLE_BENCHMARK_VERSION 1.9.4)
 include(metadata.cmake)
+if(OPENTLV_BUILD_FOOTPRINT)
+    add_subdirectory(footprint)
+endif()
+if(NOT (OPENTLV_BUILD_BENCHMARKS OR OPENTLV_BUILD_CALLGRIND OR OPENTLV_BUILD_ALLOCATION_CHECKS))
+    return()
+endif()
+
 add_library(opentlv_benchmark_workloads STATIC adapter.c adapter.cpp fixtures.cpp)
 set_target_properties(opentlv_benchmark_workloads PROPERTIES
     C_STANDARD 99 C_STANDARD_REQUIRED YES C_EXTENSIONS NO
@@ -14,6 +21,10 @@ target_link_libraries(opentlv_benchmark_workloads PUBLIC OpenTLV::io)
 if(BUILD_TESTING AND OPENTLV_TEST_COVERAGE)
     # Consumers of coverage-instrumented static libraries need the gcov runtime.
     target_link_options(opentlv_benchmark_workloads INTERFACE --coverage)
+endif()
+
+if(OPENTLV_BUILD_ALLOCATION_CHECKS)
+    include(allocations.cmake)
 endif()
 
 if(OPENTLV_BUILD_CALLGRIND)
