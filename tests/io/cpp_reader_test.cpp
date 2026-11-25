@@ -93,6 +93,37 @@ TEST(CppReader, CopiesCursorsAndBorrowsTheInput)
     ExpectView({{wire + 4, 1}, {wire + sizeof wire, 0}}, core::to_c(second));
 }
 
+TEST(CppReader, CopiedCursorsKeepTheirStreamWhenTheOriginalIsReinitialized)
+{
+    const std::uint8_t wire[] = {0x71, 0, 0x82, 1, 0xda};
+    const std::uint8_t other[] = {0xab, 0xcd, 1, 0, 0xef};
+    const core::fixed_format other_format{{2}, {2, core::byte_order::little_endian}};
+    const auto c_format = core::to_c(one_byte_fields);
+    const auto c_other_format = core::to_c(other_format);
+    tlv_reader_t c_reader{};
+    io::reader reader;
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&c_reader, wire, sizeof wire, &c_format));
+    ASSERT_EQ(core::result::ok, reader.init(one_byte_fields, {wire, sizeof wire}));
+    tlv_element_t c_view{};
+    core::element_view view{};
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&c_reader, &c_view));
+    ASSERT_EQ(core::result::ok, reader.next(view));
+    auto c_copy = c_reader;
+    auto copy = reader;
+
+    ASSERT_EQ(TLV_OK, tlv_reader_init(&c_reader, other, sizeof other, &c_other_format));
+    ASSERT_EQ(core::result::ok, reader.init(other_format, {other, sizeof other}));
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&c_reader, &c_view));
+    ASSERT_EQ(core::result::ok, reader.next(view));
+    ExpectView({{other, 2}, {other + 4, 1}}, c_view);
+    ExpectView(c_view, core::to_c(view));
+
+    ASSERT_EQ(TLV_OK, tlv_reader_next(&c_copy, &c_view));
+    ASSERT_EQ(core::result::ok, copy.next(view));
+    ExpectView({{wire + 2, 1}, {wire + 4, 1}}, c_view);
+    ExpectView(c_view, core::to_c(view));
+}
+
 TEST(CppReader, ReportsStreamOffsetsAndPreservesStateOnFailure)
 {
     const core::fixed_format format{{1}, {8, core::byte_order::big_endian}};

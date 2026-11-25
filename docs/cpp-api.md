@@ -251,25 +251,16 @@ together so both use the same implementation and produce the same bytes.
 
 ## Ownership and lifetimes
 
-- Copying a **tag, encoded length, payload or element view** copies its descriptor.
-  Keep the backing bytes alive, at the same address and unchanged through the
-  last use of any view.
-- A **reader** copies the format and borrows the input. Keep that input alive
-  and unchanged while using any reader or view. Copies advance independently.
-  Advancing or destroying a reader preserves the views it has returned.
-- A **writer** copies the format and borrows a fixed-capacity output buffer.
-  Keep the buffer alive, writable and at the same address through the last
-  write. The cursor supports neither copying nor moving. An append borrows
-  its source bytes for the call.
-- A **diagnostic** owns its scalar details. The caller can inspect it after
-  releasing the input or output buffer.
+The C++17 wrappers use caller-provided storage. Destroying a view or cursor
+leaves its buffer with the caller. For example, if a vector supplies the
+input, a reallocation invalidates every reader and view into its old storage.
+A copied reader retains its own position. The writer disables copying and
+moving. A diagnostic contains only scalar values and can outlive the buffer.
+See the [shared Core and IO contract](architecture.md#ownership-contract)
+for lifetimes, permitted overlap and the outputs set on each result.
 
-Foundation operations use caller-provided storage and perform no dynamic
-allocation. Destroying a view or cursor never releases its buffer. Supply
-borrowed views from storage that survives their use. For example, growing
-a vector can invalidate a reader and every element it returned. If a
-future type acquires a resource, give it RAII ownership and document its
-copy, move and destruction behavior.
+If a future type acquires a resource, give it RAII ownership and document
+its copy, move and destruction behavior.
 
 ## Results and exceptions
 
