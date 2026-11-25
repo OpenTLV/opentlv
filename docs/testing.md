@@ -83,10 +83,11 @@ artifact. On Windows, use `python` for the Python 3 interpreter.
 
 ## Fixed TLV instruction counts
 
-The [instruction-count probe](../tests/diagnostics/README.md) measures element
-sizing, one-shot reads and writes, and cursor operations with diagnostics enabled
-or omitted. It includes counts for complete and short buffers and commands for
-reproducing the comparisons.
+The field probe checks golden bytes and counts instructions for aligned and
+unaligned fields across all 16 layouts. It also measures complete records with
+empty, three-byte and 255- or 513-byte payloads. The diagnostic probe measures
+element sizing and one-shot and cursor operations on complete and short buffers.
+See the [measurements and reproduction commands](../tests/diagnostics/README.md).
 
 ## Sanitizers
 

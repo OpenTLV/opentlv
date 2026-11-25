@@ -6,7 +6,17 @@ set confirm off
 python
 import gdb
 
-if gdb.convenience_variable("measure"):
+if gdb.convenience_variable("fields"):
+    cases = []
+    for width in range(1, 9):
+        for order in ("big", "little"):
+            for offset in (0, 1):
+                for op in ("read", "write"):
+                    cases.append((f"field {width} {order} {offset} {op}", "tlv_fixed_length_" + op))
+            for size in (0, 3, 255 if width == 1 else 513):
+                for op in ("read", "write"):
+                    cases.append((f"record {width} {order} {size} {op}", "tlv_" + op))
+elif gdb.convenience_variable("measure"):
     # The first write measures the same complete element in every build.
     cases = [("measure", "tlv_fixed_element_size")]
 else:

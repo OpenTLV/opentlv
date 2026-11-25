@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fixed TLV reads and writes select byte order once per length field, reducing measured instruction counts for complete records across all 16 layouts. (#68)
 - Reduce repeated validation when measuring, reading and writing Fixed TLV elements, while preserving error precedence, diagnostics and transactional writes. (#67)
 - Fixed TLV reads and writes skip diagnostic field preparation when diagnostics are omitted. C++17 callers also skip initializing and converting the diagnostic record. (#66)
 - **Breaking change for C++ consumers.** The supported C++ standard has moved from C++11 to C++17. Set `CXX_STANDARD` to `17` on your CMake target to use `<opentlv/tlv.hpp>`. C consumers continue to use `<opentlv/tlv.h>` with C99. See the [C++ API contracts](docs/cpp-api.md). (#44)
