@@ -1,7 +1,7 @@
 # C++17 API conventions and module contracts
 
 C++17 is the supported language mode for the C++ API. Its umbrella,
-`<opentlv/tlv.hpp>`, exposes the Core types, the Fixed TLV reader in
+`<opentlv/tlv.hpp>`, exposes the Core types, the Fixed TLV reader and writer in
 `opentlv::io`, and the public C declarations.
 
 C++17 callers can also use the C interface directly through
@@ -31,6 +31,19 @@ bool fits_example()
         && required == 6;
 }
 ```
+
+Use `io::write(format, output, element, written)` to encode one element into
+a mutable byte view. On success, `written` contains the encoded size. On
+`buffer_too_short`, it contains the capacity required for the complete
+element. Other errors preserve `written`. Every error preserves the buffer.
+
+For successive elements, create an `io::writer` and call `writer.init(format,
+output)`. Each successful `writer.write(element)` advances `writer.position()`
+by the encoded size. Before the first successful `init`, `writer.write`
+returns `invalid_arg` for any element. Successful reinitialization starts at
+offset zero in the supplied buffer. Failed initialization preserves the
+current stream and position. Both write operations accept a trailing
+diagnostic pointer.
 
 To pass the same inputs to a C writer, obtain the native descriptors with
 `auto c_format = core::to_c(format)` and `auto c_element = core::to_c(element)`.
@@ -156,8 +169,8 @@ the same bytes.
   and unchanged while using any reader or view. Copies advance independently.
   Advancing or destroying a reader preserves the views it has returned.
 - A **writer** copies the format and borrows a fixed-capacity output buffer.
-  Keep the buffer alive and writable through the last write. Make the C++
-  cursor non-copyable to prevent accidental writes from a duplicate position.
+  Keep the buffer alive and writable through the last write. The C++ cursor
+  is non-copyable to prevent accidental writes from a duplicate position.
   An append borrows its source bytes for the call. Keep those bytes disjoint
   from the range being written.
 - A **diagnostic** owns its scalar details. The caller can inspect it after
