@@ -21,12 +21,11 @@ CPP_EQUIVALENCE_CASES = {
     for width in range(1, 9)
 }
 
-X86_REQUIRED_CASES = {
+NATIVE_SIZE_CASES = {
+    "abi-layout",
     "CoreSize.ConvertsRepresentableCountsToNative",
-    "CoreSize.RejectsUint64MaxOnX86",
-    "CoreSize.RejectsTheFirstUnrepresentableNativeCountAndPreservesOutput",
-    "CoreValue.RejectsANonNativeSizeAndPreservesTheDestination",
-    "FixedElementSize.RejectsAWireLengthAboveTheNativeSizeRange",
+    "CoreValue.ChecksTheLargestRepresentableSizeWithoutReadingThePayload",
+    "FixedElementSize.EnforcesWireAndNativePayloadLimitsForEachWidth",
     "FixedMeasurement.MeasuresAnExactNativeHeaderAndRejectsTheNextWidth",
     "CoreSize.AddsCountsThroughTheLogicalLimit",
     "CoreSize.ReportsOverflowAndPreservesOutput",
@@ -34,9 +33,22 @@ X86_REQUIRED_CASES = {
     "IOWrite.SizingQueriesValidateWireAndNativeLimits",
 }
 
+ARCHITECTURE_CASES = {
+    "x86": NATIVE_SIZE_CASES | {
+        "CoreSize.RejectsUint64MaxOnX86",
+        "CoreSize.RejectsTheFirstUnrepresentableNativeCountAndPreservesOutput",
+        "CoreValue.RejectsANonNativeSizeAndPreservesTheDestination",
+        "FixedElementSize.RejectsAWireLengthAboveTheNativeSizeRange",
+    },
+    "x64": NATIVE_SIZE_CASES | {"CoreSize.ConvertsCountsAboveUint32MaxOnX64"},
+}
 
-def run(build, config, reports):
+
+def run(build, config, reports, architecture=None):
     reports.mkdir(parents=True, exist_ok=True)
+    toolchain = (build / "tests" / "toolchain.txt").read_text(encoding="utf-8")
+    (reports / "toolchain.txt").write_text(toolchain, encoding="utf-8")
+    print(toolchain, end="", flush=True)
     junit = reports / "junit.xml"
     ctest = ["ctest", "--test-dir", build, "-C", config]
     subprocess.run([*ctest, "--output-on-failure", "--no-tests=error",
@@ -47,9 +59,10 @@ def run(build, config, reports):
     passed = {case.attrib["name"] for case in ET.parse(junit).iter("testcase")
               if case.get("status") == "run"
               and all(case.find(tag) is None for tag in ("skipped", "failure", "error"))}
-    inventory = subprocess.check_output([*ctest, "--show-only=json-v1"], text=True)
+    inventory = json.loads(subprocess.check_output([*ctest, "--show-only=json-v1"], text=True))["tests"]
+    print(f"{config}: {len(passed)}/{len(inventory)} discovered CTest cases passed")
     labels = set()
-    for test in json.loads(inventory)["tests"]:
+    for test in inventory:
         if test["name"] in passed:
             for prop in test["properties"]:
                 if prop["name"] == "LABELS":
@@ -61,6 +74,11 @@ def run(build, config, reports):
     if missing:
         raise SystemExit("Missing passing C/C++ equivalence cases: " + ", ".join(sorted(missing)))
     print(f"Verified {len(CPP_EQUIVALENCE_CASES)} C/C++ equivalence cases")
+    if architecture:
+        missing = ARCHITECTURE_CASES[architecture] - passed
+        if missing:
+            raise SystemExit(f"Missing passing {architecture} cases: " + ", ".join(sorted(missing)))
+        print(f"Verified {architecture} ABI layout and native-size boundary cases")
     return passed
 
 
@@ -69,12 +87,9 @@ if __name__ == "__main__":
     parser.add_argument("build", type=Path)
     parser.add_argument("config", choices=("Debug", "Release"))
     parser.add_argument("reports", type=Path)
-    parser.add_argument("--require-x86", action="store_true",
-                        help="require passing x86 ABI and native-size boundary cases")
+    profiles = parser.add_mutually_exclusive_group()
+    for architecture in ARCHITECTURE_CASES:
+        profiles.add_argument(f"--require-{architecture}", dest="architecture", action="store_const",
+                              const=architecture, help=f"require passing {architecture} ABI and native-size cases")
     args = parser.parse_args()
-    passed = run(args.build.resolve(), args.config, args.reports.resolve())
-    if args.require_x86:
-        missing = X86_REQUIRED_CASES - passed
-        if missing:
-            raise SystemExit("Missing passing x86 cases: " + ", ".join(sorted(missing)))
-        print("Verified x86 execution with sizeof(size_t) == 4 and all required boundary cases")
+    run(args.build.resolve(), args.config, args.reports.resolve(), args.architecture)

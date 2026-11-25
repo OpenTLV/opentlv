@@ -30,6 +30,34 @@ Both sources use the same checksum from [tests/CMakeLists.txt]. Follow either
 configure command with the same build and CTest commands. The default
 production build configures offline using only C.
 
+## Compiler and architecture matrix
+
+For v0.1.0, CI supports the following Fixed TLV Core and IO configurations.
+Every row builds the libraries and runs the Core, IO, integration and ABI
+layout tests on pull requests, pushes to `main`, and Full CI runs.
+
+| Runner and target | C and C++ compilers | Configuration | Contract exercised |
+| --- | --- | --- | --- |
+| Ubuntu 24.04 x64 | GCC and G++ 13 | Debug and Release | Runs the reference Linux build with assertions enabled and with release optimization. |
+| Ubuntu 24.04 x64 | Clang and Clang++ 18 | Debug with ASan/UBSan | Checks memory access and undefined behavior during the contract suite. |
+| Ubuntu 24.04 x64 | Clang and Clang++ 18 | Release | Exercises Clang's optimized code without instrumentation. |
+| Windows Server 2022 x86 | MSVC v143, toolset 14.44.35207 | Release | Checks Win32 record layout and rejects 64-bit counts above the four-byte native limit. |
+| Windows Server 2022 x64 | MSVC v143, toolset 14.44.35207 | Debug | Checks the Windows x64 ABI, Debug runtime and successful native conversion through `UINT64_MAX`. |
+
+GCC and Clang build OpenTLV in C99 and C++17 modes with extensions off
+and `-pedantic-errors -Wall -Wextra -Werror`. MSVC checks the C sources in
+`/std:c11`, its earliest selectable ISO C mode, and C++ in `/std:c++17`
+with `/permissive-` and `/Zc:__cplusplus`. It treats level-four warnings
+as errors (`/W4 /WX`). These warning settings apply to OpenTLV's own
+validation targets. [MSVC language modes](https://learn.microsoft.com/en-us/cpp/build/reference/std-specify-language-standard-version?view=msvc-170)
+
+Win32 supplies the four-byte `size_t` coverage and has a
+[record-layout baseline](api-abi.md#visibility-and-verification). Linux
+i686, other compiler versions and target/configuration pairs outside the
+table are optional builds. Full CI also compiles the public headers with
+Clang and runs Release static and shared package consumers with MSVC. See
+the [workflow checks by trigger](governance.md#continuous-integration).
+
 ## Benchmark workload catalog
 
 From a Git checkout, enable `OPENTLV_BUILD_BENCHMARKS` to build the fixture
@@ -236,18 +264,24 @@ The CI runner executes the full suite and requires a passing case under each
 of the three labels. It also checks the JUnit results for specific C/C++17
 Core and IO cases and for both cross-language round-trip and truncated-stream
 cases in all 16 wire layouts. A missing or skipped required case fails the
-run. Debug, Release, sanitizer, coverage and x86 builds use the same runner.
-It writes `junit.xml` and `ctest.log` in the directory given as the final
-argument. Use a separate directory for each configuration.
+run. For the targets in the matrix, `--require-x86` or `--require-x64`
+also requires a passing ABI layout check and the named native-size boundary
+cases for that architecture. The runner prints passing and discovered test
+counts and writes `junit.xml`, `ctest.log` and `toolchain.txt` to the report
+directory. The last file records both compiler IDs and versions and the
+target pointer size in bytes. Use a separate directory for each configuration.
 
 ```sh
-python3 tests/run_ctest.py build-tests Debug reports/Debug
+python3 tests/run_ctest.py build-tests Debug reports/Debug --require-x64
 cmake --build build-tests --config Release
-python3 tests/run_ctest.py build-tests Release reports/Release
+python3 tests/run_ctest.py build-tests Release reports/Release --require-x64
 ```
 
-CI uploads the reports from Debug, Release and sanitizer runs in the `ctest-reports`
-artifact. On Windows, use `python` for the Python 3 interpreter.
+In the Linux `ctest-reports` artifact, inspect `Debug/` and `Release/` for GCC,
+`sanitizers/` for Clang Debug and `clang-release/` for Clang Release. Windows
+publishes `ctest-reports-x86` and `ctest-reports-x64`. For release evidence,
+retain all three artifacts from the successful Full CI run for the candidate
+SHA alongside its [performance evidence](performance-baseline.md#hand-off-release-evidence).
 
 ## Fixed TLV instruction counts
 
@@ -330,7 +364,7 @@ CC=clang-18 CXX=clang++-18 CFLAGS="$flags" CXXFLAGS="$flags" LDFLAGS="-fsanitize
   cmake -S . -B build-sanitized -G Ninja -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Debug
 cmake --build build-sanitized
 ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
-  python3 tests/run_ctest.py build-sanitized Debug reports/sanitizers
+  python3 tests/run_ctest.py build-sanitized Debug reports/sanitizers --require-x64
 ```
 
 ## Coverage
@@ -351,22 +385,24 @@ The two reports must agree byte for byte. CI publishes them as
 `coverage-reports`. See the [production coverage gates](coverage.md) for the
 measured sources, reviewed branches and mapping of public functions to tests.
 
-## 32-bit x86
+## Windows x86 and x64
 
-The `windows-x86` job runs on Windows Server 2022 with Visual Studio 2022
-C++ Build Tools and the v143 14.44.35207 x86/x64 toolset. Run these commands
-in PowerShell with a fresh build directory.
+Use Visual Studio 2022 C++ Build Tools and the v143 14.44.35207 x86/x64
+toolset to reproduce the two Windows contract builds in PowerShell.
 
 ```powershell
 cmake -S . -B build-x86 -G "Visual Studio 17 2022" -A Win32 -T "v143,version=14.44.35207" -DBUILD_TESTING=ON -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
 cmake --build build-x86 --config Release --parallel
 python tests/run_ctest.py build-x86 Release reports/x86 --require-x86
+cmake -S . -B build-x64 -G "Visual Studio 17 2022" -A x64 -T "v143,version=14.44.35207" -DBUILD_TESTING=ON '-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>'
+cmake --build build-x64 --config Debug --parallel
+python tests/run_ctest.py build-x64 Debug reports/x64 --require-x64
 ```
 
-The test binaries link the static MSVC runtime. The runner checks the JUnit
-results for a passing four-byte `size_t` case and named boundary cases for
-`SIZE_MAX`, `SIZE_MAX + 1`, checked addition, and truncation of a 64-bit
-wire length. CI publishes the log and JUnit report as `ctest-reports-x86`.
+The test binaries link the static MSVC runtime for their configuration.
+The x86 suite rejects 2³² and `UINT64_MAX` and checks that the
+destination retains its value. The x64 case converts both counts exactly.
+These tests exercise the conversion without allocating a large buffer.
 
 ## Fuzzing and compatibility
 

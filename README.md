@@ -51,7 +51,9 @@ cd ..
 ```
 
 The [testing guide](docs/testing.md) covers offline setup, CTest filters and
-reports, sanitizers, coverage, 32-bit execution and fuzz reproduction.
+reports, sanitizers, coverage and fuzz reproduction. The [compiler and architecture
+matrix](docs/testing.md#compiler-and-architecture-matrix) lists the supported
+configurations for Core and IO.
 The [benchmark workload catalog](docs/testing.md#benchmark-workload-catalog)
 provides equivalent C99 and C++17 inputs. The [Google Benchmark runner](docs/testing.md#runtime-and-throughput)
 measures Core and IO latency and throughput and writes JSON reports.

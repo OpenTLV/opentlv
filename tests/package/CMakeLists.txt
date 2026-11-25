@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 project(OpenTLVConsumer LANGUAGES ${CONSUMER_LANGUAGE})
+include(../strict_compile_options.cmake)
 
 set(CMAKE_DISABLE_FIND_PACKAGE_GTest TRUE)
 # Restrict discovery to the package under test, even on a host with OpenTLV installed.
@@ -31,9 +32,7 @@ endif()
 
 foreach(module IN ITEMS core io)
     target_link_libraries(${module}-consumer PRIVATE OpenTLV::${module})
-    if(CMAKE_${CONSUMER_LANGUAGE}_COMPILER_ID MATCHES "GNU|Clang" AND NOT MSVC)
-        target_compile_options(${module}-consumer PRIVATE -pedantic-errors -Wall -Wextra -Werror)
-    endif()
+    opentlv_strict_compile_options(${module}-consumer ${CONSUMER_LANGUAGE})
     add_test(NAME ${module}-consumer COMMAND ${module}-consumer)
 endforeach()
 

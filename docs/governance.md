@@ -75,8 +75,8 @@ Full run has its own concurrency group.
 
 | Job and scope | PR to `main` | Push to `main` | Manual Full | Weekly Full |
 | --- | --- | --- | --- | --- |
-| `fixed-tlv` · C99/C++17 public headers, Debug/Release CTest, ASan/UBSan, reproducible coverage, Linux static/shared packages and symbols, bounded fuzzing | GCC headers | GCC headers | GCC + Clang 18 headers | GCC + Clang 18 headers |
-| `windows-x86` · MSVC Win32 Release tests, ABI and native-size boundaries | Run | Run | Run | Run |
+| `fixed-tlv` · GCC 13 and Clang 18 x64 Debug/Release contracts, ASan/UBSan with Clang Debug, public headers, coverage, Linux static/shared packages and symbols, bounded fuzzing | GCC headers | GCC headers | GCC + Clang headers | GCC + Clang headers |
+| `windows-contracts` · MSVC Win32 Release and x64 Debug contracts, ABI and native-size boundaries | Run both | Run both | Run both | Run both |
 | `resource-usage` · allocation probes and two clean footprint builds for each of static and shared linkage | Run both | Run both | Run both | Run both |
 | `callgrind` · compare the candidate with the reviewed baseline for instruction counts and binary size, publish timing observations | Run | Run | Run | Run |
 | `windows-package` · MSVC static/shared C99 and C++17 consumers of the build tree and relocated installation | Skip | Skip | Run | Run |
@@ -86,14 +86,14 @@ Full run has its own concurrency group.
 The performance and resource jobs run before merge so reviewers can inspect
 regressions and proposed baseline updates. Full CI adds the second header
 compiler and Windows package checks within the same workflow. If one
-resource matrix leg fails, the other can finish and publish its report.
+resource or Windows contract matrix leg fails, its sibling can finish and publish its report.
 Actions use full commit pins and read-only repository access. Checkout
 disables credential persistence.
 
 `fixed-tlv-quality` directly depends on all six worker job IDs. Its
 `always()` condition lets it inspect [GitHub's job results] after a worker
 fails or skips. The gate requires `success` from every selected worker,
-including the resource matrix. The only expected `skipped` result is
+including both matrix jobs. The only expected `skipped` result is
 `windows-package` on a PR or push. A failed, cancelled, missing or
 unexpected result fails the gate. Keep the workflow's `needs` list and
 [gate policy](../tests/check_ci_gate.py) in sync when adding jobs.

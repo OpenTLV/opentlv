@@ -13,7 +13,7 @@ def check_results(event, needs):
         raise SystemExit(f"Unsupported CI event {event!r}")
 
     expected = dict.fromkeys(
-        ("fixed-tlv", "resource-usage", "callgrind", "windows-x86", "workflow-analyzers"),
+        ("fixed-tlv", "resource-usage", "callgrind", "windows-contracts", "workflow-analyzers"),
         "success",
     )
     expected["windows-package"] = windows_package
