@@ -11,7 +11,9 @@
 
 namespace opentlv::io {
 
-/** Encode one element. Short output sets written to the required size.
+/** Encode one element and set written to its encoded size. Short output
+ * sets written to the required size. Other errors preserve written.
+ * Every error preserves the destination bytes.
  * Keep source bytes disjoint from the destination range and store the
  * count and optional diagnostic separately from all buffers and inputs.
  */
@@ -44,13 +46,21 @@ public:
         return core::from_c(tlv_writer_init(&cursor_, output.data, output.size, &config));
     }
 
-    /** Append after initialization. Keep the source disjoint from the range
+    /** Append one element. Before the first successful init, return invalid_arg.
+     * Keep the source disjoint from the range
      * being written and the diagnostic outside the cursor, element and buffers.
      * Failure preserves the position and bytes.
      */
     [[nodiscard]] core::result write(const core::element_view &element,
                                      core::diagnostic *details = nullptr) noexcept
     {
+        // A successfully initialized Fixed TLV format has a nonzero tag width.
+        if (cursor_.format.identifier.size == 0) {
+            if (details) {
+                *details = {core::result::invalid_arg};
+            }
+            return core::result::invalid_arg;
+        }
         const auto source = core::to_c(element);
         tlv_diagnostic_t diagnostic{};
         const auto code = tlv_writer_write_with_diagnostic(&cursor_, &source, details ? &diagnostic : nullptr);
