@@ -100,7 +100,7 @@ C17 and C23 when the compiler provides those modes. All public `.hpp`
 headers must compile in C++17. Separate probes verify that including the
 C++ umbrella in C++11 or C++14 reports the required standard.
 
-Run the installed-package checks with CMake, a native build tool, and C99
+Run the package checks with CMake, a native build tool, and C99
 and C++17 compilers on the path.
 
 ```sh
@@ -108,15 +108,18 @@ python tests/check_cmake_package.py
 python tests/check_cmake_package.py --shared
 ```
 
-Each check builds with `BUILD_TESTING=OFF`, installs the libraries in a
-temporary directory, and moves the installation. It checks the installed tree
-for GoogleTest, GoogleMock and OpenTLV test artifacts, and checks the CMake
-exports for references to those components or to source, build and original
-install paths. With GTest discovery disabled, separate C99 and C++17 projects
-find the moved package, link Core and IO respectively, and run through CTest. The C++17
-consumer calls functions from both modules through the IO target.
-The same check builds and runs the [documented examples](../README.md#run-the-examples)
-against the relocated package and checks the output of each program.
+Each check builds the C99 libraries with `BUILD_TESTING=OFF`. Separate C-only
+and C++-only projects use `find_package(OpenTLV)` first against the build tree
+and then against a relocated installation. Each project links one executable
+to `OpenTLV::core` and another to `OpenTLV::io` and runs both through CTest.
+The C++17 IO consumer writes and reads an element using the module headers
+and calls Core through IO's transitive dependency.
+
+The checks disable GTest discovery in the consumer projects and look for test
+artifacts in the install tree. They inspect installed CMake files for test
+dependencies and paths to the source, build or original installation. They
+also run the [documented examples](../README.md#run-the-examples) against
+the relocated package and verify each program's output.
 
 The epic tracks behavioral test and coverage infrastructure in
 [#10](https://github.com/OpenTLV/opentlv/issues/10),

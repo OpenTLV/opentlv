@@ -1,4 +1,4 @@
-"""Build and relocate an OpenTLV package, then run its consumers and examples."""
+"""Run consumers against build-tree and relocated OpenTLV packages and check the examples."""
 
 import argparse
 import os
@@ -39,32 +39,42 @@ def check_install_tree(relocated, private_paths):
                 raise SystemExit(f"{relative} contains private path {private_path}")
 
 
+def runtime_environment(prefix):
+    env = os.environ.copy()
+    if os.name == "nt":
+        env["PATH"] = str(prefix / "bin") + os.pathsep + env["PATH"]
+    return env
+
+
+def check_consumers(work, package_prefix):
+    for language in ("C", "CXX"):
+        consumer = work / language
+        build_project(ROOT / "tests" / "package", consumer, f"-DCONSUMER_LANGUAGE={language}",
+                      f"-DPACKAGE_PREFIX={package_prefix}")
+        subprocess.run(["ctest", "-C", "Release", "--output-on-failure"],
+                       cwd=consumer, env=runtime_environment(package_prefix), check=True)
+
+
 def check_package(work, shared):
     build = work / "library"
     prefix = work / "original install"
     relocated = work / "relocated install"
     build_project(ROOT, build, "-DBUILD_TESTING=OFF", f"-DCMAKE_INSTALL_PREFIX={prefix}",
+                  f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={build / 'bin'}",
                   "-DBUILD_SHARED_LIBS=" + ("ON" if shared else "OFF"))
+    check_consumers(work / "build-tree consumers", build)
+
     subprocess.run(["cmake", "--install", build, "--config", "Release"], check=True)
     prefix.rename(relocated)
 
     check_install_tree(relocated, (ROOT, build, prefix))
-
-    env = os.environ.copy()
-    if os.name == "nt":
-        env["PATH"] = str(relocated / "bin") + os.pathsep + env["PATH"]
-
-    for language in ("C", "CXX"):
-        consumer = work / f"consumer-{language}"
-        build_project(ROOT / "tests" / "package", consumer, f"-DCONSUMER_LANGUAGE={language}",
-                      f"-DPACKAGE_PREFIX={relocated}")
-        subprocess.run(["ctest", "-C", "Release", "--output-on-failure"],
-                       cwd=consumer, env=env, check=True)
+    check_consumers(work / "installed consumers", relocated)
 
     package_config = next(relocated.rglob("OpenTLVConfig.cmake"))
     binaries = work / "example binaries"
     build_project(ROOT / "examples", work / "examples", f"-DOpenTLV_DIR={package_config.parent}",
                   f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={binaries}")
+    env = runtime_environment(relocated)
     for name, expected in (("opentlv-write", "12 34 00 03 AA BB CC"),
                            ("opentlv-read", "tag 12 34, value AA BB CC")):
         executable = binaries / (name + ".exe" if os.name == "nt" else name)

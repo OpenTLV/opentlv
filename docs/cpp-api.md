@@ -221,7 +221,8 @@ each public header on its own. The check compiles every `.h` header in
 C99 and C++17, and every `.hpp` header in C++17. Rejection probes check
 the C++ umbrella's diagnostic in C++11 and C++14.
 The [package checks](architecture.md#verification) build and run C99 and C++17
-consumers against relocated static and shared installations.
+consumers against the build tree and a relocated installation for both static
+and shared libraries.
 
 When adding a wrapper, exercise it alongside its C operation on the same
 input and compare wire bytes, results, diagnostic details and output state

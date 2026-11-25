@@ -57,8 +57,9 @@ The [Fixed TLV workflow] runs these checks on every pull request to `main`
 and every push to `main`.
 
 - `fixed-tlv` compiles the public headers, runs CTest in Debug, Release and
-  sanitizer builds, compares two GCC coverage reports, exercises static and
-  shared installed packages, and runs the bounded fuzz targets on Ubuntu 24.04.
+  sanitizer builds, compares two GCC coverage reports, tests build-tree and
+  relocated packages for static and shared libraries, and runs the bounded
+  fuzz targets on Ubuntu 24.04.
 - `windows-x86` builds and executes the Win32 test suites with MSVC and
   verifies the [x86 ABI and native-size boundary cases](testing.md#32-bit-x86).
 - `workflow-analyzers` checks the workflow files with actionlint and zizmor.
@@ -71,13 +72,14 @@ Full CI runs every Monday at 06:43 UTC. To run it manually, open **Actions**,
 select **Fixed TLV**, choose **Run workflow**, and select the branch to check.
 Full CI adds a Clang 18 public-header check to `fixed-tlv`. It also runs
 `windows-package`, which builds static and shared packages with MSVC and tests
-their C and C++ consumers after relocating the installation. For a release
-candidate, verify that all four jobs passed for the exact `main` commit.
+their C and C++ consumers against the build tree and a relocated installation.
+For a release candidate, verify that all four jobs passed for the exact `main`
+commit.
 
-To reproduce the build checks, follow the [header and installed-package checks]
+To reproduce the build checks, follow the [header and package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
 run `CC=clang-18 CXX=clang++-18 python3 tests/check_public_api.py`.
-To reproduce `windows-package`, run both installed-package commands on Windows
+To reproduce `windows-package`, run both package commands on Windows
 with the `Visual Studio 17 2022` CMake generator and the C++ build tools.
 
 To check workflow changes locally on Ubuntu 24.04 x86-64, open Bash at the
@@ -118,7 +120,7 @@ non-maintainer remains unverified. [Reporting verification]
 [maintainer audit]: https://github.com/OpenTLV/.github/issues/10
 [governance baseline]: https://github.com/OpenTLV/.github/blob/main/docs/governance.md
 [Fixed TLV workflow]: ../.github/workflows/fixed-tlv.yml
-[header and installed-package checks]: architecture.md#verification
+[header and package checks]: architecture.md#verification
 [fixed TLV test commands]: testing.md
 [dependency graph export]: https://api.github.com/repos/OpenTLV/opentlv/dependency-graph/sbom
 [private vulnerability reporting]: https://api.github.com/repos/OpenTLV/opentlv/private-vulnerability-reporting

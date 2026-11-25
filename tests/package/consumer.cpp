@@ -1,35 +1,34 @@
-#include <opentlv/tlv.hpp>
+#include <opentlv/io/reader/reader.hpp>
+#include <opentlv/io/writer/writer.hpp>
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
+
+#if __cplusplus != 201703L && (!defined(_MSVC_LANG) || _MSVC_LANG != 201703L)
+#error "Expected the OpenTLV target to select C++17"
+#endif
 
 int main()
 {
     namespace core = opentlv::core;
-    const uint8_t tag[] = {0xa5};
+    const std::uint8_t tag[] = {0xa5};
     core::element_view element{{tag, sizeof tag}, {}};
     const core::fixed_format format{{1}, {2, core::byte_order::big_endian}};
-    size_t native;
-    if (core::element_size(format, element, native) != core::result::ok || native != 3 ||
-        core::size_to_native(element.value.size, native) != core::result::ok || native != 0)
-        return EXIT_FAILURE;
-
-    const uint8_t payload[] = {0xab};
-    const uint8_t expected[] = {0xa5, 0x00, 0x01, 0xab};
-    uint8_t wire[sizeof expected]{};
-    tlv_writer_t writer{};
+    const std::uint8_t payload[] = {0xab};
+    const std::uint8_t expected[] = {0xa5, 0x00, 0x01, 0xab};
+    std::uint8_t wire[sizeof expected]{};
+    opentlv::io::writer writer;
     if (core::make_value_view(payload, sizeof payload, element.value) != core::result::ok)
         return EXIT_FAILURE;
-    const auto c_format = core::to_c(format);
-    auto c_element = core::to_c(element);
-    if (tlv_writer_init(&writer, wire, sizeof wire, &c_format) != TLV_OK ||
-        tlv_writer_write(&writer, &c_element) != TLV_OK ||
-        writer.pos != sizeof expected || std::memcmp(wire, expected, sizeof expected) != 0)
+    if (writer.init(format, {wire, sizeof wire}) != core::result::ok ||
+        writer.write(element) != core::result::ok || writer.position() != sizeof expected ||
+        std::memcmp(wire, expected, sizeof expected) != 0)
         return EXIT_FAILURE;
 
     opentlv::io::reader reader;
     core::element_view decoded{};
-    if (reader.init(format, {wire, writer.pos}) != core::result::ok ||
+    if (reader.init(format, {wire, writer.position()}) != core::result::ok ||
         reader.next(decoded) != core::result::ok)
         return EXIT_FAILURE;
     if (decoded.tag.data != wire || decoded.value.size != 1 || decoded.value.data[0] != payload[0])

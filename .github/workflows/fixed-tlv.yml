@@ -95,9 +95,9 @@ jobs:
             ${{ runner.temp }}/coverage.txt
             ${{ runner.temp }}/coverage-repeat.txt
           if-no-files-found: error
-      - name: Test the installed static CMake package
+      - name: Test static build-tree and installed CMake packages
         run: python3 tests/check_cmake_package.py
-      - name: Test the installed shared CMake package
+      - name: Test shared build-tree and installed CMake packages
         run: python3 tests/check_cmake_package.py --shared
       - name: Build Fixed TLV fuzz targets
         env:
@@ -158,9 +158,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Test the installed static CMake package with MSVC
+      - name: Test static build-tree and installed CMake packages with MSVC
         run: python tests/check_cmake_package.py
-      - name: Test the installed shared CMake package with MSVC
+      - name: Test shared build-tree and installed CMake packages with MSVC
         run: python tests/check_cmake_package.py --shared
 
   workflow-analyzers:

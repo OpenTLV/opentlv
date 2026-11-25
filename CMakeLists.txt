@@ -11,6 +11,8 @@ add_library(opentlv_core
     src/core/size.c
     src/core/value.c
 )
+# CMake 3.15 rejects C++ compile features when the consumer enables only C.
+target_compile_features(opentlv_core INTERFACE "$<$<BOOL:$<CXX_COMPILER_ID>>:cxx_std_17>")
 add_library(opentlv_io
     src/io/reader/reader.c
     src/io/writer/writer.c
@@ -62,6 +64,10 @@ install(DIRECTORY include/opentlv DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
 install(FILES LICENSE DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/OpenTLV")
+export(EXPORT OpenTLVTargets
+    FILE "${CMAKE_CURRENT_BINARY_DIR}/OpenTLVConfig.cmake"
+    NAMESPACE OpenTLV::
+)
 install(EXPORT OpenTLVTargets
     FILE OpenTLVConfig.cmake
     NAMESPACE OpenTLV::
