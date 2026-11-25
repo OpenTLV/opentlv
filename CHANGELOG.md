@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added C and C++17 equivalence checks for Fixed TLV lengths, cursor writes and round trips across all 16 wire layouts, including sanitizer and coverage runs. (#50)
 - Added a build-tree CMake package so consumers can link `OpenTLV::core` and `OpenTLV::io` before installation. Both package locations propagate the C++17 requirement and support C99-only projects. (#49)
 - Added C++17 result category and message lookups and conversions between C and C++ diagnostics that preserve the field, offset, and byte counts. (#48)
 - Added C++17 one-shot and cursor writes for Fixed TLV with caller-owned output buffers and optional diagnostics. (#47)

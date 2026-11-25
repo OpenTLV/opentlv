@@ -70,9 +70,11 @@ the mapped function and asserts its expected behavior.
 | `tlv_writer_write` | `IOWriter.RetriesAfterShortAppendAndKeepsItsFormatSnapshot` |
 | `tlv_writer_write_with_diagnostic` | `WriteDiagnostic.ReportsCommittedOffsetAndRemainingSpaceForAShortAppend` |
 
-The Core suite also exercises the inline C++17 interfaces. Compile-time
-assertions check view type distinctions, result code conversions and the
-`noexcept` contract. The coverage report measures the underlying C functions.
+The coverage build runs the inline C++17 interfaces against the same inputs
+as their C counterparts. The CTest runner requires the equivalence cases to
+pass before the coverage driver reports line and branch counts for the C
+implementation. Compile-time assertions also check view type distinctions,
+result code conversions and the `noexcept` contract.
 
 | C++ Core operations | Behavioral test |
 | --- | --- |
@@ -89,6 +91,7 @@ assertions check view type distinctions, result code conversions and the
 | C++ IO operations | Behavioral test |
 | --- | --- |
 | `write` results, diagnostics and output state on failure | `CppWriter.OneShotFailuresMatchCResultsAndDiagnostics` |
+| `writer::init`, `writer::format`, `writer::write` and `writer::position` across invalid appends and reinitialization | `CppWriter.AppendsEmptyAndNonEmptyValuesAcrossAnInvalidElement`, `CppWriter.ReinitializationSwitchesBufferAndFormatOnlyOnSuccess` |
 | `read` with and without diagnostics | `CppReader.OneShotMatchesCAtEveryPrefix` |
 | `reader::init`, `reader::format` and reinitialization | `CppReader.PreservesTheCursorOnInvalidInitialization`, `CppReader.CopiesCursorsAndBorrowsTheInput` |
 | `reader::next`, `reader::position` and cursor copies | `CppReader.CopiesCursorsAndBorrowsTheInput`, `CppReader.ReportsStreamOffsetsAndPreservesStateOnFailure` |

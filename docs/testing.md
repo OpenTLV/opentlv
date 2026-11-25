@@ -65,8 +65,12 @@ in the [public API coverage table](coverage.md#public-api-behavior).
 ## Debug and Release reports
 
 The CI runner executes the full suite and requires a passing case under each
-of the three labels. It writes `junit.xml` and `ctest.log` in the directory
-given as the final argument. Use a separate directory for each configuration.
+of the three labels. It also checks the JUnit results for specific C/C++17
+Core and IO cases and for both cross-language round-trip and truncated-stream
+cases in all 16 wire layouts. A missing or skipped required case fails the
+run. Debug, Release, sanitizer, coverage and x86 builds use the same runner.
+It writes `junit.xml` and `ctest.log` in the directory given as the final
+argument. Use a separate directory for each configuration.
 
 ```sh
 python3 tests/run_ctest.py build-tests Debug reports/Debug

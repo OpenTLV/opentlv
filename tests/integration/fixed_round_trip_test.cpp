@@ -1,5 +1,6 @@
-#include <opentlv/tlv.h>
+#include <opentlv/tlv.hpp>
 
+#include "../io/expect_view.h"
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -9,6 +10,8 @@
 
 namespace {
 
+namespace core = opentlv::core;
+namespace io = opentlv::io;
 using Bytes = std::vector<uint8_t>;
 
 // Each literal is the wire encoding of a three-byte payload length.
@@ -72,6 +75,7 @@ TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
     std::mt19937 random(0x26f1u);
     for (const size_t tagWidth : {1u, 2u, 9u}) {
         const tlv_fixed_format_t layout{{tagWidth}, length};
+        const auto cppLayout = core::from_c(layout);
         for (const size_t count : {0u, 1u, 127u, 254u, 255u, 256u, 257u, 513u}) {
             SCOPED_TRACE(testing::Message() << "tag bytes " << tagWidth << ", value bytes " << count);
             Bytes tag(tagWidth), value(count);
@@ -81,16 +85,21 @@ TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
             const tlv_element_t source{{tag.data(), tag.size()}, {value.data(), count}};
             const size_t header = tagWidth + length.size;
             Bytes output(header + count, 0xcc);
-            size_t written = 93;
+            Bytes cppOutput = output;
+            size_t written = 93, cppWritten = 93;
+            const auto result = tlv_write(output.data(), output.size(), &layout, &source, &written);
+            ASSERT_EQ(core::from_c(result), io::write(cppLayout, {cppOutput.data(), cppOutput.size()},
+                                                      core::from_c(source), cppWritten));
+            ASSERT_EQ(written, cppWritten);
+            ASSERT_EQ(output, cppOutput);
             if (length.size == 1 && count > 255) {
-                const Bytes before = output;
-                EXPECT_EQ(TLV_ERR_INVALID_LENGTH,
-                          tlv_write(output.data(), output.size(), &layout, &source, &written));
+                EXPECT_EQ(TLV_ERR_INVALID_LENGTH, result);
                 EXPECT_EQ(93u, written);
-                EXPECT_EQ(before, output);
+                EXPECT_EQ(Bytes(output.size(), 0xcc), output);
                 continue;
             }
 
+            ASSERT_EQ(TLV_OK, result);
             // The bounded corpus uses at most two significant length octets.
             Bytes field(length.size, 0);
             field.front() = static_cast<uint8_t>(count % 256);
@@ -103,20 +112,22 @@ TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
             size_t measured = 0;
             ASSERT_EQ(TLV_OK, tlv_fixed_element_size(&layout, &source, &measured));
             EXPECT_EQ(output.size(), measured);
-            ASSERT_EQ(TLV_OK, tlv_write(output.data(), output.size(), &layout, &source, &written));
             ASSERT_EQ(output.size(), written);
             EXPECT_TRUE(std::equal(tag.begin(), tag.end(), output.begin()));
             EXPECT_TRUE(std::equal(field.begin(), field.end(), output.begin() + tagWidth));
             EXPECT_TRUE(std::equal(value.begin(), value.end(), output.begin() + header));
 
+            // Each reader borrows the record produced by the other language's writer.
             tlv_element_t decoded{};
-            size_t consumed = 0;
-            ASSERT_EQ(TLV_OK, tlv_read(output.data(), written, &layout, &decoded, &consumed));
+            core::element_view cppDecoded{};
+            size_t consumed = 0, cppConsumed = 0;
+            ASSERT_EQ(TLV_OK, tlv_read(cppOutput.data(), cppWritten, &layout, &decoded, &consumed));
+            ASSERT_EQ(core::result::ok, io::read(cppLayout, {output.data(), written}, cppDecoded, cppConsumed));
             EXPECT_EQ(written, consumed);
-            EXPECT_EQ(output.data(), decoded.tag.data);
-            EXPECT_EQ(tagWidth, decoded.tag.size);
-            EXPECT_EQ(output.data() + header, decoded.value.data);
-            EXPECT_EQ(count, decoded.value.size);
+            EXPECT_EQ(consumed, cppConsumed);
+            opentlv_test::ExpectView({{cppOutput.data(), tagWidth}, {cppOutput.data() + header, count}}, decoded);
+            opentlv_test::ExpectView({{output.data(), tagWidth}, {output.data() + header, count}},
+                                     core::to_c(cppDecoded));
         }
     }
 }
@@ -133,20 +144,39 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
     const tlv_element_t binary{{second.data(), 2}, {second.data() + second.size() - 3, 3}};
 
     Bytes stream(golden.size(), 0xcc);
+    Bytes cppStream = stream;
+    const auto cppFormat = core::from_c(format);
     tlv_writer_t writer{};
+    io::writer cppWriter;
     ASSERT_EQ(TLV_OK, tlv_writer_init(&writer, stream.data(), stream.size(), &format));
+    ASSERT_EQ(core::result::ok, cppWriter.init(cppFormat, {cppStream.data(), cppStream.size()}));
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, &empty));
+    ASSERT_EQ(core::result::ok, cppWriter.write(core::from_c(empty)));
     ASSERT_EQ(boundary, writer.pos);
+    EXPECT_EQ(writer.pos, cppWriter.position());
     ASSERT_EQ(TLV_OK, tlv_writer_write(&writer, &binary));
+    ASSERT_EQ(core::result::ok, cppWriter.write(core::from_c(binary)));
     ASSERT_EQ(golden.size(), writer.pos);
+    EXPECT_EQ(writer.pos, cppWriter.position());
     ASSERT_EQ(golden, stream);
+    ASSERT_EQ(stream, cppStream);
 
     for (size_t suffix = 0; suffix <= second.size(); ++suffix) {
         SCOPED_TRACE(suffix);
         tlv_reader_t reader{};
         tlv_element_t view{};
+        io::reader cppReader;
+        core::element_view cppView{};
         ASSERT_EQ(TLV_OK, tlv_reader_init(&reader, stream.data(), boundary + suffix, &format));
-        ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+        ASSERT_EQ(core::result::ok, cppReader.init(cppFormat, {stream.data(), boundary + suffix}));
+        const auto next = [&] {
+            const auto result = tlv_reader_next(&reader, &view);
+            EXPECT_EQ(core::from_c(result), cppReader.next(cppView));
+            EXPECT_EQ(reader.pos, cppReader.position());
+            opentlv_test::ExpectView(view, core::to_c(cppView));
+            return result;
+        };
+        ASSERT_EQ(TLV_OK, next());
         EXPECT_EQ(boundary, reader.pos);
         EXPECT_EQ(stream.data(), view.tag.data);
         EXPECT_EQ(2u, view.tag.size);
@@ -154,15 +184,15 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
         EXPECT_EQ(0u, view.value.size);
 
         if (suffix == second.size()) {
-            ASSERT_EQ(TLV_OK, tlv_reader_next(&reader, &view));
+            ASSERT_EQ(TLV_OK, next());
             EXPECT_EQ(golden.size(), reader.pos);
             EXPECT_EQ(stream.data() + boundary, view.tag.data);
             EXPECT_EQ(2u, view.tag.size);
             EXPECT_EQ(stream.data() + stream.size() - 3, view.value.data);
             EXPECT_EQ(3u, view.value.size);
-            EXPECT_EQ(TLV_END, tlv_reader_next(&reader, &view));
+            EXPECT_EQ(TLV_END, next());
         } else {
-            EXPECT_EQ(suffix == 0 ? TLV_END : TLV_ERR_TRUNCATED, tlv_reader_next(&reader, &view));
+            EXPECT_EQ(suffix == 0 ? TLV_END : TLV_ERR_TRUNCATED, next());
             EXPECT_EQ(boundary, reader.pos);
             EXPECT_EQ(stream.data(), view.tag.data);
             EXPECT_EQ(2u, view.tag.size);
