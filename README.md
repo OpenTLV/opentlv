@@ -52,6 +52,8 @@ cd ..
 
 The [testing guide](docs/testing.md) covers offline setup, CTest filters and
 reports, sanitizers, coverage, 32-bit execution and fuzz reproduction.
+The [benchmark workload catalog](docs/testing.md#benchmark-workload-catalog)
+provides equivalent C99 and C++17 inputs for Core and IO performance measurements.
 
 ## Run the examples
 

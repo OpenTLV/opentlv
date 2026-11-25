@@ -27,8 +27,51 @@ cmake -S . -B build-tests -G "Ninja Multi-Config" -DBUILD_TESTING=ON "-DOPENTLV_
 ```
 
 Both sources use the same checksum from [tests/CMakeLists.txt]. Follow either
-configure command with the same build and CTest commands. With tests disabled
-(the default), the library configures offline using only C.
+configure command with the same build and CTest commands. The default
+production build configures offline using only C.
+
+## Benchmark workload catalog
+
+From a Git checkout, enable `OPENTLV_BUILD_BENCHMARKS` to build the fixture
+checker and Google Benchmark 1.9.4. This opt-in build requires Git, CMake
+3.19 or newer and a C++17 compiler. CMake verifies the source archive's
+SHA-256. For an offline build, add
+`-DOPENTLV_GOOGLE_BENCHMARK_URL=/absolute/path/to/v1.9.4.tar.gz` to the
+configure command. Only the OpenTLV libraries, public headers, license and
+CMake package are installed. [Pinned archive](https://github.com/google/benchmark/archive/refs/tags/v1.9.4.tar.gz)
+
+```sh
+cmake -S . -B ../opentlv-bench -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENTLV_BUILD_BENCHMARKS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --build ../opentlv-bench
+ctest --test-dir ../opentlv-bench -C Release -L benchmark --output-on-failure
+../opentlv-bench/opentlv_check_fixtures --list > ../opentlv-bench/workloads.txt
+```
+
+The checker exercises 1,792 workloads through each public API. It compares
+results against independently constructed wire bytes, counts, borrowed views,
+cursor positions, diagnostics and destination guards. Run it before measuring.
+`--list` emits the sorted IDs after all checks pass. For example,
+`cpp17/v1/write/le8/offset1/payload513/short/diagnostic` identifies a C++17
+one-shot write with an eight-byte little-endian length, a 513-byte payload,
+one byte too little capacity and a diagnostic output. The matching C99 ID
+starts with `c99/`. Use a new catalog version when changing the inputs or
+expected behavior of an existing ID.
+
+| Operations | Inputs and expectations |
+| --- | --- |
+| Field read and write | Length widths 1–8 in both byte orders. The field starts at offset 0 or 1 from a 64-byte boundary. Short cases supply one byte less than the field width. |
+| Header and element measurement | A two-byte tag and a valid format, or an invalid identifier width or mismatched element tag. Each failure preserves the output size. |
+| One-shot and cursor reads and writes | The same 16 layouts and length-field alignments, with 0, 3 or 513 payload bytes (255 for a one-byte length). Complete and one-byte-short buffers run with a diagnostic or a null diagnostic pointer. |
+
+The build writes `benchmarks/Release/metadata.json` beneath the build
+directory. It records the Git revision and working-tree status, target,
+pointer width, library linkage, C and C++ compiler versions and flags, coverage
+instrumentation, interprocedural optimization, MSVC runtime selection where
+applicable, and tool versions. Keep it with the workload IDs and
+`compile_commands.json` for the exact compiler invocations. Use a clean
+checkout for comparable results and compare matching workload versions,
+inputs and build settings. This catalog reports fixture correctness. The
+[GDB probes](../tests/diagnostics/README.md) record instruction counts.
 
 ## Select a contract
 
