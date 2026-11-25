@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added C++17 one-shot and cursor writes for Fixed TLV with caller-owned output buffers and optional diagnostics. (#47)
+
 - Added C++17 one-shot and cursor reads for Fixed TLV, with borrowed element views and optional diagnostics that identify incomplete fields. (#46)
 - Added C++17 borrowed byte and element views, checked size conversions, and Fixed TLV length encoding, decoding, and measurement backed by the C99 Core. (#45)
 - Documented how to run each contract suite and mapped the Fixed TLV behavioral scenarios to their CTest and compatibility checks. (#32)

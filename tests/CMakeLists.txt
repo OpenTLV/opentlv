@@ -44,6 +44,7 @@ add_executable(opentlv_core_tests
 )
 add_executable(opentlv_io_tests
     io/cpp_reader_test.cpp
+    io/cpp_writer_test.cpp
     io/diagnostic_test.cpp
     io/reader_test.cpp
     io/writer_test.cpp

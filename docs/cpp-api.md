@@ -1,7 +1,7 @@
 # C++17 API conventions and module contracts
 
 C++17 is the supported language mode for the C++ API. Its umbrella,
-`<opentlv/tlv.hpp>`, exposes the Core types, the Fixed TLV reader in
+`<opentlv/tlv.hpp>`, exposes the Core types, the Fixed TLV reader and writer in
 `opentlv::io`, and the public C declarations.
 
 C++17 callers can also use the C interface directly through
@@ -31,6 +31,8 @@ bool fits_example()
         && required == 6;
 }
 ```
+
+Use `io::write(format, output, element, written)` to encode into a mutable byte view. For successive elements, call `io::writer::init(format, output)` and then `writer.write(element)`. Its `position()` counts committed bytes. Both write operations accept a trailing diagnostic pointer.
 
 To pass the same inputs to a C writer, obtain the native descriptors with
 `auto c_format = core::to_c(format)` and `auto c_element = core::to_c(element)`.
