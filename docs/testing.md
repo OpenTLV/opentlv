@@ -87,6 +87,8 @@ The field probe checks golden bytes and counts instructions for aligned and
 unaligned fields across all 16 layouts. It also measures complete records with
 empty, three-byte and 255- or 513-byte payloads. The diagnostic probe measures
 element sizing and one-shot and cursor operations on complete and short buffers.
+The wrapper probe compares optimized C99 and C++17 callers on the same inputs
+and includes the caller's descriptor conversions in the instruction count.
 See the [measurements and reproduction commands](../tests/diagnostics/README.md).
 
 ## Sanitizers

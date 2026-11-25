@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 
 #include <limits>
+#include <type_traits>
 #include <utility>
 
 namespace {
@@ -16,6 +17,14 @@ constexpr std::uint8_t marker[] = {0x31, 0x76};
 constexpr core::element_view saved{{marker, 1}, {marker + 1, 1}};
 constexpr core::diagnostic stale{core::result::invalid_arg, core::field::element, 77, 89, 63};
 
+constexpr auto converted_view = core::from_c(core::to_c(saved));
+static_assert(converted_view.tag.data == marker && converted_view.tag.size == 1);
+static_assert(converted_view.value.data == marker + 1 && converted_view.value.size == 1);
+static_assert(noexcept(core::from_c(core::to_c(saved))));
+static_assert(noexcept(core::from_c(core::to_c(one_byte_fields))));
+static_assert(std::is_nothrow_default_constructible_v<io::reader>);
+static_assert(std::is_nothrow_copy_constructible_v<io::reader>);
+static_assert(std::is_nothrow_copy_assignable_v<io::reader>);
 static_assert(noexcept(io::read({}, {}, std::declval<core::element_view &>(),
                                 std::declval<std::size_t &>())));
 static_assert(noexcept(std::declval<io::reader &>().init({}, {})));

@@ -22,7 +22,7 @@ namespace opentlv::io {
                                        core::diagnostic *details = nullptr) noexcept
 {
     const auto config = core::to_c(format);
-    tlv_element_t native_element{};
+    tlv_element_t native_element;
     tlv_result_t code;
     if (details) {
         tlv_diagnostic_t native_details;
@@ -61,7 +61,7 @@ public:
     [[nodiscard]] core::result next(core::element_view &element,
                                     core::diagnostic *details = nullptr) noexcept
     {
-        tlv_element_t native_element{};
+        tlv_element_t native_element;
         tlv_result_t code;
         if (details) {
             tlv_diagnostic_t native_details;

@@ -37,7 +37,7 @@ struct value_view {
 [[nodiscard]] inline result make_value_view(const std::uint8_t *data, logical_size size,
                                             value_view &out) noexcept
 {
-    tlv_value_t native{};
+    tlv_value_t native;
     const auto code = tlv_value_init(data, size, &native);
     if (code == TLV_OK) {
         out = from_c(native);

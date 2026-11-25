@@ -1,5 +1,62 @@
 # Fixed TLV instruction counts
 
+## C++17 wrapper costs
+
+The C99 and C++17 callers take the same pointer and size arguments and their
+respective API's descriptors. Both call the same separately compiled C
+implementation. Each IO caller selects a null diagnostic at compile time.
+Counts begin at the first instruction of each optimized caller and include
+nested calls through the return to the fixture. Cursor initialization and
+fixture checks take place outside that interval. [C callers](wrapper_probe.c)
+and [C++ callers and fixture](wrapper_probe.cpp)
+
+The record is `12 34 00 03 AA BB CC`. The short case supplies three bytes
+of input or output capacity. The value-view case uses the record's seven
+bytes or a null pointer with the same positive size. The probe checks result
+categories, byte counts, pointer identity, encoded bytes, cursor positions
+and preservation of sentinel outputs on failure.
+
+| Operation | Input or result | C99 `-O2` | C++17 `-O2` | C99 `-O3` | C++17 `-O3` |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Result classification | OK | 21 | 24 | 10 | 13 |
+| Result classification | Null argument | 22 | 25 | 10 | 13 |
+| Value view | Valid | 9 | 22 | 9 | 22 |
+| Value view | Null argument | 9 | 18 | 9 | 18 |
+| Element measurement | Complete | 46 | 66 | 46 | 66 |
+| Read | Complete | 100 | 122 | 96 | 118 |
+| Read | Short | 74 | 88 | 71 | 85 |
+| Next | Complete | 116 | 133 | 93 | 110 |
+| Next | Short | 90 | 99 | 67 | 76 |
+| Write | Complete | 167 | 184 | 164 | 181 |
+| Write | Short | 100 | 117 | 97 | 114 |
+| Append | Complete | 184 | 199 | 162 | 177 |
+| Append | Short | 117 | 132 | 93 | 108 |
+
+Two runs at each optimization level produced identical counts on Windows 10
+x86-64 build 19045, with WinLibs GCC/G++ 13.3.0 r1, MSVCRT, separate
+translation units, default C++ exception handling and GDB 18.1. These are
+executed instructions for this ABI and dataset. Elapsed time and
+cross-platform thresholds require separate measurements.
+
+- **Result classification.** The enum casts generate no instructions. The C
+  caller tail-jumps to `tlv_result_category`. The C++ caller reserves shadow
+  space, calls the same function, restores the stack and returns. The C++
+  wrapper is `noexcept` and the C declaration has no C++ exception
+  specification. In a separate `-O2 -fno-exceptions` assembly check, GCC
+  emits the same tail jump for the C++ caller.
+- **Descriptors.** A value or element read uses a native output descriptor.
+  The wrapper tests the result and publishes pointers and counts on success.
+  Compared with `2ea1b98d785a`, omitting the initial clearing of these
+  temporaries saves two instructions per value-view call and three per
+  one-shot or cursor read, on successes and failures at both levels. The C
+  functions assign every output member before returning success.
+- **Measurement and writes.** The C++ caller materializes a native element
+  descriptor. Measurement and one-shot IO also convert the supplied format,
+  mapping unsupported byte orders to unknown. Each typed append checks that
+  the writer has been initialized. Both APIs reach the same tag and
+  payload copies on successful writes. The optimized probe and library
+  objects reference no heap allocation functions.
+
 ## Fixed-field encoding and decoding
 
 The length codec selects the wire order once per field. Decoding starts with
@@ -158,8 +215,49 @@ build_probe() {
     for file in "$src"/src/core/*.c "$src"/src/io/{reader,writer}/*.c; do
         gcc -std=c99 "$level" -g -I"$src/include" -c "$file" -o "$build/$(basename "${file%.c}").o"
     done
+    if [ -f "tests/diagnostics/$probe.c" ]; then
+        gcc -std=c99 "$level" -g -I"$src/include" -c "tests/diagnostics/$probe.c" -o "$build/${probe}.o"
+    fi
     g++ -std=c++17 "$level" -g -I"$src/include" "tests/diagnostics/$probe.cpp" "$build"/*.o -o "$build/probe.exe"
 }
+```
+
+### C99 and C++17 wrapper comparison
+
+The same fixture runs against baseline `2ea1b98d785a` and the working
+tree. Each count file has 13 matched C and C++ pairs. The final command
+shows instruction counts before and after the wrapper changes for each
+caller, operation and case.
+
+```bash
+for level in O2 O3; do
+    for version in 2ea1b98d785a current; do
+        build="$work/wrappers-$version-$level"
+        build_probe "$version" "$build" "-$level" wrapper_probe
+        for run in 1 2; do
+            log="$build/run-$run"
+            gdb -nx -batch -ex 'set $wrappers=1' -x tests/diagnostics/count.gdb "$build/probe.exe" > "$log.txt"
+            awk '/^wrapper / { sub(/\r$/, ""); print }' "$log.txt" > "$log.counts"
+            test "$(wc -l < "$log.counts")" -eq 26
+        done
+        cmp "$build/run-1.counts" "$build/run-2.counts"
+        objdump -d -M intel "$build/probe.exe" > "$build/assembly.txt"
+    done
+    echo "$level (baseline, current)"
+    paste "$work/wrappers-2ea1b98d785a-$level/run-1.counts" "$work/wrappers-current-$level/run-1.counts" |
+        awk '{print $2, $3, $4, $5, $10}'
+done
+```
+
+Inspect external references with GNU nm and the result-classification
+caller with exceptions disabled using the same sources.
+
+```bash
+build="$work/wrappers-current-O2"
+g++ -std=c++17 -O2 -g -Iinclude -c tests/diagnostics/wrapper_probe.cpp -o "$work/typed.o"
+nm -C -u "$build"/*.o "$work/typed.o"
+g++ -std=c++17 -O2 -fno-exceptions -Iinclude -S tests/diagnostics/wrapper_probe.cpp -o "$work/no-exceptions.s"
+grep -A4 '^cpp_category:' "$work/no-exceptions.s"
 ```
 
 ### Fixed-field counts
