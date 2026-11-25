@@ -1,6 +1,7 @@
 #include <opentlv/tlv.h>
 
 #include <cstddef>
+#include <cstdio>
 #include <type_traits>
 
 // Use the same per-module signatures that identify the expected binary symbols.
@@ -73,4 +74,15 @@ static_assert(layout<tlv_writer_t>(6 * word, word));
 static_assert(offsetof(tlv_writer_t, data) == 0 && offsetof(tlv_writer_t, capacity) == word);
 static_assert(offsetof(tlv_writer_t, pos) == 2 * word && offsetof(tlv_writer_t, format) == 3 * word);
 } // namespace
+
+int main()
+{
+    return 0;
+}
+#else
+int main()
+{
+    std::puts("Skipping record layout checks: this target ABI has no layout baseline.");
+    return 77; // CTest SKIP_RETURN_CODE
+}
 #endif

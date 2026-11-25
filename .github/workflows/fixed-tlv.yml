@@ -95,6 +95,8 @@ jobs:
             ${{ runner.temp }}/coverage.txt
             ${{ runner.temp }}/coverage-repeat.txt
           if-no-files-found: error
+      - name: Test symbol parsers with tool output fixtures
+        run: python3 -m unittest discover -s tests -p test_check_symbols.py
       - name: Test static build-tree and installed CMake packages
         run: python3 tests/check_cmake_package.py --check-symbols
       - name: Test shared build-tree and installed CMake packages

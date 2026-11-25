@@ -105,6 +105,7 @@ uses GCC or Clang and also accepts `--clang-cl clang-cl` on Windows.
 
 ```sh
 python tests/check_public_api.py
+python -m unittest discover -s tests -p test_check_symbols.py
 python tests/check_cmake_package.py --check-symbols
 python tests/check_cmake_package.py --check-symbols --shared
 ```
@@ -120,9 +121,15 @@ symbols. The MSVC check reads the archive's public symbol index and skips
 compiler-generated entries for pooled string literals (`??_C@` COMDATs). For
 shared ELF libraries, the check uses `objdump -p` to identify loader entries
 by address and reports them separately. An extra symbol, a missing name, or
-a function in the wrong library fails the comparison. The C++ package
-consumer and integration test builds check the C signatures, enum values and
-record layouts at compile time.
+a function in the wrong library fails the comparison. Fixture tests exercise
+the symbol parsers with saved ELF and PE/COFF tool output.
+
+Both the library test build and the C++ package checks compile `abi-layout`.
+Its C signature and enum assertions run at compile time on every target.
+On x86-64 with eight-byte pointers and Win32 with MSVC-compatible packing,
+the build also checks record sizes, alignments and member offsets. For other
+targets CTest reports `abi-layout` as skipped. Run CTest in the build directory
+with `-V -R "^abi-layout$"` to see the reason.
 
 Review baseline changes alongside the [consumer tests](architecture.md#verification)
 and the [compatibility policy](architecture.md#compatibility). For release
