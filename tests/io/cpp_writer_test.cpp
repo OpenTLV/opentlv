@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <type_traits>
+#include <utility>
 
 namespace {
 namespace core = opentlv::core;
@@ -9,6 +10,9 @@ namespace io = opentlv::io;
 
 static_assert(!std::is_copy_constructible_v<io::writer>);
 static_assert(!std::is_copy_assignable_v<io::writer>);
+static_assert(noexcept(io::write({}, {}, {}, std::declval<std::size_t &>(), nullptr)));
+static_assert(noexcept(std::declval<io::writer &>().init({}, {})));
+static_assert(noexcept(std::declval<io::writer &>().write({}, nullptr)));
 
 TEST(CppWriter, RejectsWritesUntilInitializationSucceeds)
 {
@@ -76,26 +80,47 @@ TEST(CppWriter, MatchesCAndPreservesCommittedBytesOnShortAppend)
     EXPECT_EQ(expected, stream);
 }
 
-TEST(CppWriter, InvalidInputsPreserveOneShotBufferAndCount)
+TEST(CppWriter, OneShotFailuresMatchCResultsAndDiagnostics)
 {
     const core::fixed_format format{{1}, {1, core::byte_order::big_endian}};
     const std::uint8_t tag = 0xa1;
     const core::element_view empty{{&tag, 1}, {}};
-    const core::element_view missing_value{{&tag, 1}, {nullptr, 1}};
-    std::array<std::uint8_t, 3> bytes{0x11, 0x22, 0x33};
-    const auto original = bytes;
-    const core::mutable_byte_view output{bytes.data(), bytes.size()};
-    std::size_t written = 91;
-    core::diagnostic details{};
+    const std::array<std::uint8_t, 256> long_value{};
+    const struct {
+        core::fixed_format format;
+        core::element_view element;
+        std::size_t capacity;
+        tlv_result_t expected;
+    } cases[] = {
+        {{}, empty, 3, TLV_ERR_INVALID_ARG},
+        {format, {{&tag, 1}, {nullptr, 1}}, 3, TLV_ERR_NULL_ARG},
+        {format, {{&tag, 0}, {}}, 3, TLV_ERR_INVALID_TAG_SIZE},
+        {format, {{&tag, 1}, {long_value.data(), long_value.size()}}, 3, TLV_ERR_INVALID_LENGTH},
+        {format, empty, 1, TLV_ERR_BUFFER_TOO_SHORT},
+    };
 
-    EXPECT_EQ(core::result::invalid_arg, io::write({}, output, empty, written, &details));
-    EXPECT_EQ(core::result::invalid_arg, details.result);
-    EXPECT_EQ(91u, written);
-    EXPECT_EQ(original, bytes);
-    EXPECT_EQ(core::result::null_arg, io::write(format, output, missing_value, written, &details));
-    EXPECT_EQ(core::result::null_arg, details.result);
-    EXPECT_EQ(91u, written);
-    EXPECT_EQ(original, bytes);
+    const std::array<std::uint8_t, 3> original{0x11, 0x22, 0x33};
+    for (const auto &entry : cases) {
+        SCOPED_TRACE(entry.expected);
+        const auto config = core::to_c(entry.format);
+        const auto source = core::to_c(entry.element);
+        auto c_bytes = original, bytes = original;
+        std::size_t c_written = 91, written = 91;
+        tlv_diagnostic_t c_details{};
+        core::diagnostic details{core::result::ok, core::field::length, 3, 5, 1};
+        const auto c_result = tlv_write_with_diagnostic(c_bytes.data(), entry.capacity, &config,
+                                                       &source, &c_written, &c_details);
+        ASSERT_EQ(entry.expected, c_result);
+        EXPECT_EQ(core::from_c(c_result), io::write(entry.format, {bytes.data(), entry.capacity},
+                                                   entry.element, written, &details));
+        EXPECT_EQ(core::from_c(c_details.result), details.result);
+        EXPECT_EQ(core::from_c(c_details.field), details.field);
+        EXPECT_EQ(c_details.offset, details.offset);
+        EXPECT_EQ(c_details.required, details.required);
+        EXPECT_EQ(c_details.available, details.available);
+        EXPECT_EQ(c_written, written);
+        EXPECT_EQ(original, bytes);
+    }
 }
 
 TEST(CppWriter, AppendsEmptyAndNonEmptyValuesAcrossAnInvalidElement)

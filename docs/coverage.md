@@ -76,6 +76,8 @@ assertions check view type distinctions, result code conversions and the
 
 | C++ Core operations | Behavioral test |
 | --- | --- |
+| `result_category`, `result_string` and result conversions | `CoreResult.ClassifiesAndDescribesEveryNamedResult`, `CoreResult.ReturnsTheFallbackForUnassignedCodes` |
+| `to_c`, `from_c` for diagnostics | `CppCore.RoundTripsDiagnosticFieldsAndFullWidthCounts` |
 | `to_c`, `from_c` for borrowed views | `CppCore.CopiedDescriptorsKeepBorrowingTheOriginalStorage` |
 | `make_value_view`, `validate` | `CppCore.ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure` |
 | `size_add`, `size_to_native` | `CppCore.ChecksLogicalAndNativeSizeLimits` |
@@ -86,6 +88,7 @@ assertions check view type distinctions, result code conversions and the
 
 | C++ IO operations | Behavioral test |
 | --- | --- |
+| `write` results, diagnostics and output state on failure | `CppWriter.OneShotFailuresMatchCResultsAndDiagnostics` |
 | `read` with and without diagnostics | `CppReader.OneShotMatchesCAtEveryPrefix` |
 | `reader::init`, `reader::format` and reinitialization | `CppReader.PreservesTheCursorOnInvalidInitialization`, `CppReader.CopiesCursorsAndBorrowsTheInput` |
 | `reader::next`, `reader::position` and cursor copies | `CppReader.CopiesCursorsAndBorrowsTheInput`, `CppReader.ReportsStreamOffsetsAndPreservesStateOnFailure` |
