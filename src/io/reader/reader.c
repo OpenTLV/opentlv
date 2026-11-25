@@ -25,15 +25,20 @@ tlv_result_t tlv_read_with_diagnostic(const uint8_t *data, size_t size,
     if (size == 0) {
         return report_result(diagnostic, TLV_END);
     }
-    const size_t tag_size = format->identifier.size;
-    if (size < tag_size) {
-        return report_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_TAG, 0, tag_size, size);
-    }
     if (size < header_size) {
-        return report_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_LENGTH, tag_size,
-                            format->length.size, size - tag_size);
+        if (diagnostic) {
+            const size_t tag_size = format->identifier.size;
+            if (size < tag_size) {
+                set_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_TAG, 0, tag_size, size);
+            } else {
+                set_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_LENGTH, tag_size,
+                          format->length.size, size - tag_size);
+            }
+        }
+        return TLV_ERR_TRUNCATED;
     }
 
+    const size_t tag_size = format->identifier.size;
     const uint8_t *length_field = data + tag_size;
     tlv_size_t value_size;
     size_t length_bytes;
@@ -44,8 +49,11 @@ tlv_result_t tlv_read_with_diagnostic(const uint8_t *data, size_t size,
     }
     /* Compare before narrowing the wire count or adding it to an offset. */
     if (value_size > size - header_size) {
-        return report_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, header_size,
-                            value_size, size - header_size);
+        if (diagnostic) {
+            set_field(diagnostic, TLV_ERR_TRUNCATED, TLV_FIELD_VALUE, header_size,
+                      value_size, size - header_size);
+        }
+        return TLV_ERR_TRUNCATED;
     }
     const tlv_element_t element = {{data, tag_size}, {length_field + length_bytes, value_size}};
     *out_element = element;
@@ -92,7 +100,7 @@ tlv_result_t tlv_reader_next_with_diagnostic(tlv_reader_t *reader, tlv_element_t
                                                    diagnostic);
     if (result == TLV_OK) {
         reader->pos += consumed;
-    } else if (result == TLV_ERR_TRUNCATED && diagnostic) {
+    } else if (diagnostic && result == TLV_ERR_TRUNCATED) {
         diagnostic->offset += reader->pos;
     }
     return result;

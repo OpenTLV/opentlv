@@ -16,8 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 READER = "src/io/reader/reader.c"
 WRITER = "src/io/writer/writer.c"
 # Reviewed in docs/coverage.md. Branch indices are zero-based within a line.
-EXCLUDED_LINES = {(READER, 43), (WRITER, 38)}
-EXCLUDED_BRANCHES = {(READER, 42, 0), (READER, 79, 6), (WRITER, 37, 0), (WRITER, 71, 4)}
+EXCLUDED_LINES = {(READER, 48), (WRITER, 40)}
+EXCLUDED_BRANCHES = {(READER, 47, 0), (READER, 87, 6), (WRITER, 39, 0), (WRITER, 73, 4)}
 
 
 def read_profiles(build, gcov, version):

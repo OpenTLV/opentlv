@@ -68,12 +68,18 @@ TEST(CppWriter, MatchesCAndPreservesCommittedBytesOnShortAppend)
     EXPECT_EQ(core::result::ok, details.result);
     EXPECT_EQ(count, written);
     EXPECT_EQ(expected, one_shot);
+    one_shot = untouched;
+    written = 0;
+    ASSERT_EQ(core::result::ok, io::write(format, {one_shot.data(), one_shot.size()}, element, written));
+    EXPECT_EQ(count, written);
+    EXPECT_EQ(expected, one_shot);
     {
         io::writer cursor;
         ASSERT_EQ(core::result::ok, cursor.init(format, {stream.data(), stream.size()}));
         format = {};
         ASSERT_EQ(core::result::ok, cursor.write(element));
         EXPECT_EQ(core::result::buffer_too_short, cursor.write(element, &details));
+        EXPECT_EQ(core::result::buffer_too_short, cursor.write(element));
         EXPECT_EQ(count, cursor.position());
         EXPECT_EQ(count, details.offset);
         EXPECT_EQ(count, details.required);
@@ -120,6 +126,13 @@ TEST(CppWriter, OneShotFailuresMatchCResultsAndDiagnostics)
         EXPECT_EQ(c_details.offset, details.offset);
         EXPECT_EQ(c_details.required, details.required);
         EXPECT_EQ(c_details.available, details.available);
+        EXPECT_EQ(c_written, written);
+        EXPECT_EQ(original, bytes);
+
+        bytes = original;
+        written = 91;
+        EXPECT_EQ(core::from_c(c_result), io::write(entry.format, {bytes.data(), entry.capacity},
+                                                   entry.element, written));
         EXPECT_EQ(c_written, written);
         EXPECT_EQ(original, bytes);
     }

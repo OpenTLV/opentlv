@@ -177,6 +177,11 @@ outputs. Pass `NULL` to omit the record. Existing calls keep their signatures
 and numeric result codes. The diagnostic variants follow the same rules for
 outputs and cursor movement.
 
+With a null diagnostic the reader checks the full header and payload bounds.
+It classifies a partial header as a tag or length failure only when the caller
+requests those details. The writer still computes the encoded size to check
+capacity and report the size required for a retry.
+
 Each call sets `result` in the supplied record. On truncation, `field`
 identifies the incomplete part as `TLV_FIELD_TAG`, `TLV_FIELD_LENGTH`,
 or `TLV_FIELD_VALUE`. On short output, `TLV_FIELD_ELEMENT` identifies the

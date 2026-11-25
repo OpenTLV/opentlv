@@ -29,10 +29,10 @@ Branch indices below are zero-based within the source line in gcov JSON.
 
 | File | Uncovered location | Reason |
 | --- | --- | --- |
-| `src/io/reader/reader.c` | Line 42, branch 0 and line 43 | The length reader is called with validated field settings, valid output pointers, and the entire header available. Its defensive error return cannot be reached with that input. |
-| `src/io/writer/writer.c` | Line 37, branch 0 and line 38 | Element measurement already validated the length field and payload size, and the capacity check reserved the entire element. The length writer's error return cannot be reached. |
-| `src/io/reader/reader.c` | Line 79, branch 6 | A successfully initialized reader cannot have a null buffer and positive size. The public contract requires callers to treat cursor fields as read-only. |
-| `src/io/writer/writer.c` | Line 71, branch 4 | Writer initialization rejects a null buffer with positive capacity. Reaching this outcome would require violating the initialized cursor contract. |
+| `src/io/reader/reader.c` | Line 47, branch 0 and line 48 | The length reader is called with validated field settings, valid output pointers, and the entire header available. Its defensive error return cannot be reached with that input. |
+| `src/io/writer/writer.c` | Line 39, branch 0 and line 40 | Element measurement already validated the length field and payload size, and the capacity check reserved the entire element. The length writer's error return cannot be reached. |
+| `src/io/reader/reader.c` | Line 87, branch 6 | A successfully initialized reader cannot have a null buffer and positive size. The public contract requires callers to treat cursor fields as read-only. |
+| `src/io/writer/writer.c` | Line 73, branch 4 | Writer initialization rejects a null buffer with positive capacity. Reaching this outcome would require violating the initialized cursor contract. |
 
 The native-size conversion check in `src/core/size.c` is compiled only when
 `SIZE_MAX < TLV_SIZE_MAX`. On x86-64 it contributes zero executable lines

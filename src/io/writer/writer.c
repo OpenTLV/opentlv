@@ -26,8 +26,10 @@ tlv_result_t tlv_write_with_diagnostic(uint8_t *data, size_t capacity,
     }
     if (required > capacity) {
         *written = required;
-        return report_field(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 0,
-                            required, capacity);
+        if (diagnostic) {
+            set_field(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 0, required, capacity);
+        }
+        return TLV_ERR_BUFFER_TOO_SHORT;
     }
 
     const size_t tag_size = element->tag.size;
@@ -83,7 +85,7 @@ tlv_result_t tlv_writer_write_with_diagnostic(tlv_writer_t *writer, const tlv_el
                                                     &writer->format, element, &written, diagnostic);
     if (result == TLV_OK) {
         writer->pos += written;
-    } else if (result == TLV_ERR_BUFFER_TOO_SHORT && diagnostic) {
+    } else if (diagnostic && result == TLV_ERR_BUFFER_TOO_SHORT) {
         diagnostic->offset = writer->pos;
     }
     return result;
