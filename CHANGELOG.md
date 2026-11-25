@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a reviewed Fixed TLV performance baseline and CI reports that flag instruction-count and binary-size increases and publish per-workload timing observations. (#80)
 - Added opt-in checks for heap allocation during C99 and C++17 Fixed TLV calls and footprint reports for static and shared libraries and linked consumers. (#79)
 - Added a Linux Callgrind probe that checks C99 and C++17 Fixed TLV workloads and compares each workload's instruction count across two runs. (#78)
 - Added an opt-in Google Benchmark runner and JSON report checker for C99 and C++17 Fixed TLV field, sizing, reader and writer workloads. (#77)

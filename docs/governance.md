@@ -60,8 +60,10 @@ and every push to `main`.
   sanitizer builds, compares two GCC coverage reports, tests build-tree and
   relocated packages for static and shared libraries, and runs the bounded
   fuzz targets on Ubuntu 24.04.
-- `callgrind` runs the [instruction-count probe](testing.md#linux-callgrind)
-  twice on Ubuntu 24.04 x86-64 and checks that each workload reproduces its count.
+- `callgrind` measures a pinned baseline and the candidate on one Ubuntu
+  24.04 x86-64 runner. It verifies repeatable instruction counts, checks for
+  instruction-count and binary-size increases, and publishes timing observations.
+  [Performance baseline and release evidence](performance-baseline.md)
 - `resource-usage` checks for heap allocation during Fixed TLV calls and
   compares footprint reports from two clean Release builds for each of the
   static and shared configurations. [Allocation and footprint checks](testing.md#heap-allocation-and-binary-size)
