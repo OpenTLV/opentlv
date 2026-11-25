@@ -87,12 +87,20 @@ executables from the `Release` directory.
 python3 benchmarks/check_results.py --fixtures ../opentlv-bench/opentlv_check_fixtures ../opentlv-bench/run1.json ../opentlv-bench/run2.json
 ```
 
-Each iteration represents one public API operation. Inputs, destination
-buffers, and native C99 or C++17 descriptors are prepared before timing.
-The runner times calls in batches of 32 and resets reader and writer cursors
-outside the timed interval so each call starts at the same record. It checks
-results and guarded buffers against the golden fixture outside the timer.
-The JSON `run_name` contains the catalog ID followed by `/real_time`.
+Each iteration represents one public API operation. Each repetition starts
+with 32 guard-filled destination buffers and prepared C99 or C++17 descriptors.
+Successive batches reuse the same 32 buffers. After the first successful
+write, later batches overwrite the same bytes with the same field or record.
+This measures repeated use of caller-owned storage, which can benefit from
+cache reuse. Reader and writer cursors are reset outside the timed interval
+so each call starts at the same record.
+
+Before timing, the runner checks one call against the golden fixture with a
+fresh destination. After the last batch, it checks the final result, destination
+bytes and guards for each of the 32 slots. Timings include the indirect call
+through the adapter and the compiler barriers that keep the result and stores
+observable. This overhead can be a significant part of a short field or sizing
+operation. The JSON `run_name` contains the catalog ID followed by `/real_time`.
 
 | JSON field | Meaning |
 | --- | --- |
@@ -111,11 +119,13 @@ The following command measures a complete unaligned write with diagnostics.
 ```
 
 Compare the wall-time medians, the spread of the repetitions, and the
-variation between invocations. In JSON, a `cv` aggregate expresses the
-coefficient of variation as a ratio (0.02 means 2%). CPU frequency,
-scheduling and background load can shift the measurements. Use timing as
-observational evidence and compare matching workload IDs, machines,
-toolchains and build settings.
+variation between invocations. For repeated runs, the checker verifies the
+mean, median, sample standard deviation and coefficient of variation for
+timings and counters against the individual repetitions. In JSON, a `cv`
+aggregate expresses the coefficient of variation as a ratio (0.02 means 2%).
+CPU frequency, scheduling and background load can shift the measurements.
+Use timing as observational evidence and compare matching workload IDs,
+machines, toolchains and build settings.
 
 ## Select a contract
 

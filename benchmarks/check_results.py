@@ -3,9 +3,15 @@
 import argparse
 import json
 import math
+import statistics
 import subprocess
+import sys
 from collections import defaultdict
 from pathlib import Path
+
+
+METRICS = ("real_time", "cpu_time", "bytes_per_operation", "bytes_per_second", "items_per_second")
+AGGREGATE_UNITS = {"mean": "time", "median": "time", "stddev": "time", "cv": "percentage"}
 
 
 def bytes_per_operation(workload):
@@ -24,7 +30,7 @@ def check_measurement(row, workload):
         raise ValueError("expected nanoseconds")
     if type(row.get("iterations")) is not int or row["iterations"] < 1:
         raise ValueError("expected a positive iteration count")
-    for key in ("real_time", "cpu_time", "bytes_per_operation", "bytes_per_second", "items_per_second"):
+    for key in METRICS:
         value = row.get(key)
         if type(value) not in (float, int) or not math.isfinite(value) or value < 0:
             raise ValueError(f"expected a finite nonnegative {key}, got {value!r}")
@@ -42,12 +48,52 @@ def check_measurement(row, workload):
         raise ValueError("byte rate disagrees with bytes per operation")
 
 
+def check_aggregates(workload, samples, aggregates):
+    count = len(samples)
+    if count == 1:
+        if aggregates:
+            raise ValueError(f"{workload}: unexpected aggregate for a single repetition")
+        return
+    missing = AGGREGATE_UNITS.keys() - aggregates.keys()
+    if missing:
+        raise ValueError(f"{workload}: missing aggregates: {', '.join(sorted(missing))}")
+    if len({row["iterations"] for row in samples}) != 1:
+        raise ValueError(f"{workload}: repetitions have different iteration counts")
+
+    for key in METRICS:
+        values = [row[key] for row in samples]
+        mean = statistics.fmean(values)
+        deviation = statistics.stdev(values)
+        expected = {"mean": mean, "median": statistics.median(values), "stddev": deviation,
+                    "cv": deviation / mean if mean else 0.0}
+        # Google Benchmark 1.9.4 computes variance as mean(x²) - mean(x)²
+        # before applying the sample correction. Nearly constant samples can
+        # lose all significant digits in the subtraction. Compare squared
+        # deviations relative to the squared mean, allowing for roundoff
+        # from summing the repetitions.
+        rounding = 8 * count * sys.float_info.epsilon
+        for kind, target in expected.items():
+            value = aggregates[kind][key]
+            if kind in ("stddev", "cv") and mean:
+                scale = mean if kind == "stddev" else 1.0
+                actual = value / scale
+                wanted = target / scale
+                matches = math.isclose(actual * actual, wanted * wanted,
+                                       rel_tol=rounding, abs_tol=rounding)
+            else:
+                matches = math.isclose(value, target, rel_tol=rounding)
+            if not matches:
+                raise ValueError(f"{workload}: {kind} {key} disagrees with repetitions "
+                                 f"(expected {target}, got {value})")
+
+
 def check_report(path, catalog):
     with path.open(encoding="utf-8") as stream:
         report = json.load(stream)
     if not isinstance(report, dict) or not isinstance(report.get("benchmarks"), list):
         raise ValueError("missing benchmarks array")
-    seen = defaultdict(set)
+    samples = defaultdict(dict)
+    aggregates = defaultdict(dict)
     repetitions = None
     for row in report["benchmarks"]:
         if not isinstance(row, dict):
@@ -70,13 +116,25 @@ def check_report(path, catalog):
         repetitions = count
         if row["run_type"] == "iteration":
             index = row.get("repetition_index")
-            if type(index) is not int or not 0 <= index < count or index in seen[workload]:
+            if type(index) is not int or not 0 <= index < count or index in samples[workload]:
                 raise ValueError(f"{name}: invalid or duplicate repetition index {index!r}")
-            seen[workload].add(index)
+            samples[workload][index] = row
+        else:
+            kind = row.get("aggregate_name")
+            if not isinstance(kind, str) or kind not in AGGREGATE_UNITS:
+                raise ValueError(f"{name}: unknown aggregate {kind!r}")
+            if kind in aggregates[workload]:
+                raise ValueError(f"{name}: duplicate {kind} aggregate")
+            if row.get("aggregate_unit") != AGGREGATE_UNITS[kind] or row.get("name") != f"{name}_{kind}":
+                raise ValueError(f"{name}: invalid unit or name for {kind} aggregate")
+            if row["iterations"] != count or "repetition_index" in row:
+                raise ValueError(f"{name}: invalid sample count or repetition index for {kind} aggregate")
+            aggregates[workload][kind] = row
 
     for workload in sorted(catalog):
-        if not seen[workload] or len(seen[workload]) != repetitions:
+        if not samples[workload] or len(samples[workload]) != repetitions:
             raise ValueError(f"{workload}: missing iteration data")
+        check_aggregates(workload, samples[workload].values(), aggregates[workload])
     print(f"{path}: validated {len(catalog)} workload IDs, {repetitions} repetition(s) each")
 
 
