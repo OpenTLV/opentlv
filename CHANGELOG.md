@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added Memcheck checks for Fixed TLV Core and IO, gave integration test reports readable wire-layout labels, and documented the C/C++ coverage gap in managed CodeQL. (#89)
 - Added local and CI checks with clang-format, clang-tidy and Cppcheck for first-party C99 and C++17 sources, headers, examples and test tooling. (#88)
 - Added Clang x64 Release and MSVC x64 Debug contract runs, with required ABI and native-size checks and compiler version reports across the x86 and x64 CI matrix. (#87)
 - Added the `fixed-tlv-quality` CI check to report whether all jobs required for a pull request, push to `main`, or Full CI run passed. (#86)

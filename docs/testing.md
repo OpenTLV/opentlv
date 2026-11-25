@@ -418,6 +418,49 @@ ASAN_OPTIONS=halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
   python3 tests/run_ctest.py build-sanitized Debug reports/sanitizers --require-x64
 ```
 
+## Memcheck
+
+CI runs Valgrind Memcheck 3.22.0 against the GCC 13 Debug build on Ubuntu
+24.04 x86-64. It runs the Core, IO and integration executables once each,
+exercising the C99 implementations and C++17 wrappers with the same inputs
+as the contract suite. The Clang build runs ASan/UBSan separately.
+
+```sh
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends gcc-13 g++-13 valgrind=1:3.22.0-0ubuntu3
+build=$(mktemp -d)
+CC=gcc-13 CXX=g++-13 cmake -S . -B "$build" -G "Ninja Multi-Config" -DBUILD_TESTING=ON
+cmake --build "$build" --config Debug
+CC=gcc-13 python3 tests/run_memcheck.py "$build/tests/Debug" "$build/memcheck-reports"
+```
+
+The runner first checks a clean one-byte allocation, an uninitialized byte
+and a one-byte leak. Each deliberate error must produce exactly one error
+with the expected diagnostic and exit code 97. During the contract suites,
+Memcheck tracks uninitialized-value origins, reports invalid memory accesses and checks
+for leaks. Definite, indirect and possible leaks fail the check. Reachable
+blocks are reported for inspection. A failing test or Memcheck error fails
+the `fixed-tlv` job and its aggregate `fixed-tlv-quality`.
+
+The `fixed-tlv-memcheck` artifact contains the control logs, Memcheck logs
+for the suites and their GoogleTest XML reports. On failure, inspect the
+available logs for the first error and its origin.
+
+Memcheck found an uninitialized read during integration test registration.
+GoogleTest's default printer formatted the raw bytes of the `Layout` test
+parameter, including padding. The fixture now prints the byte order and
+length width, for example `BigEndian4`. OpenTLV supplies no Memcheck
+suppressions. Local validation on Alpine 3.20.9 x86-64 with Memcheck
+3.23.0 reported zero errors across 97 Core, 63 IO and 48 integration
+cases after the printer fix. Both negative controls returned 97.
+Record any new finding with the affected suite and revision.
+Use the [security policy](https://github.com/OpenTLV/opentlv/security/policy)
+for sensitive findings.
+
+The [allocation probe](#heap-allocation-and-binary-size) detects allocator
+calls during selected operations. [Callgrind](#fixed-tlv-instruction-counts)
+counts instructions for the performance baseline.
+
 ## Coverage
 
 CI runs GCC, G++ and gcov 13.3.0 on Ubuntu 24.04 x86-64. The coverage
