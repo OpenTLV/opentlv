@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Recorded the Core and IO public API and ABI baseline for v0.1.0 and added checks for module isolation, C signatures and layouts, and static and shared library symbols. (#65)
 - Documented Fixed TLV ownership, aliasing and output guarantees for C99 and C++17, with regression tests for borrowed buffers, cursor copies and size boundaries. (#64)
 - Documented the public C++17 API, buffer lifetimes and error handling, and added a Fixed TLV writer example checked alongside the reader against static and shared packages. (#51)
 - Added C and C++17 equivalence checks for Fixed TLV lengths, cursor writes and round trips across all 16 wire layouts, including sanitizer and coverage runs. (#50)

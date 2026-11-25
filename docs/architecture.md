@@ -123,6 +123,9 @@ See the [wire layout and diagnostic examples](fixed-tlv.md) and the
 
 ## Compatibility
 
+The [v0.1.0 API and ABI baseline](api-abi.md) lists the Core and IO interfaces,
+records the native layout assumptions and describes how to verify the exports.
+
 Header paths, function signatures, public type layouts and documented
 behavior form the public contract. Before 1.0, intentional breaking changes
 must be identified in the pull request and changelog, with migration guidance
