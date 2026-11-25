@@ -2,23 +2,16 @@
 // Copyright (c) 2026 Marek Cingel
 
 #include "opentlv/io/writer/writer.h"
+#include "../../core/internal/fixed.h"
 #include "../internal/diagnostic.h"
 
 #include <string.h>
 
-tlv_result_t tlv_write(uint8_t *data, size_t capacity, const tlv_fixed_format_t *format,
-                       const tlv_element_t *element, size_t *written)
+/* Both entry points supply a valid count pointer and a bounded output slice. */
+static tlv_result_t write_element(uint8_t *data, size_t capacity, const tlv_fixed_format_t *format,
+                                  const tlv_element_t *element, size_t *written,
+                                  tlv_diagnostic_t *diagnostic)
 {
-    return tlv_write_with_diagnostic(data, capacity, format, element, written, NULL);
-}
-
-tlv_result_t tlv_write_with_diagnostic(uint8_t *data, size_t capacity,
-                                       const tlv_fixed_format_t *format, const tlv_element_t *element,
-                                       size_t *written, tlv_diagnostic_t *diagnostic)
-{
-    if (!written || (!data && capacity != 0)) {
-        return report_result(diagnostic, TLV_ERR_NULL_ARG);
-    }
     size_t required;
     tlv_result_t result = tlv_fixed_element_size(format, element, &required);
     if (result != TLV_OK) {
@@ -33,18 +26,30 @@ tlv_result_t tlv_write_with_diagnostic(uint8_t *data, size_t capacity,
     }
 
     const size_t tag_size = element->tag.size;
-    size_t length_size;
-    result = tlv_fixed_length_write(&format->length, element->value.size, data + tag_size,
-                                    capacity - tag_size, &length_size);
-    if (result != TLV_OK) {
-        return report_result(diagnostic, result);
-    }
+    /* Measurement proved the length fits its field, and the whole element fits here. */
+    encode_fixed_length(format->length, element->value.size, data + tag_size);
     memcpy(data, element->tag.data, tag_size);
     if (element->value.size != 0) {
-        memcpy(data + tag_size + length_size, element->value.data, (size_t)element->value.size);
+        memcpy(data + tag_size + format->length.size, element->value.data, (size_t)element->value.size);
     }
     *written = required;
     return report_result(diagnostic, TLV_OK);
+}
+
+tlv_result_t tlv_write(uint8_t *data, size_t capacity, const tlv_fixed_format_t *format,
+                       const tlv_element_t *element, size_t *written)
+{
+    return tlv_write_with_diagnostic(data, capacity, format, element, written, NULL);
+}
+
+tlv_result_t tlv_write_with_diagnostic(uint8_t *data, size_t capacity,
+                                       const tlv_fixed_format_t *format, const tlv_element_t *element,
+                                       size_t *written, tlv_diagnostic_t *diagnostic)
+{
+    if (!written || (!data && capacity != 0)) {
+        return report_result(diagnostic, TLV_ERR_NULL_ARG);
+    }
+    return write_element(data, capacity, format, element, written, diagnostic);
 }
 
 tlv_result_t tlv_writer_init(tlv_writer_t *writer, uint8_t *data, size_t capacity,
@@ -81,8 +86,8 @@ tlv_result_t tlv_writer_write_with_diagnostic(tlv_writer_t *writer, const tlv_el
         dest += writer->pos;
     }
     size_t written;
-    tlv_result_t result = tlv_write_with_diagnostic(dest, writer->capacity - writer->pos,
-                                                    &writer->format, element, &written, diagnostic);
+    tlv_result_t result = write_element(dest, writer->capacity - writer->pos, &writer->format,
+                                        element, &written, diagnostic);
     if (result == TLV_OK) {
         writer->pos += written;
     } else if (diagnostic && result == TLV_ERR_BUFFER_TOO_SHORT) {
