@@ -7,6 +7,20 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
+CPP_EQUIVALENCE_CASES = {
+    "CppCore.ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure",
+    "CppFixed.MeasuresElementsAndPreservesSizeOnError",
+    "WireLayouts/FixedLength.ReadsExactlyOneField/BigEndian8",
+    "WireLayouts/FixedLength.InvalidWritesPreserveTheBufferAndCount/LittleEndian1",
+    "CppReader.OneShotMatchesCAtEveryPrefix",
+    "CppWriter.AppendsEmptyAndNonEmptyValuesAcrossAnInvalidElement",
+} | {
+    f"WireLayouts/FixedRoundTrip.{case}/{order}{width}"
+    for case in ("RoundTripsBoundedBinaryValuesAtLengthBoundaries", "CommitsOnlyCompleteRecordsInAnAdjacentStream")
+    for order in ("BigEndian", "LittleEndian")
+    for width in range(1, 9)
+}
+
 X86_REQUIRED_CASES = {
     "CoreSize.ConvertsRepresentableCountsToNative",
     "CoreSize.RejectsUint64MaxOnX86",
@@ -43,6 +57,10 @@ def run(build, config, reports):
     missing = {"core", "io", "integration"} - labels
     if missing:
         raise SystemExit("No passing CTest case for required suite(s): " + ", ".join(sorted(missing)))
+    missing = CPP_EQUIVALENCE_CASES - passed
+    if missing:
+        raise SystemExit("Missing passing C/C++ equivalence cases: " + ", ".join(sorted(missing)))
+    print(f"Verified {len(CPP_EQUIVALENCE_CASES)} C/C++ equivalence cases")
     return passed
 
 
