@@ -129,6 +129,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     strategy:
+      fail-fast: false
       matrix:
         linkage: [static, shared]
     env:
@@ -286,6 +287,8 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
+      - name: Test quality gate decisions
+        run: python3 -B -m unittest discover -s tests -p test_check_ci_gate.py
       - name: Check workflow syntax and expressions
         shell: bash
         run: |
@@ -311,3 +314,19 @@ jobs:
         run: |
           : "${GH_TOKEN:?GitHub token is required for online audits}"
           "$RUNNER_TEMP/zizmor-venv/bin/zizmor" --strict-collection --collect=workflows .
+
+  quality-gate:
+    name: fixed-tlv-quality
+    if: ${{ always() }}
+    needs: [fixed-tlv, resource-usage, callgrind, windows-x86, windows-package, workflow-analyzers]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Require the expected result from each job
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+        run: python3 tests/check_ci_gate.py
