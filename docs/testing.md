@@ -70,8 +70,8 @@ instrumentation, interprocedural optimization, MSVC runtime selection where
 applicable, and tool versions. Keep it with the workload IDs and
 `compile_commands.json` for the exact compiler invocations. Use a clean
 checkout for comparable results and compare matching workload versions,
-inputs and build settings. The
-[GDB probes](../tests/diagnostics/README.md) record instruction counts.
+inputs and build settings. For instruction counts, see the
+[Linux Callgrind and GDB probes](#fixed-tlv-instruction-counts).
 
 ## Runtime and throughput
 
@@ -180,13 +180,72 @@ artifact. On Windows, use `python` for the Python 3 interpreter.
 
 ## Fixed TLV instruction counts
 
+### Linux Callgrind
+
+The opt-in `opentlv_callgrind` probe measures one adapter call for each of
+28 catalog inputs through both the C99 and C++17 APIs. The workload ID is
+the same ID used by the timing runner. Callgrind's `Ir` event counts executed
+guest instructions. Each total includes the adapter dispatch, nested library
+and runtime calls, and the client-request instructions at the collection
+boundary. Fixture construction, cursor initialization and
+output checks take place with collection disabled. [Callgrind manual](https://valgrind.org/docs/manual/cl-manual.html)
+
+| Operations | Measured inputs for each API |
+| --- | --- |
+| Field read and write | Aligned three-byte big-endian and unaligned eight-byte little-endian fields, each with complete and one-byte-short buffers. |
+| Header and element sizing | Header size with a two-byte big-endian length. Element size with an eight-byte little-endian length and a 513-byte payload. Each has a valid and an invalid case. |
+| Read, next, write and append | Payload sizes of 0, 3, 513 and 3 bytes, respectively. Each operation runs on complete and one-byte-short buffers with a supplied or omitted diagnostic. |
+
+The reference build uses Ubuntu 24.04 x86-64, GCC and G++ 13.3.0, and
+Valgrind 3.22.0. Install the client headers and Callgrind from the same
+Ubuntu package. From a Git checkout, run the following in Bash with Git,
+CMake (3.19 or newer), Ninja and Python 3 on `PATH`. Use a fresh build and
+a new reports directory for each comparison. [Ubuntu Valgrind package](https://packages.ubuntu.com/noble/valgrind)
+
+```bash
+set -eu
+sudo apt-get install -y gcc-13 g++-13 valgrind=1:3.22.0-0ubuntu3
+export CC=gcc-13 CXX=g++-13
+test "$("$CC" -dumpfullversion)" = 13.3.0
+test "$("$CXX" -dumpfullversion)" = 13.3.0
+build=../opentlv-callgrind
+flags="-O2 -g -DNDEBUG -march=x86-64 -mtune=generic"
+cmake -S . -B "$build" -G Ninja -DOPENTLV_BUILD_CALLGRIND=ON \
+  -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  -DCMAKE_C_FLAGS_RELWITHDEBINFO="$flags" -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="$flags" \
+  -DBUILD_SHARED_LIBS=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+cmake --build "$build" --target opentlv_callgrind
+python3 benchmarks/run_callgrind.py --probe "$build/opentlv_callgrind" --output "$build/reports"
+```
+
+The driver gets the expected IDs from `opentlv_callgrind --list` and starts
+two independent Callgrind processes with collection initially disabled and
+eager dynamic symbol binding (`LD_BIND_NOW=1`). The probe checks the measured
+outputs against the golden fixtures, including expected errors, borrowed views, cursor
+positions, diagnostics and destination guards. Each run produces a sorted
+`counts.tsv` with one positive `Ir` total per ID. A missing workload, an
+unexpected profile or a difference of even one instruction fails the check.
+On a difference, inspect the named workload in `run-1/counts.tsv` and
+`run-2/counts.tsv` and use `callgrind_annotate` on its raw profiles.
+
+The CI artifact `callgrind-instruction-counts` contains the reports, raw
+profiles, runtime information, build metadata and `compile_commands.json`.
+When running locally, keep `reports/`, `benchmarks/RelWithDebInfo/metadata.json`
+and `compile_commands.json` from the build directory together. Compare counts
+for matching workload IDs, measurement boundaries, CPU, toolchain, build
+flags and runtime libraries.
+
+### GDB probes
+
 The field probe checks golden bytes and counts instructions for aligned and
 unaligned fields across all 16 layouts. It also measures complete records with
 empty, three-byte and 255- or 513-byte payloads. The diagnostic probe measures
 element sizing and one-shot and cursor operations on complete and short buffers.
 The wrapper probe compares optimized C99 and C++17 callers on the same inputs
 and includes the caller's descriptor conversions in the instruction count.
-See the [measurements and reproduction commands](../tests/diagnostics/README.md).
+The GDB tables use single-stepped Windows x86-64 binaries and the entry
+points specified for each probe. Compare those counts within the documented
+GDB configuration. [Measurements and reproduction commands](../tests/diagnostics/README.md)
 
 ## Sanitizers
 
