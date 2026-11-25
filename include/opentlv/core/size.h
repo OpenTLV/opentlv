@@ -38,7 +38,7 @@ TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_size_to_native(tlv_size_t count,
  * output is unchanged.
  */
 TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_size_add(tlv_size_t a, tlv_size_t b,
-                                                        tlv_size_t *out);
+                                                         tlv_size_t *out);
 
 #ifdef __cplusplus
 }

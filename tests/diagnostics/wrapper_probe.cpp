@@ -29,14 +29,15 @@ decltype(tlv_writer_write) c_append;
     return core::make_value_view(data, size, out);
 }
 
-[[gnu::noipa]] core::result cpp_measure(const core::fixed_format &format, const core::element_view &source,
-                                        size_t &size)
+[[gnu::noipa]] core::result cpp_measure(const core::fixed_format &format,
+                                        const core::element_view &source, size_t &size)
 {
     return core::element_size(format, source, size);
 }
 
-[[gnu::noipa]] core::result cpp_read(const uint8_t *data, size_t size, const core::fixed_format &format,
-                                     core::element_view &out, size_t &count)
+[[gnu::noipa]] core::result cpp_read(const uint8_t *data, size_t size,
+                                     const core::fixed_format &format, core::element_view &out,
+                                     size_t &count)
 {
     return io::read(format, {data, size}, out, count);
 }
@@ -46,7 +47,8 @@ decltype(tlv_writer_write) c_append;
     return cursor.next(out);
 }
 
-[[gnu::noipa]] core::result cpp_write(uint8_t *data, size_t capacity, const core::fixed_format &format,
+[[gnu::noipa]] core::result cpp_write(uint8_t *data, size_t capacity,
+                                      const core::fixed_format &format,
                                       const core::element_view &source, size_t &count)
 {
     return io::write(format, {data, capacity}, source, count);
@@ -66,8 +68,7 @@ constexpr core::element_view source{{wire.data(), 2}, {wire.data() + 4, 3}};
 constexpr auto native_format = core::to_c(format);
 constexpr auto native_source = core::to_c(source);
 
-template <typename Element>
-bool matches(const Element &element, const core::element_view &expected)
+template<typename Element> bool matches(const Element &element, const core::element_view &expected)
 {
     return element.tag.data == expected.tag.data && element.tag.size == expected.tag.size &&
            element.value.data == expected.value.data && element.value.size == expected.value.size;
@@ -81,7 +82,8 @@ bool check_values(bool valid)
     tlv_value_t native = native_source.value;
     core::value_view typed = source.value;
     const auto expected = valid ? core::value_view{data, wire.size()} : source.value;
-    return c_category(code) == category && core::to_c(cpp_category(core::from_c(code))) == category &&
+    return c_category(code) == category &&
+           core::to_c(cpp_category(core::from_c(code))) == category &&
            c_value(data, wire.size(), &native) == code &&
            core::to_c(cpp_value(data, wire.size(), typed)) == code &&
            native.data == expected.data && native.size == expected.size &&
@@ -112,7 +114,8 @@ bool check_record(size_t size)
     typed = sentinel;
     if (tlv_reader_init(&c_reader, wire.data(), size, &native_format) != TLV_OK ||
         cpp_reader.init(format, {wire.data(), size}) != core::result::ok ||
-        c_next(&c_reader, &native) != read_code || core::to_c(cpp_next(cpp_reader, typed)) != read_code ||
+        c_next(&c_reader, &native) != read_code ||
+        core::to_c(cpp_next(cpp_reader, typed)) != read_code ||
         c_reader.pos != (complete ? size : 0) || cpp_reader.position() != c_reader.pos ||
         !matches(native, expected) || !matches(typed, expected)) {
         return false;
@@ -123,7 +126,8 @@ bool check_record(size_t size)
     c_count = cpp_count = 42;
     if (c_write(c_output.data(), size, &native_format, &native_source, &c_count) != write_code ||
         core::to_c(cpp_write(cpp_output.data(), size, format, source, cpp_count)) != write_code ||
-        c_count != wire.size() || cpp_count != c_count || c_output != expected_output || cpp_output != c_output) {
+        c_count != wire.size() || cpp_count != c_count || c_output != expected_output ||
+        cpp_output != c_output) {
         return false;
     }
 
@@ -145,7 +149,10 @@ int main()
 {
     size_t c_size = 0, cpp_size = 0;
     return check_values(true) && check_values(false) &&
-           c_measure(&native_format, &native_source, &c_size) == TLV_OK &&
-           cpp_measure(format, source, cpp_size) == core::result::ok && c_size == wire.size() && cpp_size == c_size &&
-           check_record(wire.size()) && check_record(3) ? EXIT_SUCCESS : EXIT_FAILURE;
+                   c_measure(&native_format, &native_source, &c_size) == TLV_OK &&
+                   cpp_measure(format, source, cpp_size) == core::result::ok &&
+                   c_size == wire.size() && cpp_size == c_size && check_record(wire.size()) &&
+                   check_record(3)
+               ? EXIT_SUCCESS
+               : EXIT_FAILURE;
 }

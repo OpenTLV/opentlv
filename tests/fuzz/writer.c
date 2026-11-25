@@ -13,14 +13,23 @@ static void check_rejected_format(tlv_writer_t *writer, const tlv_element_t *ele
     const size_t remaining = before.capacity - before.pos;
     tlv_fixed_format_t invalid = before.format;
     switch (selector) {
-    case 0: invalid.identifier.size = 0; break;
-    case 1: invalid.length.size = 0; break;
-    case 2: invalid.length.size = 9; break;
-    case 3: invalid.length.byte_order = TLV_BYTE_ORDER_UNKNOWN; break;
+    case 0:
+        invalid.identifier.size = 0;
+        break;
+    case 1:
+        invalid.length.size = 0;
+        break;
+    case 2:
+        invalid.length.size = 9;
+        break;
+    case 3:
+        invalid.length.byte_order = TLV_BYTE_ORDER_UNKNOWN;
+        break;
     }
 
     CHECK(tlv_writer_init(writer, record, remaining, &invalid) == TLV_ERR_INVALID_ARG);
-    CHECK(writer->data == before.data && writer->capacity == before.capacity && writer->pos == before.pos);
+    CHECK(writer->data == before.data && writer->capacity == before.capacity &&
+          writer->pos == before.pos);
     CHECK(writer->format.identifier.size == before.format.identifier.size);
     CHECK(writer->format.length.size == before.format.length.size);
     CHECK(writer->format.length.byte_order == before.format.length.byte_order);
@@ -34,11 +43,14 @@ static void check_rejected_format(tlv_writer_t *writer, const tlv_element_t *ele
 /* The first record is empty. Its committed bytes must survive the next append. */
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    if (size < 4 || size > max_input) return 0;
+    if (size < 4 || size > max_input)
+        return 0;
     const size_t tag = 1 + data[0] % 8;
     const size_t width = 1 + data[1] % 8;
-    if (size - 4 < tag) return 0;
-    const tlv_byte_order_t order = (data[2] & 1) ? TLV_BYTE_ORDER_LITTLE_ENDIAN : TLV_BYTE_ORDER_BIG_ENDIAN;
+    if (size - 4 < tag)
+        return 0;
+    const tlv_byte_order_t order =
+        (data[2] & 1) ? TLV_BYTE_ORDER_LITTLE_ENDIAN : TLV_BYTE_ORDER_BIG_ENDIAN;
     const tlv_fixed_format_t format = {{tag}, {width, order}};
     const size_t header = tag + width;
     const size_t length = size - 4 - tag;
@@ -46,9 +58,12 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     const tlv_element_t source = {{data + 4, tag}, {data + 4 + tag, length}};
     const tlv_element_t empty = {source.tag, {NULL, 0}};
     size_t capacity;
-    if (data[3] == 0) capacity = required;
-    else if (data[3] == 1) capacity = required - 1;
-    else capacity = (size_t)(data[3] - 2) * (max_output - header) / (UINT8_MAX - 2);
+    if (data[3] == 0)
+        capacity = required;
+    else if (data[3] == 1)
+        capacity = required - 1;
+    else
+        capacity = (size_t)(data[3] - 2) * (max_output - header) / (UINT8_MAX - 2);
 
     uint8_t stream[max_output], direct[max_output], expected[max_output];
     memset(stream, 0xa5, sizeof stream);

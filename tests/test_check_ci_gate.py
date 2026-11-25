@@ -11,6 +11,7 @@ def job_results(windows_package="success"):
         "callgrind": {"result": "success"},
         "resource-usage": {"result": "success"},
         "windows-contracts": {"result": "success"},
+        "first-party-analysis": {"result": "success"},
         "workflow-analyzers": {"result": "success"},
         "windows-package": {"result": windows_package},
     }

@@ -92,6 +92,34 @@ measured CMake targets in `build-settings.json`. The comparator checks those
 inputs, the catalog, toolchain and runtime metadata, measurement settings
 and artifact roles before calculating deltas.
 
+The comparator accepts one pair of different protocol digests for reference
+`8753cc3384cd62533a41ba40dc932f3681da9b4b`. Applying clang-format 18.1.8
+with the repository style to the reference's measured C and C++ sources
+produces the candidate protocol byte for byte. For this pair, the
+`protocol_sha256` object in `comparison.json` records the raw baseline and
+candidate hashes. All other settings and the zero-increase thresholds apply.
+Any other unequal pair fails comparison.
+
+To verify the formatting transition in a Linux checkout, install the pinned
+formatter and run this from the repository root with Python 3.8 or newer.
+
+```bash
+PYTHONPATH=benchmarks python3 -B - <<'PY'
+import subprocess
+from pathlib import Path
+from collect_performance import PROTOCOL_FILES
+
+revision = Path("benchmarks/performance-baseline.txt").read_text().strip()
+for name in PROTOCOL_FILES:
+    reference = subprocess.check_output(["git", "show", f"{revision}:{name}"])
+    if Path(name).suffix in (".c", ".h", ".cpp", ".hpp"):
+        reference = subprocess.check_output(
+            ["clang-format", f"--assume-filename={name}"], input=reference)
+    if Path(name).read_bytes() != reference:
+        raise SystemExit(f"Protocol differs from formatter output: {name}")
+PY
+```
+
 ## Review a baseline update
 
 Keep the current pin while measuring a proposed change. Include the report

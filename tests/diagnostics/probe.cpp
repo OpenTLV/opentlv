@@ -13,23 +13,28 @@ namespace io = opentlv::io;
 // its caller, but cannot specialize the caller for this fixture's arguments.
 extern "C" {
 [[gnu::noipa]] core::result probe_read(const core::fixed_format &format, core::byte_view input,
-                                       core::element_view &view, std::size_t &count, core::diagnostic *d)
+                                       core::element_view &view, std::size_t &count,
+                                       core::diagnostic *d)
 {
     return io::read(format, input, view, count, d);
 }
 
-[[gnu::noipa]] core::result probe_next(io::reader &reader, core::element_view &view, core::diagnostic *d)
+[[gnu::noipa]] core::result probe_next(io::reader &reader, core::element_view &view,
+                                       core::diagnostic *d)
 {
     return reader.next(view, d);
 }
 
-[[gnu::noipa]] core::result probe_write(const core::fixed_format &format, core::mutable_byte_view output,
-                                        const core::element_view &source, std::size_t &count, core::diagnostic *d)
+[[gnu::noipa]] core::result probe_write(const core::fixed_format &format,
+                                        core::mutable_byte_view output,
+                                        const core::element_view &source, std::size_t &count,
+                                        core::diagnostic *d)
 {
     return io::write(format, output, source, count, d);
 }
 
-[[gnu::noipa]] core::result probe_append(io::writer &writer, const core::element_view &source, core::diagnostic *d)
+[[gnu::noipa]] core::result probe_append(io::writer &writer, const core::element_view &source,
+                                         core::diagnostic *d)
 {
     return writer.write(source, d);
 }
@@ -53,7 +58,8 @@ int main()
             const core::mutable_byte_view destination{output.data(), size};
             io::reader reader;
             io::writer writer;
-            if (reader.init(format, input) != core::result::ok || writer.init(format, destination) != core::result::ok) {
+            if (reader.init(format, input) != core::result::ok ||
+                writer.init(format, destination) != core::result::ok) {
                 return EXIT_FAILURE;
             }
             core::element_view view{};
@@ -74,8 +80,8 @@ int main()
                 return EXIT_FAILURE;
             }
             output.fill(0);
-            if (probe_append(writer, source, diagnostic) != write_result || output != expected_output ||
-                writer.position() != (complete ? wire.size() : 0)) {
+            if (probe_append(writer, source, diagnostic) != write_result ||
+                output != expected_output || writer.position() != (complete ? wire.size() : 0)) {
                 return EXIT_FAILURE;
             }
         }

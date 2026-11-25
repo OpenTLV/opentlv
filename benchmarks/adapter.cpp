@@ -41,9 +41,10 @@ bench_output c_timing::output(tlv_result_t result) const
 
 cpp_timing::cpp_timing(bench_operation op, const bench_input &in, uint8_t *destination,
                        const bench_output &initial)
-    : operation_(op), step_(nullptr), format_(core::from_c(in.format)), source_(core::from_c(in.source)),
-      input_{in.data, in.available}, destination_{destination, in.available}, length_(in.length),
-      output_(initial), view_(core::from_c(initial.view)), diagnostic_(core::from_c(initial.diagnostic)),
+    : operation_(op), step_(nullptr), format_(core::from_c(in.format)),
+      source_(core::from_c(in.source)), input_{in.data, in.available},
+      destination_{destination, in.available}, length_(in.length), output_(initial),
+      view_(core::from_c(initial.view)), diagnostic_(core::from_c(initial.diagnostic)),
       details_(in.diagnostic ? &diagnostic_ : nullptr)
 {
     switch (op) {
@@ -62,7 +63,9 @@ cpp_timing::cpp_timing(bench_operation op, const bench_input &in, uint8_t *desti
         step_ = [](cpp_timing &s) { return core::header_size(s.format_, s.output_.count); };
         break;
     case BENCH_ELEMENT_SIZE:
-        step_ = [](cpp_timing &s) { return core::element_size(s.format_, s.source_, s.output_.count); };
+        step_ = [](cpp_timing &s) {
+            return core::element_size(s.format_, s.source_, s.output_.count);
+        };
         break;
     case BENCH_READ:
         step_ = [](cpp_timing &s) {
@@ -74,7 +77,8 @@ cpp_timing::cpp_timing(bench_operation op, const bench_input &in, uint8_t *desti
         break;
     case BENCH_WRITE:
         step_ = [](cpp_timing &s) {
-            return opentlv::io::write(s.format_, s.destination_, s.source_, s.output_.count, s.details_);
+            return opentlv::io::write(s.format_, s.destination_, s.source_, s.output_.count,
+                                      s.details_);
         };
         break;
     case BENCH_APPEND:
@@ -109,7 +113,8 @@ bench_output cpp_timing::output(tlv_result_t result) const
 }
 
 template<class Timing>
-static void run_fixture(bench_operation op, const bench_input &in, uint8_t *destination, bench_output &out)
+static void run_fixture(bench_operation op, const bench_input &in, uint8_t *destination,
+                        bench_output &out)
 {
     Timing prepared(op, in, destination, out);
     out.result = prepared.reset_cursor();
@@ -120,12 +125,14 @@ static void run_fixture(bench_operation op, const bench_input &in, uint8_t *dest
 
 } // namespace opentlv_bench
 
-extern "C" void bench_run_c(bench_operation op, const bench_input *in, uint8_t *destination, bench_output *out)
+extern "C" void bench_run_c(bench_operation op, const bench_input *in, uint8_t *destination,
+                            bench_output *out)
 {
     opentlv_bench::run_fixture<opentlv_bench::c_timing>(op, *in, destination, *out);
 }
 
-extern "C" void bench_run_cpp(bench_operation op, const bench_input *in, uint8_t *destination, bench_output *out)
+extern "C" void bench_run_cpp(bench_operation op, const bench_input *in, uint8_t *destination,
+                              bench_output *out)
 {
     opentlv_bench::run_fixture<opentlv_bench::cpp_timing>(op, *in, destination, *out);
 }

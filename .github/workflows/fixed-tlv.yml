@@ -305,6 +305,32 @@ jobs:
       - name: Test shared build-tree and installed CMake packages with MSVC
         run: python tests/check_cmake_package.py --shared --check-symbols
 
+  first-party-analysis:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Install source quality tools and test headers
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends cppcheck=2.13.0-2ubuntu3 valgrind=1:3.22.0-0ubuntu3 gcc-13 g++-13
+          python3 -m venv "$RUNNER_TEMP/source-quality"
+          "$RUNNER_TEMP/source-quality/bin/python" -m pip install --require-hashes --only-binary=:all: -r .github/requirements-source-quality.txt
+          echo "$RUNNER_TEMP/source-quality/bin" >> "$GITHUB_PATH"
+      - name: Check first-party formatting and static analysis
+        run: |
+          build="$RUNNER_TEMP/quality-headers"
+          cmake -S . -B "$build" -G Ninja -DBUILD_TESTING=ON -DOPENTLV_BUILD_BENCHMARKS=ON
+          python3 -B tests/check_source_quality.py \
+            --clang-arg=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13 \
+            --system-include "$build/_deps/googletest-src/googletest/include" \
+            --system-include "$build/_deps/googlebenchmark-src/include"
+      - name: Verify that deliberate C and C++ violations fail
+        run: python3 -B tests/test_source_quality.py
+
   workflow-analyzers:
     name: workflow-analyzers
     runs-on: ubuntu-24.04
@@ -345,7 +371,7 @@ jobs:
   quality-gate:
     name: fixed-tlv-quality
     if: ${{ always() }}
-    needs: [fixed-tlv, resource-usage, callgrind, windows-contracts, windows-package, workflow-analyzers]
+    needs: [fixed-tlv, resource-usage, callgrind, windows-contracts, windows-package, first-party-analysis, workflow-analyzers]
     runs-on: ubuntu-24.04
     timeout-minutes: 3
     steps:

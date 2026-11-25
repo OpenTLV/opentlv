@@ -5,8 +5,8 @@
 #include <type_traits>
 
 // Use the same per-module signatures that identify the expected binary symbols.
-#define OPENTLV_ABI_FUNCTION(Return, Name, Args) \
-    static_assert(std::is_same_v<decltype(&Name), Return (*) Args>, #Name);
+#define OPENTLV_ABI_FUNCTION(Return, Name, Args)                                                   \
+    static_assert(std::is_same_v<decltype(&Name), Return(*) Args>, #Name);
 #include "abi/core.h"
 #include "abi/io.h"
 #undef OPENTLV_ABI_FUNCTION
@@ -35,8 +35,7 @@ constexpr std::size_t word = 4;
 constexpr std::size_t word = 8;
 #endif
 
-template <typename T>
-constexpr bool layout(std::size_t size, std::size_t alignment)
+template<typename T> constexpr bool layout(std::size_t size, std::size_t alignment)
 {
     return sizeof(T) == size && alignof(T) == alignment;
 }
@@ -58,21 +57,26 @@ static_assert(offsetof(tlv_element_t, tag) == 0 && offsetof(tlv_element_t, value
 static_assert(layout<tlv_fixed_identifier_t>(word, word));
 static_assert(offsetof(tlv_fixed_identifier_t, size) == 0);
 static_assert(layout<tlv_fixed_length_t>(2 * word, word));
-static_assert(offsetof(tlv_fixed_length_t, size) == 0 && offsetof(tlv_fixed_length_t, byte_order) == word);
+static_assert(offsetof(tlv_fixed_length_t, size) == 0 &&
+              offsetof(tlv_fixed_length_t, byte_order) == word);
 static_assert(layout<tlv_fixed_format_t>(3 * word, word));
-static_assert(offsetof(tlv_fixed_format_t, identifier) == 0 && offsetof(tlv_fixed_format_t, length) == word);
+static_assert(offsetof(tlv_fixed_format_t, identifier) == 0 &&
+              offsetof(tlv_fixed_format_t, length) == word);
 
 static_assert(layout<tlv_diagnostic_t>(32, 8));
 static_assert(offsetof(tlv_diagnostic_t, result) == 0 && offsetof(tlv_diagnostic_t, field) == 4);
-static_assert(offsetof(tlv_diagnostic_t, offset) == 8 && offsetof(tlv_diagnostic_t, required) == 16);
+static_assert(offsetof(tlv_diagnostic_t, offset) == 8 &&
+              offsetof(tlv_diagnostic_t, required) == 16);
 static_assert(offsetof(tlv_diagnostic_t, available) == 24);
 
 static_assert(layout<tlv_reader_t>(6 * word, word));
 static_assert(offsetof(tlv_reader_t, data) == 0 && offsetof(tlv_reader_t, size) == word);
-static_assert(offsetof(tlv_reader_t, pos) == 2 * word && offsetof(tlv_reader_t, format) == 3 * word);
+static_assert(offsetof(tlv_reader_t, pos) == 2 * word &&
+              offsetof(tlv_reader_t, format) == 3 * word);
 static_assert(layout<tlv_writer_t>(6 * word, word));
 static_assert(offsetof(tlv_writer_t, data) == 0 && offsetof(tlv_writer_t, capacity) == word);
-static_assert(offsetof(tlv_writer_t, pos) == 2 * word && offsetof(tlv_writer_t, format) == 3 * word);
+static_assert(offsetof(tlv_writer_t, pos) == 2 * word &&
+              offsetof(tlv_writer_t, format) == 3 * word);
 } // namespace
 
 int main()

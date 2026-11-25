@@ -51,7 +51,9 @@ cd ..
 ```
 
 The [testing guide](docs/testing.md) covers offline setup, CTest filters and
-reports, sanitizers, coverage and fuzz reproduction. The [compiler and architecture
+reports, sanitizers, coverage and fuzz reproduction. It also explains how to
+run the [formatting and static analysis checks](docs/testing.md#formatting-and-static-analysis).
+The [compiler and architecture
 matrix](docs/testing.md#compiler-and-architecture-matrix) lists the supported
 configurations for Core and IO.
 The [benchmark workload catalog](docs/testing.md#benchmark-workload-catalog)

@@ -35,7 +35,7 @@ void ExpectReadFailure(const uint8_t *data, size_t size, const tlv_fixed_format_
     ExpectView(sentinel, out);
 }
 
-void ExpectStopped(tlv_reader_t &reader, tlv_result_t expected, tlv_element_t previous)
+void ExpectStopped(tlv_reader_t &reader, tlv_result_t expected, const tlv_element_t &previous)
 {
     const tlv_reader_t before = reader;
     tlv_element_t out = previous;
@@ -57,8 +57,8 @@ protected:
         std::vector<uint8_t> wire{0x00, 0xb4, 0x10};
         const size_t lengthStart = wire.size();
         wire.resize(lengthStart + format.length.size, 0);
-        const size_t lowByte = format.length.byte_order == TLV_BYTE_ORDER_BIG_ENDIAN
-            ? wire.size() - 1 : lengthStart;
+        const size_t lowByte =
+            format.length.byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? wire.size() - 1 : lengthStart;
         wire[lowByte] = 3;
         wire.insert(wire.end(), {0x21, 0x01, 0xfe});
         return wire;
@@ -99,12 +99,13 @@ TEST_P(ReaderLayout, PreservesOutputsAtEveryIncompletePrefix)
     }
 }
 
-INSTANTIATE_TEST_SUITE_P(WireLayouts, ReaderLayout,
+INSTANTIATE_TEST_SUITE_P(
+    WireLayouts, ReaderLayout,
     testing::Combine(testing::Values(1u, 2u, 3u, 4u, 5u, 6u, 7u, 8u),
                      testing::Values(TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN)),
     [](const testing::TestParamInfo<Layout> &info) {
-        const std::string order = std::get<1>(info.param) == TLV_BYTE_ORDER_BIG_ENDIAN
-            ? "BigEndian" : "LittleEndian";
+        const std::string order =
+            std::get<1>(info.param) == TLV_BYTE_ORDER_BIG_ENDIAN ? "BigEndian" : "LittleEndian";
         return order + std::to_string(std::get<0>(info.param));
     });
 
@@ -219,8 +220,9 @@ TEST(ReaderArguments, InvalidInitializationPreservesTheCurrentStream)
         {{{SIZE_MAX}, {1, TLV_BYTE_ORDER_BIG_ENDIAN}}, TLV_ERR_OVERFLOW},
     };
     for (const auto &entry : invalid) {
-        SCOPED_TRACE(testing::Message() << entry.format.identifier.size << " tag bytes, "
-                     << entry.format.length.size << " length bytes, order " << entry.format.length.byte_order);
+        SCOPED_TRACE(testing::Message()
+                     << entry.format.identifier.size << " tag bytes, " << entry.format.length.size
+                     << " length bytes, order " << entry.format.length.byte_order);
         ExpectReadFailure(nullptr, 0, &entry.format, entry.expected);
         EXPECT_EQ(entry.expected, tlv_reader_init(&reader, nullptr, 0, &entry.format));
         ExpectReader(reader, before);
@@ -229,4 +231,4 @@ TEST(ReaderArguments, InvalidInitializationPreservesTheCurrentStream)
     ExpectView({{wire + 3, 1}, {wire + sizeof wire, 0}}, out);
 }
 
-}  // namespace
+} // namespace

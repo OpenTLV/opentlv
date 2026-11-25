@@ -11,12 +11,13 @@ import unittest
 from pathlib import Path
 
 from check_results import bytes_per_operation
+from compare_performance import FORMAT_ONLY_PROTOCOLS, FORMATTED_REFERENCE
 from performance_build import TARGETS
 from run_callgrind import OPTIONS, VERSION
 
 
 CLI = Path(__file__).with_name("compare_performance.py")
-BASELINE = "a" * 40
+BASELINE = FORMATTED_REFERENCE
 CANDIDATE = "b" * 40
 
 
@@ -153,17 +154,17 @@ class PerformanceComparisonTests(unittest.TestCase):
         write_evidence(self.baseline, BASELINE, ns=20)
         write_evidence(self.candidate, CANDIDATE, ns=2000)
 
-    def compare(self, status):
+    def compare(self, status, baseline_revision=BASELINE):
         result = subprocess.run(
             [sys.executable, "-B", CLI, "--baseline", self.baseline, "--candidate", self.candidate,
-             "--baseline-revision", BASELINE, "--candidate-revision", CANDIDATE, "--output", self.output],
+             "--baseline-revision", baseline_revision, "--candidate-revision", CANDIDATE, "--output", self.output],
             capture_output=True, text=True, check=False,
         )
         self.assertEqual(result.returncode == 0, status == "pass", result.stdout + result.stderr)
         report = read_json(self.output / "comparison.json")
         self.assertEqual(report["status"], status, report.get("error"))
         self.assertEqual(report["schema_version"], 1)
-        self.assertEqual(report["baseline_revision"], BASELINE)
+        self.assertEqual(report["baseline_revision"], baseline_revision)
         self.assertEqual(report["candidate_revision"], CANDIDATE)
         summary = (self.output / "summary.md").read_text(encoding="utf-8")
         self.assertIn(status, summary.lower())
@@ -176,6 +177,23 @@ class PerformanceComparisonTests(unittest.TestCase):
             path.write_text(counts.replace(f"{COUNT_IDS[0]}\t120\n", f"{COUNT_IDS[0]}\t{new_count}\n"),
                             encoding="utf-8")
 
+    def set_protocols(self, baseline, candidate):
+        (self.baseline / "protocol.sha256").write_text(baseline, encoding="ascii")
+        (self.candidate / "protocol.sha256").write_text(candidate, encoding="ascii")
+
+    def test_format_only_protocol_transition_preserves_raw_hashes(self):
+        self.set_protocols(*FORMAT_ONLY_PROTOCOLS)
+        report = self.compare("pass")
+        self.assertEqual(report["protocol_sha256"], dict(zip(("baseline", "candidate"), FORMAT_ONLY_PROTOCOLS)))
+        self.assertEqual(report["configuration"]["protocol_sha256"], FORMAT_ONLY_PROTOCOLS[0])
+
+    def test_format_only_protocol_transition_requires_the_reviewed_revision(self):
+        other_revision = "a" * 40
+        self.baseline = self.baseline.with_name("other-reference")
+        write_evidence(self.baseline, other_revision, ns=20)
+        self.set_protocols(*FORMAT_ONLY_PROTOCOLS)
+        self.assertIn("protocol", self.compare("invalid", baseline_revision=other_revision)["error"])
+
     def test_faster_counts_and_slower_timings_pass(self):
         self.change_counts(119)
         report = self.compare("pass")
@@ -186,6 +204,7 @@ class PerformanceComparisonTests(unittest.TestCase):
         self.assertEqual(observations[TIMING_IDS[0]], {"baseline": 20, "candidate": 2000, "delta": 1980})
 
     def test_one_instruction_or_one_byte_increase_is_reported(self):
+        self.set_protocols(*FORMAT_ONLY_PROTOCOLS)
         self.change_counts(121)
         for linkage, role, measurement in (("static", "c99-write", "file_bytes"), ("shared", "io", ".text")):
             path = self.candidate / "footprint" / f"{linkage}.json"
@@ -208,6 +227,7 @@ class PerformanceComparisonTests(unittest.TestCase):
         self.assertIn("shared.json", self.compare("invalid")["error"])
 
     def test_different_compiler_is_incomparable(self):
+        self.set_protocols(*FORMAT_ONLY_PROTOCOLS)
         path = self.candidate / COUNT_METADATA
         metadata = read_json(path)
         metadata["compilers"]["CXX"]["version"] = "14.0.0"
@@ -222,7 +242,9 @@ class PerformanceComparisonTests(unittest.TestCase):
         self.assertIn("opentlv_io", self.compare("invalid")["error"])
 
     def test_changed_workload_protocol_is_incomparable(self):
-        (self.candidate / "protocol.sha256").write_text("c" * 64, encoding="utf-8")
+        self.set_protocols(FORMAT_ONLY_PROTOCOLS[0], "c" * 64)
+        self.assertIn("protocol", self.compare("invalid")["error"])
+        self.set_protocols(*reversed(FORMAT_ONLY_PROTOCOLS))
         self.assertIn("protocol", self.compare("invalid")["error"])
 
     def test_substituted_count_workloads_are_incomparable(self):

@@ -1,0 +1,15 @@
+BasedOnStyle: LLVM
+Standard: c++17
+IndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 100
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+AllowShortFunctionsOnASingleLine: Inline
+PointerAlignment: Right
+SpaceAfterTemplateKeyword: false
+ReflowComments: false
+SortIncludes: Never
+StatementMacros:
+  - OPENTLV_ABI_FUNCTION

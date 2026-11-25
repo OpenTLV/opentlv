@@ -17,7 +17,7 @@ READER = "src/io/reader/reader.c"
 WRITER = "src/io/writer/writer.c"
 # Reviewed in docs/coverage.md. Branch indices are zero-based within a line.
 EXCLUDED_LINES = set()
-EXCLUDED_BRANCHES = {(READER, 90, 6), (WRITER, 78, 4)}
+EXCLUDED_BRANCHES = {(READER, 90, 6), (WRITER, 85, 4)}
 
 
 def read_profiles(build, gcov, version):

@@ -30,6 +30,57 @@ Both sources use the same checksum from [tests/CMakeLists.txt]. Follow either
 configure command with the same build and CTest commands. The default
 production build configures offline using only C.
 
+## Formatting and static analysis
+
+The `first-party-analysis` CI job runs clang-format 18.1.8, clang-tidy
+18.1.8 and Cppcheck 2.13.0. To run the same checks on Ubuntu 24.04 x86-64,
+start at the repository root with Git, CMake, Ninja, a C/C++ toolchain and
+Python 3 with venv support. CMake fetches the project's checksum-pinned
+GoogleTest and Google Benchmark headers during configuration.
+
+```bash
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends gcc-13 g++-13 cppcheck=2.13.0-2ubuntu3 valgrind=1:3.22.0-0ubuntu3
+build=$(mktemp -d)
+python3 -m venv "$build/venv"
+. "$build/venv/bin/activate"
+python -m pip install --require-hashes --only-binary=:all: -r .github/requirements-source-quality.txt
+cmake -S . -B "$build/headers" -G Ninja -DBUILD_TESTING=ON -DOPENTLV_BUILD_BENCHMARKS=ON
+python -B tests/check_source_quality.py \
+  --clang-arg=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13 \
+  --system-include "$build/headers/_deps/googletest-src/googletest/include" \
+  --system-include "$build/headers/_deps/googlebenchmark-src/include"
+python -B tests/test_source_quality.py
+```
+
+The runner checks source and header files beneath `include/`, `src/`,
+`examples/`, `tests/` and `benchmarks/`, including ABI inventories,
+package consumers, fuzz targets and diagnostic probes. It skips CMake
+build trees, fetched dependencies, generated code and vendor directories.
+Public C headers are analyzed in both C99 and C++17. The ABI inventory headers
+are analyzed through `tests/abi_layout.cpp`, which supplies their macro and types.
+
+Clang-tidy treats the checks selected in [the configuration](../.clang-tidy)
+as errors. They cover memory and pointer use, object lifetimes, and suspicious
+size and memory operations. The writer records one analyzer-only assumption
+after `tlv_fixed_element_size` succeeds. Every valid Fixed TLV element has
+at least one tag byte and one length byte, so its encoded size is positive
+even for an empty payload. This lets clang-tidy check the sizing-only call
+with a null destination and zero capacity across the translation-unit boundary.
+
+Cppcheck uses its Unix 64-bit data model, GoogleTest macro definitions and
+error, warning, performance and portability diagnostics. One `passedByValue`
+finding is suppressed at the definition of `fixture::fixture(workload)` in
+`benchmarks/fixtures.cpp`. This constructor takes a snapshot before measurement.
+Its signature is part of the [fingerprinted measurement protocol](performance-baseline.md#read-or-replay-a-report).
+The exception names the diagnostic, source path and line.
+
+Use `--check format`, `--check tidy` or `--check cppcheck` to run one tool.
+For example, `python tests/check_source_quality.py --check format src/core/size.c`
+checks one file, and `clang-format -i src/core/size.c` applies the repository
+style. The negative checks use a temporary directory and verify the expected
+diagnostic from each tool.
+
 ## Compiler and architecture matrix
 
 For v0.1.0, CI supports the following Fixed TLV Core and IO configurations.

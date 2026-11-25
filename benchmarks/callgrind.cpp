@@ -30,8 +30,9 @@ std::set<std::string> selected_ids()
             ids.insert(operation + layout + "/short");
         }
     }
-    for (const std::string layout : {"v1/read/be1/offset0/payload0", "v1/next/le3/offset1/payload3",
-                                     "v1/write/le8/offset1/payload513", "v1/append/be2/offset0/payload3"}) {
+    for (const std::string layout :
+         {"v1/read/be1/offset0/payload0", "v1/next/le3/offset1/payload3",
+          "v1/write/le8/offset1/payload513", "v1/append/be2/offset0/payload3"}) {
         for (const auto outcome : {"/complete", "/short"}) {
             for (const auto mode : {"/plain", "/diagnostic"}) {
                 ids.insert(layout + outcome + mode);
@@ -96,7 +97,8 @@ int main(int argc, char **argv)
     const auto ids = selected_ids();
     constexpr size_t expected_inputs = 8 + 4 + 16; // Field, sizing and IO cases.
     if (ids.size() != expected_inputs) {
-        std::cerr << "Expected " << expected_inputs << " v1 Callgrind inputs, found " << ids.size() << '\n';
+        std::cerr << "Expected " << expected_inputs << " v1 Callgrind inputs, found " << ids.size()
+                  << '\n';
         return EXIT_FAILURE;
     }
     std::map<std::string, workload> selected;

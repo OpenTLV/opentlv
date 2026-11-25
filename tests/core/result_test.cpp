@@ -25,11 +25,16 @@ TEST(CoreResult, ClassifiesAndDescribesEveryNamedResult)
         {TLV_OK, result::ok, TLV_CATEGORY_SUCCESS, category::success},
         {TLV_END, result::end, TLV_CATEGORY_END, category::end},
         {TLV_ERR_TRUNCATED, result::truncated, TLV_CATEGORY_TRUNCATED, category::truncated},
-        {TLV_ERR_INVALID_TAG_SIZE, result::invalid_tag_size, TLV_CATEGORY_MALFORMED_DATA, category::malformed_data},
-        {TLV_ERR_INVALID_LENGTH, result::invalid_length, TLV_CATEGORY_MALFORMED_DATA, category::malformed_data},
-        {TLV_ERR_NULL_ARG, result::null_arg, TLV_CATEGORY_INVALID_ARGUMENT, category::invalid_argument},
-        {TLV_ERR_INVALID_ARG, result::invalid_arg, TLV_CATEGORY_INVALID_ARGUMENT, category::invalid_argument},
-        {TLV_ERR_BUFFER_TOO_SHORT, result::buffer_too_short, TLV_CATEGORY_CAPACITY, category::capacity},
+        {TLV_ERR_INVALID_TAG_SIZE, result::invalid_tag_size, TLV_CATEGORY_MALFORMED_DATA,
+         category::malformed_data},
+        {TLV_ERR_INVALID_LENGTH, result::invalid_length, TLV_CATEGORY_MALFORMED_DATA,
+         category::malformed_data},
+        {TLV_ERR_NULL_ARG, result::null_arg, TLV_CATEGORY_INVALID_ARGUMENT,
+         category::invalid_argument},
+        {TLV_ERR_INVALID_ARG, result::invalid_arg, TLV_CATEGORY_INVALID_ARGUMENT,
+         category::invalid_argument},
+        {TLV_ERR_BUFFER_TOO_SHORT, result::buffer_too_short, TLV_CATEGORY_CAPACITY,
+         category::capacity},
         {TLV_ERR_OVERFLOW, result::overflow, TLV_CATEGORY_RANGE, category::range},
         {TLV_ERR_NATIVE_SIZE, result::native_size, TLV_CATEGORY_RANGE, category::range},
     };
@@ -52,9 +57,7 @@ TEST(CoreResult, ClassifiesAndDescribesEveryNamedResult)
 TEST(CoreResult, ReturnsTheFallbackForUnassignedCodes)
 {
     // Both a gap and a code above the last enumerator fit the C++ enum's range.
-    const tlv_result_t unassigned[] = {
-        static_cast<tlv_result_t>(2), static_cast<tlv_result_t>(18)
-    };
+    const tlv_result_t unassigned[] = {static_cast<tlv_result_t>(2), static_cast<tlv_result_t>(18)};
     const char *retained = tlv_result_string(TLV_END);
     for (const tlv_result_t code : unassigned) {
         SCOPED_TRACE(code);

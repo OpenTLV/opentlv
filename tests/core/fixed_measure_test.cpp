@@ -65,9 +65,9 @@ TEST(FixedMeasurement, RejectsInvalidFieldDefinitions)
         {{1}, {1, TLV_BYTE_ORDER_UNKNOWN}},
     };
     for (const auto &format : invalid) {
-        SCOPED_TRACE(::testing::Message() << "tag width " << format.identifier.size
-                     << ", length width " << format.length.size
-                     << ", order " << format.length.byte_order);
+        SCOPED_TRACE(::testing::Message()
+                     << "tag width " << format.identifier.size << ", length width "
+                     << format.length.size << ", order " << format.length.byte_order);
         const tlv_element_t element{{&byte, format.identifier.size}, {nullptr, 0}};
         ExpectHeaderError(TLV_ERR_INVALID_ARG, &format);
         ExpectElementError(TLV_ERR_INVALID_ARG, &format, &element);
@@ -127,8 +127,14 @@ TEST(FixedElementSize, ReportsDescriptorErrorsBeforeWireLengthAndOverflow)
 TEST(FixedElementSize, EnforcesWireAndNativePayloadLimitsForEachWidth)
 {
     constexpr tlv_size_t wireMaxima[] = {
-        0xff, 0xffff, 0xffffff, UINT32_MAX, UINT64_C(0xffffffffff),
-        UINT64_C(0xffffffffffff), UINT64_C(0xffffffffffffff), UINT64_MAX,
+        0xff,
+        0xffff,
+        0xffffff,
+        UINT32_MAX,
+        UINT64_C(0xffffffffff),
+        UINT64_C(0xffffffffffff),
+        UINT64_C(0xffffffffffffff),
+        UINT64_MAX,
     };
     for (size_t width = 1; width <= 8; ++width) {
         SCOPED_TRACE(width);
@@ -143,7 +149,8 @@ TEST(FixedElementSize, EnforcesWireAndNativePayloadLimitsForEachWidth)
         EXPECT_EQ(header + static_cast<size_t>(maxPayload), size);
         size_t cpp_size = 0;
         const auto cpp_format = core::from_c(format);
-        ASSERT_EQ(core::result::ok, core::element_size(cpp_format, core::from_c(element), cpp_size));
+        ASSERT_EQ(core::result::ok,
+                  core::element_size(cpp_format, core::from_c(element), cpp_size));
         EXPECT_EQ(size, cpp_size);
 
         if (maxPayload < TLV_SIZE_MAX) {
@@ -171,4 +178,4 @@ TEST(FixedElementSize, RejectsAWireLengthAboveTheNativeSizeRange)
 }
 #endif
 
-}  // namespace
+} // namespace

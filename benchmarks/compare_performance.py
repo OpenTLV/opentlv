@@ -16,12 +16,22 @@ from performance_build import TARGETS
 from run_callgrind import OPTIONS, VERSION, workload_ids
 
 
+# The candidate digest is the result of applying clang-format 18.1.8 to
+# the C/C++ files in this reference's protocol. See performance-baseline.md.
+FORMATTED_REFERENCE = "8753cc3384cd62533a41ba40dc932f3681da9b4b"
+FORMAT_ONLY_PROTOCOLS = (
+    "39f7a5d54e1f9a4664d20d29b8e9196ddb16a90298b74562aaa5aa81defce4d9",
+    "59415b783d5d5f3b6629244a2732fdfc2c84c189f893834c35f519635ca73b41",
+)
+
+
 @dataclass
 class Evidence:
     configuration: dict
     metrics: dict
     timing_median_ns: dict
     probe_sha256: str
+    protocol_sha256: str
 
 
 def read_json(path):
@@ -222,14 +232,14 @@ def evidence(directory, revision):
         raise ValueError("invalid protocol.sha256")
     probe_config, counts, probe_digest = callgrind(directory / "callgrind", revision)
     timing_config, observations = timing(directory / "timing", revision, counts.keys())
-    config = {"protocol_sha256": protocol, "callgrind": probe_config, "timing": timing_config,
+    config = {"callgrind": probe_config, "timing": timing_config,
               "targets": target_settings(directory / "build-settings.json")}
     metrics = {f"Ir/{workload}": value for workload, value in counts.items()}
     for linkage in ("static", "shared"):
         path = directory / "footprint" / f"{linkage}.json"
         config[linkage], sizes = footprint(path, revision, linkage)
         metrics.update(sizes)
-    return Evidence(config, metrics, observations, probe_digest)
+    return Evidence(config, metrics, observations, probe_digest, protocol)
 
 
 def differences(kind, reference, candidate):
@@ -248,13 +258,19 @@ def compare(args, result):
         except (ValueError, TypeError, KeyError, OSError, OverflowError, IndexError, StopIteration, csv.Error) as error:
             raise ValueError(f"{role}: {error}") from error
     baseline, candidate = reports
+    protocols = (baseline.protocol_sha256, candidate.protocol_sha256)
+    if result["baseline_revision"] != FORMATTED_REFERENCE or protocols != FORMAT_ONLY_PROTOCOLS:
+        same("configuration.protocol_sha256", *protocols)
     same("configuration", baseline.configuration, candidate.configuration)
     metrics = differences("deterministic metrics", baseline.metrics, candidate.metrics)
     observations = differences("timing workloads", baseline.timing_median_ns, candidate.timing_median_ns)
     regressions = [name for name, values in metrics.items() if values["delta"] > 0]
-    result.update(status="regression" if regressions else "pass", configuration=baseline.configuration,
+    result.update(status="regression" if regressions else "pass",
+                  configuration={"protocol_sha256": baseline.protocol_sha256, **baseline.configuration},
                   probe_sha256={"baseline": baseline.probe_sha256, "candidate": candidate.probe_sha256},
                   metrics=metrics, regressions=regressions, timing_median_ns=observations)
+    if baseline.protocol_sha256 != candidate.protocol_sha256:
+        result["protocol_sha256"] = {"baseline": baseline.protocol_sha256, "candidate": candidate.protocol_sha256}
 
 
 def summary(result):

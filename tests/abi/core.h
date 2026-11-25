@@ -1,8 +1,7 @@
 /* v0.1.0 Core C ABI. Define OPENTLV_ABI_FUNCTION before including this list. */
 OPENTLV_ABI_FUNCTION(tlv_result_t, tlv_fixed_element_size,
                      (const tlv_fixed_format_t *, const tlv_element_t *, size_t *))
-OPENTLV_ABI_FUNCTION(tlv_result_t, tlv_fixed_header_size,
-                     (const tlv_fixed_format_t *, size_t *))
+OPENTLV_ABI_FUNCTION(tlv_result_t, tlv_fixed_header_size, (const tlv_fixed_format_t *, size_t *))
 OPENTLV_ABI_FUNCTION(tlv_result_t, tlv_fixed_length_read,
                      (const tlv_fixed_length_t *, const uint8_t *, size_t, tlv_size_t *, size_t *))
 OPENTLV_ABI_FUNCTION(tlv_result_t, tlv_fixed_length_write,

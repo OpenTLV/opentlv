@@ -19,7 +19,7 @@ using namespace opentlv_bench;
 // counts the operations inside a batch as individual iterations.
 constexpr size_t batch_size = 32;
 
-template <typename Adapter>
+template<typename Adapter>
 void measure(benchmark::State &state, const workload &entry, decltype(&bench_run_c) check,
              bool &failed)
 {
@@ -70,7 +70,8 @@ void measure(benchmark::State &state, const workload &entry, decltype(&bench_run
             return;
         }
     }
-    const bool size_only = entry.operation == BENCH_HEADER_SIZE || entry.operation == BENCH_ELEMENT_SIZE;
+    const bool size_only =
+        entry.operation == BENCH_HEADER_SIZE || entry.operation == BENCH_ELEMENT_SIZE;
     const auto bytes = entry.complete && !size_only ? input.available : 0;
     state.counters["bytes_per_operation"] = static_cast<double>(bytes);
     state.SetBytesProcessed(state.iterations() * static_cast<int64_t>(bytes));
@@ -88,12 +89,20 @@ int main(int argc, char **argv)
     bool failed = false;
     for (const auto &entry : opentlv_bench::workloads()) {
         const auto id = entry.id();
-        benchmark::RegisterBenchmark("c99/" + id, [entry, &failed](benchmark::State &state) {
-            measure<opentlv_bench::c_timing>(state, entry, bench_run_c, failed);
-        })->Unit(benchmark::kNanosecond)->UseRealTime();
-        benchmark::RegisterBenchmark("cpp17/" + id, [entry, &failed](benchmark::State &state) {
-            measure<opentlv_bench::cpp_timing>(state, entry, bench_run_cpp, failed);
-        })->Unit(benchmark::kNanosecond)->UseRealTime();
+        benchmark::RegisterBenchmark("c99/" + id,
+                                     [entry, &failed](benchmark::State &state) {
+                                         measure<opentlv_bench::c_timing>(state, entry, bench_run_c,
+                                                                          failed);
+                                     })
+            ->Unit(benchmark::kNanosecond)
+            ->UseRealTime();
+        benchmark::RegisterBenchmark("cpp17/" + id,
+                                     [entry, &failed](benchmark::State &state) {
+                                         measure<opentlv_bench::cpp_timing>(state, entry,
+                                                                            bench_run_cpp, failed);
+                                     })
+            ->Unit(benchmark::kNanosecond)
+            ->UseRealTime();
     }
     const auto matched = benchmark::RunSpecifiedBenchmarks();
     benchmark::Shutdown();

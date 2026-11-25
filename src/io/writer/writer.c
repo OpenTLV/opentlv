@@ -17,10 +17,15 @@ static tlv_result_t write_element(uint8_t *data, size_t capacity, const tlv_fixe
     if (result != TLV_OK) {
         return report_result(diagnostic, result);
     }
+#ifdef __clang_analyzer__
+    /* Successful measurement in Core includes a nonempty tag and length field. */
+    __builtin_assume(required > 0);
+#endif
     if (required > capacity) {
         *written = required;
         if (diagnostic) {
-            set_field(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 0, required, capacity);
+            set_field(diagnostic, TLV_ERR_BUFFER_TOO_SHORT, TLV_FIELD_ELEMENT, 0, required,
+                      capacity);
         }
         return TLV_ERR_BUFFER_TOO_SHORT;
     }
@@ -30,7 +35,8 @@ static tlv_result_t write_element(uint8_t *data, size_t capacity, const tlv_fixe
     encode_fixed_length(format->length, element->value.size, data + tag_size);
     memcpy(data, element->tag.data, tag_size);
     if (element->value.size != 0) {
-        memcpy(data + tag_size + format->length.size, element->value.data, (size_t)element->value.size);
+        memcpy(data + tag_size + format->length.size, element->value.data,
+               (size_t)element->value.size);
     }
     *written = required;
     return report_result(diagnostic, TLV_OK);
@@ -43,8 +49,9 @@ tlv_result_t tlv_write(uint8_t *data, size_t capacity, const tlv_fixed_format_t 
 }
 
 tlv_result_t tlv_write_with_diagnostic(uint8_t *data, size_t capacity,
-                                       const tlv_fixed_format_t *format, const tlv_element_t *element,
-                                       size_t *written, tlv_diagnostic_t *diagnostic)
+                                       const tlv_fixed_format_t *format,
+                                       const tlv_element_t *element, size_t *written,
+                                       tlv_diagnostic_t *diagnostic)
 {
     if (!written || (!data && capacity != 0)) {
         return report_result(diagnostic, TLV_ERR_NULL_ARG);

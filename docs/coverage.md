@@ -31,7 +31,7 @@ Branch indices below are zero-based within the source line in gcov JSON.
 | File | Uncovered location | Reason |
 | --- | --- | --- |
 | `src/io/reader/reader.c` | Line 90, branch 6 | A successfully initialized reader cannot have a null buffer and positive size. The public contract requires callers to treat cursor fields as read-only. |
-| `src/io/writer/writer.c` | Line 78, branch 4 | Writer initialization rejects a null buffer with positive capacity. Reaching this outcome would require violating the initialized cursor contract. |
+| `src/io/writer/writer.c` | Line 85, branch 4 | Writer initialization rejects a null buffer with positive capacity. Reaching this outcome would require violating the initialized cursor contract. |
 
 The native-size checks in `src/core/size.c` and
 `src/core/internal/validation.h` compile only when `SIZE_MAX < TLV_SIZE_MAX`.

@@ -17,8 +17,7 @@ volatile int opentlv_allocation_seen = 0;
 namespace {
 using namespace opentlv_bench;
 
-template<class Call>
-bool allocated(Call call)
+template<class Call> bool allocated(Call call)
 {
     opentlv_allocation_seen = 0;
     opentlv_allocation_active = 1;
@@ -54,10 +53,12 @@ bool check_controls()
     const auto alignment = std::align_val_t{64};
     const bool aligned_seen = allocated([&] { memory = aligned_new(64, alignment); });
     ::operator delete(memory, alignment);
-    if (empty || !malloc_seen || !calloc_seen || !realloc_seen || !new_seen || !array_seen || !aligned_seen) {
-        std::cerr << "Allocation controls failed (empty/malloc/calloc/realloc/new/new[]/aligned new): "
-                  << empty << '/' << malloc_seen << '/' << calloc_seen << '/' << realloc_seen
-                  << '/' << new_seen << '/' << array_seen << '/' << aligned_seen << '\n';
+    if (empty || !malloc_seen || !calloc_seen || !realloc_seen || !new_seen || !array_seen ||
+        !aligned_seen) {
+        std::cerr
+            << "Allocation controls failed (empty/malloc/calloc/realloc/new/new[]/aligned new): "
+            << empty << '/' << malloc_seen << '/' << calloc_seen << '/' << realloc_seen << '/'
+            << new_seen << '/' << array_seen << '/' << aligned_seen << '\n';
         return false;
     }
     return true;
@@ -84,8 +85,8 @@ bool check_core_views()
             cpp_result = core::make_value_view(data, 1, typed);
         });
         if (heap || c_category != category || core::to_c(cpp_category) != category ||
-            c_result != expected || core::to_c(cpp_result) != expected || native.data != data || typed.data != data ||
-            native.size != (valid ? 1u : 0u) || typed.size != native.size) {
+            c_result != expected || core::to_c(cpp_result) != expected || native.data != data ||
+            typed.data != data || native.size != (valid ? 1u : 0u) || typed.size != native.size) {
             std::cerr << "Core result classification or value view failed (valid=" << valid
                       << ", heap allocation=" << heap << ")\n";
             return false;
@@ -94,8 +95,7 @@ bool check_core_views()
     return true;
 }
 
-template<class Adapter>
-bool check(const workload &entry, const fixture &data, const char *language)
+template<class Adapter> bool check(const workload &entry, const fixture &data, const char *language)
 {
     auto destination = fixture::initial_destination();
     Adapter adapter(entry.operation, data.input(), destination.bytes.data() + data.data_offset(),
@@ -114,8 +114,8 @@ bool check(const workload &entry, const fixture &data, const char *language)
     }
     const auto mismatch = data.validate(adapter.output(result), destination);
     if (heap || !mismatch.empty()) {
-        std::cerr << language << '/' << entry.id() << " failed: "
-                  << (heap ? "heap allocation" : mismatch) << '\n';
+        std::cerr << language << '/' << entry.id()
+                  << " failed: " << (heap ? "heap allocation" : mismatch) << '\n';
         return false;
     }
     return true;
@@ -138,7 +138,7 @@ int main()
             return EXIT_FAILURE;
         }
     }
-    std::cout << "Zero observed heap allocations in Core result/value checks and " << 2 * cases.size()
-              << " C99 and C++17 workloads. All allocation controls passed.\n";
+    std::cout << "Zero observed heap allocations in Core result/value checks and "
+              << 2 * cases.size() << " C99 and C++17 workloads. All allocation controls passed.\n";
     return EXIT_SUCCESS;
 }

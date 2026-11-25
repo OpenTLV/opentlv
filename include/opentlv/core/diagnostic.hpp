@@ -40,14 +40,14 @@ struct diagnostic {
 
 [[nodiscard]] constexpr tlv_diagnostic_t to_c(const diagnostic &details) noexcept
 {
-    return {to_c(details.result), to_c(details.field),
-            details.offset, details.required, details.available};
+    return {to_c(details.result), to_c(details.field), details.offset, details.required,
+            details.available};
 }
 
 [[nodiscard]] constexpr diagnostic from_c(const tlv_diagnostic_t &details) noexcept
 {
-    return {from_c(details.result), from_c(details.field),
-            details.offset, details.required, details.available};
+    return {from_c(details.result), from_c(details.field), details.offset, details.required,
+            details.available};
 }
 
 } // namespace opentlv::core

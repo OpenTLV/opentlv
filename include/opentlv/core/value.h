@@ -31,7 +31,7 @@ extern "C" {
  * SIZE_MAX. On failure, the output is unchanged.
  */
 TLV_NODISCARD OPENTLV_CORE_API tlv_result_t tlv_value_init(const uint8_t *data, tlv_size_t size,
-                                                          tlv_value_t *out);
+                                                           tlv_value_t *out);
 
 /** Check the pointer and size without accessing the value bytes. The caller
  * remains responsible for the actual extent and lifetime of the storage.

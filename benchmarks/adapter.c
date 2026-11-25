@@ -50,14 +50,22 @@ static tlv_result_t append_element(bench_c_state *s)
 bench_c_step bench_select_c(bench_operation op)
 {
     switch (op) {
-    case BENCH_FIELD_READ: return read_field;
-    case BENCH_FIELD_WRITE: return write_field;
-    case BENCH_HEADER_SIZE: return header_size;
-    case BENCH_ELEMENT_SIZE: return element_size;
-    case BENCH_READ: return read_element;
-    case BENCH_NEXT: return next_element;
-    case BENCH_WRITE: return write_element;
-    case BENCH_APPEND: return append_element;
+    case BENCH_FIELD_READ:
+        return read_field;
+    case BENCH_FIELD_WRITE:
+        return write_field;
+    case BENCH_HEADER_SIZE:
+        return header_size;
+    case BENCH_ELEMENT_SIZE:
+        return element_size;
+    case BENCH_READ:
+        return read_element;
+    case BENCH_NEXT:
+        return next_element;
+    case BENCH_WRITE:
+        return write_element;
+    case BENCH_APPEND:
+        return append_element;
     }
     return NULL;
 }

@@ -21,7 +21,8 @@ int main(void)
         tlv_size_to_native(sum, &native) != TLV_OK || native != total || total != 4)
         return EXIT_FAILURE;
 
-    if (tlv_fixed_length_write(&format.length, element.value.size, &wire_length, 1, &count) != TLV_OK ||
+    if (tlv_fixed_length_write(&format.length, element.value.size, &wire_length, 1, &count) !=
+            TLV_OK ||
         count != 1 || wire_length != sizeof payload ||
         tlv_fixed_length_read(&format.length, &wire_length, 1, &decoded, &count) != TLV_OK ||
         decoded != sizeof payload || count != 1)

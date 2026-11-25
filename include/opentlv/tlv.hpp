@@ -11,7 +11,7 @@
  * Exposes the typed Core, Reader and Writer interfaces and the public C declarations.
  */
 
-#if !defined(__cplusplus) || \
+#if !defined(__cplusplus) ||                                                                       \
     (__cplusplus < 201703L && (!defined(_MSVC_LANG) || _MSVC_LANG < 201703L))
 #error "opentlv/tlv.hpp requires C++17"
 #endif

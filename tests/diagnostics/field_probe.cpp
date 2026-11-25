@@ -24,9 +24,11 @@ bool check_field(tlv_fixed_length_t field, size_t offset)
 
     tlv_size_t decoded = 0;
     size_t consumed = 0, written = 0;
-    return tlv_fixed_length_read(&field, golden.data() + offset, field.size, &decoded, &consumed) == TLV_OK &&
+    return tlv_fixed_length_read(&field, golden.data() + offset, field.size, &decoded, &consumed) ==
+               TLV_OK &&
            decoded == value && consumed == field.size &&
-           tlv_fixed_length_write(&field, value, output.data() + offset, field.size, &written) == TLV_OK &&
+           tlv_fixed_length_write(&field, value, output.data() + offset, field.size, &written) ==
+               TLV_OK &&
            written == field.size && output == golden;
 }
 
@@ -69,7 +71,7 @@ bool check_record(tlv_fixed_length_t field, size_t payload_size)
            written == size && output == golden;
 }
 
-}  // namespace
+} // namespace
 
 int main()
 {

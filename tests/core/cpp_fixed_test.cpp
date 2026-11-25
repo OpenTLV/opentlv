@@ -59,11 +59,15 @@ TEST(CppFixed, MeasuresElementsAndPreservesSizeOnError)
     const core::fixed_format format{{2}, {1, core::byte_order::big_endian}};
     const uint8_t tag[] = {0, 4};
     const uint8_t payload[] = {8, 9};
-    const core::element_view elements[] = {
-        {{tag, 2}, {payload, 2}}, {{tag, 2}, {nullptr, 0}},
-        {{tag, 1}, {payload, 2}}, {{tag, 2}, {nullptr, 2}},
-        {{tag, 2}, {payload, 256}},  // Measurement only inspects the descriptor.
-    };
+    const core::
+        element_view
+            elements
+                [] =
+                    {
+                        {{tag, 2}, {payload, 2}},   {{tag, 2}, {nullptr, 0}},
+                        {{tag, 1}, {payload, 2}},   {{tag, 2}, {nullptr, 2}},
+                        {{tag, 2}, {payload, 256}}, // Measurement only inspects the descriptor.
+                    };
     const auto c_format = core::to_c(format);
     for (const auto &element : elements) {
         const auto c_element = core::to_c(element);
@@ -76,14 +80,15 @@ TEST(CppFixed, MeasuresElementsAndPreservesSizeOnError)
 
 TEST(CppFixed, ReadsAndWritesExactlyTheSelectedFieldInBothOrders)
 {
-    const core::byte_order orders[] = {core::byte_order::little_endian, core::byte_order::big_endian};
+    const core::byte_order orders[] = {core::byte_order::little_endian,
+                                       core::byte_order::big_endian};
     for (const auto order : orders) {
         const core::fixed_length field{2, order};
         const auto c_field = core::to_c(field);
         std::array<uint8_t, 3> cpp_wire{0xcc, 0xcc, 0xcc}, c_wire = cpp_wire;
         std::size_t c_written = 0, cpp_written = 0;
-        ASSERT_EQ(TLV_OK, tlv_fixed_length_write(&c_field, 0x1234, c_wire.data(),
-                                                 c_wire.size(), &c_written));
+        ASSERT_EQ(TLV_OK, tlv_fixed_length_write(&c_field, 0x1234, c_wire.data(), c_wire.size(),
+                                                 &c_written));
         const core::mutable_byte_view output{cpp_wire.data(), cpp_wire.size()};
         ASSERT_EQ(core::result::ok, core::write_length(field, 0x1234, output, cpp_written));
         EXPECT_EQ(c_wire, cpp_wire);
@@ -93,8 +98,8 @@ TEST(CppFixed, ReadsAndWritesExactlyTheSelectedFieldInBothOrders)
         core::logical_size cpp_decoded = 0;
         tlv_size_t c_decoded = 0;
         std::size_t c_consumed = 0, cpp_consumed = 0;
-        ASSERT_EQ(TLV_OK, tlv_fixed_length_read(&c_field, c_wire.data(), c_wire.size(),
-                                                &c_decoded, &c_consumed));
+        ASSERT_EQ(TLV_OK, tlv_fixed_length_read(&c_field, c_wire.data(), c_wire.size(), &c_decoded,
+                                                &c_consumed));
         ASSERT_EQ(core::result::ok, core::read_length(field, {cpp_wire.data(), cpp_wire.size()},
                                                       cpp_decoded, cpp_consumed));
         EXPECT_EQ(c_decoded, cpp_decoded);
@@ -132,4 +137,4 @@ TEST(CppFixed, PreservesFieldOutputsAndReportsTruncation)
     EXPECT_EQ(0xe1, octet);
 }
 
-}  // namespace
+} // namespace

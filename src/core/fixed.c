@@ -85,8 +85,8 @@ tlv_result_t tlv_fixed_header_size(const tlv_fixed_format_t *format, size_t *siz
     return add_native_sizes(format->identifier.size, format->length.size, size);
 }
 
-tlv_result_t tlv_fixed_element_size(const tlv_fixed_format_t *format,
-                                    const tlv_element_t *element, size_t *size)
+tlv_result_t tlv_fixed_element_size(const tlv_fixed_format_t *format, const tlv_element_t *element,
+                                    size_t *size)
 {
     if (!format || !element || !size) {
         return TLV_ERR_NULL_ARG;

@@ -18,15 +18,19 @@ static tlv_result_t expected_record(const uint8_t *wire, size_t size, tlv_fixed_
     const size_t tag = format.identifier.size;
     const size_t width = format.length.size;
     const size_t header = tag + width;
-    if (!size) return TLV_END;
-    if (size < header) return TLV_ERR_TRUNCATED;
+    if (!size)
+        return TLV_END;
+    if (size < header)
+        return TLV_ERR_TRUNCATED;
 
     uint64_t length = 0;
     for (size_t i = 0; i < width; ++i) {
-        const size_t offset = format.length.byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? i : width - 1 - i;
+        const size_t offset =
+            format.length.byte_order == TLV_BYTE_ORDER_BIG_ENDIAN ? i : width - 1 - i;
         length = (length << 8) | wire[tag + offset];
     }
-    if (length > size - header) return TLV_ERR_TRUNCATED;
+    if (length > size - header)
+        return TLV_ERR_TRUNCATED;
     *view = (tlv_element_t){{wire, tag}, {wire + header, length}};
     *count = header + (size_t)length;
     return TLV_OK;
@@ -34,7 +38,8 @@ static tlv_result_t expected_record(const uint8_t *wire, size_t size, tlv_fixed_
 
 int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
-    if (size < 3 || size > max_input) return 0;
+    if (size < 3 || size > max_input)
+        return 0;
     const tlv_byte_order_t orders[] = {TLV_BYTE_ORDER_BIG_ENDIAN, TLV_BYTE_ORDER_LITTLE_ENDIAN,
                                        TLV_BYTE_ORDER_UNKNOWN};
     const tlv_fixed_format_t format = {{data[0]}, {data[1], orders[data[2] % 3]}};

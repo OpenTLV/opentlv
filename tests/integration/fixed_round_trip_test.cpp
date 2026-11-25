@@ -21,14 +21,22 @@ struct Layout {
 };
 
 const Layout layouts[] = {
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {3}},                   {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,3}},                 {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,0,3}},               {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0,0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,0,0,3}},             {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0,0,0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,0,0,0,3}},           {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0,0,0,0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,0,0,0,0,3}},         {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0,0,0,0,0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,0,0,0,0,0,3}},       {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0,0,0,0,0,0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0,0,0,0,0,0,0,3}},     {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3,0,0,0,0,0,0,0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0, 0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 0, 0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0, 0, 0}},
+    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 0, 0, 0, 3}},
+    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0, 0, 0, 0}},
 };
 
 class FixedRoundTrip : public testing::TestWithParam<Layout> {
@@ -67,7 +75,6 @@ TEST_P(FixedRoundTrip, ReadsAndWritesGoldenBytes)
     ASSERT_EQ(2u, decoded.tag.size);
     ASSERT_EQ(golden.data() + golden.size() - 3, decoded.value.data);
     ASSERT_EQ(3u, decoded.value.size);
-
 }
 
 TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
@@ -77,7 +84,8 @@ TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
         const tlv_fixed_format_t layout{{tagWidth}, length};
         const auto cppLayout = core::from_c(layout);
         for (const size_t count : {0u, 1u, 127u, 254u, 255u, 256u, 257u, 513u}) {
-            SCOPED_TRACE(testing::Message() << "tag bytes " << tagWidth << ", value bytes " << count);
+            SCOPED_TRACE(testing::Message()
+                         << "tag bytes " << tagWidth << ", value bytes " << count);
             Bytes tag(tagWidth), value(count);
             const auto nextByte = [&random] { return static_cast<uint8_t>(random()); };
             std::generate(tag.begin(), tag.end(), nextByte);
@@ -88,8 +96,9 @@ TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
             Bytes cppOutput = output;
             size_t written = 93, cppWritten = 93;
             const auto result = tlv_write(output.data(), output.size(), &layout, &source, &written);
-            ASSERT_EQ(core::from_c(result), io::write(cppLayout, {cppOutput.data(), cppOutput.size()},
-                                                      core::from_c(source), cppWritten));
+            ASSERT_EQ(core::from_c(result),
+                      io::write(cppLayout, {cppOutput.data(), cppOutput.size()},
+                                core::from_c(source), cppWritten));
             ASSERT_EQ(written, cppWritten);
             ASSERT_EQ(output, cppOutput);
             if (length.size == 1 && count > 255) {
@@ -122,10 +131,12 @@ TEST_P(FixedRoundTrip, RoundTripsBoundedBinaryValuesAtLengthBoundaries)
             core::element_view cppDecoded{};
             size_t consumed = 0, cppConsumed = 0;
             ASSERT_EQ(TLV_OK, tlv_read(cppOutput.data(), cppWritten, &layout, &decoded, &consumed));
-            ASSERT_EQ(core::result::ok, io::read(cppLayout, {output.data(), written}, cppDecoded, cppConsumed));
+            ASSERT_EQ(core::result::ok,
+                      io::read(cppLayout, {output.data(), written}, cppDecoded, cppConsumed));
             EXPECT_EQ(written, consumed);
             EXPECT_EQ(consumed, cppConsumed);
-            opentlv_test::ExpectView({{cppOutput.data(), tagWidth}, {cppOutput.data() + header, count}}, decoded);
+            opentlv_test::ExpectView(
+                {{cppOutput.data(), tagWidth}, {cppOutput.data() + header, count}}, decoded);
             opentlv_test::ExpectView({{output.data(), tagWidth}, {output.data() + header, count}},
                                      core::to_c(cppDecoded));
         }
@@ -203,9 +214,11 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
 }
 
 INSTANTIATE_TEST_SUITE_P(WireLayouts, FixedRoundTrip, testing::ValuesIn(layouts),
-    [](const testing::TestParamInfo<Layout> &info) {
-        const std::string order = info.param.order == TLV_BYTE_ORDER_BIG_ENDIAN ? "BigEndian" : "LittleEndian";
-        return order + std::to_string(info.param.lengthOfThree.size());
-    });
+                         [](const testing::TestParamInfo<Layout> &info) {
+                             const std::string order = info.param.order == TLV_BYTE_ORDER_BIG_ENDIAN
+                                                           ? "BigEndian"
+                                                           : "LittleEndian";
+                             return order + std::to_string(info.param.lengthOfThree.size());
+                         });
 
-}  // namespace
+} // namespace
