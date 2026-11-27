@@ -70,8 +70,9 @@ admin can enable the merge check under the [governance baseline] as follows.
 The [Fixed TLV workflow] runs once per event. A PR tests the proposed merge
 into `main`. A push tests the resulting `main` commit. Full CI runs on manual
 dispatch for the selected ref and every Monday at 06:43 UTC on the default
-branch. A newer PR run can cancel an earlier run for that PR. Each push and
-Full run has its own concurrency group.
+branch. The release workflow calls the same Full CI jobs on its dispatch
+commit. A newer PR run can cancel an earlier run for that PR. Each push
+and Full run has its own concurrency group.
 
 | Job and scope | PR to `main` | Push to `main` | Manual Full | Weekly Full |
 | --- | --- | --- | --- | --- |
@@ -81,7 +82,7 @@ Full run has its own concurrency group.
 | `callgrind` · compare the candidate with the reviewed baseline for instruction counts and binary size, publish timing observations | Run | Run | Run | Run |
 | `windows-package` · MSVC Win32 and x64 static/shared symbols and C99 and C++17 consumers of the build tree, original install prefix and relocated prefix | Skip | Skip | Run both | Run both |
 | `first-party-analysis` · clang-format, clang-tidy, Cppcheck and deliberate C99/C++17 violation checks | Run | Run | Run | Run |
-| `workflow-analyzers` · gate regression tests, actionlint, zizmor | Offline audit | Online audit | Offline audit | Online audit |
+| `workflow-analyzers` · gate regression tests, signed release rehearsal, actionlint, zizmor | Offline audit | Online audit | Offline audit | Online audit |
 | `fixed-tlv-quality` · aggregate result | Evaluate | Evaluate | Evaluate | Evaluate |
 
 The performance and resource jobs run before merge so reviewers can inspect
@@ -124,6 +125,101 @@ and **Audit workflow security offline** in the [Fixed TLV workflow]. These
 steps verify the actionlint archive's SHA-256 before extraction and use pip
 hash verification to install the zizmor wheel from
 [the analyzer requirements](../.github/requirements-actions.txt).
+
+## Release automation
+
+The [Release workflow] uses the changelog extractor and signed-tag publisher
+from `OpenTLV/.github` at `db813248c730dd29b217ad90d6a85a562ed98cd6`.
+It checks out the release tools separately from the candidate. The
+[organization release policy] defines the signing, tag protection and retry rules.
+
+### Preview a candidate
+
+1. Merge the candidate through the protected `main` branch. In
+   `CHANGELOG.md`, put `## [<version>] - YYYY-MM-DD` above earlier
+   releases and below the optional `## [Unreleased]` section. Use the
+   complete SemVer version, such as `0.1.0-rc.1` or `0.1.0`. Its numeric
+   major, minor and patch must match the candidate's CMake project version.
+2. Choose **Actions → Release → Run workflow**, select `main`, enter that
+   `version` without a leading `v`, and leave `publish` unchecked. To
+   preview a specific reviewed commit, also set `candidate_sha` to its
+   full SHA. Preparation checks that GitHub reports the ref as protected
+   (`GITHUB_REF_PROTECTED`), that it is `refs/heads/main` and that any
+   supplied SHA matches the dispatch. It extracts the first dated section
+   and resolves relative links against that commit.
+3. Review the version, candidate SHA and extracted notes in the run summary, then
+   check the result of `fixed-tlv-quality`. The Release run calls the
+   [Fixed TLV workflow] at that same SHA and runs the online zizmor audit.
+   A direct manual Fixed TLV run uses the offline audit. The archive check builds
+   and tests the source distribution for the requested version, including
+   any prerelease suffix. Keep the [Full CI evidence](quality.md#full-ci-and-release-evidence).
+   A preview ends after Full CI, before the signing key or publisher is used.
+
+To rehearse locally, use Python 3.11 or newer, Git, GnuPG and a checkout
+of `OpenTLV/.github` at the pinned commit above. From the candidate
+repository, run the following in Bash with `release_tools` set to that
+checkout's absolute path.
+
+```bash
+mkdir -p build/issue_104/tmp
+TMPDIR="$PWD/build/issue_104/tmp" python3 -B tests/check_release_workflow.py "$release_tools"
+```
+
+The rehearsal uses disposable candidate commits, a local Git remote and
+an in-memory Releases API. It checks changelog links, signed tag targets,
+prerelease and final flags, and retries.
+
+### Configure the publisher
+
+On 2026-11-27 the [ruleset inventory including organization rules] listed
+only `main-protection`. The [release environment endpoint] returned 404
+to an unauthenticated request. Before the first publication, a repository
+administrator must configure and verify the following controls.
+
+- Restrict the `release` environment to the single **Branch** rule `main`.
+  Leave the tag rule list empty. Install a dedicated release App on this
+  repository and keep it off branch bypass lists. Allow the commit of
+  `actions/create-github-app-token` pinned in the [Release workflow].
+- In that environment set variables `RELEASE_APP_CLIENT_ID` and
+  `RELEASE_SIGNING_FINGERPRINT`, and secrets `RELEASE_APP_PRIVATE_KEY`
+  (App PEM) and `RELEASE_SIGNING_KEY` (armored OpenPGP secret key).
+  Record the approved signing fingerprint, key owner and public verification
+  key independently of the workflow. The release App needs **Contents** and
+  **Workflows** write permissions so it can tag the tested commit even if
+  workflow files on `main` change during the run. The workflow's default
+  token has read-only contents permission.
+- Apply the two active tag rulesets in the [organization release policy].
+  Restrict updates and deletions on all tags with an empty bypass list.
+  Restrict creation of `v*` tags with only the installed release App as an
+  **Always allow** bypass actor. Keep both exclusion lists empty and verify
+  the effective rules with an account that can inspect inherited rules and
+  bypass actors.
+
+### Publish or retry
+
+When the release is approved, dispatch **Release** on `main` with the
+matching `version`, the approved full commit SHA in `candidate_sha`, and
+`publish` checked. Preparation stops before Full CI if this SHA is missing
+or if `main` advanced between approval and dispatch. A matching candidate
+runs Full CI again. Publication uses a single concurrency group for all
+versions. Only its `publish` job enters the protected `release` environment.
+
+The publisher signs an annotated `v<version>` tag, verifies its signer,
+embedded tag name and direct commit target, then pushes the verified
+object to GitHub. The GitHub Release title is `OpenTLV <version>` and
+its body comes from the dated changelog entry. A SemVer prerelease
+component sets GitHub's prerelease flag. A version with only build
+metadata is a final release.
+
+After an interruption, choose **Re-run failed jobs** on the original run
+to retain its candidate SHA even if `main` has advanced. The publisher
+reuses a matching signed tag and creates a missing Release. If both
+already exist, it checks the tag and the Release's title, body and flags.
+A conflicting tag or Release stops publication for maintainer review.
+
+For `0.1.0`, complete [artifact integrity and provenance](https://github.com/OpenTLV/opentlv/issues/105)
+and [hosted CI and readiness evidence](https://github.com/OpenTLV/opentlv/issues/106)
+before the [final publication](https://github.com/OpenTLV/opentlv/issues/107).
 
 ## CodeQL coverage
 
@@ -194,6 +290,9 @@ non-maintainer remains unverified. [Reporting verification]
 [maintainer audit]: https://github.com/OpenTLV/.github/issues/10
 [governance baseline]: https://github.com/OpenTLV/.github/blob/main/docs/governance.md
 [Fixed TLV workflow]: ../.github/workflows/fixed-tlv.yml
+[Release workflow]: ../.github/workflows/release.yml
+[release environment endpoint]: https://api.github.com/repos/OpenTLV/opentlv/environments/release
+[organization release policy]: https://github.com/OpenTLV/.github/blob/db813248c730dd29b217ad90d6a85a562ed98cd6/docs/releases.md
 [GitHub's job results]: https://docs.github.com/en/actions/reference/workflows-and-actions/contexts#needs-context
 [header and package checks]: architecture.md#verification
 [fixed TLV test commands]: testing.md

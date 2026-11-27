@@ -56,8 +56,10 @@ and runs the static and shared package checks with symbol inspection. Those
 checks build and run C99 and C++17 consumers and the documented examples.
 On success, the check prints the tarball's SHA-256 digest and leaves the file
 in `build/release/verified/`. Pass the same `--version` to both commands
-when verifying a prerelease. Full CI uses the default CMake version and
-uploads the tarball in the Actions artifact `fixed-tlv-source`.
+when verifying a prerelease. Full CI uploads the tarball in the Actions
+artifact `fixed-tlv-source`. The [Release workflow](governance.md#release-automation)
+supplies the full requested version. Direct Fixed TLV runs use the default
+CMake version.
 
 Git supplies the committed file bytes, executable bits and commit timestamp.
 Use clean checkouts with no local `.git/info/attributes` overrides. The

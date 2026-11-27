@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added a release workflow that previews changelog notes and publishes prerelease or stable GitHub Releases with a signed tag after Full CI passes on the reviewed `main` commit. (#104)
 - Added a Fixed TLV Core and IO source archive with checks that compare two clean builds, verify the packaged files and license, and test static and shared consumers from the extracted source. (#103)
 - Added release checks that build the README consumer and C++17 guide examples against installed packages, compare program output with the README, and verify documentation links. (#102)
 - Recorded the v0.1.0 Fixed TLV release baseline for public headers, Core and IO symbols, x86 and x64 layouts, and C99 and C++17 behavior. (#101)
