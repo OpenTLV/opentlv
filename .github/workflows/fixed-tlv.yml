@@ -102,9 +102,9 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_check_symbols.py
       - name: Test Google Benchmark report validation
         run: python3 -m unittest discover -s benchmarks -p test_check_results.py
-      - name: Test static build-tree and installed CMake packages
+      - name: Test static CMake source and package consumers
         run: python3 tests/check_cmake_package.py --check-symbols
-      - name: Test shared build-tree and installed CMake packages
+      - name: Test shared CMake source and package consumers
         run: python3 tests/check_cmake_package.py --shared --check-symbols
       - name: Build Fixed TLV fuzz targets
         env:
@@ -305,9 +305,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: Test static build-tree and installed CMake packages with MSVC
+      - name: Test static CMake source and package consumers with MSVC
         run: python tests/check_cmake_package.py --check-symbols
-      - name: Test shared build-tree and installed CMake packages with MSVC
+      - name: Test shared CMake source and package consumers with MSVC
         run: python tests/check_cmake_package.py --shared --check-symbols
 
   first-party-analysis:

@@ -1,4 +1,4 @@
-"""Run consumers against build-tree, installed and relocated OpenTLV packages."""
+"""Build and run source and package consumers of the OpenTLV release candidate."""
 
 import argparse
 import os
@@ -23,7 +23,6 @@ def build_project(source, build, *options, c_only=False):
     env = os.environ.copy()
     if c_only:
         env["CXX"] = "opentlv-unavailable-cxx"
-        options += ("-DFETCHCONTENT_FULLY_DISCONNECTED:BOOL=ON",)
     subprocess.run(["cmake", "-S", source, "-B", build, "-DCMAKE_BUILD_TYPE=Release",
                     *options], env=env, check=True)
     # IDE generators can select their own C++ compiler independently of CXX.
@@ -63,14 +62,31 @@ def runtime_environment(prefix):
     return env
 
 
-def check_consumers(work, package_prefix, include_root):
+def check_consumers(work, location, include_root, shared, mode="find_package"):
+    library_type = "SHARED_LIBRARY" if shared else "STATIC_LIBRARY"
+    options = [f"-DCONSUMPTION_MODE={mode}", f"-DEXPECTED_LIBRARY_TYPE={library_type}",
+               f"-DHEADER_INVENTORY_ROOT={include_root}"]
+    if mode == "FetchContent":
+        # Exercise normal population from the local checkout. CMake 3.15 ignores
+        # a declaration's SOURCE_DIR in fully disconnected mode.
+        options.append(f"-DFETCHCONTENT_SOURCE_DIR_GOOGLETEST:PATH={work / 'unavailable-googletest'}")
+    else:
+        options.append("-DFETCHCONTENT_FULLY_DISCONNECTED:BOOL=ON")
+    if mode == "find_package":
+        options.append(f"-DPACKAGE_PREFIX={location}")
+        env = runtime_environment(location)
+    else:
+        options.extend((f"-DOPENTLV_SOURCE_DIR:PATH={location}", "-DBUILD_TESTING=ON",
+                        "-DBUILD_SHARED_LIBS=" + ("ON" if shared else "OFF")))
+        env = None
     for language in ("C", "CXX"):
         consumer = work / language
+        # Keep embedded DLLs beside the consumer executables on Windows.
         build_project(ROOT / "tests" / "package", consumer, f"-DCONSUMER_LANGUAGE={language}",
-                      f"-DPACKAGE_PREFIX={package_prefix}", f"-DHEADER_INVENTORY_ROOT={include_root}",
-                      c_only=(language == "C"))
+                      f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={consumer / 'bin'}",
+                      *options, c_only=(language == "C"))
         subprocess.run(["ctest", "-C", "Release", "--output-on-failure"],
-                       cwd=consumer, env=runtime_environment(package_prefix), check=True)
+                       cwd=consumer, env=env, check=True)
 
 
 def check_package(work, shared, audit_symbols=False):
@@ -83,19 +99,22 @@ def check_package(work, shared, audit_symbols=False):
         build = Path(directory) / "build"
         shutil.copytree(ROOT, source, symlinks=True,
                         ignore=shutil.ignore_patterns(".git", "build", "build-*", "__pycache__", work.name))
+        for mode in ("add_subdirectory", "FetchContent"):
+            check_consumers(Path(directory) / mode, source, source / "include", shared, mode)
         build_project(source, build, f"-DCMAKE_INSTALL_PREFIX={prefix}",
                       f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={build / 'bin'}",
+                      "-DFETCHCONTENT_FULLY_DISCONNECTED:BOOL=ON",
                       "-DBUILD_SHARED_LIBS=" + ("ON" if shared else "OFF"), c_only=True)
-        check_consumers(work / "build-tree consumers", build, source / "include")
+        check_consumers(work / "build-tree consumers", build, source / "include", shared)
         subprocess.run(["cmake", "--install", build, "--config", "Release"], check=True)
         if audit_symbols:
             check_symbols(prefix, shared, build)
 
-    check_consumers(work / "installed consumers", prefix, prefix / "include")
+    check_consumers(work / "installed consumers", prefix, prefix / "include", shared)
     prefix.rename(relocated)
 
     check_install_tree(relocated, (ROOT, source, build, prefix))
-    check_consumers(work / "relocated consumers", relocated, relocated / "include")
+    check_consumers(work / "relocated consumers", relocated, relocated / "include", shared)
 
     package_config = next(relocated.rglob("OpenTLVConfig.cmake"))
     binaries = work / "example binaries"

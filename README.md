@@ -88,21 +88,36 @@ their output.
 
 ## Use the installed package
 
-Link `OpenTLV::io` to use the reader and writer. It also links Core.
-For just the fixed TLV model, size calculations and result codes, link
-`OpenTLV::core` directly.
+For a minimal C99 consumer, put the [C99 writer](examples/write.c) and this
+`CMakeLists.txt` in the same directory. Link `OpenTLV::io` for the reader
+and writer. IO also links Core. Link `OpenTLV::core` directly for just the
+fixed TLV model, size calculations and result codes.
 
 ```cmake
-find_package(OpenTLV CONFIG REQUIRED)
-add_executable(example main.cpp)
+cmake_minimum_required(VERSION 3.15)
+project(example LANGUAGES C)
+
+find_package(OpenTLV 0.1.0 EXACT CONFIG REQUIRED)
+add_executable(example write.c)
+set_target_properties(example PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED YES C_EXTENSIONS OFF)
 target_link_libraries(example PRIVATE OpenTLV::io)
 ```
 
-Configure the consumer with `-DCMAKE_PREFIX_PATH=/path/to/opentlv`.
+The 0.1.0 package uses exact version matching. Omit `0.1.0 EXACT` to
+accept the package at the selected prefix regardless of version.
+
+From the consumer directory, configure with the installation prefix and build
+the executable.
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/path/to/opentlv
+cmake --build build --config Release
+```
+
 Both targets supply the public include directory and request C++17 for C++
-compilation. Include a module header such as `<opentlv/io/writer/writer.hpp>`
-or use the umbrella `<opentlv/tlv.hpp>`. A C99 project can link the same
-targets and include `<opentlv/tlv.h>` with only the C language enabled.
+compilation. A C99 project can include `<opentlv/tlv.h>` with only the C
+language enabled. A C++ project can use the same targets with module headers
+such as `<opentlv/io/writer/writer.hpp>` or the umbrella `<opentlv/tlv.hpp>`.
 
 ## Use the build-tree package
 
@@ -111,6 +126,43 @@ Build OpenTLV, then configure the consumer with
 names work before installation. Keep the OpenTLV source and build directories
 in place. On Windows, put the directory containing the built DLLs on `PATH`
 when running a shared-library consumer.
+
+## Build OpenTLV as a dependency
+
+Put the OpenTLV source checkout in `vendor/opentlv` under the consumer
+directory. In the consumer's `CMakeLists.txt` above, replace the
+`find_package` line with either of these alternatives.
+
+With `add_subdirectory`, the checkout builds as a subproject.
+
+```cmake
+add_subdirectory(vendor/opentlv)
+```
+
+With `FetchContent`, set `SOURCE_DIR` to use the same checkout offline.
+
+```cmake
+include(FetchContent)
+FetchContent_Declare(opentlv SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/opentlv")
+FetchContent_MakeAvailable(opentlv)
+```
+
+To build from a source archive, replace `SOURCE_DIR` and its path with
+`URL "/absolute/path/to/opentlv.zip"`. For a remote archive, supply its
+URL and expected `URL_HASH SHA256=<digest>`.
+
+Configure and build the consumer from its directory.
+
+```sh
+cmake -S . -B build-source -DCMAKE_BUILD_TYPE=Release
+cmake --build build-source --config Release
+```
+
+Both modes build static libraries by default. Add `-DBUILD_SHARED_LIBS=ON`
+when configuring the consumer for shared libraries. On Windows, add the
+directory containing the built OpenTLV DLLs to `PATH` before running the
+executable. The parent can enable its own tests with `BUILD_TESTING`. To
+build OpenTLV's tests as part of the parent build, add `-DOPENTLV_BUILD_TESTS=ON`.
 
 ## Contributing
 

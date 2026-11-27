@@ -120,8 +120,10 @@ the comparison. Review timing changes alongside the raw measurements.
    step and the `windows-package` job. In the Full run, verify that the
    Clang header check passed. In the static and shared package steps of
    `fixed-tlv` (Linux) and `windows-package` (MSVC), check the C99 and C++17
-   results for the build tree, original install prefix and relocated prefix,
-   the Core and IO symbol counts, and the three example outputs.
+   results for `add_subdirectory` and `FetchContent`, then the versioned
+   `find_package` results for the build tree, original install prefix and
+   relocated prefix. Check the Core and IO symbol counts and the three
+   example outputs.
    Verify `fixed-tlv-quality` and each worker in the
    [workflow matrix](governance.md#continuous-integration) passed, including
    `first-party-analysis`, `workflow-analyzers`, both Windows architectures
