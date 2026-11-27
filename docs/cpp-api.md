@@ -35,15 +35,15 @@ preserve `size`.
 
 namespace core = opentlv::core;
 
-bool fits_example()
+int main()
 {
     const std::uint8_t tag[] = {0xa5};
     const std::uint8_t payload[] = {0x10, 0x20, 0x30};
     const core::fixed_format format{{1}, {2, core::byte_order::big_endian}};
     const core::element_view element{{tag, sizeof tag}, {payload, sizeof payload}};
     std::size_t required{};
-    return core::element_size(format, element, required) == core::result::ok
-        && required == 6;
+    const auto status = core::element_size(format, element, required);
+    return status == core::result::ok && required == 6 ? 0 : 1;
 }
 ```
 
@@ -75,11 +75,21 @@ this example.
 #include <opentlv/io/reader/reader.hpp>
 
 namespace core = opentlv::core;
-const std::uint8_t wire[] = {0xa5, 0x01, 0x10, 0xb6, 0x00};
-const core::fixed_format format{{1}, {1, core::byte_order::big_endian}};
-core::element_view element;
-std::size_t consumed{};
-const auto status = opentlv::io::read(format, {wire, sizeof wire}, element, consumed);
+
+int main()
+{
+    const std::uint8_t wire[] = {0xa5, 0x01, 0x10, 0xb6, 0x00};
+    const core::fixed_format format{{1}, {1, core::byte_order::big_endian}};
+    core::element_view element;
+    std::size_t consumed{};
+    const auto status = opentlv::io::read(format, {wire, sizeof wire}, element, consumed);
+    if (status != core::result::ok || consumed != 3) {
+        return 1;
+    }
+    const bool tag_matches = element.tag.data == wire && element.tag.size == 1;
+    const bool value_matches = element.value.data == wire + 2 && element.value.size == 1;
+    return tag_matches && value_matches ? 0 : 1;
+}
 ```
 
 Here `status` is `core::result::ok`, the tag and value point to `wire[0]`
@@ -110,9 +120,9 @@ start of the stream for `next`. Both operations refresh the diagnostic on
 every call, including success and end. Give the element, consumed count and
 optional diagnostic separate storage outside the input bytes and the reader.
 
-Both reader and writer wrappers pass a null pointer to C when the caller
-omits the diagnostic. When the caller supplies one, the C function fills
-all five fields and the wrapper converts them to the C++ record.
+When a reader or writer calls C, it passes a null pointer if the caller
+omits the diagnostic. Otherwise the C function fills all five fields and
+the wrapper converts them to the C++ record.
 
 ## Writing elements
 
@@ -131,7 +141,9 @@ writable storage and sets the position to zero. Failed initialization
 preserves the previous stream and position. `writer.format()` returns the
 saved format by value. Each successful `writer.write(element)` advances
 `writer.position()` by the encoded size. Before the first successful
-`init`, an append returns `invalid_arg`. Any failed append preserves
+`init`, the wrapper returns `invalid_arg` directly and, if requested, sets
+the diagnostic to that result with `field::none` and zero counts and offset.
+Any failed append preserves
 the committed position and the entire buffer.
 
 Both write operations accept a trailing `core::diagnostic*`. On short
@@ -332,6 +344,8 @@ The [package checks](architecture.md#verification) build and run C99 and C++17
 consumers against the build tree and a relocated installation for both static
 and shared libraries. The same checks build the [documented examples](../README.md#run-the-examples)
 against the relocated installation and compare their output with the expected bytes.
+They also compile and run the Core sizing and IO reading programs shown above,
+each linked to its documented target.
 
 When adding a wrapper, exercise it alongside its C operation on the same
 input and compare wire bytes, results, diagnostic details and output state

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added release checks that build the README consumer and C++17 guide examples against installed packages, compare program output with the README, and verify documentation links. (#102)
 - Recorded the v0.1.0 Fixed TLV release baseline for public headers, Core and IO symbols, x86 and x64 layouts, and C99 and C++17 behavior. (#101)
 - Added exact version lookup for the 0.1.0 CMake package and verified static and shared Core and IO consumers with `add_subdirectory`, `FetchContent` and `find_package`. Parent projects can opt into OpenTLV tests with `OPENTLV_BUILD_TESTS`. (#100)
 - Added release package checks that build and run C99 and C++17 consumers at both the original and relocated install prefixes after removing the library source and build trees, and verify C-only production builds with FetchContent disconnected. (#99)

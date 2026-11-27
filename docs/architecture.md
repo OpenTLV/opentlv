@@ -138,7 +138,7 @@ a new major version.
 
 The Core, IO and integration suites link the production library targets and
 exercise their public C interfaces. The Core and IO suites also check the typed
-C++17 views, Fixed TLV operations and reader against the C implementation.
+C++17 views, Fixed TLV operations, reader and writer against the C implementation.
 Test builds use GoogleTest to discover individual cases through CTest. The
 [testing guide](testing.md) explains how to select a contract, reproduce CI
 runs and read their reports.
@@ -185,8 +185,10 @@ and calls Core through IO's transitive dependency.
 The checks disable GTest discovery in the consumer projects and look for test
 artifacts in the install tree. They inspect installed CMake files for test
 dependencies and paths to the source, build or original installation. They
-also run the [documented examples](../README.md#run-the-examples) against
-the relocated package and verify each program's output.
+also build the C99 consumer directly from the README's CMake project and
+compare its output and the three example programs' output with the
+[README table](../README.md#run-the-examples). The two programs in the
+[C++17 API guide](cpp-api.md) run against the relocated Core and IO targets.
 
 The epic tracks behavioral test and coverage infrastructure in
 [#10](https://github.com/OpenTLV/opentlv/issues/10),

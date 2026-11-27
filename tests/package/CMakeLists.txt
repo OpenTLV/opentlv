@@ -71,6 +71,12 @@ foreach(module IN ITEMS core io)
     target_link_libraries(${module}-consumer PRIVATE OpenTLV::${module})
     opentlv_strict_compile_options(${module}-consumer ${CONSUMER_LANGUAGE})
     add_test(NAME ${module}-consumer COMMAND ${module}-consumer)
+    if(CONSUMER_LANGUAGE STREQUAL "CXX" AND DOC_EXAMPLES_DIR)
+        add_executable(doc-${module} "${DOC_EXAMPLES_DIR}/${module}.cpp")
+        target_link_libraries(doc-${module} PRIVATE OpenTLV::${module})
+        opentlv_strict_compile_options(doc-${module} CXX)
+        add_test(NAME doc-${module} COMMAND doc-${module})
+    endif()
 endforeach()
 
 # Use the inventory only for header names. The compiler resolves every include
