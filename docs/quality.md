@@ -157,8 +157,9 @@ the comparison. Review timing changes alongside the raw measurements.
 
 1. Record the full candidate SHA with `git rev-parse HEAD`. In **Actions →
    Fixed TLV → Run workflow**, select the branch at that SHA. For the release
-   handoff, select the reviewed `main` candidate. A scheduled Full run on
-   the same SHA also qualifies.
+   handoff, select the reviewed `main` candidate. A scheduled Full run or
+   a [Release preview](governance.md#preview-a-candidate) on the same SHA
+   also runs the full suite.
 2. Verify the run's event is `workflow_dispatch` or `schedule` and its
    commit equals the recorded SHA. A PR or push run skips the Clang header
    step and the `windows-package` job. In the Full run, verify that the
@@ -186,7 +187,7 @@ the comparison. Review timing changes alongside the raw measurements.
 
 | Artifact | What to check |
 | --- | --- |
-| `fixed-tlv-source` | Extract the source tarball from the Actions ZIP. Its filename must contain the candidate's CMake version and its embedded Git commit must match the Full CI SHA. See the [release artifact guide](release-artifacts.md#build-the-archive). |
+| `fixed-tlv-source` | Extract the source tarball from the Actions ZIP. Check the candidate's CMake version in its filename, including any prerelease or build suffix supplied by the Release workflow. Its embedded Git commit must match the Full CI SHA. See the [release artifact guide](release-artifacts.md#build-the-archive). |
 | `ctest-reports` | GCC Debug and Release, Clang Release and Clang Debug ASan/UBSan results. In Full CI, `Release/passed-cases.txt` and `Release-repeat/passed-cases.txt` agree. |
 | `ctest-reports-x86`, `ctest-reports-x64` | MSVC Win32 Release and x64 Debug results, including the ABI and native-size cases. In each Full CI artifact, `passed-cases.txt` and `repeat/passed-cases.txt` agree. |
 | `coverage-reports` | Both GCC/gcov reports agree and meet the [production coverage gates](coverage.md). |

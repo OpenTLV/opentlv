@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Full version in the first dated changelog section (without v)
+        required: true
+        type: string
+      publish:
+        description: Publish the signed tag and GitHub Release after Full CI passes
+        type: boolean
+        default: false
+      candidate_sha:
+        description: Full reviewed main commit SHA (required for publication)
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require a dispatch from protected main
+        shell: bash
+        run: |
+          test "$GITHUB_REF" = refs/heads/main
+          test "${GITHUB_REF_PROTECTED,,}" = true
+      - name: Require the approved candidate for publication
+        if: inputs.publish || inputs.candidate_sha != ''
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: |
+          if [ "$CANDIDATE_SHA" != "$GITHUB_SHA" ]; then
+            echo "::error::The reviewed candidate SHA must match the dispatch commit $GITHUB_SHA"
+            exit 1
+          fi
+      - name: Check out the dispatched commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check out organization release tools
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: OpenTLV/.github
+          ref: db813248c730dd29b217ad90d6a85a562ed98cd6 # v0.1.0
+          path: release-tools
+          persist-credentials: false
+      - name: Prepare release notes from the candidate
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 -B scripts/prepare_release.py --tools release-tools --sha "$GITHUB_SHA" \
+            --version "$VERSION" --notes "$RUNNER_TEMP/release-notes.md"
+      - name: Show the candidate and release notes
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          printf '## OpenTLV %s\n\nCandidate %s\n\n' "$VERSION" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          cat "$RUNNER_TEMP/release-notes.md" >> "$GITHUB_STEP_SUMMARY"
+
+  full-ci:
+    needs: prepare
+    # The local reusable workflow runs at the dispatch SHA.
+    uses: ./.github/workflows/fixed-tlv.yml # zizmor: ignore[self-repository]
+    with:
+      release-version: ${{ inputs.version }}
+
+  publish:
+    needs: full-ci
+    if: inputs.publish && github.ref == 'refs/heads/main' && needs.full-ci.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: release
+    concurrency:
+      group: release-publication
+      cancel-in-progress: false
+    steps:
+      - name: Check out the tested commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Check out organization release tools
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: OpenTLV/.github
+          ref: db813248c730dd29b217ad90d6a85a562ed98cd6 # v0.1.0
+          path: release-tools
+          persist-credentials: false
+      - name: Prepare release notes from the tested commit
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          python3 -B scripts/prepare_release.py --tools release-tools --sha "$GITHUB_SHA" \
+            --version "$VERSION" --notes "$RUNNER_TEMP/release-notes.md"
+      - name: Create the repository release App token
+        id: publisher
+        uses: actions/create-github-app-token@f418cff399f7aef4c2f0ad47e25ca7a6abbdd6fc # v3.4.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          # GitHub checks workflow-file differences when tagging an older main commit.
+          permission-workflows: write
+      - name: Sign the tag and publish the verified release
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ steps.publisher.outputs.token }}
+          APP_SLUG: ${{ steps.publisher.outputs.app-slug }}
+          RELEASE_SIGNING_FINGERPRINT: ${{ vars.RELEASE_SIGNING_FINGERPRINT }}
+          RELEASE_SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+        run: |
+          set -euo pipefail
+          GNUPGHOME=$(mktemp -d "$RUNNER_TEMP/release-gpg.XXXXXX")
+          export GNUPGHOME
+          trap 'gpgconf --kill gpg-agent; rm -rf -- "$GNUPGHOME"' EXIT
+          printf '%s\n' "$RELEASE_SIGNING_KEY" | gpg --batch --import
+          unset RELEASE_SIGNING_KEY
+          bot_id=$(gh api "users/${APP_SLUG}%5Bbot%5D" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+          gh auth setup-git
+          PYTHONPATH="$GITHUB_WORKSPACE/release-tools" python3 -B -P -m scripts.publish_release \
+            --version "$VERSION" --sha "$GITHUB_SHA" --display-name OpenTLV \
+            --fingerprint "$RELEASE_SIGNING_FINGERPRINT" --notes "$RUNNER_TEMP/release-notes.md"
