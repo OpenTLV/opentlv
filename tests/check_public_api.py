@@ -7,6 +7,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from release_baseline import BASELINE, public_headers
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODES = {"c99": 199901, "c11": 201112, "c17": 201710, "c23": 202311,
@@ -122,6 +124,10 @@ int probe(void);
     expect("umbrella", contract)
     if mode == "c99":
         expect("empty attribute fallback", EMPTY_FALLBACK)
+        signatures = UMBRELLA + "#define OPENTLV_ABI_FUNCTION(R, N, A) R (*probe_##N) A = &N;\n"
+        for module in ("core", "io"):
+            signatures += (BASELINE / f"{module}.h").read_text(encoding="utf-8")
+        expect("v0.1.0 C function pointer types", signatures)
         # Copy the implementations so relative includes cannot reach src/io.
         source_build = core_build.parent / "implementation"
         sources = source_build / "src" / "core"
@@ -181,14 +187,13 @@ def main():
         include = build / "include"
         shutil.copytree(ROOT / "include" / "opentlv", include / "opentlv")
         shutil.copytree(include / "opentlv" / "core", core_build / "include" / "opentlv" / "core")
-        c_headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.h"))
-        cpp_headers = sorted(path.relative_to(include).as_posix() for path in include.rglob("*.hpp"))
+        headers = public_headers(include)
+        c_headers = [header for header in headers if header.endswith(".h")]
         for mode, version in MODES.items():
-            headers = c_headers + cpp_headers if mode == "c++17" else c_headers
             variable, default = ("CXX", "c++") if mode.startswith("c++") else ("CC", "cc")
             compiler = os.environ.get(variable, default)
-            check_mode(build, core_build, headers, args.clang_cl or compiler,
-                       mode, version, bool(args.clang_cl))
+            check_mode(build, core_build, headers if mode == "c++17" else c_headers,
+                       args.clang_cl or compiler, mode, version, bool(args.clang_cl))
 
 
 if __name__ == "__main__":

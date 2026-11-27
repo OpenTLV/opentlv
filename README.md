@@ -55,7 +55,8 @@ reports, sanitizers, coverage and fuzz reproduction. It also explains how to
 run the [formatting and static analysis checks](docs/testing.md#formatting-and-static-analysis).
 The [compiler and architecture
 matrix](docs/testing.md#compiler-and-architecture-matrix) lists the supported
-configurations for Core and IO.
+configurations for Core and IO. The [v0.1.0 release baseline](docs/api-abi.md#compare-a-release-candidate)
+records their public interfaces, native layouts and Fixed TLV behavior.
 The [benchmark workload catalog](docs/testing.md#benchmark-workload-catalog)
 provides equivalent C99 and C++17 inputs. The [Google Benchmark runner](docs/testing.md#runtime-and-throughput)
 measures Core and IO latency and throughput and writes JSON reports.

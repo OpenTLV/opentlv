@@ -6,8 +6,7 @@ import re
 import subprocess
 from pathlib import Path
 
-
-BASELINE = Path(__file__).resolve().parent / "abi"
+from release_baseline import BASELINE
 
 
 def tool_output(*command):

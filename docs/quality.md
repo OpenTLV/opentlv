@@ -119,11 +119,13 @@ the comparison. Review timing changes alongside the raw measurements.
    commit equals the recorded SHA. A PR or push run skips the Clang header
    step and the `windows-package` job. In the Full run, verify that the
    Clang header check passed. In the static and shared package steps of
-   `fixed-tlv` (Linux) and `windows-package` (MSVC), check the C99 and C++17
+   `fixed-tlv` (Linux x64) and both `windows-package` legs (MSVC Win32 and
+   x64), check the C99 and C++17
    results for `add_subdirectory` and `FetchContent`, then the versioned
    `find_package` results for the build tree, original install prefix and
    relocated prefix. Check the Core and IO symbol counts and the three
-   example outputs.
+   example outputs. Compare the repeat contract results for each ABI profile
+   using the [v0.1.0 release baseline](api-abi.md#compare-a-release-candidate).
    Verify `fixed-tlv-quality` and each worker in the
    [workflow matrix](governance.md#continuous-integration) passed, including
    `first-party-analysis`, `workflow-analyzers`, both Windows architectures
@@ -137,8 +139,8 @@ the comparison. Review timing changes alongside the raw measurements.
 
 | Artifact | What to check |
 | --- | --- |
-| `ctest-reports` | GCC Debug and Release, Clang Release and Clang Debug ASan/UBSan suite results and toolchain reports. |
-| `ctest-reports-x86`, `ctest-reports-x64` | MSVC Win32 Release and x64 Debug results, including the ABI and native-size cases. |
+| `ctest-reports` | GCC Debug and Release, Clang Release and Clang Debug ASan/UBSan results. In Full CI, `Release/passed-cases.txt` and `Release-repeat/passed-cases.txt` agree. |
+| `ctest-reports-x86`, `ctest-reports-x64` | MSVC Win32 Release and x64 Debug results, including the ABI and native-size cases. In each Full CI artifact, `passed-cases.txt` and `repeat/passed-cases.txt` agree. |
 | `coverage-reports` | Both GCC/gcov reports agree and meet the [production coverage gates](coverage.md). |
 | `fixed-tlv-memcheck` | Expected results for the negative controls and clean suite logs. |
 | `fixed-tlv-resource-usage-static`, `fixed-tlv-resource-usage-shared` | Allocation checks, matching repeat footprint reports and build settings for each linkage. |

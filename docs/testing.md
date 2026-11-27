@@ -41,7 +41,7 @@ The runner checks source and header files beneath `include/`, `src/`,
 package consumers, fuzz targets and diagnostic probes. It skips CMake
 build trees, fetched dependencies, generated code and vendor directories.
 Public C headers are analyzed in both C99 and C++17. The ABI inventory headers
-are analyzed through `tests/abi_layout.cpp`, which supplies their macro and types.
+are analyzed through the [release layout probe](../tests/baselines/v0.1.0/abi_layout.cpp), which supplies their macro and types.
 
 Clang-tidy treats the checks selected in [the configuration](../.clang-tidy)
 as errors. They cover memory and pointer use, object lifetimes, and suspicious
@@ -90,7 +90,8 @@ Win32 supplies the four-byte `size_t` coverage and has a
 [record-layout baseline](api-abi.md#visibility-and-verification). Linux
 i686, other compiler versions and target/configuration pairs outside the
 table are optional builds. Full CI also compiles the public headers with
-Clang and runs Release static and shared package consumers with MSVC. See
+Clang and runs Release static and shared package consumers with MSVC on
+Win32 and x64. See
 the [workflow checks by trigger](governance.md#continuous-integration).
 
 ## Benchmark workload catalog
@@ -312,16 +313,15 @@ in the [public API coverage table](coverage.md#public-api-behavior).
 
 ## Debug and Release reports
 
-The CI runner executes the full suite and requires a passing case under each
-of the three labels. It also checks the JUnit results for specific C/C++17
-Core and IO cases and for cross-language round trips, truncated streams and
-short appends beyond byte 255 in all 16 wire layouts. A missing or skipped
-required case fails the run. For the targets in the matrix, `--require-x86` or `--require-x64`
-also requires a passing ABI layout check and the named native-size boundary
-cases for that architecture. The runner prints passing and discovered test
-counts and writes `junit.xml`, `ctest.log` and `toolchain.txt` to the report
-directory. The last file records both compiler IDs and versions and the
-target pointer size in bytes. Use a separate directory for each configuration.
+The CI runner executes the full suite and checks the JUnit results against
+the [v0.1.0 case inventory](../tests/baselines/v0.1.0/ctest-cases.json).
+It requires every common case, including each parameterized case across
+all 16 wire layouts. For the supported targets, `--require-x86` and
+`--require-x64` add the ABI layout check and the native-size cases for
+that architecture. A missing or skipped required case fails the run.
+Use a separate report directory for each configuration. It contains
+`junit.xml`, `ctest.log`, the compiler IDs, versions and pointer size in
+`toolchain.txt`, and a sorted `passed-cases.txt` for [repeat comparisons](api-abi.md#compare-a-release-candidate).
 
 ```sh
 python3 tests/run_ctest.py build-tests Debug reports/Debug --require-x64
