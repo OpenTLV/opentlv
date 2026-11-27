@@ -162,9 +162,10 @@ the comparison. Review timing changes alongside the raw measurements.
 2. Verify the run's event is `workflow_dispatch` or `schedule` and its
    commit equals the recorded SHA. A PR or push run skips the Clang header
    step and the `windows-package` job. In the Full run, verify that the
-   Clang header check passed. In the static and shared package steps of
-   `fixed-tlv` (Linux x64) and both `windows-package` legs (MSVC Win32 and
-   x64), check the C99 and C++17
+   Clang header check passed. In `fixed-tlv` (Linux x64), verify that the
+   [source archive check](release-artifacts.md#verify-the-archive) passed.
+   In its static and shared package results and both `windows-package` legs
+   (MSVC Win32 and x64), check the C99 and C++17
    results for `add_subdirectory` and `FetchContent`, then the versioned
    `find_package` results for the build tree, original install prefix and
    relocated prefix. Check the Core and IO symbol counts and the three
@@ -185,6 +186,7 @@ the comparison. Review timing changes alongside the raw measurements.
 
 | Artifact | What to check |
 | --- | --- |
+| `fixed-tlv-source` | Extract the source tarball from the Actions ZIP. Its filename must contain the candidate's CMake version and its embedded Git commit must match the Full CI SHA. See the [release artifact guide](release-artifacts.md#build-the-archive). |
 | `ctest-reports` | GCC Debug and Release, Clang Release and Clang Debug ASan/UBSan results. In Full CI, `Release/passed-cases.txt` and `Release-repeat/passed-cases.txt` agree. |
 | `ctest-reports-x86`, `ctest-reports-x64` | MSVC Win32 Release and x64 Debug results, including the ABI and native-size cases. In each Full CI artifact, `passed-cases.txt` and `repeat/passed-cases.txt` agree. |
 | `coverage-reports` | Both GCC/gcov reports agree and meet the [production coverage gates](coverage.md). |

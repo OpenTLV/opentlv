@@ -24,6 +24,10 @@ are outside the Fixed TLV Foundation.
 
 ## Build and install
 
+For v0.1.0, extract `opentlv-0.1.0-source.tar.gz` and run the commands
+below from `opentlv-0.1.0/`. The [release artifact guide](docs/release-artifacts.md)
+lists the archive contents and explains how to reproduce it from a commit.
+
 Build the libraries with CMake 3.15 or newer and a C99 compiler. Replace
 `/path/to/opentlv` with the absolute path where you want to install the package.
 
@@ -149,8 +153,8 @@ FetchContent_MakeAvailable(opentlv)
 ```
 
 To build from a source archive, replace `SOURCE_DIR` and its path with
-`URL "/absolute/path/to/opentlv.zip"`. For a remote archive, supply its
-URL and expected `URL_HASH SHA256=<digest>`.
+`URL "/absolute/path/to/opentlv-0.1.0-source.tar.gz"`. For a remote archive,
+supply its URL and expected `URL_HASH SHA256=<digest>`.
 
 Configure and build the consumer from its directory.
 

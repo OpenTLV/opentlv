@@ -108,10 +108,16 @@ jobs:
         run: python3 -m unittest discover -s tests -p test_check_symbols.py
       - name: Test Google Benchmark report validation
         run: python3 -m unittest discover -s benchmarks -p test_check_results.py
-      - name: Test static CMake source and package consumers
-        run: python3 tests/check_cmake_package.py --check-symbols
-      - name: Test shared CMake source and package consumers
-        run: python3 tests/check_cmake_package.py --shared --check-symbols
+      - name: Reproduce the source archive and test static and shared package consumers
+        run: python3 -B tests/check_release_artifact.py "$RUNNER_TEMP/distribution" --ref "$GITHUB_SHA"
+      - name: Retain the verified source archive for Full CI
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fixed-tlv-source
+          path: ${{ runner.temp }}/distribution/opentlv-*-source.tar.gz
+          if-no-files-found: error
+          compression-level: 0
       - name: Build Fixed TLV fuzz targets
         env:
           CC: clang-18
