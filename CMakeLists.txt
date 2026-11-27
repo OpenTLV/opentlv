@@ -1,9 +1,16 @@
 cmake_minimum_required(VERSION 3.15)
-project(OpenTLV LANGUAGES C)
+project(OpenTLV VERSION 0.1.0 LANGUAGES C)
 
 include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
-option(BUILD_TESTING "Build OpenTLV tests" OFF)
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    option(BUILD_TESTING "Build OpenTLV tests" OFF)
+    set(opentlv_build_tests "${BUILD_TESTING}")
+else()
+    option(OPENTLV_BUILD_TESTS "Build OpenTLV tests in the parent project" OFF)
+    set(opentlv_build_tests "${OPENTLV_BUILD_TESTS}")
+endif()
 option(OPENTLV_BUILD_BENCHMARKS "Build the Fixed TLV benchmark runner and fixture checker" OFF)
 option(OPENTLV_BUILD_CALLGRIND "Build the Linux Fixed TLV instruction-count probe" OFF)
 option(OPENTLV_BUILD_ALLOCATION_CHECKS "Check Fixed TLV calls for heap allocation with GDB" OFF)
@@ -68,6 +75,11 @@ install(DIRECTORY include/opentlv DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
     FILES_MATCHING PATTERN "*.h" PATTERN "*.hpp"
 )
 install(FILES LICENSE DESTINATION "${CMAKE_INSTALL_DATADIR}/licenses/OpenTLV")
+set(opentlv_package_dir "${CMAKE_INSTALL_LIBDIR}/cmake/OpenTLV")
+write_basic_package_version_file("${CMAKE_CURRENT_BINARY_DIR}/OpenTLVConfigVersion.cmake"
+    VERSION "${PROJECT_VERSION}"
+    COMPATIBILITY ExactVersion
+)
 export(EXPORT OpenTLVTargets
     FILE "${CMAKE_CURRENT_BINARY_DIR}/OpenTLVConfig.cmake"
     NAMESPACE OpenTLV::
@@ -75,7 +87,10 @@ export(EXPORT OpenTLVTargets
 install(EXPORT OpenTLVTargets
     FILE OpenTLVConfig.cmake
     NAMESPACE OpenTLV::
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/OpenTLV"
+    DESTINATION "${opentlv_package_dir}"
+)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/OpenTLVConfigVersion.cmake"
+    DESTINATION "${opentlv_package_dir}"
 )
 
 if(OPENTLV_BUILD_BENCHMARKS OR OPENTLV_BUILD_CALLGRIND
@@ -84,11 +99,11 @@ if(OPENTLV_BUILD_BENCHMARKS OR OPENTLV_BUILD_CALLGRIND
 else()
     set(opentlv_measurements_enabled OFF)
 endif()
-if(BUILD_TESTING OR opentlv_measurements_enabled)
+if(opentlv_build_tests OR opentlv_measurements_enabled)
     enable_language(CXX)
     enable_testing()
 endif()
-if(BUILD_TESTING)
+if(opentlv_build_tests)
     add_subdirectory(tests)
 endif()
 if(opentlv_measurements_enabled)

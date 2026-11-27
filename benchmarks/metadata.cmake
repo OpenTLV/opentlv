@@ -45,7 +45,7 @@ function(benchmark_metadata_inputs config)
     endif()
 
     set(coverage false)
-    if(BUILD_TESTING AND OPENTLV_TEST_COVERAGE)
+    if(opentlv_build_tests AND OPENTLV_TEST_COVERAGE)
         set(coverage true)
     endif()
     string(JSON metadata SET "${metadata}" test_coverage ${coverage})

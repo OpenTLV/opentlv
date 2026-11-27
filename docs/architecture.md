@@ -162,19 +162,23 @@ python tests/check_cmake_package.py
 python tests/check_cmake_package.py --shared
 ```
 
-These Release checks use the default production options for tests and
-benchmarks. During the library build and each C99 consumer build, the check
-sets `CXX` to an unavailable compiler, disables FetchContent downloads and
-verifies that CMake did not enable C++. For release validation on Linux and
-Windows, add `--check-symbols` to both commands to compare each installed
-library with its [C ABI inventory](api-abi.md#visibility-and-verification).
+These Release checks build the production libraries with an unavailable
+`CXX` compiler and FetchContent disconnected. Each C99 consumer build also
+checks that CMake enabled only C. For release validation on Linux and Windows,
+add `--check-symbols` to both commands to compare each installed library
+with its [C ABI inventory](api-abi.md#visibility-and-verification).
 
-Separate C99 and C++17 projects use `find_package(OpenTLV)` at three locations.
+The consumer projects build OpenTLV from the candidate checkout with
+`add_subdirectory` and with `FetchContent`. Both enable the parent's tests
+and check that OpenTLV's own test targets stay disabled. The package
+consumers request the exact `0.1.0` version with `find_package` at three locations.
 They first build and run against the build tree. After installation the check
 removes the temporary library source and build trees, then builds and runs
 fresh consumers at the original prefix. It moves the installation and repeats
-the same checks at the new prefix. Each project links one executable to
-`OpenTLV::core` and another to `OpenTLV::io` and runs both through CTest.
+the same checks at the new prefix. The checks verify that the Core and IO
+target types match the selected static or shared build. Each project links
+one executable to `OpenTLV::core` and another to `OpenTLV::io` and runs
+both through CTest.
 The C++17 IO consumer writes and reads an element using the module headers
 and calls Core through IO's transitive dependency.
 

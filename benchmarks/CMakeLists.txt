@@ -18,7 +18,7 @@ set_target_properties(opentlv_benchmark_workloads PROPERTIES
     CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO
 )
 target_link_libraries(opentlv_benchmark_workloads PUBLIC OpenTLV::io)
-if(BUILD_TESTING AND OPENTLV_TEST_COVERAGE)
+if(opentlv_build_tests AND OPENTLV_TEST_COVERAGE)
     # Consumers of coverage-instrumented static libraries need the gcov runtime.
     target_link_options(opentlv_benchmark_workloads INTERFACE --coverage)
 endif()
