@@ -105,12 +105,8 @@ trigger. For hosted validation, inspect the PR run and the subsequent push
 run against the matrix. To run Full CI, choose **Actions → Fixed TLV → Run
 workflow**, select the candidate branch and check the run's SHA. For
 release evidence, record a successful Full run for the exact `main`
-candidate, including its [performance and resource artifacts](performance-baseline.md#hand-off-release-evidence).
-Record the `first-party-analysis` result from that run alongside those artifacts.
-Its [local reproduction steps](testing.md#formatting-and-static-analysis) use
-the same tool versions and negative checks.
-Retain the [Memcheck reports](testing.md#memcheck) and the
-[managed CodeQL evidence](#codeql-coverage) for that revision.
+candidate and retain the artifacts listed in the
+[Full CI handoff](quality.md#full-ci-and-release-evidence).
 
 To reproduce the build checks, follow the [header and package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
