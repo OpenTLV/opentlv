@@ -118,8 +118,11 @@ the comparison. Review timing changes alongside the raw measurements.
 2. Verify the run's event is `workflow_dispatch` or `schedule` and its
    commit equals the recorded SHA. A PR or push run skips the Clang header
    step and the `windows-package` job. In the Full run, verify that the
-   Clang header check passed, along with both static and shared MSVC package
-   checks. Verify `fixed-tlv-quality` and each worker in the
+   Clang header check passed. In the static and shared package steps of
+   `fixed-tlv` (Linux) and `windows-package` (MSVC), check the C99 and C++17
+   results for the build tree, original install prefix and relocated prefix,
+   the Core and IO symbol counts, and the three example outputs.
+   Verify `fixed-tlv-quality` and each worker in the
    [workflow matrix](governance.md#continuous-integration) passed, including
    `first-party-analysis`, `workflow-analyzers`, both Windows architectures
    and both resource configurations.

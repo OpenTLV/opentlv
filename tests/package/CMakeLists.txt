@@ -36,9 +36,10 @@ foreach(module IN ITEMS core io)
     add_test(NAME ${module}-consumer COMMAND ${module}-consumer)
 endforeach()
 
-# Use the source inventory, but resolve each include through the imported target.
-# This checks that the relocated package supplies every expected public header.
-set(include_root "${CMAKE_CURRENT_LIST_DIR}/../../include")
+# Use the inventory only for header names. The compiler resolves every include
+# through the linked target. The driver also checks the installed inventory.
+set(HEADER_INVENTORY_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../include" CACHE PATH "Public headers to probe")
+set(include_root "${HEADER_INVENTORY_ROOT}")
 file(GLOB_RECURSE headers RELATIVE "${include_root}" "${include_root}/opentlv/*.h")
 if(CONSUMER_LANGUAGE STREQUAL "CXX")
     file(GLOB_RECURSE cpp_headers RELATIVE "${include_root}" "${include_root}/opentlv/*.hpp")
