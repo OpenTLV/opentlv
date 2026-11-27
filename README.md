@@ -114,8 +114,9 @@ when running a shared-library consumer.
 
 ## Contributing
 
-The [CI guide](docs/governance.md#continuous-integration) lists the pull request
-checks and explains how to run Full CI.
+Run the [contributor checks](docs/quality.md) to reproduce CI formatting,
+analysis and contract tests locally, compare performance, and collect the
+Full CI evidence for a release.
 
 For a bug, proposal, or maintenance task, start with the
 [issue chooser](https://github.com/OpenTLV/opentlv/issues/new/choose).

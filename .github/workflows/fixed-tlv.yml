@@ -39,16 +39,7 @@ jobs:
         run: python3 tests/check_public_api.py
       - name: Build and run GCC x64 contracts in Debug and Release
         id: ctest
-        env:
-          CC: gcc-13
-          CXX: g++-13
-        run: |
-          build="$RUNNER_TEMP/opentlv-tests"
-          cmake -S . -B "$build" -G "Ninja Multi-Config" -DBUILD_TESTING=ON
-          for config in Debug Release; do
-            cmake --build "$build" --config "$config"
-            python3 tests/run_ctest.py "$build" "$config" "$RUNNER_TEMP/ctest-reports/$config" --require-x64
-          done
+        run: python3 -B tests/run_quality.py contracts --work-dir "$RUNNER_TEMP"
       - name: Build and run Clang x64 Release contracts
         env:
           CC: clang-18
@@ -243,10 +234,8 @@ jobs:
         run: |
           reports="$RUNNER_TEMP/performance-reports"
           status=0
-          python3 -B benchmarks/compare_performance.py \
-            --baseline "$reports/baseline" --candidate "$reports/candidate" \
-            --baseline-revision="$(cat benchmarks/performance-baseline.txt)" --candidate-revision "$GITHUB_SHA" \
-            --output "$reports" || status=$?
+          python3 -B tests/run_quality.py compare-performance --reports "$reports" \
+            --output "$reports" --candidate-revision "$GITHUB_SHA" || status=$?
           cat "$reports/summary.md" >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
       - name: Publish Callgrind counts, raw profiles and build metadata
@@ -336,16 +325,8 @@ jobs:
           python3 -m venv "$RUNNER_TEMP/source-quality"
           "$RUNNER_TEMP/source-quality/bin/python" -m pip install --require-hashes --only-binary=:all: -r .github/requirements-source-quality.txt
           echo "$RUNNER_TEMP/source-quality/bin" >> "$GITHUB_PATH"
-      - name: Check first-party formatting and static analysis
-        run: |
-          build="$RUNNER_TEMP/quality-headers"
-          cmake -S . -B "$build" -G Ninja -DBUILD_TESTING=ON -DOPENTLV_BUILD_BENCHMARKS=ON
-          python3 -B tests/check_source_quality.py \
-            --clang-arg=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13 \
-            --system-include "$build/_deps/googletest-src/googletest/include" \
-            --system-include "$build/_deps/googlebenchmark-src/include"
-      - name: Verify that deliberate C and C++ violations fail
-        run: python3 -B tests/test_source_quality.py
+      - name: Check first-party formatting, static analysis and negative controls
+        run: python3 -B tests/run_quality.py analysis --work-dir "$RUNNER_TEMP"
 
   workflow-analyzers:
     name: workflow-analyzers

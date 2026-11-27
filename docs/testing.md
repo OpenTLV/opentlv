@@ -33,25 +33,8 @@ production build configures offline using only C.
 ## Formatting and static analysis
 
 The `first-party-analysis` CI job runs clang-format 18.1.8, clang-tidy
-18.1.8 and Cppcheck 2.13.0. To run the same checks on Ubuntu 24.04 x86-64,
-start at the repository root with Git, CMake, Ninja, a C/C++ toolchain and
-Python 3 with venv support. CMake fetches the project's checksum-pinned
-GoogleTest and Google Benchmark headers during configuration.
-
-```bash
-sudo apt-get update
-sudo apt-get install -y --no-install-recommends gcc-13 g++-13 cppcheck=2.13.0-2ubuntu3 valgrind=1:3.22.0-0ubuntu3
-build=$(mktemp -d)
-python3 -m venv "$build/venv"
-. "$build/venv/bin/activate"
-python -m pip install --require-hashes --only-binary=:all: -r .github/requirements-source-quality.txt
-cmake -S . -B "$build/headers" -G Ninja -DBUILD_TESTING=ON -DOPENTLV_BUILD_BENCHMARKS=ON
-python -B tests/check_source_quality.py \
-  --clang-arg=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13 \
-  --system-include "$build/headers/_deps/googletest-src/googletest/include" \
-  --system-include "$build/headers/_deps/googlebenchmark-src/include"
-python -B tests/test_source_quality.py
-```
+18.1.8 and Cppcheck 2.13.0. See the [contributor checks](quality.md#formatting-and-analysis)
+for the pinned tools and the same command CI runs on Ubuntu 24.04 x86-64.
 
 The runner checks source and header files beneath `include/`, `src/`,
 `examples/`, `tests/` and `benchmarks/`, including ABI inventories,
@@ -75,7 +58,8 @@ finding is suppressed at the definition of `fixture::fixture(workload)` in
 Its signature is part of the [fingerprinted measurement protocol](performance-baseline.md#read-or-replay-a-report).
 The exception names the diagnostic, source path and line.
 
-Use `--check format`, `--check tidy` or `--check cppcheck` to run one tool.
+Pass `--check format`, `--check tidy` or `--check cppcheck` to
+`tests/check_source_quality.py` to run one tool.
 For example, `python tests/check_source_quality.py --check format src/core/size.c`
 checks one file, and `clang-format -i src/core/size.c` applies the repository
 style. The negative checks use a temporary directory and verify the expected
