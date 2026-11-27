@@ -161,8 +161,10 @@ cmake --build build-source --config Release
 Both modes build static libraries by default. Add `-DBUILD_SHARED_LIBS=ON`
 when configuring the consumer for shared libraries. On Windows, add the
 directory containing the built OpenTLV DLLs to `PATH` before running the
-executable. The parent can enable its own tests with `BUILD_TESTING`. To
-build OpenTLV's tests as part of the parent build, add `-DOPENTLV_BUILD_TESTS=ON`.
+executable. To build OpenTLV's tests as part of the parent build, add
+`-DOPENTLV_BUILD_TESTS=ON`. To discover them with CTest from the parent
+build directory, call `include(CTest)` with `BUILD_TESTING=ON` or call
+`enable_testing()` in the top-level project before adding OpenTLV.
 
 ## Contributing
 

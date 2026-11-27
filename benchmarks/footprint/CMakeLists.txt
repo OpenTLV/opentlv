@@ -22,7 +22,7 @@ add_executable(opentlv_footprint_c "${OpenTLV_SOURCE_DIR}/examples/write.c")
 add_executable(opentlv_footprint_cpp "${OpenTLV_SOURCE_DIR}/examples/write.cpp")
 foreach(consumer IN ITEMS opentlv_footprint_c opentlv_footprint_cpp)
     target_link_libraries(${consumer} PRIVATE OpenTLV::io)
-    if(BUILD_TESTING AND OPENTLV_TEST_COVERAGE)
+    if(opentlv_build_tests AND OPENTLV_TEST_COVERAGE)
         target_link_options(${consumer} PRIVATE --coverage)
     endif()
     set_target_properties(${consumer} PROPERTIES
