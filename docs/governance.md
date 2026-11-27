@@ -85,8 +85,10 @@ Full run has its own concurrency group.
 | `fixed-tlv-quality` · aggregate result | Evaluate | Evaluate | Evaluate | Evaluate |
 
 The performance and resource jobs run before merge so reviewers can inspect
-regressions and proposed baseline updates. Full CI adds the second header
-compiler and Windows package checks within the same workflow. If one
+regressions and proposed baseline updates. The Linux package check builds
+the [source archive](release-artifacts.md) twice and tests static and shared
+packages from the extracted files. Full CI retains the verified archive and
+adds the second header compiler and Windows package checks. If one
 resource or Windows contract matrix leg fails, its sibling can finish and publish its report.
 Actions use full commit pins and read-only repository access. Checkout
 disables credential persistence.
