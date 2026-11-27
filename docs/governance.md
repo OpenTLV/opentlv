@@ -79,7 +79,7 @@ Full run has its own concurrency group.
 | `windows-contracts` · MSVC Win32 Release and x64 Debug contracts, ABI and native-size boundaries | Run both | Run both | Run both | Run both |
 | `resource-usage` · allocation probes and two clean footprint builds for each of static and shared linkage | Run both | Run both | Run both | Run both |
 | `callgrind` · compare the candidate with the reviewed baseline for instruction counts and binary size, publish timing observations | Run | Run | Run | Run |
-| `windows-package` · MSVC static/shared C99 and C++17 consumers of the build tree, original install prefix and relocated prefix | Skip | Skip | Run | Run |
+| `windows-package` · MSVC Win32 and x64 static/shared symbols and C99 and C++17 consumers of the build tree, original install prefix and relocated prefix | Skip | Skip | Run both | Run both |
 | `first-party-analysis` · clang-format, clang-tidy, Cppcheck and deliberate C99/C++17 violation checks | Run | Run | Run | Run |
 | `workflow-analyzers` · gate regression tests, actionlint, zizmor | Offline audit | Online audit | Offline audit | Online audit |
 | `fixed-tlv-quality` · aggregate result | Evaluate | Evaluate | Evaluate | Evaluate |
@@ -94,7 +94,7 @@ disables credential persistence.
 `fixed-tlv-quality` directly depends on all seven worker job IDs. Its
 `always()` condition lets it inspect [GitHub's job results] after a worker
 fails or skips. The gate requires `success` from every selected worker,
-including both matrix jobs. The only expected `skipped` result is
+including all matrix legs. The only expected `skipped` result is
 `windows-package` on a PR or push. A failed, cancelled, missing or
 unexpected result fails the gate. Keep the workflow's `needs` list and
 [gate policy](../tests/check_ci_gate.py) in sync when adding jobs.
@@ -111,8 +111,9 @@ candidate and retain the artifacts listed in the
 To reproduce the build checks, follow the [header and package checks]
 and [fixed TLV test commands]. For the Full CI header check on Ubuntu 24.04,
 run `CC=clang-18 CXX=clang++-18 python3 tests/check_public_api.py`.
-To reproduce `windows-package`, run both package commands on Windows
-with the `Visual Studio 17 2022` CMake generator and the C++ build tools.
+To reproduce `windows-package`, run both package commands with the
+`Visual Studio 17 2022` CMake generator and C++ build tools. Set
+`CMAKE_GENERATOR_PLATFORM` to `Win32` for the first pair and `x64` for the second.
 
 To check workflow changes locally on Ubuntu 24.04 x86-64, open Bash at the
 repository root and run `export RUNNER_TEMP="$(mktemp -d)"`. Execute the

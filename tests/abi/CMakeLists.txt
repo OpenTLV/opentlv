@@ -1,4 +1,7 @@
-add_executable(opentlv_abi_layout ../abi_layout.cpp)
+add_executable(opentlv_abi_layout
+    ../baselines/v0.1.0/abi_layout.cpp
+    ../baselines/v0.1.0/cpp_api.cpp
+)
 target_link_libraries(opentlv_abi_layout PRIVATE OpenTLV::io)
 set_target_properties(opentlv_abi_layout PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS OFF)
 opentlv_strict_compile_options(opentlv_abi_layout CXX)

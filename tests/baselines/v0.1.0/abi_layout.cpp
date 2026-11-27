@@ -7,11 +7,41 @@
 // Use the same per-module signatures that identify the expected binary symbols.
 #define OPENTLV_ABI_FUNCTION(Return, Name, Args)                                                   \
     static_assert(std::is_same_v<decltype(&Name), Return(*) Args>, #Name);
-#include "abi/core.h"
-#include "abi/io.h"
+#include "core.h"
+#include "io.h"
 #undef OPENTLV_ABI_FUNCTION
 
 static_assert(std::is_same_v<tlv_size_t, uint64_t>);
+#define CHECK_MEMBER(Record, Member, Type)                                                         \
+    static_assert(std::is_same_v<decltype(Record::Member), Type>)
+CHECK_MEMBER(tlv_tag_t, data, const uint8_t *);
+CHECK_MEMBER(tlv_tag_t, size, size_t);
+CHECK_MEMBER(tlv_length_t, data, const uint8_t *);
+CHECK_MEMBER(tlv_length_t, size, size_t);
+CHECK_MEMBER(tlv_value_t, data, const uint8_t *);
+CHECK_MEMBER(tlv_value_t, size, tlv_size_t);
+CHECK_MEMBER(tlv_element_t, tag, tlv_tag_t);
+CHECK_MEMBER(tlv_element_t, value, tlv_value_t);
+CHECK_MEMBER(tlv_fixed_identifier_t, size, size_t);
+CHECK_MEMBER(tlv_fixed_length_t, size, size_t);
+CHECK_MEMBER(tlv_fixed_length_t, byte_order, tlv_byte_order_t);
+CHECK_MEMBER(tlv_fixed_format_t, identifier, tlv_fixed_identifier_t);
+CHECK_MEMBER(tlv_fixed_format_t, length, tlv_fixed_length_t);
+CHECK_MEMBER(tlv_diagnostic_t, result, tlv_result_t);
+CHECK_MEMBER(tlv_diagnostic_t, field, tlv_field_t);
+CHECK_MEMBER(tlv_diagnostic_t, offset, size_t);
+CHECK_MEMBER(tlv_diagnostic_t, required, uintmax_t);
+CHECK_MEMBER(tlv_diagnostic_t, available, uintmax_t);
+CHECK_MEMBER(tlv_reader_t, data, const uint8_t *);
+CHECK_MEMBER(tlv_reader_t, size, size_t);
+CHECK_MEMBER(tlv_reader_t, pos, size_t);
+CHECK_MEMBER(tlv_reader_t, format, tlv_fixed_format_t);
+CHECK_MEMBER(tlv_writer_t, data, uint8_t *);
+CHECK_MEMBER(tlv_writer_t, capacity, size_t);
+CHECK_MEMBER(tlv_writer_t, pos, size_t);
+CHECK_MEMBER(tlv_writer_t, format, tlv_fixed_format_t);
+#undef CHECK_MEMBER
+
 static_assert(TLV_OK == 0 && TLV_END == 1 && TLV_ERR_TRUNCATED == 3 &&
               TLV_ERR_INVALID_TAG_SIZE == 5 && TLV_ERR_INVALID_LENGTH == 6 &&
               TLV_ERR_NULL_ARG == 10 && TLV_ERR_INVALID_ARG == 11 &&

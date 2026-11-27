@@ -6,50 +6,27 @@ import subprocess
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+from release_baseline import BASELINE
 
-CPP_EQUIVALENCE_CASES = {
-    "CppCore.ValidatesBorrowedValuesAndPreservesTheDestinationOnFailure",
-    "CppFixed.MeasuresElementsAndPreservesSizeOnError",
-    "WireLayouts/FixedLength.ReadsExactlyOneField/BigEndian8",
-    "WireLayouts/FixedLength.InvalidWritesPreserveTheBufferAndCount/LittleEndian1",
-    "CppReader.OneShotMatchesCAtEveryPrefix",
-    "CppWriter.AppendsEmptyAndNonEmptyValuesAcrossAnInvalidElement",
-} | {
-    f"WireLayouts/FixedRoundTrip.{case}/{order}{width}"
-    for case in (
-        "RoundTripsBoundedBinaryValuesAtLengthBoundaries",
-        "CommitsOnlyCompleteRecordsInAnAdjacentStream",
-        "ReportsShortAppendsBeyondAOneBytePosition",
+
+def required_cases(architecture):
+    cases = json.loads((BASELINE / "ctest-cases.json").read_text(encoding="utf-8"))
+    required = set(cases["common"])
+    required.update(
+        f"WireLayouts/{case}/{order}{width}"
+        for case in cases["wire_layouts"]
+        for order in ("BigEndian", "LittleEndian")
+        for width in range(1, 9)
     )
-    for order in ("BigEndian", "LittleEndian")
-    for width in range(1, 9)
-}
-
-NATIVE_SIZE_CASES = {
-    "abi-layout",
-    "CoreSize.ConvertsRepresentableCountsToNative",
-    "CoreValue.ChecksTheLargestRepresentableSizeWithoutReadingThePayload",
-    "FixedElementSize.EnforcesWireAndNativePayloadLimitsForEachWidth",
-    "FixedMeasurement.MeasuresAnExactNativeHeaderAndRejectsTheNextWidth",
-    "CoreSize.AddsCountsThroughTheLogicalLimit",
-    "CoreSize.ReportsOverflowAndPreservesOutput",
-    "ReaderBounds.ComparesHugeLengthsBeforeAnyNativeSizeConversion",
-    "IOWrite.SizingQueriesValidateWireAndNativeLimits",
-}
-
-ARCHITECTURE_CASES = {
-    "x86": NATIVE_SIZE_CASES | {
-        "CoreSize.RejectsUint64MaxOnX86",
-        "CoreSize.RejectsTheFirstUnrepresentableNativeCountAndPreservesOutput",
-        "CoreValue.RejectsANonNativeSizeAndPreservesTheDestination",
-        "FixedElementSize.RejectsAWireLengthAboveTheNativeSizeRange",
-    },
-    "x64": NATIVE_SIZE_CASES | {"CoreSize.ConvertsCountsAboveUint32MaxOnX64"},
-}
+    if architecture:
+        required.update(cases[architecture])
+    return required
 
 
 def run(build, config, reports, architecture=None):
     reports.mkdir(parents=True, exist_ok=True)
+    summary = reports / "passed-cases.txt"
+    summary.unlink(missing_ok=True)
     toolchain = (build / "tests" / "toolchain.txt").read_text(encoding="utf-8")
     (reports / "toolchain.txt").write_text(toolchain, encoding="utf-8")
     print(toolchain, end="", flush=True)
@@ -74,15 +51,12 @@ def run(build, config, reports, architecture=None):
     missing = {"core", "io", "integration"} - labels
     if missing:
         raise SystemExit("No passing CTest case for required suite(s): " + ", ".join(sorted(missing)))
-    missing = CPP_EQUIVALENCE_CASES - passed
+    required = required_cases(architecture)
+    missing = required - passed
     if missing:
-        raise SystemExit("Missing passing C/C++ equivalence cases: " + ", ".join(sorted(missing)))
-    print(f"Verified {len(CPP_EQUIVALENCE_CASES)} C/C++ equivalence cases")
-    if architecture:
-        missing = ARCHITECTURE_CASES[architecture] - passed
-        if missing:
-            raise SystemExit(f"Missing passing {architecture} cases: " + ", ".join(sorted(missing)))
-        print(f"Verified {architecture} ABI layout and native-size boundary cases")
+        raise SystemExit("Missing passing v0.1.0 cases: " + ", ".join(sorted(missing)))
+    print(f"Verified {len(required)} v0.1.0 cases ({architecture or 'common'} profile)")
+    summary.write_bytes(("\n".join(sorted(passed)) + "\n").encode("utf-8"))
     return passed
 
 
@@ -92,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument("config", choices=("Debug", "Release"))
     parser.add_argument("reports", type=Path)
     profiles = parser.add_mutually_exclusive_group()
-    for architecture in ARCHITECTURE_CASES:
+    for architecture in ("x86", "x64"):
         profiles.add_argument(f"--require-{architecture}", dest="architecture", action="store_const",
                               const=architecture, help=f"require passing {architecture} ABI and native-size cases")
     args = parser.parse_args()

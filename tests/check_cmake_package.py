@@ -9,6 +9,7 @@ import tempfile
 from pathlib import Path
 
 from check_symbols import check_symbols
+from release_baseline import public_headers
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -32,13 +33,13 @@ def build_project(source, build, *options, c_only=False):
 
 
 def check_install_tree(relocated, private_paths):
-    public_headers = {path.relative_to(ROOT) for path in (ROOT / "include").rglob("*")
-                      if path.suffix in (".h", ".hpp")}
+    expected = {"include/" + header for header in public_headers(ROOT / "include")}
     for path in relocated.rglob("*"):
         relative = path.relative_to(relocated)
-        if path.suffix in (".h", ".hpp") and relative not in public_headers:
-            raise SystemExit(f"Unexpected header in production install: {relative}")
-        public_headers.discard(relative)
+        if path.is_file() and path.suffix in (".h", ".hpp"):
+            if relative.as_posix() not in expected:
+                raise SystemExit(f"Unexpected header in production install: {relative}")
+            expected.remove(relative.as_posix())
         if TEST_COMPONENT.search(relative.as_posix()):
             raise SystemExit(f"Test artifact in production install: {relative}")
         if path.suffix.lower() != ".cmake" or not path.is_file():
@@ -51,8 +52,8 @@ def check_install_tree(relocated, private_paths):
         for private_path in private_paths:
             if os.path.normcase(private_path.as_posix()) in normalized:
                 raise SystemExit(f"{relative} contains private path {private_path}")
-    if public_headers:
-        raise SystemExit(f"Missing installed public headers: {sorted(public_headers)}")
+    if expected:
+        raise SystemExit(f"Missing installed public headers: {sorted(expected)}")
 
 
 def runtime_environment(prefix):

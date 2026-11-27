@@ -8,7 +8,7 @@ The umbrella headers `<opentlv/tlv.h>` and `<opentlv/tlv.hpp>` expose both modul
 
 ## C99 binary interface
 
-The [Core](../tests/abi/core.h) and [IO](../tests/abi/io.h) inventories
+The [Core](../tests/baselines/v0.1.0/core.h) and [IO](../tests/baselines/v0.1.0/io.h) inventories
 record the names, parameter types and return types of all 20 external
 functions. Consumers include the [public headers](../include/opentlv).
 
@@ -46,7 +46,7 @@ gaps in the result codes.
 The library and caller must agree on the target C ABI, including the calling
 convention, pointer and `size_t` widths, enum representation, alignment and
 structure packing. `tlv_size_t` is `uint64_t`, with maximum `TLV_SIZE_MAX`.
-Diagnostic counts use `uintmax_t`. The [layout baseline](../tests/abi_layout.cpp)
+Diagnostic counts use `uintmax_t`. The [layout baseline](../tests/baselines/v0.1.0/abi_layout.cpp)
 records native sizes, alignments and member offsets for x86-64 with eight-byte
 pointers and for Win32 with MSVC packing. On the wire, the chosen tag width,
 length width and byte order determine the encoding independently of native
@@ -110,10 +110,12 @@ python tests/check_cmake_package.py --check-symbols
 python tests/check_cmake_package.py --check-symbols --shared
 ```
 
-Each header compiles in its own translation unit. Core headers and C sources
-also compile with only Core available. The package checks verify which headers
-were installed, compile each through its imported target, and check the public
-link from IO to Core in both package locations.
+The [header inventory](../tests/baselines/v0.1.0/headers.txt) lists 17 C
+headers and 14 C++ headers. The source and install checks require exactly
+those paths. Each header compiles in its own translation unit. Core headers
+and C sources also compile with only Core available. The package checks
+compile the installed headers through their imported targets and check the
+public link from IO to Core in the build tree and both install locations.
 
 The symbol check compares each library's static definitions or shared exports
 with its inventory. For static archives, GNU `nm` reports externally defined
@@ -124,14 +126,72 @@ by address and reports them separately. An extra symbol, a missing name, or
 a function in the wrong library fails the comparison. Fixture tests exercise
 the symbol parsers with saved ELF and PE/COFF tool output.
 
-Both the library test build and the C++ package checks compile `abi-layout`.
-Its C signature and enum assertions run at compile time on every target.
+The header check compiles each released C function pointer signature in
+C99. Both the library test build and the C++ package checks compile
+`abi-layout`. Every target checks C signatures, enum values, declared C
+record member types and the [C++17 function and member signatures](../tests/baselines/v0.1.0/cpp_api.cpp).
 On x86-64 with eight-byte pointers and Win32 with MSVC-compatible packing,
 the build also checks record sizes, alignments and member offsets. For other
 targets CTest reports `abi-layout` as skipped. Run CTest in the build directory
 with `-V -R "^abi-layout$"` to see the reason.
 
-Review baseline changes alongside the [consumer tests](architecture.md#verification)
-and the [compatibility policy](architecture.md#compatibility). For release
-evidence, record the tested revision, target ABI, compiler and both package
-results so the comparison can be repeated against the release artifacts.
+## Compare a release candidate
+
+Use the [v0.1.0 inventories](../tests/baselines/v0.1.0/) to check a candidate
+for Fixed TLV Core and IO. The [behavior baseline](../tests/baselines/v0.1.0/behavior.md)
+records expected bytes, return values, diagnostic offsets, and caller-visible
+state after a failed operation. The [CTest inventory](../tests/baselines/v0.1.0/ctest-cases.json)
+requires 63 common cases and ten parameterized cases across all 16 wire
+layouts. Each supported profile adds `abi-layout` and its native-size cases.
+
+1. Build and run the [compiler and architecture matrix](testing.md#compiler-and-architecture-matrix).
+   Select `--require-x64` for Linux and Windows x64 and `--require-x86` for
+   MSVC Win32. A skipped layout or missing required case fails that profile.
+2. Run the header and both package commands above. Each linkage must expose
+   the ten expected functions in each library and run its C99 and C++17
+   consumers. In Full CI, the package jobs cover Linux x64, Win32 and Windows x64.
+3. Repeat the contract run for the same revision, target, compiler and build
+   configuration in a second report directory. For example, after building
+   Linux x64 Release, run the commands below. `passed-cases.txt` contains
+   sorted case names with LF line endings, so the comparison excludes paths,
+   timings and execution order.
+
+```sh
+python3 -B tests/run_ctest.py build-tests Release reports/first --require-x64
+python3 -B tests/run_ctest.py build-tests Release reports/repeat --require-x64
+cmp reports/first/passed-cases.txt reports/repeat/passed-cases.txt
+```
+
+Two local executions on each target produced the following inventories.
+Static and shared Release packages on all three targets passed the C99 and
+C++17 consumer checks and exposed exactly ten symbols per module. Adding a
+passing test changes the digest. The runner accepts additional cases and
+still requires each case in the versioned inventory to pass.
+
+| Local configurations | Passing cases per run | SHA-256 of `passed-cases.txt` |
+| --- | ---: | --- |
+| Linux x64 GCC 15.2 Release and Windows x64 MSVC 19.52 Debug | 225 | `136a6186bcbe06caf3abeb5e093dc43ed99b686fe330ccd4eef94ab34e87d5ee` |
+| Win32 MSVC 19.52 Release | 228 | `b6895dc02392d4ab7b95e1fa945592471999d6eb3a53dc9998e562f89d39d098` |
+
+Full CI makes this repeat comparison for GCC x64 Release and both MSVC
+contract configurations. Record the candidate SHA, compiler, target ABI,
+build configuration, both linkages and the comparison results.
+Retain the logs and JUnit reports with
+the [Full CI release evidence](quality.md#full-ci-and-release-evidence).
+Native layout comparisons apply only to the two documented ABI profiles under
+their normal packing and calling conventions. C++17 checks cover source
+compatibility when consumers recompile the inline wrappers. Review additions
+inside existing headers separately, since the listed signatures can still
+compile alongside a new declaration. The package consumers request version
+`0.1.0 EXACT`. Testing a later package version
+requires selecting that version in the consumer harness. The symbol audit
+covers ELF and PE/COFF. The wire vectors cover both byte orders on the
+tested hosts.
+
+For a later release, compare against the reviewed v0.1.0 files first. A new
+header or export changes an exact inventory and requires review even when
+it is an additive API change. For a removed signature, changed layout or
+changed behavior, identify the affected callers or wire data and follow the
+[compatibility policy](architecture.md#compatibility). Record any intentional
+break and migration steps in the PR and changelog. Add accepted expectations
+under the new release version and retain the v0.1.0 reference for comparison.

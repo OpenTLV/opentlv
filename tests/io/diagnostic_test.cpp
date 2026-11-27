@@ -1,6 +1,7 @@
 #include <opentlv/io/reader/reader.h>
 #include <opentlv/io/writer/writer.h>
 
+#include "../baselines/v0.1.0/fixed-behavior.hpp"
 #include "expect_view.h"
 #include <gtest/gtest.h>
 
@@ -28,22 +29,12 @@ void ExpectDiagnostic(const tlv_diagnostic_t &diagnostic, tlv_result_t result,
 
 TEST(ReadDiagnostic, LocatesEachIncompleteFieldFromTheStartOfTheSuppliedBuffer)
 {
+    namespace baseline = opentlv_test::v0_1_0;
     const tlv_fixed_format_t format{{3}, {2, TLV_BYTE_ORDER_BIG_ENDIAN}};
-    const uint8_t wire[] = {0x00, 0x89, 0x01, 0x00, 0x01, 0xe1, 0xff,
-                            0x00, 0xa0, 0x00, 0x03, 0x7f, 0xa5, 0x00};
-    constexpr size_t second = 6;
+    const auto &wire = baseline::stream;
+    constexpr size_t second = baseline::secondRecord;
     const tlv_element_t first{{wire, 3}, {wire + 5, 1}};
-    const struct {
-        size_t prefix;
-        tlv_field_t field;
-        size_t offset;
-        uintmax_t required;
-        uintmax_t available;
-    } cuts[] = {{1, TLV_FIELD_TAG, 0, 3, 1},    {2, TLV_FIELD_TAG, 0, 3, 2},
-                {3, TLV_FIELD_LENGTH, 3, 2, 0}, {4, TLV_FIELD_LENGTH, 3, 2, 1},
-                {5, TLV_FIELD_VALUE, 5, 3, 0},  {6, TLV_FIELD_VALUE, 5, 3, 1},
-                {7, TLV_FIELD_VALUE, 5, 3, 2}};
-    for (const auto &cut : cuts) {
+    for (const auto &cut : baseline::cuts) {
         SCOPED_TRACE(cut.prefix);
         tlv_element_t view = saved_view;
         size_t consumed = 91;

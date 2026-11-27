@@ -40,6 +40,12 @@ jobs:
       - name: Build and run GCC x64 contracts in Debug and Release
         id: ctest
         run: python3 -B tests/run_quality.py contracts --work-dir "$RUNNER_TEMP"
+      - name: Compare repeated GCC x64 Release contracts
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          reports="$RUNNER_TEMP/ctest-reports"
+          python3 -B tests/run_ctest.py "$RUNNER_TEMP/opentlv-tests" Release "$reports/Release-repeat" --require-x64
+          cmp "$reports/Release/passed-cases.txt" "$reports/Release-repeat/passed-cases.txt"
       - name: Build and run Clang x64 Release contracts
         env:
           CC: clang-18
@@ -285,6 +291,15 @@ jobs:
       - name: Run suites and verify ABI and native-size cases
         id: ctest
         run: python tests/run_ctest.py build $env:BUILD_CONFIG "$env:RUNNER_TEMP/ctest-reports" "--require-$env:TARGET_ARCH"
+      - name: Compare repeated MSVC contracts
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+        run: |
+          $reports = "$env:RUNNER_TEMP/ctest-reports"
+          python -B tests/run_ctest.py build $env:BUILD_CONFIG "$reports/repeat" "--require-$env:TARGET_ARCH"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ((Get-FileHash "$reports/passed-cases.txt").Hash -ne (Get-FileHash "$reports/repeat/passed-cases.txt").Hash) {
+            throw "The repeated MSVC contract runs passed different cases"
+          }
       - name: Publish CTest results
         if: ${{ !cancelled() && steps.ctest.outcome != 'skipped' }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -294,12 +309,17 @@ jobs:
           if-no-files-found: error
 
   windows-package:
-    name: windows-package
+    name: windows-package (${{ matrix.platform }})
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: windows-2022
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [Win32, x64]
     env:
       CMAKE_GENERATOR: Visual Studio 17 2022
+      CMAKE_GENERATOR_PLATFORM: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

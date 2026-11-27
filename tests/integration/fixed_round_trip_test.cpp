@@ -1,5 +1,6 @@
 #include <opentlv/tlv.hpp>
 
+#include "../baselines/v0.1.0/fixed-behavior.hpp"
 #include "../io/expect_view.h"
 #include <gtest/gtest.h>
 
@@ -8,62 +9,32 @@
 #include <random>
 #include <vector>
 
+namespace opentlv_test::v0_1_0 {
+
+void PrintTo(const WireRecord &record, std::ostream *out)
+{
+    *out << (record.order == TLV_BYTE_ORDER_BIG_ENDIAN ? "BigEndian" : "LittleEndian")
+         << record.lengthWidth;
+}
+
+} // namespace opentlv_test::v0_1_0
+
 namespace {
 
 namespace core = opentlv::core;
 namespace io = opentlv::io;
+namespace baseline = opentlv_test::v0_1_0;
 using Bytes = std::vector<uint8_t>;
 
-// Each literal is the wire encoding of a three-byte payload length.
-struct Layout {
-    tlv_byte_order_t order;
-    Bytes lengthOfThree;
-};
-
-void PrintTo(const Layout &layout, std::ostream *out)
-{
-    *out << (layout.order == TLV_BYTE_ORDER_BIG_ENDIAN ? "BigEndian" : "LittleEndian")
-         << layout.lengthOfThree.size();
-}
-
-const Layout layouts[] = {
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0, 0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 0, 0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0, 0, 0}},
-    {TLV_BYTE_ORDER_BIG_ENDIAN, {0, 0, 0, 0, 0, 0, 0, 3}},
-    {TLV_BYTE_ORDER_LITTLE_ENDIAN, {3, 0, 0, 0, 0, 0, 0, 0}},
-};
-
-class FixedRoundTrip : public testing::TestWithParam<Layout> {
+class FixedRoundTrip : public testing::TestWithParam<baseline::WireRecord> {
 protected:
-    const tlv_fixed_length_t length{GetParam().lengthOfThree.size(), GetParam().order};
+    const tlv_fixed_length_t length{GetParam().lengthWidth, GetParam().order};
     const tlv_fixed_format_t format{{2}, length};
-
-    Bytes GoldenRecord() const
-    {
-        const Bytes &field = GetParam().lengthOfThree;
-        Bytes wire{0x00, 0xa7};
-        wire.reserve(2 + field.size() + 3);
-        wire.insert(wire.end(), field.begin(), field.end());
-        wire.insert(wire.end(), {0x00, 0xff, 0x80});
-        return wire;
-    }
 };
 
 TEST_P(FixedRoundTrip, ReadsAndWritesGoldenBytes)
 {
-    const Bytes golden = GoldenRecord();
+    const Bytes &golden = GetParam().bytes;
     const uint8_t tag[] = {0x00, 0xa7};
     const uint8_t value[] = {0x00, 0xff, 0x80};
     const tlv_element_t source{{tag, sizeof tag}, {value, sizeof value}};
@@ -157,7 +128,7 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
     Bytes golden(2 + length.size, 0);
     golden[0] = 0xfe;
     const size_t boundary = golden.size();
-    const Bytes second = GoldenRecord();
+    const Bytes &second = GetParam().bytes;
     golden.insert(golden.end(), second.begin(), second.end());
     const tlv_element_t binary{{second.data(), 2}, {second.data() + second.size() - 3, 3}};
 
@@ -222,7 +193,7 @@ TEST_P(FixedRoundTrip, CommitsOnlyCompleteRecordsInAnAdjacentStream)
 
 TEST_P(FixedRoundTrip, ReportsShortAppendsBeyondAOneBytePosition)
 {
-    const Bytes record = GoldenRecord();
+    const Bytes &record = GetParam().bytes;
     const tlv_element_t element{{record.data(), 2}, {record.data() + record.size() - 3, 3}};
     const auto cppElement = core::from_c(element);
     const auto cppFormat = core::from_c(format);
@@ -275,7 +246,7 @@ TEST_P(FixedRoundTrip, ReportsShortAppendsBeyondAOneBytePosition)
     }
 }
 
-INSTANTIATE_TEST_SUITE_P(WireLayouts, FixedRoundTrip, testing::ValuesIn(layouts),
+INSTANTIATE_TEST_SUITE_P(WireLayouts, FixedRoundTrip, testing::ValuesIn(baseline::records),
                          testing::PrintToStringParamName{});
 
 } // namespace

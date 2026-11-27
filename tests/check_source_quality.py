@@ -51,9 +51,9 @@ def tool_path(check):
 def analysis_inputs(files):
     groups = {"c": set(), "c++": set()}
     for path in files:
-        if path in (Path("tests/abi/core.h"), Path("tests/abi/io.h")):
+        if path.parent.parent == Path("tests/baselines") and path.name in ("core.h", "io.h"):
             # These X-macro lists require the consumer's types and macro definition.
-            groups["c++"].add(Path("tests/abi_layout.cpp"))
+            groups["c++"].add(path.with_name("abi_layout.cpp"))
         elif path.suffix == ".c":
             groups["c"].add(path)
         elif path.suffix == ".h" and path != Path("tests/io/expect_view.h"):
