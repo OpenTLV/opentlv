@@ -283,7 +283,7 @@ these files in `fixed-tlv-resource-usage-static` and `fixed-tlv-resource-usage-s
 | --- | --- | --- |
 | `tests/core/` | `core` | Fixed length fields of 1–8 bytes in both byte orders, size limits, borrowed values and result codes. |
 | `tests/io/` | `io` | One-shot and cursor operations, bounds, diagnostic offsets, and preservation of outputs and committed bytes on error. |
-| `tests/integration/` | `integration` | Literal wire vectors, adjacent elements with every prefix of the final element, and binary round trips with 1-, 2- and 9-byte tags. Each length layout uses seed `0x26f1` and payloads of up to 513 bytes. |
+| `tests/integration/` | `integration` | Literal wire vectors, binary round trips, every prefix of a final record, and writer capacities from zero remaining bytes through exact fit at a stream offset above 255. |
 
 CTest discovers individual GoogleTest cases after the build. List them with
 `-N`, select a suite by label with `-L`, or filter case names with `-R`.
@@ -297,6 +297,23 @@ ctest --test-dir build-tests -C Debug -R "^CoreSize[.]ReportsOverflowAndPreserve
 
 Use `-L "^integration$"` for end-to-end tests. The [behavioral scenario
 inventory](test-scenarios.md) maps individual contracts to their test cases.
+
+To reproduce a property failure, use the CTest name in the failure output.
+For example, this runs the short-append property for one wire layout.
+
+```sh
+ctest --test-dir build-tests -C Debug -R "^WireLayouts/FixedRoundTrip[.]ReportsShortAppendsBeyondAOneBytePosition/LittleEndian2$" --output-on-failure
+```
+
+For `LittleEndian2`, 37 seven-byte records put the cursor at byte 259.
+A short append must report offset 259 and preserve the committed bytes.
+In a local regression check, casting the short-write diagnostic offset to
+`uint8_t` made this case report 3. All 16 layouts detected the regression.
+The failure trace reports the committed and remaining byte counts.
+
+Rerunning the binary round-trip case for the reported layout regenerates
+the same 1-, 2- and 9-byte tags and payloads of up to 513 bytes with seed
+`0x26f1`. Its trace identifies the seed, tag width and payload size.
 
 ### Add a case
 
@@ -313,9 +330,9 @@ in the [public API coverage table](coverage.md#public-api-behavior).
 
 The CI runner executes the full suite and requires a passing case under each
 of the three labels. It also checks the JUnit results for specific C/C++17
-Core and IO cases and for both cross-language round-trip and truncated-stream
-cases in all 16 wire layouts. A missing or skipped required case fails the
-run. For the targets in the matrix, `--require-x86` or `--require-x64`
+Core and IO cases and for cross-language round trips, truncated streams and
+short appends beyond byte 255 in all 16 wire layouts. A missing or skipped
+required case fails the run. For the targets in the matrix, `--require-x86` or `--require-x64`
 also requires a passing ABI layout check and the named native-size boundary
 cases for that architecture. The runner prints passing and discovered test
 counts and writes `junit.xml`, `ctest.log` and `toolchain.txt` to the report

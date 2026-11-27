@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added C and C++17 regression checks for short Fixed TLV appends past byte 255 across all 16 wire layouts, covering diagnostic offsets, cursor positions and destination bytes. (#90)
 - Added Memcheck checks for Fixed TLV Core and IO, gave integration test reports readable wire-layout labels, and documented the C/C++ coverage gap in managed CodeQL. (#89)
 - Added local and CI checks with clang-format, clang-tidy and Cppcheck for first-party C99 and C++17 sources, headers, examples and test tooling. (#88)
 - Added Clang x64 Release and MSVC x64 Debug contract runs, with required ABI and native-size checks and compiler version reports across the x86 and x64 CI matrix. (#87)

@@ -26,15 +26,13 @@ an individual case, or a single wire layout with CTest.
 | Append with a saved format, retry a short append and borrow input from a committed prefix. Reject a 256-byte value for a one-byte length, then append 255 bytes. Check cursor, count and destination on descriptor, format, range and capacity errors. | `IOWriter` and `IOWrite.SizingQueriesValidateWireAndNativeLimits` in [writer_test.cpp](../tests/io/writer_test.cpp) |
 | Report the truncated tag, length or value with required and available counts. Check offsets from a supplied slice and from the start of a stream. Accept every one-byte tag and length value. Clear stale diagnostic fields on success, end and argument errors. | `ReadDiagnostic` in [diagnostic_test.cpp](../tests/io/diagnostic_test.cpp) |
 | Report a short output against the whole element, including the offset after an append. Check invalid descriptors, wire and native size errors, cleared details and calls with an omitted diagnostic. | `WriteDiagnostic` in [diagnostic_test.cpp](../tests/io/diagnostic_test.cpp) |
-| Check golden bytes and read each C and C++17 writer's bounded binary output with the other language's reader. Compare borrowed views and cursor positions at every prefix of the final record, including end and truncation. | `FixedRoundTrip` in [fixed_round_trip_test.cpp](../tests/integration/fixed_round_trip_test.cpp) |
+| Encode and decode literal wire bytes. Generate eight payload sizes from 0 to 513 bytes. Each language reads the other's output when the length fits, and both writers reject a length that exceeds 255 in a one-byte field. Compare borrowed views and cursor positions at every cut of a final record after a committed empty element. | `FixedRoundTrip.ReadsAndWritesGoldenBytes`, `RoundTripsBoundedBinaryValuesAtLengthBoundaries` and `CommitsOnlyCompleteRecordsInAnAdjacentStream` in [fixed_round_trip_test.cpp](../tests/integration/fixed_round_trip_test.cpp) |
+| Append copies of a literal record until the cursor first passes byte 255. Try the next append at every remaining capacity from zero through exact fit. Check both writers' positions, destination bytes, guards and diagnostics against the known record boundary and size. | `FixedRoundTrip.ReportsShortAppendsBeyondAOneBytePosition` in [fixed_round_trip_test.cpp](../tests/integration/fixed_round_trip_test.cpp) |
 
-The [public-header check](../tests/check_public_api.py) compiles headers in
-isolation and checks compiler diagnostics. The [package
-check](../tests/check_cmake_package.py) builds and runs C99 and C++17
-consumers of each exported target against both the build tree and a relocated
-installation. For static and shared libraries, it also checks the output of
-the installed-package examples.
+## ABI, fuzz and coverage checks
 
-The [production coverage gate](coverage.md) checks the executed code
-alongside this inventory. It measures each production translation unit and
-requires a passing behavioral test for every public function.
+| Regression risk | Gate and evidence |
+| --- | --- |
+| A public declaration, record layout or library export changes. | `abi-layout` checks C signatures, enum values, sizes, alignments and member offsets on x86 and x64. The [header probes](../tests/check_public_api.py) compile each header in isolation and check diagnostics. The [package checks](../tests/check_cmake_package.py) build and run C99 and C++17 consumers against build-tree and relocated static and shared libraries, verify installed examples' output and compare symbols with their inventories. [ABI verification](api-abi.md#visibility-and-verification) |
+| Unexpected wire bytes or capacities break a C reader or writer contract. | Both libFuzzer targets replay their checked-in inputs before bounded mutation under ASan/UBSan. The reader compares each record with an independent decoder. The writer checks encoded bytes and cursor state against the expected result for the available capacity. A saved failure input can be passed directly to its target. [Fuzz inputs and replay](../tests/fuzz/README.md) |
+| A production path loses execution coverage or a public function loses its behavioral check. | The GCC/gcov gate requires 100% of reachable lines and branch outcomes. Every public function must execute and its mapped behavioral test must pass. CI compares two fresh reports byte for byte. The two reviewed branch exclusions concern states rejected by cursor initialization. [Coverage thresholds and exclusions](coverage.md) |

@@ -16,7 +16,11 @@ CPP_EQUIVALENCE_CASES = {
     "CppWriter.AppendsEmptyAndNonEmptyValuesAcrossAnInvalidElement",
 } | {
     f"WireLayouts/FixedRoundTrip.{case}/{order}{width}"
-    for case in ("RoundTripsBoundedBinaryValuesAtLengthBoundaries", "CommitsOnlyCompleteRecordsInAnAdjacentStream")
+    for case in (
+        "RoundTripsBoundedBinaryValuesAtLengthBoundaries",
+        "CommitsOnlyCompleteRecordsInAnAdjacentStream",
+        "ReportsShortAppendsBeyondAOneBytePosition",
+    )
     for order in ("BigEndian", "LittleEndian")
     for width in range(1, 9)
 }
