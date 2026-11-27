@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from check_doc_examples import code_block, readme_outputs, write_cpp_examples
 from check_symbols import check_symbols
 from release_baseline import public_headers
 
@@ -63,7 +64,7 @@ def runtime_environment(prefix):
     return env
 
 
-def check_consumers(work, location, include_root, shared, mode="find_package"):
+def check_consumers(work, location, include_root, shared, mode="find_package", doc_examples=None):
     library_type = "SHARED_LIBRARY" if shared else "STATIC_LIBRARY"
     options = [f"-DCONSUMPTION_MODE={mode}", f"-DEXPECTED_LIBRARY_TYPE={library_type}",
                f"-DHEADER_INVENTORY_ROOT={include_root}"]
@@ -82,12 +83,48 @@ def check_consumers(work, location, include_root, shared, mode="find_package"):
         env = None
     for language in ("C", "CXX"):
         consumer = work / language
+        if language == "CXX" and doc_examples:
+            options.append(f"-DDOC_EXAMPLES_DIR:PATH={doc_examples}")
         # Keep embedded DLLs beside the consumer executables on Windows.
         build_project(ROOT / "tests" / "package", consumer, f"-DCONSUMER_LANGUAGE={language}",
                       f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={consumer / 'bin'}",
                       *options, c_only=(language == "C"))
         subprocess.run(["ctest", "-C", "Release", "--output-on-failure"],
                        cwd=consumer, env=env, check=True)
+
+
+def check_documented_output(executable, expected, env):
+    if os.name == "nt":
+        executable = executable.with_suffix(".exe")
+    output = subprocess.check_output([executable], env=env, text=True)
+    if output != expected + "\n":
+        raise SystemExit(f"{executable.name}: expected {expected!r}, got {output!r}")
+    print(f"{executable.name}: {expected}")
+
+
+def check_readme_examples(work, prefix):
+    readme = ROOT / "README.md"
+    programs = {"example": "examples/write.c", "opentlv-write": "examples/write.c",
+                "opentlv-write-cpp": "examples/write.cpp", "opentlv-read": "examples/read.cpp"}
+    outputs = readme_outputs(readme, set(programs.values()))
+    env = runtime_environment(prefix)
+    binaries = work / "example binaries"
+    options = [f"-DCMAKE_PREFIX_PATH={prefix}", f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={binaries}"]
+
+    source = work / "README consumer"
+    source.mkdir()
+    (source / "CMakeLists.txt").write_text(code_block(readme, "Use the installed package", "cmake"),
+                                          encoding="utf-8")
+    shutil.copy2(ROOT / "examples" / "write.c", source)
+    package_dir = next(prefix.rglob("OpenTLVConfig.cmake")).parent
+    for project, build in ((source, work / "README build"), (ROOT / "examples", work / "examples")):
+        build_project(project, build, *options, c_only=(project == source))
+        cache = (build / "CMakeCache.txt").read_text(encoding="utf-8")
+        found = re.search(r"^OpenTLV_DIR:PATH=(.+)$", cache, re.MULTILINE)
+        if not found or Path(found[1]).resolve() != package_dir.resolve():
+            raise SystemExit(f"{build}: expected find_package to select {package_dir}")
+    for name, path in programs.items():
+        check_documented_output(binaries / name, outputs[path], env)
 
 
 def check_package(work, shared, audit_symbols=False):
@@ -115,22 +152,11 @@ def check_package(work, shared, audit_symbols=False):
     prefix.rename(relocated)
 
     check_install_tree(relocated, (ROOT, source, build, prefix))
-    check_consumers(work / "relocated consumers", relocated, relocated / "include", shared)
-
-    package_config = next(relocated.rglob("OpenTLVConfig.cmake"))
-    binaries = work / "example binaries"
-    build_project(ROOT / "examples", work / "examples", f"-DOpenTLV_DIR={package_config.parent}",
-                  f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={binaries}")
-    env = runtime_environment(relocated)
-    for name, expected in (("opentlv-write", "12 34 00 03 AA BB CC"),
-                           ("opentlv-write-cpp", "12 34 00 03 AA BB CC"),
-                           ("opentlv-read", "tag 12 34, value AA BB CC")):
-        executable = binaries / (name + ".exe" if os.name == "nt" else name)
-        output = subprocess.run([executable], env=env, stdout=subprocess.PIPE,
-                                text=True, check=True).stdout
-        if output != expected + "\n":
-            raise SystemExit(f"{name}: expected {expected!r}, got {output!r}")
-        print(f"{name}: {expected}")
+    doc_examples = work / "guide examples"
+    write_cpp_examples(doc_examples)
+    check_consumers(work / "relocated consumers", relocated, relocated / "include", shared,
+                    doc_examples=doc_examples)
+    check_readme_examples(work, relocated)
 
 
 if __name__ == "__main__":

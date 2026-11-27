@@ -38,8 +38,8 @@ python3 -B tests/run_quality.py contracts --work-dir build/quality
 ```
 
 This builds Debug and Release with Ninja Multi-Config and runs each through
-`tests/run_ctest.py --require-x64`. Inspect `junit.xml`, `ctest.log` and
-`toolchain.txt` under `build/quality/ctest-reports/{Debug,Release}/`.
+`tests/run_ctest.py --require-x64`. Inspect `junit.xml`, `ctest.log`,
+`toolchain.txt` and `passed-cases.txt` under `build/quality/ctest-reports/{Debug,Release}/`.
 The `--work-dir` option selects the build and report location and defaults
 to `build/quality`. Use a fresh directory when changing compiler or revision.
 The [compiler matrix](testing.md#compiler-and-architecture-matrix) identifies
@@ -77,6 +77,50 @@ commands. CMake checks their pinned SHA-256 hashes. On Windows x64, the
 same requirements file supplies a clang-format wheel for the format check.
 Use the [Windows test instructions](testing.md#windows-x86-and-x64) for
 MSVC Win32 Release and x64 Debug.
+
+## Release documentation and examples
+
+From a clean candidate checkout, run the README's [installation](../README.md#build-and-install)
+and [example commands](../README.md#run-the-examples). For a shared build,
+choose a fresh build directory and installation prefix and configure with
+`-DBUILD_SHARED_LIBS=ON`. Use the same prefix for the consumer.
+Run the release package check for each linkage.
+
+```sh
+python3 -B tests/check_cmake_package.py --check-symbols
+python3 -B tests/check_cmake_package.py --shared --check-symbols
+```
+
+In each relocated installation, the README's CMake project must build with
+only C enabled. Its writer and the three programs in `examples/` must print
+the output in the README table. The check builds both C++17 API guide
+programs and runs them through the `doc-core` and `doc-io` CTest cases
+to verify the documented element size, bytes consumed and borrowed views.
+
+The README recipes passed locally with static and shared installations on
+Linux x64 (GCC 15.2) and on Windows x64 and Win32 (MSVC 19.52). The
+Windows x64 run used CMake 3.15.7. Each profile ran the writer using the
+installed package, the build tree, `add_subdirectory`, and `FetchContent`
+with both a local checkout and a source archive.
+
+The link audit uses the organization's Markdown checker. The commands
+below use Python 3.12 and Bash from the candidate checkout.
+
+```bash
+git clone --depth 1 --branch v0.1.0 https://github.com/OpenTLV/.github.git build/quality/governance
+git -C build/quality/governance checkout --detach db813248c730dd29b217ad90d6a85a562ed98cd6
+python3.12 -m venv build/quality/doc-tools
+build/quality/doc-tools/bin/python -m pip install PyYAML==6.0.3
+build/quality/doc-tools/bin/python -B tests/check_doc_links.py build/quality/governance
+```
+
+The audit checks file names and heading fragments in the README, changelog,
+guides and test documentation. It also resolves organization policy links
+in the pinned governance checkout. Check the live policy links and other
+external URLs separately and record any that require authentication.
+Check the package version against the root
+`CMakeLists.txt` and the [supported platform table](testing.md#compiler-and-architecture-matrix)
+against the jobs in the [Fixed TLV workflow](../.github/workflows/fixed-tlv.yml).
 
 ## Performance checks
 
@@ -124,7 +168,9 @@ the comparison. Review timing changes alongside the raw measurements.
    results for `add_subdirectory` and `FetchContent`, then the versioned
    `find_package` results for the build tree, original install prefix and
    relocated prefix. Check the Core and IO symbol counts and the three
-   example outputs. Compare the repeat contract results for each ABI profile
+   example outputs, the README consumer and both C++17 guide cases. Include
+   the [documentation link audit](#release-documentation-and-examples) in
+   the candidate evidence. Compare the repeat contract results for each ABI profile
    using the [v0.1.0 release baseline](api-abi.md#compare-a-release-candidate).
    Verify `fixed-tlv-quality` and each worker in the
    [workflow matrix](governance.md#continuous-integration) passed, including

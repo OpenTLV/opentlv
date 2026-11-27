@@ -30,7 +30,7 @@ Build the libraries with CMake 3.15 or newer and a C99 compiler. Replace
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
-cmake --install build --config Release --prefix /path/to/opentlv
+cmake --install build --config Release --prefix "/path/to/opentlv"
 ```
 
 The default build produces static libraries. For shared libraries, add
@@ -71,7 +71,7 @@ After installing OpenTLV, run these commands from the repository root with
 a C99 and a C++17 compiler. Use the same installation prefix as above.
 
 ```sh
-cmake -S examples -B build-examples -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/path/to/opentlv
+cmake -S examples -B build-examples -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=/path/to/opentlv"
 cmake --build build-examples --config Release
 cd build-examples
 ctest -C Release -V
@@ -111,7 +111,7 @@ From the consumer directory, configure with the installation prefix and build
 the executable.
 
 ```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=/path/to/opentlv
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release "-DCMAKE_PREFIX_PATH=/path/to/opentlv"
 cmake --build build --config Release
 ```
 
