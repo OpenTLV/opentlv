@@ -6,6 +6,15 @@ a full Git checkout. These tools are optional for consumers. The default
 production build requires CMake 3.15 or newer and a C99 compiler and
 configures offline.
 
+To test the quality runner itself, run the following command from the repository
+root. The tests use Python's standard library, mocked tools and temporary
+performance reports. The `first-party-analysis` job runs them alongside the
+source analysis tests.
+
+```sh
+python3 -B -m unittest discover -s tests -p "test_run_quality*.py"
+```
+
 ## Start from a clean checkout
 
 Use Bash on Ubuntu 24.04 x86-64 to reproduce the Linux jobs. Install Git
