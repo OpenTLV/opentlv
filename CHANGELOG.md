@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added release package checks that build and run C99 and C++17 consumers at both the original and relocated install prefixes after removing the library source and build trees, and verify C-only production builds with FetchContent disconnected. (#99)
 - Added offline regression tests for the contributor quality runner's commands, failure exit codes and performance revision checks. (#98)
 - Added local commands for the Fixed TLV contract, formatting, static analysis and performance checks used in CI, and documented the Full CI evidence required for a release candidate. (#91)
 - Added C and C++17 regression checks for short Fixed TLV appends past byte 255 across all 16 wire layouts, covering diagnostic offsets, cursor positions and destination bytes. (#90)

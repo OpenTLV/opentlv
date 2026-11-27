@@ -1,8 +1,9 @@
-"""Run consumers against build-tree and relocated OpenTLV packages and check the examples."""
+"""Run consumers against build-tree, installed and relocated OpenTLV packages."""
 
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 from pathlib import Path
@@ -18,10 +19,17 @@ TEST_COMPONENT = re.compile(
 )
 
 
-def build_project(source, build, *options):
+def build_project(source, build, *options, c_only=False):
+    env = os.environ.copy()
+    if c_only:
+        env["CXX"] = "opentlv-unavailable-cxx"
+        options += ("-DFETCHCONTENT_FULLY_DISCONNECTED:BOOL=ON",)
     subprocess.run(["cmake", "-S", source, "-B", build, "-DCMAKE_BUILD_TYPE=Release",
-                    *options], check=True)
-    subprocess.run(["cmake", "--build", build, "--config", "Release"], check=True)
+                    *options], env=env, check=True)
+    # IDE generators can select their own C++ compiler independently of CXX.
+    if c_only and any((build / "CMakeFiles").glob("*/CMakeCXXCompiler.cmake")):
+        raise SystemExit(f"C-only configuration enabled C++: {build}")
+    subprocess.run(["cmake", "--build", build, "--config", "Release"], env=env, check=True)
 
 
 def check_install_tree(relocated, private_paths):
@@ -55,31 +63,39 @@ def runtime_environment(prefix):
     return env
 
 
-def check_consumers(work, package_prefix):
+def check_consumers(work, package_prefix, include_root):
     for language in ("C", "CXX"):
         consumer = work / language
         build_project(ROOT / "tests" / "package", consumer, f"-DCONSUMER_LANGUAGE={language}",
-                      f"-DPACKAGE_PREFIX={package_prefix}")
+                      f"-DPACKAGE_PREFIX={package_prefix}", f"-DHEADER_INVENTORY_ROOT={include_root}",
+                      c_only=(language == "C"))
         subprocess.run(["ctest", "-C", "Release", "--output-on-failure"],
                        cwd=consumer, env=runtime_environment(package_prefix), check=True)
 
 
 def check_package(work, shared, audit_symbols=False):
-    build = work / "library"
     prefix = work / "original install"
     relocated = work / "relocated install"
-    build_project(ROOT, build, "-DBUILD_TESTING=OFF", f"-DCMAKE_INSTALL_PREFIX={prefix}",
-                  f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={build / 'bin'}",
-                  "-DBUILD_SHARED_LIBS=" + ("ON" if shared else "OFF"))
-    check_consumers(work / "build-tree consumers", build)
+    # Only the installation survives this scope. Both installed consumer runs
+    # must resolve their headers, libraries and runtime dependencies from it.
+    with tempfile.TemporaryDirectory(dir=work) as directory:
+        source = Path(directory) / "src"
+        build = Path(directory) / "build"
+        shutil.copytree(ROOT, source, symlinks=True,
+                        ignore=shutil.ignore_patterns(".git", "build", "build-*", "__pycache__", work.name))
+        build_project(source, build, f"-DCMAKE_INSTALL_PREFIX={prefix}",
+                      f"-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE={build / 'bin'}",
+                      "-DBUILD_SHARED_LIBS=" + ("ON" if shared else "OFF"), c_only=True)
+        check_consumers(work / "build-tree consumers", build, source / "include")
+        subprocess.run(["cmake", "--install", build, "--config", "Release"], check=True)
+        if audit_symbols:
+            check_symbols(prefix, shared, build)
 
-    subprocess.run(["cmake", "--install", build, "--config", "Release"], check=True)
+    check_consumers(work / "installed consumers", prefix, prefix / "include")
     prefix.rename(relocated)
 
-    check_install_tree(relocated, (ROOT, build, prefix))
-    if audit_symbols:
-        check_symbols(relocated, shared, build)
-    check_consumers(work / "installed consumers", relocated)
+    check_install_tree(relocated, (ROOT, source, build, prefix))
+    check_consumers(work / "relocated consumers", relocated, relocated / "include")
 
     package_config = next(relocated.rglob("OpenTLVConfig.cmake"))
     binaries = work / "example binaries"
