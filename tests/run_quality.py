@@ -43,7 +43,7 @@ def analysis(work):
         "--clang-arg=--gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/13",
         "--system-include", build / "_deps/googletest-src/googletest/include",
         "--system-include", build / "_deps/googlebenchmark-src/include")
-    run(sys.executable, "-B", "tests/test_source_quality.py")
+    run(sys.executable, "-B", "-m", "unittest", "discover", "-s", "tests", "-p", "test_*quality*.py")
 
 
 def compare_performance(reports, output, candidate):

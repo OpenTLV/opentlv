@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added offline regression tests for the contributor quality runner's commands, failure exit codes and performance revision checks. (#98)
 - Added local commands for the Fixed TLV contract, formatting, static analysis and performance checks used in CI, and documented the Full CI evidence required for a release candidate. (#91)
 - Added C and C++17 regression checks for short Fixed TLV appends past byte 255 across all 16 wire layouts, covering diagnostic offsets, cursor positions and destination bytes. (#90)
 - Added Memcheck checks for Fixed TLV Core and IO, gave integration test reports readable wire-layout labels, and documented the C/C++ coverage gap in managed CodeQL. (#89)
